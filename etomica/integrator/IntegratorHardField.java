@@ -1,21 +1,21 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.box.Box;
-import etomica.potential.IPotential;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.
@@ -38,11 +38,11 @@ public final class IntegratorHardField extends IntegratorHard {
 	    }
     };
 
-    public IntegratorHardField(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorHardField(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
-    public IntegratorHardField(PotentialMaster potentialMaster, IRandom random,
+    public IntegratorHardField(IPotentialMaster potentialMaster, IRandom random,
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
@@ -70,7 +70,7 @@ public final class IntegratorHardField extends IntegratorHard {
         calculateForces();
         
         double t2 = 0.5*tStep*tStep;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -85,7 +85,7 @@ public final class IntegratorHardField extends IntegratorHard {
         }
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         super.setBox(newBox);
         forceSum.setAgentManager(agentManager);
     }
@@ -98,7 +98,7 @@ public final class IntegratorHardField extends IntegratorHard {
     private void calculateForces() {
         
         //Compute all forces
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -116,7 +116,7 @@ public final class IntegratorHardField extends IntegratorHard {
     */
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -182,7 +182,7 @@ public final class IntegratorHardField extends IntegratorHard {
 		public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 			super.doCalculation(iterator,potential);
             iterator.reset();
-            for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
+            for (IAtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
                 ((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
             }
 		}

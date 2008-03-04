@@ -5,9 +5,9 @@ package etomica.virial;
 
 import etomica.action.AtomAction;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IMolecule;
 import etomica.models.water.SpeciesWater3P;
 import etomica.space.Space;
 

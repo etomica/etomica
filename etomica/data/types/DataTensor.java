@@ -1,5 +1,6 @@
 package etomica.data.types;
 
+import etomica.api.IFunction;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
@@ -9,7 +10,6 @@ import etomica.data.IDataInfoFactory;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
-import etomica.util.Function;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Tensor. Value is
@@ -109,7 +109,7 @@ public class DataTensor implements Data, java.io.Serializable {
      * Maps the function on all vector elements, replacing each with the value
      * given by the function applied to it.
      */
-    public void map(Function function) {
+    public void map(IFunction function) {
         x.map(function);
     }
 

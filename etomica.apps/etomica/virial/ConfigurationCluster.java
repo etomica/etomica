@@ -1,10 +1,11 @@
 package etomica.virial;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
+
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -25,10 +26,10 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
     //XXX this can't actually handle multi-atom molecules
-	public void initializeCoordinates(Box box) {
+	public void initializeCoordinates(IBox box) {
         IVector dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getDimensions());
-		AtomSet moleculeList = box.getMoleculeList();
+		IAtomSet moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getAtomCount(); i++) {
             // initialize coordinates of child atoms
 		    IMolecule a = (IMolecule)moleculeList.getAtom(i);

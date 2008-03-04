@@ -2,6 +2,7 @@ package etomica.data.types;
 
 import java.util.Arrays;
 
+import etomica.api.IFunction;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
@@ -9,7 +10,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
-import etomica.util.Function;
 
 /**
  * Data object that wraps a mutable array of doubles. Data may be treated alternately as a simple 
@@ -212,7 +212,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
     /**
      * Replaces all values by the value of the function applied to each.
      */
-    public void map(Function function) {
+    public void map(IFunction function) {
         for (int i = 0; i < x.length; i++) {
             x[i] = function.f(x[i]);
         }

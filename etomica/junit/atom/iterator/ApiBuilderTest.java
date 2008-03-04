@@ -2,22 +2,22 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.Molecule;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 
 /**
  * Tests the iterators made by the various static methods in ApiBuilder.
@@ -90,12 +90,12 @@ public class ApiBuilderTest extends IteratorTestAbstract {
                 new int[][] {{3,2},{4,1,6}});
         ISpecies species0 = sim.getSpeciesManager().getSpecies()[0];
         ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
-        AtomType[] types = new AtomType[2];
+        IAtomType[] types = new IAtomType[2];
         AtomPair basisPair = new AtomPair();
 
         IBox box = sim.getBoxs()[0];
-        AtomSet moleculeList0 = box.getMoleculeList(species0);
-        AtomSet moleculeList1 = box.getMoleculeList(species1);
+        IAtomSet moleculeList0 = box.getMoleculeList(species0);
+        IAtomSet moleculeList1 = box.getMoleculeList(species1);
         AtomTypeMolecule moleculeType0 = species0.getMoleculeType();
         AtomTypeMolecule moleculeType1 = species1.getMoleculeType();
         
@@ -270,7 +270,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
-        AtomSet moleculeList = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
+        IAtomSet moleculeList = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
         parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5
         targetFirst = moleculeList.getAtom(0);//atom0 
@@ -294,7 +294,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         parent = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(2);
-        AtomSet childList = ((IMolecule)parent).getChildList();
+        IAtomSet childList = ((IMolecule)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);
         targetLast = childList.getAtom(9);

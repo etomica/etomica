@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 
 /**
  * Interface for classes that apply some elementary action (transformation) to a

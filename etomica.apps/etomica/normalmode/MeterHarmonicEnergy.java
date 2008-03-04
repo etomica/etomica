@@ -2,8 +2,9 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -58,7 +59,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         realT = new double[coordinateDim];
@@ -108,11 +109,11 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
 
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L), sim.getSpace());
+        IBox box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L), sim.getSpace());
         sim.addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        AtomSet atoms = box.getLeafList();
+        IAtomSet atoms = box.getLeafList();
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 

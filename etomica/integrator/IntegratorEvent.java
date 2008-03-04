@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.api.IIntegrator;
 import etomica.util.EnumeratedType;
 
 /**

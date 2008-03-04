@@ -1,8 +1,13 @@
 package etomica.atom;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
+import etomica.api.IMolecule;
+
 public class Molecule extends Atom implements IMolecule {
 
-    public Molecule(AtomType type) {
+    public Molecule(IAtomType type) {
         super(type);
         childList = new AtomArrayList();
         assignChildOrdinals();
@@ -103,7 +108,7 @@ public class Molecule extends Atom implements IMolecule {
     /**
      * @return the childList
      */
-    public final AtomSet getChildList() {
+    public final IAtomSet getChildList() {
         return childList;
     }
 

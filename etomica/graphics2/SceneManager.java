@@ -1,19 +1,18 @@
 package etomica.graphics2;
 
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
@@ -41,7 +40,7 @@ public final class SceneManager {
     public void updateAtomPositions() {
         if(!isVisible() || getBox() == null) return;
         // Create graphical object for the boundary
-        Boundary bnd = box.getBoundary();
+        IBoundary bnd = box.getBoundary();
         Polytope shape = bnd.getShape();
         boolean needUpdate = false;
         IVector[] newVertices = shape.getVertices();
@@ -93,7 +92,7 @@ public final class SceneManager {
         }
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         if (newBox == box) {
             return;
         }
@@ -176,7 +175,7 @@ public final class SceneManager {
 
     protected AtomFilter atomFilter;
     protected double scale;
-    protected Box box;
+    protected IBox box;
     protected IVector[] boundaryVertices;
     protected IVector from, to;
     

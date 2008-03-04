@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 
 /**
  * Static iterator that returns no atoms.
@@ -23,7 +23,7 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
 
     public void allAtoms(AtomAction action) {}
 
-    public AtomSet next() {return null;}
+    public IAtomSet next() {return null;}
 
     public IAtom nextAtom() {return null;}
 

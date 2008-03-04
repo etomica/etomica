@@ -1,12 +1,13 @@
 package etomica.models.hexane;
 
-import etomica.action.Action;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
+
+import etomica.action.Action;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
@@ -18,7 +19,7 @@ import etomica.space.Space;
  */
 public class CheckCBMCHexane implements Action {
 
-    public CheckCBMCHexane(Box p, PotentialMaster potentialMaster, Space space) {
+    public CheckCBMCHexane(IBox p, PotentialMaster potentialMaster, Space space) {
         box = p;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setBox(box);
@@ -48,10 +49,10 @@ public class CheckCBMCHexane implements Action {
         // System.out.println("NRG chk");
 
         // Check that bond lengths are 0.4;
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            AtomSet atomList = molecule.getChildList();
+            IAtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -70,7 +71,7 @@ public class CheckCBMCHexane implements Action {
         tol = 0.0000005;
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            AtomSet atomList = molecule.getChildList();
+            IAtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -92,7 +93,7 @@ public class CheckCBMCHexane implements Action {
         double makeGood;
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            AtomSet atomList = molecule.getChildList();
+            IAtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -161,7 +162,7 @@ public class CheckCBMCHexane implements Action {
 
     MeterPotentialEnergy energyMeter;
 
-    Box box;
+    IBox box;
 
     AtomIteratorAllMolecules moleculeIterator;
 

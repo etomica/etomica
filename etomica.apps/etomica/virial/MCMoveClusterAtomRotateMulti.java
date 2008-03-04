@@ -1,12 +1,13 @@
 package etomica.virial;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IRandom;
+
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.PotentialMaster;
 import etomica.space.IOrientation;
-import etomica.util.IRandom;
 
 /**
  * Extension of MCMoveAtom that does trial in which several atom orientations are
@@ -25,7 +26,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         setStepSize(1.2);
 	}
 	
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
     }
@@ -52,7 +53,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     }
     
     public void selectAtoms() {
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int total = leafList.getAtomCount();
     	for(int i=1; i<total; i++) {
     		selectedAtoms[i-1] = (IAtomOriented)leafList.getAtom(i);

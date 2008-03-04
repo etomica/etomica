@@ -1,9 +1,9 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
 import etomica.atom.MoleculeOrientedDynamic;
-import etomica.box.Box;
 import etomica.models.water.P2WaterSPCSoft;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Tensor;
@@ -62,7 +62,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         return rCutoff;
     }
 
-    public IVector[][] gradientAndTorque(AtomSet atoms) {
+    public IVector[][] gradientAndTorque(IAtomSet atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -142,15 +142,15 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         }
     }
     
-    public IVector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(IAtomSet atoms) {
         return gradientAndTorque(atoms)[0];
     }
 
-    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
         return gradientAndTorque(atoms)[0];
     }
     
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -164,7 +164,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         return u;
     }
     
-    public double virial(AtomSet atoms) {
+    public double virial(IAtomSet atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
@@ -178,7 +178,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
      */
     public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         potential.setBox(newBox);
         nearestImageTransformer = newBox.getBoundary();
     }

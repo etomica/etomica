@@ -1,5 +1,7 @@
 package etomica.species;
 
+import etomica.api.ISpecies;
+
 
 /**
  * @author andrew

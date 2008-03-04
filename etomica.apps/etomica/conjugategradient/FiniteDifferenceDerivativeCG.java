@@ -1,11 +1,12 @@
 package etomica.conjugategradient;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+
 import etomica.action.Activity;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
@@ -26,7 +27,7 @@ public class FiniteDifferenceDerivativeCG {
 	 * @author Tai Tan
 	 */
 	
-	protected Box box;
+	protected IBox box;
 	protected MeterPotentialEnergy meterEnergy;
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
@@ -40,7 +41,7 @@ public class FiniteDifferenceDerivativeCG {
 	
 	private final Space space;
 	
-	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster,
+	public FiniteDifferenceDerivativeCG(IBox box, PotentialMaster potentialMaster,
 			             AnalyticalDerivativeEnergyParacetamol derivativeFunction,
 			             Space _space){
 		this.box = box;

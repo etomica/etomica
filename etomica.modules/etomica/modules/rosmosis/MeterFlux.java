@@ -1,13 +1,16 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IIntegratorNonintervalListener;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
+
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -17,9 +20,8 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.integrator.IntegratorNonintervalListener;
 import etomica.space.Space;
-import etomica.species.ISpecies;
+
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -39,7 +41,7 @@ import etomica.units.Time;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements DataSource, AgentSource, IntegratorNonintervalListener {
+public class MeterFlux implements DataSource, AgentSource, IIntegratorNonintervalListener {
 
     public MeterFlux(Space _space) {
     	this.space = _space;
@@ -75,7 +77,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         return species;
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         if (integrator != null) {
             if (integrator instanceof IntegratorMD) {
@@ -120,7 +122,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         int crossings = 0;
         double boxLength = box.getBoundary().getDimensions().x(dim);
         for (int i=0; i<species.length; i++) {
-            AtomSet molecules = box.getMoleculeList(species[i]);
+            IAtomSet molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 IAtom atom = molecules.getAtom(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));
@@ -201,7 +203,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;
     protected ISpecies[] species;
-    protected Box box;
+    protected IBox box;
     protected double[] boundaries;
     protected int[] boundaryCoefficients;
     protected int dim;

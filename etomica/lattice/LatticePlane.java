@@ -1,9 +1,9 @@
 package etomica.lattice;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
 import etomica.space.Space;

@@ -1,9 +1,10 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IIntegrator;
+import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.util.IRandom;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid

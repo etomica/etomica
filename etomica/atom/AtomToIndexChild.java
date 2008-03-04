@@ -2,6 +2,8 @@ package etomica.atom;
 
 import java.io.Serializable;
 
+import etomica.api.IAtom;
+
 
 /**
  * Defines the index as the Atom's node's index.

@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -215,7 +216,7 @@ public class SimCalcSLJBCC extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public Box box;
+    public IBox box;
     public Boundary boundary;
     public Primitive primitive;
     public Basis basis;

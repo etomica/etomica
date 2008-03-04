@@ -2,9 +2,9 @@ package etomica.action;
 
 import java.io.Serializable;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.space.Space;
 
 /**

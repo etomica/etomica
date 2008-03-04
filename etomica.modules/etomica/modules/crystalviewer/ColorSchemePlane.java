@@ -1,8 +1,9 @@
 package etomica.modules.crystalviewer;
 import java.awt.Color;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+
 import etomica.graphics.ColorScheme;
 import etomica.lattice.LatticePlane;
 import etomica.space3d.Vector3D;

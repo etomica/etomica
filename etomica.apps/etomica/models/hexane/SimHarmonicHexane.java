@@ -3,6 +3,7 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -43,7 +44,7 @@ public class SimHarmonicHexane extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public Box box;
+    public IBox box;
 
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;

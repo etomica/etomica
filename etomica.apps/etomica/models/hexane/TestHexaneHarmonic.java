@@ -3,6 +3,7 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -325,7 +326,7 @@ public class TestHexaneHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public Box box;
+    public IBox box;
 
     public BoundaryDeformablePeriodic bdry;
  

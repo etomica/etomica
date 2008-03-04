@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 import etomica.atom.IAtomLeaf;
 
 /**
@@ -22,7 +22,7 @@ public class CriterionBondedSimple extends CriterionAdapter {
     }
     
     // always enforce intramolecularity
-    public boolean accept(AtomSet pair) {
+    public boolean accept(IAtomSet pair) {
         int diff = pair.getAtom(0).getIndex() - pair.getAtom(1).getIndex();
         if (isBonded != (diff == 1 || diff == -1) 
                 || (((IAtomLeaf)pair.getAtom(0)).getParentGroup() != ((IAtomLeaf)pair.getAtom(1)).getParentGroup())) {

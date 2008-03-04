@@ -1,10 +1,11 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.DipoleSource;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -66,18 +67,18 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         }
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         iDipole.E(dipoleSource.getDipole((IMolecule)atoms.getAtom(0)));
         double idotj = iDipole.dot(dipoleSource.getDipole((IMolecule)atoms.getAtom(1)));
 
         return -fac*idotj;
     }
     
-    public IVector[][] gradientAndTorque(AtomSet atoms) {
+    public IVector[][] gradientAndTorque(IAtomSet atoms) {
         iDipole.E(dipoleSource.getDipole((IMolecule)atoms.getAtom(0)));
 
         iDipole.XE((IVector3D)dipoleSource.getDipole((IMolecule)atoms.getAtom(1)));
@@ -90,15 +91,15 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         return gradientAndTorque;
     }
 
-    public IVector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(IAtomSet atoms) {
         return gradientAndTorque[0];
     }
 
-    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(AtomSet atoms) {
+    public double virial(IAtomSet atoms) {
         return 0;
     }
 
@@ -131,12 +132,12 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
     public static class P0ReactionField extends Potential0Lrc {
 
         public P0ReactionField(P2ReactionFieldDipole p) {
-            super(p.getSpace(), new AtomType[2], p);
+            super(p.getSpace(), new IAtomType[2], p);
             this.potential = p;
             gradient = new IVector[0];
         }
         
-        public double energy(AtomSet atoms) {
+        public double energy(IAtomSet atoms) {
             double epsilon = potential.getDielectric();
             double cutoff = potential.getRange();
             DipoleSource dipoleSource = potential.getDipoleSource();
@@ -147,7 +148,7 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
                 u = -0.5 * fac * iDipole.squared();
             }
             else {
-                AtomSet moleculeList = box.getMoleculeList();
+                IAtomSet moleculeList = box.getMoleculeList();
                 for (int i=0; i<moleculeList.getAtomCount(); i++) {
                     IVector iDipole = dipoleSource.getDipole((IMolecule)moleculeList.getAtom(i));
                     u += -0.5 * fac * iDipole.squared();
@@ -156,11 +157,11 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
             return u;
         }
         
-        public void setBox(Box newBox) {
+        public void setBox(IBox newBox) {
             box = newBox;
         }
         
-        public void setTargetAtoms(AtomSet atoms) {
+        public void setTargetAtoms(IAtomSet atoms) {
             if (atoms == null || atoms.getAtom(0) == null || !(atoms.getAtom(0) instanceof IMolecule)) {
                 targetAtom = null;
                 return;
@@ -168,15 +169,15 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
             targetAtom = (IMolecule)atoms.getAtom(0);
         }
         
-        public IVector[] gradient(AtomSet atoms) {
+        public IVector[] gradient(IAtomSet atoms) {
             return gradient;
         }
         
-        public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+        public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
             return gradient(atoms);
         }
         
-        public double virial(AtomSet atoms) {
+        public double virial(IAtomSet atoms) {
             return 0;
         }
 

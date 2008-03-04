@@ -1,5 +1,8 @@
 package etomica.dimer;
 
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
@@ -27,7 +30,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -46,7 +48,7 @@ public class SimDimerLJgb extends Simulation{
     public final PotentialMaster potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
-    public Box box;
+    public IBox box;
     public IVector [] saddle;
     public SpeciesSpheresMono fixed, movable;
     public P2LennardJones potential;

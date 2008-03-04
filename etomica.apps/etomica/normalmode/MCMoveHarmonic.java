@@ -1,13 +1,13 @@
 package etomica.normalmode;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 public class MCMoveHarmonic extends MCMoveBox {
 
@@ -59,7 +59,7 @@ public class MCMoveHarmonic extends MCMoveBox {
         eigenVectors = newEigenVectors;
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
 

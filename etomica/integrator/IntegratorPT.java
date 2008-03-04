@@ -14,9 +14,9 @@ import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.space.Space;
 import etomica.units.Null;
-import etomica.util.IRandom;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform

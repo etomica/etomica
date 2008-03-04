@@ -1,6 +1,5 @@
-package etomica.atom;
+package etomica.api;
 
-import etomica.api.IBox;
 
 public interface IAtom {
 
@@ -24,7 +23,7 @@ public interface IAtom {
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
      */
-    public AtomType getType();
+    public IAtomType getType();
 
 //    /**
 //     * Returns the address indicating the position of this IAtom within the

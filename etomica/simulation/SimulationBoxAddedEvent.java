@@ -1,10 +1,10 @@
 package etomica.simulation;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 public class SimulationBoxAddedEvent extends SimulationBoxEvent {
 
-    public SimulationBoxAddedEvent(Box box) {
+    public SimulationBoxAddedEvent(IBox box) {
         super(box);
     }
 

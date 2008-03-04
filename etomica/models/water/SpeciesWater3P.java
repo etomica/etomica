@@ -1,15 +1,15 @@
 package etomica.models.water;
 import java.lang.reflect.Constructor;
 
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IMolecule;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;

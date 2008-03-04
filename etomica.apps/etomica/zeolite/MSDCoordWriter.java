@@ -6,12 +6,13 @@ import java.io.IOException;
 import etomica.action.Action;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
+import etomica.api.IAction;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IIntegrator;
 import etomica.api.IVector;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.integrator.Integrator;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /* =====SUMMARY======
@@ -44,7 +45,7 @@ import etomica.space.Space;
  */
 
 
-public class MSDCoordWriter implements Action,
+public class MSDCoordWriter implements IAction,
                                        ControllerListener {
 	
 	public MSDCoordWriter(Space _space, String fileName){
@@ -55,7 +56,7 @@ public class MSDCoordWriter implements Action,
 		setWriteInterval(1);
 	}
 	
-	public void setBox(Box newBox){
+	public void setBox(IBox newBox){
 		
 		box = newBox;
 		iterator.setBox(box);
@@ -67,7 +68,7 @@ public class MSDCoordWriter implements Action,
         afterPBCinstance.setIterator(iterator);
     }
 	
-	public void setIntegrator(Integrator integrator){
+	public void setIntegrator(IIntegrator integrator){
 		integrator.addIntervalAction(this);
         integrator.setIntervalActionPriority(this, 50);
 		integrator.addIntervalAction(afterPBCinstance);
@@ -154,7 +155,7 @@ public class MSDCoordWriter implements Action,
     }
 
 	private AfterPBC afterPBCinstance;
-	private Box box;
+	private IBox box;
 	private AtomIteratorBoxDependent iterator;
 	private int writeInterval;
 	private int intervalCount;
@@ -178,7 +179,7 @@ public class MSDCoordWriter implements Action,
 			return atomPBIarray;
 		}
 				
-		public void setBox(Box box){
+		public void setBox(IBox box){
 			atomOldCoord = new IVector[box.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();

@@ -3,13 +3,16 @@
 package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -19,11 +22,8 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
-import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -32,7 +32,6 @@ import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Temperature;
-import etomica.util.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.
@@ -56,11 +55,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4NPH(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
-    public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorGear4NPH(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         kp = 1.0/rrp/getTimeStep();
@@ -108,7 +107,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         inflate.setBox(box);
         meterTemperature = new MeterTemperature(box, D);
@@ -217,7 +216,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             integrator.setIsothermal(isothermal);
             if(!isothermal) {
                 integrator.calculateForces();
-                Box box = integrator.getBox();
+                IBox box = integrator.getBox();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
                 double mvsq = kineticT * dim * box.atomCount();
                 double volume = box.volume();
@@ -254,7 +253,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         public Data getData() {
-            Box box = integrator.getBox();
+            IBox box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
             double mvsq = kineticT* dim * box.atomCount();
             double volume = box.volume();
@@ -297,7 +296,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         public void doCalculation(AtomsetIterator iterator, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             iterator.reset();
-            for (AtomSet pair = iterator.next(); pair != null;
+            for (IAtomSet pair = iterator.next(); pair != null;
                  pair = iterator.next()) {
 
                 IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);

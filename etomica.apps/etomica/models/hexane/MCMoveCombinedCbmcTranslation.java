@@ -2,17 +2,17 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 
 /**
@@ -35,7 +35,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;
     
-    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
+    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
             IRandom nRandom){
         super(pm);
         this.cbmcMove = mv;
@@ -57,13 +57,13 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         temp = pm.getSpace().makeVector();
     }
     
-    public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv, 
-            IRandom nRandom, Box ph){
+    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv, 
+            IRandom nRandom, IBox ph){
         this(pm, mv, nRandom);
         setBox(ph);
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

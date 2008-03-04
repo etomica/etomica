@@ -1,14 +1,15 @@
 package etomica.junit.space;
 
 import junit.framework.TestCase;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
@@ -112,7 +113,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     
     public static SimulationGraphic makeDisplay(BoundaryDeformablePeriodicTest test) {
         Simulation sim = new Simulation(test.space);
-        Box box = new Box(test.boundary, test.space);
+        IBox box = new Box(test.boundary, test.space);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
@@ -140,7 +141,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         BoundaryDeformablePeriodicTest test = new BoundaryDeformablePeriodicTest();
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
-        AtomSet list = test.sim.getBoxs()[0].getMoleculeList(test.sim.getSpeciesManager().getSpecies()[0]);
+        IAtomSet list = test.sim.getBoxs()[0].getMoleculeList(test.sim.getSpeciesManager().getSpecies()[0]);
         test.atom0 = (AtomLeaf)list.getAtom(0);
         test.atom1 = (AtomLeaf)list.getAtom(1);
         test.atom2 = (AtomLeaf)list.getAtom(2);

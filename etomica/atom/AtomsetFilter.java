@@ -1,5 +1,7 @@
 package etomica.atom;
 
+import etomica.api.IAtomSet;
+
 
 /**
  * Interface for a class that screens atoms according
@@ -15,7 +17,7 @@ public interface AtomsetFilter {
     /**
      * Returns true if atom is passes test of filter.
      */
-    public boolean accept(AtomSet a);
+    public boolean accept(IAtomSet a);
 
 //------------ end of interface ---------------//
 
@@ -25,7 +27,7 @@ public interface AtomsetFilter {
      * Returns true for null atom also.
      */
     public static final AtomsetFilter ACCEPT_ALL = new AtomsetFilter() {
-        public boolean accept(AtomSet a) {return true;}
+        public boolean accept(IAtomSet a) {return true;}
     };
     
     /**
@@ -33,7 +35,7 @@ public interface AtomsetFilter {
      * Returns false for null atom also.
      */
     public static final AtomsetFilter ACCEPT_NONE = new AtomsetFilter() {
-        public boolean accept(AtomSet a) {return false;}
+        public boolean accept(IAtomSet a) {return false;}
     };
     
 }

@@ -1,12 +1,12 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.space.NearestImageTransformer;
@@ -68,7 +68,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
             // loop over molecules
-            AtomSet childList = ((IMolecule)iterator.nextAtom()).getChildList();
+            IAtomSet childList = ((IMolecule)iterator.nextAtom()).getChildList();
             if (childList.getAtomCount() < 2) {
                 // a monatomic molecule
                 continue;

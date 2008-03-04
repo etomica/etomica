@@ -2,9 +2,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
@@ -139,7 +139,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     
     public Data getData() {
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        Box box = integrator.getBox();
+        IBox box = integrator.getBox();
         inflater.setBox(box);
         energy.zeroSum();
         integrator.getPotential().calculate(box, iteratorDirective, energy);

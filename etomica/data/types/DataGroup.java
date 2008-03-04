@@ -1,5 +1,6 @@
 package etomica.data.types;
 
+import etomica.api.IFunction;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
@@ -7,7 +8,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
-import etomica.util.Function;
 
 
 /**
@@ -228,7 +228,7 @@ public class DataGroup implements Data, java.io.Serializable {
         return false;
     }
 
-    public void map(Function function) {
+    public void map(IFunction function) {
         for (int i=0; i<data.length; i++) {
             data[i].map(function);
         }

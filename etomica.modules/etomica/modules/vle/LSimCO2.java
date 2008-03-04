@@ -3,6 +3,7 @@ package etomica.modules.vle;
 import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -40,7 +41,7 @@ import etomica.util.HistoryCollapsingAverage;
 
 public class LSimCO2 extends Simulation {
 
-    public final Box boxLiquid;
+    public final IBox boxLiquid;
     public final SpeciesSpheresRotating species;
     public final IntegratorMC integratorLiquid;
     public final PotentialMaster potentialMaster;

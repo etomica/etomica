@@ -3,10 +3,10 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.atom.AtomsetArray;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 public class TripletInnerSequential implements AtomsetIteratorBasisDependent, 
@@ -29,7 +29,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         }
     }
 
-    public void setBasis(AtomSet atoms) {
+    public void setBasis(IAtomSet atoms) {
         if (atoms == null) {
             childList = null;
         }
@@ -116,7 +116,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         cursor = childList.getAtomCount();
     }
 
-    public AtomSet next() {
+    public IAtomSet next() {
         if (childList == null) {
             return null;
         }
@@ -143,7 +143,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
 
     public void allAtoms(AtomsetAction action) {
         reset();
-        for (AtomSet atoms = next(); atoms != null; atoms = next()) {
+        for (IAtomSet atoms = next(); atoms != null; atoms = next()) {
             action.actionPerformed(atoms);
         }
     }
@@ -169,7 +169,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     
     protected int stateUpDown; // 0 = up, 1 = middle, 2 = down, 3 = all done
     protected boolean doGoUp, doGoDown;
-    protected AtomSet childList;
+    protected IAtomSet childList;
     protected IAtom targetAtom;
     protected int cursor;
     protected final AtomsetArray next;

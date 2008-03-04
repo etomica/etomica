@@ -2,14 +2,14 @@ package etomica.junit.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInterspeciesAA;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 
 
 /**
@@ -100,7 +100,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
     private class SpeciesTestAction extends AtomsetActionAdapter {
         public SpeciesTestAction() {
         }
-        public void actionPerformed(AtomSet atomSet) {
+        public void actionPerformed(IAtomSet atomSet) {
             assertTrue(atomSet.getAtom(0).getType().getIndex() < atomSet.getAtom(1).getType().getIndex());
         }
     }

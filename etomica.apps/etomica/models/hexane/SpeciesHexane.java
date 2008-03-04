@@ -5,7 +5,7 @@ package etomica.models.hexane;
 
 import etomica.atom.AtomPositionCOM;
 import etomica.chem.elements.ElementSimple;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 
 /**
  * Species used to create hexane molecules per Dr. Monson's data. Hydrogen

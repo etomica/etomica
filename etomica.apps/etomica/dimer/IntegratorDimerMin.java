@@ -3,15 +3,21 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
+import etomica.api.IRandom;
+
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -22,12 +28,10 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.ElectronVolt;
-import etomica.util.IRandom;
+
 
 /**
  * 	Henkelman's Dimer Method (Minimum Energy Path).
@@ -41,7 +45,7 @@ import etomica.util.IRandom;
 public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 
 	public ISimulation sim;
-	public Box boxMin;
+	public IBox boxMin;
 	public AtomAgentManager atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
@@ -223,8 +227,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         listMin = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-            AtomSet molecules = box.getMoleculeList(movableSpecies[i]);
-            AtomSet molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
+            IAtomSet molecules = box.getMoleculeList(movableSpecies[i]);
+            IAtomSet molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
                 listMin.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));

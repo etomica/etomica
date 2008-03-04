@@ -1,8 +1,10 @@
 package etomica.modules.reactionequilibrium;
+
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
@@ -63,7 +65,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 * kinematics.
 	 */
 
-    public double collisionTime(AtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomSet atoms, double falseTime) {
         
         if (ignoreOverlap) {
             
@@ -96,7 +98,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     }
 
 	
-	public void bump(AtomSet pair, double falseTime) {
+	public void bump(IAtomSet pair, double falseTime) {
 		
 		// *** Data Declaration Section
 

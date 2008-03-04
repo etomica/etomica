@@ -8,7 +8,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.units.Energy;
 
 /**
@@ -68,7 +67,7 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         
         normalModes.getWaveVectorFactory().makeWaveVectors(newBox);

@@ -2,13 +2,13 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 
 /**
  * Unit test for ApiIntraspeciesAA
@@ -36,14 +36,14 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, ISpecies[] species) {
+    private void boxTest(IBox box, ISpecies[] species) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
 
         iterator.setBox(box);
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomSet molecules = box.getMoleculeList(species[i]);
+            IAtomSet molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 moleculeList.add(molecules.getAtom(j));
             }

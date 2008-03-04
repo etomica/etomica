@@ -1,5 +1,8 @@
 package etomica.modules.vle;
 
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -31,14 +34,13 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
 
 public class LSimNPT extends Simulation {
 
-    public final Box boxLiquid;
+    public final IBox boxLiquid;
     public final ISpecies species;
     public final IntegratorMC integratorLiquid;
     public final PotentialMaster potentialMaster;

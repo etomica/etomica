@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.IDataInfo;
@@ -29,7 +29,7 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystalMonoclinic {
 
-    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, Box box, Space _space) {
+    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, IBox box, Space _space) {
         //this.potential = potential;
         this.nCells = (int[])nCells.clone();
         this.space = _space;

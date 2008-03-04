@@ -3,21 +3,21 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator.
@@ -43,11 +43,11 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorGear4(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorGear4(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorGear4(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
@@ -65,7 +65,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         return info;
     }
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -109,7 +109,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     
     protected void corrector() {
         
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -142,7 +142,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }//end of corrector
         
     protected void predictor() {
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -181,7 +181,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     public void reset() throws ConfigurationOverlapException {
         calculateForces();
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

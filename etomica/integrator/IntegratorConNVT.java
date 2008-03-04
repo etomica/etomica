@@ -1,19 +1,19 @@
 package etomica.integrator;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -37,11 +37,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorConNVT(ISimulation sim, PotentialMaster potentialMaster, Space space) {
+    public IntegratorConNVT(ISimulation sim, IPotentialMaster potentialMaster, Space space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     
-    public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorConNVT(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space space) {
         super(potentialMaster,random,timeStep,temperature, space);
         forceSum = new PotentialCalculationForceSum();
@@ -56,7 +56,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     }
 
 	
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             agentManager.dispose();
         }
@@ -95,7 +95,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
         double k=0.0;
         double chi;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

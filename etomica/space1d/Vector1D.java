@@ -1,9 +1,9 @@
 package etomica.space1d;
 
+import etomica.api.IFunction;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.space.IVectorRandom;
-import etomica.util.Function;
-import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
@@ -161,7 +161,7 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         return Double.isNaN(x);
     }
 
-    public void map(Function function) {
+    public void map(IFunction function) {
         x = function.f(x);
     }
 

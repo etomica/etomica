@@ -1,16 +1,16 @@
 package etomica.integrator.mcmove;
 
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtomOriented;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
 import etomica.space.IOrientation;
-import etomica.util.IRandom;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -30,7 +30,7 @@ public class MCMoveRotate extends MCMoveBoxStep {
     
     protected final IRandom random;
 
-    public MCMoveRotate(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -91,7 +91,7 @@ public class MCMoveRotate extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

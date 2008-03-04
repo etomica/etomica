@@ -1,21 +1,21 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMoleculeOriented;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomOrientedKinetic;
-import etomica.atom.IMolecule;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.data.DataSourceScalar;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
-import etomica.species.ISpecies;
 import etomica.units.Energy;
 
 /**
@@ -55,7 +55,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         double ke = 0.0;
         ISpecies[] species = sim.getSpeciesManager().getSpecies();
         for (int i=0; i<species.length; i++) {
-            AtomSet moleculeList = box.getMoleculeList(species[i]);
+            IAtomSet moleculeList = box.getMoleculeList(species[i]);
             if (moleculeList.getAtomCount() == 0) {
                 continue;
             }
@@ -83,7 +83,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
             else {
                 for (int j=0; j<moleculeList.getAtomCount(); j++) {
                     IMolecule molecule = (IMolecule)moleculeList.getAtom(j);
-                    AtomSet children = molecule.getChildList();
+                    IAtomSet children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
                         double mass = ((AtomTypeLeaf)a.getType()).getMass();

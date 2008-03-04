@@ -1,6 +1,6 @@
 package etomica.config;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 import etomica.space.Space;
 
 /**
@@ -26,7 +26,7 @@ public abstract class Conformation implements java.io.Serializable {
     /**
      * Defined by subclass to assign coordinates to the atoms in the given list.
      */
-    public abstract void initializePositions(AtomSet atomList);
+    public abstract void initializePositions(IAtomSet atomList);
 
     protected final Space space;
     

@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.space.IVectorRandom;
 
 /**
@@ -22,7 +22,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         setStepSize(1.2);
 	}
 	
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
         translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
@@ -34,7 +34,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 	//note that total energy is calculated
 	public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
-        AtomSet leafAtoms = box.getLeafList();
+        IAtomSet leafAtoms = box.getLeafList();
         for(int i=1; i<leafAtoms.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
@@ -55,7 +55,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
     
     public void rejectNotify() {
-        AtomSet leafAtoms = box.getLeafList();
+        IAtomSet leafAtoms = box.getLeafList();
         for(int i=1; i<leafAtoms.getAtomCount(); i++) {
             ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition().ME(translationVectors[i-1]);
         }

@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
 import etomica.util.Arrays;
@@ -59,7 +60,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
             ratioError.PE(errorRatio0);
             ratioError.map(Function.Sqrt.INSTANCE);
             ratioError.TE(ratio);
-            ratioError.map(Function.Abs.INSTANCE);
+            ratioError.map(Function.Sqrt.INSTANCE);
 
             double stdevRatio0 = standardDeviation.getValue(0)/average0;
             ratioStandardDeviation.E(standardDeviation);
@@ -68,7 +69,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
             ratioStandardDeviation.PE(stdevRatio0);
             ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
             ratioStandardDeviation.TE(ratio);
-            ratioStandardDeviation.map(Function.Abs.INSTANCE);
+            ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
         }
         return dataGroup;
     }

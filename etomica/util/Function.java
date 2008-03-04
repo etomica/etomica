@@ -1,12 +1,12 @@
 package etomica.util;
 
+import etomica.api.IFunction;
+
 /**
  * Interface for the basic features of a function that maps a double onto
  * another double.
  */
-public interface Function {
-
-    public double f(double x);
+public interface Function extends IFunction {
 
     /**
      * The function f(x) = constant

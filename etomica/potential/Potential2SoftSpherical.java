@@ -1,9 +1,9 @@
 package etomica.potential;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -50,7 +50,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Energy of the pair as given by the u(double) method
      */
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
@@ -59,7 +59,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Virial of the pair as given by the du(double) method
      */
-    public double virial(AtomSet atoms) {
+    public double virial(IAtomSet atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return du(dr.squared());
@@ -68,7 +68,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
-    public double hyperVirial(AtomSet atoms) {
+    public double hyperVirial(IAtomSet atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -78,7 +78,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public IVector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(IAtomSet atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -87,7 +87,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return gradient;
     }
     
-    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -107,7 +107,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 

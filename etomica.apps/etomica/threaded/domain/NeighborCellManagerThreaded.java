@@ -1,21 +1,21 @@
 package etomica.threaded.domain;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.box.Box;
 import etomica.space.Space;
 
 public class NeighborCellManagerThreaded extends NeighborCellManager {
 
     public int totalCells;
     
-    public NeighborCellManagerThreaded(Box box, double potentialRange, Space space) {
+    public NeighborCellManagerThreaded(IBox box, double potentialRange, Space space) {
         super(box, potentialRange, space);
         // TODO Auto-generated constructor stub
     }
 
-    public NeighborCellManagerThreaded(Box box, double potentialRange,
+    public NeighborCellManagerThreaded(IBox box, double potentialRange,
             AtomPositionDefinition positionDefinition, Space space) {
         super(box, potentialRange, positionDefinition, space);
         // TODO Auto-generated constructor stub

@@ -6,10 +6,11 @@
  */
 package etomica.virial;
 
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 
 /**
  * @author andrew
@@ -21,12 +22,12 @@ public class MCMoveClusterDiagram extends MCMoveBox {
 
     private static final long serialVersionUID = 1L;
     private MeterClusterWeight weightMeter;
-    public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
+    public MCMoveClusterDiagram(IPotentialMaster potentialMaster) {
         super(potentialMaster);
         weightMeter = new MeterClusterWeight(potentialMaster);
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
         ClusterAbstract sampleCluster = ((BoxCluster)p).getSampleCluster();

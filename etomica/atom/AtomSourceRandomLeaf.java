@@ -1,8 +1,10 @@
 package etomica.atom;
 
-import etomica.box.Box;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.util.Debug;
-import etomica.util.IRandom;
 
 /**
  * AtomSource that returns a completely random leaf atom.
@@ -23,7 +25,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
         return random;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         list = p.getLeafList();
     }
     
@@ -38,6 +40,6 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    protected AtomSet list = null;
+    protected IAtomSet list = null;
     protected IRandom random;
 }

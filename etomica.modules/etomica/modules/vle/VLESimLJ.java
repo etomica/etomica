@@ -1,5 +1,9 @@
 package etomica.modules.vle;
 
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.ISpecies;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -10,18 +14,17 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
+
 import etomica.species.SpeciesSpheresMono;
 
 public class VLESimLJ extends Simulation {
 
-    public final Box boxLiquid, boxVapor;
+    public final IBox boxLiquid, boxVapor;
     public final ISpecies species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;

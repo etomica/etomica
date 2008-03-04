@@ -2,11 +2,11 @@ package etomica.threaded.domain;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IBox;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
+import etomica.api.IMolecule;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.nbr.PotentialGroupNbr;
@@ -14,10 +14,10 @@ import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.IPotential;
+import etomica.api.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
@@ -58,11 +58,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(null, _space), sim, true);
 	}
 	
-    public NeighborCellManagerThreaded getNbrCellManagerThreaded(Box box) {
+    public NeighborCellManagerThreaded getNbrCellManagerThreaded(IBox box) {
         return (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
     }
     
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
@@ -118,7 +118,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
     	
 			                            
             for(int i=0; i<threads.length; i++){
@@ -158,7 +158,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, Box box){
+	public void setNumThreads(int t, IBox box){
         
         //Sets the number of domains to the number of threads
 		NeighborCellManagerThreaded neighborCellManagerThreaded = (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
@@ -192,7 +192,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             return NeighborListManagerThreaded.class;
         }
 
-        public Object makeAgent(Box box) {
+        public Object makeAgent(IBox box) {
             return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box, space);
         }
 

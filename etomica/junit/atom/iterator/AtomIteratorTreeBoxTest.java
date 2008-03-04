@@ -2,11 +2,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
+import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
 
 /**
  * Unit test for AtomIteratorTree
@@ -96,7 +96,7 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(AtomSet iterates) {
+    private LinkedList testListIterates(IAtomSet iterates) {
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
         testLister.addEachToList(iterates);

@@ -8,12 +8,13 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAtom;
+import etomica.api.IVector;
+
 import etomica.action.AtomAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;

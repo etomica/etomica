@@ -1,10 +1,10 @@
 package etomica.virial;
 
-import etomica.atom.IMolecule;
+import etomica.api.IMolecule;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane extends SpeciesSpheresHetero {

@@ -1,7 +1,8 @@
 package etomica.potential;
 
+import etomica.api.IAtomSet;
+import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.space.Tensor;
 
 
@@ -12,7 +13,7 @@ import etomica.space.Tensor;
  */
 public interface PotentialSoft extends IPotential {
 
-    public double virial(AtomSet atoms);
+    public double virial(IAtomSet atoms);
 
     /**
 	 * Returns the gradient of the potential as it applies to each atom in the 
@@ -22,7 +23,7 @@ public interface PotentialSoft extends IPotential {
 	 * @param atoms
 	 * @return
 	 */
-	public IVector[] gradient(AtomSet atoms);
+	public IVector[] gradient(IAtomSet atoms);
     
     /**
      * Returns the same gradient as gradient(AtomSet) and also adds in the
@@ -32,6 +33,6 @@ public interface PotentialSoft extends IPotential {
      * generally trivial once the gradient is known but often requires
      * intermediate information.
      */
-    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor);
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor);
 
 }

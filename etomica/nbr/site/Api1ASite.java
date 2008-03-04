@@ -6,10 +6,10 @@ package etomica.nbr.site;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -87,7 +87,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         return counter.callCount();
 	}
 	
-    public AtomSet next() {
+    public IAtomSet next() {
         if (upListNow) {
             if (neighborIterator.hasNext()) {
                 pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();

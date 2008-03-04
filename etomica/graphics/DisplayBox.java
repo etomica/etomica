@@ -15,7 +15,6 @@ import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -42,7 +41,7 @@ public class DisplayBox extends Display {
     protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
-    private Box box;
+    private IBox box;
     private boolean graphicResizable = true;
     private final Space space;
             
@@ -87,7 +86,7 @@ public class DisplayBox extends Display {
      */
     private boolean drawOverflow = false;
   
-    public DisplayBox(Box box, Space space) {
+    public DisplayBox(IBox box, Space space) {
         this(box,space,new Pixel());
     }
     
@@ -104,7 +103,7 @@ public class DisplayBox extends Display {
      * @param box
      * @param pixel
      */
-    public DisplayBox(Box box, Space space, Pixel pixel) {
+    public DisplayBox(IBox box, Space space, Pixel pixel) {
         super();
         this.space = space;
         setPixelUnit(pixel);
@@ -279,13 +278,13 @@ public class DisplayBox extends Display {
     /**
      * @return Box : the box associated with this display
      */
-    public final Box getBox() {return box;}
+    public final IBox getBox() {return box;}
 
     /**
      * Specifies the box for this display.  Updates atomIterator appropriately.
      * @return void
      */
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
 
     	IBox oldBox = box;
     	box = p;

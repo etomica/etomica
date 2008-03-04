@@ -1,9 +1,9 @@
 package etomica.potential;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -31,7 +31,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * does not take into account any false positioning that the Integrator may
      * be using.
      */
-    public double energy(AtomSet pair) {
+    public double energy(IAtomSet pair) {
         IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
 
@@ -40,7 +40,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         return u(dr.squared());
     }
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 

@@ -1,11 +1,13 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -70,7 +72,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Box box) {
+    public void initializeCoordinates(IBox box) {
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
@@ -164,8 +166,8 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Box box = new Box(sim, sp);
+        IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);

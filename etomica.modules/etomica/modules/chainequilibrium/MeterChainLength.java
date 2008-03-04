@@ -2,10 +2,11 @@ package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
+
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
@@ -17,7 +18,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.box.Box;
 import etomica.units.Null;
 import etomica.units.Quantity;
 
@@ -144,7 +144,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return box;
     }
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
         if (tagManager != null) {
             // allow old agentManager to de-register itself as a BoxListener
@@ -161,7 +161,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private Box box;
+    private IBox box;
     private AtomLeafAgentManager tagManager;
     private AtomAgentManager agentManager;
     private DataFunction data;

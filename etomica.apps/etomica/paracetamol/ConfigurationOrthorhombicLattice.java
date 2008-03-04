@@ -1,14 +1,16 @@
 package etomica.paracetamol;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IMolecule;
+import etomica.api.IBox;
+import etomica.api.IVector;
+
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
-import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -93,8 +95,8 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Box box) {
-        AtomSet moleculeList = box.getMoleculeList();
+    public void initializeCoordinates(IBox box) {
+        IAtomSet moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getAtomCount();
         if (sumOfMolecules == 0) {
             return;
@@ -302,7 +304,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        Box box = new Box(sim, sp);
+        IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesParacetamol species = new SpeciesParacetamol(sim);
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);

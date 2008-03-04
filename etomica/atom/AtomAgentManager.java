@@ -3,8 +3,12 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.box.Box;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;
 import etomica.box.BoxAtomIndexChangedEvent;
@@ -25,11 +29,11 @@ import etomica.util.Arrays;
  */
 public class AtomAgentManager implements BoxListener, Serializable {
 
-    public AtomAgentManager(AgentSource source, Box box) {
+    public AtomAgentManager(AgentSource source, IBox box) {
         this(source, box, true);
     }
     
-    public AtomAgentManager(AgentSource source, Box box, boolean isBackend) {
+    public AtomAgentManager(AgentSource source, IBox box, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
         this.box = box;
@@ -64,7 +68,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     /**
      * Convenience method to return the box the Manager is tracking.
      */
-    public Box getBox(){
+    public IBox getBox(){
         return box;
     }
     
@@ -114,7 +118,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
                 if (a instanceof IMolecule) {
                     // add all atoms below this atom
                     addAgent(a);
-                    AtomSet childList = ((IMolecule)a).getChildList();
+                    IAtomSet childList = ((IMolecule)a).getChildList();
                     for (int i=0; i<childList.getAtomCount(); i++) {
                         addAgent(childList.getAtom(i));
                     }
@@ -129,7 +133,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
                 }
                 if (a instanceof IMolecule) {
                     // nuke all atoms below this atom
-                    AtomSet childList = ((IMolecule)a).getChildList();
+                    IAtomSet childList = ((IMolecule)a).getChildList();
                     for (int i=0; i<childList.getAtomCount(); i++) {
                         IAtom childAtom = childList.getAtom(i);
                         index = childAtom.getGlobalIndex();
@@ -195,7 +199,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     private static final long serialVersionUID = 1L;
     protected final AgentSource agentSource;
     protected Object[] agents;
-    protected final Box box;
+    protected final IBox box;
     protected final boolean isBackend;
     
     /**

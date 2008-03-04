@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
-import etomica.box.Box;
 import etomica.space.Space;
 
 public class ConfigurationFileXYZ implements Configuration, java.io.Serializable {
@@ -19,7 +19,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 			confName = aConfName;
 		}
 		
-		public void initializeCoordinates(Box box) {
+		public void initializeCoordinates(IBox box) {
             min = space.makeVector();
             max = space.makeVector();
             dim = space.makeVector();

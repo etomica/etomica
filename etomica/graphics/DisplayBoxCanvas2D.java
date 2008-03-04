@@ -5,16 +5,16 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomPositioned;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
-import etomica.space.Boundary;
 import etomica.space.Space;
 
 //Class used to define canvas onto which configuration is drawn
@@ -166,7 +166,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         if(displayBox.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
-        AtomSet leafList = displayBox.getBox().getLeafList();
+        IAtomSet leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             if(this instanceof DisplayBoxSpin2D) {
@@ -179,7 +179,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             
         //Draw overflow images if so indicated
         if(displayBox.getDrawOverflow()) {
-            Boundary boundary = displayBox.getBox().getBoundary();
+            IBoundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
                 if(!(a.getType() instanceof AtomTypeSphere)) continue;

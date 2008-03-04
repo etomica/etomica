@@ -3,7 +3,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -30,7 +32,7 @@ public class LjMd3D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public P2LennardJones potential;
     public Controller controller;
     public MeterPotentialEnergy energy;
@@ -40,7 +42,7 @@ public class LjMd3D extends Simulation {
 
     public LjMd3D() {
         super(Space3D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMaster(space);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);
@@ -56,7 +58,7 @@ public class LjMd3D extends Simulation {
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomTypeLeaf leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new AtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
         
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);

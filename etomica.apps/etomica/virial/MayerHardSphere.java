@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.potential.IPotential;
-import etomica.simulation.ISimulation;
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -54,6 +54,6 @@ public class MayerHardSphere extends MayerFunctionSpherical {
         return potential;
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
     }
 }

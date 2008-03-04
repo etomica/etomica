@@ -1,10 +1,10 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
@@ -58,7 +58,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         data.E(0.0);
         int count = 0;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             getData(leafList.getAtom(iLeaf));

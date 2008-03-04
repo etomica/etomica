@@ -1,8 +1,8 @@
 package etomica.action;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
 import etomica.space.Space;
 
 /**
@@ -46,7 +46,7 @@ public final class BoxTranslate extends BoxActionAdapter implements Undoable {
 	public void actionPerformed() {
 		if (box == null)
 			return;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

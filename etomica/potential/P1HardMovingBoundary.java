@@ -1,14 +1,14 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomPositioned;
 import etomica.graphics.Drawable;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -32,7 +32,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      * @param space
      * @param wallDimension dimension which the wall is perpendicular to
      */
-    public P1HardMovingBoundary(Space space, Boundary boundary, int wallDimension, double mass,
+    public P1HardMovingBoundary(Space space, IBoundary boundary, int wallDimension, double mass,
             boolean ignoreOverlap) {
         super(space);
         D = space.D();
@@ -122,7 +122,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         return Mass.DIMENSION;
     }
     
-    public double energy(AtomSet a) {
+    public double energy(IAtomSet a) {
         double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().x(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
@@ -132,7 +132,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      
     public double energyChange() {return 0.0;}
     
-    public double collisionTime(AtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomSet atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double dr = atom.getPosition().x(wallD) - wallPosition;
         double dv = atom.getVelocity().x(wallD) - wallVelocity;
@@ -196,7 +196,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         return t + falseTime;
     }
                 
-    public void bump(AtomSet atoms, double falseTime) {
+    public void bump(IAtomSet atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().x(wallD);
         IVector v = atom.getVelocity();
@@ -315,7 +315,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double force;
     private double pressure;
     private boolean isForced;
-    private final Boundary pistonBoundary;
+    private final IBoundary pistonBoundary;
     private double thickness = 0.0;
     private double virialSum;
     private boolean ignoreOverlap;

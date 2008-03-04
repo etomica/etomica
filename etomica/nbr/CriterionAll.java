@@ -1,8 +1,8 @@
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
@@ -48,7 +48,7 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
      */
-    public boolean accept(AtomSet pair) {
+    public boolean accept(IAtomSet pair) {
         return true;
     }
     

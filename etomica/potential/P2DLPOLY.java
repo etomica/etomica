@@ -5,9 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.action.WriteConfigurationP2DLPOLY;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.box.Box;
 import etomica.space.Space;
 
 public class P2DLPOLY extends Potential{
@@ -20,7 +19,7 @@ public class P2DLPOLY extends Potential{
     
 	}
 	
-	public double energy(AtomSet atoms) {
+	public double energy(IAtomSet atoms) {
 
 		configP2DLPOLY.setMolecule(atoms.getAtom(0), atoms.getAtom(1));
 		
@@ -52,7 +51,7 @@ public class P2DLPOLY extends Potential{
 	}
 
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		configP2DLPOLY.setBox(box);
 	}
 	

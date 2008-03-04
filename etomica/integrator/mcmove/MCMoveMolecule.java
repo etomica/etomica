@@ -2,11 +2,11 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
-import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -19,11 +19,11 @@ public class MCMoveMolecule extends MCMoveAtom {
     protected final AtomGroupAction moveMoleculeAction;
     protected final IVectorRandom groupTranslationVector;
 
-    public MCMoveMolecule(ISimulation sim, PotentialMaster potentialMaster) {
+    public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
     }
     
-    public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize,
+    public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random, double stepSize,
             double stepSizeMax, boolean ignoreOverlap) {
         super(potentialMaster, random,stepSize,stepSizeMax,ignoreOverlap);
         AtomActionTranslateBy translator = new AtomActionTranslateBy(potentialMaster.getSpace());

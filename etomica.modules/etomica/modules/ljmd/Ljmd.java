@@ -1,5 +1,6 @@
 package etomica.modules.ljmd;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -20,7 +21,7 @@ public class Ljmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
     

@@ -1,27 +1,27 @@
 package etomica.models.hexane;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.PotentialMaster;
 import etomica.util.Constants;
-import etomica.util.IRandom;
 
 public abstract class MCMoveCBMC extends MCMoveBox {
 
-    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random,
-            IntegratorMC integrator, Box p, int maxAtomsPerMolecule,
+    public MCMoveCBMC(IPotentialMaster potentialMaster, IRandom random,
+            IntegratorMC integrator, IBox p, int maxAtomsPerMolecule,
             int NTrial) {
         super(potentialMaster);
         this.random = random;
@@ -63,7 +63,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     public abstract double energyChange();
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         externalMeter.setBox(p);
     }
@@ -175,7 +175,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
     protected IVector[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
-    protected AtomSet atomList;
+    protected IAtomSet atomList;
 
     protected int numTrial;
 

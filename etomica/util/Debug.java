@@ -1,9 +1,9 @@
 package etomica.util;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 
@@ -91,7 +91,7 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if any of the atoms in the atoms array should be debugged
 	 */
-	public static boolean anyAtom(AtomSet atoms) {
+	public static boolean anyAtom(IAtomSet atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
@@ -111,7 +111,7 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if all of the atoms in the atoms array should be debugged
 	 */
-	public static boolean allAtoms(AtomSet atoms) {
+	public static boolean allAtoms(IAtomSet atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if (globalIndex == ATOM1_INDEX || globalIndex == ATOM2_INDEX) {

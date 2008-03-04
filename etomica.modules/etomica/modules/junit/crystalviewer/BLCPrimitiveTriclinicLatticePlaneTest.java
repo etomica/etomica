@@ -1,8 +1,9 @@
 package etomica.modules.junit.crystalviewer;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import junit.framework.TestCase;
 
@@ -57,7 +58,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -125,7 +126,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double cubicSizeB = 1.75;
     	double cubicSizeC = 2.0;
     	double plane = -2.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -196,7 +197,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double alpha = Math.PI * 2.0 * (100.0 / 360.0);
     	double beta = Math.PI * 2.0 * (110.0 / 360.0);
     	double gamma = Math.PI * 2.0 * (120.0 / 360.0);
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -263,7 +264,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 6.0;
     	int itemsFound = 0;
@@ -373,7 +374,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double alpha = Math.PI * 2.0 * (97.0 / 360.0);
     	double beta = Math.PI * 2.0 * (104.0 / 360.0);
     	double gamma = Math.PI * 2.0 * (115.0 / 360.0);
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 2.95;
     	int[] millerIndices = new int[] { 1, 1, 1 };
@@ -429,7 +430,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 3.0;
     	int itemsFound = 0;
@@ -534,7 +535,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 3.05;
     	double alpha = Math.PI * 2.0 * (97.0 / 360.0);

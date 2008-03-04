@@ -2,9 +2,9 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 
 /**
  * Iterator that expires after returning a single atom, which is
@@ -91,7 +91,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     	return atom;
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         atomSetSinglet.atom = nextAtom();
         if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;

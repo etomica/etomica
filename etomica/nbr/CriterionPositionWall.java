@@ -1,16 +1,16 @@
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
-import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -163,7 +163,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 		return dr > rMaxSafe;
 	}
 
-	public boolean accept(AtomSet atom) {
+	public boolean accept(IAtomSet atom) {
 		dr = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);

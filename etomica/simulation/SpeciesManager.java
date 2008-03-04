@@ -3,12 +3,13 @@ package etomica.simulation;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
-import etomica.box.Box;
 import etomica.chem.elements.Element;
-import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 /**
@@ -51,7 +52,7 @@ public class SpeciesManager implements java.io.Serializable {
         // this just fires an event for listeners to receive
         atomTypeAddedNotify(moleculeType);
 
-        Box[] boxList = sim.getBoxs();
+        IBox[] boxList = sim.getBoxs();
         for (int i=0; i<boxList.length; i++) {
             boxList[i].addSpeciesNotify(species);
         }
@@ -59,7 +60,7 @@ public class SpeciesManager implements java.io.Serializable {
         sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
     }
     
-    public void boxAddedNotify(Box newBox) {
+    public void boxAddedNotify(IBox newBox) {
         for(int i=0; i<speciesList.length; i++) {
             newBox.addSpeciesNotify(speciesList[i]);
         }
@@ -89,7 +90,7 @@ public class SpeciesManager implements java.io.Serializable {
             speciesList[i].resetIndex(this);
         }
         
-        Box[] boxList = sim.getBoxs();
+        IBox[] boxList = sim.getBoxs();
         for (int i=0; i<boxList.length; i++) {
             boxList[i].removeSpeciesNotify(removedSpecies);
         }
@@ -121,7 +122,7 @@ public class SpeciesManager implements java.io.Serializable {
      * of the AtomType hierarchy whenver it receives notification of a new
      * AtomType.
      */
-    public void atomTypeAddedNotify(AtomType newChildType) {
+    public void atomTypeAddedNotify(IAtomType newChildType) {
         if (newChildType instanceof AtomTypeLeaf) {
             Element newElement = ((AtomTypeLeaf)newChildType).getElement();
             Element oldElement = (Element)elementSymbolHash.get(newElement.getSymbol());
@@ -146,7 +147,7 @@ public class SpeciesManager implements java.io.Serializable {
     /**
      * Reassigns indices from the reservoir to the given AtomTypes.
      */
-    private void recycleIndices(AtomType[] atomTypes) {
+    private void recycleIndices(IAtomType[] atomTypes) {
         // now iterate over remaining AtomTypes and re-use old indices that are
         // less than remaining indices
         for (int i=0; i<atomTypes.length; i++) {
@@ -177,7 +178,7 @@ public class SpeciesManager implements java.io.Serializable {
     private static int[] getChildIndices(AtomTypeMolecule atomType) {
         int[] childIndices = new int[0];
         for (int i=0; i<atomType.getChildTypes().length; i++) {
-            AtomType childType = atomType.getChildTypes()[i];
+            IAtomType childType = atomType.getChildTypes()[i];
             if (childType instanceof AtomTypeMolecule) {
                 // recursion!
                 int[] iChildIndices = getChildIndices((AtomTypeMolecule)childType);
@@ -205,7 +206,7 @@ public class SpeciesManager implements java.io.Serializable {
         return typeIndexReservoir[typeReservoirCount++];
     }
 
-    public void atomTypeRemovedNotify(AtomType removedType) {
+    public void atomTypeRemovedNotify(IAtomType removedType) {
         typeReservoirCount = 0;
         // put the removed AtomType indices in a reservoir
         if (removedType instanceof AtomTypeLeaf) {
@@ -243,7 +244,7 @@ public class SpeciesManager implements java.io.Serializable {
      * given parent AtomType
      */
     private void removeElements(AtomTypeMolecule oldParentType) {
-        AtomType[] oldChildTypes = oldParentType.getChildTypes();
+        IAtomType[] oldChildTypes = oldParentType.getChildTypes();
         for (int i=0; i<oldChildTypes.length; i++) {
             if (oldChildTypes[i] instanceof AtomTypeLeaf) {
                 Element oldElement = ((AtomTypeLeaf)oldChildTypes[i]).getElement();

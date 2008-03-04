@@ -2,6 +2,10 @@ package etomica.modules.crystalviewer;
 
 import javax.swing.JTabbedPane;
 
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.IVector;
+
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -19,9 +23,7 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
@@ -36,7 +38,7 @@ public class CrystalViewer extends SimulationPanel {
     protected final ISimulation sim;
 
     protected SpeciesSpheresMono species;
-    protected Box box;
+    protected IBox box;
     protected IVector center;
     protected LatticePlane latticePlane;
     protected ClipPlaneEditor clipPlaneEditor;
@@ -71,7 +73,7 @@ public class CrystalViewer extends SimulationPanel {
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
         
         box  = new Box(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
-        		                                         (etomica.util.IRandom)null,
+        		                                         (etomica.api.IRandom)null,
         		                                         boxSize), space);
         sim.addBox(box);
 

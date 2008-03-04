@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -78,7 +79,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 //    public SpeciesSpheresMono snB;
     public SpeciesSpheresMono agB;
 //    public SpeciesSpheresMono cuB;
-    public Box box;
+    public IBox box;
     public PotentialMEAM potentialN;
     public Controller controller;
     public DisplayBox display;

@@ -2,8 +2,8 @@ package etomica.virial;
 
 import etomica.config.Conformation;
 import etomica.models.water.SpeciesWater4P;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 
 
 /**

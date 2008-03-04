@@ -1,22 +1,23 @@
 package etomica.nbr.list;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.CriterionAdapter;
 import etomica.nbr.CriterionInterMolecular;
@@ -29,10 +30,8 @@ import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -175,7 +174,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomType) {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
@@ -185,8 +184,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
             if ((atomType[0] instanceof AtomTypeLeaf) &&
                     (atomType[1] instanceof AtomTypeLeaf)) {
-                AtomType moleculeType0 = ((AtomTypeLeaf)atomType[0]).getParentType();
-                AtomType moleculeType1 = ((AtomTypeLeaf)atomType[1]).getParentType();
+                IAtomType moleculeType0 = ((AtomTypeLeaf)atomType[0]).getParentType();
+                IAtomType moleculeType1 = ((AtomTypeLeaf)atomType[1]).getParentType();
                 if (moleculeType0 == moleculeType1) {
                     criterion = new CriterionInterMolecular(criterion);
                 }
@@ -389,7 +388,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
@@ -404,7 +403,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomSet list = box.getMoleculeList();
+            IAtomSet list = box.getMoleculeList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 calculate((IMolecule)list.getAtom(i), id, pc, neighborManager);//call calculate with the SpeciesAgent
@@ -458,7 +457,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 }
                 break;
             case 2:
-                AtomSet[] list;
+                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(molecule);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -488,7 +487,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // target's neighbors
                     list = neighborManager.getUpList(molecule);
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -496,7 +495,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                     list = neighborManager.getDownList(molecule);
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -514,7 +513,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         
         //cannot use AtomIterator field because of recursive call
-        AtomSet list = molecule.getChildList();
+        IAtomSet list = molecule.getChildList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
             calculate((IAtomLeaf)list.getAtom(i), id, pc, neighborManager);//recursive call
@@ -535,7 +534,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 }
                 break;
             case 2:
-                AtomSet[] list;
+                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -565,7 +564,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // target's neighbors
                     list = neighborManager.getUpList(atom);
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -573,7 +572,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -594,7 +593,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();
         arrayList.add(atom);
-        AtomSet[] list = neighborManager.getUpList(atom);
+        IAtomSet[] list = neighborManager.getUpList(atom);
         if (potentialIndex < list.length) {
             arrayList.addAll(list[potentialIndex]);
         }
@@ -669,7 +668,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             return NeighborListManager.class;
         }
         
-        public Object makeAgent(Box box) {
+        public Object makeAgent(IBox box) {
             return new NeighborListManager(potentialMaster, range, box, space);
         }
         

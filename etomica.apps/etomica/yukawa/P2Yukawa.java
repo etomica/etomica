@@ -2,7 +2,7 @@ package etomica.yukawa;
 
 import etomica.EtomicaInfo;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.space.Space;
 
 /**

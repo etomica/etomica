@@ -1,17 +1,21 @@
 package etomica.dimer;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
+
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
-import etomica.potential.IPotential;
+
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.species.ISpecies;
+
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -24,9 +28,9 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
-    protected Box box;
+    protected IBox box;
     
-    public PotentialCalculationForcePressureSumGB(Space space, Box box) {
+    public PotentialCalculationForcePressureSumGB(Space space, IBox box) {
         pressureTensor = space.makeTensor();
         this.box = box;
     }
@@ -53,7 +57,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		IVector forceBottom = potential.getSpace().makeVector();
 		
 		iterator.reset();
-		for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
+		for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
 			IVector rij = potential.getSpace().makeVector();
 			switch(nBody) {

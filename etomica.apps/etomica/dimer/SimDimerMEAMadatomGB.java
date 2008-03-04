@@ -1,5 +1,8 @@
 package etomica.dimer;
 
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
@@ -27,7 +30,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -47,7 +49,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
     public final PotentialMaster potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
-    public Box box;
+    public IBox box;
     public IVector [] saddle;
     public SpeciesSpheresMono fixed, movable;
     public PotentialMEAM potential;

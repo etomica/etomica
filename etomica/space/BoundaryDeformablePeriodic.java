@@ -2,6 +2,8 @@ package etomica.space;
 
 import java.io.Serializable;
 
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -9,9 +11,7 @@ import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Parallelotope;
 import etomica.math.geometry.Polytope;
-import etomica.simulation.ISimulation;
 import etomica.space3d.IVector3D;
-import etomica.util.IRandom;
 
 /**
  * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 2D or 3D spaces.

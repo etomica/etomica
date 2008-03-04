@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IMolecule;
+import etomica.api.IMolecule;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
@@ -12,7 +12,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;

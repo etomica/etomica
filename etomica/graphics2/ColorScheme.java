@@ -1,6 +1,6 @@
 package etomica.graphics2;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 
 /**
  * Defines an interface to retrieve the Atom color from an Atom object

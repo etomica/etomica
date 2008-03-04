@@ -5,7 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 
 /**
  * Adapater class that wraps another AtomsetIterator to implement the
@@ -46,7 +46,7 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator, java.io
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#next()
 	 */
-	public AtomSet next() {
+	public IAtomSet next() {
 		return iterator.next();
 	}
 	

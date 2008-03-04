@@ -2,10 +2,10 @@ package etomica.atom.iterator;
 
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.atom.AtomsetArray;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 
 /**
  * Atomset Iterator that iterates over set-of-four atoms
@@ -60,7 +60,7 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     }
                                 
 
-	public void setBasis(AtomSet parent) {
+	public void setBasis(IAtomSet parent) {
 	    if (parent == null) {
 	        parentGroup = null;
 	    }
@@ -158,7 +158,7 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     /**
      * Same as nextSet().
      */
-    public AtomSet next() {
+    public IAtomSet next() {
         return nextSet();
     }
 

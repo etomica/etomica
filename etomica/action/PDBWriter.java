@@ -9,11 +9,11 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
@@ -167,13 +167,13 @@ public class PDBWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType = new LinkedList();
-    private AtomSet leafList;
+    private IAtomSet leafList;
     
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;
         public final int elementIndex;
-        public final AtomType type;
-        public ElementLinker(int aElementIndex, AtomType aType) {
+        public final IAtomType type;
+        public ElementLinker(int aElementIndex, IAtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
         }

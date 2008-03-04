@@ -1,12 +1,12 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 
@@ -52,7 +52,7 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
         next.getArrayList().clear();
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
     	if(next.getArrayList().getAtomCount()>0){
     		return null;
     	}
@@ -84,7 +84,7 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
 
     private static final long serialVersionUID = 1L;
     private final AtomsetArrayList next;
-	private AtomSet basis;
+	private IAtomSet basis;
 	public int basisSize() {
 		return Integer.MAX_VALUE;
 	}
@@ -98,7 +98,7 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
 		return false;
 	}
 
-	public void setBasis(AtomSet atoms) {
+	public void setBasis(IAtomSet atoms) {
 		basis = atoms;		
 	}
 }

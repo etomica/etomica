@@ -4,21 +4,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 import etomica.chem.models.Model;
-import etomica.potential.IPotential;
-import etomica.species.ISpecies;
 
 /**
  * BondListener listens for Atoms being added to the Simulation, determines
@@ -36,7 +35,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
      * BondManager to actually create or remove bonds.  The BondListener
      * (and its AtomAgentManager) are consdidered to be "backend".
      */
-    public BondListener(Box box, BondManager bondManager) {
+    public BondListener(IBox box, BondManager bondManager) {
         this(box, bondManager, true);
     }
     
@@ -47,7 +46,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
      * "backend" (they will be serialized along with the simulation) if the
      * given isBackend parameter is true.  
      */
-    public BondListener(Box box, BondManager bondManager, boolean isBackend) {
+    public BondListener(IBox box, BondManager bondManager, boolean isBackend) {
         this.box = box;
         bondIteratorsHash = new HashMap();
         atomAgentManager = new AtomAgentManager(this, box, isBackend);
@@ -90,7 +89,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                 iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(null);
                 iterator.reset();
-                for  (AtomSet bondedPair = iterator.next(); bondedPair != null;
+                for  (IAtomSet bondedPair = iterator.next(); bondedPair != null;
                       bondedPair = iterator.next()) {
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
@@ -112,7 +111,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         moleculeIterator.reset();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
              molecule = moleculeIterator.nextAtom()) {
-            AtomSet childList = ((IMolecule)molecule).getChildList();
+            IAtomSet childList = ((IMolecule)molecule).getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 ArrayList list = (ArrayList)atomAgentManager.getAgent(childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
@@ -159,7 +158,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     iterator.setBasis(atomSetSinglet);
                     iterator.setTarget(newAtom);
                     iterator.reset();
-                    for (AtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
+                    for (IAtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
                          bondedAtoms = iterator.next()) {
                         Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
                         bondList.add(bond);

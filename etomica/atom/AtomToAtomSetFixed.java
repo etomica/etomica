@@ -2,6 +2,9 @@ package etomica.atom;
 
 import java.io.Serializable;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+
 public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -19,7 +22,7 @@ public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializa
         }
     }
     
-    public AtomSet getAtomSet(IAtom atom) {
+    public IAtomSet getAtomSet(IAtom atom) {
         return atomArrayList;
     }
     

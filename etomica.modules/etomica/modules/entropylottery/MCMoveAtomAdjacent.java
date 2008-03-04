@@ -1,17 +1,19 @@
 package etomica.modules.entropylottery;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.IVector;
+
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.Space;
-import etomica.util.IRandom;
+
 
 /**
  * Monte Carlo move that moves an atom by +/- 1 unit in a random dimension.
@@ -104,7 +106,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         return affectedAtomIterator;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         translationVector = space.makeVector();
         atomSource.setBox(p);

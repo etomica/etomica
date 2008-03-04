@@ -1,7 +1,7 @@
 package etomica.box;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.atom.IAtom;
 
 
 /**

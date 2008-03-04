@@ -1,6 +1,9 @@
 package etomica.yukawa;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -20,7 +23,6 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -34,7 +36,7 @@ public class TestHC2YukawaMC3D extends Simulation{
     public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
-	public Box box;
+	public IBox box;
 	public P2HC2Yukawa potential;
 	public Controller controller;
 	
@@ -94,7 +96,7 @@ public class TestHC2YukawaMC3D extends Simulation{
         sim.integrator.addIntervalAction(energyManager);
 		
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
-		Action repaintAction = simGraphic.getPaintAction(sim.box);
+		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

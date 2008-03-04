@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.util.Debug;
 
 /**
@@ -340,7 +342,7 @@ public class AtomArrayList implements AtomSet,
     	return true;
     }
     
-    public void addAll(AtomSet atoms) {
+    public void addAll(IAtomSet atoms) {
         ensureCapacity(size+atoms.getAtomCount());
         int newSize = size + atoms.getAtomCount();
         for (int i=size; i<newSize; i++) {

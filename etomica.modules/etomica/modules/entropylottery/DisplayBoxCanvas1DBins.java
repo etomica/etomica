@@ -1,11 +1,13 @@
 package etomica.modules.entropylottery;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Iterator;
 
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomPositioned;
+
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;

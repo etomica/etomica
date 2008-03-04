@@ -1,12 +1,12 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.species.Species;
 
@@ -25,7 +25,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
      * @param species species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public AtomIteratorAllLeafType(AtomType[] atomType) {
+    public AtomIteratorAllLeafType(IAtomType[] atomType) {
     	this.atomType = atomType;
         next = new AtomsetArrayList();
     }
@@ -59,7 +59,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
         // add all Atoms to ArrayList we will return
         AtomArrayList arrayList = next.getArrayList();
         arrayList.clear();
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
         	for (int j=0; j<atomType.length; j++) {
         		if(leafList.getAtom(i).getType()==atomType[j]){
@@ -74,7 +74,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
         next.getArrayList().clear();
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         if (nextCursor + 1 > next.getAtomCount()) {
             return null;
         }
@@ -97,7 +97,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
     
     public void allAtoms(AtomsetAction action) {
         reset();
-        for (AtomSet atoms = next(); atoms != null; atoms = next()) {
+        for (IAtomSet atoms = next(); atoms != null; atoms = next()) {
             action.actionPerformed(atoms);
         }
     }
@@ -111,7 +111,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomType[] atomType;
+    private final IAtomType[] atomType;
     private IBox box;
     private int nextCursor;
     private final AtomsetArrayList next;

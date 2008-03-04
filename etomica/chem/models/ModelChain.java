@@ -1,12 +1,12 @@
 package etomica.chem.models;
 
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.potential.Potential2;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**

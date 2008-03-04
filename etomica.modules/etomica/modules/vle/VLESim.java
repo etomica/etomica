@@ -1,5 +1,8 @@
 package etomica.modules.vle;
 
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -24,7 +27,7 @@ import etomica.units.Kelvin;
 
 public class VLESim extends Simulation {
 
-    public final Box boxLiquid, boxVapor;
+    public final IBox boxLiquid, boxVapor;
     public final SpeciesSpheresRotating species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
@@ -63,7 +66,7 @@ public class VLESim extends Simulation {
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);
         
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMaster(space);
         p2LJQ = new P2LJQ(space, sigma, epsilon, moment);
         p2LJQ.setTemperature(temperature);
         p2Truncated = new P2SoftTruncated(p2LJQ, 15);

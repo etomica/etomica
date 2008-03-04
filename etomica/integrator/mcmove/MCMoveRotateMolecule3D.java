@@ -1,18 +1,18 @@
 package etomica.integrator.mcmove;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
-import etomica.util.IRandom;
 
 
 public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
@@ -33,7 +33,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     public boolean flag = false;
     public boolean flag1 = false;
     
-    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -78,7 +78,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     }//end of doTrial
     
     protected void doTransform() {
-        AtomSet childList = molecule.getChildList();
+        IAtomSet childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
             IVector r = a.getPosition();
@@ -120,7 +120,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#setBox(etomica.Box[])
      */
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         moleculeSource.setBox(p);

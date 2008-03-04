@@ -1,9 +1,10 @@
 package etomica.modules.junit.crystalviewer;
 
-import junit.framework.TestCase;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
+import junit.framework.TestCase;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 
 public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
@@ -51,7 +52,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -111,7 +112,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	double cubicSizeAB = 1.0;
     	double cubicSizeC = 2.3;
     	double plane = -1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -165,7 +166,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 9;
     	int itemsFound = 0;
     	double plane = 7.0;
@@ -240,7 +241,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 4;
     	double plane = 0.0;
 
@@ -283,7 +284,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 4;
     	double plane = 0.5;
 
@@ -344,7 +345,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSizeAB = 1.4;
     	double cubicSizeC = 1.4;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 5;
     	double plane = 0.05;
     	int[] millerIndices = new int[] { 1, 1, 2 };
@@ -390,7 +391,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSizeAB = 1.4;
     	double cubicSizeC = 1.4;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 5;
     	int itemsFound = 0;
     	double plane = 0.0;
@@ -461,7 +462,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSizeAB = 1.4;
     	double cubicSizeC = 1.4;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 5;
     	double plane = 0.05;
     	int[] millerIndices = new int[] { 1, 1, 2 };

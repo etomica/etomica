@@ -1,7 +1,7 @@
 package etomica.action;
 
+import etomica.api.IMolecule;
 import etomica.atom.AtomFilter;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 
 /**

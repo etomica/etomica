@@ -5,21 +5,20 @@ import java.io.Serializable;
 import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IIntegratorNonintervalListener;
+import etomica.api.IPotential;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.box.Box;
 import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -36,14 +35,14 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IntegratorNonintervalListener,
+public class NeighborListManager implements IIntegratorNonintervalListener,
         Action, AgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            Box box, Space space) {
+            IBox box, Space space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -188,7 +187,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         iieCount = updateInterval;
     }
 
-    public NeighborCriterion[] getCriterion(AtomType atomType) {
+    public NeighborCriterion[] getCriterion(IAtomType atomType) {
         return potentialMaster.getRangedPotentials(atomType).getCriteria();
     }
 
@@ -242,7 +241,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
-        for (AtomSet pair = cellNbrIterator.nextPair(); pair != null;
+        for (IAtomSet pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
             IAtom atom0 = pair.getAtom(0);
             IAtom atom1 = pair.getAtom(1);
@@ -295,11 +294,11 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         this.quiet = quiet;
     }
     
-    public AtomSet[] getUpList(IAtom atom) {
+    public IAtomSet[] getUpList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
-    public AtomSet[] getDownList(IAtom atom) {
+    public IAtomSet[] getDownList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 
@@ -325,7 +324,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private boolean quiet;
     private final AtomAgentManager agentManager2Body;
     private final AtomAgentManager agentManager1Body;
-    protected Box box;
+    protected IBox box;
     private NeighborCriterion[] oldCriteria;
     protected final BoxEventNeighborsUpdated boxEvent;
 

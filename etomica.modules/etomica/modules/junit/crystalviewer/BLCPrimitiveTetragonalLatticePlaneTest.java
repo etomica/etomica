@@ -1,8 +1,9 @@
 package etomica.modules.junit.crystalviewer;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import junit.framework.TestCase;
 
@@ -51,7 +52,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 0.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -109,7 +110,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	double cubicSizeAB = 1.63;
     	double cubicSizeC = 1.0;
     	double plane = 0.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -164,7 +165,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 7.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 9;
     	int itemsFound = 0;
     	int[] millerIndices = new int[] { 1, 3, 2 };
@@ -235,7 +236,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 0.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 8;
 
         lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
@@ -277,7 +278,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 0.5;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 8;
     	int[] millerIndices = new int[] { 0, 1, 0 };
 
@@ -338,7 +339,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	double cubicSizeAB = 1.2;
     	double cubicSizeC = 1.4;
     	double plane = 1.95;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 6;
     	int[] millerIndices = new int[] { 1, 1, 2 };
 
@@ -384,7 +385,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	double cubicSizeAB = 1.2;
     	double cubicSizeC = 1.4;
     	double plane = 2.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 6;
     	int itemsFound = 0;
     	int[] millerIndices = new int[] { 1, 1, 2 };
@@ -455,7 +456,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	double cubicSizeAB = 1.2;
     	double cubicSizeC = 1.4;
     	double plane = 2.05;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 6;
     	int[] millerIndices = new int[] { 1, 1, 2 };
 

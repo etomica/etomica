@@ -1,7 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+
 import etomica.potential.Potential0;
 import etomica.space.Space;
 
@@ -23,7 +24,7 @@ public class P0Cluster extends Potential0 {
 	}
 	
     // let's all pretend that the cluster weight is the energy.
-	public double energy(AtomSet atoms) {
+	public double energy(IAtomSet atoms) {
         return 0;
 	}
 
@@ -31,7 +32,7 @@ public class P0Cluster extends Potential0 {
         return boxCluster.getSampleCluster().value(boxCluster);
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
     	boxCluster = (BoxCluster)box;
     }
 }

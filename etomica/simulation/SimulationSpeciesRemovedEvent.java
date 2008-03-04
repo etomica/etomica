@@ -1,6 +1,6 @@
 package etomica.simulation;
 
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 
 public class SimulationSpeciesRemovedEvent extends SimulationSpeciesEvent {
 

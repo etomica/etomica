@@ -1,10 +1,12 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.ISimulation;
+import etomica.api.IRandom;
+
 import etomica.potential.P1HardMovingBoundary;
-import etomica.simulation.ISimulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.util.IRandom;
+
 
 /**
  * Boundary class for PistonCylinder that accounts for the piston and collision

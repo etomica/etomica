@@ -23,7 +23,8 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -50,7 +51,7 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final Box box;
+    public final IBox box;
     /**
      * The Integrator performing the dynamics.
      */

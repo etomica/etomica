@@ -1,8 +1,8 @@
 package etomica.space1d;
 
+import etomica.api.IFunction;
 import etomica.api.IVector;
 import etomica.space.Tensor;
-import etomica.util.Function;
 
 /**
  * Implementation of a tensor for a 1-dimensional space. In this case the tensor
@@ -150,7 +150,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         return Double.isNaN(xx);
     }
 
-    public void map(Function f) {
+    public void map(IFunction f) {
         xx = f.f(xx);
     }
     

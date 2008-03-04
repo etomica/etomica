@@ -1,23 +1,24 @@
 package etomica.virial;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.action.AtomAction;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.potential.PotentialMaster;
-import etomica.util.IRandom;
+
 
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
-    public MCMoveClusterRotateMolecule3D(PotentialMaster potentialMaster,
+    public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
     }
@@ -32,7 +33,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(random.nextInt(3),dTheta);
 
-        AtomSet leafAtoms = molecule.getChildList();
+        IAtomSet leafAtoms = molecule.getChildList();
         IAtomPositioned first = (IAtomPositioned)leafAtoms.getAtom(0);
         r0.E(first.getPosition());
         doTransform();

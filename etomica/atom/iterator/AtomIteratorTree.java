@@ -3,10 +3,10 @@ package etomica.atom.iterator;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -60,7 +60,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-        AtomSet list = ((IMolecule)rootAtom).getChildList();
+        IAtomSet list = ((IMolecule)rootAtom).getChildList();
         int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);
@@ -75,7 +75,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
                 act.actionPerformed(atomSetSinglet);
             }
 
-            AtomSet childList = ((IMolecule)atom).getChildList();
+            IAtomSet childList = ((IMolecule)atom).getChildList();
             for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
                 atomSetSinglet.atom = childList.getAtom(iChild);
                 act.actionPerformed(atomSetSinglet);
@@ -89,7 +89,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomAction act) {
-        AtomSet list = ((IMolecule)rootAtom).getChildList();
+        IAtomSet list = ((IMolecule)rootAtom).getChildList();
         int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);
@@ -102,7 +102,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
                 act.actionPerformed(atom);
             }
 
-            AtomSet childList = ((IMolecule)atom).getChildList();
+            IAtomSet childList = ((IMolecule)atom).getChildList();
             for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
                 act.actionPerformed(childList.getAtom(iChild));
             }
@@ -169,7 +169,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
     /**
      * Returns the next atom in the iteration sequence.  Same as nextAtom().
      */
-    public AtomSet next() {
+    public IAtomSet next() {
         atomSetSinglet.atom = nextAtom();
         if (atomSetSinglet.atom == null) {
             return null;

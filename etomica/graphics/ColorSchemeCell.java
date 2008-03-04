@@ -3,13 +3,13 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.atom.IAtom;
+import etomica.api.IRandom;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.box.BoxAgentManager;
-import etomica.util.IRandom;
 
 public class ColorSchemeCell extends ColorScheme {
     

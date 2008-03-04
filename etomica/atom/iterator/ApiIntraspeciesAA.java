@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.api.IBox;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of a single species in a box. Species

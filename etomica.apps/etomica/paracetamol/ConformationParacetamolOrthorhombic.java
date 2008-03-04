@@ -1,8 +1,9 @@
 package etomica.paracetamol;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -22,7 +23,7 @@ public class ConformationParacetamolOrthorhombic extends Conformation{
 		iterator = new AtomIteratorArrayListSimple();	
 	}
 	
-	public void initializePositions(AtomSet list){
+	public void initializePositions(IAtomSet list){
 		double x = 0.0;
 		double y = 0.0;
 		double z = 0.0;

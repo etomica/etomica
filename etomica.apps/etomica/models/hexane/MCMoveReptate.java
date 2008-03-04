@@ -1,29 +1,30 @@
 package etomica.models.hexane;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
+
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(ISimulation sim, PotentialMaster potentialMaster, Space _space){
+    public MCMoveReptate(ISimulation sim, IPotentialMaster potentialMaster, Space _space){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     
-    public MCMoveReptate(PotentialMaster potentialMaster, IRandom random, 
+    public MCMoveReptate(IPotentialMaster potentialMaster, IRandom random, 
             double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
         super(potentialMaster);
         this.space = _space;
@@ -86,7 +87,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = random.nextInt(2) == 0;
-       AtomSet childlist = ((IMolecule)atom).getChildList();
+       IAtomSet childlist = ((IMolecule)atom).getChildList();
        int numChildren = childlist.getAtomCount();
        
        if(forward){
@@ -133,7 +134,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     }
     
     public void rejectNotify(){
-        AtomSet childlist = ((IMolecule)atom).getChildList();
+        IAtomSet childlist = ((IMolecule)atom).getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
             IVector position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
@@ -163,7 +164,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     
     public double energyChange(){return uNew - uOld;}
      
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

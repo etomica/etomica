@@ -3,8 +3,8 @@
  */
 package etomica.threaded.domain;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPositionDefinition;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.Space;
 
@@ -22,7 +22,7 @@ public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource, java.i
         return NeighborCellManagerThreaded.class;
     }
     
-    public Object makeAgent(Box box) {
+    public Object makeAgent(IBox box) {
         NeighborCellManagerThreaded cellManager = new NeighborCellManagerThreaded(box, 0, positionDefinition, space);
         box.getEventManager().addListener(cellManager);
         return cellManager;

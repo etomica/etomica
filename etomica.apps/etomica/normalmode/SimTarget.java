@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -294,7 +295,7 @@ public class SimTarget extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public ActivityIntegrate activityIntegrate;
-    public Box box;
+    public IBox box;
     public Boundary boundary;
     public BravaisLattice lattice;
     public Primitive primitive;

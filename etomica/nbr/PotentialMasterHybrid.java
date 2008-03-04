@@ -1,22 +1,21 @@
 package etomica.nbr;
 
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 
@@ -77,7 +76,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
         if (useNbrLists) potentialMasterList.calculate(box,id,pc);
         else potentialMasterCell.calculate(box,id,pc);
@@ -120,7 +119,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         }
     }
     
-    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomTypes) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomTypes) {
     }
     
     public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {

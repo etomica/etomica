@@ -2,12 +2,12 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
-import etomica.atom.IAtom;
 
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper
@@ -75,7 +75,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
-        AtomSet localList = atomToAtomSet.getAtomSet(startAtom);
+        IAtomSet localList = atomToAtomSet.getAtomSet(startAtom);
         int firstCursor = atomToIndex.getIndex(startAtom);
  		int arraySize = localList.getAtomCount();
         if (upListNow) {

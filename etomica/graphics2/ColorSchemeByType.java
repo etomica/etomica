@@ -3,8 +3,8 @@ package etomica.graphics2;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
 
 /**
  * Colors the atom according to the color given by its type field.  
@@ -39,7 +39,7 @@ implements ColorScheme, java.io.Serializable
     	return index.intValue();
     }
 
-    public void setColor(AtomType type, Color c) 
+    public void setColor(IAtomType type, Color c) 
     {
     	int index = colorindex.size();
     	colormap.put( type, new Integer(index) );

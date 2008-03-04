@@ -5,8 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import etomica.api.IAction;
+import etomica.api.IController;
+
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.action.activity.Controller;
 
 /**
@@ -22,7 +24,7 @@ public class DeviceButton extends Device {
      * call to setAction is needed to make the button do something.
      * @param controller
      */
-    public DeviceButton(Controller controller) {
+    public DeviceButton(IController controller) {
         super(controller);
         button = new JButton();
     }
@@ -31,7 +33,7 @@ public class DeviceButton extends Device {
      * Constructs a button connected to the given action.  Controller
      * and action may be changed independently after construction.
      */
-    public DeviceButton(Controller controller, Action action) {
+    public DeviceButton(IController controller, IAction action) {
         this(controller);
         setAction(action);
     }
@@ -53,12 +55,12 @@ public class DeviceButton extends Device {
     /**
      * Returns the currently defined action associated with the button.
      */
-    public etomica.action.Action getAction() {return targetAction;}
+    public IAction getAction() {return targetAction;}
 
     /**
      * Defines the action to be performed when the button is pressed.
      */
-    public void setAction(final Action newAction) {
+    public void setAction(final IAction newAction) {
         if(buttonAction != null) button.removeActionListener(buttonAction);
         targetAction = newAction;
         if(newAction == null) return;
@@ -93,7 +95,7 @@ public class DeviceButton extends Device {
     
     private ActionListener buttonAction;
     protected JButton button;
-    protected Action targetAction;
+    protected IAction targetAction;
     
     /**
      * Method to demonstrate and test the use of this class.  

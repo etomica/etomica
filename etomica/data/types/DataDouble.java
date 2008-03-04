@@ -1,5 +1,6 @@
 package etomica.data.types;
 
+import etomica.api.IFunction;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
@@ -7,7 +8,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
-import etomica.util.Function;
 
 /**
  * Data object wrapping a single mutable value of type <tt>double</tt>. Value is
@@ -103,7 +103,7 @@ public class DataDouble implements Data, java.io.Serializable {
      * Maps the function on this instance's value, replacing it with the value
      * returned by the function.
      */
-    public void map(Function function) {
+    public void map(IFunction function) {
         x = function.f(x);
     }
 

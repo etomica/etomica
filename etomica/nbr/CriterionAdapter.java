@@ -4,9 +4,9 @@
  */
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance
@@ -41,7 +41,7 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
      * true if pair meets this criterion and that of the wrapped
      * NeighborCriterion.
      */
-    public abstract boolean accept(AtomSet pair);
+    public abstract boolean accept(IAtomSet pair);
 
     /**
      * Indicates whether the neighbor list for the given atom should be updated,

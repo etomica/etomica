@@ -1,18 +1,18 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSet;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
-import etomica.species.ISpecies;
-import etomica.util.IRandom;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
@@ -43,7 +43,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient double uNew = Double.NaN;
     private transient int iInsert, iDelete;
 
-    public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -59,7 +59,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * Extends the superclass method to initialize the exchange-set species agents for the box.
      */
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(box);
     }//end setBox
@@ -129,7 +129,7 @@ public class MCMoveSemigrand extends MCMoveBox {
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
   
-        AtomSet moleculeList = box.getMoleculeList(speciesSet[iDelete]);
+        IAtomSet moleculeList = box.getMoleculeList(speciesSet[iDelete]);
         deleteMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();

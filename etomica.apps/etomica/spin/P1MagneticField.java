@@ -1,8 +1,9 @@
 package etomica.spin;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
 import etomica.potential.Potential1;
 import etomica.space.Space;
 
@@ -29,7 +30,7 @@ public class P1MagneticField extends Potential1 {
     /* (non-Javadoc)
      * @see etomica.Potential#energy(etomica.AtomSet)
      */
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         IVector r = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
         return h * r.dot(direction);
     }

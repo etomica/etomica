@@ -2,8 +2,8 @@ package etomica.action.activity;
 
 import java.util.LinkedList;
 
-import etomica.action.Action;
 import etomica.action.Activity;
+import etomica.api.IAction;
 import etomica.util.Arrays;
 
 /**
@@ -16,10 +16,10 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 	 *  
 	 */
 	public ActivityGroupParallel() {
-		this(new Action[0]);
+		this(new IAction[0]);
 	}
 
-	public ActivityGroupParallel(Action[] actions) {
+	public ActivityGroupParallel(IAction[] actions) {
 		super();
 		setActions(actions);
 	}
@@ -86,45 +86,45 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 		}
 	}
 
-	public synchronized Action[] getAllActions() {
-		return (Action[])actions.clone();
+	public synchronized IAction[] getAllActions() {
+		return (IAction[])actions.clone();
 	}
 
-	public synchronized Action[] getCompletedActions() {
-		if (firstThread == null) return new Action[0];
+	public synchronized IAction[] getCompletedActions() {
+		if (firstThread == null) return new IAction[0];
 		LinkedList completedActions = new LinkedList();
 		for (MyThread thread = firstThread; thread != null; thread = thread.nextThread) {
 			if (!thread.isAlive()) {
 				completedActions.add(thread.action);
 			}
 		}
-		return (Action[])completedActions.toArray();
+		return (IAction[])completedActions.toArray();
 	}
 	
-	public synchronized Action[] getPendingActions() {
-		if (firstThread == null) return (Action[])actions.clone();
-		return new Action[0];
+	public synchronized IAction[] getPendingActions() {
+		if (firstThread == null) return (IAction[])actions.clone();
+		return new IAction[0];
 	}
 	
-	public synchronized Action[] getCurrentActions() {
-		if (firstThread == null) return new Action[0];
+	public synchronized IAction[] getCurrentActions() {
+		if (firstThread == null) return new IAction[0];
 		LinkedList currentActions = new LinkedList();
 		for (MyThread thread = firstThread; thread != null; thread = thread.nextThread) {
 			if (thread.isAlive()) {
 				currentActions.add(thread.action);
 			}
 		}
-		return (Action[])currentActions.toArray();
+		return (IAction[])currentActions.toArray();
 	}
 	
-	public synchronized void setActions(Action[] actions) {
+	public synchronized void setActions(IAction[] actions) {
 		if (firstThread != null)
 			return;
 		this.actions = actions;
 		numActions = actions.length;
 	}
 
-	public synchronized void addAction(Action newAction) {
+	public synchronized void addAction(IAction newAction) {
 		if (lastThread != null) {
 			lastThread.nextThread = new MyThread(newAction);
 			lastThread = lastThread.nextThread;
@@ -135,14 +135,14 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 			// and if lastThread is null it means actionPerformed finished.
 			return;
 		}
-		actions = (Action[]) Arrays.addObject(actions, newAction);
+		actions = (IAction[]) Arrays.addObject(actions, newAction);
 		numActions++;
 	}
 
-	public synchronized boolean removeAction(Action action) {
+	public synchronized boolean removeAction(IAction action) {
 		if (firstThread != null)
 			return false;
-		actions = (Action[]) Arrays.removeObject(actions, action);
+		actions = (IAction[]) Arrays.removeObject(actions, action);
 		int newNumActions = actions.length;
 		if (newNumActions == numActions)
 			return false;
@@ -152,11 +152,11 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 
     private static final long serialVersionUID = 1L;
 	protected int numActions;
-	protected Action[] actions;
+	protected IAction[] actions;
 	protected MyThread lastThread, firstThread;
 
 	private static class MyThread extends Thread {
-		public MyThread(Action action) {
+		public MyThread(IAction action) {
 			this.action = action;
 		}
 
@@ -170,7 +170,7 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 			}
 		}
 
-		protected Action action;
+		protected IAction action;
 		protected MyThread nextThread;
 		protected boolean completedNormally;
 	}

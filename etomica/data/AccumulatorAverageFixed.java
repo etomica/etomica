@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IFunction;
 import etomica.util.Function;
 
 /**

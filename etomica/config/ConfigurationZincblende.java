@@ -2,10 +2,12 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
@@ -14,7 +16,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -52,10 +53,10 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(Box box, Space space) {
+    public void initializeCoordinates(IBox box, Space space) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(space));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(space));
-        AtomSet[] lists = new AtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
+        IAtomSet[] lists = new IAtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -119,7 +120,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
     	Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        final Box box = new Box(sim, space);
+        final IBox box = new Box(sim, space);
         box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addBox(box);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);

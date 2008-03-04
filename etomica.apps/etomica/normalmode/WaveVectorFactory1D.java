@@ -2,13 +2,14 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -30,7 +31,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         }
     }
     
-    public void makeWaveVectors(Box box) {
+    public void makeWaveVectors(IBox box) {
 
         int nA = box.moleculeCount();
         double L = box.getBoundary().getDimensions().x(0);
@@ -63,7 +64,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public static void main(String[] args) {
         int nCells = 6;
         Simulation sim = new Simulation(Space1D.getInstance());
-        Box box = new Box(sim, sim.getSpace());
+        IBox box = new Box(sim, sim.getSpace());
         sim.addBox(box);
         box.setDimensions(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim);

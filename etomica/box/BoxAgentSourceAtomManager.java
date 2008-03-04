@@ -1,5 +1,6 @@
 package etomica.box;
 
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
@@ -15,7 +16,7 @@ public class BoxAgentSourceAtomManager implements BoxAgentSource, java.io.Serial
         return AtomAgentManager.class;
     }
 
-    public Object makeAgent(Box box) {
+    public Object makeAgent(IBox box) {
         return new AtomAgentManager(atomAgentSource,box);
     }
 

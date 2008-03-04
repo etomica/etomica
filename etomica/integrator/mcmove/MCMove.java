@@ -1,8 +1,8 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.AtomIterator;
-import etomica.potential.PotentialMaster;
 
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by
@@ -22,7 +22,7 @@ public abstract class MCMove implements java.io.Serializable {
      * @param nBoxs the number of boxs on which the move acts.  This is used at
      * construction to size the (final) boxs array and cannot be changed.
      */
-	public MCMove(PotentialMaster potentialMaster) {
+	public MCMove(IPotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveTracker());
     }
 
@@ -31,7 +31,7 @@ public abstract class MCMove implements java.io.Serializable {
      * @param nBoxs the number of boxs on which the move acts.  This is used at
      * construction to size the (final) boxs array and cannot be changed.
      */
-    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
+    public MCMove(IPotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
         potential = potentialMaster;
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
@@ -110,7 +110,7 @@ public abstract class MCMove implements java.io.Serializable {
 		return nominalFrequency;
 	}
 
-    protected final PotentialMaster potential;
+    protected final IPotentialMaster potential;
 
     /**
 	 * Value giving nominal frequency for performing this move. Default is 100,

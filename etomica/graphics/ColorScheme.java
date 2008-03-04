@@ -3,7 +3,8 @@ import java.awt.Color;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
-import etomica.atom.IAtom;
+import etomica.api.IAction;
+import etomica.api.IAtom;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -50,7 +51,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
       final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
 
-      Action repaintAction = simGraphic.getPaintAction(sim.box);
+      IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
       nSelector.setResetAction(new SimulationRestart(sim));
@@ -71,7 +72,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);
       cell.setLattice(((PotentialMasterList)sim.potentialMaster).getNbrCellManager(sim.box).getLattice());
       
-      Action act = new Action() {
+      IAction act = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           ct.setColor(sim.species.getMoleculeType(), 
@@ -82,38 +83,38 @@ public abstract class ColorScheme implements java.io.Serializable {
           dp.setColorScheme(ct);
         }
       };
-      Action act2 = new Action() {
+      IAction act2 = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(ctemp);
         }
       };
-      Action act3 = new Action() {
+      IAction act3 = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(ccld);
         }
       };
-      Action act4 = new Action() {
+      IAction act4 = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(nghb);
         }
       };
-      Action act5 = new Action() {
+      IAction act5 = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(rand);
         }
       };
-      Action act6 = new Action() {
+      IAction act6 = new Action() {
         public void actionPerformed() {
           ct.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(ct);
         }
       };
-      Action act7 = new Action() {
+      IAction act7 = new Action() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(cell);

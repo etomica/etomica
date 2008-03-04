@@ -2,7 +2,8 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.models.ModelChain;
@@ -26,7 +27,7 @@ import etomica.species.SpeciesSpheres;
 public class ChainHSMD3D extends Simulation {
 
     private static final long serialVersionUID = 2L;
-    public Box box;
+    public IBox box;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;
@@ -68,7 +69,7 @@ public class ChainHSMD3D extends Simulation {
 
         potential = new P2HardSphere(space, 1.0, true);
         AtomTypeLeaf leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential, new IAtomType[]{leafType,leafType});
 
         integrator.setBox(box);
     }

@@ -2,17 +2,16 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorNull;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
@@ -25,8 +24,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     
     private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
-    protected final Box firstBox;
-    protected final Box secondBox;
+    protected final IBox firstBox;
+    protected final IBox secondBox;
     private final IntegratorBox integrator1;
     private final IntegratorBox integrator2;
     private final BoxInflate inflate1;
@@ -41,7 +40,7 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(PotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeExchange(IPotentialMaster potentialMaster, IRandom random,
             IntegratorBox integrator1, IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());
         this.random = random;

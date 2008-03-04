@@ -1,5 +1,8 @@
 package etomica.atom;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.Space;
 
@@ -20,7 +23,7 @@ public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
     public void init() {
         // make a pretend molecule and calculate its moment of inertia
         IMolecule molecule = species.makeMolecule();
-        AtomSet children = molecule.getChildList();
+        IAtomSet children = molecule.getChildList();
         conformation.initializePositions(children);
         IVector com = space.makeVector();
         com.E(positionDefinition.position(molecule));

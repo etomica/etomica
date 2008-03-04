@@ -1,8 +1,8 @@
 
 package etomica.nbr;
 
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 
 /**
  * Filters atoms pairs to match a given pair of AtomTypes.
@@ -12,7 +12,7 @@ import etomica.atom.AtomType;
 public class CriterionTypePair extends CriterionAdapter {
 
     public CriterionTypePair(NeighborCriterion criterion, 
-            AtomType type0, AtomType type1) {
+            IAtomType type0, IAtomType type1) {
         super(criterion);
         this.type0 = type0;
         this.type1 = type1;
@@ -23,9 +23,9 @@ public class CriterionTypePair extends CriterionAdapter {
      * given at construction (without regard to the order of the pair), and if 
      * the wrapped criterion also accepts the pair.
      */
-    public boolean accept(AtomSet pair) {
-        AtomType atom0Type = pair.getAtom(0).getType();
-        AtomType atom1Type = pair.getAtom(1).getType();
+    public boolean accept(IAtomSet pair) {
+        IAtomType atom0Type = pair.getAtom(0).getType();
+        IAtomType atom1Type = pair.getAtom(1).getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);
@@ -36,11 +36,11 @@ public class CriterionTypePair extends CriterionAdapter {
     /**
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
-    public AtomType[] getTypes() {
-        return new AtomType[]{type0,type1};
+    public IAtomType[] getTypes() {
+        return new IAtomType[]{type0,type1};
     }
     
     private static final long serialVersionUID = 1L;
-    private final AtomType type0;
-    private final AtomType type1;
+    private final IAtomType type0;
+    private final IAtomType type1;
 }

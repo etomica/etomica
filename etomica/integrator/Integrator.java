@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IIntegrator;
+import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IVector;
 import etomica.exception.ConfigurationOverlapException;
 
@@ -153,7 +155,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     protected synchronized void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
         Iterator iter = listeners.iterator();
         while(iter.hasNext()) {
-            ((IntegratorNonintervalListener)iter.next()).nonintervalAction(ie);
+            ((IIntegratorNonintervalListener)iter.next()).nonintervalAction(ie);
         }
     }
 
@@ -163,7 +165,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * integrator, an exception is thrown.  If listener is null,
      * NullPointerException is thrown.
      */
-    public synchronized void addIntervalAction(Action newIntervalAction) {
+    public synchronized void addIntervalAction(IAction newIntervalAction) {
         if(newIntervalAction == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if (intervalListeners.contains(newIntervalAction)) {
             throw new RuntimeException(newIntervalAction+" is already an interval action");
@@ -179,7 +181,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * before those with a larger priority.  The priority must be positive and
      * not greater than 200.  The default priority is 100.
      */
-    public synchronized void setIntervalActionPriority(Action intervalAction, int newPriority) {
+    public synchronized void setIntervalActionPriority(IAction intervalAction, int newPriority) {
         if (newPriority < 0 || newPriority > 200) {
             throw new RuntimeException("Priority may not be negative or greater than 200");
         }
@@ -192,7 +194,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * will be fired after every N steps, where N is the newInterval given to
      * this method.
      */
-    public synchronized void setActionInterval(Action intervalAction, int newInterval) {
+    public synchronized void setActionInterval(IAction intervalAction, int newInterval) {
         if (newInterval < 1) {
             throw new RuntimeException("Action interval must be positive");
         }
@@ -203,7 +205,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * Returns the interval for the given action.  The action is fired after
      * every N steps, where N is the number returned by this method.
      */
-    public synchronized int getActionInterval(Action intervalAction) {
+    public synchronized int getActionInterval(IAction intervalAction) {
         return findWrapper(intervalAction).interval;
     }
         
@@ -211,7 +213,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * Finds and returns the ListenerWrapper used to put the given listener in the list.
      * Returns null if listener is not in list.
      */
-    private ListenerWrapper findWrapper(Action intervalAction) {
+    private ListenerWrapper findWrapper(IAction intervalAction) {
         Iterator iterator = intervalListeners.iterator();
         while(iterator.hasNext()) {
             ListenerWrapper wrapper = (ListenerWrapper)iterator.next();
@@ -225,7 +227,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-    public synchronized void removeIntervalAction(Action intervalAction) {
+    public synchronized void removeIntervalAction(IAction intervalAction) {
         intervalListeners.remove(findWrapper(intervalAction));
         sortListeners();
     }
@@ -235,7 +237,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * this integrator.  If listener has already been added to integrator, it is
      * not added again.  If listener is null, NullPointerException is thrown.
      */
-    public synchronized void addNonintervalListener(IntegratorNonintervalListener iil) {
+    public synchronized void addNonintervalListener(IIntegratorNonintervalListener iil) {
         if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if(!listeners.contains(iil)) {
             listeners.add(iil);
@@ -247,24 +249,24 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-    public synchronized void removeNonintervalListener(IntegratorNonintervalListener iil) {
+    public synchronized void removeNonintervalListener(IIntegratorNonintervalListener iil) {
         listeners.remove(iil);
     }
 
-    public synchronized Action[] getIntervalActions() {
-        Action[] intervalListenerArray = new Action[listenerWrapperArray.length];
+    public synchronized IAction[] getIntervalActions() {
+        IAction[] intervalListenerArray = new IAction[listenerWrapperArray.length];
         for (int i=0; i<intervalListenerArray.length; i++) {
             intervalListenerArray[i] = listenerWrapperArray[i].intervalAction;
         }
         return intervalListenerArray;
     }
 
-    public synchronized IntegratorNonintervalListener[] getNonintervalListeners() {
-        IntegratorNonintervalListener[] listenerArray = new IntegratorNonintervalListener[listeners.size()];
+    public synchronized IIntegratorNonintervalListener[] getNonintervalListeners() {
+        IIntegratorNonintervalListener[] listenerArray = new IIntegratorNonintervalListener[listeners.size()];
         Iterator iter = listeners.iterator();
         int i=0;
         while(iter.hasNext()) {
-            listenerArray[i++] = (IntegratorNonintervalListener)iter.next();
+            listenerArray[i++] = (IIntegratorNonintervalListener)iter.next();
         }
         return listenerArray;
     }
@@ -276,12 +278,12 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      */
     private static class ListenerWrapper implements Comparable, java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        protected final Action intervalAction;
+        protected final IAction intervalAction;
         protected int priority;
         protected int interval;
         protected int intervalCount;
         
-        protected ListenerWrapper(Action intervalAction, int priority) {
+        protected ListenerWrapper(IAction intervalAction, int priority) {
             this.intervalAction = intervalAction;
             this.priority = priority;
             interval = 1;

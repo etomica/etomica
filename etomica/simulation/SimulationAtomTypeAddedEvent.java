@@ -1,10 +1,10 @@
 package etomica.simulation;
 
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
 
 public class SimulationAtomTypeAddedEvent extends SimulationAtomTypeEvent {
 
-    public SimulationAtomTypeAddedEvent(AtomType newAtomType) {
+    public SimulationAtomTypeAddedEvent(IAtomType newAtomType) {
         super(newAtomType);
     }
 

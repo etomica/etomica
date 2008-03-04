@@ -1,8 +1,8 @@
 package etomica.action.activity;
 
 import etomica.action.Activity;
+import etomica.api.IIntegrator;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IIntegrator;
 import etomica.util.Debug;
 
 /**

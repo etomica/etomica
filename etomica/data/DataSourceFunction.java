@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
+import etomica.api.IFunction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -22,15 +23,15 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     public DataSourceFunction() {
         this(new Function.Constant(0.0));
     }
-    public DataSourceFunction(Function function) {
+    public DataSourceFunction(IFunction function) {
         this("y(x)", Null.DIMENSION, function, 100);
     }
     
-    public DataSourceFunction(String label, Dimension dimension, Function function, int nValues) {
+    public DataSourceFunction(String label, Dimension dimension, IFunction function, int nValues) {
         this(label, dimension, function, nValues, "x", Null.DIMENSION);
     }
     
-    public DataSourceFunction(String label, Dimension dimension, Function function, int nValues,
+    public DataSourceFunction(String label, Dimension dimension, IFunction function, int nValues,
             String xLabel, Dimension xDimension) {
         xSource = new DataSourceUniform(xLabel, xDimension,nValues,0,1);
         this.function = function;
@@ -66,13 +67,13 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     /**
      * @return Returns the function.
      */
-    public Function getFunction() {
+    public IFunction getFunction() {
         return function;
     }
     /**
      * @param function The function to set.
      */
-    public void setFunction(Function function) {
+    public void setFunction(IFunction function) {
         this.function = function;
         updateF();
     }
@@ -131,6 +132,6 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     private IDataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
-    private Function function;
+    private IFunction function;
     protected final DataTag tag;
 }

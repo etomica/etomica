@@ -6,17 +6,17 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.box.Box;
 import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
-import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
@@ -40,7 +40,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected final AtomPair pair;
     protected PotentialGroup potential;
     
-    public MCMoveMoleculeCoupled(PotentialMaster potentialMaster, IRandom nRandom){
+    public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom){
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new AtomSourceRandomMolecule();
@@ -61,7 +61,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

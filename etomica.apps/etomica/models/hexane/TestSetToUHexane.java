@@ -3,14 +3,18 @@ package etomica.models.hexane;
 /**
  * @author cribbin
  */
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
+
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -23,7 +27,6 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -38,7 +41,7 @@ public class TestSetToUHexane extends Simulation {
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
     SpeciesHexane species;
-    Box box;
+    IBox box;
     
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -171,7 +174,7 @@ public class TestSetToUHexane extends Simulation {
         int nsteps = chainLength * 500;
             
         //Store old positions
-        AtomSet aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
+        IAtomSet aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
         AtomsetArrayList list = new AtomsetArrayList();
         list.setAtoms(aal);
 

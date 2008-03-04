@@ -1,16 +1,16 @@
 package etomica.config;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 
 /**
  * 
@@ -104,7 +104,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         eulerRotationB2LatticeBOTTOM.invert();
                 
     }
-    
+
     /**
      * Allows a user to specify a plane for GB 
      */
@@ -134,7 +134,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	
     }
     
-    public void initializeCoordinates(Box box){
+    public void initializeCoordinates(IBox box){
         
         /**
          * FILL ATOMS IN TOP DOMAIN

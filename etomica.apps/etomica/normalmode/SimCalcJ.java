@@ -2,6 +2,7 @@ package etomica.normalmode;
 
 import Jama.Matrix;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -106,7 +107,7 @@ public class SimCalcJ extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-    public Box box;
+    public IBox box;
     public Boundary bdry;
     public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;

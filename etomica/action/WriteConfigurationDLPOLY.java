@@ -6,18 +6,17 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryPeriodic;
 import etomica.space3d.BoundaryTruncatedOctahedron;
@@ -62,7 +61,7 @@ public class WriteConfigurationDLPOLY implements Action {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         setDoApplyPBC(true);
     }
@@ -115,7 +114,7 @@ public class WriteConfigurationDLPOLY implements Action {
         	
         	Formatter formatter = new Formatter(new File(fileName));
         	
-        	Boundary boundary = box.getBoundary();
+        	IBoundary boundary = box.getBoundary();
         	int boundaryType = -1;
         	if (boundary instanceof BoundaryTruncatedOctahedron){
         		boundaryType = 4;
@@ -199,7 +198,7 @@ public class WriteConfigurationDLPOLY implements Action {
     }
 
     private String confName;
-    private Box box;
+    private IBox box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
     private HashMap elementHash;

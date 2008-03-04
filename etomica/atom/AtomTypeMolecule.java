@@ -1,8 +1,8 @@
 package etomica.atom;
 
+import etomica.api.ISpecies;
 import etomica.config.Conformation;
 import etomica.simulation.SpeciesManager;
-import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 /**

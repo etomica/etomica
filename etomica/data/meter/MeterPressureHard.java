@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.units.Pressure;
 
@@ -27,7 +27,7 @@ public class MeterPressureHard extends DataSourceScalar implements
      */
     public double getDataAsScalar() {
         if (integratorHard == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        Box box = integratorHard.getBox();
+        IBox box = integratorHard.getBox();
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;

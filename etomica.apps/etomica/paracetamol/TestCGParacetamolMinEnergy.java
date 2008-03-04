@@ -1,8 +1,9 @@
 package etomica.paracetamol;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IMolecule;
+
 import etomica.action.PDBWriter;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.space.Space;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;

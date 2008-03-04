@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 /**
  * Provides information about all the normal modes for a periodic system.  The periodicity is
@@ -24,14 +24,14 @@ public interface NormalModes {
      * motions. First index indicates the wave vector, and second index indicates the
      * eigenvector. Length of second index is coordinateDim.
      */
-    public double[][] getOmegaSquared(Box box);
+    public double[][] getOmegaSquared(IBox box);
 
     /**
      * First index corresponds to the wave vector; second index gives the eigenvector, and
      * third index gives the elements of the vector.  Length of 2nd and 3rd dimensions is 
      * coordinateDim. 
      */
-    public double[][][] getEigenvectors(Box box);
+    public double[][][] getEigenvectors(IBox box);
     
     /**
      * Set the fudge factor applied to frequencies.  The squared-frequencies returned

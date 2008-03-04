@@ -15,6 +15,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IFunction;
 import etomica.data.Data;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
@@ -22,7 +24,6 @@ import etomica.data.DataSourcePoints;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.Function;
 
 public class DevicePlotPoints {
 
@@ -50,22 +51,22 @@ public class DevicePlotPoints {
 	private DeviceSlider[] plotSizeSliders = new DeviceSlider[4];
 	private JCheckBox buttonAuto;
     private DeviceSlider funcSlider[];
-    private Action updateAction;
+    private IAction updateAction;
     private GridBagConstraints vertGBC;
 
     private int numFunctions;
-    private Function[] functions;
+    private IFunction[] functions;
     private DataSourceFunction[] dataSourceFuncs;
     private DataPump funcPumps[];
     private ModifierGeneral[] mods;
     private String[] funcParmLabels;
 
-	public DevicePlotPoints(Function[] fncts, String[] funcNames, String[] colNames) {
+	public DevicePlotPoints(IFunction[] fncts, String[] funcNames, String[] colNames) {
 		this(null, fncts, funcNames, true);
 	}
 
 	public DevicePlotPoints(String[] sliderLabels,
-			Function[] fncts, String[] funcNames, boolean verticalParameters) {
+			IFunction[] fncts, String[] funcNames, boolean verticalParameters) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -123,7 +124,7 @@ public class DevicePlotPoints {
         delButton.setLabel("Delete Point(s)");
         ((JPanel)table.graphic()).add(delButton.graphic(), vertGBC);
 
-	    Action deletePointAction = new Action() {
+	    IAction deletePointAction = new Action() {
 	        public void actionPerformed() {
 	        	
 	        	int[] selRows = table.getSelectedRows();
@@ -222,7 +223,7 @@ public class DevicePlotPoints {
         plot.setSize(650, 400);
 
 		// Initialize functions displayed on plot
-		functions = new Function[numFunctions];
+		functions = new IFunction[numFunctions];
 		dataSourceFuncs = new DataSourceFunction[numFunctions];
 		funcPumps = new DataPump[numFunctions];
 		for(int f = 0; f < numFunctions; f++) {

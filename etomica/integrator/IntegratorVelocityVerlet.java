@@ -3,27 +3,27 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
-import etomica.util.IRandom;
 
 public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource {
 
@@ -35,11 +35,11 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVelocityVerlet(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,
+    public IntegratorVelocityVerlet(IPotentialMaster potentialMaster, IRandom random,
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
@@ -67,7 +67,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -84,14 +84,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public void doStepInternal() {
         super.doStepInternal();
         if (Debug.ON && Debug.DEBUG_NOW) {
-            AtomSet pair = Debug.getAtoms(box);
+            IAtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -147,7 +147,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
         super.reset();
         if (Debug.ON && Debug.DEBUG_NOW) {
-            AtomSet pair = Debug.getAtoms(box);
+            IAtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());

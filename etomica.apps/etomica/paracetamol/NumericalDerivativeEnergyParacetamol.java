@@ -1,18 +1,17 @@
 package etomica.paracetamol;
 
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.box.Box;
+import etomica.api.IPotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.potential.PotentialMaster;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 
 public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimensionalDifferentiable{
 	
-	public NumericalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster){
+	public NumericalDerivativeEnergyParacetamol(IBox box, IPotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -25,7 +24,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 		
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -46,7 +45,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	public double df(int[] d, double[] u){
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -100,7 +99,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	protected MeterPotentialEnergy meterEnergy;
 	protected double[] fPrime;
 	protected IBox box;
-	protected PotentialMaster potentialMaster;
+	protected IPotentialMaster potentialMaster;
 	//public Species species;
 	
 }

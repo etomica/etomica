@@ -2,14 +2,14 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
 
 
 /**
@@ -35,7 +35,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {1},11,new int[] {1});
-        AtomSet atomList = ((IMolecule)sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(0)).getChildList();
+        IAtomSet atomList = ((IMolecule)sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(0)).getChildList();
 
         //atom in middle of list
         IAtom atom = atomList.getAtom(5);

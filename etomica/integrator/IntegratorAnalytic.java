@@ -1,12 +1,12 @@
 package etomica.integrator;
 
 import etomica.action.AtomAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -22,11 +22,11 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
     
-    public IntegratorAnalytic(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorAnalytic(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, _space);
     }
     
-    public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
+    public IntegratorAnalytic(IPotentialMaster potentialMaster, IRandom random,
                               double timeStep, Space _space) {
         super(potentialMaster,random,timeStep,0, _space);
     }
@@ -36,7 +36,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             action.actionPerformed(leafList.getAtom(iLeaf));

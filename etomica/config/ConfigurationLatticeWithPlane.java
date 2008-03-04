@@ -3,9 +3,12 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -19,7 +22,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -140,7 +142,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      */
 // Method is assuming plane is in the middle.  Calculations making this
 // assumption are noted.
-    public void initializeCoordinates(Box box) {
+    public void initializeCoordinates(IBox box) {
 
         int numSpecies = species.size();
         int[] speciesCount = new int[numSpecies];
@@ -260,8 +262,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Box box = new Box(sim, sp);
+        IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);

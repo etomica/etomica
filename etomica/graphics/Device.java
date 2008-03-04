@@ -1,6 +1,9 @@
 package etomica.graphics;
 import java.awt.Component;
 
+import etomica.api.IAction;
+import etomica.api.IController;
+
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.units.Dimension;
@@ -15,14 +18,14 @@ import etomica.units.Unit;
 public abstract class Device implements GraphicalElement, Dimensioned {
     
     protected Unit unit;
-    protected Controller controller;
+    protected IController controller;
     private final ActionSet actionSet = new ActionSet();
     
     public Device() {
         this(null);
     }
     
-    public Device(Controller controller) {
+    public Device(IController controller) {
         this.controller = controller;
     }
     
@@ -36,7 +39,7 @@ public abstract class Device implements GraphicalElement, Dimensioned {
      * If a controller has not been defined (is null), then the action is performed
      * on the thread calling this method.
      */
-    protected void doAction(Action action) {
+    protected void doAction(IAction action) {
         if (action == null) return;
         actionSet.action = action;
         if(controller != null) {
@@ -51,7 +54,7 @@ public abstract class Device implements GraphicalElement, Dimensioned {
      * by the device.  This is useful for modifying the behavior of concrete
      * subclasses of the device without accessing their primary action.
      */
-    public void setPreAction(Action action) {
+    public void setPreAction(IAction action) {
         actionSet.preAction = action;
     }
     
@@ -60,20 +63,20 @@ public abstract class Device implements GraphicalElement, Dimensioned {
      * by the device.  This is useful for modifying the behavior of concrete
      * subclasses of the device without accessing their primary action.
      */
-    public void setPostAction(Action action) {
+    public void setPostAction(IAction action) {
         actionSet.postAction = action;
     }
     
     /**
      * @return Returns the controller.
      */
-    public Controller getController() {
+    public IController getController() {
         return controller;
     }
     /**
      * @param controller The controller to set.
      */
-    public void setController(Controller controller) {
+    public void setController(IController controller) {
         this.controller = controller;
     }
     
@@ -89,7 +92,7 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     public Dimension getDimension() {return unit.dimension();} //may want to override this in most cases
 
     protected static class ActionSet implements Action {
-        Action preAction, postAction, action;
+        IAction preAction, postAction, action;
         
         public void actionPerformed() {
             if(preAction != null) preAction.actionPerformed();

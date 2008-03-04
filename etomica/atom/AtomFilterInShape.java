@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtom;
 import etomica.math.geometry.Shape;
 
 

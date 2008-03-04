@@ -1,9 +1,9 @@
 
 package etomica.space;
 
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
-import etomica.util.IRandom;
 
 /**
  * Deformable boundary that takes the shape of a primitive with some number

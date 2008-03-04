@@ -2,7 +2,10 @@ package etomica.yukawa;
 
 import java.awt.Color;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
@@ -19,7 +22,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -35,7 +37,7 @@ public class TestYukawaMD3D extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "Test Yukawa MD3D";
-    public final Box box;
+    public final IBox box;
 	public final IntegratorVelocityVerlet integrator;
 	public final SpeciesSpheresMono species;
 	public final P2Yukawa potential;
@@ -87,7 +89,7 @@ public class TestYukawaMD3D extends Simulation{
 	public static void main(String[] args){
 		TestYukawaMD3D sim = new TestYukawaMD3D();
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
-		Action repaintAction = simGraphic.getPaintAction(sim.box);
+		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

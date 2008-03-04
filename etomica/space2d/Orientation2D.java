@@ -2,11 +2,11 @@ package etomica.space2d;
 
 import java.io.Serializable;
 
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.util.Constants;
-import etomica.util.IRandom;
 
 /**
  * Orientation in a 2-dimensional space. Orientation can be expressed in terms

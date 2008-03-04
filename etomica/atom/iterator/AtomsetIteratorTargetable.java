@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 
 /**
  * Interface for an iterator that can be targeted at one or more atoms.

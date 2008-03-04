@@ -7,6 +7,8 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.activity.Controller;
+import etomica.api.IAction;
+import etomica.api.IController;
 import etomica.modifier.ModifierBoolean;
 
 /**
@@ -20,15 +22,15 @@ import etomica.modifier.ModifierBoolean;
  */
 public class DeviceToggleButton extends DeviceButton {
 
-    public DeviceToggleButton(Controller controller) {
+    public DeviceToggleButton(IController controller) {
         super(controller);
     }
     
-    public DeviceToggleButton(Controller controller, ModifierBoolean modifier) {
+    public DeviceToggleButton(IController controller, ModifierBoolean modifier) {
         this(controller, modifier, "True", "False");
     }
 
-    public DeviceToggleButton(Controller controller, ModifierBoolean modifier,
+    public DeviceToggleButton(IController controller, ModifierBoolean modifier,
             String trueText, String falseText) {
         super(controller);
         setModifier(modifier, trueText, falseText);
@@ -42,7 +44,7 @@ public class DeviceToggleButton extends DeviceButton {
     
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
-        setAction(new ActionGroupSeries(new Action[] { toggleAction, relabelButton }));
+        setAction(new ActionGroupSeries(new IAction[] { toggleAction, relabelButton }));
         button.setText(modifier.getBoolean() ? trueText : falseText);
     }
 
@@ -95,7 +97,7 @@ public class DeviceToggleButton extends DeviceButton {
     }
 
     protected ActionToggle toggleAction;
-    private final Action relabelButton = new Action() {
+    private final IAction relabelButton = new Action() {
 
         public void actionPerformed() {
             DeviceToggleButton.this.setLabel(toggleAction.getLabel());

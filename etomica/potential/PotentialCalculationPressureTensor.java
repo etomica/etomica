@@ -1,7 +1,8 @@
 package etomica.potential;
 
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
+import etomica.api.IPotential;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
@@ -20,7 +21,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final Space space;
-    protected AtomSet leafList;
+    protected IAtomSet leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
     
@@ -38,7 +39,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 
 		iterator.reset();
-        for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
+        for (IAtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
             potentialSoft.gradient(atoms, pressureTensor);
 		}
 	}

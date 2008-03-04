@@ -1,5 +1,7 @@
 package etomica.action;
 
+import etomica.action.activity.Controller;
+
 /**
  * Switches controller between paused and unpaused conditions, or starts
  * it if not yet active.
@@ -8,7 +10,7 @@ public class ControllerToggle extends ControllerActionAdapter {
         
     public void actionPerformed() {
     	if(controller == null) return;
-        if(!controller.isActive()) {
+        if(!((Controller)controller).isActive()) {
             Thread runner = new Thread(new Runnable() {
                 public void run() {
                     try {
@@ -23,8 +25,8 @@ public class ControllerToggle extends ControllerActionAdapter {
             });
             runner.start();
         }
-        else if(!controller.isPaused()) controller.pause();
-        else controller.unPause();
+        else if(!((Controller)controller).isPaused()) ((Controller)controller).pause();
+        else ((Controller)controller).unPause();
     }
 
     private static final long serialVersionUID = 1L;

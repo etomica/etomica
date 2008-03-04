@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 import etomica.math.discrete.PermutationIterator;
 
 /**

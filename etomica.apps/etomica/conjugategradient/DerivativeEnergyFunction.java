@@ -1,14 +1,17 @@
 package etomica.conjugategradient;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.action.Activity;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
+//import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.normalmode.CoordinateDefinition;
@@ -26,7 +29,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	 * @author Tai Tan
 	 */
 	
-	protected Box box;
+	protected IBox box;
 	protected MeterPotentialEnergy meterEnergy;
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
@@ -38,7 +41,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected IVector moleculeForce;
 	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
-	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, Space space){
+	public DerivativeEnergyFunction(IBox box, PotentialMaster potentialMaster, Space space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -68,7 +71,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	
 	public double f(double[] newU){
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
 		}
 		
@@ -86,7 +89,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		forceSum.reset();
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -114,7 +117,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
 		
-		AtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
+		IAtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
 				
@@ -129,7 +132,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 			} else {
 				
-				AtomSet childList = ((IMolecule)molecules.getAtom(m)).getChildList();
+				IAtomSet childList = ((IMolecule)molecules.getAtom(m)).getChildList();
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				

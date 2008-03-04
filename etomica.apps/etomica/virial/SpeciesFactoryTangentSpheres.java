@@ -2,8 +2,8 @@ package etomica.virial;
 
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**

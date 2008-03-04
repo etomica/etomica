@@ -4,7 +4,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.activity.Controller;
+import etomica.api.IController;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.modifier.Modifier;
 import etomica.units.Dimension;
@@ -21,7 +22,7 @@ public class DeviceDelaySlider {
     private static final double  DELAY_EXPONENT = 2.0;
     private static final double  DELAY_MULTIPLIER = 100.0 / Math.pow(10.0,DELAY_EXPONENT);
 
-    public DeviceDelaySlider(Controller cont, ActivityIntegrate ai) {
+    public DeviceDelaySlider(IController cont, ActivityIntegrate ai) {
 
     	DelayModifier mod = new DelayModifier(ai);
 

@@ -1,14 +1,17 @@
 package etomica.action;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.atom.AtomPositionCOM;
+import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
-import etomica.space.Boundary;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.space.Space;
 
 /**
@@ -36,13 +39,13 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(Box box, Space space) {
+	public BoxImposePbc(IBox box, Space space) {
 		this(space);
 		setBox(box);
 	}
 
 	public void actionPerformed() {
-		Boundary boundary = box.getBoundary();
+		IBoundary boundary = box.getBoundary();
 		iterator.reset();
         if (applyToMolecules) {
             for (IAtom molecule = iterator.nextAtom(); molecule != null;
@@ -73,7 +76,7 @@ public class BoxImposePbc extends BoxActionAdapter {
         }
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		super.setBox(box);
 		iterator.setBox(box);
         if (space.D() != box.getBoundary().getDimensions().getD()) {

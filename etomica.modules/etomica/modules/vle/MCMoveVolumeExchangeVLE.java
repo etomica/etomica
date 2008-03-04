@@ -1,14 +1,16 @@
 package etomica.modules.vle;
 
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.potential.PotentialMaster;
-import etomica.util.IRandom;
 
 public class MCMoveVolumeExchangeVLE extends MCMoveVolumeExchange {
 
-    public MCMoveVolumeExchangeVLE(PotentialMaster potentialMaster, IRandom random, IntegratorBox integrator1, IntegratorBox integrator2) {
+    public MCMoveVolumeExchangeVLE(IPotentialMaster potentialMaster, IRandom random, IntegratorBox integrator1, IntegratorBox integrator2) {
         super(potentialMaster, random, integrator1, integrator2);
         meterDensity = new MeterDensity(potentialMaster.getSpace());
     }

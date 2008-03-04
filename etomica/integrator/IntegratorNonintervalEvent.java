@@ -1,5 +1,7 @@
 package etomica.integrator;
 
+import etomica.api.IIntegrator;
+
 
 /**
  * Event thrown by integrator when it announces reaching special points in the 

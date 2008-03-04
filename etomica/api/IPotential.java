@@ -1,7 +1,5 @@
-package etomica.potential;
+package etomica.api;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.Dimension;
 
@@ -26,7 +24,7 @@ public interface IPotential {
      * coordinatePair (if it uses one), e.g.:
      * cPair.setNearestImageTransformer(box.boundary());
      */
-    public void setBox(Box box);
+    public void setBox(IBox box);
 
     /**
      * The number of atoms on which the potential depends.
@@ -37,6 +35,6 @@ public interface IPotential {
      * Returns the interaction energy between the given atoms.  There might be
      * 0, 1, 2 or more atoms in the AtomSet.
      */
-    public abstract double energy(AtomSet atoms);
+    public abstract double energy(IAtomSet atoms);
 
 }

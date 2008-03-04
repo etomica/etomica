@@ -1,7 +1,8 @@
 package etomica.potential;
 
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.exception.MethodNotImplementedException;
@@ -47,7 +48,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         hsdiasq=val;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 
@@ -55,7 +56,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return Double.POSITIVE_INFINITY;
     }
 
-    public double energy(AtomSet pair){
+    public double energy(IAtomSet pair){
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented)pair.getAtom(1);
 
@@ -127,11 +128,11 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return Q2;
     }
     
-    public IVector[] gradient(AtomSet pair, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomSet pair, Tensor pressureTensor) {
         return gradient(pair);
     }
 
-    public IVector[] gradient(AtomSet pair) {
+    public IVector[] gradient(IAtomSet pair) {
         IAtomOriented atom1 = (IAtomOriented)pair.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented)pair.getAtom(1);
 
@@ -202,7 +203,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return gradient;
     }
 
-    public double virial(AtomSet atoms) {
+    public double virial(IAtomSet atoms) {
         gradient(atoms);
         IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
@@ -218,7 +219,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return gradient[1].dot(dr);
     }
 
-    public double hyperVirial(AtomSet pair) {
+    public double hyperVirial(IAtomSet pair) {
         throw new MethodNotImplementedException();
     }
 
@@ -279,7 +280,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+        IBox box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim);
         sim.getSpeciesManager().addSpecies(species);
@@ -287,7 +288,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         
         P2LJQ potential = new P2LJQ(sim.getSpace());
         
-        AtomSet leafAtoms = box.getLeafList();
+        IAtomSet leafAtoms = box.getLeafList();
         IAtomOriented atom1 = (IAtomOriented)leafAtoms.getAtom(1);
         potential.setBox(box);
         

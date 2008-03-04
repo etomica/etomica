@@ -1,16 +1,15 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
-import etomica.box.Box;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**
@@ -98,7 +97,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * @param box The box to set.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         tempVec = space.makeVector();
         shapeOrigin = space.makeVector();
@@ -122,7 +121,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */

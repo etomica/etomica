@@ -1,8 +1,11 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IVector;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -33,7 +36,7 @@ public class PistonCylinder extends Simulation {
     private final int INIT_NUM_MOLECULES = 100;
     public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public Potential2HardSphericalWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
     public P1HardMovingBoundary pistonPotential;
@@ -43,7 +46,7 @@ public class PistonCylinder extends Simulation {
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D), true);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMaster(space);
         lambda = 2.0;
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this);

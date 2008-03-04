@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.integrator.IIntegrator;
+import etomica.api.IIntegrator;
 
  /**
   * Elementary action performed on an integrator.

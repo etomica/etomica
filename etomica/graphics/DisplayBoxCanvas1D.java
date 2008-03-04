@@ -7,12 +7,12 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.IAtomPositioned;
-import etomica.space.Boundary;
 import etomica.species.Species;
 
     /* History of changes
@@ -98,7 +98,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(IAtomPositioned a, Boundary b) {
+    protected boolean computeShiftOrigin(IAtomPositioned a, IBoundary b) {
         if(a.getType() instanceof AtomTypeSphere) {
             float[][] shifts = b.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
@@ -166,7 +166,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         if(displayBox.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
-        AtomSet leafList = displayBox.getBox().getLeafList();
+        IAtomSet leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             drawAtom(g, displayBox.getOrigin(), (IAtomPositioned)leafList.getAtom(iLeaf));

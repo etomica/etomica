@@ -1,6 +1,8 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionFirstAtom;
@@ -8,12 +10,10 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**

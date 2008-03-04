@@ -1,17 +1,19 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
+
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.species.ISpecies;
+
 
 /**
  * Potential for a harmonic tether.
@@ -22,7 +24,7 @@ import etomica.species.ISpecies;
  */
 public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
-    public P1Tether(Box box, ISpecies species, Space _space) {
+    public P1Tether(IBox box, ISpecies species, Space _space) {
         super(_space);
         this.species = species;
         agentManager = new AtomAgentManager(this, box);
@@ -38,14 +40,14 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         return epsilon;
     }
 
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
         work.ME((IVector)agentManager.getAgent(atom));
         return 0.5 * epsilon * work.squared();
     }
 
-    public IVector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(IAtomSet atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
         work.ME((IVector)agentManager.getAgent(atom));
@@ -53,11 +55,11 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(AtomSet atoms) {
+    public double virial(IAtomSet atoms) {
         return 0;
     }
 

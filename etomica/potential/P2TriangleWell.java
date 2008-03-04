@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -34,7 +34,7 @@ public class P2TriangleWell extends Potential2 {
         return info;
     }
 
-    public double energy(AtomSet pair) {
+    public double energy(IAtomSet pair) {
         IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         
@@ -56,7 +56,7 @@ public class P2TriangleWell extends Potential2 {
  
 
     // what could call this?
-    public IVector force(AtomSet pair){
+    public IVector force(IAtomSet pair){
         
         IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
@@ -111,7 +111,7 @@ public class P2TriangleWell extends Potential2 {
         return etomica.units.Energy.DIMENSION;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 

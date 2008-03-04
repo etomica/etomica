@@ -1,13 +1,15 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
+
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
@@ -54,8 +56,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	    this.speciesTube = speciesTube;
 	}
 	
-    public void initializeCoordinates(Box box) {
-        AtomSet[] spheresLists = new AtomSet[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
+    public void initializeCoordinates(IBox box) {
+        IAtomSet[] spheresLists = new IAtomSet[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
         
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
@@ -152,7 +154,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         //loop for multiple tubes.
-        AtomSet tubeList = box.getMoleculeList(speciesTube);
+        IAtomSet tubeList = box.getMoleculeList(speciesTube);
         int nTubes = tubeList.getAtomCount();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         // put them all at 0.  oops
@@ -176,7 +178,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	public static void main(String[] args) {
 		Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-		Box box = new Box(sim, sp);
+		IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);

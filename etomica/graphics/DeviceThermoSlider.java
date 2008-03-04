@@ -12,6 +12,9 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 
+import etomica.api.IAction;
+import etomica.api.IController;
+
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.exception.ConfigurationOverlapException;
@@ -33,7 +36,7 @@ public class DeviceThermoSlider extends Device {
 	private final int DEFAULT_MIN_TEMPERATURE = 0;
 	private final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSlider(Controller cont) {
+	public DeviceThermoSlider(IController cont) {
 
         //adiabatic/isothermal radio button
         ButtonGroup thermalGroup = new ButtonGroup();
@@ -235,7 +238,7 @@ public class DeviceThermoSlider extends Device {
 	/**
 	 * Set the temperature slider controller.
 	 */
-    public void setController(Controller cont) {
+    public void setController(IController cont) {
     	super.setController(cont);
         temperatureSlider.setController(cont);
         if (integrator != null) {
@@ -248,7 +251,7 @@ public class DeviceThermoSlider extends Device {
 	/**
 	 * Set the post slider value changed action.
 	 */
-    public void setSliderPostAction(Action action) {
+    public void setSliderPostAction(IAction action) {
         temperatureSlider.setPostAction(action);
     }
 
@@ -298,7 +301,7 @@ public class DeviceThermoSlider extends Device {
 
     }
 
-    private Action integratorBoxIsoChangeSetIso = new Action() {
+    private IAction integratorBoxIsoChangeSetIso = new Action() {
         public void actionPerformed() {
             integrator.setIsothermal(isIsothermal());
         }

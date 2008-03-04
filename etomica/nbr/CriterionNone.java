@@ -1,8 +1,8 @@
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 public final class CriterionNone implements NeighborCriterion, java.io.Serializable {
     private static final long serialVersionUID = 1L;
@@ -32,5 +32,5 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
     /**
      * Always returns false, indicating that no atoms pairs are neighbors.
      */
-    public boolean accept(AtomSet pair) {return false;}
+    public boolean accept(IAtomSet pair) {return false;}
 }

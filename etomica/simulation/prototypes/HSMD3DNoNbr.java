@@ -10,14 +10,16 @@ import java.io.ObjectOutputStream;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISimulation;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -26,14 +28,14 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD3DNoNbr extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public Box box;
+    public IBox box;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public P2HardSphere potential;
     
     public HSMD3DNoNbr() {
         super(Space3D.getInstance(), true);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMaster(space);
 
         int numAtoms = 256;
         double sigma = 1.0;
@@ -49,7 +51,7 @@ public class HSMD3DNoNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
 
         box = new Box(this, space);
         addBox(box);

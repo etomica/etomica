@@ -1,4 +1,6 @@
-package etomica.atom;
+package etomica.api;
+
+import etomica.atom.IAtomLeaf;
 
 /**
  * Interface for a group of IAtoms, typically a molecule or a SpeciesAgent.
@@ -21,5 +23,5 @@ public interface IMolecule extends IAtom {
     /**
      * @return the children as an AtomArrayList
      */
-    public AtomSet getChildList();
+    public IAtomSet getChildList();
 }

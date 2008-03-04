@@ -1,9 +1,9 @@
 package etomica.modules.junit.crystalviewer;
 
-
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 import junit.framework.TestCase;
@@ -60,7 +60,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 2.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -116,7 +116,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.63;
     	double plane = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -171,7 +171,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 7.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 10;
     	int itemsFound = 0;
     	int[] millerIndices = new int[] { 1, 3, 2 };
@@ -244,7 +244,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 8;
 
         lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER,
@@ -287,7 +287,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 0.5;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 8;
     	int[] millerIndices = new int[] { 0, 1, 0 };
 
@@ -347,7 +347,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	double cubicSize = 1.45;
     	double plane = 3.95;
     	int[] miller = { 4, 1, 3 };
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 9;
 
         lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
@@ -390,7 +390,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	double cubicSize = 1.45;
     	double plane = 4.0;
     	int[] miller = { 4, 1, 3 };
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 9;
     	int itemsFound = 0;
         double actualPlane[][] =
@@ -463,7 +463,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	double cubicSize = 1.45;
     	double plane = 4.05;
     	int[] miller = { 4, 1, 3 };
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 9;
 
         lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,

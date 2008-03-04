@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
-import etomica.potential.IPotential;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
 
 /**
  * @author kofke
@@ -19,7 +19,7 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
         this.potential = potential;
     }
 
-    public double f(AtomSet pair, double beta) {
+    public double f(IAtomSet pair, double beta) {
         double betaU = beta*potential.energy(pair);
         if (Math.abs(betaU) < 1.e-8) {
             // for small betaU, exp(-betaU)-1 ~= -betaU
@@ -35,7 +35,7 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
         return potential;
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         potential.setBox(newBox);
     }
 

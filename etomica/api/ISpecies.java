@@ -1,7 +1,6 @@
-package etomica.species;
+package etomica.api;
 
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.SpeciesManager;
 

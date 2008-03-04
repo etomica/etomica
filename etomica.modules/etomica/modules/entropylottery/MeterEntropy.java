@@ -1,8 +1,9 @@
 package etomica.modules.entropylottery;
 
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtomPositioned;
+
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;

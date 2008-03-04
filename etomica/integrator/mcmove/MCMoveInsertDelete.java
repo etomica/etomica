@@ -1,19 +1,19 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
-import etomica.species.ISpecies;
 import etomica.util.Debug;
-import etomica.util.IRandom;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is
@@ -37,10 +37,10 @@ public class MCMoveInsertDelete extends MCMoveBox {
 	protected boolean insert;
 	protected final AtomArrayList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
-    protected AtomSet moleculeList;
+    protected IAtomSet moleculeList;
     protected IRandom random;
 
-    public MCMoveInsertDelete(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
@@ -59,7 +59,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
     public ISpecies getSpecies() {return species;}
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(box);
         if(species != null) {

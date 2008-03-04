@@ -3,33 +3,33 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.box.BoxEvent;
 import etomica.box.BoxListener;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.list.BoxEventNeighborsUpdated;
-import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Debug;
-import etomica.util.IRandom;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 
@@ -72,11 +72,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorHard(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorHard(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorHard(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         nullPotential = null;
@@ -90,7 +90,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         collisionHandlerDown.setAgentManager(agentManager);
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -134,7 +134,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
         while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
-            AtomSet atoms;
+            IAtomSet atoms;
             if (colliderAgent.collisionPartner() != null) {
                 atoms = pair;
                 pair.atom0 = colliderAgent.atom();
@@ -387,7 +387,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -429,7 +429,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
      */
     public void resetCollisionTimes() {
         if(!initialized) return;
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -575,7 +575,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             final boolean notPairIterator = (iterator.nBody() != 2);
             iterator.reset();
             PotentialHard pHard = (PotentialHard)potential;
-            for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
+            for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
                 if(atoms.getAtom(0) != atom1) setAtom(atoms.getAtom(0)); //need this if doing minimum collision time calculation for more than one atom
                 double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
@@ -659,7 +659,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             if (iterator.nBody() != 2) return;
             iterator.reset();
             // look for pairs in which pair[0] is the collision partner of pair[1]
-            for (AtomSet pair = iterator.next(); pair != null;
+            for (IAtomSet pair = iterator.next(); pair != null;
                  pair = iterator.next()) {
                 IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.getAtom(0))).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {

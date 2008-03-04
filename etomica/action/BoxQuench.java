@@ -1,10 +1,10 @@
 package etomica.action;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.atom.IAtomKinetic;
 import etomica.data.meter.MeterTemperature;
-import etomica.box.Box;
 
 /**
  * Scales all velocities of a box so that its kinetic temperature is equal to
@@ -28,12 +28,12 @@ public class BoxQuench extends BoxActionAdapter {
 	/**
 	 * Constructs class ready to perform quench on given box to given temperature.
 	 */
-	public BoxQuench(Box p, double temperature) {
+	public BoxQuench(IBox p, double temperature) {
 		this(temperature, p.getBoundary().getDimensions().getD());
         setBox(p);
 	}
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         meterTemperature = new MeterTemperature(box, dim);
     }
@@ -45,7 +45,7 @@ public class BoxQuench extends BoxActionAdapter {
 		if(box == null) return;
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
 			((IAtomKinetic)leafList.getAtom(iLeaf)).getVelocity().TE(scale);

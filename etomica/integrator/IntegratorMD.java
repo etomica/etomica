@@ -1,12 +1,14 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.box.Box;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxEvent;
 import etomica.box.BoxListener;
@@ -14,13 +16,11 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
 import etomica.util.EnumeratedType;
-import etomica.util.IRandom;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
@@ -29,7 +29,7 @@ import etomica.util.IRandom;
 
 public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
 
-    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,temperature);
         this.random = random;
@@ -52,7 +52,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             box.getEventManager().removeListener(this);
         }
@@ -186,7 +186,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    AtomSet atomList = box.getLeafList();
+                    IAtomSet atomList = box.getLeafList();
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
@@ -211,7 +211,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
@@ -239,7 +239,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      */
     protected void scaleMomenta() {
         momentum.E(0);
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf == 0) return;
         if (nLeaf > 1) {

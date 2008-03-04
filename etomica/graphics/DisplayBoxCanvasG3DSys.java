@@ -9,19 +9,19 @@ import javax.vecmath.Point3f;
 
 import org.jmol.g3d.Graphics3D;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.util.Arrays;
@@ -180,7 +180,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void removeObjectByBox(IBox p) {
 
 		// Remove old box atoms
-		AtomSet leafList = p.getLeafList();
+		IAtomSet leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
@@ -238,7 +238,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			((ColorSchemeCollective) colorScheme).colorAllAtoms();
 		}
 
-		AtomSet leafList = displayBox.getBox().getLeafList();
+		IAtomSet leafList = displayBox.getBox().getLeafList();
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
@@ -289,7 +289,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             drawPlane(i);
         }
         
-		Boundary boundary = displayBox.getBox().getBoundary();
+		IBoundary boundary = displayBox.getBox().getBoundary();
 		Polytope polytope = boundary.getShape();
 		if (polytope != oldPolytope) {
 
@@ -393,7 +393,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         
     public synchronized void drawPlane(int iPlane) {
         Plane plane = planes[iPlane];
-        Boundary boundary = displayBox.getBox().getBoundary();
+        IBoundary boundary = displayBox.getBox().getBoundary();
         Polytope polytope = boundary.getShape();
         LineSegment[] lines = polytope.getEdges();
         int intersectionCount = 0;
@@ -518,7 +518,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Add a bond to the graphical display between the given pairs. The given
 	 * bondType is used to decide how the bond should be drawn.
 	 */
-	public Object makeBond(AtomSet pair, Object bondType) {
+	public Object makeBond(IAtomSet pair, Object bondType) {
 		/*
 		 * Ball objects here could be null if the bond is created before the
 		 * atoms have been added. Check for this and store atoms locally in a

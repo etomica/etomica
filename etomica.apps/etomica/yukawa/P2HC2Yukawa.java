@@ -1,11 +1,12 @@
 package etomica.yukawa;
+
 import etomica.EtomicaInfo;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
+import etomica.api.IAtomPositioned;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -57,7 +58,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	
 	public double getRange(){return Double.POSITIVE_INFINITY;}
 	
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		nearestImageTransformer = box.getBoundary();
 	}
 	
@@ -87,7 +88,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
     /**
      * Energy of the pair as given by the u(double) method
      */
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());

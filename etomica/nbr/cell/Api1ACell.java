@@ -2,11 +2,11 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomToAtomSetFixed;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
@@ -122,7 +122,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         throw new RuntimeException("bam");
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         IAtom innerAtom = aiInner.nextAtom();
         if (innerAtom == null) {
             innerAtom = advanceLists();

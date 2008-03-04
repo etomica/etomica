@@ -1,6 +1,7 @@
 package etomica.action.activity;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IController;
 import etomica.util.EnumeratedType;
 
 public class ControllerEvent implements java.io.Serializable {
@@ -8,18 +9,18 @@ public class ControllerEvent implements java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected final IController controller;
     protected final Type type;
-    protected final Action action;
+    protected final IAction action;
     
     public ControllerEvent(IController source, Type type) {
         this(source, type, null);
     }
-    public ControllerEvent(IController source, Type type, Action action) {
+    public ControllerEvent(IController source, Type type, IAction action) {
         this.controller = source;
         this.type = type;
         this.action = action;
     }
     
-    public Action getAction() {return action;} 
+    public IAction getAction() {return action;} 
     public Type getType() {return type;}
     public IController getController() {return controller;}
     

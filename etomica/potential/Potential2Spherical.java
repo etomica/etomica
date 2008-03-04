@@ -1,5 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IPotential;
+
 /**
  * interface for spherical 2-body potentials
  */

@@ -10,20 +10,20 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionDefinitionSimple;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
@@ -117,11 +117,11 @@ public class GrainBoundaryConfiguration implements Configuration {
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Box box) {
-    	AtomSet listMobileA = box.getMoleculeList(speciesAMobile);
-    	AtomSet listMobileB = box.getMoleculeList(speciesBMobile);
-        AtomSet listFixedA = box.getMoleculeList(speciesAFixed);
-        AtomSet listFixedB = box.getMoleculeList(speciesBFixed);
+    public void initializeCoordinates(IBox box) {
+    	IAtomSet listMobileA = box.getMoleculeList(speciesAMobile);
+    	IAtomSet listMobileB = box.getMoleculeList(speciesBMobile);
+        IAtomSet listFixedA = box.getMoleculeList(speciesAFixed);
+        IAtomSet listFixedB = box.getMoleculeList(speciesBFixed);
     	
         indexIteratorA.setSize(iteratorDimensionsA);
         indexIteratorB.setSize(iteratorDimensionsB);

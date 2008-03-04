@@ -12,12 +12,13 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAction;
 import etomica.api.IBox;
-import etomica.box.Box;
-import etomica.integrator.IIntegrator;
+import etomica.api.IController;
+import etomica.api.IIntegrator;
+import etomica.api.ISimulation;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space.Space;
 import etomica.units.Pixel;
@@ -107,8 +108,8 @@ public class SimulationGraphic implements SimulationContainer {
 	}
      
 	private void setupDisplayBox() {
-	    Controller controller = simulation.getController();
-	    Action[] activities = controller.getPendingActions();
+	    IController controller = simulation.getController();
+	    IAction[] activities = controller.getPendingActions();
 	    LinkedList boxList = new LinkedList();
 	    for (int i=0; i<activities.length; i++) {
 	        if (activities[i] instanceof ActivityIntegrate) {
@@ -126,7 +127,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  */
 	private void setupDisplayBox(IIntegrator integrator, LinkedList boxList) {
 	    if (integrator instanceof IntegratorBox) {
-	        Box box = ((IntegratorBox)integrator).getBox();
+	        IBox box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
 	        final DisplayBox display = new DisplayBox(box, space, new Pixel(30));
@@ -146,7 +147,7 @@ public class SimulationGraphic implements SimulationContainer {
 	          ((JComponent)display.canvas).setVisible(true);
 	        }
 	         
-            Action repaintAction = createDisplayBoxPaintAction(box);
+            IAction repaintAction = createDisplayBoxPaintAction(box);
 	        integrator.addIntervalAction(repaintAction);
 	        integrator.setActionInterval(repaintAction, updateInterval);
 	        repaintActions.put(box, repaintAction);
@@ -168,8 +169,8 @@ public class SimulationGraphic implements SimulationContainer {
 	  */
     public void setPaintInterval(IBox box, int interval) {
 
-    	Action repaintAction = (Action)repaintActions.get(box);
-	    Action[] controllerActions = simulation.getController().getAllActions();
+    	IAction repaintAction = (IAction)repaintActions.get(box);
+	    IAction[] controllerActions = simulation.getController().getAllActions();
 
 	    for (int i = 0;  i < controllerActions.length;  i++) {
 	        if (controllerActions[i] instanceof ActivityIntegrate) {
@@ -178,7 +179,7 @@ public class SimulationGraphic implements SimulationContainer {
 
 	            if(box == ((IntegratorBox)integrator).getBox()) {
 
-                    Action[] boxActions = integrator.getIntervalActions();
+                    IAction[] boxActions = integrator.getIntervalActions();
 
             	    for (int j = 0;  j < boxActions.length;  j++) {
                         if(boxActions[j] == repaintAction) {
@@ -195,8 +196,8 @@ public class SimulationGraphic implements SimulationContainer {
 	  *
 	  * @return Returns the paint action associated with the given Box.
 	  */
-    public Action getPaintAction(IBox box) {
-	    return (Action)repaintActions.get(box);
+    public IAction getPaintAction(IBox box) {
+	    return (IAction)repaintActions.get(box);
     }
    
     public void add(Display display) {
@@ -282,8 +283,8 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    private Action createDisplayBoxPaintAction(IBox box) {
-    	Action repaintAction = null;
+    private IAction createDisplayBoxPaintAction(IBox box) {
+    	IAction repaintAction = null;
 
     	final DisplayBox display = getDisplayBox(box);
     	if(display != null) {
@@ -362,7 +363,7 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         Space space = Space.getInstance(3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY, space);
-		Action repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
+		IAction repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

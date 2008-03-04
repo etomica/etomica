@@ -1,7 +1,9 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.api.IVector;
+
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -47,7 +49,7 @@ public class DCVGCMD extends Simulation {
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
     public SpeciesTube speciesTube;
-    public Box box;
+    public IBox box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
     public MeterTemperature thermometer;

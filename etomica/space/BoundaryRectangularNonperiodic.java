@@ -1,8 +1,8 @@
 package etomica.space;
 
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.simulation.ISimulation;
-import etomica.util.IRandom;
 
 /**
  * Boundary that is not periodic in any direction.  Volume is specified,

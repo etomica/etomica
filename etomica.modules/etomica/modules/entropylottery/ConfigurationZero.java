@@ -1,11 +1,12 @@
 package etomica.modules.entropylottery;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtom;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
+
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -22,7 +23,7 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
         this.space = _space;
     }
 
-    public void initializeCoordinates(Box box) {
+    public void initializeCoordinates(IBox box) {
         AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(space);
         IVector work = space.makeVector();
         work.E(0.0);

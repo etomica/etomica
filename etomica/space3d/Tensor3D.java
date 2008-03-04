@@ -1,10 +1,10 @@
 package etomica.space3d;
 
 
+import etomica.api.IFunction;
 import etomica.api.IVector;
 import etomica.space.Tensor;
 import etomica.space2d.Tensor2D;
-import etomica.util.Function;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
 
@@ -229,7 +229,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
             || Double.isNaN(zx) || Double.isNaN(zy) || Double.isNaN(zz);
     }
     
-    public void map(Function f) {
+    public void map(IFunction f) {
         xx = f.f(xx); xy = f.f(xy); xz = f.f(xz);
         yx = f.f(yx); yy = f.f(yy); yz = f.f(yz);
         zx = f.f(zx); zy = f.f(zy); zz = f.f(zz);

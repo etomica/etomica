@@ -1,5 +1,7 @@
 package etomica.atom;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.chem.elements.ElementSimple;
 
@@ -16,7 +18,7 @@ import etomica.chem.elements.ElementSimple;
   */
 public abstract class Atom implements IAtom, java.io.Serializable {
 
-    public Atom(AtomType type) {
+    public Atom(IAtomType type) {
         this.type = type;
     }
     
@@ -51,7 +53,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
      */
-    public final AtomType getType() {
+    public final IAtomType getType() {
         return type;
     }
 
@@ -63,7 +65,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
         return index;
     }
     
-    protected final AtomType type;
+    protected final IAtomType type;
     
     /**
      * Counter for number of times an atom is instantiated without a parent.  Used

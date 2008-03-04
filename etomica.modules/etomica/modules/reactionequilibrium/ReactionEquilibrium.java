@@ -2,14 +2,15 @@ package etomica.modules.reactionequilibrium;
 
 import javax.swing.JPanel;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IController;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
@@ -23,11 +24,11 @@ import etomica.species.SpeciesSpheresMono;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource {
 
-    public Controller controller1;
+    public IController controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
-    public Box box;
+    public IBox box;
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;

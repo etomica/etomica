@@ -1,6 +1,9 @@
 package etomica.spin;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -63,9 +66,9 @@ public class Heisenberg extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        AtomType type = spins.getLeafType();
-        potentialMaster.addPotential(field, new AtomType[] {type});
-        potentialMaster.addPotential(potential, new AtomType[] {type, type});
+        IAtomType type = spins.getLeafType();
+        potentialMaster.addPotential(field, new IAtomType[] {type});
+        potentialMaster.addPotential(potential, new IAtomType[] {type, type});
         
         integrator.setBox(box);
         
@@ -80,7 +83,7 @@ public class Heisenberg extends Simulation {
 
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
-    public Box box;
+    public IBox box;
     public SpeciesSpheresMono spins;
     public P2Spin potential;
     public P1MagneticField field;
@@ -95,7 +98,7 @@ public class Heisenberg extends Simulation {
         Heisenberg sim = new Heisenberg(sp, 60);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
-		Action repaintAction = simGraphic.getPaintAction(sim.box);
+		IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
         simGraphic.remove(displayBox);

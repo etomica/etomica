@@ -1,15 +1,17 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
+
 import etomica.atom.AtomsetFilter;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.Boundary;
+
 
 /**
  * Our own ApiFiltered that's box-dependent
@@ -29,7 +31,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorB
      * wall. 
      */
     public static class AtomFilterInCylinder implements AtomsetFilter {
-        public AtomFilterInCylinder(Boundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
+        public AtomFilterInCylinder(IBoundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
             dimensions = boundary.getDimensions();
             this.pistonPotential = pistonPotential;
             this.padding = padding;
@@ -37,7 +39,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorB
             bitFlipper = 1;
         }
         
-        public boolean accept(AtomSet atoms) {
+        public boolean accept(IAtomSet atoms) {
             double radius = pistonPotential.getCollisionRadius()+padding;
             // always reject if both atoms are near a wall.  always accept if
             // both atoms are away from the wall.  If one is near and one not, 

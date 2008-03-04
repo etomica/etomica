@@ -1,7 +1,7 @@
 package etomica.models.water;
 
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
+import etomica.api.IAtom;
+import etomica.api.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.potential.EwaldSummation.MyCharge;
 

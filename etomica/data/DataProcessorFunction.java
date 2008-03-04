@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.util.Function;
+import etomica.api.IFunction;
 
 
 /**
@@ -14,7 +14,7 @@ import etomica.util.Function;
 
 public class DataProcessorFunction extends DataProcessor {
 
-    public DataProcessorFunction(Function function) {
+    public DataProcessorFunction(IFunction function) {
         this.function = function;
     }
     
@@ -49,5 +49,5 @@ public class DataProcessorFunction extends DataProcessor {
     }
 
     private static final long serialVersionUID = 1L;
-    private final Function function;
+    private final IFunction function;
 }

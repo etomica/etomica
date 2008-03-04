@@ -5,13 +5,14 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
-import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;

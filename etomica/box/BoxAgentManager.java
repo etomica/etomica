@@ -3,7 +3,7 @@ package etomica.box;
 import java.lang.reflect.Array;
 
 import etomica.api.IBox;
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
@@ -60,7 +60,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
 
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        Box[] boxs = sim.getBoxs();
+        IBox[] boxs = sim.getBoxs();
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),boxs.length);
         for (int i=0; i<boxs.length; i++) {
             addAgent(boxs[i]);
@@ -98,7 +98,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
         }
     }
     
-    protected void addAgent(Box box) {
+    protected void addAgent(IBox box) {
         agents = Arrays.resizeArray(agents,box.getIndex()+1);
         agents[box.getIndex()] = agentSource.makeAgent(box);
     }
@@ -111,7 +111,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
     public interface BoxAgentSource {
         public Class getAgentClass();
         
-        public Object makeAgent(Box box);
+        public Object makeAgent(IBox box);
         
         //allow any agent to be disconnected from other elements 
         public void releaseAgent(Object agent); 

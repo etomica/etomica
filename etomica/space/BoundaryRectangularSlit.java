@@ -1,9 +1,9 @@
 package etomica.space;
 
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Class for implementing slit periodic boundary conditions, in which

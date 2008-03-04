@@ -1,6 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -8,9 +9,7 @@ import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationPressureTensor;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Pressure;
 
@@ -23,7 +22,7 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensor implements DataSource, java.io.Serializable {
     
-    public MeterPressureTensor(PotentialMaster potentialMaster) {
+    public MeterPressureTensor(IPotentialMaster potentialMaster) {
     	super();
         this.potentialMaster = potentialMaster;
         Space space = potentialMaster.getSpace();
@@ -55,7 +54,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         pc.setBox(newBox);
         box = newBox;
     }
@@ -104,8 +103,8 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
     protected final DataTag tag;
     protected final DataTensor data;
     protected final DataInfo dataInfo;
-    protected final PotentialMaster potentialMaster;
-    protected Box box;
+    protected final IPotentialMaster potentialMaster;
+    protected IBox box;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationPressureTensor pc;
     protected final double rD;

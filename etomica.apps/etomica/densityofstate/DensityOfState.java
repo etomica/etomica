@@ -1,4 +1,8 @@
 package etomica.densityofstate;
+
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomSourceRandomLeaf;
@@ -17,7 +21,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistogramExpanding;
 import etomica.yukawa.P2Yukawa;
@@ -35,7 +38,7 @@ public class DensityOfState extends Simulation{
 	public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
-	public Box box;
+	public IBox box;
 	public P2Yukawa potential;
 	public Controller controller;
 	public ActivityIntegrate activityIntegrate; 

@@ -3,6 +3,7 @@ package etomica.normalmode;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -260,7 +261,7 @@ public class SimHarmonic extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public Box box;
+    public IBox box;
     public Boundary boundary;
     public SpeciesSpheresMono species;
     public NormalModes normalModes;

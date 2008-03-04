@@ -9,9 +9,11 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.Action;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
+
+import etomica.action.Action;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -48,7 +50,6 @@ import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Bar;

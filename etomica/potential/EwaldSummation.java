@@ -1,15 +1,16 @@
 package etomica.potential;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
@@ -42,7 +43,7 @@ public class EwaldSummation implements IPotential{
 	 */
 
 
-	public double energy(AtomSet atoms) {
+	public double energy(IAtomSet atoms) {
 		double energy = EwaldSum();
 		System.out.println("Energy Ewald Sum: "+ energy);
 		return energy;
@@ -68,12 +69,12 @@ public class EwaldSummation implements IPotential{
 		return 0;
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		// do nothing
 		
 	}
 
-	public EwaldSummation(Box box, AtomAgentManager atomAgentManager, int nVectorMax, Space _space){
+	public EwaldSummation(IBox box, AtomAgentManager atomAgentManager, int nVectorMax, Space _space){
 		
 		this.box = box;
 		this.space = _space;
@@ -163,7 +164,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	public double EwaldSumReal(){
 		
-		AtomSet moleculeList = box.getMoleculeList();
+		IAtomSet moleculeList = box.getMoleculeList();
 		//
 		
 		/*
@@ -265,7 +266,7 @@ public class EwaldSummation implements IPotential{
 			 * Solve expression for S(n)*S(-n)
 			 */
 			
-			AtomSet atomList = box.getLeafList();
+			IAtomSet atomList = box.getLeafList();
 			int numAtom = atomList.getAtomCount();
 			double pl = 2*Math.PI/L;
 			
@@ -305,7 +306,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	
 	public double EwaldSumSelf(){
-		AtomSet moleculeList = box.getMoleculeList();
+		IAtomSet moleculeList = box.getMoleculeList();
 		
 		/*
 		 * molecules can be monoatomic or multiatomic
@@ -340,7 +341,7 @@ public class EwaldSummation implements IPotential{
 			iterator.setBasis(moleculeBasis);
 			iterator.reset();
 			
-			for (AtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
+			for (IAtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
 				IAtom sitea = pair.getAtom(0);
 				IAtom siteb = pair.getAtom(1);
 				
@@ -381,7 +382,7 @@ public class EwaldSummation implements IPotential{
 	protected final IVector3D[] nVector;
 	protected final int nVectorMax;
 	protected final double alpha;
-	protected final Box box;
+	protected final IBox box;
 	protected NeighborCriterion criterion;
 	protected final AtomPair atomPair;
 	protected AtomsetIteratorBasisDependent iterator;

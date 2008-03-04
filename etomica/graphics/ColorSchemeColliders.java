@@ -1,7 +1,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 import etomica.integrator.IntegratorHard;
 
 /**

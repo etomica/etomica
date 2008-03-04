@@ -1,11 +1,13 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -13,7 +15,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.simulation.ISimulation;
+
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.species.Species;
 
@@ -28,7 +30,7 @@ public class ConfigurationMembraneWater implements Configuration {
         this.sim = sim;
     }
 
-    public void initializeCoordinates(Box box) {
+    public void initializeCoordinates(IBox box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(sim.getSpace());
         IVector translationVector = translateBy.getTranslationVector();
         translationVector.E(0);
@@ -57,7 +59,7 @@ public class ConfigurationMembraneWater implements Configuration {
         ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), sim.getSpace());
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        AtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
+        IAtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
             IMolecule atom = (IMolecule)molecules.getAtom(i);

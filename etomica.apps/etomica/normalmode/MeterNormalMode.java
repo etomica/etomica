@@ -13,7 +13,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.box.Box;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -63,7 +62,7 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
      * Sets the box, and should be called while the Atoms are in 
      * their lattice positions.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         callCount = 0;
 
         waveVectorFactory.makeWaveVectors(newBox);

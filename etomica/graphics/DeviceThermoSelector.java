@@ -7,9 +7,11 @@ import java.util.LinkedList;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
+import etomica.api.IAction;
+import etomica.api.IController;
+import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.simulation.ISimulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
@@ -34,7 +36,7 @@ public class DeviceThermoSelector extends Device {
         setIntegrator(integrator);
      }
      
-     public DeviceThermoSelector(Controller controller, Unit tempUnit, boolean fixOverlap) {
+     public DeviceThermoSelector(IController controller, Unit tempUnit, boolean fixOverlap) {
         super(controller);
         selector = new javax.swing.JComboBox(new Object[] {new Object()});
         setTemperatures(new double[] {200.0, 400.0, 600.0});
@@ -163,7 +165,7 @@ public class DeviceThermoSelector extends Device {
     private boolean includeAdiabatic = true;
     private boolean isothermal = false;
     private double temperature;
-    private Action targetAction;
+    private IAction targetAction;
     private boolean fixOverlap;
     
     //main method to demonstrate and test class

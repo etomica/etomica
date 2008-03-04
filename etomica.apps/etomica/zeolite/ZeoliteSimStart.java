@@ -8,7 +8,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorBox;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 import etomica.util.HistoryCollapsing;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{

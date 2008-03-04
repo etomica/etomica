@@ -3,12 +3,12 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.api.ISpecies;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of two different species in a box,
@@ -179,7 +179,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
         return 2;
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         return iterator.next();
     }
     

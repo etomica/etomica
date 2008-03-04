@@ -3,6 +3,12 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
+
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
@@ -10,8 +16,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -39,7 +43,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -61,7 +64,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
-    public Box box;
+    public IBox box;
     public IVector [] saddle, normal;
     public SpeciesSpheresMono fixed, movable;
     public PotentialMEAM potential;
@@ -72,7 +75,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    public AtomSet movableSet;
+    public IAtomSet movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
 
@@ -280,7 +283,7 @@ public class SimDimerMEAMadatom extends Simulation{
      //SET MOVABLE ATOMS
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        AtomSet loopSet = box.getMoleculeList(fixed);
+        IAtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0)<5.0){

@@ -9,7 +9,8 @@ import javax.swing.border.TitledBorder;
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.simulation.ISimulation;
+import etomica.api.IController;
+import etomica.api.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -70,7 +71,7 @@ public class DeviceTrioControllerButton extends Device {
     public void setSimulation(ISimulation sim) {
         simulation = sim;
         simRestart = new SimulationRestart(sim);
-        final Controller c = sim.getController();
+        final Controller c = (Controller)sim.getController();
         setController(c);
         startButton.setController(c);
         reinitButton.setPreAction(new Action() {

@@ -2,11 +2,15 @@ package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
+
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAll;
 import etomica.atom.iterator.AtomIteratorAllLeafType;
 import etomica.atom.iterator.AtomsetIteratorPDT;
@@ -17,7 +21,6 @@ import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 
 
 /**
@@ -28,7 +31,7 @@ import etomica.species.ISpecies;
  *
  * @author David Kofke
  */
-public class PotentialMaster implements java.io.Serializable {
+public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     
     public PotentialMaster(Space space) {
         this(space,IteratorFactory.INSTANCE);
@@ -39,31 +42,25 @@ public class PotentialMaster implements java.io.Serializable {
         this.iteratorFactory = iteratorFactory;
     }
     
-    /**
-	 * Returns the object that oversees the long-range
-	 * correction zero-body potentials.
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#lrcMaster()
 	 */
 	 public PotentialMasterLrc lrcMaster() {
 		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
 		return lrcMaster;
 	 }
 
-     /**
-      * Returns an nBody PotentialGroup appropriate for this type of 
-      * PotentialMaster.
-      */
+     /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#makePotentialGroup(int)
+	 */
      public PotentialGroup makePotentialGroup(int nBody) {
          return new PotentialGroup(nBody,space);
      }
 
-     /**
-      * Performs the given PotentialCalculation on the atoms of the given Box.
-      * Sets the box for all molecule iterators and potentials, sets target
-      * and direction for iterators as specified by given IteratorDirective,
-      * and applies doCalculation of given PotentialCalculation with the iterators
-      * and potentials.
-      */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+     /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#calculate(etomica.box.Box, etomica.atom.iterator.IteratorDirective, etomica.potential.PotentialCalculation)
+	 */
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IAtom targetAtom = id.getTargetAtom();
     	mostRecentBox = box;
@@ -82,11 +79,11 @@ public class PotentialMaster implements java.io.Serializable {
         }
     }
     
-    /**
-     * Add the given Model's intramolecular potentials to this PotentialMaster
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#addModel(etomica.chem.models.Model)
+	 */
     public void addModel(Model newModel) {
-        if (getPotential(new AtomType[]{newModel.getSpecies().getMoleculeType()}) != null) {
+        if (getPotential(new IAtomType[]{newModel.getSpecies().getMoleculeType()}) != null) {
             throw new IllegalArgumentException(newModel+" has already been added");
         }
         PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
@@ -98,15 +95,9 @@ public class PotentialMaster implements java.io.Serializable {
         addPotential(pGroup, new ISpecies[]{newModel.getSpecies()});
     }
     
-    /**
-     * Indicates to the PotentialMaster that the given potential should apply to 
-     * the specified species.  Exception is thrown if the potential.nBody() value
-     * is different from the length of the species array.  Thus, for example, if
-     * giving a 2-body potential, then the array should contain exactly
-     * two species; the species may refer to the same instance (appropriate for an 
-     * intra-species potential, defining the iteractions between molecules of the
-     * same species).
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#addPotential(etomica.api.IPotential, etomica.species.ISpecies[])
+	 */
     public void addPotential(IPotential potential, ISpecies[] species) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
@@ -131,19 +122,10 @@ public class PotentialMaster implements java.io.Serializable {
         }
     }
     
-    /**
-     * Indicates to the PotentialMaster that the given potential should apply to 
-     * the specified atom types.  The potential is assumed to be intermolecular.
-     * The given types should not include any type which is the descendent of 
-     * another.  Potential group hierarchy will be constructed as needed above
-     * the level of the given atom types.
-     * <p>
-     * The order of the elements in the atomTypes array is not relevant, and is
-     * subject to rearrangement by the method -- the array is sorted (using the compareTo
-     * method of AtomType) before doing anything else.
-     * 
-     */
-    public void addPotential(IPotential potential, AtomType[] atomTypes) {
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#addPotential(etomica.api.IPotential, etomica.api.IAtomType[])
+	 */
+    public void addPotential(IPotential potential, IAtomType[] atomTypes) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     		return;
@@ -164,7 +146,7 @@ public class PotentialMaster implements java.io.Serializable {
             addPotential(potential,moleculeSpecies(atomTypes));
             return;
         }
-        AtomType[] parentAtomTypes = new AtomType[atomTypes.length];
+        IAtomType[] parentAtomTypes = new IAtomType[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
             if (atomTypes[i] instanceof AtomTypeLeaf) {
                 parentAtomTypes[i] = ((AtomTypeLeaf)atomTypes[i]).getParentType();
@@ -182,22 +164,17 @@ public class PotentialMaster implements java.io.Serializable {
         pGroup.addPotential(potential,atomTypes);
     }
     
-    /**
-     * Notifies the PotentialMaster that the sub-potential has been added to 
-     * the given PotentialGroup, which is associated (but not necessarily held 
-     * by) this PotentialMaster.
-     * This method is called by PotentialGroup and should not be called in
-     * other circumstances.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#potentialAddedNotify(etomica.api.IPotential, etomica.potential.PotentialGroup)
+	 */
     public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         // do nothing.  this is here for subclasses to override
     }
     
-    /**
-     * Returns the potential that applies to the specified types,
-     * or null of no existing potential applies.
-     */
-    public PotentialGroup getPotential(AtomType[] types) {
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#getPotential(etomica.api.IAtomType[])
+	 */
+    public PotentialGroup getPotential(IAtomType[] types) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential instanceof PotentialGroup) {
                 if(Arrays.equals(types,link.types)) {
@@ -212,19 +189,16 @@ public class PotentialMaster implements java.io.Serializable {
         return null;
     }
     
-    /**
-     * Returns the AtomTypes that the given potential applies to if the given 
-     * potential is within this potential group.  If the potential is not 
-     * contained by the potential master or any PotentialGroup it holds, or 
-     * does not apply to specific AtomTypes, null is returned.
-     */
-    public AtomType[] getAtomTypes(IPotential potential) {
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#getAtomTypes(etomica.api.IPotential)
+	 */
+    public IAtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
             }
             if (link.potential instanceof PotentialGroup) {
-                AtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
+                IAtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
                 if (types != null) {
                     return types;
                 }
@@ -237,15 +211,15 @@ public class PotentialMaster implements java.io.Serializable {
      * Returns an array containing the atom types for the molecules
      * corresponding to the given array of species.
      */
-    protected AtomType[] moleculeTypes(ISpecies[] species) {
-        AtomType[] types = new AtomType[species.length];
+    protected IAtomType[] moleculeTypes(ISpecies[] species) {
+        IAtomType[] types = new IAtomType[species.length];
         for(int i=0; i<species.length; i++) {
             types[i] = species[i].getMoleculeType();
         }
         return types;
     }
     
-    private ISpecies[] moleculeSpecies(AtomType[] types) {
+    private ISpecies[] moleculeSpecies(IAtomType[] types) {
         ISpecies[] species = new ISpecies[types.length];
         for (int i=0; i<types.length; i++) {
             species[i] = types[i].getSpecies();
@@ -253,7 +227,7 @@ public class PotentialMaster implements java.io.Serializable {
         return species;
     }
     
-    public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
+    public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, IAtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -277,10 +251,9 @@ public class PotentialMaster implements java.io.Serializable {
         }
     }
 
-    /**
-     * Removes given potential from the group.  No error is generated if
-     * potential is not in group.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#removePotential(etomica.api.IPotential)
+	 */
     public synchronized void removePotential(IPotential potential) {
         PotentialLinker previous = null;
         
@@ -302,25 +275,23 @@ public class PotentialMaster implements java.io.Serializable {
     }
 
  
-    /**
-     * @return Returns enabled flag.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#isEnabled()
+	 */
     public boolean isEnabled() {
         return enabled;
     }
-    /**
-     * Permits enabling/disabling of all potentials.  Default is enabled (true).
-     * @param enabled flags if potentials are enabled.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#setEnabled(boolean)
+	 */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    /**
-     * Indicates that the specified potential should not contribute to potential
-     * calculations. If potential is not in this group, no action is taken.
-     */
-    public void setEnabled(Potential potential, boolean enabled) {
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#setEnabled(etomica.potential.Potential, boolean)
+	 */
+    public void setEnabled(IPotential potential, boolean enabled) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 link.enabled = enabled;
@@ -329,11 +300,10 @@ public class PotentialMaster implements java.io.Serializable {
         }
     }
     
-    /**
-     * Returns true if the potential is in this group and has not been disabled
-     * via a previous call to setEnabled; returns false otherwise.
-     */
-    public boolean isEnabled(Potential potential) {
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#isEnabled(etomica.potential.Potential)
+	 */
+    public boolean isEnabled(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 return link.enabled;
@@ -342,16 +312,16 @@ public class PotentialMaster implements java.io.Serializable {
         return false;
     }
         
-    /**
-     * @return Returns the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#getSpace()
+	 */
     public Space getSpace() {
         return space;
     }
     
-    /**
-     * Returns an array containing all molecular Potentials.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.potential.IPotentialMaster#getPotentials()
+	 */
     public IPotential[] getPotentials() {
         int nPotentials=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
@@ -388,16 +358,16 @@ public class PotentialMaster implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         public final IPotential potential;
         public final AtomsetIteratorPDT iterator;
-        public final AtomType[] types;
+        public final IAtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotential a, AtomsetIteratorPDT i, AtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorPDT i, IAtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;
             if (t != null) {
-                types = (AtomType[])t.clone();
+                types = (IAtomType[])t.clone();
             }
             else {
                 types = null;

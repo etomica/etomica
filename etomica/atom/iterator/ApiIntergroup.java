@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
@@ -78,7 +78,7 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
      * null iterator will give no iterates until a proper basis is specified
      * via another call to this method.
      */
-    public void setBasis(AtomSet basisAtoms) {
+    public void setBasis(IAtomSet basisAtoms) {
         if (basisAtoms == null) {
             aiOuter.setBasis(null);
         } else {

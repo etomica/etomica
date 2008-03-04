@@ -1,5 +1,7 @@
 package etomica.integrator;
 
+import etomica.api.IIntegrator;
+import etomica.api.IRandom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -7,7 +9,6 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.util.Arrays;
-import etomica.util.IRandom;
 
 /**
  * Integrator manages other Integrators which either act on a Box, or manager 

@@ -1,11 +1,11 @@
 package etomica.atom.iterator;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.species.ISpecies;
 
 /**
  * Iterator for the molecules of a single species in a box.  Can be targeted to

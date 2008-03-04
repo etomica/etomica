@@ -7,7 +7,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.util.Debug;
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 /**
  * This integrator class manages (2) sub-integrators for an overlap

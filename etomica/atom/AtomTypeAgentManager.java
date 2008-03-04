@@ -3,6 +3,7 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
+import etomica.api.IAtomType;
 import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
@@ -57,14 +58,14 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * access to the agents from multiple AtomTypes, it might be faster to use 
      * the above getAgents method.
      */
-    public Object getAgent(AtomType type) {
+    public Object getAgent(IAtomType type) {
         return agents[type.getIndex()];
     }
     
     /**
      * Releases the agents associated with the given AtomType and its children.
      */
-    private void releaseAgents(AtomType parentType) {
+    private void releaseAgents(IAtomType parentType) {
         Object agent = agents[parentType.getIndex()];
         if (agent != null) {
             agentSource.releaseAgent(agent, parentType);
@@ -72,7 +73,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         agents[parentType.getIndex()] = null;
 
         if (parentType instanceof AtomTypeMolecule) {
-            AtomType[] children = ((AtomTypeMolecule)parentType).getChildTypes();
+            IAtomType[] children = ((AtomTypeMolecule)parentType).getChildTypes();
             for (int i=0; i<children.length; i++) {
                 releaseAgents(children[i]);
             }
@@ -83,7 +84,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Creates the agents associated with the children of the given AtomType.
      */
     private void makeChildAgents(AtomTypeMolecule parentType) {
-        AtomType[] children = parentType.getChildTypes();
+        IAtomType[] children = parentType.getChildTypes();
         for (int i=0; i<children.length; i++) {
             addAgent(children[i]);
             if (children[i] instanceof AtomTypeMolecule) {
@@ -123,7 +124,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     private static int getMaxIndexOfChildren(AtomTypeMolecule parentType) {
         int max = 0;
-        AtomType[] children = parentType.getChildTypes();
+        IAtomType[] children = parentType.getChildTypes();
         for (int i=0; i<children.length; i++) {
             if (children[i].getIndex() > max) {
                 max = children[i].getIndex();
@@ -175,7 +176,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
             releaseAgents(parentType);
         }
         else if (evt instanceof SimulationAtomTypeAddedEvent) {
-            AtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
+            IAtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
             int indexMax = newType.getIndex();
             if (newType instanceof AtomTypeMolecule) {
                 int childMax = getMaxIndexOfChildren((AtomTypeMolecule)newType);
@@ -191,7 +192,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
             int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
-            AtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
+            IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
             agents[atomType.getIndex()] = agents[oldIndex];
             agents[oldIndex] = null;
         }
@@ -201,7 +202,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         }
     }
     
-    protected void addAgent(AtomType type) {
+    protected void addAgent(IAtomType type) {
         agents[type.getIndex()] = agentSource.makeAgent(type);
     }
     
@@ -219,13 +220,13 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         /**
          * Returns an agent for the given AtomType.
          */
-        public Object makeAgent(AtomType type);
+        public Object makeAgent(IAtomType type);
         
         /**
          * This informs the agent source that the agent is going away and that 
          * the agent source should disconnect the agent from other elements.
          */
-        public void releaseAgent(Object agent, AtomType type);
+        public void releaseAgent(Object agent, IAtomType type);
     }
 
     private static final long serialVersionUID = 1L;

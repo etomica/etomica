@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.api.IPotential;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 

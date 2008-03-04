@@ -1,9 +1,9 @@
 package etomica.spaceNd;
 
+import etomica.api.IFunction;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.space.IVectorRandom;
-import etomica.util.Function;
-import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
@@ -257,7 +257,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         return false;
     }
 
-    public void map(Function function) {
+    public void map(IFunction function) {
         for (int i=0; i<x.length; i++) {
             x[i] = function.f(x[i]);
         }

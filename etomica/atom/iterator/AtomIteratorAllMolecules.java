@@ -1,13 +1,13 @@
 package etomica.atom.iterator;
 
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 
@@ -58,7 +58,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);
-        Box box = new Box(sim, space);
+        IBox box = new Box(sim, space);
         sim.addBox(box);
         box.setNMolecules(species0, 3);
         box.setNMolecules(species1, 2);
@@ -68,7 +68,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
 
         iterator.setBox(box);
         iterator.reset();
-        for (AtomSet atom = iterator.next(); atom != null; atom = iterator.next()) {
+        for (IAtomSet atom = iterator.next(); atom != null; atom = iterator.next()) {
             System.out.println(atom.toString());
         }
         System.out.println();

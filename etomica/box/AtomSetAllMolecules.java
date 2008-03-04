@@ -1,7 +1,8 @@
 package etomica.box;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 public class AtomSetAllMolecules implements AtomSet {
 
@@ -29,7 +30,7 @@ public class AtomSetAllMolecules implements AtomSet {
         return moleculeTotals[moleculeTotals.length-1];
     }
 
-    public void setMoleculeLists(AtomSet[] newMoleculeLists) {
+    public void setMoleculeLists(IAtomSet[] newMoleculeLists) {
         moleculeLists = newMoleculeLists;
         if (moleculeTotals.length - 1 != moleculeLists.length) {
             moleculeTotals = new int[moleculeLists.length+1];
@@ -44,6 +45,6 @@ public class AtomSetAllMolecules implements AtomSet {
         moleculeTotals[moleculeTotals.length-1] = moleculeTotals[moleculeTotals.length-2];
     }
     
-    protected AtomSet[] moleculeLists;
+    protected IAtomSet[] moleculeLists;
     protected int[] moleculeTotals;
 }

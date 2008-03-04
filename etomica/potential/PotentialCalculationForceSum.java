@@ -1,9 +1,10 @@
 package etomica.potential;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
 
@@ -44,7 +45,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		iterator.reset();
-        for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
+        for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			IVector[] f = potentialSoft.gradient(atoms);
 			switch(nBody) {
 				case 1:

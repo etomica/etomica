@@ -1,9 +1,11 @@
 package etomica.simulation.prototypes;
-import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.api.IAction;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -44,7 +46,7 @@ public class HSMD2D_noNbr extends Simulation {
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
-    public Box box;
+    public IBox box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
 
@@ -54,7 +56,7 @@ public class HSMD2D_noNbr extends Simulation {
     
     public HSMD2D_noNbr(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -66,9 +68,9 @@ public class HSMD2D_noNbr extends Simulation {
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
-	    potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
+	    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
-        potentialMaster.addPotential(potentialBoundary, new AtomType[] {species.getLeafType()});
+        potentialMaster.addPotential(potentialBoundary, new IAtomType[] {species.getLeafType()});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
@@ -127,7 +129,7 @@ public class HSMD2D_noNbr extends Simulation {
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
-        Action repaintAction = graphic.getPaintAction(sim.box);
+        IAction repaintAction = graphic.getPaintAction(sim.box);
 
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);

@@ -1,7 +1,7 @@
 package etomica.modifier;
 
 import etomica.api.IBox;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 

@@ -1,22 +1,22 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.util.IRandom;
 
 public final class IntegratorVerlet extends IntegratorMD implements AgentSource {
 
@@ -31,11 +31,11 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVerlet(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+    public IntegratorVerlet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random, 
+    public IntegratorVerlet(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
@@ -61,7 +61,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         t2 = timeStep * timeStep;
     }
           
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -82,7 +82,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         pressureTensor.E(forceSum.getPressureTensor());
 
         //take step
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -117,7 +117,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
     
     protected void updateMrLast() {
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

@@ -1,8 +1,9 @@
 package etomica.threaded;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
-import etomica.potential.IPotential;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
+
 import etomica.potential.Potential;
 import etomica.space.Space;
 
@@ -16,7 +17,7 @@ public class PotentialThreaded extends Potential {
 	
 	}
 
-	public double energy(AtomSet atoms) {
+	public double energy(IAtomSet atoms) {
 		//Only the energy from one thread (a partition of atoms)
 		return potential[0].energy(atoms);
 	}
@@ -26,7 +27,7 @@ public class PotentialThreaded extends Potential {
 		return potential[0].getRange();
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		
 		for(int i=0; i<potential.length; i++){
 			potential[i].setBox(box);

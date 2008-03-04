@@ -1,13 +1,15 @@
 package etomica.graphics;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IBox;
+import etomica.api.IController;
+import etomica.api.ISpecies;
+
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.api.IBox;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.species.ISpecies;
 
 /**
  * Slider that selects the number of atoms of a given species in a box.
@@ -20,14 +22,14 @@ public class DeviceNSelector extends DeviceSlider {
         this(null);
     }
     
-    public DeviceNSelector(Controller controller) {
+    public DeviceNSelector(IController controller) {
         super(controller);
     }
 
-    public void setResetAction(Action newResetAction) {
+    public void setResetAction(IAction newResetAction) {
         resetAction = newResetAction;
         if (modifyAction != null) {
-            targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
+            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
         }
     }
 
@@ -35,7 +37,7 @@ public class DeviceNSelector extends DeviceSlider {
      * Returns the action used to "reset" the simulation after changing the 
      * number of molecules, SimulationRestart by default.
      */
-    public Action getResetAction() {
+    public IAction getResetAction() {
         return resetAction;
     }
 
@@ -72,13 +74,13 @@ public class DeviceNSelector extends DeviceSlider {
         graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(box, species));
         if (resetAction != null) {
-            targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
+            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
         }
 
         setLabel("Number of molecules");
     }
     
-    protected Action resetAction;
+    protected IAction resetAction;
     protected ISpecies species;
     protected IBox box;
     

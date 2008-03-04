@@ -1,15 +1,16 @@
 package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.box.Box;
+import etomica.api.IAction;
+import etomica.api.IBox;
+import etomica.api.IIntegrator;
+import etomica.api.ISimulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IIntegrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -53,16 +54,16 @@ public final class SimulationRestart extends SimulationActionAdapter {
      * Resets boxs, integrators, and accumulators.
      */
     public void actionPerformed() {
-        Box[] boxs = simulation.getBoxs();
+        IBox[] boxs = simulation.getBoxs();
         for(int i=0; i<boxs.length; i++) {
             if (configuration != null) {
                 configuration.initializeCoordinates(boxs[i]);
             }
         }
         
-        Action[] currentActions = simulation.getController().getCurrentActions();
+        IAction[] currentActions = simulation.getController().getCurrentActions();
         if (currentActions.length == 1) {
-            Action currentAction = currentActions[0];
+            IAction currentAction = currentActions[0];
             if (currentAction instanceof ActivityIntegrate) {
                 IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
                 if(integrator.isInitialized()) {

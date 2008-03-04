@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a box
@@ -18,8 +18,8 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         confName = aConfName;
     }
     
-    public void initializeCoordinates(Box box) {
-        AtomSet leafList = box.getLeafList();
+    public void initializeCoordinates(IBox box) {
+        IAtomSet leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
         try {

@@ -1,9 +1,9 @@
 package etomica.space3d;
 
+import etomica.api.IFunction;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.space.IVectorRandom;
-import etomica.util.Function;
-import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
@@ -261,7 +261,7 @@ public final class Vector3D implements IVectorRandom, IVector3D, java.io.Seriali
         return Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z);
     }
 
-    public void map(Function function) {
+    public void map(IFunction function) {
         x = function.f(x);
         y = function.f(y);
         z = function.f(z);

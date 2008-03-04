@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.potential.IPotential;
+import etomica.api.IBox;
+import etomica.api.IPotential;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 /**
@@ -26,7 +26,7 @@ public class MayerESpherical extends MayerFunctionSpherical {
 		return Math.exp(-beta*potential.u(r2));
 	}
 	
-	public void setBox(Box newBox) {
+	public void setBox(IBox newBox) {
 	    potential.setBox(newBox);
 	}
 

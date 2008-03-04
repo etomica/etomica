@@ -1,9 +1,9 @@
 package etomica.potential;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Angle;
@@ -23,11 +23,11 @@ public class P3BondAngle extends Potential {
         setAngle(Math.PI);
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 
-    public double energy(AtomSet atomSet) {
+    public double energy(IAtomSet atomSet) {
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);

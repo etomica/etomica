@@ -1,17 +1,18 @@
 package etomica.modules.dcvgcmd;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IRandom;
+import etomica.api.ISpecies;
+
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
-import etomica.util.IRandom;
 
 /**
  * @author kofke
@@ -34,7 +35,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         activeAtoms = new AtomArrayList();
 	}
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }
@@ -122,7 +123,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private Vector3D position;
 	private boolean nearOrigin;
 	private final AtomArrayList activeAtoms;
-    private AtomSet moleculeList;
+    private IAtomSet moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;
     protected int testMoleculeIndex;

@@ -1,7 +1,7 @@
 package etomica.space;
 
+import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.util.IRandom;
 
 /**
  * Vector interface for vectors having random number methods 

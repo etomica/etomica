@@ -1,21 +1,22 @@
 package etomica.nbr.cell;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IVector;
+
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.box.BoxEvent;
 import etomica.box.BoxInflateEvent;
@@ -25,7 +26,6 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -55,7 +55,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(Box box, double potentialRange, Space _space) {
+    public NeighborCellManager(IBox box, double potentialRange, Space _space) {
         this(box, potentialRange, null, _space);
     }
     
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final Box box, double potentialRange, AtomPositionDefinition positionDefinition, Space _space) {
+    public NeighborCellManager(final IBox box, double potentialRange, AtomPositionDefinition positionDefinition, Space _space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         space = _space;
@@ -255,7 +255,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
             for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                 updateCell(atom);
                 if (atom instanceof IMolecule) {
-                    AtomSet childList = ((IMolecule)atom).getChildList();
+                    IAtomSet childList = ((IMolecule)atom).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                         updateCell(childList.getAtom(iChild));
                     }
@@ -265,7 +265,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
 
         private void updateCell(IAtom atom) {
             if (atom.getType().isInteracting()) {
-                Boundary boundary = box.getBoundary();
+                IBoundary boundary = box.getBoundary();
                 Cell cell = neighborCellManager.getCell(atom);
                 // we only need to remove the atom from the cell's list and
                 // not de-associate the atom from the cell.  assignCell below

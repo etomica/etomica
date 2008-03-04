@@ -1,5 +1,7 @@
 package etomica.graphics;
 
+import etomica.api.IAction;
+
 /**
  * Wrapper of an etomica Action that permits it to be used as a java.awt action listener.
  * Useful, for example, to connect a button to the action.
@@ -8,7 +10,7 @@ package etomica.graphics;
  */
 public class ActionGraphic implements etomica.action.Action, java.awt.event.ActionListener, java.io.Serializable { 
     
-    public ActionGraphic(etomica.action.Action action) {
+    public ActionGraphic(IAction action) {
         simulationAction = action;
     }
     
@@ -21,5 +23,5 @@ public class ActionGraphic implements etomica.action.Action, java.awt.event.Acti
     }
     
     private static final long serialVersionUID = 1L;
-    private final etomica.action.Action simulationAction;
+    private final IAction simulationAction;
 }

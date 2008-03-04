@@ -1,9 +1,9 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.space.Space;
 import etomica.units.Pressure;
@@ -75,7 +75,7 @@ public class MeterPressure extends DataSourceScalar {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-        Box box = integrator.getBox();
+        IBox box = integrator.getBox();
         integrator.getPotential().calculate(box, iteratorDirective, virial);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
         return box.getDensity()*integrator.getTemperature() - virial.getSum()/(box.getBoundary().volume()*dim);

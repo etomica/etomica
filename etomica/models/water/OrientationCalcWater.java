@@ -2,10 +2,10 @@ package etomica.models.water;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.OrientationCalc;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
@@ -36,7 +36,7 @@ public class OrientationCalcWater extends ConformationWater3P implements
 
     public void calcOrientation(IMolecule molecule, double[] quat) {
         // depend on ordering as H1, H2, O.  we could sniff this out if needed
-        AtomSet children = molecule.getChildList();
+        IAtomSet children = molecule.getChildList();
         IAtomPositioned H1 = (IAtomPositioned)children.getAtom(0);
         IAtomPositioned H2 = (IAtomPositioned)children.getAtom(1);
         IAtomPositioned O = (IAtomPositioned)children.getAtom(2);
@@ -235,7 +235,7 @@ public class OrientationCalcWater extends ConformationWater3P implements
 //        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
     }
 
-    public void initializePositions(AtomSet childList) {
+    public void initializePositions(IAtomSet childList) {
         super.initializePositions(childList);
         if (!initialized) {
             com0.E(atomPositionCOM.position(((AtomLeaf)childList.getAtom(0)).getParentGroup()));
@@ -253,7 +253,7 @@ public class OrientationCalcWater extends ConformationWater3P implements
     protected final RotationTensor previousTensor, workTensor;
     
     protected static void doTransform(IMolecule molecule, IVector r0, RotationTensor rotationTensor) {
-        AtomSet childList = molecule.getChildList();
+        IAtomSet childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
             IVector r = a.getPosition();
@@ -266,7 +266,7 @@ public class OrientationCalcWater extends ConformationWater3P implements
     public void calcOrientation(IMolecule molecule,
             IOrientationFull3D orientation) {
         // depend on ordering as H1, H2, O.  we could sniff this out if needed
-        AtomSet children = molecule.getChildList();
+        IAtomSet children = molecule.getChildList();
         IAtomPositioned H1 = (IAtomPositioned)children.getAtom(0);
         IAtomPositioned H2 = (IAtomPositioned)children.getAtom(1);
         IAtomPositioned O = (IAtomPositioned)children.getAtom(2);
@@ -289,7 +289,7 @@ public class OrientationCalcWater extends ConformationWater3P implements
     public void setOrientation(IMolecule molecule,
             IOrientationFull3D orientation) {
         xWork.E(atomPositionCOM.position(molecule));
-        AtomSet childList = molecule.getChildList();
+        IAtomSet childList = molecule.getChildList();
         initializePositions(childList);
         rotationTensor.setOrientation(orientation);
         rotationTensor.invert();

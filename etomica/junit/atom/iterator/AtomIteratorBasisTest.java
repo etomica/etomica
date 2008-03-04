@@ -2,15 +2,15 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
 
 
 /**
@@ -68,8 +68,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         IBox box = sim.getBoxs()[0];
-        AtomSet moleculeList0 = box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]);
-        AtomSet moleculeList1 = box.getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
+        IAtomSet moleculeList0 = box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]);
+        IAtomSet moleculeList1 = box.getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
         basis = (IMolecule)moleculeList0.getAtom(0);
         target = null;
         iterates = new AtomArrayList();

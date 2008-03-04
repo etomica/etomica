@@ -1,15 +1,15 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
-import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -28,7 +28,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
-    public MCMoveVolume(ISimulation sim, PotentialMaster potentialMaster) {
+    public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     
@@ -36,7 +36,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolume(PotentialMaster potentialMaster, IRandom random, double pressure) {
+    public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.D = potentialMaster.getSpace().D();
@@ -49,7 +49,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(true);
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

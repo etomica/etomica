@@ -1,18 +1,18 @@
 package etomica.integrator.mcmove;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
-import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -32,11 +32,11 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected boolean fixOverlap;
     protected final IRandom random;
 
-    public MCMoveAtom(ISimulation sim, PotentialMaster potentialMaster) {
+    public MCMoveAtom(ISimulation sim, IPotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
     }
     
-    public MCMoveAtom(PotentialMaster potentialMaster, IRandom random, double stepSize, double stepSizeMax,
+    public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
@@ -113,7 +113,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

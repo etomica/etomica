@@ -5,9 +5,9 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.IRandom;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 
 /**
  * MCMove that performs random displacements in the harmonic coordinates for
@@ -19,7 +19,7 @@ import etomica.util.IRandom;
  */
 public class MCMoveHarmonicStep extends MCMoveBoxStep {
 
-    public MCMoveHarmonicStep(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveHarmonicStep(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -53,7 +53,7 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
         eigenVectors = newEigenVectors;
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);

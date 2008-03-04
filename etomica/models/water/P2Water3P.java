@@ -1,11 +1,12 @@
 
 package etomica.models.water;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -34,11 +35,11 @@ public class P2Water3P extends Potential2 {
         this.chargeH = chargeH;
 	}
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         boundary = box.getBoundary();
     }
 
-    public double energy(AtomSet pair){
+    public double energy(IAtomSet pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 
@@ -142,7 +143,7 @@ public class P2Water3P extends Potential2 {
     private static final long serialVersionUID = 1L;
 	public double sigma , sigma2;
 	protected double epsilon, epsilon4;
-	protected Boundary boundary;
+	protected IBoundary boundary;
 	protected final double chargeH;
 	protected final double chargeO;
 	protected final double chargeOO, chargeOH, chargeHH;

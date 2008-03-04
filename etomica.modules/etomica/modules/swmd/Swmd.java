@@ -1,6 +1,7 @@
 package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -28,7 +29,7 @@ public class Swmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public IntegratorHard integrator;
     public Potential2HardSphericalWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;

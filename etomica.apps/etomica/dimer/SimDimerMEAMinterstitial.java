@@ -3,6 +3,11 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
@@ -10,8 +15,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Tin;
@@ -60,7 +63,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
-    public Box box;
+    public IBox box;
     public IVector [] saddle, normal;
     public SpeciesSpheresMono fixed, movable, interstitial;
     public PotentialMEAM potential;
@@ -71,7 +74,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    public AtomSet movableSet;
+    public IAtomSet movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
 
@@ -281,7 +284,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
      //SET MOVABLE ATOMS
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        AtomSet loopSet = box.getMoleculeList(fixed);
+        IAtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(intpos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.getBoundary().nearestImage(rij);

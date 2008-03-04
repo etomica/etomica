@@ -1,11 +1,12 @@
 package etomica.virial;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
 import etomica.api.IVector;
+
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
@@ -38,7 +39,7 @@ public class Potential2TransformedR2 extends Potential2 {
         return Math.sqrt(r2Transform);
     }
 
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         double r2;
         if (((AtomPair)atoms).atom0 instanceof IAtomPositioned) {
             dr.Ev1Mv2(((IAtomPositioned)((AtomPair)atoms).atom1).getPosition(),((IAtomPositioned)((AtomPair)atoms).atom0).getPosition());
@@ -64,7 +65,7 @@ public class Potential2TransformedR2 extends Potential2 {
         return e / (1 + (r2 - r2Transform));
     }
 
-    public void setBox(Box b) {
+    public void setBox(IBox b) {
     }
     
     public double getRange() {return potential.getRange();}

@@ -1,7 +1,9 @@
 package etomica.modules.osmosis;
-import etomica.EtomicaInfo;
+
+import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
+
+import etomica.EtomicaInfo;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
@@ -31,7 +33,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
         return info;
     }
 
-    public double energy(AtomSet a) {
+    public double energy(IAtomSet a) {
         double e = 0.0;
         //XXX ignore atoms in the wall.  this can happen due to bogus initial configurations
 //        if (Math.abs(((AtomLeaf)a).coord.position().x(0)) < collisionRadius) {
@@ -41,7 +43,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
 
      
-    public double collisionTime(AtomSet a, double falseTime) {
+    public double collisionTime(IAtomSet a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVector r = atom.getPosition();
         IVector v = atom.getVelocity();
@@ -56,7 +58,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
         return t+falseTime;
     }
 
-    public void bump(AtomSet a, double falseTime) {
+    public void bump(IAtomSet a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVector v = atom.getVelocity();
 

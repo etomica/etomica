@@ -2,18 +2,19 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
-import etomica.action.AtomGroupAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
+
+import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.lattice.IndexIteratorRectangular;
@@ -34,7 +35,7 @@ import etomica.space3d.IVector3D;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(Box box, Primitive primitive, Basis basis, Space _space) {
+    public CoordinateDefinitionParacetamol(IBox box, Primitive primitive, Basis basis, Space _space) {
     	super(box, primitive, 3, basis, _space);
        
        	axes = new IVector3D [3];
@@ -83,7 +84,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     }
 
     public void initializeCoordinates(int[] nCells) {
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -234,7 +235,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
      * 
      */
     
-    public double[] calcU(AtomSet molecules) {
+    public double[] calcU(IAtomSet molecules) {
         
     	super.calcU(molecules);
         int j = 3;
@@ -327,7 +328,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(AtomSet molecules) {
+    public void initNominalU(IAtomSet molecules) {
     	
     	for (int i=0; i < molecules.getAtomCount() ; i++){
     		
@@ -374,7 +375,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
  
     }
 
-    public void setToU(AtomSet molecules, double[] newU) {
+    public void setToU(IAtomSet molecules, double[] newU) {
     	
         int j=3;
         

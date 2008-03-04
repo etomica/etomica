@@ -1,23 +1,23 @@
 package etomica.threaded.atom;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
+
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.ISimulation;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -58,7 +58,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 		// TODO Auto-generated constructor stub
 	}
 	
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
@@ -118,7 +118,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        AtomSet list = box.getMoleculeList();
+        IAtomSet list = box.getMoleculeList();
         int size = list.getAtomCount();
 			                            
             for(int i=0; i<threads.length; i++){

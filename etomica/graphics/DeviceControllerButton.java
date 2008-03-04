@@ -1,4 +1,6 @@
 package etomica.graphics;
+
+import etomica.api.IController;
 import etomica.action.activity.Controller;
 
 /**
@@ -20,7 +22,7 @@ public class DeviceControllerButton extends DeviceButton {
         setAction(toggleAction);
         setLabel("  Start  ");
     }
-    public Controller getController() {
+    public IController getController() {
     	return toggleAction.getController();
     }
     
@@ -35,7 +37,7 @@ public class DeviceControllerButton extends DeviceButton {
          public void actionPerformed() {
          	if(controller == null) return;
             String text = " Pause ";
-            if(controller.isActive() && !controller.isPaused()) text = "Continue";
+            if(((Controller)controller).isActive() && !((Controller)controller).isPaused()) text = "Continue";
             super.actionPerformed();
             DeviceControllerButton.this.setLabel(text);
         }

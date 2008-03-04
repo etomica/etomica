@@ -36,7 +36,8 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -67,7 +68,7 @@ public class MDParacetamolMonoclinic extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final Box box;
+    public final IBox box;
     /**
      * The Integrator performing the dynamics.
      */

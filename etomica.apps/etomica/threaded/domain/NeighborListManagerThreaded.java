@@ -1,13 +1,13 @@
 package etomica.threaded.domain;
 
 import etomica.nbr.list.NeighborListManager;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.space.Space;
 
 public class NeighborListManagerThreaded extends NeighborListManager {
 
     public NeighborListManagerThreaded(PotentialMasterListThreaded potentialMasterListThreaded,
-            double range, Box box, Space space) {
+            double range, IBox box, Space space) {
         super(potentialMasterListThreaded, range, box, space);
         
     }

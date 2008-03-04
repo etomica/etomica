@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 
 /**
  * Convenience class used to define a SimulationAction. Implements all methods

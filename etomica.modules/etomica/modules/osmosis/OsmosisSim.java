@@ -3,6 +3,7 @@ package etomica.modules.osmosis;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -39,7 +40,7 @@ public class OsmosisSim extends Simulation {
 
     public IntegratorHard integrator;
     public SpeciesSpheresMono speciesSolvent,speciesSolute;
-    public Box box;
+    public IBox box;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;

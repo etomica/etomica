@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 
 /**
  * Base class for classes that perform some elementary action on an atom.
@@ -21,5 +21,5 @@ public abstract class AtomsetActionAdapter implements AtomsetAction, java.io.Ser
      * Method that defines the action to be performed on the atom
      * @param a Atom passed to method by iterator
      */
-    public abstract void actionPerformed(AtomSet a);
+    public abstract void actionPerformed(IAtomSet a);
 }   

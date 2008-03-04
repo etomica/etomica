@@ -1,12 +1,11 @@
 package etomica.data.meter;
 import etomica.action.Action;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
@@ -90,7 +89,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         iterator.setBox(box);
         iterator.reset();
         // iterate over all pairs
-        for (AtomSet pair = iterator.next(); pair != null;
+        for (IAtomSet pair = iterator.next(); pair != null;
              pair = iterator.next()) {
             dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
             nearestImageTransformer.nearestImage(dr);
@@ -152,7 +151,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
         nearestImageTransformer = box.getBoundary();
     }
@@ -166,7 +165,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     }
     
     private static final long serialVersionUID = 1L;
-    protected Box box;
+    protected IBox box;
     protected final Space space;
     protected long[] gSum;
     protected DataFunction data;

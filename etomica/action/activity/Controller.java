@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 import etomica.action.Action;
 import etomica.action.Activity;
+import etomica.api.IAction;
+import etomica.api.IController;
+import etomica.api.IControllerEventManager;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
 
@@ -46,14 +49,14 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         eventManager = new ControllerEventManager();
     }
     
-    public synchronized void addAction(Action newAction) {
+    public synchronized void addAction(IAction newAction) {
         super.addAction(newAction);
         actionStatusMap.put(newAction,ActionStatus.PENDING);
         // don't need to add to the exception map because HashMap will return
         // null if we don't add it.
     }
     
-    public synchronized boolean removeAction(Action oldAction) {
+    public synchronized boolean removeAction(IAction oldAction) {
         if (super.removeAction(oldAction)) {
             actionStatusMap.remove(oldAction);
             actionExceptionMap.remove(oldAction);
@@ -76,7 +79,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * Returns the status of an action held by the controller.  Returns
      * null for actions not held by the controller.
      */
-    public synchronized ActionStatus getActionStatus(Action action) {
+    public synchronized ActionStatus getActionStatus(IAction action) {
         return (ActionStatus)actionStatusMap.get(action);
     }
     
@@ -85,7 +88,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * Returns null if the given action did not throw an exception or is not 
      * held by the controller.
      */
-    public synchronized Exception getException(Action action) {
+    public synchronized Exception getException(IAction action) {
         return (Exception)actionExceptionMap.get(action);
     }
     
@@ -159,7 +162,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 else {
                     actionStatusMap.put(currentAction,ActionStatus.COMPLETED);
                 }
-                completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
+                completedActions = (IAction[])Arrays.addObject(completedActions, currentAction);
                 eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
                 currentAction = null;
@@ -201,7 +204,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * @param action
      *            Action to be performed right away; cannot be an Activity.
      */
-    public synchronized void doActionNow(final Action action) {
+    public synchronized void doActionNow(final IAction action) {
         if(action instanceof Activity) throw new IllegalArgumentException("can't send Activity here; sorry");
 
         // use extra synchronization to block calls to doActionNow while we're 
@@ -227,7 +230,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         }
     }
     
-    private void doUrgentAction(Action urgentAction) {
+    private void doUrgentAction(IAction urgentAction) {
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START_URGENT_ACTION, urgentAction));
         
         urgentAction.actionPerformed();
@@ -262,11 +265,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return "Controller";
     }
     
-    public ControllerEventManager getEventManager() {
+    public IControllerEventManager getEventManager() {
         return eventManager;
     }
     
-    private final ControllerEventManager eventManager;
+    private final IControllerEventManager eventManager;
 
     private boolean repeatCurrentAction = false;
 

@@ -1,7 +1,8 @@
 package etomica.normalmode;
 
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
+
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -9,7 +10,6 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.box.Box;
 import etomica.units.Energy;
 
 /**
@@ -45,7 +45,7 @@ public class MeterHarmonicCoordinate implements DataSource {
         BasisCell cell = coordinateDefinition.getBasisCells()[0];
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        AtomSet molecules = cell.molecules;
+        IAtomSet molecules = cell.molecules;
         double[] u = coordinateDefinition.calcU(molecules);
         double sqrtCells = Math.sqrt(coordinateDefinition.getBasisCells().length);
 
@@ -65,7 +65,7 @@ public class MeterHarmonicCoordinate implements DataSource {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
         setEigenvectors(normalModes.getEigenvectors(newBox));
 

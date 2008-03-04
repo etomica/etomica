@@ -1,10 +1,12 @@
 package etomica.dimer;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -38,7 +40,7 @@ public class EnergyMapMEAMadatom extends Simulation{
     private static final String APP_NAME = "MEAM Md3D";
     public final PotentialMaster potentialMaster;
     public IntegratorEnergyMap integratorMAP;
-    public Box box;
+    public IBox box;
     public SpeciesSpheresMono sn, snFix, snAdatom, cu, cuFix, cuAdatom, movable;
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMAP;

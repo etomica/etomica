@@ -1,9 +1,9 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;

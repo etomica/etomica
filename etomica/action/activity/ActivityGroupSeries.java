@@ -1,7 +1,7 @@
 package etomica.action.activity;
 
-import etomica.action.Action;
 import etomica.action.Activity;
+import etomica.api.IAction;
 import etomica.util.Arrays;
 
 /**
@@ -18,9 +18,9 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
 	 * If action is already in list of actions to be performed, method returns
 	 * without doing anything.
 	 */
-	public synchronized void addAction(Action newAction) {
+	public synchronized void addAction(IAction newAction) {
 		//FIXME this doesn't actually check that newAction isn't already in the array
-		pendingActions = (Action[])Arrays.addObject(pendingActions, newAction);
+		pendingActions = (IAction[])Arrays.addObject(pendingActions, newAction);
 		numActions++;
 	}
     
@@ -31,11 +31,11 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
      * without doing anything.
      * @return true if the action was removed
      */
-	public synchronized boolean removeAction(Action action) {
-		pendingActions = (Action[]) Arrays.removeObject(pendingActions, action);
+	public synchronized boolean removeAction(IAction action) {
+		pendingActions = (IAction[]) Arrays.removeObject(pendingActions, action);
 		if (pendingActions.length == numActions) {
             int oldNumCompleted = completedActions.length;
-            completedActions = (Action[]) Arrays.removeObject(completedActions, action);
+            completedActions = (IAction[]) Arrays.removeObject(completedActions, action);
             return completedActions.length != oldNumCompleted;
         }
 		numActions = pendingActions.length;
@@ -52,18 +52,18 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
             //throw an exception?  call halt?
             return;
         }
-        Action[] newPendingActions = new Action[completedActions.length+numActions];
+        IAction[] newPendingActions = new IAction[completedActions.length+numActions];
         System.arraycopy(completedActions,0,newPendingActions,0,completedActions.length);
         System.arraycopy(pendingActions,0,newPendingActions,completedActions.length,numActions);
         numActions = newPendingActions.length;
         pendingActions = newPendingActions;
-        completedActions = new Action[0];
+        completedActions = new IAction[0];
     }
 	
     /**
      * @return a list of the actions yet to be performed by this controller. 
      */
-    public synchronized Action[] getPendingActions() {
+    public synchronized IAction[] getPendingActions() {
         return pendingActions;
     }
     
@@ -71,20 +71,20 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
      * @return an array containing the action currently being performed,   
      * or a zero-length array if the current action is null.
      */
-    public synchronized Action[] getCurrentActions() {
-        if(currentAction == null) return new Action[0];
-        return new Action[] {currentAction};
+    public synchronized IAction[] getCurrentActions() {
+        if(currentAction == null) return new IAction[0];
+        return new IAction[] {currentAction};
      }
 
     /**
      * @return a list of the actions completed by this activity group.
      */
-    public synchronized Action[] getCompletedActions() {
+    public synchronized IAction[] getCompletedActions() {
         return completedActions;
     }
     
-    public synchronized Action[] getAllActions() {
-    	Action[] allActions = new Action[pendingActions.length+completedActions.length
+    public synchronized IAction[] getAllActions() {
+    	IAction[] allActions = new IAction[pendingActions.length+completedActions.length
     	                                 +((currentAction==null) ? 0 : 1)];
     	System.arraycopy(completedActions,0,allActions,0,completedActions.length);
     	int i = completedActions.length;
@@ -111,7 +111,7 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
 
             //TODO mark this as whether completed normally
             synchronized(this) {
-                completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
+                completedActions = (IAction[])Arrays.addObject(completedActions, currentAction);
                 currentAction = null;
             }
             if(exceptionThrown || pauseAfterEachAction) {
@@ -205,9 +205,9 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
 	}
 
     private static final long serialVersionUID = 1L;
-    protected Action currentAction;
+    protected IAction currentAction;
     protected boolean pauseAfterEachAction;
     protected int numActions;
-    protected Action[] pendingActions = new Action[0];
-    protected Action[] completedActions = new Action[0];
+    protected IAction[] pendingActions = new IAction[0];
+    protected IAction[] completedActions = new IAction[0];
 }

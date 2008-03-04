@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop
@@ -111,7 +111,7 @@ public final class ApiInnerFixed implements ApiComposite, java.io.Serializable {
      * every time, but the Atoms it holds are (of course) different for each
      * iterate.
      */
-    public final AtomSet next() {
+    public final IAtomSet next() {
         //Advance the inner loop, if it is not at its end.
         IAtom nextInner = aiInner.nextAtom();
         if (nextInner != null) {

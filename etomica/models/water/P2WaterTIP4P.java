@@ -1,13 +1,14 @@
 
 package etomica.models.water;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
+
 import etomica.potential.Potential2;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -36,12 +37,12 @@ public class P2WaterTIP4P extends Potential2 {
         chargeMM = chargeM*chargeM;
     }   
 
-    public double energy(AtomSet atoms){
+    public double energy(IAtomSet atoms){
         double sum = 0.0;
         double r2 = 0.0;
 
-        AtomSet water1Atoms = ((IMolecule)atoms.getAtom(0)).getChildList();
-        AtomSet water2Atoms = ((IMolecule)atoms.getAtom(1)).getChildList();
+        IAtomSet water1Atoms = ((IMolecule)atoms.getAtom(0)).getChildList();
+        IAtomSet water2Atoms = ((IMolecule)atoms.getAtom(1)).getChildList();
 
         IVector O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
         IVector O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
@@ -138,14 +139,14 @@ public class P2WaterTIP4P extends Potential2 {
     
     public double getEpsilon() {return epsilon;}
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         boundary = box.getBoundary();
     }
 
     private static final long serialVersionUID = 1L;
     protected final double sigma , sigma2;
     protected final double epsilon, epsilon4;
-    protected Boundary boundary;
+    protected IBoundary boundary;
     protected final IVector work, shift;
     protected final double chargeH;
     protected final double chargeM;

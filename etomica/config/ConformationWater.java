@@ -1,7 +1,7 @@
 package etomica.config;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.space.Space;
 
 
@@ -15,7 +15,7 @@ public class ConformationWater extends Conformation {
         super(space);
     }
     
-    public void initializePositions(AtomSet list) {
+    public void initializePositions(IAtomSet list) {
         
         double x = 6.0;
         double y = 6.0;

@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.atom.IAtom;
-import etomica.potential.IPotential;
+import etomica.api.IAtom;
+import etomica.api.IPotential;
 import etomica.util.EnumeratedType;
 
 /**

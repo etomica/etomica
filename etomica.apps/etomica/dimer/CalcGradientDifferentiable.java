@@ -1,14 +1,16 @@
 package etomica.dimer;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -26,7 +28,7 @@ import etomica.util.numerical.FiniteDifferenceDerivative;
 
 public class CalcGradientDifferentiable implements FunctionMultiDimensionalDifferentiable, AgentSource {
 
-    public Box box;
+    public IBox box;
     public PotentialMaster potentialMaster;
     public double forceConstant;
     int  derivativeOrder;
@@ -35,11 +37,11 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     PotentialCalculationForceSum force;
     AtomAgentManager atomAgent;
     int gradDcomponent, startAtom, stopAtom;
-    AtomSet movableSet;
+    IAtomSet movableSet;
     private final Space space;
     
     
-    public CalcGradientDifferentiable(Box aBox, PotentialMaster aPotentialMaster, AtomSet movableSet, Space _space){
+    public CalcGradientDifferentiable(IBox aBox, PotentialMaster aPotentialMaster, IAtomSet movableSet, Space _space){
         this.box = aBox;
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;

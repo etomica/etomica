@@ -1,8 +1,10 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.api.IBox;
+import etomica.api.IAtom;
+import etomica.api.ISpecies;
+
 import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -16,7 +18,6 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Fraction;

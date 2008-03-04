@@ -3,8 +3,8 @@
  */
 package etomica.nbr.cell;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPositionDefinition;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.Space;
 
@@ -26,7 +26,7 @@ public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serial
         return NeighborCellManager.class;
     }
     
-    public Object makeAgent(Box box) {
+    public Object makeAgent(IBox box) {
         NeighborCellManager cellManager = new NeighborCellManager(box,range,positionDefinition, space);
         box.getEventManager().addListener(cellManager);
         return cellManager;

@@ -11,6 +11,7 @@ import etomica.lattice.LatticeSumCrystal;
 import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
@@ -45,7 +46,7 @@ public class NormalModesPotential implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
-        Box box = new Box(boundary, space);
+        IBox box = new Box(boundary, space);
 
         System.out.println("Cell Density: "+nSites/boundary.volume());
         System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
@@ -147,14 +148,14 @@ public class NormalModesPotential implements NormalModes {
         this.potential = potential;
     }
 
-    public double[][][] getEigenvectors(Box box) {
+    public double[][][] getEigenvectors(IBox box) {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(Box box) {
+    public double[][] getOmegaSquared(IBox box) {
         if(needToCalculateModes) {
             calculateModes();
         }

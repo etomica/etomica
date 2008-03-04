@@ -1,6 +1,6 @@
 package etomica.graphics;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 
 /**
  * The BondManager is responsible for creation and disposal of bonds between
@@ -15,7 +15,7 @@ public interface BondManager {
      * bondType object.  The returned object can be used later to
      * tell the BondManager to remove the bond.
      */
-    public Object makeBond(AtomSet pair, Object bondType);
+    public Object makeBond(IAtomSet pair, Object bondType);
     
     /**
      * Notifies the BondManager that the given bond no longer exists in the

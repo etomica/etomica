@@ -3,11 +3,11 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.atom.AtomToAtomSetSpecies;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of a species in a box, taking one

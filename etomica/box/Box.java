@@ -1,19 +1,21 @@
 package etomica.box;
 
-import etomica.action.BoxInflate;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IBoxEventManager;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
+
+import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
-import etomica.simulation.ISimulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
@@ -61,7 +63,7 @@ public class Box implements java.io.Serializable, IBox {
     /**
      * Constructs box with the given boundary
      */
-    public Box(Boundary boundary, Space space) {
+    public Box(IBoundary boundary, Space space) {
     	this.space = space;
         eventManager = new BoxEventManager();
         setBoundary(boundary);
@@ -80,6 +82,9 @@ public class Box implements java.io.Serializable, IBox {
     
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#resetIndex(etomica.simulation.ISimulation)
+	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#resetIndex(etomica.api.ISimulation)
 	 */
     public void resetIndex(ISimulation sim) {
         if (sim == null) {
@@ -101,21 +106,25 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getIndex()
 	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getIndex()
+	 */
     public int getIndex() {
         return index;
     }
     
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the box
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#toString()
+	 */
     public String toString() {
         return "Box"+getIndex();
     }
     
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#addNewMolecule(etomica.species.ISpecies)
+	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#addNewMolecule(etomica.api.ISpecies)
 	 */
     public IMolecule addNewMolecule(ISpecies species) {
         IMolecule aNew = species.makeMolecule();
@@ -125,6 +134,9 @@ public class Box implements java.io.Serializable, IBox {
     
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#addMolecule(etomica.atom.IMolecule)
+	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#addMolecule(etomica.api.IMolecule)
 	 */
     public void addMolecule(IMolecule molecule) {
         ISpecies species = molecule.getType().getSpecies();
@@ -149,6 +161,9 @@ public class Box implements java.io.Serializable, IBox {
 
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#removeMolecule(etomica.atom.IMolecule)
+	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#removeMolecule(etomica.api.IMolecule)
 	 */
     public void removeMolecule(IMolecule molecule) {
         ISpecies species = molecule.getType().getSpecies();
@@ -175,6 +190,9 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#setNMolecules(etomica.species.ISpecies, int)
 	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#setNMolecules(etomica.api.ISpecies, int)
+	 */
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         AtomArrayList moleculeList = moleculeLists[speciesIndex];
@@ -195,6 +213,9 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getNMolecules(etomica.species.ISpecies)
 	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getNMolecules(etomica.api.ISpecies)
+	 */
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
         return moleculeLists[speciesIndex].getAtomCount();
@@ -203,22 +224,26 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getMoleculeList(etomica.species.ISpecies)
 	 */
-    public AtomSet getMoleculeList(ISpecies species) {
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getMoleculeList(etomica.api.ISpecies)
+	 */
+    public IAtomSet getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
     
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getMoleculeList()
 	 */
-    public AtomSet getMoleculeList() {
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getMoleculeList()
+	 */
+    public IAtomSet getMoleculeList() {
         return allMoleculeList;
     }
     
-    /**
-     * Returns the ith molecule in the list of molecules.
-     * 0 returns the first molecule, and moleculeCount-1 returns the last.
-     * An argument outside this range throws an IndexOutOfBoundsException
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#molecule(int)
+	 */
     public IMolecule molecule(int i) {
         return (IMolecule)allMoleculeList.getAtom(i);
     }
@@ -226,22 +251,37 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#setBoundary(etomica.space.Boundary)
 	 */
-     public void setBoundary(Boundary b) {
+     /* (non-Javadoc)
+	 * @see etomica.box.IBox#setBoundary(etomica.api.IBoundary)
+	 */
+    public void setBoundary(IBoundary b) {
         boundary = b;
      }
      
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getBoundary()
 	 */
-    public final Boundary getBoundary() {return boundary;}
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getBoundary()
+	 */
+    public final IBoundary getBoundary() {return boundary;}
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#setDimensions(etomica.api.IVector)
+	 */
     public final void setDimensions(IVector d) {
         boundary.setDimensions(d);
         eventManager.fireEvent(inflateEvent);
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#volume()
+	 */
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#setDensity(double)
+	 */
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
@@ -250,41 +290,52 @@ public class Box implements java.io.Serializable, IBox {
         inflater.actionPerformed();
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getDensity()
+	 */
     public double getDensity() {return moleculeCount()/boundary.volume();}
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getDensityDimension()
+	 */
     public Dimension getDensityDimension() {
         return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
     }
 
-    /**
-     * returns the number of leaf atoms in the box
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#atomCount()
+	 */
     public int atomCount() {return leafList.getAtomCount();}
 
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getEventManager()
 	 */
-    public BoxEventManager getEventManager() {
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getEventManager()
+	 */
+    public IBoxEventManager getEventManager() {
         return eventManager;
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#addSpeciesNotify(etomica.api.ISpecies)
+	 */
     public void addSpeciesNotify(ISpecies species) {
         moleculeLists = (AtomArrayList[])Arrays.addObject(moleculeLists, new AtomArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
     
-    /**
-     * Notifies the SpeciesMaster that a Species has been removed.  This method
-     * should only be called by the SpeciesManager.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#removeSpeciesNotify(etomica.api.ISpecies)
+	 */
     public void removeSpeciesNotify(ISpecies species) {
         moleculeLists = (AtomArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
-    /**
-     * Returns the number of molecules in the Box
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#moleculeCount()
+	 */
     public int moleculeCount() {
         return allMoleculeList.getAtomCount();
     }
@@ -292,10 +343,16 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getLeafList()
 	 */
-    public AtomSet getLeafList() {
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getLeafList()
+	 */
+    public IAtomSet getLeafList() {
         return leafList;
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#requestGlobalIndex()
+	 */
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#requestGlobalIndex()
 	 */
@@ -317,6 +374,9 @@ public class Box implements java.io.Serializable, IBox {
         }
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getMaxGlobalIndex()
+	 */
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getMaxGlobalIndex()
 	 */
@@ -379,7 +439,7 @@ public class Box implements java.io.Serializable, IBox {
         // in the middle of removing a molecule.  the leaf list and molecule list
         // will contain the atoms that haven't had their global indices recycled.
         boolean isLeafList = allMoleculeList.getAtomCount() == 0;
-        AtomSet currentList = isLeafList ? leafList : allMoleculeList;
+        IAtomSet currentList = isLeafList ? leafList : allMoleculeList;
         for (int j = 0; j<currentList.getAtomCount(); j++) {
             IAtom a = currentList.getAtom(j);
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
@@ -439,12 +499,9 @@ public class Box implements java.io.Serializable, IBox {
         }
     }
 
-    /**
-     * Notifies the SpeciesMaster that the given number of new Atoms will be
-     * added to the system.  It's not required to call this method before
-     * adding atoms, but if adding many Atoms, calling this will improve
-     * performance.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#notifyNewAtoms(int, int)
+	 */
     public void notifyNewAtoms(int numNewAtoms, int numNewLeafAtoms) {
         // has no actual effect within this object.  We just notify things to 
         // prepare for an increase in the max index.  If things assume that the
@@ -461,10 +518,9 @@ public class Box implements java.io.Serializable, IBox {
         }
     }
     
-    /**
-     * Sets the size of the atom global index reservoir.
-     * @param size
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#setIndexReservoirSize(int)
+	 */
     public void setIndexReservoirSize(int size) {
         if (size < 0) {
             throw new IllegalArgumentException("Reservoir size must not be negative");
@@ -476,14 +532,16 @@ public class Box implements java.io.Serializable, IBox {
         indexReservoir = new int[reservoirSize];
     }
 
-    /**
-     * Returns the size of the reservoir; the number of Atom that can be
-     * removed without triggering an index collapse.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getIndexReservoirSize()
+	 */
     public int getIndexReservoirSize() {
         return reservoirSize-1;
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#addAtomNotify(etomica.api.IAtom)
+	 */
     public void addAtomNotify(IAtom newAtom) {
         newAtom.setGlobalIndex(this);
         if (newAtom instanceof IAtomLeaf) {
@@ -494,7 +552,7 @@ public class Box implements java.io.Serializable, IBox {
             leafIndices[globalIndex] = leafList.getAtomCount();
             leafList.add(newAtom);
         } else {
-            AtomSet childList = ((IMolecule)newAtom).getChildList();
+            IAtomSet childList = ((IMolecule)newAtom).getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
                 childAtom.setGlobalIndex(this);
@@ -511,6 +569,9 @@ public class Box implements java.io.Serializable, IBox {
 
     //updating of leaf atomList may not be efficient enough for repeated
     // use, but is probably ok
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#removeAtomNotify(etomica.api.IAtom)
+	 */
     public void removeAtomNotify(IAtom oldAtom) {
         eventManager.fireEvent(new BoxAtomRemovedEvent(this, oldAtom));
         if (oldAtom instanceof IAtomLeaf) {
@@ -528,7 +589,7 @@ public class Box implements java.io.Serializable, IBox {
             }
             returnGlobalIndex(oldAtom.getGlobalIndex());
         } else {
-            AtomSet childList = ((IMolecule)oldAtom).getChildList();
+            IAtomSet childList = ((IMolecule)oldAtom).getChildList();
             returnGlobalIndex(oldAtom.getGlobalIndex());
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
@@ -550,6 +611,9 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getLeafIndex(etomica.atom.IAtom)
 	 */
+    /* (non-Javadoc)
+	 * @see etomica.box.IBox#getLeafIndex(etomica.api.IAtom)
+	 */
     public int getLeafIndex(IAtom atomLeaf) {
         return leafIndices[atomLeaf.getGlobalIndex()];
     }
@@ -567,8 +631,8 @@ public class Box implements java.io.Serializable, IBox {
     protected int[] leafIndices;
     
     private static final long serialVersionUID = 2L;
-    private Boundary boundary;;
-    private final BoxEventManager eventManager;
+    private IBoundary boundary;;
+    private final IBoxEventManager eventManager;
     private final BoxEvent inflateEvent;
     protected AtomArrayList[] moleculeLists;
     private int index;

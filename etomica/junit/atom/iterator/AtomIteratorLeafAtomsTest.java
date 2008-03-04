@@ -2,11 +2,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
 
 /**
  * Unit test for AtomIteratorLeafAtoms
@@ -28,7 +28,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(iterator);
         
-        Box[] box = sim.getBoxs();
+        IBox[] box = sim.getBoxs();
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<box.length; i++) {
             moleculeCount[i] = new int[] {n0[i], n1[i]};

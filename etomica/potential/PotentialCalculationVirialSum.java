@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IPotential;
 import etomica.atom.iterator.AtomsetIterator;
 
 /**
@@ -19,7 +20,7 @@ public class PotentialCalculationVirialSum extends PotentialCalculation {
             return;
         }
 		iterator.reset();
-        for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
+        for (IAtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
             sum += ((PotentialSoft)potential).virial(atoms);
 		}
 	}

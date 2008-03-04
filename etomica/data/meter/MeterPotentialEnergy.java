@@ -1,13 +1,13 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.PDBWriter;
+import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.atom.IAtom;
+import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.box.Box;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
 
 /**
@@ -20,7 +20,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergy extends DataSourceScalar {
     
-    public MeterPotentialEnergy(PotentialMaster potentialMaster) {
+    public MeterPotentialEnergy(IPotentialMaster potentialMaster) {
         super("Potential Energy",Energy.DIMENSION);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
@@ -71,13 +71,13 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    private final PotentialMaster potential;
+    private final IPotentialMaster potential;
 }

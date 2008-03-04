@@ -3,10 +3,10 @@ package etomica.normalmode;
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
@@ -45,7 +45,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
      * Interaction energy of the pair.
      * Zero if x coordinates are ordered differently from atom indexes.
      */
-    public double energy(AtomSet pair) {
+    public double energy(IAtomSet pair) {
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
         dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
@@ -74,16 +74,16 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         return wrappedPotential;
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         wrappedPotential.setBox(newBox);
     }
 
-    public void bump(AtomSet atom, double falseTime) {
+    public void bump(IAtomSet atom, double falseTime) {
         wrappedPotential.bump(atom, falseTime);
     }
 
-    public double collisionTime(AtomSet atom, double falseTime) {
+    public double collisionTime(IAtomSet atom, double falseTime) {
         return wrappedPotential.collisionTime(atom, falseTime);
     }
 

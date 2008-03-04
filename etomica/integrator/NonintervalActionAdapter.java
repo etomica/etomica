@@ -1,6 +1,7 @@
 package etomica.integrator;
 
-import etomica.action.Action;
+import etomica.api.IAction;
+import etomica.api.IIntegratorNonintervalListener;
 import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 
 /**
@@ -8,12 +9,12 @@ import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
  * non-interval event. Types of events that trigger action can be set using the
  * setEventTypes method; default is to respond to all events.
  */
-public class NonintervalActionAdapter implements IntegratorNonintervalListener, java.io.Serializable {
+public class NonintervalActionAdapter implements IIntegratorNonintervalListener, java.io.Serializable {
 
     /**
      * Creates adapter with integrator to be set later.
      */
-    public NonintervalActionAdapter(Action action) {
+    public NonintervalActionAdapter(IAction action) {
         this.action = action;
         setActive(true);
         setEventTypes((NonintervalEventType[])NonintervalEventType.choices());
@@ -55,7 +56,7 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
     /**
      * @return Returns the action.
      */
-    public Action getAction() {
+    public IAction getAction() {
         return action;
     }
 
@@ -70,7 +71,7 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
     }
 
     private static final long serialVersionUID = 1L;
-    private final Action action;
+    private final IAction action;
     private NonintervalEventType[] eventTypes;
     private boolean active;//set true in constructor
 }

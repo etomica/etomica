@@ -3,10 +3,11 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -25,11 +26,11 @@ import etomica.space.Space;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Space space) {
+    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Space space) {
         this(box, primitive, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Basis basis, Space space) {
+    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Basis basis, Space space) {
         super(box, space.D()*basis.getScaledCoordinates().length, primitive, basis, space);
         workVector = space.makeVector();
         u = new double[coordinateDim];
@@ -38,7 +39,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public double[] calcU(AtomSet atoms) {
+    public double[] calcU(IAtomSet atoms) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
@@ -53,14 +54,14 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         return u;
     }
 
-    public void initNominalU(AtomSet molecules) {
+    public void initNominalU(IAtomSet molecules) {
         //nothing to do -- lattice site is all information needed for u
     }
 
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(AtomSet atoms, double[] newU) {
+    public void setToU(IAtomSet atoms, double[] newU) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);

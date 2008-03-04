@@ -2,7 +2,7 @@ package etomica.data;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Null;
@@ -49,7 +49,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
             data.E(Double.NaN);
             return data;
         }
-        Box box = integratorHard.getBox();
+        IBox box = integratorHard.getBox();
 
         work.TE(-1./(integratorHard.getTemperature()*elapsedTime*dim*box.atomCount()));
         data.x.E(work);

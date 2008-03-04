@@ -2,6 +2,8 @@ package etomica.util;
 
 import java.util.Random;
 
+import etomica.api.IRandom;
+
 /**
  * Random number generator class.  This just wraps Java's own RNG.
  * 

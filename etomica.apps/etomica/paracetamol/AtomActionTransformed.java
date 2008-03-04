@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 import etomica.action.AtomAction;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
 import etomica.space.Space;
 import etomica.space.Tensor;
 

@@ -1,6 +1,6 @@
 package etomica.models.water;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -14,7 +14,7 @@ public class ConformationWaterGCPM extends Conformation {
         super(space);
     }
     
-    public void initializePositions(AtomSet list){
+    public void initializePositions(IAtomSet list){
         
         double x = 0.0;
         double y = 0.0;

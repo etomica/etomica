@@ -1,6 +1,7 @@
-package etomica.action.activity;
+package etomica.api;
 
-import etomica.action.Action;
+import etomica.action.activity.ActivityGroup;
+import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.Controller.ActionStatus;
 
 public interface IController extends ActivityGroup {
@@ -16,14 +17,14 @@ public interface IController extends ActivityGroup {
      * Returns the status of an action held by the controller.  Returns
      * null for actions not held by the controller.
      */
-    public ActionStatus getActionStatus(Action action);
+    public ActionStatus getActionStatus(IAction action);
 
     /**
      * Returns the exception thrown by an action held by the controller.  
      * Returns null if the given action did not throw an exception or is not 
      * held by the controller.
      */
-    public Exception getException(Action action);
+    public Exception getException(IAction action);
 
     /**
      * Pauses current activity, executes given action, then resumes current
@@ -33,7 +34,7 @@ public interface IController extends ActivityGroup {
      * @param action
      *            Action to be performed right away; cannot be an Activity.
      */
-    public void doActionNow(final Action action);
+    public void doActionNow(final IAction action);
 
     /**
      * Returns the event manager used by the controller to notify listeners of
@@ -41,6 +42,6 @@ public interface IController extends ActivityGroup {
      * itself.
      * @see ControllerEvent
      */
-    public ControllerEventManager getEventManager();
+    public IControllerEventManager getEventManager();
 
 }

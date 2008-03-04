@@ -2,12 +2,14 @@ package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.atom.iterator.AtomIteratorFiltered;
@@ -16,7 +18,6 @@ import etomica.atom.iterator.AtomsetIteratorAllLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;
@@ -41,7 +42,7 @@ public class PotentialGroup extends Potential {
         super(nBody, space);
     }
     
-    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
+    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential instanceof PotentialGroup) {
@@ -76,7 +77,7 @@ public class PotentialGroup extends Potential {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(IPotential potential, AtomType[] types) {
+    public void addPotential(IPotential potential, IAtomType[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
@@ -115,7 +116,7 @@ public class PotentialGroup extends Potential {
         addPotential(potential,iterator,null);
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -135,7 +136,7 @@ public class PotentialGroup extends Potential {
      * Returns the potential that applies to the specified types,
      * or null of no existing potential applies.
      */
-    public PotentialGroup getPotential(AtomType[] types) {
+    public PotentialGroup getPotential(IAtomType[] types) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential instanceof PotentialGroup) {
                 if(Arrays.equals(types,link.types)) {
@@ -156,13 +157,13 @@ public class PotentialGroup extends Potential {
      * within this group or does not apply to specific AtomTypes, null is 
      * returned.
      */
-    public AtomType[] getAtomTypes(IPotential potential) {
+    public IAtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
             }
             if (link.potential instanceof PotentialGroup) {
-                AtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
+                IAtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
                 if (types != null) {
                     return types;
                 }
@@ -172,7 +173,7 @@ public class PotentialGroup extends Potential {
     }
     
     //TODO this needs some work
-    public double energy(AtomSet basisAtoms) {
+    public double energy(IAtomSet basisAtoms) {
         if(basisAtoms.getAtomCount() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
@@ -182,7 +183,7 @@ public class PotentialGroup extends Potential {
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
-            for (AtomSet atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
+            for (IAtomSet atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
                 sum += link.potential.energy(atoms);
             }
         }
@@ -239,7 +240,7 @@ public class PotentialGroup extends Potential {
             }
     	}
     	iterator.reset();//loop over atom groups affected by this potential group
-    	for (AtomSet basisAtoms = iterator.next(); basisAtoms != null;
+    	for (IAtomSet basisAtoms = iterator.next(); basisAtoms != null;
              basisAtoms = iterator.next()) {
     	    for (PotentialLinker link=first; link!= null; link=link.next) {
     	        if(!link.enabled) continue;
@@ -249,7 +250,7 @@ public class PotentialGroup extends Potential {
     	}
     }
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
     	this.box = box;
   		for (PotentialLinker link=first; link!= null; link=link.next) {
   		    link.potential.setBox(box);
@@ -298,23 +299,23 @@ public class PotentialGroup extends Potential {
     private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
     protected IBox box;
-    protected PotentialMaster potentialMaster;
+    protected IPotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 
     protected static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         public final IPotential potential;
         public final AtomsetIteratorBasisDependent iterator;
-        public final AtomType[] types;
+        public final IAtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, IAtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;
             if (t != null) {
-                types = (AtomType[])t.clone();
+                types = (IAtomType[])t.clone();
             }
             else {
                 types = null;

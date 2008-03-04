@@ -1,5 +1,6 @@
 package etomica.space3d;
 
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorRectangular;
@@ -9,7 +10,6 @@ import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
-import etomica.simulation.ISimulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.Space;

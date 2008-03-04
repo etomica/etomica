@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -8,8 +10,6 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
 import etomica.math.geometry.Rectangular;
-import etomica.simulation.ISimulation;
-import etomica.util.IRandom;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  

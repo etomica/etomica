@@ -1,18 +1,20 @@
 package etomica.nbr.site;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.nbr.CriterionAll;
@@ -23,11 +25,9 @@ import etomica.nbr.CriterionTypesMulti;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.potential.IPotential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -74,14 +74,14 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         cellRange = newCellRange;
     }
     
-    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomType) {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
             if ((atomType[0] instanceof AtomTypeLeaf) &&
                     (atomType[1] instanceof AtomTypeLeaf)) {
-                AtomType moleculeType0 = ((AtomTypeLeaf)atomType[0]).getParentType();
-                AtomType moleculeType1 = ((AtomTypeLeaf)atomType[1]).getParentType();
+                IAtomType moleculeType0 = ((AtomTypeLeaf)atomType[0]).getParentType();
+                IAtomType moleculeType1 = ((AtomTypeLeaf)atomType[1]).getParentType();
                 if (moleculeType0 == moleculeType1) {
                     criterion = new CriterionInterMolecular(criterion);
                 }
@@ -148,7 +148,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
         for (int i=0; i<criteriaArray.length; i++) {
@@ -168,7 +168,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomSet list = box.getMoleculeList();
+            IAtomSet list = box.getMoleculeList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 calculate((IMolecule)list.getAtom(i), id, pc);//call calculate with the SpeciesAgent
@@ -244,7 +244,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
 
         //cannot use AtomIterator field because of recursive call
-        AtomSet list = atom.getChildList();
+        IAtomSet list = atom.getChildList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
             calculate((IAtomLeaf)list.getAtom(i), id, pc);//recursive call
@@ -303,7 +303,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             return NeighborSiteManager.class;
         }
         
-        public Object makeAgent(Box box) {
+        public Object makeAgent(IBox box) {
             return new NeighborSiteManager(box,nCells, space);
         }
         

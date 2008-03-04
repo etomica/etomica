@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.ApiBuilder;
 
 
@@ -11,7 +12,7 @@ import etomica.atom.iterator.ApiBuilder;
  */
 public class P1IntraSimple {
     
-    public static PotentialGroup makeP1IntraSimple(PotentialMaster potentialMaster, Potential2 bonded, Potential2 nonbonded) {
+    public static PotentialGroup makeP1IntraSimple(IPotentialMaster potentialMaster, Potential2 bonded, Potential2 nonbonded) {
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(1);
         pGroup.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
         pGroup.addPotential(nonbonded, ApiBuilder.makeNonAdjacentPairIterator());

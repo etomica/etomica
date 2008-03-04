@@ -7,12 +7,12 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
 
@@ -136,14 +136,14 @@ public class XYZWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType;
-    private final AtomSet leafList;
+    private final IAtomSet leafList;
     private boolean doAppend;
     
     private static final class ElementLinker implements Serializable {
         public final int elementIndex;
-        public final AtomType type;
+        public final IAtomType type;
         private static final long serialVersionUID = 1L;
-        public ElementLinker(int aElementIndex, AtomType aType) {
+        public ElementLinker(int aElementIndex, IAtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
         }

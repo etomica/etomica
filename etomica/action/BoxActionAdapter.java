@@ -1,7 +1,6 @@
 package etomica.action;
 
 import etomica.api.IBox;
-import etomica.box.Box;
 
 /**
  * Convenience class used to define a BoxAction. Implements all methods
@@ -21,9 +20,9 @@ public abstract class BoxActionAdapter implements BoxAction, java.io.Serializabl
 	 * @param box
 	 *            The box on which this action will be performed.
 	 */
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		this.box = box;
 	}
 
-	protected Box box;
+	protected IBox box;
 }

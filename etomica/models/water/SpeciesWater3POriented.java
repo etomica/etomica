@@ -1,8 +1,8 @@
 package etomica.models.water;
 
+import etomica.api.IMolecule;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeMoleculeOriented;
-import etomica.atom.IMolecule;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.Space;

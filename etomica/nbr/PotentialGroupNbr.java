@@ -1,13 +1,13 @@
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
@@ -45,7 +45,7 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
         super.addPotential(potential, iterator, types);
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);

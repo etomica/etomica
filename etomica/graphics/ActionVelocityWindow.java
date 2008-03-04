@@ -6,9 +6,9 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.Action;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 
 /**
@@ -16,7 +16,7 @@ import etomica.atom.IAtomKinetic;
  * @author andrew
  */
 public class ActionVelocityWindow implements Action {
-    private final AtomSet leafList;
+    private final IAtomSet leafList;
     
     public ActionVelocityWindow(IBox box) {
         leafList = box.getLeafList();

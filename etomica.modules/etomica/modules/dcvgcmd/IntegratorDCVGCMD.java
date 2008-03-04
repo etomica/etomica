@@ -5,8 +5,13 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package etomica.modules.dcvgcmd;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISpecies;
+
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
@@ -14,11 +19,9 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.potential.PotentialMaster;
-import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.util.IRandom;
+
 
 
 /**
@@ -37,7 +40,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
     
-	public IntegratorDCVGCMD(PotentialMaster parent, double temperature, ISpecies species1, ISpecies species2) {
+	public IntegratorDCVGCMD(IPotentialMaster parent, double temperature, ISpecies species1, ISpecies species2) {
 		super(parent, temperature);
 		this.speciesA = species1;
 		this.speciesB = species2;
@@ -87,7 +90,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			for(int i=0; i<50; i++) {
                 integratormc.doStep();
             }
-			AtomSet allMolecules = box.getLeafList();
+			IAtomSet allMolecules = box.getLeafList();
 			for (int i=0; i<allMolecules.getAtomCount(); i++) {
 			    if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
 			        throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition());
@@ -103,7 +106,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
-            AtomSet allMolecules = box.getLeafList();
+            IAtomSet allMolecules = box.getLeafList();
             for (int i=0; i<allMolecules.getAtomCount(); i++) {
                 if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
                     throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition()+" "+allMolecules.getAtom(i).getGlobalIndex());

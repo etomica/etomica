@@ -5,10 +5,10 @@ import java.util.LinkedList;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
 /**
@@ -21,7 +21,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 class Lister extends AtomsetActionAdapter implements AtomAction {
 
 	public final LinkedList list;
-	public AtomSet atoms;
+	public IAtomSet atoms;
 	
 	public Lister() {
 		list = new LinkedList();
@@ -39,14 +39,14 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
      * Adds atomSet.toString() to list.
 	 * kmb 4/27/05
 	 */
-	public void actionPerformed(AtomSet atomSet) {
+	public void actionPerformed(IAtomSet atomSet) {
         list.add(atomSet.toString());
 	}
     
     /**
      * Performs action on each element of array.
      */
-    public void addEachToList(AtomSet a) {
+    public void addEachToList(IAtomSet a) {
         for(int i=0; i<a.getAtomCount(); i++) {
             actionPerformed(new AtomSetSinglet(a.getAtom(i)));
         }

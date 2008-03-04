@@ -3,16 +3,17 @@ package etomica.dimer;
 import java.io.IOException;
 import java.util.Formatter;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.ISimulation;
+
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{

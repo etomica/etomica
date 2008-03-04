@@ -4,17 +4,17 @@ import java.util.LinkedList;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 
 /**
  * Unit test for ApiInterspecies1A
@@ -186,7 +186,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
 
     protected class SpeciesTestAction extends AtomsetActionAdapter {
 
-        public void actionPerformed(AtomSet atomSet) {
+        public void actionPerformed(IAtomSet atomSet) {
 //            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
             //assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
             assertTrue(atomSet.getAtom(0).getType().getSpecies().getIndex() < atomSet.getAtom(1).getType().getSpecies().getIndex());

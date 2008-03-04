@@ -3,8 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.api.IBox;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
+import etomica.api.IPotentialMaster;
 import etomica.units.Energy;
 
 /**
@@ -18,7 +17,7 @@ public final class MeterEnergy extends DataSourceScalar {
     protected DataSourceScalar kinetic;
     protected DataSourceScalar potential;
     
-    public MeterEnergy(PotentialMaster potentialMaster, Box box) {
+    public MeterEnergy(IPotentialMaster potentialMaster, IBox box) {
     	super("Energy",Energy.DIMENSION);
         kinetic = new MeterKineticEnergy();
         ((MeterKineticEnergy)kinetic).setBox(box);
@@ -50,7 +49,7 @@ public final class MeterEnergy extends DataSourceScalar {
      * @return the current value of the total potential energy of the molecules in the box
      */
     public double getPotentialEnergy() {return potential.getDataAsScalar();}
-    
+     
     /**
      * Current value of the total energy (kinetic + potential)
      */

@@ -1,7 +1,7 @@
 package etomica.box;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.atom.IAtom;
 
 /**
  * Event that conveys some happening with respect to an Atom in a Box.

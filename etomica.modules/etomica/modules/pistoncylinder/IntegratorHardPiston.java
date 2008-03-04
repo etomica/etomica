@@ -1,14 +1,16 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISimulation;
+
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -22,7 +24,7 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potential Potential between piston and every atom in the box
      */
     public IntegratorHardPiston(ISimulation sim,
-    		           PotentialMaster potentialMaster,
+    		           IPotentialMaster potentialMaster,
     		           P1HardMovingBoundary potential, Space _space) {
         super(sim, potentialMaster, _space);
         pistonPotential = potential;
@@ -68,7 +70,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     public void updatePiston() {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom1 = leafList.getAtom(iLeaf);

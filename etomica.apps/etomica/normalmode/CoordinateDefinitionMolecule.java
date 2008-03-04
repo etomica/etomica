@@ -2,13 +2,14 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -22,17 +23,17 @@ import etomica.space.Space;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Space space) {
+    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Space space) {
         this(box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Basis basis, Space space) {
         super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         work1 = space.makeVector();
         u = new double[coordinateDim];
     }
 
-    public double[] calcU(AtomSet molecules) {
+    public double[] calcU(IAtomSet molecules) {
         // calculates components of U related to the the center of mass of the
         // molecules
         // subclass is responsible for setting orientation or intramolecular
@@ -55,10 +56,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(AtomSet molecules) {
+    public void initNominalU(IAtomSet molecules) {
     }
 
-    public void setToU(AtomSet molecules, double[] newU) {
+    public void setToU(IAtomSet molecules, double[] newU) {
         // sets the center of mass of the molecules to that specified by newU
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom

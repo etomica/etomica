@@ -1,13 +1,15 @@
 package etomica.modules.chainequilibrium;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IController;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -19,16 +21,15 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 	public MeterChainLength molecularCount;
-	public Controller controller1;
+	public IController controller1;
 	public IntegratorHard integratorHard1;
 	public java.awt.Component display;
-	public Box box;
+	public IBox box;
 	public etomica.action.SimulationRestart restartAction;
 	public boolean initializing = true;
 	public MeterTemperature thermometer;

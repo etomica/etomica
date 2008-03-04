@@ -2,12 +2,12 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.Null;
 
 /**
@@ -99,7 +99,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public double getDataAsScalar() {
         if (integrator == null) throw new IllegalStateException("must call setBox before using meter");
-        Box box = integrator.getBox();
+        IBox box = integrator.getBox();
         double sum = 0.0; //sum for local insertion average
         box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);

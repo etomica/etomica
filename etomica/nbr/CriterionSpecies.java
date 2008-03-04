@@ -1,8 +1,8 @@
 
 package etomica.nbr;
 
-import etomica.atom.AtomSet;
-import etomica.species.ISpecies;
+import etomica.api.IAtomSet;
+import etomica.api.ISpecies;
 
 /**
  * Filters atoms pairs to match a given pair of species.
@@ -24,7 +24,7 @@ public class CriterionSpecies extends CriterionAdapter {
      * order of the pair), and if the wrapped criterion accept
      * also returns true.
      */
-    public boolean accept(AtomSet pair) {
+    public boolean accept(IAtomSet pair) {
         ISpecies atom0Species = pair.getAtom(0).getType().getSpecies();
         ISpecies atom1Species = pair.getAtom(1).getType().getSpecies();
         if( (atom0Species == species0 && atom1Species == species1) 

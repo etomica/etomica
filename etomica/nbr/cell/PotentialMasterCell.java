@@ -1,13 +1,13 @@
 package etomica.nbr.cell;
 
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomType;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.box.BoxAgentManager;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
-import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -120,7 +120,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomType) {
         super.addRangedPotentialForTypes(potential, atomType);
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();

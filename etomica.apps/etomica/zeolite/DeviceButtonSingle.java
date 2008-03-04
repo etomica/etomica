@@ -5,9 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import etomica.api.IController;
+
 import etomica.EtomicaInfo;
 import etomica.action.Action;
-import etomica.action.activity.Controller;
 import etomica.graphics.Device;
 
 /**
@@ -23,7 +24,7 @@ public class DeviceButtonSingle extends Device {
      * call to setAction is needed to make the button do something.
      * @param controller
      */
-    public DeviceButtonSingle(Controller controller) {
+    public DeviceButtonSingle(IController controller) {
         super(controller);
         button = new JButton();
     }
@@ -32,7 +33,7 @@ public class DeviceButtonSingle extends Device {
      * Constructs a button connected to the given action.  Controller
      * and action may be changed independently after construction.
      */
-    public DeviceButtonSingle(Controller controller, Action action) {
+    public DeviceButtonSingle(IController controller, Action action) {
         this(controller);
         setAction(action);
     }

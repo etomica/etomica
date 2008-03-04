@@ -1,8 +1,9 @@
 package etomica.spin;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+
 import etomica.potential.Potential2;
 import etomica.space.Space;
 
@@ -36,7 +37,7 @@ public class P2Spin extends Potential2 {
      * @throws ClassCastException
      *             if atoms is not an instance of AtomPair
      */
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         return -coupling
                 * ((IAtomPositioned)atoms.getAtom(0)).getPosition().dot(((IAtomPositioned)atoms.getAtom(1)).getPosition());
     }
@@ -66,7 +67,7 @@ public class P2Spin extends Potential2 {
         this.coupling = coupling;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         //does nothing
     }
 

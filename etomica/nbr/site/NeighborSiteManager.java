@@ -1,12 +1,12 @@
 package etomica.nbr.site;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.space.Space;
 
@@ -38,7 +38,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborSiteManager(final Box box, int nCells, Space _space) {
+    public NeighborSiteManager(final IBox box, int nCells, Space _space) {
         space = _space;
 
         lattice = new CellLattice(box.getBoundary().getDimensions(),

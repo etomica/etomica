@@ -1,12 +1,14 @@
 package etomica.virial;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
+
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
-import etomica.util.IRandom;
+
 
 /**
  * @author kofke
@@ -19,7 +21,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMoleculeMulti(ISimulation sim, PotentialMaster potentialMaster) {
+    public MCMoveClusterMoleculeMulti(ISimulation sim, IPotentialMaster potentialMaster) {
     	this(potentialMaster,sim.getRandom(), 1.0);
     }
     
@@ -30,13 +32,13 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
+    public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
             IRandom random, double stepSize) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         weightMeter = new MeterClusterWeight(potential);
     }
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
         translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
@@ -48,7 +50,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
@@ -60,7 +62,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     }
 	
     public void rejectNotify() {
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getAtomCount(); i++) {
             groupTranslationVector.E(translationVectors[i-1]);
             groupTranslationVector.TE(-1);

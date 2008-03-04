@@ -1,16 +1,18 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMoleculeOriented;
 import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IMolecule;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
+
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 
@@ -29,11 +31,11 @@ import etomica.units.Temperature;
  */
 public class MeterTemperature extends DataSourceScalar {
 
-    public MeterTemperature(Box box, int D) {
+    public MeterTemperature(IBox box, int D) {
         this(null, box, D);
     }
 
-    public MeterTemperature(ISimulation sim, Box box, int D) {
+    public MeterTemperature(ISimulation sim, IBox box, int D) {
 		super("Temperature", Temperature.DIMENSION);
 		dim = D;
 		meterKE = new MeterKineticEnergy();
@@ -68,7 +70,7 @@ public class MeterTemperature extends DataSourceScalar {
                         totalD += 6*nMolecules;
 	                }
 	                else {
-	                    AtomSet children = molecule.getChildList();
+	                    IAtomSet children = molecule.getChildList();
 	                    if (children.getAtomCount() == 0 || 
 	                        Double.isInfinite(((AtomTypeLeaf)children.getAtom(0).getType()).getMass())) {
 	                        continue;
@@ -92,8 +94,8 @@ public class MeterTemperature extends DataSourceScalar {
 	}
 
     private static final long serialVersionUID = 1L;
-    protected Box box;
+    protected IBox box;
 	protected DataSourceScalar meterKE;
 	protected final ISimulation sim;
-	protected final int dim;
+	private final int dim;
 }

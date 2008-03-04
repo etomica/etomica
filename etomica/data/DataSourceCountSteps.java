@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.integrator.IIntegrator;
+import etomica.api.IIntegrator;
 import etomica.units.Quantity;
 
 /**

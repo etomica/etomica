@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.space.Space;
 
 /**
@@ -15,7 +15,7 @@ public class NormalModes1DHR implements NormalModes {
         waveVectorFactory = new WaveVectorFactory1D(dim);
     }
     
-    public double[][] getOmegaSquared(Box box) {
+    public double[][] getOmegaSquared(IBox box) {
         if(dim != 1) {
             throw new RuntimeException("Must give a box for a 1D system"); 
         }
@@ -30,7 +30,7 @@ public class NormalModes1DHR implements NormalModes {
         return omega2;
     }
 
-    public double[][][] getEigenvectors(Box box) {
+    public double[][][] getEigenvectors(IBox box) {
         if(dim != 1) {
             throw new RuntimeException("Must give a box for a 1D system"); 
         }

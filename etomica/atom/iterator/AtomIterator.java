@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits

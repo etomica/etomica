@@ -1,6 +1,7 @@
 package etomica.species;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IMolecule;
 import etomica.simulation.SpeciesManager;
 
 /**

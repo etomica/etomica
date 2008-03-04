@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -35,7 +35,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         return wrappedPotential;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         ((Potential2)wrappedPotential).setBox(box);
         super.setBox(box);
     }
@@ -44,7 +44,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         return ((Potential2)wrappedPotential).getRange();
     }
     
-    public double collisionTime(AtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomSet atoms, double falseTime) {
         return wrappedPotential.collisionTime(atoms,falseTime);
     }
     
@@ -56,7 +56,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         return wrappedPotential.lastCollisionVirialTensor();
     }
     
-    public void bump(AtomSet atoms, double falseTime) {
+    public void bump(IAtomSet atoms, double falseTime) {
         wrappedPotential.bump(atoms,falseTime);
     }
     

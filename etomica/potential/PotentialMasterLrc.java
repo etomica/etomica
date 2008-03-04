@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -27,7 +27,7 @@ public class PotentialMasterLrc extends PotentialMaster {
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
         boolean boxChanged = (box != mostRecentBox);

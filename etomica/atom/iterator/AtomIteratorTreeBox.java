@@ -2,10 +2,10 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
+import etomica.api.IMolecule;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -101,7 +101,7 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
                 act.actionPerformed(atomSetSinglet);
             }
 
-            AtomSet childList = ((IMolecule)atom).getChildList();
+            IAtomSet childList = ((IMolecule)atom).getChildList();
             for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
                 atomSetSinglet.atom = childList.getAtom(iChild);
                 act.actionPerformed(atomSetSinglet);
@@ -128,7 +128,7 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
                 act.actionPerformed(atom);
             }
 
-            AtomSet childList = ((IMolecule)atom).getChildList();
+            IAtomSet childList = ((IMolecule)atom).getChildList();
             for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
                 act.actionPerformed(childList.getAtom(iChild));
             }

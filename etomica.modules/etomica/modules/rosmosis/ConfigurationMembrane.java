@@ -1,11 +1,16 @@
 package etomica.modules.rosmosis;
 
+
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -13,10 +18,8 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.simulation.ISimulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 
 public class ConfigurationMembrane implements Configuration {
 
@@ -30,7 +33,7 @@ public class ConfigurationMembrane implements Configuration {
         this.space = _space;
     }
 
-    public void initializeCoordinates(Box box) {
+    public void initializeCoordinates(IBox box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(space);
         IVector translationVector = translateBy.getTranslationVector();
         AtomGroupAction translator = new AtomGroupAction(translateBy);
@@ -46,7 +49,7 @@ public class ConfigurationMembrane implements Configuration {
         double chamberLength = 0.5 * boxLength - membraneThickness;
         
         // solventChamber (middle, solvent-only)
-        Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, null, 1), space);
+        IBox pretendBox = new Box(new BoundaryRectangularPeriodic(space, null, 1), space);
         sim.addBox(pretendBox);
         IVector pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);
@@ -57,7 +60,7 @@ public class ConfigurationMembrane implements Configuration {
         ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        AtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
+        IAtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
             IMolecule atom = (IMolecule)molecules.getAtom(i);

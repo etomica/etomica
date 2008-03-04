@@ -3,6 +3,15 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
+import etomica.api.IRandom;
+
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.action.activity.ActivityIntegrate;
@@ -10,9 +19,6 @@ import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -25,13 +31,11 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.ElectronVolt;
 import etomica.util.Debug;
-import etomica.util.IRandom;
+
 
 /**
  * 	Henkelman's Dimer Method (Rotation and Translation).
@@ -44,7 +48,7 @@ import etomica.util.IRandom;
 
 public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 
-	public Box box1, box2;
+	public IBox box1, box2;
 	public ISimulation sim;
 	public double deltaR;
 	public double dTheta, deltaXl, dXl;
@@ -276,9 +280,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		list2 = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-            AtomSet molecules = box.getMoleculeList(movableSpecies[i]);
-            AtomSet molecules1 = box1.getMoleculeList(movableSpecies[i]);
-            AtomSet molecules2 = box2.getMoleculeList(movableSpecies[i]);
+            IAtomSet molecules = box.getMoleculeList(movableSpecies[i]);
+            IAtomSet molecules1 = box1.getMoleculeList(movableSpecies[i]);
+            IAtomSet molecules2 = box2.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
                 list1.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
@@ -808,7 +812,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			this.species = species;
 		}
 		
-	   public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+	   public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
 	        if(!enabled) return;
 	        IAtom targetAtom = id.getTargetAtom();
 	        if (targetAtom != null) {
@@ -828,7 +832,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             //no target atoms specified
             //call calculate with each SpeciesAgent
 	        for(int j=0; j<species.length; j++){    
-            	AtomSet list = box.getMoleculeList(species[j]);
+            	IAtomSet list = box.getMoleculeList(species[j]);
 	            int size = list.getAtomCount();
 	            for (int i=0; i<size; i++) {
 	                calculate((IMolecule)list.getAtom(i), id, pc, neighborManager);//call calculate with the SpeciesAgent

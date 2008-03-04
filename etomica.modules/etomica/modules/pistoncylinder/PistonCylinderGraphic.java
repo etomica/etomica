@@ -1,4 +1,5 @@
 package etomica.modules.pistoncylinder;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -14,15 +15,18 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.api.IAction;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IIntegrator;
+import etomica.api.IVector;
+
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -56,7 +60,6 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.graphics.DeviceBox.LabelType;
-import etomica.integrator.IIntegrator;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
@@ -629,7 +632,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             densityBox.setLabel("Set Density ("+dUnit.symbol()+")");
             densityBox.setUnit(dUnit);
             densityBox.setModifier(new ModifierPistonDensity());
-            densityBox.setPostAction(new ActionGroupSeries(new Action[]{new IntegratorReset(pc.integrator,true), getPaintAction(pc.box)}));
+            densityBox.setPostAction(new ActionGroupSeries(new IAction[]{new IntegratorReset(pc.integrator,true), getPaintAction(pc.box)}));
         }
 
         //  data panel
@@ -881,7 +884,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 newValue = maxDensity;
             }
             IVector boxDim = pc.box.getBoundary().getDimensions();
-            AtomSet leafList = pc.box.getLeafList();
+            IAtomSet leafList = pc.box.getLeafList();
             double yShift = 0.5*(boxDim.x(1)-sigma);
             if (D == 2) {
                 yShift = -yShift;

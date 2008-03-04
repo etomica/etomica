@@ -4,23 +4,22 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one box to another.
@@ -32,8 +31,8 @@ import etomica.util.IRandom;
 public class MCMoveMoleculeExchange extends MCMove {
     
     private static final long serialVersionUID = 2L;
-    protected Box box1;
-    protected Box box2;
+    protected IBox box1;
+    protected IBox box2;
     protected final IntegratorBox integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -44,12 +43,12 @@ public class MCMoveMoleculeExchange extends MCMove {
     private AtomSource moleculeSource;
     
     private transient IMolecule molecule;
-    private transient Box iBox, dBox;
+    private transient IBox iBox, dBox;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     
 
-    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, IRandom random,
+    public MCMoveMoleculeExchange(IPotentialMaster potentialMaster, IRandom random,
             IntegratorBox integrator1, IntegratorBox integrator2) {
         super(potentialMaster);
         this.random = random;

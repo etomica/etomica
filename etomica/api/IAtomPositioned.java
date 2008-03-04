@@ -1,6 +1,5 @@
-package etomica.atom;
+package etomica.api;
 
-import etomica.api.IVector;
 
 /**
  * Interface for a IAtom that includes an IVector that defines the atom's

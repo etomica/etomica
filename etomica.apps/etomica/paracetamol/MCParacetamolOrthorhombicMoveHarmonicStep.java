@@ -3,6 +3,7 @@ package etomica.paracetamol;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -36,7 +37,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	//private final static String APP_NAME = "MC Move Harmonic Step Paracetamol Orthorhombic";
-    public Box box;
+    public IBox box;
     public IntegratorMC integrator;
     public SpeciesParacetamol species;
     public P2ElectrostaticDreiding potentialCC , potentialCHy , potentialHyHy;

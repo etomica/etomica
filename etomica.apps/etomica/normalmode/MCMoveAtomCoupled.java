@@ -4,18 +4,18 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.box.Box;
 import etomica.potential.Potential2;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
-import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
@@ -38,7 +38,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected Potential2 potential;
     protected final AtomPair pair;
 
-    public MCMoveAtomCoupled(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
@@ -133,7 +133,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

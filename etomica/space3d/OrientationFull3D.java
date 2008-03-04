@@ -2,12 +2,12 @@ package etomica.space3d;
 
 import java.io.Serializable;
 
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.space.IOrientation;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.util.Debug;
-import etomica.util.IRandom;
 
 public class OrientationFull3D implements IOrientationFull3D, Serializable {
 

@@ -1,11 +1,11 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -60,15 +60,15 @@ import etomica.space.Space;
  */
 public abstract class Potential0Lrc extends Potential0 implements PotentialSoft {
     
-    protected final AtomType[] types;
+    protected final IAtomType[] types;
     protected final boolean interType;
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
 //    protected final ISpeciesAgent[] agents = new ISpeciesAgent[2];
     
-    public Potential0Lrc(Space space, AtomType[] types, Potential truncatedPotential) {
+    public Potential0Lrc(Space space, IAtomType[] types, Potential truncatedPotential) {
         super(space);
-        this.types = (AtomType[])types.clone();
+        this.types = (IAtomType[])types.clone();
         if(types.length != 2) {
             throw new IllegalArgumentException("LRC developed only for two-body potentials; must give two species to constructor");
         }
@@ -84,7 +84,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         return truncatedPotential;
     }
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
             // count the number of Atoms of the relevant type in each molecule
             for (int i=0; i<2; i++) {
@@ -93,7 +93,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                         lrcAtomsPerMolecule[i] = 1;
                     }
                     else if (p.getNMolecules(types[i].getSpecies()) > 0) {
-                        AtomSet childList = ((IMolecule)p.getMoleculeList(types[i].getSpecies()).getAtom(0)).getChildList();
+                        IAtomSet childList = ((IMolecule)p.getMoleculeList(types[i].getSpecies()).getAtom(0)).getChildList();
                         int numAtoms = 0;
                         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                             if (childList.getAtom(iChild).getType() == types[i]) numAtoms++;
@@ -148,6 +148,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     }
 
     protected double divisor;
-    protected Box box;
+    protected IBox box;
 
 }//end of Potential0Lrc

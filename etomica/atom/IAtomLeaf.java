@@ -1,5 +1,8 @@
 package etomica.atom;
 
+import etomica.api.IAtom;
+import etomica.api.IMolecule;
+
 public interface IAtomLeaf extends IAtom {
 
     /**

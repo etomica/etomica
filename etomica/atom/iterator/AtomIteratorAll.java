@@ -1,13 +1,13 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.species.ISpecies;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate
@@ -68,7 +68,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         next.getArrayList().clear();
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         if (nextCursor + 1 > next.getAtomCount()) {
             return null;
         }
@@ -91,7 +91,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     
     public void allAtoms(AtomsetAction action) {
         reset();
-        for (AtomSet atoms = next(); atoms != null; atoms = next()) {
+        for (IAtomSet atoms = next(); atoms != null; atoms = next()) {
             action.actionPerformed(atoms);
         }
     }

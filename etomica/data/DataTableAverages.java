@@ -1,8 +1,8 @@
 package etomica.data;
 
 import etomica.action.ActionGroupSeries;
+import etomica.api.IIntegrator;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.integrator.IIntegrator;
 
 /**
  * Data table that collects the AccumulatorAverage statistics for a collection

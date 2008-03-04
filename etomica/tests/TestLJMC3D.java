@@ -1,7 +1,8 @@
 package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
@@ -32,7 +33,7 @@ public class TestLJMC3D extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public P2LennardJones potential;
     public Controller controller;
     
@@ -67,8 +68,8 @@ public class TestLJMC3D extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
-        AtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potentialTruncated, new AtomType[] {leafType, leafType});
+        IAtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potentialTruncated, new IAtomType[] {leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));

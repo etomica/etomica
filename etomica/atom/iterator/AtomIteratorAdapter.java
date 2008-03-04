@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 
 /**
  * Adapater class that wraps another AtomIterator to implement the

@@ -1,7 +1,7 @@
 package etomica.space;
 
+import etomica.api.IFunction;
 import etomica.api.IVector;
-import etomica.util.Function;
 
 
 public interface Tensor extends Cloneable {
@@ -53,7 +53,7 @@ public interface Tensor extends Cloneable {
     public abstract void DE(Tensor t);
     public double[] toArray();
     public boolean isNaN();
-    public void map(Function f);
+    public void map(IFunction f);
     /**
      * Sets the tensor elements using the elements of the array.
      * Tensor values are filled row-wise, so array values 0, 1, 2,... are 

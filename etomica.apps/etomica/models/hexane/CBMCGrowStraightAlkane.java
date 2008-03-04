@@ -1,15 +1,17 @@
 package etomica.models.hexane;
 
+import etomica.api.IBox;
+
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
-import etomica.util.IRandom;
+
 
 /**
  * Grows a straight-chain alkane of specified length. Follows Frenkel & Smit
@@ -33,8 +35,8 @@ import etomica.util.IRandom;
 
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
-    public CBMCGrowStraightAlkane(PotentialMaster potentialMaster,
-            IRandom random, IntegratorMC integrator, Box p, ISpecies species,
+    public CBMCGrowStraightAlkane(IPotentialMaster potentialMaster,
+            IRandom random, IntegratorMC integrator, IBox p, ISpecies species,
             int n, int NTrials) {
         super(potentialMaster, random, integrator, p, n, NTrials);
 

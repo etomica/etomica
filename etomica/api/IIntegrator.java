@@ -1,6 +1,5 @@
-package etomica.integrator;
+package etomica.api;
 
-import etomica.action.Action;
 import etomica.exception.ConfigurationOverlapException;
 
 public interface IIntegrator {
@@ -41,7 +40,7 @@ public interface IIntegrator {
      * fired by this integrator.  Do not add an interval action that is already
      * an interval listener to this integrator.  Do not add a null listener.
      */
-    public void addIntervalAction(Action newIntervalAction);
+    public void addIntervalAction(IAction newIntervalAction);
 
     /**
      * Sets the "priority" of the given intervalAction (which must have already
@@ -51,43 +50,43 @@ public interface IIntegrator {
      * are enforced, they are enforced with a priority of 100.  Interval
      * actions with the same priority may be fired in any order.
      */
-    public void setIntervalActionPriority(Action intervalAction, int newPriority);
+    public void setIntervalActionPriority(IAction intervalAction, int newPriority);
 
     /**
      * Sets the number of integration steps between calls to the
      * intervalAction's actionPerformed method.  The interval must be positive.
      */
-    public void setActionInterval(Action intervalAction, int newInterval);
+    public void setActionInterval(IAction intervalAction, int newInterval);
 
     /**
      * Removes given interval action from those notified of interval events
      * fired by this integrator.  Do not try to remove an interval action that
      * is not a listener to this integrator.
      */
-    public void removeIntervalAction(Action intervalAction);
+    public void removeIntervalAction(IAction intervalAction);
 
     /**
      * Adds the given listener to those that receive non-interval events fired
      * by this integrator.  Do not add a listener that has been added or add a
      * null listener.
      */
-    public void addNonintervalListener(IntegratorNonintervalListener iil);
+    public void addNonintervalListener(IIntegratorNonintervalListener iil);
 
     /**
      * Removes given listener from those notified of non-interval events fired
      * by this integrator.  Do not attempt to remove a listener which is not
      * listening to events from this integrator.
      */
-    public void removeNonintervalListener(IntegratorNonintervalListener iil);
+    public void removeNonintervalListener(IIntegratorNonintervalListener iil);
 
     /**
      * Returns all of the interval actions as an array.
      */
-    public Action[] getIntervalActions();
+    public IAction[] getIntervalActions();
 
     /**
      * Returns all of the non-interval listeners as an array.
      */
-    public IntegratorNonintervalListener[] getNonintervalListeners();
+    public IIntegratorNonintervalListener[] getNonintervalListeners();
 
 }

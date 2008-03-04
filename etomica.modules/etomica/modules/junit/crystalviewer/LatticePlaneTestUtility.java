@@ -1,5 +1,10 @@
 package etomica.modules.junit.crystalviewer;
 
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -15,13 +20,9 @@ import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class LatticePlaneTestUtility {
@@ -40,7 +41,7 @@ public class LatticePlaneTestUtility {
 	private ISimulation sim = null;
 	private ISpecies species = null;
 	private BravaisLattice lattice = null;
-	private Box box = null;
+	private IBox box = null;
 	private LatticePlane latticePlane = null;
 	private final Space3D space;
 
@@ -114,7 +115,7 @@ public class LatticePlaneTestUtility {
 	    box = new Box(
 	    		new etomica.space.BoundaryDeformableLattice(
 	                  lattice.getPrimitive(),
-	              	  (etomica.util.IRandom)null, boxSize), space);
+	              	  (etomica.api.IRandom)null, boxSize), space);
 	    sim.addBox(box);
 
 	}

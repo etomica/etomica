@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 
 /**
  * Returns iterates from a list.  
@@ -81,9 +81,9 @@ public class ApiSequence1A implements AtomsetIteratorDirectable, java.io.Seriali
         return count;
     }
     
-    public AtomSet next() {
+    public IAtomSet next() {
         if (upListNow) {
-            AtomSet next = apiUp.next();
+            IAtomSet next = apiUp.next();
             if(next != null || !doGoDown) {
                 return next;
             }

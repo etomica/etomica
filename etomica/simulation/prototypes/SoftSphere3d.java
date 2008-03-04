@@ -2,7 +2,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -35,9 +37,9 @@ public class SoftSphere3d extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species, species2;
-    public Box box;
+    public IBox box;
     public P2SoftSphere potential;
-    public PotentialMaster potentialMaster;
+    public IPotentialMaster potentialMaster;
     public Controller controller;
     public DataSourceCountSteps meterCycles;
     
@@ -70,7 +72,7 @@ public class SoftSphere3d extends Simulation {
 	    
 	    AtomTypeLeaf type1 = species.getLeafType();
         //AtomTypeLeaf type2 = species2.getLeafType();
-        potentialMaster.addPotential(truncated, new AtomType[] {type1, type1});
+        potentialMaster.addPotential(truncated, new IAtomType[] {type1, type1});
        // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
         

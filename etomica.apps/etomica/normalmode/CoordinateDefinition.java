@@ -2,18 +2,19 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
+
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.config.Conformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -36,11 +37,11 @@ import etomica.space.Space;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Space _space) {
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Space _space) {
         this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis, Space _space) {
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, Space _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -55,7 +56,7 @@ public abstract class CoordinateDefinition {
     
     public void initializeCoordinates(int[] nCells) {
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
         if (moleculeList.getAtomCount() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
@@ -138,7 +139,7 @@ public abstract class CoordinateDefinition {
      * @param molecule
      *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    protected abstract double[] calcU(AtomSet molecules);
+    protected abstract double[] calcU(IAtomSet molecules);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -147,7 +148,7 @@ public abstract class CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    protected abstract void initNominalU(AtomSet molecules);
+    protected abstract void initNominalU(IAtomSet molecules);
 
     /**
      * Set all the molecules in a cell to a position and orientation that corresponds to the
@@ -159,7 +160,7 @@ public abstract class CoordinateDefinition {
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecules will be set by this method.
      */
-    public abstract void setToU(AtomSet molecules, double[] newU);
+    public abstract void setToU(IAtomSet molecules, double[] newU);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given
@@ -182,7 +183,7 @@ public abstract class CoordinateDefinition {
         // sum T over atoms
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
-            AtomSet molecules = cell.molecules;
+            IAtomSet molecules = cell.molecules;
             double[] u = calcU(molecules);
             IVector latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
@@ -202,7 +203,7 @@ public abstract class CoordinateDefinition {
 
     }
 
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 
@@ -215,7 +216,7 @@ public abstract class CoordinateDefinition {
     }
 
     protected final int coordinateDim;
-    protected final Box box;
+    protected final IBox box;
     protected AtomAgentManager siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
@@ -246,13 +247,13 @@ public abstract class CoordinateDefinition {
     }
     
     public static class BasisCell implements Serializable {
-        public BasisCell(AtomSet molecules, IVector cellPosition) {
+        public BasisCell(IAtomSet molecules, IVector cellPosition) {
             this.molecules = molecules;
             this.cellPosition = cellPosition;
         }
         
         private static final long serialVersionUID = 1L;
-        public final AtomSet molecules;
+        public final IAtomSet molecules;
         public final IVector cellPosition;
     }
 

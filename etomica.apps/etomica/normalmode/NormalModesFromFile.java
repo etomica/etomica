@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 /**
  * Provides normal-mode information as obtained from a file read at
@@ -34,7 +34,7 @@ public class NormalModesFromFile implements NormalModes {
         temperature = 1;
     }
 
-    public double[][] getOmegaSquared(Box box) {
+    public double[][] getOmegaSquared(IBox box) {
         double[][] fudgedOmega2 = new double[omega2.length][omega2[0].length];
         for (int i=0; i<fudgedOmega2.length; i++) {
             for (int j=0; j<fudgedOmega2[i].length; j++) {
@@ -44,7 +44,7 @@ public class NormalModesFromFile implements NormalModes {
         return fudgedOmega2;
     }
 
-    public double[][][] getEigenvectors(Box box) {
+    public double[][][] getEigenvectors(IBox box) {
         return eigenvectors;
     }
 

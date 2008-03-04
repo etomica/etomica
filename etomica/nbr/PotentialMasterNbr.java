@@ -1,18 +1,18 @@
 package etomica.nbr;
 
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeMolecule;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
-import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
@@ -42,7 +42,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     public void addPotential(IPotential potential, ISpecies[] species) {
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
-             AtomType[] atomTypes = moleculeTypes(species);
+             IAtomType[] atomTypes = moleculeTypes(species);
              if (potential.getRange() == Double.POSITIVE_INFINITY) {
                  System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
                  return;
@@ -57,7 +57,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
 
     public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         super.potentialAddedNotify(subPotential, pGroup);
-        AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
+        IAtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
             if (pGroup.nBody() == 1 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
                 boolean found = false;
@@ -70,7 +70,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
                     allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
                 }
                 //pGroup is PotentialGroupNbr
-                AtomType[] parentType = getAtomTypes(pGroup);
+                IAtomType[] parentType = getAtomTypes(pGroup);
                 ((PotentialArray)intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);
             }
             else {
@@ -90,9 +90,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
 
-    protected abstract void addRangedPotentialForTypes(IPotential subPotential, AtomType[] atomTypes);
+    protected abstract void addRangedPotentialForTypes(IPotential subPotential, IAtomType[] atomTypes);
     
-    protected void addRangedPotential(IPotential potential, AtomType atomType) {
+    protected void addRangedPotential(IPotential potential, IAtomType atomType) {
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
@@ -125,7 +125,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
     }
     
-    public PotentialArray getRangedPotentials(AtomType atomType) {
+    public PotentialArray getRangedPotentials(IAtomType atomType) {
         return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 
@@ -141,11 +141,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return PotentialArray.class;
     }
     
-    public Object makeAgent(AtomType type) {
+    public Object makeAgent(IAtomType type) {
         return new PotentialArray();
     }
     
-    public void releaseAgent(Object agent, AtomType type) {
+    public void releaseAgent(Object agent, IAtomType type) {
     }
 
     /**

@@ -3,7 +3,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -42,7 +44,7 @@ public class HSMD3D extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final Box box;
+    public final IBox box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -56,7 +58,7 @@ public class HSMD3D extends Simulation {
      */
     public final P2HardSphere potential;
     
-    public final PotentialMaster potentialMaster;
+    public final IPotentialMaster potentialMaster;
     
     /**
      * Sole public constructor, makes a simulation using a 3D space.
@@ -101,7 +103,7 @@ public class HSMD3D extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
         AtomTypeLeaf leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new AtomType[]{leafType, leafType});
+        potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
 
         box = new Box(this, space);
         addBox(box);

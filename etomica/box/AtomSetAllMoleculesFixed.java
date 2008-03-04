@@ -1,7 +1,8 @@
 package etomica.box;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 public class AtomSetAllMoleculesFixed implements AtomSet {
 
@@ -16,11 +17,11 @@ public class AtomSetAllMoleculesFixed implements AtomSet {
         return allMolecules.getAtomCount();
     }
 
-    public void setMoleculeLists(AtomSet[] newMoleculeLists) {
+    public void setMoleculeLists(IAtomSet[] newMoleculeLists) {
         if (newMoleculeLists.length > 0) {
             allMolecules = newMoleculeLists[0];
         }
     }
     
-    protected AtomSet allMolecules;
+    protected IAtomSet allMolecules;
 }

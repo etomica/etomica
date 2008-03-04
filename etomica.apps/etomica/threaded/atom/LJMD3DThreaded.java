@@ -11,7 +11,8 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
 import etomica.threaded.PotentialThreaded;
@@ -27,7 +28,7 @@ public class LJMD3DThreaded extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public P2LennardJones p2lj;
     public P2SoftSphericalTruncated[] potential;
     public PotentialThreaded potentialThreaded;

@@ -4,9 +4,9 @@
  */
 package etomica.atom;
 
+import etomica.api.ISimulation;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.simulation.ISimulation;
 
 /**
  * Atom type for a simple monatomic atom that has a length scale associated

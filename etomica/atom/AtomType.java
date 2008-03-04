@@ -1,6 +1,7 @@
 package etomica.atom;
 
-import etomica.species.ISpecies;
+import etomica.api.IAtomType;
+import etomica.api.ISpecies;
 
 /**
  * AtomType holds fields that are common to many atoms. It serves many
@@ -23,7 +24,7 @@ import etomica.species.ISpecies;
  * atoms represented only once.
  */
 
-public abstract class AtomType implements java.io.Serializable, Comparable {
+public abstract class AtomType implements java.io.Serializable, Comparable, IAtomType {
 
     protected int index;
 
@@ -50,52 +51,64 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
 //        setParentType(null);
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#setIndex(int)
+	 */
     public void setIndex(int newIndex) {
         index = newIndex;
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#getIndex()
+	 */
     public int getIndex() {
         return index;
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#getSpecies()
+	 */
     public abstract ISpecies getSpecies();
     
-    /**
-     * The position definition held by the type provides an appropriate default
-     * to define the position of an atom of this type. This field is set in the
-     * definition of the parent species of the atom. It is null for SpeciesRoot,
-     * SpeciesMaster, and SpeciesAgent atoms.
-     * 
-     * @return Returns the PositionDefinition for an atom of this type.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#getPositionDefinition()
+	 */
     public AtomPositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
-    /**
-     * Sets the PositionDefinition used for this AtomType
-     */
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#setPositionDefinition(etomica.atom.AtomPositionDefinition)
+	 */
     public void setPositionDefinition(AtomPositionDefinition newPositionDefinition) {
         positionDefinition = newPositionDefinition;
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#setInteracting(boolean)
+	 */
     public void setInteracting(boolean b) {
         isInteracting = b;
     }
 
-    /**
-     * Returns true if one or more potentials are defined to act
-     * on an atom of this type.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#isInteracting()
+	 */
     public boolean isInteracting() {
         return isInteracting;
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#compareTo(java.lang.Object)
+	 */
     public int compareTo(Object otherAtomType) {
-        int otherIndex = ((AtomType)otherAtomType).getIndex();
+        int otherIndex = ((IAtomType)otherAtomType).getIndex();
         return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomType#toString()
+	 */
     public String toString() {
         return "AtomType "+index;
     }

@@ -1,8 +1,8 @@
 package etomica.potential;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -93,7 +93,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
+    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
         return new P0Lrc(space, potential, this, types);
     }
     
@@ -108,26 +108,26 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         private Potential2Soft potential;
         
         public P0Lrc(Space space, Potential2Soft truncatedPotential, 
-                Potential2Soft potential, AtomType[] types) {
+                Potential2Soft potential, IAtomType[] types) {
             super(space, types, (Potential2SoftSpherical)truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension
         }
  
-        public double energy(AtomSet atoms) {
+        public double energy(IAtomSet atoms) {
             return uCorrection(nPairs()/box.volume());
         }
         
-        public double virial(AtomSet atoms) {
+        public double virial(IAtomSet atoms) {
             return duCorrection(nPairs()/box.volume());
         }
         
-        public IVector[] gradient(AtomSet atoms) {
+        public IVector[] gradient(IAtomSet atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         
-        public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+        public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
                 pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);

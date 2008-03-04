@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtomPositioned;
 import etomica.space.IOrientation;
 
 /**

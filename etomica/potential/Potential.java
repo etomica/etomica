@@ -1,7 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
-import etomica.box.Box;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -43,7 +44,7 @@ public abstract class Potential implements java.io.Serializable, IPotential {
      * Returns the interaction energy between the given atoms.  There might be
      * 0, 1, 2 or more atoms in the AtomSet.
      */
-    public abstract double energy(AtomSet atoms);
+    public abstract double energy(IAtomSet atoms);
     
     /**
      * Informs the potential of the box on which it acts. Typically this
@@ -51,7 +52,7 @@ public abstract class Potential implements java.io.Serializable, IPotential {
      * coordinatePair (if it uses one), e.g.:
      * cPair.setNearestImageTransformer(box.boundary());
      */
-    public abstract void setBox(Box box);
+    public abstract void setBox(IBox box);
     
     /**
      * The number of atoms on which the potential depends.

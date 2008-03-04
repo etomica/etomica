@@ -1,8 +1,8 @@
 package etomica.space2d;
 
+import etomica.api.IFunction;
 import etomica.api.IVector;
 import etomica.space.Tensor;
-import etomica.util.Function;
 
 /**
  * Implementation of a tensor for a 2-dimensional space.  Tensor is formed from four elements.
@@ -195,7 +195,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         return Double.isNaN(xx) || Double.isNaN(xy) || Double.isNaN(yx) || Double.isNaN(yy);
     }
     
-    public void map(Function f) {
+    public void map(IFunction f) {
         xx = f.f(xx);
         xy = f.f(xy);
         yx = f.f(yx);

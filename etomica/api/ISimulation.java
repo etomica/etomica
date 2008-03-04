@@ -1,9 +1,9 @@
-package etomica.simulation;
+package etomica.api;
 
 import etomica.action.activity.Controller;
-import etomica.box.Box;
+import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SpeciesManager;
 import etomica.space.Space;
-import etomica.util.IRandom;
 
 public interface ISimulation {
 
@@ -11,24 +11,24 @@ public interface ISimulation {
      * Adds a Box to the simulation.  This method should not be called if
      * newBox is already held by the simulation.
      */
-    public void addBox(Box newBox);
+    public void addBox(IBox newBox);
 
     /**
      * Removes a Box to the simulation.  This method should not be called if
      * oldBox is not held by the simulation.
      */
-    public void removeBox(Box oldBox);
+    public void removeBox(IBox oldBox);
 
     /**
      * Returns an array of Boxs contained in the Simulation
      */
-    public Box[] getBoxs();
+    public IBox[] getBoxs();
 
     /**
      * Returns the Controller used to run the simulation's Actions and 
      * Activities.
      */
-    public Controller getController();
+    public IController getController();
 
     /**
      * Returns the Simulation's random number generator.

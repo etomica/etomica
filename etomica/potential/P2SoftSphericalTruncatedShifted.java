@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.atom.AtomType;
+import etomica.api.IAtomType;
 
 /**
  * Wraps a soft-spherical potential to apply a truncation to it.  Energy and
@@ -42,7 +42,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     /**
      * Returns null because the shift can't be corrected.
      */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
+    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
         return null;
     }
     

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiIntragroup;
@@ -31,7 +34,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -80,7 +82,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		//Potential
 		P2LennardJones potentialLJ = new P2LennardJones(space, 3.154,Kelvin.UNIT.toSim(78.02));
-		potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getOxygenType(), species.getOxygenType()} );
+		potentialMaster.addPotential(potentialLJ, new IAtomType[]{species.getOxygenType(), species.getOxygenType()} );
         
 		CriterionAll criterionAll = new CriterionAll();
 		
@@ -146,8 +148,8 @@ public class TestEwaldTIP4PWater extends Simulation {
 
 	}
 	
-	protected final PotentialMaster potentialMaster;
-	protected final Box box;
+	protected final IPotentialMaster potentialMaster;
+	protected final IBox box;
 	protected final SpeciesWater4P species;
 	protected final IntegratorMC integrator;
 	protected final BoundaryRectangularPeriodic boundary;

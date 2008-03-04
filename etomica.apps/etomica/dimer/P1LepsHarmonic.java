@@ -1,8 +1,10 @@
 package etomica.dimer;
 
+import etomica.api.IAtomPositioned;
+
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomSet;
+
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -48,7 +50,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 	    force = new IVector[]{space.makeVector()};
 	}
 	
-	public double energy(AtomSet atom) {
+	public double energy(IAtomSet atom) {
 		double x = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(0);
 		double y = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(1);
 		
@@ -77,7 +79,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 		return energy;
 	}
 		
-	public IVector[] gradient(AtomSet atom){
+	public IVector[] gradient(IAtomSet atom){
 
 		double x = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(0);
 		double y = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(1);
@@ -117,12 +119,12 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 		return force;
 	}
 	
-	public IVector[] gradient(AtomSet atom, Tensor pressureTensor){
+	public IVector[] gradient(IAtomSet atom, Tensor pressureTensor){
 		
 		return gradient(atom);
 	}
 	
-	public double virial(AtomSet atom){
+	public double virial(IAtomSet atom){
 		
 		return 0.0;
 	}

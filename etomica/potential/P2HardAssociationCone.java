@@ -1,9 +1,9 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Angle;
@@ -61,7 +61,7 @@ public class P2HardAssociationCone extends Potential2 {
     /**
      * Returns the pair potential energy.
      */
-    public double energy(AtomSet atoms) {
+    public double energy(IAtomSet atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
         dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
@@ -174,7 +174,7 @@ public class P2HardAssociationCone extends Potential2 {
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 }

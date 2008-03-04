@@ -5,6 +5,8 @@ package etomica.atom;
 
 import java.io.Serializable;
 
+import etomica.api.IAtom;
+
 public class AtomFilterStatic implements AtomFilter, Serializable {
 
     //private to prevent instantiation

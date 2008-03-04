@@ -1,5 +1,7 @@
 package etomica.atom;
 
+import etomica.api.IAtom;
+
 
 /**
  * Data structure that contains two mutable atom instances.

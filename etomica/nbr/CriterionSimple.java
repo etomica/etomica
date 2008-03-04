@@ -1,17 +1,17 @@
 package etomica.nbr;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
-import etomica.simulation.ISimulation;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -107,7 +107,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		return r2 > r2MaxSafe;
 	}
 
-	public boolean accept(AtomSet pair) {
+	public boolean accept(IAtomSet pair) {
         dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {

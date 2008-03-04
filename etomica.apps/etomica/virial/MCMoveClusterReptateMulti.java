@@ -1,19 +1,18 @@
 package etomica.virial;
 
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
+import etomica.api.IAtomSet;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
 import etomica.space3d.Vector3D;
-import etomica.util.IRandom;
 
 /**
  * An MC move for cluster simulations which performs reptation moves on molecules.
@@ -30,7 +29,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster, sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }
@@ -42,7 +41,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
+    public MCMoveClusterReptateMulti(IPotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
@@ -57,7 +56,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         work1 = new Vector3D();
     }
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
         energyMeter.setBox(p);
@@ -78,7 +77,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = random.nextInt(2) == 0;
-            AtomSet childList = selectedMolecules[i].getChildList();
+            IAtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -145,7 +144,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     }
 	
     protected IAtom[] selectMolecules() {
-        AtomSet moleculeList = box.getMoleculeList();
+        IAtomSet moleculeList = box.getMoleculeList();
         if (moleculeList.getAtomCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         //skip the first one
         for (int i=1; i<moleculeList.getAtomCount(); i++) {
@@ -156,7 +155,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomSet childList = selectedMolecules[i].getChildList();
+            IAtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             if (!forward[i]) {
                 IVector position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();

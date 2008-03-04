@@ -1,10 +1,11 @@
 package etomica.paracetamol;
 
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.action.WriteConfigurationP2DLPOLY;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -33,7 +34,7 @@ import etomica.util.Arrays;
 public class HarmonicCrystalOrthorhombic {
 
     public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive,
-    		     Basis basis, Box box,
+    		     Basis basis, IBox box,
     		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
     		     Space _space) {
         this.nCells = (int[])nCells.clone();
@@ -240,7 +241,7 @@ public class HarmonicCrystalOrthorhombic {
 			
 			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
 			
-			AtomSet molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
+			IAtomSet molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
 			coordinateDefinitionParacetamol.setToU(molecules, u);
 			
 			AtomPair pair = new AtomPair(molecules.getAtom(indexj), molecules.getAtom(indexjp));

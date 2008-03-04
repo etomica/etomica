@@ -3,6 +3,7 @@ package etomica.paracetamol;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.Data;
@@ -17,7 +18,6 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
-import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
@@ -153,14 +153,14 @@ public class NormalModesPotentialParacetamol implements NormalModes {
  
 
 
-    public double[][][] getEigenvectors(Box box) {
+    public double[][][] getEigenvectors(IBox box) {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(Box box) {
+    public double[][] getOmegaSquared(IBox box) {
         if(needToCalculateModes) {
             calculateModes();
         }
@@ -197,7 +197,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     	return coordinateDefinitionParacetamol;
     }
     
-	public void setPotentialMaster(PotentialMaster potentialMaster) {
+	public void setPotentialMaster(IPotentialMaster potentialMaster) {
 		this.potentialMaster = potentialMaster;
 	}
     
@@ -205,11 +205,11 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 		return box;
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
 		this.box = box;
 	}
     
-	public PotentialMaster getPotentialMaster() {
+	public IPotentialMaster getPotentialMaster() {
 		return potentialMaster;
 	}
 	
@@ -293,8 +293,8 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 
 	
     private CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
-    private PotentialMaster potentialMaster;
-    private Box box;
+    private IPotentialMaster potentialMaster;
+    private IBox box;
     private final BravaisLatticeCrystal lattice;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;

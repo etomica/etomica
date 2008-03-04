@@ -1,10 +1,10 @@
 package etomica.simulation;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 public class SimulationBoxRemovedEvent extends SimulationBoxEvent {
 
-    public SimulationBoxRemovedEvent(Box box) {
+    public SimulationBoxRemovedEvent(IBox box) {
         super(box);
     }
 

@@ -1,14 +1,15 @@
 package etomica.spin;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.util.IRandom;
 
 
 /**
@@ -24,7 +25,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @param potentialMaster
      * @param nBoxs
      */
-    public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSpinFlip(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -32,7 +33,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }
@@ -41,7 +42,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();

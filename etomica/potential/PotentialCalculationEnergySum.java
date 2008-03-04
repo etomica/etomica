@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
+import etomica.api.IPotential;
 import etomica.atom.iterator.AtomsetIterator;
 
 /**
@@ -20,7 +21,7 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 	 */
 	protected void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		iterator.reset();
-		for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
+		for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			sum += potential.energy(atoms);
 		}
 	}

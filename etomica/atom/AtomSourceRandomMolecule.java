@@ -1,7 +1,8 @@
 package etomica.atom;
 
-import etomica.box.Box;
-import etomica.util.IRandom;
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.IRandom;
 
 /**
  * AtomSource that returns a completely random molecule.
@@ -22,7 +23,7 @@ public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializabl
         return random;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         box = p;
     }
     
@@ -34,6 +35,6 @@ public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializabl
     }
     
     private static final long serialVersionUID = 1L;
-    protected Box box = null;
+    protected IBox box = null;
     protected IRandom random;
 }

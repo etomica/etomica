@@ -2,6 +2,7 @@ package etomica.meam;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -48,7 +49,7 @@ public class MEAM_MC extends Simulation {
 	public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
     public SpeciesSpheresMono cu;
-	public Box box;
+	public IBox box;
 	public PotentialMEAM potentialN;
 	public Controller controller;
 	public DisplayPlot plot;

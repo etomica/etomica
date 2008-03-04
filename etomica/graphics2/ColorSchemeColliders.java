@@ -1,6 +1,6 @@
 package etomica.graphics2;
 
-import etomica.atom.IAtom;
+import etomica.api.IAtom;
 import etomica.integrator.IntegratorHard;
 
 /**

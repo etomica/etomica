@@ -2,17 +2,17 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
-import etomica.simulation.ISimulation;
 
 public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
-    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, Box box) {
+    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box) {
         super(box);
         typeColorScheme = new ColorSchemeByType();
         leafList = box.getLeafList();
@@ -33,7 +33,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         }
         //color blue the neighbor atoms in same group
         nbrIterator.reset();
-        for (AtomSet pair = nbrIterator.next(); pair != null;
+        for (IAtomSet pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
             IAtom atom = pair.getAtom(1);
             if(atom.getType() == referenceAtom.getType()) {
@@ -58,6 +58,6 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     private static final long serialVersionUID = 1L;
     private IAtom referenceAtom;
     private final Api1ACell nbrIterator;
-    private final AtomSet leafList;
+    private final IAtomSet leafList;
     private final ColorSchemeByType typeColorScheme;
 }

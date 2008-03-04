@@ -6,12 +6,13 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomFilter;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;

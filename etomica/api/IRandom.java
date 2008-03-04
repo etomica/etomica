@@ -1,4 +1,4 @@
-package etomica.util;
+package etomica.api;
 
 /**
  * Interface for random number generation.

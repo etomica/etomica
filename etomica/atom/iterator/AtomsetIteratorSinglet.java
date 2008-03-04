@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomSet;
+import etomica.api.IAtomSet;
 import etomica.util.Debug;
 
 /**
@@ -28,7 +28,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomsetIteratorSinglet(AtomSet a) {
+    public AtomsetIteratorSinglet(IAtomSet a) {
     	this(a.getAtomCount());
     	setAtom(a);
     }
@@ -38,7 +38,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
      * Call to reset() must be performed before beginning iteration.
      * @throws a NullPointerException if the AtomSet is null
      */
-    public void setAtom(AtomSet a) {
+    public void setAtom(IAtomSet a) {
         if (a == null) {
             throw new NullPointerException();
         }
@@ -71,7 +71,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public AtomSet next() {
+    public IAtomSet next() {
     	if (!hasNext) return null;
     	hasNext = false;
     	return atom;
@@ -82,7 +82,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     private static final long serialVersionUID = 1L;
     private final int nBody;
     private boolean hasNext = false;
-    private AtomSet atom;
+    private IAtomSet atom;
 
 }
         

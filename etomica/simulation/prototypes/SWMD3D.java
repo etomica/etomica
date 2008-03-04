@@ -5,9 +5,11 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomType;
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
@@ -58,7 +60,7 @@ public class SWMD3D extends Simulation {
 	
   public SWMD3D(Space space) {
 	super(space);
-	PotentialMaster potentialMaster = new PotentialMaster(space);
+	IPotentialMaster potentialMaster = new PotentialMaster(space);
 	
     integrator = new IntegratorHard(this, potentialMaster, space);
     integrator.setTimeStep(0.01);
@@ -103,7 +105,7 @@ public class SWMD3D extends Simulation {
 //	lambdaControl.setNMajor(5);
 
 
-    potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
+    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
 
     integrator.setBox(box);
     integrator.addIntervalAction(new BoxImposePbc(box, space));
@@ -118,7 +120,7 @@ public class SWMD3D extends Simulation {
   private static final long serialVersionUID = 1L;
   public IntegratorHard integrator;
   public SpeciesSpheresMono species;
-  public Box box;
+  public IBox box;
   public P2SquareWell potential;
   public Controller controller;
   public DisplayBox display;

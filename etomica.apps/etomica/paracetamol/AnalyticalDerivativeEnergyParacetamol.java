@@ -2,11 +2,12 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
+
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
@@ -15,7 +16,7 @@ import etomica.space3d.IVector3D;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster, Space space){
+	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, Space space){
 		super(box, potentialMaster, space);
 		rotationAxis = (IVector3D)space.makeVector();
 		a      = (IVector3D)space.makeVector();
@@ -77,7 +78,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			forceSum.reset();
 
 			for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-				AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+				IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 				coordinateDefinition.setToU(molecules, u);
 			}
 			
@@ -86,13 +87,13 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			 * 	where we have 6 generalized coordinates: 3 modes on translation and 3 on rotation for each molecule
 			 *  
 			 */
-			AtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
+			IAtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
 			
 			int j=3;
 			
 			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 molecules in the basis cell
 				
-				AtomSet molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
+				IAtomSet molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol

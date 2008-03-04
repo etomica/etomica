@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.util.Function;
+import etomica.api.IFunction;
 
 
 /**
@@ -86,7 +86,7 @@ public interface Data {
      * Maps the function on all data values, replace each with the value given
      * by the function applied to it.
      */
-    public void map(Function function);
+    public void map(IFunction function);
 
     /**
      * Returns the number of values held by the data instance.

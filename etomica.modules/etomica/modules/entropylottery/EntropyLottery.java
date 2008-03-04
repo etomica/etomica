@@ -1,6 +1,9 @@
 package etomica.modules.entropylottery;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.api.IBox;
 import etomica.api.IVector;
+
+import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorMC;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
@@ -14,7 +17,7 @@ public class EntropyLottery extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public Box box;
+    public IBox box;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     

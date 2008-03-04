@@ -1,9 +1,10 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
@@ -18,8 +19,6 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -101,10 +100,10 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      * Returns the profile for the current configuration.
      */
     public Data getData() {
-        Boundary boundary = box.getBoundary();
+        IBoundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        AtomSet leafList = box.getLeafList();
+        IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
@@ -141,7 +140,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
         double halfBox = 0.5*box.getBoundary().getDimensions().dot(profileVector);
         xDataSource.setXMin(-halfBox);
@@ -157,7 +156,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private String name;
     private DataSourceUniform xDataSource;
     private DataFunction data;

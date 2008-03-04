@@ -1,8 +1,8 @@
 
 package etomica.nbr;
 
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 
 /**
  * Filters atoms to match a given AtomType.
@@ -12,7 +12,7 @@ import etomica.atom.AtomType;
 public class CriterionType extends CriterionAdapter {
 
     public CriterionType(NeighborCriterion criterion, 
-            AtomType type) {
+            IAtomType type) {
         super(criterion);
         this.type = type;
     }
@@ -21,7 +21,7 @@ public class CriterionType extends CriterionAdapter {
      * Returns true if the AtomType of the atom matches the AtomType given at 
      * construction and if the wrapped criterion accept also returns true.
      */
-    public boolean accept(AtomSet atom) {
+    public boolean accept(IAtomSet atom) {
         if (atom.getAtom(0).getType() == type) {
             return subCriterion.accept(atom);
         }
@@ -31,10 +31,10 @@ public class CriterionType extends CriterionAdapter {
     /**
      * Returns the AtomType accepted by this criterion.
      */
-    public AtomType getType() {
+    public IAtomType getType() {
         return type;
     }
     
     private static final long serialVersionUID = 1L;
-    private final AtomType type;
+    private final IAtomType type;
 }

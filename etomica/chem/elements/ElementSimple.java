@@ -1,6 +1,6 @@
 package etomica.chem.elements;
 
-import etomica.simulation.ISimulation;
+import etomica.api.ISimulation;
 
 public class ElementSimple extends Element {
 

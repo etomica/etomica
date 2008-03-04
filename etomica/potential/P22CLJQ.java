@@ -1,10 +1,10 @@
 package etomica.potential;
 
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
-import etomica.box.Box;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -36,7 +36,7 @@ public class P22CLJQ extends Potential2 {
         hsdiasq=val;
     }
 
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
     }
 
@@ -44,11 +44,11 @@ public class P22CLJQ extends Potential2 {
         return Double.POSITIVE_INFINITY;
     }
 
-    public double energy(AtomSet pair){
+    public double energy(IAtomSet pair){
         double ener=0.0;
 
-        AtomSet mol1 = ((IMolecule)pair.getAtom(0)).getChildList(); 
-        AtomSet mol2 = ((IMolecule)pair.getAtom(1)).getChildList(); 
+        IAtomSet mol1 = ((IMolecule)pair.getAtom(0)).getChildList(); 
+        IAtomSet mol2 = ((IMolecule)pair.getAtom(1)).getChildList(); 
         IAtomPositioned bead11 = (IAtomPositioned)mol1.getAtom(0);
         IAtomPositioned bead12 = (IAtomPositioned)mol1.getAtom(1);
 

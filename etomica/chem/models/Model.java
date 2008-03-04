@@ -1,8 +1,8 @@
 package etomica.chem.models;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.potential.IPotential;
-import etomica.simulation.ISimulation;
-import etomica.species.ISpecies;
 
 /**
  * Top-level class for a molecular model.

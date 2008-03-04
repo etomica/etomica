@@ -6,17 +6,19 @@
  */
 package etomica.modules.chainequilibrium;
 
+import etomica.api.IAtom;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+import etomica.api.IAction;
+
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
-import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -92,7 +94,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
             setBox(box);
             setSpecies(species);
             
-            Action anotherAction = new Action() {
+            IAction anotherAction = new Action() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
@@ -114,7 +116,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
                 }
                 
             };
-            targetAction = new ActionGroupSeries(new Action[] {targetAction, anotherAction});
+            targetAction = new ActionGroupSeries(new IAction[] {targetAction, anotherAction});
         }
     }
     

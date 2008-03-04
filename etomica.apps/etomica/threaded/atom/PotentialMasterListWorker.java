@@ -1,13 +1,17 @@
 package etomica.threaded.atom;
 
 import etomica.api.IBox;
+
 import etomica.atom.AtomArrayList;
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IMolecule;
+import etomica.api.IPotential;
+
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -15,7 +19,6 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
-import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.threaded.PotentialThreaded;
@@ -113,7 +116,7 @@ public class PotentialMasterListWorker extends Thread {
                 }
                 break;
             case 2:
-                AtomSet[] list;
+                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborLists[atom.getIndex()-startAtom];
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -148,7 +151,7 @@ public class PotentialMasterListWorker extends Thread {
                     // target's neighbors
                     list = neighborLists[atom.getIndex()+startAtom];
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
@@ -156,7 +159,7 @@ public class PotentialMasterListWorker extends Thread {
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
-                        AtomSet iList = list[i];
+                        IAtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
@@ -179,7 +182,7 @@ public class PotentialMasterListWorker extends Thread {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomSet list = ((IMolecule)atom).getChildList();
+            IAtomSet list = ((IMolecule)atom).getChildList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -192,7 +195,7 @@ public class PotentialMasterListWorker extends Thread {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);
-	        AtomSet[] list = neighborManager.getUpList(atom);
+	        IAtomSet[] list = neighborManager.getUpList(atom);
 	        if (potentialIndex < list.length) {
 	            arrayList.addAll(list[potentialIndex]);
 	        }
@@ -207,7 +210,7 @@ public class PotentialMasterListWorker extends Thread {
     public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, IBox box){
         
         // Make reference to neighbor lists
-        AtomSet list = box.getMoleculeList();
+        IAtomSet list = box.getMoleculeList();
         int size = list.getAtomCount();
         
         int startAtom = (threadNumber*size)/numThreads;
@@ -249,7 +252,7 @@ public class PotentialMasterListWorker extends Thread {
     public IteratorDirective id;
     public PotentialCalculation pc;
     public NeighborListManager neighborManager;
-    public AtomSet[][] neighborLists;
+    public IAtomSet[][] neighborLists;
     
 	//	 things needed for N-body potentials
 	protected AtomsetArrayList atomsetArrayList;

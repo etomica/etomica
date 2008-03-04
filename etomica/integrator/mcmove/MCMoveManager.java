@@ -3,8 +3,7 @@ package etomica.integrator.mcmove;
 import java.io.Serializable;
 
 import etomica.api.IBox;
-import etomica.box.Box;
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 public class MCMoveManager implements Serializable {
 
@@ -97,7 +96,7 @@ public class MCMoveManager implements Serializable {
      * 
      * @throws ClassCastException if any move is not an MCMoveBox
      */
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         box = p;
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
             ((MCMoveBox)link.move).setBox(box);
@@ -188,7 +187,7 @@ public class MCMoveManager implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private MCMoveLinker firstMoveLink, lastMoveLink;
     private MCMoveLinker selectedLink;
     private int frequencyTotal;

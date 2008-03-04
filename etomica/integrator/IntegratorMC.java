@@ -8,10 +8,10 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.ISimulation;
-import etomica.util.IRandom;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.ISimulation;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of
@@ -26,7 +26,7 @@ import etomica.util.IRandom;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public IntegratorMC(ISimulation sim, PotentialMaster potentialMaster) {
+    public IntegratorMC(ISimulation sim, IPotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     
@@ -34,7 +34,7 @@ public class IntegratorMC extends IntegratorBox {
 	 * Constructs integrator and establishes PotentialMaster instance that
 	 * will be used by moves to calculate the energy.
 	 */
-	public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
+	public IntegratorMC(IPotentialMaster potentialMaster, IRandom random, double temperature) {
 		super(potentialMaster,temperature);
         this.random = random;
 		setIsothermal(true); //has no practical effect, but sets value of
@@ -71,7 +71,7 @@ public class IntegratorMC extends IntegratorBox {
      * Moves are not notified if they have a number of boxs different from
      * the number of boxs handled by the integrator.
      */
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
     	super.setBox(p);
     	moveManager.setBox(p);
     }

@@ -1,10 +1,12 @@
 package etomica.modules.chainequilibrium;
+
+import etomica.api.IAtom;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.box.Box;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 
@@ -30,14 +32,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
     private AtomAgentManager agentManager;
-    private Box box;
+    private IBox box;
 
 	public P2SquareWellBonded(Space space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
 	}
 
-    public void setBox(Box newBox){
+    public void setBox(IBox newBox){
         box = newBox;
         super.setBox(box);
     }
@@ -138,7 +140,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 * Computes next time of collision of the two atoms, assuming free-flight
 	 * kinematics.
 	 */
-	public double collisionTime(AtomSet atoms, double falseTime) {
+	public double collisionTime(IAtomSet atoms, double falseTime) {
 	
 // ************ This gets run all the time!! More than Bump Method
 		//System.out.println("P2SquaredWell: ran Collision Time");	
@@ -168,7 +170,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	}
 
 	
-	public void bump(AtomSet pair, double falseTime) {
+	public void bump(IAtomSet pair, double falseTime) {
 
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);

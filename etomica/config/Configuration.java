@@ -1,6 +1,6 @@
 package etomica.config;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 /**
  * General class for assignment of molecules to positions in a box.
@@ -26,6 +26,6 @@ public interface Configuration {
      * 
      * @param atomList array of list of molecules to be placed by this class
      */
-    public void initializeCoordinates(Box box);
+    public void initializeCoordinates(IBox box);
 
 }

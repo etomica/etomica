@@ -14,7 +14,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
+import etomica.api.ISpecies;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;

@@ -2,9 +2,10 @@ package etomica.modules.junit.crystalviewer;
 
 import junit.framework.TestCase;
 
+import etomica.api.IAtomSet;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomPositioned;
+
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 
 public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
@@ -54,7 +55,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.MONOCLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -118,7 +119,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	double cubicSizeB = 1.75;
     	double cubicSizeC = 2.0;
     	double plane = -2.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
 
         lptu.createLatticeAndBox(lptu.MONOCLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -184,7 +185,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	double plane = 3.0;
     	int itemsFound = 0;
     	double beta = Math.PI * 2.0 * (125.0 / 360.0);
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
         double actualPlane[][] =
     	{ { 6.761276290842992, -4.5, -4.300548232517207 }, { 5.757517527228662, -4.5, -2.8670321550114717},
       	  { 4.75375876361433, -4.5, -1.433516077505736 }, { 3.749999999999999, -4.5, 0.0},
@@ -271,7 +272,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 5;
     	double plane = 1.0;
     	int itemsFound = 0;
@@ -347,7 +348,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 4;
     	double plane = 0.0;
 
@@ -394,7 +395,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int dimensionSize = 4;
     	int itemsFound = 0;
     	double beta = Math.PI * 2.0 * (115.0 / 360.0);
@@ -473,7 +474,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 2.95;
     	double beta = Math.PI * 2.0 * (155.0 / 360.0);
@@ -526,7 +527,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 3.0;
     	int itemsFound = 0;
@@ -611,7 +612,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 1.1;
     	double cubicSizeB = 1.2;
     	double cubicSizeC = 1.3;
-    	AtomSet leafList = null;
+    	IAtomSet leafList = null;
     	int size = 7;
     	double plane = 3.05;
     	double beta = Math.PI * 2.0 * (155.0 / 360.0);

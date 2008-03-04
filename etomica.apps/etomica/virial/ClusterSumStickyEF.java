@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.util.IRandom;
+import etomica.api.IRandom;
 
 public class ClusterSumStickyEF extends ClusterSumEF {
 

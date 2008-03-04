@@ -1,5 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -14,8 +15,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.api.IAction;
+import etomica.api.IController;
+
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -89,10 +92,10 @@ public class DeviceSlider extends Device {
     private GridBagConstraints gbConst; 
     private boolean showBorder = false;
     private int nMajor = 3;
-    protected Action targetAction;
+    protected IAction targetAction;
     private boolean showMinorTicks = false;
 
-    public DeviceSlider(Controller controller) {
+    public DeviceSlider(IController controller) {
         super(controller);
         init();
     }
@@ -100,7 +103,7 @@ public class DeviceSlider extends Device {
     /**
      * Constructs a slider connected to the given property of the given object
      */
-    public DeviceSlider(Controller controller, Object object, String property) {
+    public DeviceSlider(IController controller, Object object, String property) {
         this(controller, new ModifierGeneral(object, property));
         component = object;
         this.property = property;
@@ -108,7 +111,7 @@ public class DeviceSlider extends Device {
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
-    public DeviceSlider(Controller controller, Modifier m) {
+    public DeviceSlider(IController controller, Modifier m) {
         this(controller);
         //set component and property in some way
         setModifier(m);

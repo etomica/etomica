@@ -27,7 +27,9 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
-import etomica.species.ISpecies;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.units.Kelvin;
 
 /**
@@ -57,7 +59,7 @@ import etomica.units.Kelvin;
 public class MCParacetamolMonoclinicDLMULTI extends Simulation{
 	private static final long serialVersionUID = 1L;
 //	private final static String APP_NAME = "MC Paracetamol Monoclinic";
-    public Box box;
+    public IBox box;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
@@ -65,7 +67,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     public MCMoveMoleculeCoupledDLPOLY mcMoveMoleculeCoupledDLPOLY;
     public SpeciesParacetamol species;
     public Controller controller;
-    public PotentialMaster potentialMaster;
+    public IPotentialMaster potentialMaster;
     public BravaisLatticeCrystal lattice;
     public BoundaryDeformableLattice bdry;
     public PrimitiveMonoclinic primitive;

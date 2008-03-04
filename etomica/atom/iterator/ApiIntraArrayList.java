@@ -5,9 +5,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IAtomSet;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 
 /**
  * Returns all pairs formed from a single list of atoms.
@@ -28,7 +28,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * 
      * @param list
      */
-    public ApiIntraArrayList(AtomSet list) {
+    public ApiIntraArrayList(IAtomSet list) {
         setList(list);
     }
 
@@ -64,7 +64,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
-    public AtomSet next() {
+    public IAtomSet next() {
         if (innerIndex > list.getAtomCount() - 2) {
             if (outerIndex > list.getAtomCount() - 3) {
                 return null;
@@ -109,7 +109,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setList(AtomSet newList) {
+    public void setList(IAtomSet newList) {
         if (newList.getAtomCount() > 1 && newList.getAtom(0) == newList.getAtom(1)) {
             throw new RuntimeException("oops");
         }
@@ -120,12 +120,12 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
     /**
      * Returns the list used to generate the pairs.
      */
-    public AtomSet getList() {
+    public IAtomSet getList() {
         return list;
     }
 
     private static final long serialVersionUID = 1L;
-    private AtomSet list;
+    private IAtomSet list;
     private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
 }

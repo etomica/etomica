@@ -1,5 +1,7 @@
 package etomica.util;
 
+import etomica.api.IFunction;
+
 /**
  * Defines a function as chain of other functions.
  * For example, defines F(x) = f3(f2(f1(x))).
@@ -58,7 +60,7 @@ public final class FunctionChain implements Function, java.io.Serializable {
      * Functions are applied sequentially in the order they are added.
      * First function added is the first applied, and so on.
      */
-    public void add(Function newF) {
+    public void add(IFunction newF) {
         tail = new Link(newF, tail);//new function goes to tail of list
         if(head==null) head = tail;//make head also if first added to list
     }
@@ -68,7 +70,7 @@ public final class FunctionChain implements Function, java.io.Serializable {
      * If the function is not in the chain, returns with no error or warning message.
      * If function is present multiple times in chain, remove the first one added.
      */
-    public void remove(Function f) {
+    public void remove(IFunction f) {
         for(Link link=head; link!=null; link=link.next) {
             if(link.function == f) {//found it
                 if(link.previous != null) link.previous.next = link.next;
@@ -87,8 +89,8 @@ public final class FunctionChain implements Function, java.io.Serializable {
      */
     public static class Link implements java.io.Serializable {
         public Link next, previous;
-        public final Function function;
-        public Link(Function func, Link prev) {
+        public final IFunction function;
+        public Link(IFunction func, Link prev) {
             function = func;
             previous = prev;
             if(prev != null) prev.next = this;

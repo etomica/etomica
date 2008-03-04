@@ -1,14 +1,15 @@
 package etomica.models.hexane;
 
+import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
+import etomica.api.IRandom;
 import etomica.integrator.IntegratorMC;
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.space.Tensor;
-import etomica.species.ISpecies;
-import etomica.util.IRandom;
+
 
 /**
  * Contains specifics for the solid hexane model:
@@ -22,8 +23,8 @@ import etomica.util.IRandom;
  */
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
-    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random,
-            IntegratorMC integrator, Box phs, ISpecies species, int NTrials) {
+    public CBMCGrowSolidHexane(IPotentialMaster p, IRandom random,
+            IntegratorMC integrator, IBox phs, ISpecies species, int NTrials) {
         super(p, random, integrator, phs, species, 6, NTrials);
 
         if (p.getSpace().D() != 3) {
