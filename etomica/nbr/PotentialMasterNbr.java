@@ -137,7 +137,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return boxAgentManager;
     }
     
-    public Class getAgentClass() {
+    public Class getTypeAgentClass() {
         return PotentialArray.class;
     }
     

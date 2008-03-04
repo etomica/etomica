@@ -44,12 +44,12 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     /**
-     * Returns the array of AtomType agents, indexed by the AtomType's index.  
-     * The array is of the type returned by the AgentSource's getAgentClass 
-     * method.
+     * Sets the agent associated with the given atom type to be the given
+     * agent.  The AtomType must be from the ISimulation.  The AtomType's old
+     * agent is not "released".  This should be done manually if needed.
      */
-    public Object[] getAgents() {
-        return agents;
+    public void setAgent(AtomType atomType, Object newAgent) {
+        agents[atomType.getIndex()] = newAgent;
     }
     
     /**
@@ -163,7 +163,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
 
         int numTypes = getGlobalMaxIndex()+1;
         
-        agents = (Object[])Array.newInstance(agentSource.getAgentClass(), numTypes);
+        agents = (Object[])Array.newInstance(agentSource.getTypeAgentClass(), numTypes);
         // fill in the array with agents from all the atoms
         makeAllAgents();
     }
@@ -214,7 +214,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
          * Returns the Class of the agent.  This is used to create an array of 
          * the appropriate Class.
          */
-        public Class getAgentClass();
+        public Class getTypeAgentClass();
 
         /**
          * Returns an agent for the given AtomType.
