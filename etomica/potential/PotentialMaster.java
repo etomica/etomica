@@ -253,7 +253,7 @@ public class PotentialMaster implements java.io.Serializable {
         return species;
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
+    public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -374,9 +374,9 @@ public class PotentialMaster implements java.io.Serializable {
     protected boolean enabled = true;
     protected final Space space;
 
-    static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
+    public static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         private static final long serialVersionUID = 1L;
-        AtomIterator0() {
+        public AtomIterator0() {
             super(new AtomsetArray(0));
         }
         public void setBox(IBox box) {}
