@@ -13,7 +13,7 @@ import etomica.units.Length;
  *
  * @author David Kofke
  */
-public final class P2LennardJones extends Potential2SoftSpherical {
+public class P2LennardJones extends Potential2SoftSpherical {
 
     public P2LennardJones(Space space) {
         this(space, 1.0, 1.0);
