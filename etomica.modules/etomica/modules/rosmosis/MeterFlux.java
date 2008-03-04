@@ -5,7 +5,7 @@ import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.Data;
@@ -169,7 +169,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     }
 
     public Object makeAgent(IAtom a) {
-        if (a instanceof IAtomPositioned) {
+        if (a instanceof IAtomLeaf) {
             // oh, the irony
             return null;
         }
