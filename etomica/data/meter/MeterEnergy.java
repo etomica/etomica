@@ -15,20 +15,33 @@ import etomica.units.Energy;
 public final class MeterEnergy extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
-    private MeterKineticEnergy kinetic;
-    private MeterPotentialEnergy potential;
+    protected DataSourceScalar kinetic;
+    protected DataSourceScalar potential;
     
-    public MeterEnergy(PotentialMaster potentialMaster) {
+    public MeterEnergy(PotentialMaster potentialMaster, Box box) {
     	super("Energy",Energy.DIMENSION);
         kinetic = new MeterKineticEnergy();
+        ((MeterKineticEnergy)kinetic).setBox(box);
         potential = new MeterPotentialEnergy(potentialMaster);
+        ((MeterPotentialEnergy)potential).setBox(box);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total energy (K + P) in a box");
-        return info;
+    public DataSourceScalar getKinetic() {
+        return kinetic;
     }
-    
+
+    public void setKinetic(DataSourceScalar kinetic) {
+        this.kinetic = kinetic;
+    }
+
+    public DataSourceScalar getPotential() {
+        return potential;
+    }
+
+    public void setPotential(DataSourceScalar potential) {
+        this.potential = potential;
+    }
+
     /**
      * @return the current value of the total kinetic energy of the molecules in the box
      */
@@ -37,19 +50,6 @@ public final class MeterEnergy extends DataSourceScalar {
      * @return the current value of the total potential energy of the molecules in the box
      */
     public double getPotentialEnergy() {return potential.getDataAsScalar();}
-    
-    /**
-     * Sets the box(s) where the energy is measured
-     * Propagates change to the kinetic- and potential-energy meters
-     */
-    public void setBox(Box p) {
-    	kinetic.setBox(p);
-    	potential.setBox(p);
-    }
-    
-    public IBox getBox() {
-        return kinetic.getBox();
-    }
     
     /**
      * Current value of the total energy (kinetic + potential)
