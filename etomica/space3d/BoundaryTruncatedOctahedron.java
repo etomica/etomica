@@ -33,8 +33,8 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     public BoundaryTruncatedOctahedron(ISimulation sim) {
         this(sim.getSpace(), 30.0);
     }
-    public BoundaryTruncatedOctahedron(Space space, double boxSize) {
-        super(space, new TruncatedOctahedron(space));
+    public BoundaryTruncatedOctahedron(Space _space, double boxSize) {
+        super(_space, new TruncatedOctahedron(_space));
         plane = new Plane(space);
         isPeriodic = new boolean[space.D()];
         for (int i = 0; i < space.D(); i++)

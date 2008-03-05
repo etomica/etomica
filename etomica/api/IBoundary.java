@@ -8,11 +8,6 @@ import etomica.space.Space;
 public interface IBoundary extends NearestImageTransformer {
 
 	/**
-	 * Returns the Space instance given at construction.
-	 */
-	public abstract Space getSpace();
-
-	/**
 	 * Returns the Polytope instance given at construction.
 	 */
 	public abstract Polytope getShape();

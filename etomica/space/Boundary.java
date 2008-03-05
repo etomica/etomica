@@ -26,13 +26,6 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
     }
 
     /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#getSpace()
-	 */
-    public Space getSpace() {
-        return space;
-    }
-
-    /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getShape()
 	 */
     public Polytope getShape() {
@@ -95,7 +88,8 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
 	 */
     public abstract IVector getBoundingBox();
     
-    protected final Space space;
+//    protected final Space space;
     protected final Polytope shape;
+    protected final Space space;
 
 }
