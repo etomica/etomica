@@ -1,8 +1,8 @@
 package etomica.dimer;
 
+import etomica.action.XYZWriter;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
@@ -29,7 +29,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -55,10 +54,11 @@ public class SimDimerMEAMadatomGB extends Simulation{
     public PotentialMEAM potential;
     public PotentialCalculationForcePressureSumGB pcGB;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
+    public int [] millerPlane;
     
 
     
-    public SimDimerMEAMadatomGB() {
+    public SimDimerMEAMadatomGB(String file, int[] millerPlane) {
     	super(Space3D.getInstance(), true);
     	
         potentialMaster = new PotentialMaster(space);
@@ -131,7 +131,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         box = new Box(new BoundaryRectangularSlit(random, 2, 5, space), space);
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable},false, "Sngb", space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
 
         /**
         //Ag
@@ -141,7 +141,8 @@ public class SimDimerMEAMadatomGB extends Simulation{
         //Cu
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, "CuAdatom");
          */
-        
+        integratorDimer.setOrtho(false, false, false);
+        integratorDimer.setFileName(file);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
 
         // First simulation style
@@ -195,12 +196,17 @@ public class SimDimerMEAMadatomGB extends Simulation{
         //angstroms) are taken from the ASM Handbook. 
     	double a = 5.92; 
     	double c = 3.23;
-    	box.setDimensions(new Vector3D(a*3, (Math.sqrt( (4*Math.pow(c, 2)) +Math.pow(a,2)))*3, c*10));
+    	//box.setDimensions(new Vector3D((Math.sqrt( (4*Math.pow(c, 2))+Math.pow(a,2)))*3, a*3, c*10));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 4.5, space);
 
-
+        gbtilt.setFixedSpecies(fixed);
+        gbtilt.setMobileSpecies(movable);
+        gbtilt.setGBplane(millerPlane);
+        gbtilt.setBoxSize(box, new int[] {3,3,10});
+        gbtilt.initializeCoordinates(box);
+        
         /**
         //Ag
         box.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
@@ -216,11 +222,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new Species[] {cuFix, cu}, 4.56);
         */
-        gbtilt.setFixedSpecies(fixed);
-        gbtilt.setMobileSpecies(movable);
-        gbtilt.setRotationTOP(0, 47.4975865422*Math.PI/180);
-        gbtilt.setRotationBOTTOM(0, 47.4975865422*Math.PI/180);
-        gbtilt.initializeCoordinates(box); 
+
         
     
       //SET MOVABLE ATOMS
@@ -243,11 +245,11 @@ public class SimDimerMEAMadatomGB extends Simulation{
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomGB";
-    	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB();
+    	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB("sngb", new int[] {0,0,1});
     	
     	sim.activityIntegrateMD.setMaxSteps(900);
         sim.activityIntegrateDimer.setMaxSteps(1000);
-        
+                
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
         
@@ -265,11 +267,17 @@ public class SimDimerMEAMadatomGB extends Simulation{
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        
+        XYZWriter xyzwriter = new XYZWriter(sim.box);
+        xyzwriter.setFileName("sngb");
+        xyzwriter.setIsAppend(true);
 
         simGraphic.add(/*"PE Plot",*/plotPE);
         
         sim.integratorMD.addIntervalAction(energyPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorMD.addIntervalAction(xyzwriter);
+        sim.integratorMD.setActionInterval(xyzwriter, 10);
         
         sim.integratorDimer.addIntervalAction(energyPump);
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));

@@ -126,9 +126,11 @@ public class SimDimerLJadatom extends Simulation{
         adAtomPos.setX(2, box.getBoundary().getDimensions().x(0)/16);
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, ortho, fileName, space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setOrtho(ortho, false, false);
+        integratorDimer.setFileName(fileName);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
     //ADD CONTROLLER ACTIONS

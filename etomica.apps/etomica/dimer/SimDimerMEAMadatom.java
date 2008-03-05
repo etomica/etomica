@@ -233,7 +233,7 @@ public class SimDimerMEAMadatom extends Simulation{
         */
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, ortho, fileName, space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
     	/**
     	//Ag
     	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
@@ -245,6 +245,8 @@ public class SimDimerMEAMadatom extends Simulation{
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
         integratorDimer.setBox(box);
+        integratorDimer.setOrtho(ortho, false, false);
+        integratorDimer.setFileName(fileName);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
@@ -420,7 +422,7 @@ public class SimDimerMEAMadatom extends Simulation{
     
     public static void main(String[] args){
 
-        final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("meam", false, false, false, false, true, false);
+        final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("meam", false, false, false, false, false, false);
 
         sim.activityIntegrateMD.setMaxSteps(0);
         sim.activityIntegrateDimer.setMaxSteps(0);
@@ -450,7 +452,7 @@ public class SimDimerMEAMadatom extends Simulation{
         
         sim.integratorDimer.addIntervalAction(energyPump);
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    //    sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	
     	//Sn

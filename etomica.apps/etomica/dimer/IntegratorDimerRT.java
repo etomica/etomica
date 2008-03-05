@@ -83,21 +83,18 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public AtomAgentManager atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
-	public FileWriter fileWriter;
-	public XYZWriter xyzwrite;
 	public ActivityIntegrate activityIntegrate;
 	private final Space space;
 	
 	
 	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster,
-			                 ISpecies[] species, boolean ortho, String file,
-			                 Space _space) {
-		this(sim, potentialMaster, sim.getRandom(), ortho, 1.0, species, file, _space);
+			                 ISpecies[] species, Space _space) {
+		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
 	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster,
-			                 IRandom random, boolean aOrtho, double temperature,
-			                 ISpecies[] aspecies, String aFile, Space _space) {
+			                 IRandom random, double temperature,
+			                 ISpecies[] aspecies, Space _space) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;
@@ -106,8 +103,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.force2 = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
-		this.file = aFile;
-		this.startOrtho = aOrtho;
 		this.space = _space;
 				
 		deltaR = 10E-4;
@@ -123,19 +118,30 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		Frot = 1.0;
 		dFrot = 0.1;
 		
-		ortho = false;
-		ortho2 = true;
-		
 		counter = 0;
 		rotCounter = 0;
+	}
+	
+	/**
+	 * Set's the Dimer search's orthogonality criteria.
+	 * @param orthoON (if true) Once the rotation scheme has converged to a small enough Frot value, the ortogonal search is started.
+	 * @param o1 (if true) Dimer follows a path orthogonal to the system's lowest curvature mode.
+	 * @param o2 (if true) Launches another orthogonal path search after the primary orthogonal search.
+	 * 
+	 */
+	public void setOrtho(boolean orthoON, boolean o1, boolean o2){
+		startOrtho = 
+		ortho = o1;
+		ortho2 = o2;
+	}
+	
+	public void setFileName(String fileName){
+		file = fileName;
 	}
 	
 	
 	public void doStepInternal(){
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
-		
-		//Write XYZ File
-		xyzwrite.actionPerformed();
 		
 		rotateDimerNewton();
 		
@@ -295,12 +301,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
 		}
-		
-		//XYZ Writer
-		xyzwrite = new XYZWriter(box);
-		xyzwrite.setIsAppend(true);
-		xyzwrite.setFileName(file+".xyz");
-		
+				
 		// Calculate F's
 		dimerForces(F1, F2, F);
 	}
@@ -758,7 +759,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		saddleT /= Math.sqrt(saddleT);
 		if(saddleT<dFsq){
 	        try{
-	            fileWriter = new FileWriter(file+"_saddle-data", true);
+	            FileWriter fileWriter = new FileWriter(file+"_saddle-data", true);
 	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    "+counter+"\n");
 	            fileWriter.close();
 	        }catch(IOException e) {

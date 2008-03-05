@@ -234,7 +234,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
         */
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, ortho, fileName, space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, space);
     	/**
     	//Ag
     	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
@@ -247,6 +247,8 @@ public class SimDimerMEAMinterstitial extends Simulation{
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setOrtho(ortho, false, false);
+        integratorDimer.setFileName(fileName);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
     //ADD CONTROLLER ACTIONS
