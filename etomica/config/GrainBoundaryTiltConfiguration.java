@@ -1,16 +1,16 @@
 package etomica.config;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.IAtomLeaf;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.lattice.crystal.Primitive;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
+import etomica.space3d.Vector3D;
 
 /**
  * 
@@ -31,8 +31,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double dist;
     protected ISpecies fixedSpecies, mobileSpecies;
     private Space space;
-    IVector [] reciprocal, origin;
+    IVector [] reciprocal, origin, plane;
     IVector normal;
+    int [] millerPlane;
     
     public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP,
     		    BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies,
@@ -108,30 +109,100 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     /**
      * Allows a user to specify a plane for GB 
      */
-    public void setRotationPLANE(int [] m, Primitive p){
+    public void setGBplane(int [] m){
+    	millerPlane = m;
     	reciprocal = new IVector[space.D()];
     	origin = new IVector[space.D()];
     	for(int i=0; i<space.D(); i++){
 	    	reciprocal[i] = space.makeVector();
 	    	origin[i] = space.makeVector();
-	    	origin[i].setX(i, 1);
-    	}
-    	reciprocal = p.makeReciprocal().vectors();
+	    	origin[i].setX(i,1);
+	   	}
+    	    	
+    	reciprocal = latticeTOP.getPrimitive().makeReciprocal().vectors();
     	normal = space.makeVector();
     	for(int i=0; i<space.D(); i++){
-    		normal.PEa1Tv1(m[i], reciprocal[i]);
+    		normal.PEa1Tv1(millerPlane[i], reciprocal[i]);
     	}
     	
+    	IVector projection = space.makeVector();
     	//rotate Miller plane into X axis, about Z axis (through XY plane).
-    	double theta = Math.acos( normal.dot(origin[2]) / Math.sqrt(normal.squared()) );
+    	projection.E(normal);
+    	//get XY projection of normal
+    	projection.setX(2, 0);
+    	double theta = Math.acos( projection.dot(origin[0]) / Math.sqrt(projection.squared()) );
     	setRotationTOP(2,theta);
     	setRotationBOTTOM(2,-theta);
     	
     	//rotate Miller plane into Z axis, about Y axis (through XZ plane).
-    	double phi = Math.acos( normal.dot(origin[1]) / Math.sqrt(normal.squared()) );
+    	projection.E(normal);
+    	//get XZ projection of normal
+    	projection.setX(1, 0);
+    	double phi = Math.acos( projection.dot(origin[2]) / Math.sqrt(projection.squared()) );
     	setRotationTOP(1,phi);
     	setRotationBOTTOM(1,phi);
+    }
+    
+    /**
+     * Resizes simulation box to preserve periodic boundary conditions after rotation of lattice.
+     * @param box
+     */
+    public void setBoxSize(IBox box, int[] boxMultiples){
+    	int [] m = new int[millerPlane.length];
+    	for(int i=0; i<m.length; i++){
+    		m[i] = millerPlane[i];
+    		if(m[i]==0){
+    			m[i]=1;
+    		}
+    	}
+    	//Create vector array of Miller plane XYZ intercepts (least common multiple at X intercept)
+    	plane = new IVector[space.D()];
+    	for(int i=0; i<plane.length; i++){
+    		plane[i] = space.makeVector();
+    	}
+    	plane[0].setX(0, m[1]*m[2]*latticeTOP.getLatticeConstants()[0]);
+    	plane[1].setX(1, m[0]*m[2]*latticeTOP.getLatticeConstants()[1]);
+    	plane[2].setX(2, m[0]*m[1]*latticeTOP.getLatticeConstants()[2]);
+    	for(int i=0; i<plane.length; i++){
+    		if(millerPlane[i]==0){
+    			plane[i].setX(i,0);
+    		}
+    	}
     	
+    	//Creates vector in XY plane pointing to edge of Miller plane X and Y intercepts
+    	IVector xyprojection = space.makeVector();
+    	xyprojection.setX(0, plane[0].x(0));
+    	xyprojection.setX(1, plane[1].x(1));
+    	
+    	//Find distance from xyprojection to Miller plane Z-intercept
+    	IVector xaxisperiod = space.makeVector();
+    	xaxisperiod.Ev1Mv2(xyprojection, plane[2]);
+    	double xaxispbc = Math.sqrt(xaxisperiod.squared());
+    	if(xaxispbc==0){
+    		xaxispbc=latticeTOP.getLatticeConstants()[0];
+    	}
+    	
+    	//Find distance from xyprojection to Miller plane X-intercept
+    	IVector yaxisperiod = space.makeVector();
+    	yaxisperiod.Ev1Mv2(xyprojection, plane[0]);
+    	double yaxispbc = Math.sqrt(yaxisperiod.squared());
+    	if(yaxispbc==0){
+    		yaxispbc=latticeTOP.getLatticeConstants()[1];
+    	}
+    	
+    	//If plane has 3 intercepts (XYZ), must double X distance
+    	int dub=0;
+    	for(int i=0; i<millerPlane.length; i++){
+    		if(millerPlane[i]==0){
+    			dub=1;
+    		}
+    	}
+    	if(dub==0){
+    		xaxispbc = 2.0*xaxispbc;
+    	}
+    	
+    	//Set Box size
+    	box.setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], Math.sqrt(normal.squared())*boxMultiples[2]));
     }
     
     public void initializeCoordinates(IBox box){
@@ -289,7 +360,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
 
-        dist = 1.0;
+        dist = 1.5;
         IVector rij = space.makeVector();
         
         int removeCount = 0;
