@@ -123,7 +123,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         }
         divisor = box.getNMolecules(types[typeIndex].getSpecies()) * lrcAtomsPerMolecule[typeIndex];
         if (!interType) {
-            divisor = (divisor - 1)/2.0;
+            divisor = divisor/2.0;
         }
     }
      
