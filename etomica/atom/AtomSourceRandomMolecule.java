@@ -31,7 +31,7 @@ public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializabl
      * returns a random molecule from the box
      */
     public IAtom getAtom() {
-        return box.molecule(random.nextInt(box.moleculeCount()));
+        return box.getMoleculeList().getAtom(random.nextInt(box.moleculeCount()));
     }
     
     private static final long serialVersionUID = 1L;

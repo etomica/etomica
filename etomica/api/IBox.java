@@ -22,13 +22,6 @@ public interface IBox {
 	 */
 	public abstract int getIndex();
 
-	/**
-	 * Overrides the Object class toString method to have it return the output of getName
-	 * 
-	 * @return The name given to the box
-	 */
-	public abstract String toString();
-
 	/* (non-Javadoc)
 	 * @see etomica.box.IBox#addNewMolecule(etomica.species.ISpecies)
 	 */
@@ -63,13 +56,6 @@ public interface IBox {
 	 * @see etomica.box.IBox#getMoleculeList()
 	 */
 	public abstract IAtomSet getMoleculeList();
-
-	/**
-	 * Returns the ith molecule in the list of molecules.
-	 * 0 returns the first molecule, and moleculeCount-1 returns the last.
-	 * An argument outside this range throws an IndexOutOfBoundsException
-	 */
-	public abstract IMolecule molecule(int i);
 
 	/* (non-Javadoc)
 	 * @see etomica.box.IBox#setBoundary(etomica.space.Boundary)

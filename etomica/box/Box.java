@@ -230,7 +230,7 @@ public class Box implements java.io.Serializable, IBox {
     public IAtomSet getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
-    
+
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getMoleculeList()
 	 */
@@ -240,14 +240,7 @@ public class Box implements java.io.Serializable, IBox {
     public IAtomSet getMoleculeList() {
         return allMoleculeList;
     }
-    
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#molecule(int)
-	 */
-    public IMolecule molecule(int i) {
-        return (IMolecule)allMoleculeList.getAtom(i);
-    }
-    
+  
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#setBoundary(etomica.space.Boundary)
 	 */
