@@ -42,13 +42,13 @@ import etomica.space.Tensor;
     public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
         leafAtoms.atom0 = ((IMolecule)atoms.getAtom(0)).getChildList().getAtom(0);
         leafAtoms.atom1 = ((IMolecule)atoms.getAtom(1)).getChildList().getAtom(0);
-        return ((PotentialSoft)wrappedPotential).gradient(leafAtoms);
+        return ((PotentialSoft)wrappedPotential).gradient(leafAtoms, pressureTensor);
     }
 
     public double virial(IAtomSet atoms) {
         leafAtoms.atom0 = ((IMolecule)atoms.getAtom(0)).getChildList().getAtom(0);
         leafAtoms.atom1 = ((IMolecule)atoms.getAtom(1)).getChildList().getAtom(0);
-        return ((PotentialSoft)wrappedPotential).energy(leafAtoms);
+        return ((PotentialSoft)wrappedPotential).virial(leafAtoms);
     }
 
     private static final long serialVersionUID = 1L;
