@@ -29,8 +29,10 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
     protected IBox box;
+    private final Space space;
     
-    public PotentialCalculationForcePressureSumGB(Space space, IBox box) {
+    public PotentialCalculationForcePressureSumGB(Space _space, IBox box) {
+    	this.space = _space;
         pressureTensor = space.makeTensor();
         this.box = box;
     }
@@ -53,13 +55,13 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		
-		IVector forceTop = potential.getSpace().makeVector();
-		IVector forceBottom = potential.getSpace().makeVector();
+		IVector forceTop = space.makeVector();
+		IVector forceBottom = space.makeVector();
 		
 		iterator.reset();
 		for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
-			IVector rij = potential.getSpace().makeVector();
+			IVector rij = space.makeVector();
 			switch(nBody) {
 				case 1:
 					((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);

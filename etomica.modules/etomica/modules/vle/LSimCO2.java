@@ -74,7 +74,7 @@ public class LSimCO2 extends Simulation {
         potentialMaster = new PotentialMaster(space);
         p2LJ = new P2LJQ(space, sigma, epsilon, moment);
         p2LJ.setTemperature(temperature);
-        potential = new P2SoftTruncated(p2LJ, cutoffFac*sigma);
+        potential = new P2SoftTruncated(p2LJ, cutoffFac*sigma, space);
         potential.setBox(boxLiquid);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         
@@ -170,7 +170,7 @@ public class LSimCO2 extends Simulation {
             final AccumulatorAverage[][] pressureAvg = new AccumulatorAverage[nCutoff][2];
             for (int i=0; i<nCutoff; i++) {
                 PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-                P2SoftTruncated potential = new P2SoftTruncated(sim.p2LJ, (i*cutoffStep+2.5)*sim.p2LJ.getSigma());
+                P2SoftTruncated potential = new P2SoftTruncated(sim.p2LJ, (i*cutoffStep+2.5)*sim.p2LJ.getSigma(), sim.space);
                 potential.setBox(sim.boxLiquid);
                 potentialMaster.addPotential(potential, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 

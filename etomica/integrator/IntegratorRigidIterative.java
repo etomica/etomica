@@ -673,10 +673,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             pNRF.setRange(boxlength*0.5);
             pNRF.setDielectric(78.4);
 
-            potentialMaster.addPotential(new P2MoleculeSoftTruncatedSwitched(pNRF, boxlength*0.49), new ISpecies[]{species, species});
+            potentialMaster.addPotential(new P2MoleculeSoftTruncatedSwitched(pNRF, boxlength*0.49, space), new ISpecies[]{species, species});
             potentialMaster.lrcMaster().addPotential(pNRF.makeP0(), new PotentialMaster.AtomIterator0(), null);
 
-            potentialMaster.addPotential(new P2MoleculeSoftTruncatedSwitched(p2Water, boxlength*0.49), new ISpecies[]{species,species});
+            potentialMaster.addPotential(new P2MoleculeSoftTruncatedSwitched(p2Water, boxlength*0.49, space), new ISpecies[]{species,species});
         }
         else {
             potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});

@@ -7,6 +7,7 @@ import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Tensor;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 
@@ -16,8 +17,8 @@ import etomica.space3d.Space3D;
  */
 public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPotentialTorque {
     
-    public P2MoleculeSoftTruncatedSwitched(IPotentialTorque potential, double truncationRadius) {
-        super(potential.getSpace());
+    public P2MoleculeSoftTruncatedSwitched(IPotentialTorque potential, double truncationRadius, Space _space) {
+        super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
         zeroGradientAndTorque = new IVector[2][0];
@@ -89,8 +90,8 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
             zeroGradientAndTorque[0] = new IVector[atoms.getAtomCount()];
             zeroGradientAndTorque[1] = new IVector[atoms.getAtomCount()];
             for (int i=0; i<atoms.getAtomCount(); i++) {
-                zeroGradientAndTorque[0][i] = potential.getSpace().makeVector();
-                zeroGradientAndTorque[1][i] = potential.getSpace().makeVector();
+                zeroGradientAndTorque[0][i] = space.makeVector();
+                zeroGradientAndTorque[1][i] = space.makeVector();
             }
         }
         return zeroGradientAndTorque;
@@ -129,13 +130,14 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     }
 
     public static void main(String[] args) {
-        P2MoleculeSoftTruncatedSwitched p095 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+    	Space sp = Space3D.getInstance();
+        P2MoleculeSoftTruncatedSwitched p095 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p095.setSwitchFac(0.95);
-        P2MoleculeSoftTruncatedSwitched p080 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        P2MoleculeSoftTruncatedSwitched p080 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p080.setSwitchFac(0.80);
-        P2MoleculeSoftTruncatedSwitched p050 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        P2MoleculeSoftTruncatedSwitched p050 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p050.setSwitchFac(0.50);
-        P2MoleculeSoftTruncatedSwitched p010 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        P2MoleculeSoftTruncatedSwitched p010 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p010.setSwitchFac(0.10);
         for (double x = 0.002; x<2; x+=0.002) {
             System.out.println(x+" "+(1.0/x)+" "+p095.getF(x)/x+" "+p080.getF(x)/x+" "+p050.getF(x)/x+" "+p010.getF(x)/x);

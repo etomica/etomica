@@ -5,8 +5,6 @@ import etomica.units.Dimension;
 
 public interface IPotential {
 
-    public Space getSpace();
-
     /**
      * Returns the range over which the potential applies.  IAtoms with a
      * greater separation do not interact.

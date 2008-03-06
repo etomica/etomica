@@ -109,7 +109,7 @@ public class ReverseOsmosisWater extends Simulation {
         AtomTypeSphere mType = (AtomTypeSphere)speciesMembrane.getLeafType();
         
         potentialWater = new P2WaterSPCSoft(space);
-        P2MoleculeSoftTruncatedSwitched pWaterTrunc = new P2MoleculeSoftTruncatedSwitched(potentialWater, rCut);
+        P2MoleculeSoftTruncatedSwitched pWaterTrunc = new P2MoleculeSoftTruncatedSwitched(potentialWater, rCut, space);
         pWaterTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pWaterTrunc, new AtomType[]{speciesSolvent.getMoleculeType(), speciesSolvent.getMoleculeType()});
         double epsOxygen = potentialWater.getEpsilon();

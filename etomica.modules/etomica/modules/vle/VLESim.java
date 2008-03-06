@@ -78,7 +78,7 @@ public class VLESim extends Simulation {
         }
         p2LJQ = new P2LJQ(space, sigma, epsilon, moment);
         p2LJQ.setTemperature(temperature);
-        p2Truncated = new P2SoftTruncated(p2LJQ, range);
+        p2Truncated = new P2SoftTruncated(p2LJQ, range, space);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
         if (doNBR) {
             potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
