@@ -3,14 +3,13 @@ package etomica.api;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
 import etomica.space.NearestImageTransformer;
-import etomica.space.Space;
 
 public interface IBoundary extends NearestImageTransformer {
 
 	/**
 	 * Returns the Polytope instance given at construction.
 	 */
-	public abstract Polytope getShape();
+//	public abstract Polytope getShape();
 
 	/**
 	 * @return the volume enclosed by the boundary

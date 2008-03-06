@@ -13,6 +13,7 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
+import etomica.space.Boundary;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Space;
@@ -125,9 +126,11 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         double toPixels = displayBox.getToPixels();
 
         //Draw other features if indicated
-        if(drawBoundary>DRAW_BOUNDARY_NONE) {
+        // and the boundary is an etomica boundary.  Non-etomica objects
+        // do not have a shape.
+        if(drawBoundary>DRAW_BOUNDARY_NONE && displayBox.getBox().getBoundary() instanceof Boundary ) {
             g.setColor(Color.gray);
-            Polygon shape = (Polygon)displayBox.getBox().getBoundary().getShape();
+            Polygon shape = (Polygon)((Boundary)displayBox.getBox().getBoundary()).getShape();
             LineSegment[] edges = shape.getEdges();
             int ox = origin[0] + (int)(toPixels*boundingBox.x(0)*0.5);
             int oy = origin[1] + (int)(toPixels*boundingBox.x(1)*0.5);

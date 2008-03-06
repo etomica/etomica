@@ -8,6 +8,7 @@ import etomica.api.IVector;
 import etomica.atom.IAtomLeaf;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
+import etomica.space.Boundary;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -207,6 +208,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     
     public void initializeCoordinates(IBox box){
         
+    	if(!(box.getBoundary() instanceof Boundary)) {
+    		throw new RuntimeException("Cannot initialize coordinates for a box containing a non etomica.space.Boundary");
+    	}
         /**
          * FILL ATOMS IN TOP DOMAIN
          */
@@ -266,7 +270,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.setX(2,transformedPosition.x(2)+(0.25*box.getBoundary().getDimensions().x(2)));
             
             // If the atom position is outside the original simulation domain A (top half of simulation box)
-            if(!box.getBoundary().getShape().contains(transformedPosition)||transformedPosition.x(2)<0.0){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<0.0){
                continue;            
             }
             
@@ -338,7 +342,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.setX(2,transformedPosition.x(2)+(-0.25*box.getBoundary().getDimensions().x(2)));
             
             // If the atom position is outside the original simulation domain B (bottom half of simulation box)
-            if(!box.getBoundary().getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0){
                continue;            
             }
             

@@ -19,6 +19,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.space.Boundary;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
@@ -290,58 +291,65 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
         
 		IBoundary boundary = displayBox.getBox().getBoundary();
-		Polytope polytope = boundary.getShape();
-		if (polytope != oldPolytope) {
 
-			// force trunc. oct. to make vecs else null pointer exception
-			boundary.getPeriodicVectors();
-			// send iterator to g3dsys
-			gsys.setBoundaryVectorsIterator(wrapIndexIterator((boundary
-					.getIndexIterator())));
+		// Do not draw bounding box around figure if the boundary
+		// is not an etomica.space.Boundary
+		if(boundary instanceof Boundary) {
 
-			if (polytopeLines != null) {
-				for (int i = 0; i < polytopeLines.length; i++) {
-					gsys.removeFig(polytopeLines[i]);
+			Polytope polytope = ((Boundary)boundary).getShape();
+			if (polytope != oldPolytope) {
+	
+				// force trunc. oct. to make vecs else null pointer exception
+				boundary.getPeriodicVectors();
+				// send iterator to g3dsys
+				gsys.setBoundaryVectorsIterator(wrapIndexIterator((boundary
+						.getIndexIterator())));
+	
+				if (polytopeLines != null) {
+					for (int i = 0; i < polytopeLines.length; i++) {
+						gsys.removeFig(polytopeLines[i]);
+					}
+				}
+				LineSegment[] lines = polytope.getEdges();
+				polytopeLines = new Line[lines.length];
+				for (int i = 0; i < lines.length; i++) {
+					IVector[] vertices = lines[i].getVertices();
+					polytopeLines[i] = new Line(gsys, G3DSys
+							.getColix(boundaryFrameColor), new Point3f(
+							(float) vertices[0].x(0), (float) vertices[0].x(1),
+							(float) vertices[0].x(2)), new Point3f(
+							(float) vertices[1].x(0), (float) vertices[1].x(1),
+							(float) vertices[1].x(2)));
+					if (displayBox.getShowBoundary() == true) {
+						gsys.addFig(polytopeLines[i]);
+					}
+				}
+				oldPolytope = polytope;
+			} else {
+				LineSegment[] lines = polytope.getEdges();
+				for (int i = 0; i < lines.length; i++) {
+					IVector[] vertices = lines[i].getVertices();
+					polytopeLines[i].setStart((float) vertices[0].x(0),
+							(float) vertices[0].x(1), (float) vertices[0].x(2));
+					polytopeLines[i].setEnd((float) vertices[1].x(0),
+							(float) vertices[1].x(1), (float) vertices[1].x(2));
+	
+					if (displayBox.getShowBoundary() == false
+							&& boundaryDisplayed == true) {
+						gsys.removeFig(polytopeLines[i]);
+					} else if (displayBox.getShowBoundary() == true
+							&& boundaryDisplayed == false) {
+						gsys.addFig(polytopeLines[i]);
+					}
 				}
 			}
-			LineSegment[] lines = polytope.getEdges();
-			polytopeLines = new Line[lines.length];
-			for (int i = 0; i < lines.length; i++) {
-				IVector[] vertices = lines[i].getVertices();
-				polytopeLines[i] = new Line(gsys, G3DSys
-						.getColix(boundaryFrameColor), new Point3f(
-						(float) vertices[0].x(0), (float) vertices[0].x(1),
-						(float) vertices[0].x(2)), new Point3f(
-						(float) vertices[1].x(0), (float) vertices[1].x(1),
-						(float) vertices[1].x(2)));
-				if (displayBox.getShowBoundary() == true) {
-					gsys.addFig(polytopeLines[i]);
-				}
+	
+			if (displayBox.getShowBoundary() == false) {
+				boundaryDisplayed = false;
+			} else {
+				boundaryDisplayed = true;
 			}
-			oldPolytope = polytope;
-		} else {
-			LineSegment[] lines = polytope.getEdges();
-			for (int i = 0; i < lines.length; i++) {
-				IVector[] vertices = lines[i].getVertices();
-				polytopeLines[i].setStart((float) vertices[0].x(0),
-						(float) vertices[0].x(1), (float) vertices[0].x(2));
-				polytopeLines[i].setEnd((float) vertices[1].x(0),
-						(float) vertices[1].x(1), (float) vertices[1].x(2));
 
-				if (displayBox.getShowBoundary() == false
-						&& boundaryDisplayed == true) {
-					gsys.removeFig(polytopeLines[i]);
-				} else if (displayBox.getShowBoundary() == true
-						&& boundaryDisplayed == false) {
-					gsys.addFig(polytopeLines[i]);
-				}
-			}
-		}
-
-		if (displayBox.getShowBoundary() == false) {
-			boundaryDisplayed = false;
-		} else {
-			boundaryDisplayed = true;
 		}
 
 		// set boundary vectors for image shell
@@ -392,9 +400,12 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
         
     public synchronized void drawPlane(int iPlane) {
-        Plane plane = planes[iPlane];
         IBoundary boundary = displayBox.getBox().getBoundary();
-        Polytope polytope = boundary.getShape();
+    	if(!(boundary instanceof Boundary)) {
+    		throw new RuntimeException("Unable to drawPlane for a Boundary not a subclass of etomica.space.Boundary");
+    	}
+        Plane plane = planes[iPlane];
+        Polytope polytope = ((Boundary)boundary).getShape();
         LineSegment[] lines = polytope.getEdges();
         int intersectionCount = 0;
         for (int i = 0; i < lines.length; i++) {

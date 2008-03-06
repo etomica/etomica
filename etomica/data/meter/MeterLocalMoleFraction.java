@@ -5,10 +5,12 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.Fraction;
 
@@ -17,8 +19,16 @@ import etomica.units.Fraction;
  */
 public class MeterLocalMoleFraction extends DataSourceScalar {
 
-    public MeterLocalMoleFraction(Space space) {
+    public MeterLocalMoleFraction(Space space, IBox _box) {
         super("Local Mole Fraction",Fraction.DIMENSION);
+        if(!(_box.getBoundary() instanceof Boundary)) {
+        	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");
+        }
+        box = _box;
+        tempVec = space.makeVector();
+        shapeOrigin = space.makeVector();
+        iterator.setBox(box);
+        setShape(((Boundary)box.getBoundary()).getShape());
         this.space = space;
         setSpecies(null);
     }
@@ -97,6 +107,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * @param box The box to set.
      */
+/*
     public void setBox(IBox newBox) {
         box = newBox;
         tempVec = space.makeVector();
@@ -106,7 +117,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
             setShape(box.getBoundary().getShape());
         }
     }
-
+*/
     /**
      * @return Returns the iterator.
      */

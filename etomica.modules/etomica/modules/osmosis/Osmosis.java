@@ -151,8 +151,7 @@ public class Osmosis extends SimulationGraphic {
 		tBox.setPrecision(3);
 
         // Right side of membrane mole fraction
-        moleFractionRight = new MeterLocalMoleFraction(space);
-        moleFractionRight.setBox(sim.box);
+        moleFractionRight = new MeterLocalMoleFraction(space, sim.box);
         IVector dimensions = sim.box.getBoundary().getDimensions();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
@@ -174,8 +173,7 @@ public class Osmosis extends SimulationGraphic {
         rightMFBox.setPrecision(5);
 
         // Left side of membrane mole fraction
-        moleFractionLeft = new MeterLocalMoleFraction(space);
-        moleFractionLeft.setBox(sim.box);
+        moleFractionLeft = new MeterLocalMoleFraction(space, sim.box);
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionLeft.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));

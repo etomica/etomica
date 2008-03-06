@@ -90,7 +90,7 @@ public final class MeterDimerFraction implements DataSource {
         x[3] *= 0.5;
         x[4] *= 0.5;
         
-        dataDensity.x = nMole/box.getBoundary().getShape().getVolume();
+        dataDensity.x = nMole/box.volume();
         return dataGroup;
     }
     

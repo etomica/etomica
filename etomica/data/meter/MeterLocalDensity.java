@@ -5,6 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
+import etomica.space.Boundary;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.units.DimensionRatio;
@@ -16,8 +17,16 @@ import etomica.units.Volume;
  */
  
 public abstract class MeterLocalDensity extends DataSourceScalar {
-    public MeterLocalDensity() {
+    public MeterLocalDensity(IBox _box) {
         super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
+        if(!(_box.getBoundary() instanceof Boundary)) {
+        	throw new RuntimeException("The box boundary must be a subclass of etomica.space.Boundary.");
+        }
+        this.box = _box;
+        iterator.setBox(box);
+        if (shape == null) {
+            setShape(((Boundary)box.getBoundary()).getShape());
+        }
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -57,6 +66,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     /**
      * @param box The box to set.
      */
+/*
     public void setBox(IBox box) {
         this.box = box;
         iterator.setBox(box);
@@ -64,7 +74,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
             setShape(box.getBoundary().getShape());
         }
     }
-
+*/
     /**
      * @return Returns the iterator.
      */

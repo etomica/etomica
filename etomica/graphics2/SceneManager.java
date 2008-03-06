@@ -11,6 +11,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentIterator;
+import etomica.space.Boundary;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
@@ -41,7 +42,7 @@ public final class SceneManager {
         if(!isVisible() || getBox() == null) return;
         // Create graphical object for the boundary
         IBoundary bnd = box.getBoundary();
-        Polytope shape = bnd.getShape();
+        Polytope shape = ((Boundary)bnd).getShape();
         boolean needUpdate = false;
         IVector[] newVertices = shape.getVertices();
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
@@ -95,6 +96,9 @@ public final class SceneManager {
     public void setBox(IBox newBox) {
         if (newBox == box) {
             return;
+        }
+        else if(!(newBox.getBoundary() instanceof Boundary)) {
+        	throw new RuntimeException("Cannot use a box with a boundary that is not a subclass of etomica.space.Boundary.");
         }
         agentManager = new AtomAgentManager(new SphereShapeSource(), newBox, false);
         agentIterator = agentManager.makeIterator();
