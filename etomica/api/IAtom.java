@@ -25,14 +25,6 @@ public interface IAtom {
      */
     public IAtomType getType();
 
-//    /**
-//     * Returns the address indicating the position of this IAtom within the
-//     * Box's IAtom hierarchy.  The address is a bitmasked 32-byte integer
-//     * with a set of bits appropriated to each level of the IAtom hierarchy.
-//     * The address is typically interpreted by an AtomAddressManager.
-//     */
-//    public int getAddress();
-
     /**
      * Informs the IAtom of its index, which is used to construct the address.
      */
