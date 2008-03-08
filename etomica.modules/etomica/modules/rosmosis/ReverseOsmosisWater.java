@@ -97,7 +97,7 @@ public class ReverseOsmosisWater extends Simulation {
         double epsMembrane = Kelvin.UNIT.toSim(12.5);
         double sigMembrane = 3;
         
-        double xSize = 32;// 80 originally
+        double xSize = 44;// 80 originally
         double yzSize = 18;       // 28 originally
         double rCut = 0.49*yzSize;
         double switchFac = 0.7;
@@ -221,10 +221,10 @@ public class ReverseOsmosisWater extends Simulation {
         box.setDimensions(dim);
         configMembrane = new ConfigurationMembraneWater(this);
         configMembrane.setMembraneDim(0);
-        configMembrane.setMembraneThicknessPerLayer(4.0);
+        configMembrane.setMembraneThickness(2*4.0);
         configMembrane.setNumMembraneLayers(2);
         configMembrane.setMembraneWidth(2);
-        double density = 0.145/Math.pow(sigSodium, 3);
+        double density = 0.01;
         configMembrane.setSolutionChamberDensity(density);
         configMembrane.setSolventChamberDensity(density);
         configMembrane.setSoluteMoleFraction(0.5);

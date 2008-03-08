@@ -43,8 +43,7 @@ public class ConfigurationMembraneWater implements Configuration {
         
         IVector boxDimensions = box.getBoundary().getDimensions();
         double boxLength = boxDimensions.x(membraneDim);
-        double membraneThickness = membraneThicknessPerLayer * numMembraneLayers;
-        double chamberLength = 0.5 * boxLength - membraneThickness;
+        double chamberLength = 0.5 * boxLength - membraneTotalThickness;
         
         // solventChamber (middle, solvent-only)
         Box pretendBox = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), null, 1), sim.getSpace());
@@ -85,10 +84,10 @@ public class ConfigurationMembraneWater implements Configuration {
                 // we need to translate the molecules into the proper chamber
                 double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
                 if (x < 0) {
-                    translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
+                    translationVector.setX(membraneDim, -0.5*chamberLength - membraneTotalThickness);
                 }
                 else {
-                    translationVector.setX(membraneDim, 0.5*chamberLength + membraneThickness);
+                    translationVector.setX(membraneDim, 0.5*chamberLength + membraneTotalThickness);
                 }
                 translator.actionPerformed(atom);
                 if (fluidSpecies[iSpecies] == speciesSolute1 && i % 2 == 0) {
@@ -104,7 +103,8 @@ public class ConfigurationMembraneWater implements Configuration {
         }
 
         int pretendNumMembraneLayers = numMembraneLayers;
-        double pretendMembraneThickness = membraneThickness;
+        double pretendMembraneThickness = membraneTotalThickness;
+        double membraneThicknessPerLayer = membraneTotalThickness / numMembraneLayers;
         double membraneCenter = 0;
         if (numMembraneLayers % 2 == 1) {
             // we want an odd number of layers, which ConfigurationLattice can't
@@ -156,7 +156,7 @@ public class ConfigurationMembraneWater implements Configuration {
                 IMolecule molecule = (IMolecule)molecules.getAtom(i);
                 IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(0);
                 double x = atom.getPosition().x(membraneDim);
-                if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
+                if (Math.abs(x - membraneCenter) > 0.5 * membraneTotalThickness) {
                     // we encountered a pretend atom in our pretend box!
                     continue;
                 }
@@ -173,12 +173,12 @@ public class ConfigurationMembraneWater implements Configuration {
      * Returns the thickness (angstroms) of each layer of the membrane
      * (see getNumMembraneLayers)
      */
-    public double getMembraneThicknessPerLayer() {
-        return membraneThicknessPerLayer;
+    public double getMembraneThickness() {
+        return membraneTotalThickness;
     }
 
-    public void setMembraneThicknessPerLayer(double newMembraneWidth) {
-        membraneThicknessPerLayer = newMembraneWidth;
+    public void setMembraneThickness(double newMembraneThickness) {
+        membraneTotalThickness = newMembraneThickness;
     }
 
     /**
@@ -285,7 +285,7 @@ public class ConfigurationMembraneWater implements Configuration {
     }
 
     protected Species speciesSolute1, speciesSolute2, speciesSolvent, speciesMembrane;
-    protected double membraneThicknessPerLayer;
+    protected double membraneTotalThickness;
     protected int numMembraneLayers, membraneWidth;
     protected double solventChamberDensity, solutionChamberDensity;
     protected double soluteMoleFraction;
