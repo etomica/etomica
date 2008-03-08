@@ -31,6 +31,8 @@ import etomica.species.SpeciesSpheresMono;
  * for placement of the next molecule. Each array index is iterated to a maximum
  * value determined by the number of molecules to be placed, the dimensions of
  * the box in which they are placed, and the lattice constants of the lattice.
+ * If there are not enough molecules to fill the lattice, they will be
+ * distributed as evenly as possible.
  * <p>
  * An instance of this class may be configured to place atoms such that they
  * uniformly fill the volume of the box. It will attempt this by scaling the
@@ -102,6 +104,10 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
 
         // determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
+        int nSites = basisSize;
+        for (int i=0; i<latticeDimensions.length; i++) {
+            nSites *= latticeDimensions[i];
+        }
         if (indexIterator.getD() > latticeDimensions.length) {
             int[] iteratorDimensions = new int[latticeDimensions.length+1];
             System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
@@ -156,9 +162,23 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
 
         // Place molecules
         indexIterator.reset();
+        double voidFrac = (nSites - sumOfMolecules)/((double)nSites);
+        double voidSum = 0;
+        int siteCount = 0;
         for (int i=0; i<sumOfMolecules; i++) {
             IMolecule a = (IMolecule)moleculeList.getAtom(i);
             int[] ii = indexIterator.next();
+            siteCount++;
+            // add voidFrac for each /site/ (not molecule)
+            voidSum += voidFrac;
+            while (voidSum > 1.0) {
+                // we've gone through enough sites that we should insert a void
+                // now.  Subtract one, but still add voidFrac since we're still
+                // advancing one site.
+                voidSum += voidFrac - 1;
+                ii = indexIterator.next();
+                siteCount++;
+            }
             // initialize coordinates of child atoms
         	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
@@ -166,6 +186,13 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
+        }
+        if (nSites - siteCount > 1) {
+            // nSites - siteCount = 0 is ideal.
+            // indexIterator.next() would throw if nSites < siteCount
+            // nSites - siteCount = 1 will be typical for cases where the void distribution can't be perfect
+            // so we just need to check for nSites - siteCount > 1
+            throw new RuntimeException("Failed to properly iterate through the lattice sites "+nSites+" "+siteCount);
         }
     }
 
