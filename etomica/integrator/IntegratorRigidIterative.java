@@ -20,7 +20,6 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
@@ -491,7 +490,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 super.randomizeMomentum(atom);
                 return;
             }
-            System.out.println("expect this to fail");
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)atom;
             IVector velocity = orientedMolecule.getVelocity();
