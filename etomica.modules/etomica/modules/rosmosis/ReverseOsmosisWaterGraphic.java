@@ -46,6 +46,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.potential.P2Electrostatic;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -53,9 +54,11 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
+import etomica.units.Charge;
 import etomica.units.CompoundUnit;
 import etomica.units.Dalton;
 import etomica.units.Dimension;
+import etomica.units.Electron;
 import etomica.units.Energy;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -86,7 +89,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     protected DeviceSlider solventChamberDensitySlider, soluteChamberDensitySlider;
     protected DeviceSlider soluteMoleFractionSlider;
     protected DeviceBox sigBox, epsBox, massBox, tetherBox;
-    protected DeviceSlider membraneThicknessSlider;
+    protected DeviceSlider membraneThicknessSlider, membraneWidthSlider;
+    protected DeviceSlider soluteChargeSlider;
     protected Unit eUnit, dUnit, pUnit;
     protected ReverseOsmosisWater sim;
     
@@ -136,6 +140,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         massBox = new DeviceBox();
         tetherBox = new DeviceBox();
         membraneThicknessSlider = new DeviceSlider(sim.getController());
+        membraneWidthSlider = new DeviceSlider(sim.getController());
+        soluteChargeSlider = new DeviceSlider(sim.getController());
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -160,9 +166,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
         solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
         solventChamberDensitySlider.setPrecision(1);
-        solventChamberDensitySlider.setMaximum(55);
+        solventChamberDensitySlider.setMaximum(80);
         solventChamberDensitySlider.setNMajor(3);
-//        solventChamberDensitySlider.setValue(sim.configMembrane.getSolventChamberDensity());
         solventChamberDensitySlider.setShowValues(true);
         solventChamberDensitySlider.setUnit(dUnit);
         solventChamberDensitySlider.doUpdate();
@@ -172,7 +177,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         modifier = new ModifierGeneral(sim.configMembrane, "solutionChamberDensity");
         soluteChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
         soluteChamberDensitySlider.setPrecision(1);
-        soluteChamberDensitySlider.setMaximum(55);
+        soluteChamberDensitySlider.setMaximum(80);
         soluteChamberDensitySlider.setNMajor(3);
         soluteChamberDensitySlider.setShowValues(true);
         soluteChamberDensitySlider.setUnit(dUnit);
@@ -209,14 +214,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         parameterPanel.add(tetherBox.graphic());
         potentialPanel.add(parameterPanel,vertGBC);
         potentialPanel.add(membraneThicknessSlider.graphic(), vertGBC);
-
-        //
-        // Tabbed pane for state, potential, controls pages
-        //
-        JTabbedPane setupPanel = new JTabbedPane();
-        setupPanel.add(statePanel, "State");
-        setupPanel.add(potentialPanel, "Membrane");
-        setupPanel.add(configPanel, "Configuration");
+        potentialPanel.add(membraneWidthSlider.graphic(), vertGBC);
 
         // inline class to make water's OO potential look like a P2LennardJones
         P2LennardJones p2LJOO = new P2LennardJones(sim.getSpace()) {
@@ -241,6 +239,12 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
             public double getValue() { return sim.configMembrane.getNumMembraneLayers(); }
             public void setValue(double newValue) { sim.configMembrane.setNumMembraneLayers((int)newValue); }
         };
+        Modifier membraneWidthModifier = new Modifier() {
+            public Dimension getDimension() { return Quantity.DIMENSION; }
+            public String getLabel() { return "membrane width"; }
+            public double getValue() { return sim.configMembrane.getMembraneWidth(); }
+            public void setValue(double newValue) { sim.configMembrane.setMembraneWidth((int)newValue); }
+        };
         sigBox.setModifier(sigMembraneModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         sigBox.doUpdate();
@@ -260,7 +264,35 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         membraneThicknessSlider.setMinimum(1);
         membraneThicknessSlider.setMaximum(4);
         membraneThicknessSlider.setModifier(membraneThicknessModifier);
+        membraneWidthSlider.setLabel("Membrane Width");
+        membraneWidthSlider.setShowBorder(true);
+        membraneWidthSlider.setMinimum(2);
+        membraneWidthSlider.setMaximum(4);
+        membraneWidthSlider.setModifier(membraneWidthModifier);
         
+        ModifierSoluteCharge soluteChargeModifier = new ModifierSoluteCharge(sim.potentialQNaNa, sim.potentialQClCl,
+                sim.potentialQNaCl, new P2Electrostatic[]{sim.potentialQHNa, sim.potentialQONa},
+                new P2Electrostatic[]{sim.potentialQHCl, sim.potentialQOCl});
+        soluteChargeSlider.setLabel("Solute Charge");
+        soluteChargeSlider.setShowBorder(true);
+        soluteChargeSlider.setMinimum(0);
+        soluteChargeSlider.setMaximum(2);
+        soluteChargeSlider.setUnit(Electron.UNIT);
+        soluteChargeSlider.setModifier(soluteChargeModifier);
+
+        JPanel solutePanel = new JPanel(new GridBagLayout());
+        solutePanel.add(soluteChargeSlider.graphic(), vertGBC);
+
+
+        //
+        // Tabbed pane for state, potential, controls pages
+        //
+        JTabbedPane setupPanel = new JTabbedPane();
+        setupPanel.add(statePanel, "State");
+        setupPanel.add(potentialPanel, "Membrane");
+        setupPanel.add(configPanel, "Configuration");
+        setupPanel.add(solutePanel, "Solute");
+
         Action neighborRangeReset = new Action() {
             public void actionPerformed() {
 //                ((PotentialMasterList)sim.integrator.getPotential()).reset();
@@ -521,6 +553,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         soluteChamberDensitySlider.setPostAction(reconfigAction);
         soluteMoleFractionSlider.setPostAction(reconfigAction);
         membraneThicknessSlider.setPostAction(reconfigAction);
+        membraneWidthSlider.setPostAction(reconfigAction);
+
+        soluteChamberDensitySlider.setValue(16);
+        solventChamberDensitySlider.setValue(16);
 
         getPanel().controlPanel.add(setupPanel, vertGBC);
 
@@ -611,6 +647,50 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         protected final P2LennardJones potential;
         protected final P2LennardJones[] otherPurePotentials;
         protected final P2LennardJones[] mixPotentials;
+    }
+    
+    protected static class ModifierSoluteCharge implements Modifier {
+        
+        public ModifierSoluteCharge(P2Electrostatic pSolutePP, P2Electrostatic pSoluteMM,
+                P2Electrostatic pSolutePM,
+                P2Electrostatic[] mixPotentialsP, P2Electrostatic[] mixPotentialsM) {
+            this.pSolutePP = pSolutePP;
+            this.pSoluteMM = pSolutePM;
+            this.pSolutePM = pSolutePM;
+            this.mixPotentialsP = mixPotentialsP;
+            this.mixPotentialsM = mixPotentialsM;
+        }
+
+        public void setValue(double newCharge) {
+            pSolutePP.setCharge1(newCharge);
+            pSolutePP.setCharge2(newCharge);
+            pSolutePM.setCharge1(newCharge);
+            pSolutePM.setCharge2(-newCharge);
+            pSoluteMM.setCharge1(-newCharge);
+            pSoluteMM.setCharge2(-newCharge);
+            for (int i=0; i<mixPotentialsP.length; i++) {
+                mixPotentialsP[i].setCharge2(newCharge);
+            }
+            for (int i=0; i<mixPotentialsM.length; i++) {
+                mixPotentialsM[i].setCharge2(-newCharge);
+            }
+        }
+
+        public double getValue() {
+            return pSolutePP.getCharge1();
+
+        }
+
+        public Dimension getDimension() {
+            return Charge.DIMENSION;
+        }
+        
+        public String getLabel() {
+            return "Charge";
+        }
+        
+        protected final P2Electrostatic pSolutePP, pSoluteMM, pSolutePM;
+        protected final P2Electrostatic[] mixPotentialsP, mixPotentialsM;
     }
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
