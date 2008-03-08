@@ -232,6 +232,9 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
             // we need to reassign cells even if checkDimensions didn't resize
             // the lattice.  If the box size changed, the cell size changed,
             // and the atom assignments need to change too.
+            //FIXME but only if we have multi-atomic molecules.  For monatomic
+            // molecules, we would only need to call this if the lattice size
+            // changes
             assignCellAll();
         }
     }
