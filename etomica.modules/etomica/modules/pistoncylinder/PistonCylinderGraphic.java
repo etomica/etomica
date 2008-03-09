@@ -72,8 +72,8 @@ import etomica.space.Space;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
-import etomica.units.Dalton;
 import etomica.units.Dimension;
+import etomica.units.Gram;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Length;
@@ -116,7 +116,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
     public DisplayPlot plotRDF;
-    public Unit tUnit, dUnit, pUnit;
+    public Unit tUnit, dUnit, pUnit, mUnit;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public DeviceBox densityBox;
 	protected DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
@@ -189,6 +189,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         }
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
+        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
         historyLength = 100;
         
         dataInterval = 10;
@@ -593,7 +594,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         epsBox.setModifier(epsModifier);
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
-        massBox.setUnit(Dalton.UNIT);
+        massBox.setUnit(mUnit);
         sigBox.setController(pc.getController());
         epsBox.setController(pc.getController());
         lamBox.setController(pc.getController());
