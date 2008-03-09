@@ -1,6 +1,3 @@
-/*
- * Created on Aug 23, 2004 
- */
 package etomica.util;
 
 
