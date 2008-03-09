@@ -65,15 +65,14 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
-import etomica.units.Dalton;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
+import etomica.units.Gram;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Length;
@@ -105,7 +104,7 @@ public class SwmdGraphic extends SimulationGraphic {
     protected P2Ideal potentialIdeal;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public double lambda, epsilon, mass, sigma;
-    protected Unit eUnit, dUnit, pUnit;
+    protected Unit eUnit, dUnit, pUnit, mUnit;
     protected Swmd sim;
     
     private boolean showConfig = true;
@@ -121,8 +120,9 @@ public class SwmdGraphic extends SimulationGraphic {
         Unit tUnit = Kelvin.UNIT;
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
+        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
         lambda = 2.0;
-        epsilon = eUnit.toSim(1500.0);
+        epsilon = eUnit.toSim(space.D() == 3 ? 1000 : 1500);
         mass = 40;
         sigma = 4.0;
         if (sim.getSpace().D() == 2) {
@@ -135,9 +135,7 @@ public class SwmdGraphic extends SimulationGraphic {
         else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
-
         }
-        
 
         if (sim.getSpace().D() == 2) {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().x(1)));
@@ -193,7 +191,6 @@ public class SwmdGraphic extends SimulationGraphic {
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,vertGBC);
-        potentialPanel.setBorder(new TitledBorder(null, "Potential Selection", TitledBorder.CENTER, TitledBorder.TOP));
         JPanel parameterPanel = new JPanel(new GridLayout(0,1));
         parameterPanel.add(sigBox.graphic());
         parameterPanel.add(epsBox.graphic());
@@ -243,7 +240,7 @@ public class SwmdGraphic extends SimulationGraphic {
         epsBox.setModifier(epsModifier);
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
-        massBox.setUnit(Dalton.UNIT);
+        massBox.setUnit(mUnit);
         sigBox.setController(sim.getController());
         epsBox.setController(sim.getController());
         lamBox.setController(sim.getController());

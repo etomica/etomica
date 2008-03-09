@@ -60,7 +60,7 @@ public class Swmd extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //instantiate several potentials for selection in combo-box
-	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(1500), true);
+	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(space.D() == 3 ? 1000 : 1500), true);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
         potentialMaster.addPotential(potentialWrapper,new AtomType[]{species.getLeafType(),species.getLeafType()});
 	    
