@@ -362,7 +362,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,vertGBC);
-	    potentialPanel.setBorder(new TitledBorder(null, "Potential Selection", TitledBorder.CENTER, TitledBorder.TOP));
 	    JPanel parameterPanel = new JPanel(new GridLayout(0,1));
         parameterPanel.add(sigBox.graphic());
         parameterPanel.add(epsBox.graphic());
@@ -470,7 +469,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pc.config.initializeCoordinates(pc.box);
 
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(pc.config);
-        final IIntegrator integrator = pc.integrator;
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
@@ -728,10 +726,14 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // Set the size of the plots and the scoll pane containing the plots.
         // Want 2 of the 3 plots displayed
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
-        d.height = 230;
+        d.width -= 100;
+        d.height = 210;
         plotT.getPlot().setSize(d);
         plotP.getPlot().setSize(d);
         plotD.getPlot().setSize(d);
+        if (doRDF) {
+            plotRDF.getPlot().setSize(d);
+        }
 
         d.width += 40;
         d.height = d.height * 2 + 40;
