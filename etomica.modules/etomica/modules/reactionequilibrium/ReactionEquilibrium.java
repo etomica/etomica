@@ -2,11 +2,11 @@ package etomica.modules.reactionequilibrium;
 
 import javax.swing.JPanel;
 
+import etomica.action.BoxImposePbc;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
@@ -52,7 +52,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         //controller and integrator
         integratorHard1 = new IntegratorHard(this, potentialMaster, space);
         integratorHard1.setIsothermal(true);
-        integratorHard1.setNullPotential(new P1HardPeriodic(space, diameter));
 
         //construct box
         box = new Box(this, space);
@@ -67,6 +66,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 30);
         box.setNMolecules(speciesB, 30);
+        P1HardPeriodic nullPotential = new P1HardPeriodic(space, diameter);
+        integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
+        integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
         agentManager = new AtomLeafAgentManager(this,box);
 

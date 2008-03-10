@@ -65,6 +65,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
+import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
 import etomica.units.Angstrom;
@@ -514,15 +515,15 @@ public class SwmdGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(sim.box);
-                    sim.potentialWrapper.setPotential(potentialHS);
+                    sim.potentialWrapper.setWrappedPotential(potentialHS);
                 }
                 else if (SW) {
                     potentialSW.setBox(sim.box);
-                    sim.potentialWrapper.setPotential(potentialSW);
+                    sim.potentialWrapper.setWrappedPotential(potentialSW);
                 }
                 else {
                     potentialIdeal.setBox(sim.box);
-                    sim.potentialWrapper.setPotential(potentialIdeal);
+                    sim.potentialWrapper.setWrappedPotential(potentialIdeal);
                 }
                 // wrap atoms back inside the box so we can reassign atoms to cells if needed
                 if (sim.integrator.isInitialized()) {
@@ -600,7 +601,7 @@ public class SwmdGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
+        Space space = Space2D.getInstance();
         if(args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
