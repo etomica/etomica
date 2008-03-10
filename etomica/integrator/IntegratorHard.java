@@ -14,10 +14,10 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -70,7 +70,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     protected double collisionTimeStep;
     protected int collisionCount;
     
-    protected AtomLeafAgentManager agentManager;
+    protected AtomAgentManager agentManager;
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -97,7 +97,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             box.getEventManager().removeListener(this);
         }
         super.setBox(newBox);
-        agentManager = new AtomLeafAgentManager(this,newBox);
+        agentManager = new AtomAgentManager(this,newBox);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
@@ -394,12 +394,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
 			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
 		}
+        IAtomSet moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.getAtomCount();
+        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+            IAtom a = moleculeList.getAtom(iMolecule);
+            ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
+        }
 	}
 
     public void reset() throws ConfigurationOverlapException {
-        // reset might be called because atoms were added or removed
-        // calling getAgents ensures we have an up-to-date array.
-
         colliderAgent = null;
         
         ConfigurationOverlapException overlapException = null;
@@ -435,6 +438,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             IAtom atom = leafList.getAtom(iLeaf);
             ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
         }
+        IAtomSet moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.getAtomCount();
+        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+            IAtom atom = moleculeList.getAtom(iMolecule);
+            ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+        }
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = 0;
@@ -442,6 +451,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
+            Agent agent = (Agent)agentManager.getAgent(atom);
+            if (agent.collisionPotential != null) {
+                eventList.add(agent.eventLinker);
+            }
+        }
+        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+            IAtom atom = moleculeList.getAtom(iMolecule);
             Agent agent = (Agent)agentManager.getAgent(atom);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
@@ -476,7 +492,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        updateAtom(atom);
+        updateAtom(((IAtomLeaf)atom).getParentGroup());
     }
     
     /**
