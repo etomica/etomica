@@ -70,7 +70,7 @@ public class SimTarget extends Simulation {
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
-            integrator.setNullPotential(new P1HardPeriodic(space));
+            integrator.setNullPotential(new P1HardPeriodic(space), sphereType);
             nCells = numAtoms;
         } else {
             primitive = new PrimitiveFcc(space, 1);

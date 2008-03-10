@@ -40,7 +40,7 @@ public class SimCalcS extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0, space);
+        integrator = new IntegratorHard(this, potentialMaster, random, 0.04, 1.0, space);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -58,7 +58,7 @@ public class SimCalcS extends Simulation {
             primitive = new PrimitiveCubic(space, 1.0/density);
             nCells = numAtoms;
             bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
-            ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space));
+            ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
             basis = new BasisMonatomic(space);
         } else {
             primitive = new PrimitiveCubic(space, 1);

@@ -67,7 +67,7 @@ public class SimOverlap extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(potentialMasterTarget, getRandom(), 4, 1.0, space);
+        IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, getRandom(), 4, 1.0, space);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
@@ -82,7 +82,7 @@ public class SimOverlap extends Simulation {
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
-            integratorTarget.setNullPotential(new P1HardPeriodic(space));
+            integratorTarget.setNullPotential(new P1HardPeriodic(space), species.getLeafType());
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
