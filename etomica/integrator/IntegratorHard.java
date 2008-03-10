@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
@@ -16,6 +17,9 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -25,7 +29,6 @@ import etomica.box.BoxEvent;
 import etomica.box.BoxListener;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.list.BoxEventNeighborsUpdated;
-import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
@@ -45,7 +48,7 @@ import etomica.util.TreeList;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD implements AgentSource, BoxListener {
+public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource, BoxListener {
 
     private static final long serialVersionUID = 1L;
     //handle to the integrator agent holding information about the next collision
@@ -66,20 +69,19 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     protected final CollisionHandlerUp collisionHandlerUp;
     protected final CollisionHandlerDown collisionHandlerDown;
     
-    protected PotentialHard nullPotential;
     protected double collisionTimeStep;
     protected int collisionCount;
     
     protected AtomAgentManager agentManager;
+    protected final AtomTypeAgentManager nullPotentialManager;
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
-    public IntegratorHard(IPotentialMaster potentialMaster, IRandom random, 
+    public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
-        nullPotential = null;
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
         reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);
@@ -88,6 +90,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown = new CollisionHandlerDown(eventList);
         collisionHandlerDown.setAgentManager(agentManager);
+        if (sim != null) {
+            nullPotentialManager = new AtomTypeAgentManager(this);
+            nullPotentialManager.init(sim.getSpeciesManager(), sim.getEventManager());
+        }
+        else {
+            nullPotentialManager = null;
+        }
     }
     
     public void setBox(IBox newBox) {
@@ -101,10 +110,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
-        if (nullPotential != null) {
-            ((Potential1)nullPotential).setBox(newBox);
-        }
         box.getEventManager().addListener(this);
+
+        if (nullPotentialManager != null) {
+            AtomTypeAgentManager.AgentIterator iterator = nullPotentialManager.makeIterator();
+            iterator.reset();
+            while (iterator.hasNext()) {
+                ((PotentialHard)iterator.next()).setBox(newBox);
+            }
+        }
     }
     
     /* (non-Javadoc)
@@ -532,19 +546,43 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     /**
      * @return Returns the nullPotential.
      */
-    public PotentialHard getNullPotential() {
-        return nullPotential;
+    public PotentialHard getNullPotential(AtomType atomType) {
+        return (PotentialHard)nullPotentialManager.getAgent(atomType);
     }
+
     /**
-     * sets the "null" potential, a 1-body potential used
-     * by IntegratorHard to prevent Atoms from wrapping around
-     * periodic boundaries when neighbor listing is not used.
-     * @param nullPotential The nullPotential to set.
+     * Sets the "null" potential for the given AtomType.  The null potential is
+     * a 1-body potential used by IntegratorHard to handle Atoms that wrap
+     * around periodic boundaries when neighbor listing is not used.
      */
-    public void setNullPotential(Potential1 nullPotential) {
-        this.nullPotential = (PotentialHard)nullPotential;
+    public void setNullPotential(PotentialHard nullPotential, AtomType type) {
+        // if nullPotentialManager is null, it's because you passed a null
+        // ISimulation when you constructed this class
+        nullPotentialManager.setAgent(type, nullPotential);
         if (nullPotential != null && box != null) {
             nullPotential.setBox(box);
+        }
+        if (box != null) {
+            if (type instanceof AtomTypeLeaf) {
+                // inefficient -- we could loop over molecules of type.getSpecies()
+                // and then their children.  oh well.
+                IAtomSet leafList = box.getLeafList();
+                int nLeaf = leafList.getAtomCount();
+                for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                    IAtom atom = leafList.getAtom(iLeaf);
+                    if (atom.getType() == type) {
+                        ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
+                    }
+                }
+            }
+            else {
+                IAtomSet moleculeList = box.getMoleculeList(type.getSpecies());
+                int nMolecules = moleculeList.getAtomCount();
+                for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+                    IAtom atom = moleculeList.getAtom(iMolecule);
+                    ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
+                }
+            }
         }
     }
     
@@ -719,13 +757,26 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
      * agents as needed.
 	 */
     public Object makeAgent(IAtom a) {
-        return new Agent(a,this);
+        Agent agent = new Agent(a, this);
+        agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
+        return agent;
     }
     
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
     public void releaseAgent(Object agent, IAtom atom) {}
- 
+
+    public Class getTypeAgentClass() {
+        return PotentialHard.class;
+    }
+
+    public Object makeAgent(IAtomType type) {
+        return null;
+    }
+
+    public void releaseAgent(Object agent, IAtomType type) {
+    }
+
     /**
      * Agent defined by this integrator.
      * Holds information about the time to next collision (considering only atoms
@@ -740,16 +791,21 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public IAtom atom, collisionPartner;
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
-        private final IntegratorHard integrator;
+        protected PotentialHard nullPotential;
         protected AtomSetSinglet atomSetSinglet;
         protected double nullCollisionTime;
+        protected final IntegratorHard integrator;
         
         public Agent(IAtom a, IntegratorHard integrator) {
-            this.integrator = integrator;
             atom = a;
             eventLinker = new TreeLinker(this);
             eventLinker.sortKey = Double.POSITIVE_INFINITY;
             nullCollisionTime = Double.POSITIVE_INFINITY;
+            this.integrator = integrator;
+        }
+        
+        public void setNullPotential(PotentialHard newNullPotential) {
+            nullPotential = newNullPotential;
         }
         
         public String toString() {
@@ -767,7 +823,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public void resetCollision() {
             // events with a (non-null) potential must be in the tree
             // events in the tree must have a potential
-            collisionPotential = integrator.nullPotential;
+            collisionPotential = nullPotential;
             if (collisionPotential != null) {
                 eventLinker.sortKey = nullCollisionTime;
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)) {
@@ -787,7 +843,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public void resetCollisionFull() {
             // events with a (non-null) potential must be in the tree
             // events in the tree must have a potential
-            collisionPotential = integrator.nullPotential;
+            collisionPotential = nullPotential;
             if (collisionPotential != null) {
                 if (atomSetSinglet == null) {
                     atomSetSinglet = new AtomSetSinglet();
@@ -836,6 +892,5 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     public interface CollisionListener {
         public void collisionAction(Agent colliderAgent);
     }
-
 }
 

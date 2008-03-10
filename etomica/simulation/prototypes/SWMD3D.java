@@ -67,7 +67,6 @@ public class SWMD3D extends Simulation {
     integrator.setIsothermal(true);
     integrator.setTemperature(1);
     double lambda = 1.6;
-    integrator.setNullPotential(new P1HardPeriodic(space, lambda));
     ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
     getController().addAction(activityIntegrate);
 
@@ -80,6 +79,7 @@ public class SWMD3D extends Simulation {
     species  = new etomica.species.SpeciesSpheresMono(this);
     getSpeciesManager().addSpecies(species);
     box.setNMolecules(species, 108);
+    integrator.setNullPotential(new P1HardPeriodic(space, lambda), species.getLeafType());
 
 	
 //	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
