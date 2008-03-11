@@ -1,13 +1,10 @@
-/*
- * History
- * Created on Sep 13, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtomSet;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.util.Debug;
 
 /**
  * Returns all pairs formed from a single list of atoms.
@@ -75,7 +72,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
         }
         innerIndex++;
         atoms.atom1 = list.getAtom(innerIndex);
-        if (atoms.atom0 == atoms.atom1) {
+        if (Debug.ON && atoms.atom0 == atoms.atom1) {
             throw new RuntimeException("oops");
         }
         return atoms;
