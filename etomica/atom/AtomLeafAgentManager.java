@@ -74,7 +74,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         box.getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                box.getLeafList().getAtomCount()+1+box.getIndexReservoirSize());
+                box.getLeafList().getAtomCount()+1+reservoirSize);
         // fill in the array with agents from all the atoms
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
@@ -132,7 +132,6 @@ public class AtomLeafAgentManager extends AtomAgentManager {
             }
         }
         else if (evt instanceof BoxGlobalAtomLeafIndexEvent) {
-            int reservoirSize = box.getIndexReservoirSize();
             // don't use leafList.size() since the SpeciesMaster might be notifying
             // us that it's about to add leaf atoms
             int newMaxIndex = ((BoxGlobalAtomLeafIndexEvent)evt).getMaxIndex();
@@ -160,7 +159,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     protected void addAgent(IAtom a, int index) {
         if (agents.length < index+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,index+1+box.getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,index+1+reservoirSize);
         }
         agents[index] = agentSource.makeAgent(a);
     }        

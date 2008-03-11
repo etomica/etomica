@@ -37,9 +37,29 @@ public class AtomAgentManager implements BoxListener, Serializable {
         agentSource = source;
         this.isBackend = isBackend;
         this.box = box;
+        setReservoirSize(30);
         setupBox();
-    }        
+    }
     
+    /**
+     * Sets the size of the manager's "reservoir".  When an atom is removed,
+     * the agents array will only be trimmed if the number of holes in the
+     * array exceeds the reservoir size.  Also, when the array has no holes and
+     * another atom is added, the array will resized to be 
+     * numAtoms+reservoirSize to avoid reallocating a new array every time an
+     * atom is added.  reservoirSize=0 means the array will
+     * always be the same size as the number of atoms (no holes).
+     * 
+     * The default reservoir size is 30.
+     */
+    public void setReservoirSize(int newReservoirSize) {
+        reservoirSize = newReservoirSize;
+    }
+
+    public int getReservoirSize() {
+        return reservoirSize;
+    }
+
     /**
      * Returns an iterator that returns each non-null agent
      */
@@ -100,7 +120,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
         box.getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                box.getMaxGlobalIndex()+1+box.getIndexReservoirSize());
+                box.getMaxGlobalIndex()+1+reservoirSize);
         // fill in the array with agents from all the atoms
         AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
         iterator.reset();
@@ -153,7 +173,6 @@ public class AtomAgentManager implements BoxListener, Serializable {
             }
         }
         else if (evt instanceof BoxGlobalAtomIndexEvent) {
-            int reservoirSize = box.getIndexReservoirSize();
             int newMaxIndex = ((BoxGlobalAtomIndexEvent)evt).getMaxIndex();
             if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
                 // indices got compacted.  If our array is a lot bigger than it
@@ -168,7 +187,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     protected void addAgent(IAtom a) {
         if (agents.length < a.getGlobalIndex()+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+box.getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+reservoirSize);
         }
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
@@ -201,11 +220,13 @@ public class AtomAgentManager implements BoxListener, Serializable {
     protected Object[] agents;
     protected final IBox box;
     protected final boolean isBackend;
+    protected int reservoirSize;
     
     /**
      * Iterator that loops over the agents, skipping null elements
      */
     public static class AgentIterator implements Serializable {
+
         protected AgentIterator(AtomAgentManager agentManager) {
             this.agentManager = agentManager;
         }
@@ -236,6 +257,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
             return null;
         }
         
+        private static final long serialVersionUID = 1L;
         private final AtomAgentManager agentManager;
         private int cursor;
         private Object[] agents;
