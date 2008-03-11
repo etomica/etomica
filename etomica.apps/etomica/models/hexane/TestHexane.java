@@ -63,7 +63,7 @@ public class TestHexane extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     
-    public MCMoveVolume moveVolume;
+//    public MCMoveVolume moveVolume;
     public MCMoveClusterWiggleMulti crank; 
 //    public MCMoveReptate snake;
     public MCMoveMolecule moveMolecule;
@@ -114,10 +114,10 @@ public class TestHexane extends Simulation {
         integrator.getMoveManager().addMCMove(moveMolecule);
         ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
         
-        moveVolume = new MCMoveVolume(this, potentialMaster);
-//        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
-        moveVolume.setBox(box);
-        integrator.getMoveManager().addMCMove(moveVolume);
+//        moveVolume = new MCMoveVolume(this, potentialMaster);
+////        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
+//        moveVolume.setBox(box);
+//        integrator.getMoveManager().addMCMove(moveVolume);
         
         crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6, space);
     
@@ -288,17 +288,17 @@ public class TestHexane extends Simulation {
 //            
 //            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
 //            double[] coefficients = waveVectorFactory.getCoefficients();
-            
-            WriteS sWriter = new WriteS(sim.space);
-            sWriter.setFilename(filename);
-            sWriter.setOverwrite(true);
-            sWriter.setMeter(meterNormalMode);
-            sWriter.setWaveVectorFactory(waveVectorFactory);
-            sWriter.setTemperature(sim.integrator.getTemperature());
-        
-            sim.integrator.addIntervalAction(sWriter);
-            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-            sim.integrator.setIntervalActionPriority(sWriter, 150);
+//            
+//            WriteS sWriter = new WriteS(sim.space);
+//            sWriter.setFilename(filename);
+//            sWriter.setOverwrite(true);
+//            sWriter.setMeter(meterNormalMode);
+//            sWriter.setWaveVectorFactory(waveVectorFactory);
+//            sWriter.setTemperature(sim.integrator.getTemperature());
+//        
+//            sim.integrator.addIntervalAction(sWriter);
+//            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
+//            sim.integrator.setIntervalActionPriority(sWriter, 150);
             
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
