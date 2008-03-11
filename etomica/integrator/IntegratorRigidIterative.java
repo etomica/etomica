@@ -12,6 +12,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -124,7 +125,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         return info;
     }
     
-    public void setBox(Box p) {
+    public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();

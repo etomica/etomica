@@ -14,7 +14,7 @@ import etomica.simulation.SpeciesManager;
  * @author David Kofke
  * @author C. Daniel Barnes
  * @author Andrew Schultz
- * @see Box
+ * @see IBox
  * @see PotentialMaster
  */
 public interface ISpecies {
