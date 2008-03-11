@@ -70,19 +70,11 @@ public class Orientation3D implements IOrientation3D, Serializable {
         // v1 = v1overAxis * axis
         double v1overAxis = temp.dot(direction);
 
-        if (Math.abs(v1overAxis)-1 < 1E-10) {
-            // axis is almost exactly parallel or anti-parallel to direction,
-            // so just don't rotate.
-            return;
-        }
-
         temp.TE(-v1overAxis);
         temp.PE(direction);
         // now temp = v2
-        double v2Sq = temp.squared();
         temp2.E(axis);
         temp2.XE(direction);
-        temp2.TE(Math.sqrt(v2Sq/temp2.squared()));
         // now temp2 = v3
         direction.Ea1Tv1(Math.cos(dt), temp);
         direction.PEa1Tv1(Math.sin(dt), temp2);

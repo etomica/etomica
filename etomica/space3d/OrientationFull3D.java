@@ -18,8 +18,8 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         direction = (IVector3D)space.makeVector();
         direction.setX(0, 1);
         secondaryDirection = (IVector3D)space.makeVector();
-        temp = (IVector3D)space.makeVector();
-        temp2 = (IVector3D)space.makeVector();
+        v2 = (IVector3D)space.makeVector();
+        v3 = (IVector3D)space.makeVector();
         rotationTensor = (Tensor3D)space.makeTensor();
     }
 
@@ -70,47 +70,30 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         if (Debug.ON && Math.abs(axis.squared() - 1) > 1E-10) {
             throw new IllegalArgumentException("I need a unit vector for the axis");
         }
-        temp.E(axis);
-        // v1 = v1overAxis * axis
-        double v1overAxis = temp.dot(direction);
-        double cosdt = Math.cos(dt);
         double sindt = Math.sin(dt);
-        if (Math.abs(Math.abs(v1overAxis)-1) > 1E-10) {
-            // if axis is almost exactly parallel or anti-parallel to direction,
-            // we want to skip this
-            temp.TE(-v1overAxis);
-            temp.PE(direction);
-            // now temp = v2
-            double v2Sq = temp.squared();
-            temp2.E(axis);
-            temp2.XE(direction);
-            temp2.TE(Math.sqrt(v2Sq/temp2.squared()));
-            // now temp2 = v3
-            direction.Ea1Tv1(cosdt, temp);
-            direction.PEa1Tv1(sindt, temp2);
-            direction.PEa1Tv1(v1overAxis, axis);
+        double cosdt = Math.cos(dt);
+        double oneminuscosdt = 1 - cosdt;
+        if (Math.abs(dt) < 0.1) {
+            oneminuscosdt = sindt*sindt / (1+cosdt);
         }
+        // v1 = v1overAxis * axis
+        double v1overAxis = axis.dot(direction);
+        v3.E(axis);
+        v3.XE(direction);
+        // now temp2 = v3
+        direction.TE(cosdt);
+        direction.PEa1Tv1(oneminuscosdt*v1overAxis, axis);
+        direction.PEa1Tv1(sindt, v3);
 
         // repeat with secondaryDirection
-        temp.E(axis);
         // v1 = v1overAxis * axis
-        v1overAxis = temp.dot(secondaryDirection);
-
-        if (Math.abs(Math.abs(v1overAxis)-1) > 1E-10) {
-            // if axis is almost exactly parallel or anti-parallel to direction,
-            // we want to skip this
-            temp.TE(-v1overAxis);
-            temp.PE(secondaryDirection);
-            // now temp = v2
-            double v2Sq = temp.squared();
-            temp2.E(axis);
-            temp2.XE(secondaryDirection);
-            temp2.TE(Math.sqrt(v2Sq/temp2.squared()));
-            // now temp2 = v3
-            secondaryDirection.Ea1Tv1(cosdt, temp);
-            secondaryDirection.PEa1Tv1(sindt, temp2);
-            secondaryDirection.PEa1Tv1(v1overAxis, axis);
-        }
+        v1overAxis = axis.dot(secondaryDirection);
+        v3.E(axis);
+        v3.XE(secondaryDirection);
+        // now temp2 = v3
+        secondaryDirection.TE(cosdt);
+        secondaryDirection.PEa1Tv1(oneminuscosdt*v1overAxis, axis);
+        secondaryDirection.PEa1Tv1(sindt, v3);
     }
     
     /**
@@ -122,27 +105,27 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         double tempSq = 0;
         do {
             // first get a random unit vector
-            ((IVectorRandom)temp).setRandomSphere(random);
+            ((IVectorRandom)v2).setRandomSphere(random);
             // find the component of the unit vector perpendicular to our direction
-            temp.PEa1Tv1(-temp.dot(direction), direction);
+            v2.PEa1Tv1(-v2.dot(direction), direction);
             // if the random unit vector was nearly parallel (or anti-parallel)
             // to direction then the calculations will not be particularly
             // precise, so try again
-            tempSq = temp.squared();
+            tempSq = v2.squared();
         } while (tempSq < 0.001);
 
-        temp.TE(1/Math.sqrt(tempSq));
+        v2.TE(1/Math.sqrt(tempSq));
         double dt = tStep * random.nextDouble();
         
         // new direction is in the plane of the old direction and temp
         // with components equal to cos(dt) and sin(dt).
         // dt=0 ==> cos(dt)=1 ==> old direction
         direction.TE(Math.cos(dt));
-        direction.PEa1Tv1(Math.sin(dt), temp);
+        direction.PEa1Tv1(Math.sin(dt), v2);
     }
 
     private static final long serialVersionUID = 1L;
     protected final IVector3D direction, secondaryDirection;
-    protected final IVector3D temp, temp2;
+    protected final IVector3D v2, v3;
     protected final Tensor3D rotationTensor;
 }
