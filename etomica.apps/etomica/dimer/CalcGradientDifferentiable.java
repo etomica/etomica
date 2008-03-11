@@ -19,9 +19,11 @@ import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 /**
+ * Uses finite difference methods to determine the second order differential of the potential (i.e. dF/dx).
+ * Part of a larger scheme, a user may employ this to fill a two-dimensional array of changes in molecule 
+ * A's Force with respect to the movement of other molecules.
  * 
- * 
- * @author msellers
+ * @author msellers and ajschultz
  *
  */
 
@@ -84,6 +86,15 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         return finiteDifferenceDerivative.df(d, position);
     }
     
+    /**
+     * Uses the potential's force calculation at different displacements of a molecule in X, Y and Z
+     * to determine the second derivative of the potential.  Here, H (our displacement distance) is
+     * equal to 0.0001.
+     * 
+     * @param d A one-dimensional array describing what column of our larger, global dF/dx array we are working with.
+     * @param position A one dimensional array of doubles describing the molecules positions.
+     * @return
+     */
     public double[] df2(int [] d, double [] position){
         double newH = 0.0001;
         double[] forceRow = new double[d.length];

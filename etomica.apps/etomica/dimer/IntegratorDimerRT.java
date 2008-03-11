@@ -135,6 +135,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		ortho2 = o2;
 	}
 	
+	/**
+     * Set's the filename of the output of this integrator.  "-minimum" is appended
+     * to the string.
+     * 
+     * @param fileName String
+     */
 	public void setFileName(String fileName){
 		file = fileName;
 	}
@@ -157,8 +163,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		counter++;
 	}
 			
-	// Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
-	// (R2)-------[Rc]-------(R1) ===> N
+	/**
+	 * Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
+	 * (R2)-------[Rc]-------(R1) ===> N
+	 */
 	protected void setup() throws ConfigurationOverlapException{
 		super.setup();
 		
@@ -306,7 +314,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		dimerForces(F1, F2, F);
 	}
 		
-	// Rotate the dimer to align it with the lowest curvature mode of the potential energy surface, NEWTON STYLE.
+
+    /**
+     * Rotates the dimer in potential energy hyperspace and aligns it with the surface's lowest 
+     * curvature mode.  Using Newton's finite difference method, the rotational force perpendicular to the dimer's
+     * orientation is minimized.  Minimization criteria is dependent on dFrot and rotCounter.
+     */
 	public void rotateDimerNewton(){
 		rotCounter=0;
 		dTheta = 10E-4;
@@ -522,7 +535,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 	}
 	
-	// Moves the dimer along the lowest curvature mode of the energy surface, Quickmin style.  Runs after rotateDimer[X]().
+	/**
+	 * Moves the dimer along the lowest curvature mode of the energy surface, Quickmin style.
+	 * Step length is determined using a line search (Newton) and the step direction is obtained
+	 * by a calculation of the effective force on the dimer.
+	 *  
+	 */
 	public void translateDimerQuickmin(){
 	
 		// Calculate curvature value
@@ -591,7 +609,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         dimerNormal();    
 	}
 	
-	// Compute curvature value, C, for the energy surface
+	/**
+	 * Computes curvature value, C, for the energy surface.  Quantifies the difference
+	 * in forces at each end of the dimer into a single number.
+	 * 
+	 */
 	protected void dimerCurvature(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2){
 		curvature = 0.0;
 		
@@ -608,8 +630,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		//System.out.println(curvature+" curvature");
 	}
 	
-	//Checks curvature value at dimer oriented along orthogonal unit vector, vs. lowest curv. mode unit vector.
-	//When the ortho unit vector returns a curvature less than that of the lowest curv. unit vector, ORTHO is turned off.
+	/**
+	 * Checks the curvature value at dimer orientation along a vector orthogonal to
+	 * lowest curvature mode's (lcm) vector with the lcm's unit vector.  When 
+	 * the ortho vector returns a curvature less than that of the lcm vector, 
+	 * ORTHO is turned off.
+	 * 
+	 */
 	protected void testOrthoCurvature(IVectorRandom [] aN1, IVectorRandom [] aNortho){
 		
 		//Compute current curvature along orthogonal N

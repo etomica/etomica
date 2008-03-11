@@ -114,7 +114,16 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		rotate = true;		
 		e0prev = 0;
 	}
-		
+	
+	/**
+	 * Set's the filename of the output of this integrator.  "-minimum" is appended
+	 * to the string.
+	 * 
+	 * @param fileName String
+	 */
+	public void setFileName(String fileName){
+	    file = fileName;
+	}
 	public void doStepInternal(){
 		
 		// Orient half-dimer on minimum energy path
@@ -247,6 +256,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 	}
 	
+	/**
+	 * Rotates the dimer in potential energy hyperspace and aligns it with the surface's lowest 
+	 * curvature mode.  Using Newton's finite difference method, the rotational force perpendicular to the dimer's
+	 * orientation is minimized.  Minimization criteria is dependent on dFrot and rotCounter.
+	 * For minimum energy path tracing, rotCounter criteria is commented out to ensure convergence
+	 * to lowest curvature mode before stepping the dimer.
+	 */
 	public void rotateDimerNewton(){
         
 	    dTheta = 10E-5;
@@ -369,7 +385,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		}
 	}
 	
-	// Moves the half-dimer stepLength*N towards the energy minimum
+	/**
+	 *  Moves the half-dimer stepLength*N towards the energy minimum.
+	 */
 	public void walkDimer(){
 		
 		IVector workvector;
@@ -386,6 +404,12 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		dimerNormal();
 	}
 	
+	/**
+	 * Calculates the energy at each end of the dimer (total energy of each simulation box).
+	 * Compares the two values to determine if the dimer has reached the minimum in an
+	 * energy basin.
+	 * 
+	 */
 	public void energyDimer(){
 		
 		double eMin, e0;
@@ -420,7 +444,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		e0prev = e0;
 	}
 	
-	// Compute Normal vector for dimer orientation
+	/**
+	 * Computes an n-dimensional vector in potential energy hyperspace, pointing 
+	 * in the direction of the dimer (intersecting both simulation boxes).
+	 * 
+	 */
 	protected void dimerNormal(){
         double mag=0;
         IVector workvector;
@@ -441,7 +469,14 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         }
 	}
 			
-	// Reset forces in boxes 0 and min, call calculate, and copy over new forces
+	/**
+	 * Resets forces in boxes 0 and min, calls potential.calculate, and copies over
+	 * the new forces to local arrays.  Approximates the force in virtual box 2.
+	 * 
+	 * @param aF1 Array of vectors holding the forces in box min
+	 * @param aF Array of vectors holding the forces in box 0
+	 * @param aF2 Array of vectors holding the forces in virtual box 2
+	 */
 	protected void dimerForces(IVector [] aF1, IVector [] aF, IVector [] aF2){
 		force0.reset();
 		forceMin.reset();
@@ -460,6 +495,15 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		}
 	}
 	
+	/**
+	 * Used in the middle of the rotateDimer method.  Resets forces in box min only (we are rotating
+	 * the dimer around a fixed center).  Calls potential.calculate, and copies over the new forces
+	 * to local array.  Approximates the force in virtual box 2.
+	 * 
+	 * @param aF1star Array of vectors holding the forces in box min
+	 * @param aF2star Array of vectors holding the forces in virtual box 2
+	 * @param aF Array of vectors holding the forces in box 0
+	 */
 	protected void dimerForcesStar(IVector [] aF1star, IVector [] aF2star, IVector [] aF){
         forceMin.reset();
         potential.calculate(boxMin, allatoms, forceMin);
@@ -472,7 +516,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         }
     }
 	
-	// Calculate the force, aF, perpendicular to dimer orientation N.
+	/**
+	 * Finds the component of the dimer's total force that is perpendicular to the normal vector.
+	 * 
+	 * @param aN Array of vectors that create an n-dimensional vector parallel to the orientation of the dimer.
+	 * @param aF1 Array of vectors holding the forces in box min
+	 * @param aFperp Array of vectors that create an n-dimensional vector perpendicular to the orientation of the dimer.
+	 */
 	protected void dimerForcePerp(IVectorRandom [] aN, IVector [] aF1, IVector [] aFperp){
 		
 		double mag1 = 0;

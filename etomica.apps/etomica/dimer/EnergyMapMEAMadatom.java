@@ -27,8 +27,8 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simulation using Henkelman's Dimer method to find a saddle point for
- * an adatom of Sn on a surface, modeled with MEAM.
+ * Simulation class using IntegratorEnergyMap.  Rasterizes a surface with an atom
+ * to achieve values of its energy.
  * 
  * @author msellers
  *

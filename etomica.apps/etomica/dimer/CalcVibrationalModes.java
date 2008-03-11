@@ -3,7 +3,16 @@ package etomica.dimer;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
-public class CalcVibrationalModes {
+/**
+ * Calculates the eigenvalues of an NxN matrix.  Assumes these are actually changes in
+ * a group of molecules' force with respect to changes in other molecules' positions, and
+ * returns eigenvalues.
+ * 
+ * @author msellers and ajschultz
+ *
+ */
+
+public class CalcVibrationalModes{
 
     double [] modes;
     double [] frequencies;
@@ -22,10 +31,21 @@ public class CalcVibrationalModes {
         
         }
     
+    /**
+     * Performs an eigenvalue decomposition of the NxN matrix, fC.
+     * 
+     * @return
+     */
     public double[] getLambdas(){
         return eigenDecomp.getRealEigenvalues();
     }
     
+    /**
+     * Returns a one dimensional array of length 3 with the total number of
+     * positive, negative, and imaginary modes.
+     * 
+     * @return modeSigns one-dimensional array
+     */
     public int[] getModeSigns(){
         
         modes = getLambdas();
@@ -41,8 +61,16 @@ public class CalcVibrationalModes {
         return modeSigns;
     }
     
+    /**
+     * Calculates the frequencies (omegas) of wave vectors described by the eigenvalues (lambdas) of
+     * our system.
+     * 
+     * lambda = 4 * pi^2 * omega^2.
+     * 
+     * @return frequencies one-dimensional array of doubles
+     */
     public double[] getFrequencies(){
-        // where lambda = 4 * pi^2 * omega^2;
+        // where ;
         modes = getLambdas();
         
         frequencies = new double[modes.length];
