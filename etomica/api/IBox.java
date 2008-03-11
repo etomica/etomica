@@ -123,18 +123,6 @@ public interface IBox {
 	 */
 	public abstract void notifyNewAtoms(int numNewAtoms, int numNewLeafAtoms);
 
-	/**
-	 * Sets the size of the atom global index reservoir.
-	 * @param size
-	 */
-	public abstract void setIndexReservoirSize(int size);
-
-	/**
-	 * Returns the size of the reservoir; the number of Atom that can be
-	 * removed without triggering an index collapse.
-	 */
-	public abstract int getIndexReservoirSize();
-
 	public abstract void addAtomNotify(IAtom newAtom);
 
 	//updating of leaf atomList may not be efficient enough for repeated
