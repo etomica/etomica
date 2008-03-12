@@ -5,7 +5,6 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -15,8 +14,8 @@ import etomica.space.Tensor;
  * with including the kinetic portion (from the velocities or an Integrator).
  * If the simulation is non-dynamic (MC), the Integrator must be provided.
  */
-public class PotentialCalculationPressureTensor extends PotentialCalculation {
-        
+public class PotentialCalculationPressureTensor implements PotentialCalculation {
+
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
@@ -35,13 +34,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 	 * Adds the pressure tensor contribution based on the forces acting on each
      * pair of atoms produced by the iterator.
 	 */
-	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
-		PotentialSoft potentialSoft = (PotentialSoft)potential;
-
-		iterator.reset();
-        for (IAtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
-            potentialSoft.gradient(atoms, pressureTensor);
-		}
+	public void doCalculation(IAtomSet atoms, IPotential potential) {
+		((PotentialSoft)potential).gradient(atoms, pressureTensor);
 	}
     
     public void setBox(IBox newBox) {

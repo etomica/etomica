@@ -1,8 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IAtomSet;
 import etomica.api.IPotential;
-import etomica.atom.iterator.AtomsetIterator;
-import etomica.atom.iterator.IteratorDirective;
 
 /**
  * Class defining a particular action to be performed on a set of atoms using an
@@ -17,28 +16,8 @@ import etomica.atom.iterator.IteratorDirective;
  * @see PotentialGroup
  */
 
-public abstract class PotentialCalculation implements java.io.Serializable {
+public interface PotentialCalculation {
  	
-	/**
-	 * Method called to perform the calculation defined by this class.  If the given
-	 * potential is an instance of PotentialGroup, the doCalculation action is to
-	 * call the potential's calculate method, passing it the iterator, directive, and this
-	 * instance. If the potential is not a PotentialGroup, then this class's
-	 * doCalculation(AtomsetIterator, Potential) method is called with the given iterator
-	 * and potential.
-	 * 
-	 * @param iterator
-	 * @param id
-	 * @param potential
-	 */
-	public void doCalculation(AtomsetIterator iterator, IteratorDirective id, IPotential potential) {	
-		if(potential instanceof PotentialGroup) {
-			((PotentialGroup)potential).calculate(iterator, id, this);
-		} else {
-			doCalculation(iterator, potential);
-		}
-	}
-	
 	/**
 	 * Method giving the specific calculation performed by this class.  Concrete subclasses
 	 * are expected to invoke the iterator's reset() method before beginning iteration.
@@ -46,6 +25,6 @@ public abstract class PotentialCalculation implements java.io.Serializable {
 	 * for which the calculation is performed.
 	 * @param potential The potential used to apply the action defined by this class.
 	 */
-	protected abstract void doCalculation(AtomsetIterator iterator, IPotential potential);
+	public void doCalculation(IAtomSet atoms, IPotential potential);
 	
-}//end of PotentialCalculation
+}

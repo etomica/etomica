@@ -23,7 +23,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxEvent;
 import etomica.box.BoxListener;
@@ -594,7 +593,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-    protected static final class CollisionHandlerUp extends PotentialCalculation {
+    protected static final class CollisionHandlerUp implements PotentialCalculation {
         private static final long serialVersionUID = 1L;
         double minCollisionTime;
         IntegratorHard.Agent aia;
@@ -625,24 +624,20 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         }//end of setAtom
 
         //atom pair
-        public void doCalculation(AtomsetIterator iterator, IPotential potential) {
-            final boolean notPairIterator = (iterator.nBody() != 2);
-            iterator.reset();
+        public void doCalculation(IAtomSet atoms, IPotential potential) {
             PotentialHard pHard = (PotentialHard)potential;
-            for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
-                if(atoms.getAtom(0) != atom1) setAtom(atoms.getAtom(0)); //need this if doing minimum collision time calculation for more than one atom
-                double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
-                    System.out.println("collision up time "+collisionTime+" for atom "+atoms+" "+pHard.getClass());
-                }
-                if(collisionTime < minCollisionTime) {
-                    if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-                        System.out.println("setting up time "+collisionTime+" for atom "+atoms);
-                    }
-                    minCollisionTime = collisionTime;
-                    aia.setCollision(collisionTime, notPairIterator ? null : atoms.getAtom(1), pHard);
-                }//end if
+            if(atoms.getAtom(0) != atom1) setAtom(atoms.getAtom(0)); //need this if doing minimum collision time calculation for more than one atom
+            double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
+            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
+                System.out.println("collision up time "+collisionTime+" for atom "+atoms+" "+pHard.getClass());
             }
+            if(collisionTime < minCollisionTime) {
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+                    System.out.println("setting up time "+collisionTime+" for atom "+atoms);
+                }
+                minCollisionTime = collisionTime;
+                aia.setCollision(collisionTime, (atoms.getAtomCount() == 2) ? atoms.getAtom(1) : null, pHard);
+            }//end if
         }//end of calculate(AtomPair...
 
     } //end of collisionHandlerUp
@@ -650,7 +645,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private static final class CollisionHandlerDown extends PotentialCalculation {
+	private static final class CollisionHandlerDown implements PotentialCalculation {
         private static final long serialVersionUID = 1L;
         double collisionTimeStep;
         final TreeList eventList;
@@ -663,32 +658,29 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             integratorAgentManager = newAgentManager;
         }
         
-		public void doCalculation(AtomsetIterator iterator, IPotential potential) {
-			if (potential.nBody() != 2) return;
-			iterator.reset();
+		public void doCalculation(IAtomSet atoms, IPotential potential) {
+			if (atoms.getAtomCount() != 2) return;
             PotentialHard pHard = (PotentialHard)potential;
-			for (AtomPair atomPair = (AtomPair)iterator.next(); atomPair != null;
-                 atomPair = (AtomPair)iterator.next()) {
-				double collisionTime = pHard.collisionTime(atomPair,collisionTimeStep);
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
-                    System.out.println("collision down time "+collisionTime+" for atoms "+atomPair+" "+pHard.getClass());
-                }
-				if(collisionTime < Double.POSITIVE_INFINITY) {
-					Agent aia = (Agent)integratorAgentManager.getAgent(atomPair.atom0);
-					if(collisionTime < aia.collisionTime()) {
-						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
-							System.out.println("setting down time "+collisionTime+" for atoms "+atomPair);
-						}
-                        if (aia.collisionPotential != null) {
-                            aia.eventLinker.remove();
-                        }
-                        aia.setCollision(collisionTime, atomPair.atom1, pHard);
-                        eventList.add(aia.eventLinker);
-					}//end if
-				}//end if
+            
+			double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
+            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
+                System.out.println("collision down time "+collisionTime+" for atoms "+atoms+" "+pHard.getClass());
+            }
+			if(collisionTime < Double.POSITIVE_INFINITY) {
+				Agent aia = (Agent)integratorAgentManager.getAgent(atoms.getAtom(0));
+				if(collisionTime < aia.collisionTime()) {
+					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+						System.out.println("setting down time "+collisionTime+" for atoms "+atoms);
+					}
+                    if (aia.collisionPotential != null) {
+                        aia.eventLinker.remove();
+                    }
+                    aia.setCollision(collisionTime, atoms.getAtom(1), pHard);
+                    eventList.add(aia.eventLinker);
+				}
 			}
-		}//end of actionPerformed
-	} //end of collisionHandlerDown
+		}
+	}
 
 
     /**
@@ -696,7 +688,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * with an atom.  The iterator should return an atom and its "down"
      * neighbors.  
      */
-    private static final class ReverseCollisionHandler extends PotentialCalculation {
+    private static final class ReverseCollisionHandler implements PotentialCalculation {
         private static final long serialVersionUID = 1L;
         final AtomArrayList listToUpdate;
         private AtomAgentManager integratorAgentManager;
@@ -709,22 +701,18 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             integratorAgentManager = newAgentManager;
         }
         
-        public void doCalculation(AtomsetIterator iterator, IPotential p) {
-            if (iterator.nBody() != 2) return;
-            iterator.reset();
+        public void doCalculation(IAtomSet pair, IPotential p) {
+            if (pair.getAtomCount() != 2) return;
             // look for pairs in which pair[0] is the collision partner of pair[1]
-            for (IAtomSet pair = iterator.next(); pair != null;
-                 pair = iterator.next()) {
-                IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.getAtom(0))).collisionPartner();
-                if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
-                    System.out.println(pair.getAtom(0)+" thought it would collide with "+aPartner);
+            IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.getAtom(0))).collisionPartner();
+            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
+                System.out.println(pair.getAtom(0)+" thought it would collide with "+aPartner);
+            }
+            if(aPartner == pair.getAtom(1)) {
+                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
+                    System.out.println("Will update "+pair.getAtom(0)+" because it wanted to collide with "+aPartner);
                 }
-                if(aPartner == pair.getAtom(1)) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
-                        System.out.println("Will update "+pair.getAtom(0)+" because it wanted to collide with "+aPartner);
-                    }
-                    listToUpdate.add(pair.getAtom(0));
-                }
+                listToUpdate.add(pair.getAtom(0));
             }
         }
     }

@@ -244,8 +244,14 @@ public class PotentialGroup extends Potential {
              basisAtoms = iterator.next()) {
     	    for (PotentialLinker link=first; link!= null; link=link.next) {
     	        if(!link.enabled) continue;
-    	        link.iterator.setBasis(basisAtoms);
-    	        pc.doCalculation(link.iterator, id, link.potential);
+    	        final AtomsetIteratorBasisDependent atomIterator = link.iterator;
+    	        atomIterator.setBasis(basisAtoms);
+    	        atomIterator.reset();
+    	        final IPotential potential = link.potential;
+    	        for (IAtomSet atoms = atomIterator.next(); atoms != null;
+    	             atoms = atomIterator.next()) {
+    	            pc.doCalculation(atoms, potential);
+    	        }
     	    }
     	}
     }

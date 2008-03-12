@@ -4,15 +4,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
-
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
@@ -30,11 +28,8 @@ public class PotentialMasterListWorker extends Thread {
         this.threadNumber = threadNumber;
 		this.rangedAgentManager = rangedAgentManager;
 		atomIterator = new AtomIteratorArrayListSimple();
-        singletIterator = new AtomIteratorSinglet();
-        pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
-        swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
-		
-		
+		atomSetSinglet = new AtomSetSinglet();
+		atomPair = new AtomPair();
 	}
 
 	public void run(){
@@ -95,7 +90,6 @@ public class PotentialMasterListWorker extends Thread {
 	
 	public void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
 		
-		 singletIterator.setAtom(atom);
 	     IteratorDirective.Direction direction = id.direction();
 	     PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
 	     IPotential[] potentials = potentialArray.getPotentials();
@@ -109,58 +103,47 @@ public class PotentialMasterListWorker extends Thread {
             case 1:
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
                 if (potential1BodyArray[i]) {
-                    pc.doCalculation(singletIterator, id, potentialThread);
+                    atomSetSinglet.atom = atom;
+                    pc.doCalculation(atomSetSinglet, potentialThread);
                 }
                 break;
             case 2:
-                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    list = neighborManager.getUpList(atom);
-//                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Up :"+atomIterator.size());
-                    
-                   // threadCalculate2 -= System.nanoTime();
-                    pc.doCalculation(pairIterator, id, potentialThread);
-                   // threadCalculate2 += System.nanoTime();
+                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    atomPair.atom0 = atom;
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        atomPair.atom1 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentialThread);
+                    }
                 }
                 
                 // This won't work efficiently with threads
                 if (direction != IteratorDirective.Direction.UP) {
-                    list = neighborManager.getDownList(atom);
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Dn :"+atomIterator.size());
-                    pc.doCalculation(swappedPairIterator, id, potentialThread);
+                    IAtomSet list = neighborManager.getDownList(atom)[i];
+                    atomPair.atom1 = atom;
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        atomPair.atom0 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentialThread);
+                    }
                 }
                 break;//switch
             case Integer.MAX_VALUE: //N-body
-                // instantiate lazily so other simulations don't have to carry this stuff around
-                if (atomsetArrayList == null) {
-                    atomsetArrayList = new AtomsetArrayList();
-                    singletSetIterator = new AtomsetIteratorSinglet(atomsetArrayList);
-                }
                 // do the calculation considering the current Atom as the 
                 // "central" Atom.
-                doNBodyStuff(atom, id, pc, i, potentialThread);
+                doNBodyStuff(atom, pc, i, potentialThread);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    list = neighborManager.getUpList(atom);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentialThread);
-                        }
+                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
-                    list = neighborManager.getDownList(atom);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentialThread);
-                        }
+                    list = neighborManager.getDownList(atom)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
                 }
                 
@@ -188,7 +171,7 @@ public class PotentialMasterListWorker extends Thread {
         }
 	}
 	
-	protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, IPotential potential) {
+	protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, IPotential potential) {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);
@@ -200,16 +183,15 @@ public class PotentialMasterListWorker extends Thread {
 	        if (potentialIndex < list.length) {
 	            arrayList.addAll(list[potentialIndex]);
 	        }
-	        pc.doCalculation(singletSetIterator, id, potential);
+	        pc.doCalculation(atomsetArrayList, potential);
 	        arrayList.clear();
     }
     
         
     protected final PotentialMasterListThreaded pmlt;
 	protected final AtomIteratorArrayListSimple atomIterator;
-	protected final AtomIteratorSinglet singletIterator;
-	protected final ApiInnerFixed pairIterator;
-	protected final ApiInnerFixed swappedPairIterator;
+	protected final AtomSetSinglet atomSetSinglet;
+	protected final AtomPair atomPair;
 	protected final AtomTypeAgentManager rangedAgentManager;
     
     protected boolean active = true;
@@ -228,7 +210,6 @@ public class PotentialMasterListWorker extends Thread {
     
 	//	 things needed for N-body potentials
 	protected AtomsetArrayList atomsetArrayList;
-	protected AtomsetIteratorSinglet singletSetIterator;
 		
 	
 }

@@ -11,7 +11,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -293,30 +292,25 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         //pair
-        public void doCalculation(AtomsetIterator iterator, IPotential potential2) {
+        public void doCalculation(IAtomSet pair, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
-            iterator.reset();
-            for (IAtomSet pair = iterator.next(); pair != null;
-                 pair = iterator.next()) {
+            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
+            
+            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+            nearestImageTransformer.nearestImage(dr);
 
-                IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-                IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
-                dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-                
-                dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-                nearestImageTransformer.nearestImage(dr);
-
-                double r2 = dr.squared();
-                u += potentialSoft.energy(pair);
-                w += potentialSoft.virial(pair);
-                double hv = potentialSoft.hyperVirial(pair);
-                x += hv;
-                rvx += hv * dr.dot(dv)/r2;
-                IVector[] f = potentialSoft.gradient(pair);
-                vf += dv.dot(f[0]); //maybe should be (-)?
-                ((Agent)integratorAgentManager.getAgent(atom0)).force().ME(f[0]);
-                ((Agent)integratorAgentManager.getAgent(atom1)).force().ME(f[1]);
-            }
+            double r2 = dr.squared();
+            u += potentialSoft.energy(pair);
+            w += potentialSoft.virial(pair);
+            double hv = potentialSoft.hyperVirial(pair);
+            x += hv;
+            rvx += hv * dr.dot(dv)/r2;
+            IVector[] f = potentialSoft.gradient(pair);
+            vf += dv.dot(f[0]); //maybe should be (-)?
+            ((Agent)integratorAgentManager.getAgent(atom0)).force().ME(f[0]);
+            ((Agent)integratorAgentManager.getAgent(atom1)).force().ME(f[1]);
         }
     }
 }

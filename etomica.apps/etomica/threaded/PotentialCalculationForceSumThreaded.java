@@ -1,15 +1,13 @@
 package etomica.threaded;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculation;
@@ -46,7 +44,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 		
 	}
 	
-	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
+	public void doCalculation(IAtomSet atoms, IPotential potential) {
 		throw new RuntimeException("This is not the correct 'doCalculation' to call.");
 	}
 	

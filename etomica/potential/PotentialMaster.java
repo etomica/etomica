@@ -3,21 +3,19 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
-
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIteratorAll;
-import etomica.atom.iterator.AtomIteratorAllLeafType;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
-import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.space.Space;
@@ -67,11 +65,22 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 
         for(PotentialLinker link=first; link!=null; link=link.next) {
     	    if(!link.enabled) continue;
-	        link.iterator.setBox(box);
-	        link.potential.setBox(box);
-    	    link.iterator.setTarget(targetAtom);
-    	    link.iterator.setDirection(id.direction());
-    	    pc.doCalculation(link.iterator, id, link.potential);
+    	    final AtomsetIteratorPDT atomIterator = link.iterator;
+    	    final IPotential potential = link.potential;
+	        atomIterator.setBox(box);
+	        potential.setBox(box);
+    	    atomIterator.setTarget(targetAtom);
+    	    atomIterator.setDirection(id.direction());
+    	    if (potential instanceof PotentialGroup) {
+    	        ((PotentialGroup)potential).calculate(atomIterator, id, pc);
+    	    }
+    	    else {
+    	        atomIterator.reset();
+                for (IAtomSet atoms = atomIterator.next(); atoms != null;
+                     atoms = atomIterator.next()) {
+                    pc.doCalculation(atoms, potential);
+                }
+    	    }
         }
         
         if(lrcMaster != null) {

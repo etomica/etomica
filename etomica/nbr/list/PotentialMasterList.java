@@ -8,15 +8,15 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.CriterionAdapter;
@@ -82,8 +82,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
         neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
-        pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
-        swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
+        atomSetSinglet = new AtomSetSinglet();
+        atomPair = new AtomPair();
         cellRange = 2;
         allCriteria = new NeighborCriterion[0];
 
@@ -453,53 +453,47 @@ public class PotentialMasterList extends PotentialMasterNbr {
             case 1:
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(molecule).getInteractingList();
                 if (potential1BodyArray[i]) {
-                    pc.doCalculation(singletIterator, id, potentials[i]);
+                    atomSetSinglet.atom = molecule;
+                    pc.doCalculation(atomSetSinglet, potentials[i]);
                 }
                 break;
             case 2:
-                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    list = neighborManager.getUpList(molecule);
-//                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Up :"+atomIterator.size());
-                    pc.doCalculation(pairIterator, id, potentials[i]);
+                    IAtomSet list = neighborManager.getUpList(molecule)[i];
+                    int nNeighbors = list.getAtomCount();
+                    atomPair.atom0 = molecule;
+                    for (int j=0; j<nNeighbors; j++) {
+                        atomPair.atom1 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentials[i]);
+                    }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
-                    list = neighborManager.getDownList(molecule);
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Dn :"+atomIterator.size());
-                    pc.doCalculation(swappedPairIterator, id, potentials[i]);
+                    IAtomSet list = neighborManager.getDownList(molecule)[i];
+                    int nNeighbors = list.getAtomCount();
+                    atomPair.atom1 = molecule;
+                    for (int j=0; j<nNeighbors; j++) {
+                        atomPair.atom0 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentials[i]);
+                    }
                 }
                 break;//switch
             case Integer.MAX_VALUE: //N-body
-                // instantiate lazily so other simulations don't have to carry this stuff around
-                if (atomsetArrayList == null) {
-                    atomsetArrayList = new AtomsetArrayList();
-                    singletSetIterator = new AtomsetIteratorSinglet(atomsetArrayList);
-                }
                 // do the calculation considering the current Atom as the 
                 // "central" Atom.
-                doNBodyStuff(molecule, id, pc, i, potentials[i], neighborManager);
+                doNBodyStuff(molecule, pc, i, potentials[i], neighborManager);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    list = neighborManager.getUpList(molecule);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
-                        }
+                    IAtomSet list = neighborManager.getUpList(molecule)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
-                    list = neighborManager.getDownList(molecule);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
-                        }
+                    list = neighborManager.getDownList(molecule)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
                 }
                 
@@ -530,53 +524,47 @@ public class PotentialMasterList extends PotentialMasterNbr {
             case 1:
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
                 if (potential1BodyArray[i]) {
-                    pc.doCalculation(singletIterator, id, potentials[i]);
+                    atomSetSinglet.atom = atom;
+                    pc.doCalculation(atomSetSinglet, potentials[i]);
                 }
                 break;
             case 2:
-                IAtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    list = neighborManager.getUpList(atom);
-//                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Up :"+atomIterator.size());
-                    pc.doCalculation(pairIterator, id, potentials[i]);
+                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    int nNeighbors = list.getAtomCount();
+                    atomPair.atom0 = atom;
+                    for (int j=0; j<nNeighbors; j++) {
+                        atomPair.atom1 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentials[i]);
+                    }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
-                    list = neighborManager.getDownList(atom);
-                    atomIterator.setList(list[i]);
-                    //System.out.println("Dn :"+atomIterator.size());
-                    pc.doCalculation(swappedPairIterator, id, potentials[i]);
+                    IAtomSet list = neighborManager.getDownList(atom)[i];
+                    int nNeighbors = list.getAtomCount();
+                    atomPair.atom1 = atom;
+                    for (int j=0; j<nNeighbors; j++) {
+                        atomPair.atom0 = list.getAtom(j);
+                        pc.doCalculation(atomPair, potentials[i]);
+                    }
                 }
                 break;//switch
             case Integer.MAX_VALUE: //N-body
-                // instantiate lazily so other simulations don't have to carry this stuff around
-                if (atomsetArrayList == null) {
-                    atomsetArrayList = new AtomsetArrayList();
-                    singletSetIterator = new AtomsetIteratorSinglet(atomsetArrayList);
-                }
                 // do the calculation considering the current Atom as the 
                 // "central" Atom.
-                doNBodyStuff(atom, id, pc, i, potentials[i], neighborManager);
+                doNBodyStuff(atom, pc, i, potentials[i], neighborManager);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    list = neighborManager.getUpList(atom);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
-                        }
+                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
-                    list = neighborManager.getDownList(atom);
-                    if (i < list.length) {
-                        IAtomSet iList = list[i];
-                        for (int j=0; j<iList.getAtomCount(); j++) {
-                            IAtom otherAtom = iList.getAtom(j);
-                            doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
-                        }
+                    list = neighborManager.getDownList(atom)[i];
+                    for (int j=0; j<list.getAtomCount(); j++) {
+                        IAtom otherAtom = list.getAtom(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
                 }
                 
@@ -588,7 +576,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Invokes the PotentialCalculation for the given Atom with its up and down
      * neighbors as a single AtomSet.
      */
-    protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, 
+    protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, 
             IPotential potential, NeighborListManager neighborManager) {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();
@@ -601,7 +589,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (potentialIndex < list.length) {
             arrayList.addAll(list[potentialIndex]);
         }
-        pc.doCalculation(singletSetIterator, id, potential);
+        pc.doCalculation(atomsetArrayList, potential);
         arrayList.clear();
     }
 
@@ -634,8 +622,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple atomIterator;
     private final AtomIteratorSinglet singletIterator;
-    private final ApiInnerFixed pairIterator;
-    private final ApiInnerFixed swappedPairIterator;
+    protected final AtomSetSinglet atomSetSinglet;
+    protected final AtomPair atomPair;
     protected final NeighborListAgentSource neighborListAgentSource;
     protected final BoxAgentManager neighborListAgentManager;
     private int cellRange;
@@ -646,7 +634,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     // things needed for N-body potentials
     private AtomsetArrayList atomsetArrayList;
-    private AtomsetIteratorSinglet singletSetIterator;
     
     protected static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource,
                                                               java.io.Serializable {

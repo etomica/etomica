@@ -1,7 +1,10 @@
 package etomica.potential;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.space.Space;
 
@@ -34,13 +37,24 @@ public class PotentialMasterLrc extends PotentialMaster {
         mostRecentBox = box;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(!link.enabled) continue;
+            final IPotential potential = link.potential;
+            final AtomsetIteratorPDT atomIterator = link.iterator;
             if(boxChanged) {
-                link.iterator.setBox(box);
-                link.potential.setBox(box);
+                atomIterator.setBox(box);
+                potential.setBox(box);
             }
-            link.iterator.setTarget(targetAtom);
-            ((Potential0Lrc)link.potential).setTargetAtoms(targetAtom);
-            pc.doCalculation(link.iterator, id, link.potential);
+            atomIterator.setTarget(targetAtom);
+            ((Potential0Lrc)potential).setTargetAtoms(targetAtom);
+            if (potential instanceof PotentialGroup) {
+                ((PotentialGroup)potential).calculate(atomIterator, id, pc);
+            }
+            else {
+                atomIterator.reset();
+                for (IAtomSet atoms = atomIterator.next(); atoms != null;
+                     atoms = atomIterator.next()) {
+                    pc.doCalculation(atoms, potential);
+                }
+            }
         }
     }
     

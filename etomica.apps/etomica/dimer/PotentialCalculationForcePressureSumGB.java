@@ -6,11 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.atom.AtomSet;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
-
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -51,54 +47,51 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 	 * Adds forces due to given potential acting on the atoms produced by the iterator.
 	 * Implemented for only 1- and 2-body potentials.
 	 */
-	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
+	public void doCalculation(IAtomSet atoms, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		
 		IVector forceTop = space.makeVector();
 		IVector forceBottom = space.makeVector();
 		
-		iterator.reset();
-		for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
-			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
-			IVector rij = space.makeVector();
-			switch(nBody) {
-				case 1:
-					((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-					break;
-				case 2:
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
-			 		break;
-                default:
-                    //XXX atoms.count might not equal f.length.  The potential might size its 
-                    //array of vectors to be large enough for one AtomSet and then not resize it
-                    //back down for another AtomSet with fewer atoms.
-                    
-                    //Find average force in Z-direction and assign to all atoms.
-                    for (int i=0; i<atoms.getAtomCount(); i++){
-                        rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());      
-                            if(rij.x(2)>0){
-                                forceTop.PE(f[i]);        
-                            }
-                            else{
-                                forceBottom.PE(f[i]);
-                            }
-                    } 
-			        forceTop.TE(2.0/box.atomCount());
-			        forceBottom.TE(2.0/box.atomCount());
-			        for (int i=0; i<atoms.getAtomCount(); i++){
-                        rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
-                        
+		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
+		IVector rij = space.makeVector();
+		switch(nBody) {
+			case 1:
+				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+				break;
+			case 2:
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+		 		break;
+            default:
+                //XXX atoms.count might not equal f.length.  The potential might size its 
+                //array of vectors to be large enough for one AtomSet and then not resize it
+                //back down for another AtomSet with fewer atoms.
+                
+                //Find average force in Z-direction and assign to all atoms.
+                for (int i=0; i<atoms.getAtomCount(); i++){
+                    rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());      
                         if(rij.x(2)>0){
-                            f[i].E(forceTop);
+                            forceTop.PE(f[i]);        
                         }
                         else{
-                            f[i].E(forceBottom);
+                            forceBottom.PE(f[i]);
                         }
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);    
+                } 
+		        forceTop.TE(2.0/box.atomCount());
+		        forceBottom.TE(2.0/box.atomCount());
+		        for (int i=0; i<atoms.getAtomCount(); i++){
+                    rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
+                    
+                    if(rij.x(2)>0){
+                        f[i].E(forceTop);
                     }
-			}
+                    else{
+                        f[i].E(forceBottom);
+                    }
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);    
+                }
 		}
 		
 		

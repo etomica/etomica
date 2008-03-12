@@ -8,13 +8,11 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.IAtomLeaf;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
-import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
@@ -29,6 +27,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -56,8 +55,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     protected PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, 
             BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
         super(sim, boxAgentSource, agentManager);
-        singletAtomIterator = new AtomIteratorSinglet();
-		singletPairIterator = new AtomsetIteratorSinglet(2);
+        atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
 	}
     
@@ -180,7 +178,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
                 for (int i=0; i<size; i++) {
                     IMolecule molecule = (IMolecule)list.getAtom(i);
-                    calculate(molecule, potentials, criteria, id, pc);//call calculate with the SpeciesAgent
+                    calculate(molecule, potentials, criteria, pc);//call calculate with the SpeciesAgent
 
                     for(int k=0; k<potentials.length; k++) {
                         ((PotentialGroupNbr)intraPotentials[k]).calculateRangeIndependent(molecule,id,pc);
@@ -205,13 +203,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                     potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentMolecule,id,pc);
                 }
-                calculate((IAtomLeaf)targetAtom, id, pc);
+                calculate((IAtomLeaf)targetAtom, pc);
             }
             else {
                 potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
                 potentials = potentialArray.getPotentials();
                 NeighborCriterion[] criteria = potentialArray.getCriteria();
-                calculate((IMolecule)targetAtom, potentials, criteria, id, pc);
+                calculate((IMolecule)targetAtom, potentials, criteria, pc);
 
                 PotentialArray intraPotentialArray = getIntraPotentials((AtomTypeMolecule)targetAtom.getType());
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
@@ -233,24 +231,23 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(IMolecule atom, final IPotential[] potentials, final NeighborCriterion[] criteria,
-	        IteratorDirective id, PotentialCalculation pc) {
+	        PotentialCalculation pc) {
 
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
-                singletAtomIterator.setAtom(atom);
-                pc.doCalculation(singletAtomIterator, id, potentials[i]);
+                atomSetSinglet.atom = atom;
+                pc.doCalculation(atomSetSinglet, potentials[i]);
                 break;
             case 2:
                 Potential2 p2 = (Potential2) potentials[i];
                 NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
-                for (AtomPair pair = (AtomPair)neighborIterator.next(); pair != null;
-                     pair = (AtomPair)neighborIterator.next()) {
+                for (IAtomSet pair = neighborIterator.next(); pair != null;
+                     pair = neighborIterator.next()) {
                     if (nbrCriterion.accept(pair)) {
-                        singletPairIterator.setAtom(pair);
-                        pc.doCalculation(singletPairIterator, id, p2);
+                        pc.doCalculation(pair, p2);
                     }
                 }
                 break;
@@ -261,7 +258,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         IAtomSet list = atom.getChildList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
-            calculate((IAtomLeaf)list.getAtom(i), id, pc);//recursive call
+            calculate((IAtomLeaf)list.getAtom(i), pc);//recursive call
         }
 	}
     
@@ -271,7 +268,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * child atoms is performed and process is repeated (recursively) with each on down
      * the hierarchy until leaf atoms are reached.
      */
-    protected void calculate(IAtomLeaf atom, IteratorDirective id, PotentialCalculation pc) {
+    protected void calculate(IAtomLeaf atom, PotentialCalculation pc) {
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -279,19 +276,18 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
-                singletAtomIterator.setAtom(atom);
-                pc.doCalculation(singletAtomIterator, id, potentials[i]);
+                atomSetSinglet.atom = atom;
+                pc.doCalculation(atomSetSinglet, potentials[i]);
                 break;
             case 2:
                 Potential2 p2 = (Potential2) potentials[i];
                 NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
-                for (AtomPair pair = (AtomPair)neighborIterator.next(); pair != null;
-                     pair = (AtomPair)neighborIterator.next()) {
+                for (IAtomSet pair = neighborIterator.next(); pair != null;
+                     pair = neighborIterator.next()) {
                     if (nbrCriterion.accept(pair)) {
-                        singletPairIterator.setAtom(pair);
-                        pc.doCalculation(singletPairIterator, id, p2);
+                        pc.doCalculation(pair, p2);
                     }
                 }
                 break;
@@ -300,8 +296,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     }
     
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorSinglet singletAtomIterator;
-	private final AtomsetIteratorSinglet singletPairIterator;
+	protected final AtomSetSinglet atomSetSinglet;
     private int cellRange;
     protected final AtomsetIteratorPDT neighborIterator;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];

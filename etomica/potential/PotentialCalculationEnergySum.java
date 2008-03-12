@@ -13,17 +13,14 @@ import etomica.atom.iterator.AtomsetIterator;
  *
  * @author David Kofke
  */
-public final class PotentialCalculationEnergySum extends PotentialCalculation {
+public final class PotentialCalculationEnergySum implements PotentialCalculation {
 
     /**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
-	protected void doCalculation(AtomsetIterator iterator, IPotential potential) {
-		iterator.reset();
-		for (IAtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
-			sum += potential.energy(atoms);
-		}
+	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	    sum += potential.energy(atoms);
 	}
 	
 	/**

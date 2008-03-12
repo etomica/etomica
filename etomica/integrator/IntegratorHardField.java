@@ -179,13 +179,9 @@ public final class IntegratorHardField extends IntegratorHard {
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
 
-		public void doCalculation(AtomsetIterator iterator, IPotential potential) {
-			super.doCalculation(iterator,potential);
-            iterator.reset();
-            for (IAtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
-                ((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
-            }
+		public void doCalculation(IAtomSet atoms, IPotential potential) {
+			super.doCalculation(atoms,potential);
+			((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
 		}
-    }//end ForceSums
-
-}//end of IntegratorHardField
+    }
+}
