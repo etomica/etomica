@@ -30,6 +30,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double cutoff;
     double angle;
     double dist;
+    double spacing;
     protected ISpecies fixedSpecies, mobileSpecies;
     private Space space;
     IVector [] reciprocal, origin, plane;
@@ -112,10 +113,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
      */
     public void setGBplane(int [] m){
     	millerPlane = m;
-    	reciprocal = new IVector[space.D()];
+    	
     	origin = new IVector[space.D()];
-    	for(int i=0; i<space.D(); i++){
-	    	reciprocal[i] = space.makeVector();
+    	for(int i=0; i<space.D(); i++){ 
 	    	origin[i] = space.makeVector();
 	    	origin[i].setX(i,1);
 	   	}
@@ -125,7 +125,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	for(int i=0; i<space.D(); i++){
     		normal.PEa1Tv1(millerPlane[i], reciprocal[i]);
     	}
-    	
+    	spacing = 1.0/Math.sqrt(normal.squared());
     	IVector projection = space.makeVector();
     	//rotate Miller plane into X axis, about Z axis (through XY plane).
     	projection.E(normal);
@@ -169,41 +169,36 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     			plane[i].setX(i,0);
     		}
     	}
+    	    	
+    	//Find Y periodicity - magnitude of Miller plane intersection of X and Y axis.
+    	IVector yaxisperiod = space.makeVector();
+    	yaxisperiod.Ev1Mv2(plane[0], plane[1]);
+    	double yaxispbc = Math.sqrt(yaxisperiod.squared());
     	
-    	//Creates vector in XY plane pointing to edge of Miller plane X and Y intercepts
-    	IVector xyprojection = space.makeVector();
-    	xyprojection.setX(0, plane[0].x(0));
-    	xyprojection.setX(1, plane[1].x(1));
-    	
-    	//Find distance from xyprojection to Miller plane Z-intercept
+    	//Find X periodicity - magnitude of vector formed by Miler plane intersections of Z axis and XY plane.
     	IVector xaxisperiod = space.makeVector();
-    	xaxisperiod.Ev1Mv2(xyprojection, plane[2]);
+    	xaxisperiod.Ev1Mv2(new Vector3D(plane[0].x(0), plane[1].x(1), plane[2].x(2)), new Vector3D(-plane[0].x(0), -plane[1].x(1), -plane[2].x(2)));
     	double xaxispbc = Math.sqrt(xaxisperiod.squared());
-    	if(xaxispbc==0){
+    	
+    	//If plane does not intersect X axis
+    	if(millerPlane[0]==0){
     		xaxispbc=latticeTOP.getLatticeConstants()[0];
     	}
     	
-    	//Find distance from xyprojection to Miller plane X-intercept
-    	IVector yaxisperiod = space.makeVector();
-    	yaxisperiod.Ev1Mv2(xyprojection, plane[0]);
-    	double yaxispbc = Math.sqrt(yaxisperiod.squared());
-    	if(yaxispbc==0){
-    		yaxispbc=latticeTOP.getLatticeConstants()[1];
-    	}
+    	//If plane does not intersect Y axis
+        if(millerPlane[1]==0){
+            xaxisperiod.Ev1Mv2(plane[0], plane[2]);
+            xaxispbc=Math.sqrt(xaxisperiod.squared());
+            yaxispbc=latticeTOP.getLatticeConstants()[1];
+        }
     	
-    	//If plane has 3 intercepts (XYZ), must double X distance
-    	int dub=0;
-    	for(int i=0; i<millerPlane.length; i++){
-    		if(millerPlane[i]==0){
-    			dub=1;
-    		}
-    	}
-    	if(dub==0){
-    		xaxispbc = 2.0*xaxispbc;
+    	//If plane does not intersect Z axis
+    	if(millerPlane[2]==0){
+    	    xaxispbc=latticeTOP.getLatticeConstants()[2];
     	}
     	
     	//Set Box size
-    	box.setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], Math.sqrt(normal.squared())*boxMultiples[2]));
+    	box.setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
     }
     
     public void initializeCoordinates(IBox box){
