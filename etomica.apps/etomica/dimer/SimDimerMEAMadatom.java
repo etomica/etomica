@@ -105,7 +105,7 @@ public class SimDimerMEAMadatom extends Simulation{
         getSpeciesManager().addSpecies(movable);
         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        box.setNMolecules(fixed, 216);
+        box.setNMolecules(fixed, 420);
         
     	potential = new PotentialMEAM(space);
     	potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
@@ -184,7 +184,7 @@ public class SimDimerMEAMadatom extends Simulation{
     	BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         */
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        box.setDimensions(new Vector3D(5.92*3, 5.92*5, 3.23*7));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         /**
@@ -288,7 +288,7 @@ public class SimDimerMEAMadatom extends Simulation{
         IAtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            if(rij.x(0)<5.0){
+            if(Math.abs(rij.x(0))<5.0 && Math.abs(rij.x(1))<5.0 && Math.abs(rij.x(2))<5.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }

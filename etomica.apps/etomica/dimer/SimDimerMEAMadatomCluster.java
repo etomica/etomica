@@ -1,5 +1,6 @@
 package etomica.dimer;
 
+import etomica.action.XYZWriter;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -28,6 +29,18 @@ public class SimDimerMEAMadatomCluster extends Simulation{
     	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false, false, false);
     	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
     	sim1.activityIntegrateDimer.setMaxSteps(2000);
+    	
+    	XYZWriter xyzwritermd = new XYZWriter(sim1.box);
+        xyzwritermd.setFileName(fileName+"-md.xyz");
+        xyzwritermd.setIsAppend(true);
+    	XYZWriter xyzwriterd = new XYZWriter(sim1.box);
+        xyzwriterd.setFileName(fileName+"-d.xyz");
+        xyzwriterd.setIsAppend(true);
+        sim1.integratorMD.addIntervalAction(xyzwritermd);
+        sim1.integratorMD.setActionInterval(xyzwritermd, 10);
+        sim1.integratorDimer.addIntervalAction(xyzwriterd);
+        sim1.integratorDimer.setActionInterval(xyzwriterd, 1);
+        
         sim1.getController().actionPerformed();
         /**
         //Simulation 2 - Fine grain Dimer search

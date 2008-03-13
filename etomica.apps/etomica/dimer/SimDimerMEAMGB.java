@@ -47,7 +47,7 @@ import etomica.util.HistoryCollapsingAverage;
  *
  */
 
-public class SimDimerMEAMadatomGB extends Simulation{
+public class SimDimerMEAMGB extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
@@ -65,7 +65,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
     
 
     
-    public SimDimerMEAMadatomGB(String file, int[] millerPlane) {
+    public SimDimerMEAMGB(String file, int[] millerPlane) {
     	super(Space3D.getInstance(), true);
     	
         potentialMaster = new PotentialMaster(space);
@@ -228,9 +228,10 @@ public class SimDimerMEAMadatomGB extends Simulation{
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
         gbtilt.setGBplane(millerPlane);
-        gbtilt.setBoxSize(box, new int[] {2,2,10});
+        gbtilt.setBoxSize(box, new int[] {6,6,10});
         gbtilt.initializeCoordinates(box);
         
+        /*
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         IAtomSet loopSet = box.getMoleculeList(movable);
@@ -244,12 +245,12 @@ public class SimDimerMEAMadatomGB extends Simulation{
            ((IAtomPositioned)box.addNewMolecule(dimer).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
            box.removeMolecule((IMolecule)movableList.getAtom(i));
         }
-         
+        */
     }
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomGB";
-    	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB("sngb", new int[] {2,1,1});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {1,1,1});
     	
     	sim.activityIntegrateMD.setMaxSteps(900);
         sim.activityIntegrateDimer.setMaxSteps(1000);
@@ -277,7 +278,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         xyzwriter.setIsAppend(true);
         
         simGraphic.add(/*"PE Plot",*/plotPE);
-        
+        /*
         //Load in MD minimized configuration
         ConfigurationFile configurationFile = new ConfigurationFile("filename");
         configurationFile.initializeCoordinates(sim.box);
@@ -291,6 +292,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
         sim.integratorDimer.addIntervalAction(xyzwriter);
         sim.integratorDimer.setActionInterval(xyzwriter, 10);
+        */
         
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         

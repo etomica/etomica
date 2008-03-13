@@ -1,7 +1,7 @@
 package etomica.dimer;
 
+import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.config.ConfigurationFile;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -30,28 +30,28 @@ public class SimDimerMEAMGBCluster extends Simulation{
         
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
     	
-    	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB("fileName",new int[] {h,k,l});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("fileName",new int[] {h,k,l});
     	
     	XYZWriter xyzwriter = new XYZWriter(sim.box);
         xyzwriter.setFileName(fileName+".xyz");
         xyzwriter.setIsAppend(true);
-        sim.integratorDimer.addIntervalAction(xyzwriter);
-        sim.integratorDimer.setActionInterval(xyzwriter, 10);
+        sim.integratorMD.addIntervalAction(xyzwriter);
+        sim.integratorMD.setActionInterval(xyzwriter, 10);
         
         //Load in MD minimized configuration
-        ConfigurationFile configurationFile = new ConfigurationFile("filename");
-        configurationFile.initializeCoordinates(sim.box);
+        //ConfigurationFile configurationFile = new ConfigurationFile("filename");
+        //configurationFile.initializeCoordinates(sim.box);
         
-        /**
+        
         WriteConfiguration config = new WriteConfiguration(sim.getSpace());
         config.setBox(sim.box);
         config.setConfName(fileName);
         sim.integratorMD.addIntervalAction(config);
         sim.integratorMD.setActionInterval(config,mdSteps);
-        */
         
-    	sim.activityIntegrateMD.setMaxSteps(0);	
-    	sim.activityIntegrateDimer.setMaxSteps(mdSteps);
+        
+    	sim.activityIntegrateMD.setMaxSteps(mdSteps);	
+    	sim.activityIntegrateDimer.setMaxSteps(0);
         sim.getController().actionPerformed();
 
     }
