@@ -2,27 +2,22 @@ package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeSphere;
+import etomica.api.IVector;
+import etomica.atom.AtomLeaf;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.P2HardSphere;
-import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.virial.MCMoveClusterWiggleMulti;
+import etomica.space3d.Space3D;
 
-public class HexVolFrac extends Simulation {
+public class HexaneVolumeFraction extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -34,7 +29,7 @@ public class HexVolFrac extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
        
-    public HexVolFrac(Space space, double dens, int xCells, int yCells, int zCells) {
+    public HexaneVolumeFraction(Space space, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
@@ -66,7 +61,35 @@ public class HexVolFrac extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
+        int xLng = 1;
+        int yLng = 1;
+        int zLng = 1;
+        int numberOfTests = 1000000;
+        
+        HexaneVolumeFraction sim = new HexaneVolumeFraction(
+                Space3D.getInstance(), xLng, yLng, zLng);
+        
+        
+        int overlaps = 0;
+        
+        IVector rand = sim.space.makeVector();
+        AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
+        ail.reset();
+        AtomLeaf atom = new AtomLeaf(sim.getSpace());
+        
+        
+        for(int count = 0; count < numberOfTests; count++){
+            rand = ((BoundaryDeformablePeriodic)sim.box.getBoundary()).randomPosition();
+            ail.reset();
+            
+            for(int atomNumber = 0; atomNumber < 512; atomNumber++){
+                atom = (AtomLeaf)ail.nextAtom();
+                
+            }
+            
+            
+        }
+            
 
     }
 
