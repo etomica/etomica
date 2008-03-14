@@ -47,11 +47,11 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
     public DisplayTextBoxesCAE() {
         this("", Null.UNIT);
     }
-    
+
 	public DisplayTextBoxesCAE(IDataInfo info) {
         this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
-    
+
     public DisplayTextBoxesCAE(String label, Unit unit) {
 		super();
 		currentBox = new DisplayTextBox("Current", unit);
@@ -64,22 +64,16 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
         setLabel(label);
         setLabelType(LabelType.STRING);
+        setPrecision(4);
 	}
-    
-    
 
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
-     */
     public DataPipe getDataCaster(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         return null;
     }
-    /* (non-Javadoc)
-     * @see etomica.DataSink#putDataInfo(etomica.DataInfo)
-     */
+
     public void putDataInfo(IDataInfo dataInfo) {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
@@ -88,6 +82,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
             setUnit(dataInfo.getDimension().getUnit(UnitSystem.SIM));
         }
     }
+
     /**
      * Specifies the accumulator that generates the displayed values.
      * Sets up this display to receive the current, average, and error
@@ -98,25 +93,25 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         accumulatorAverage.addDataSink(this,new AccumulatorAverage.StatType[] {
                 StatType.MOST_RECENT, StatType.AVERAGE, StatType.ERROR});
     }
-    
+
     /**
      * Accessor method for the data source that generates the displayed value.
      */
     public AccumulatorAverage getAccumulator() {
         return accumulatorAverage;
     }
-	
+
 	public Component graphic(Object obj){
         return panelParentGroup;
 	}
-	
+
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
     public int getPrecision() {
         return currentBox.getPrecision();
     }
-    
+
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
@@ -133,7 +128,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         }
         if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
     }
-    
+
     public String getLabel() {
         return jLabelPanelParentGroup.getText();
     }
@@ -147,7 +142,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         panelParentGroup.revalidate();
         panelParentGroup.repaint();
     }
-    
+
     public void setLabelType(LabelType labelType) {
         this.labelType = labelType;
         if(labelType != LabelType.BORDER) panelParentGroup.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
@@ -166,11 +161,11 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         averageBox.setUnit(unit);
         errorBox.setUnit(unit);
     }
-    
+
     public Unit getUnit() {
         return currentBox.getUnit();
     }
-    
+
     public static void main(String[] args) {
     	final String APP_NAME = "Display Boxes CAE";
 
@@ -191,5 +186,4 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }
-
 }
