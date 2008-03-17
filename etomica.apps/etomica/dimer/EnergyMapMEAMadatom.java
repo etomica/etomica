@@ -55,10 +55,10 @@ public class EnergyMapMEAMadatom extends Simulation{
     	// Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         
-        snFix = new SpeciesSpheresMono(this, tinFixed);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        snAdatom = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        snFix = new SpeciesSpheresMono(this, space, tinFixed);
+        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        snAdatom = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
         
         getSpeciesManager().addSpecies(snFix);
         getSpeciesManager().addSpecies(sn);

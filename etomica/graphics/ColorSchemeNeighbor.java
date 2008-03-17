@@ -12,11 +12,11 @@ import etomica.nbr.list.PotentialMasterList;
 
 public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
-    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box) {
+    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box, int dim) {
         super(box);
         typeColorScheme = new ColorSchemeByType();
         leafList = box.getLeafList();
-        nbrIterator = new Api1ACell(sim.getSpace().D(), 1.0, potentialMaster.getCellAgentManager());
+        nbrIterator = new Api1ACell(dim, 1.0, potentialMaster.getCellAgentManager());
         nbrIterator.setDirection(null);
         nbrIterator.setBox(box);
     }

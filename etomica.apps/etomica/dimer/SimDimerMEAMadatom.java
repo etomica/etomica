@@ -99,8 +99,8 @@ public class SimDimerMEAMadatom extends Simulation{
     //SPECIES
     	// Sn
     	Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
-    	fixed = new SpeciesSpheresMono(this, tinFixed);
-        movable = new SpeciesSpheresMono(this, Tin.INSTANCE);      
+    	fixed = new SpeciesSpheresMono(this, space, tinFixed);
+        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);      
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 

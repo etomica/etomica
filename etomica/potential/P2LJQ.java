@@ -282,7 +282,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         Simulation sim = new Simulation(space, false);
         IBox box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         sim.addBox(box);
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim);
+        SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 2);
         

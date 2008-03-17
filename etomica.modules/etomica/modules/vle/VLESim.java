@@ -56,7 +56,7 @@ public class VLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
         
-        species = new SpeciesSpheresRotating(this);
+        species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 

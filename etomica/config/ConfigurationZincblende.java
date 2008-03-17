@@ -123,8 +123,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         final IBox box = new Box(sim, space);
         box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addBox(box);
-        etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
-        etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
+        etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim, space);
+        etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim, space);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
         ((AtomTypeSphere)speciesSpheres0.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);

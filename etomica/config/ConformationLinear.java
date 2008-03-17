@@ -3,7 +3,6 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -18,19 +17,19 @@ import etomica.units.Length;
 
 public class ConformationLinear extends Conformation {
     
-    public ConformationLinear(ISimulation sim) {
-        this(sim.getSpace(), 0.55);
+    public ConformationLinear(Space _space) {
+        this(_space, 0.55);
     }
-    public ConformationLinear(Space space, double bondLength) {
-    	this(space, bondLength, makeDefaultAngles(space));
+    public ConformationLinear(Space _space, double bondLength) {
+    	this(_space, bondLength, makeDefaultAngles(_space));
     }
     
-    private static double[] makeDefaultAngles(Space space) {
-        switch (space.D()) {
+    private static double[] makeDefaultAngles(Space _space) {
+        switch (_space.D()) {
             case 1: return new double[0];
             case 2: return new double[]{etomica.units.Degree.UNIT.toSim(45)};
             case 3: return new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0};
-            default: throw new RuntimeException(space.D()+" dimensional space?  I'm impressed.");
+            default: throw new RuntimeException(_space.D()+" dimensional space?  I'm impressed.");
         }
     }
     

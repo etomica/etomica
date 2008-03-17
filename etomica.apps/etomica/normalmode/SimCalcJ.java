@@ -23,10 +23,10 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcJ extends Simulation {
 
-    public SimCalcJ(Space space, int numAtoms) {
-        super(space, true);
+    public SimCalcJ(Space _space, int numAtoms) {
+        super(_space, true);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         box = new Box(this, space);

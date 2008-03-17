@@ -11,6 +11,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
@@ -103,10 +104,10 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         
         int numAtoms = 8;
         double L = 10;
-        
-        Simulation sim = new Simulation(Space1D.getInstance(), true);
+        Space sp = Space1D.getInstance();
+        Simulation sim = new Simulation(sp, true);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
 
         IBox box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L), sim.getSpace());

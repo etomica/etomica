@@ -8,7 +8,6 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
@@ -26,9 +25,9 @@ import etomica.util.Debug;
  */
 public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.Serializable {
 
-	public CriterionSimple(ISimulation sim, double interactionRange, double neighborRadius) {
+	public CriterionSimple(ISimulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
-        space = sim.getSpace();
+        this.space = _space;
         dr = space.makeVector();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;

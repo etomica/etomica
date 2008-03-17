@@ -31,12 +31,12 @@ public class SpeciesSpheresMono extends Species {
     /**
      * Constructs instance with a default element
      */
-    public SpeciesSpheresMono(ISimulation sim) {
-        this(sim, new ElementSimple(sim));
+    public SpeciesSpheresMono(ISimulation sim, Space _space) {
+        this(sim, _space, new ElementSimple(sim));
     }
     
-    public SpeciesSpheresMono(ISimulation sim, Element element) {
-        this(sim.getSpace(), sim.isDynamic(), new AtomTypeSphere(element));
+    public SpeciesSpheresMono(ISimulation sim, Space _space, Element element) {
+        this(_space, sim.isDynamic(), new AtomTypeSphere(element));
     }
     
     public SpeciesSpheresMono(Space space, boolean isDynamic, AtomTypeSphere leafAtomType) {

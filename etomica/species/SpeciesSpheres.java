@@ -26,24 +26,25 @@ import etomica.space.Space;
 
 public class SpeciesSpheres extends Species {
 
-    public SpeciesSpheres(ISimulation sim) {
-        this(sim, 1);
+    public SpeciesSpheres(ISimulation sim, Space _space) {
+        this(sim, _space, 1);
     }
-    public SpeciesSpheres(ISimulation sim, int nA) {
-        this(sim, nA, new ElementSimple(sim));
-    }
-    
-    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement) {
-        this(sim, nA, leafElement, new ConformationLinear(sim));
+    public SpeciesSpheres(ISimulation sim, Space _space, int nA) {
+        this(sim, _space, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement, Conformation conformation) {
-        this(sim.getSpace(), sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
+    public SpeciesSpheres(ISimulation sim, Space _space, int nA, Element leafElement) {
+        this(sim, nA, leafElement, new ConformationLinear(_space), _space);
     }
     
-    public SpeciesSpheres(Space space, boolean isDynamic, int nA, AtomTypeLeaf leafAtomType, Conformation conformation) {
-        super(new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
-        this.space = space;
+    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement,
+    		              Conformation conformation, Space _space) {
+        this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
+    }
+    
+    public SpeciesSpheres(Space _space, boolean isDynamic, int nA, AtomTypeLeaf leafAtomType, Conformation conformation) {
+        super(new AtomTypeMolecule(new AtomPositionGeometricCenter(_space)));
+        this.space = _space;
         atomType.addChildType(leafAtomType);
         setNumLeafAtoms(nA);
         atomType.setConformation(conformation);

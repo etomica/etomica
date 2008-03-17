@@ -48,7 +48,7 @@ public class HSMD3DNoNbr extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});

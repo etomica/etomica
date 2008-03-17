@@ -160,7 +160,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         box.setDimensions(new Vector3D(nCells, nCells, nCells));
-        Species species = new SpeciesSpheresMono(sim);
+        Species species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 4*nCells*nCells*nCells);
         PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));

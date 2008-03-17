@@ -30,12 +30,12 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSSoftSphereFCC extends Simulation {
 
-    public SimCalcSSoftSphereFCC(Space space, int numAtoms, double density, double temperature, double softness) {
-        super(space, true);
+    public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, double softness) {
+        super(_space, true);
 
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         box = new Box(this, space);

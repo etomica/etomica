@@ -21,8 +21,8 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
         conformation = new ConformationChainZigZag(space, vector1, vector2);
     }
     
-    public ISpecies makeSpecies(ISimulation sim) {
-        SpeciesAlkane species = new SpeciesAlkane(sim, nA);
+    public ISpecies makeSpecies(ISimulation sim, Space _space) {
+        SpeciesAlkane species = new SpeciesAlkane(sim, _space, nA);
         species.getMoleculeType().setConformation(conformation);
         return species;
     }

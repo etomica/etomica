@@ -19,6 +19,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -40,11 +41,12 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	public final javax.swing.JTextField mass = new javax.swing.JTextField("40");
 
 	
-	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, IBox box, SpeciesSpheresMono s, String label) {
+	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, IBox box,
+			               SpeciesSpheresMono s, String label, Space _space) {
 		super();
 		species = s;
         sim = simGraphic.sim;
-		nSlider = new MyNSelector(simGraphic, box, species);
+		nSlider = new MyNSelector(simGraphic, box, species, _space);
 		
 		//nSlider.setDisplayBox(DisplayBox1);
         int majorSpacing = 50;
@@ -88,9 +90,10 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	}
     
     class MyNSelector extends DeviceNSelector {
-        MyNSelector(final ChainEquilibriumGraphic simGraphic, IBox box, ISpecies species) {
+        MyNSelector(final ChainEquilibriumGraphic simGraphic, IBox box,
+        		    ISpecies species, Space _space) {
             super(simGraphic.sim.getController());
-            setResetAction(new SimulationRestart(simGraphic.sim));
+            setResetAction(new SimulationRestart(simGraphic.sim, _space));
             setBox(box);
             setSpecies(species);
             

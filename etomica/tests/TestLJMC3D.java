@@ -54,7 +54,7 @@ public class TestLJMC3D extends Simulation {
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
         actionIntegrate.setMaxSteps(200000);
         getController().addAction(actionIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 	    box = new Box(this, space);
         addBox(box);

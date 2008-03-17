@@ -56,16 +56,16 @@ public class SimHarmonicHexane extends Simulation {
     private static final String APP_NAME = "Sim Harmonic";
 
     
-    public SimHarmonicHexane(Space space, double dens, int xCells, int yCells, 
+    public SimHarmonicHexane(Space _space, double dens, int xCells, int yCells, 
             int zCells, String filename, double harmonicFudge) {
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;
         fudge = harmonicFudge;
         
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
 
         primitive = new PrimitiveHexane(space);

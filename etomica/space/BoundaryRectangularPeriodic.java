@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 
 /**
@@ -12,15 +11,15 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     /**
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
-    public BoundaryRectangularPeriodic(ISimulation sim) {
-        this(sim.getSpace(), sim.getRandom(), 10.0);
+    public BoundaryRectangularPeriodic(IRandom _random, Space _space) {
+        this(_space, _random, 10.0);
     }
     
     /**
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
-    public BoundaryRectangularPeriodic(Space space, IRandom random, double boxSize) {
-        super(space, random, makePeriodicity(space.D()), boxSize);
+    public BoundaryRectangularPeriodic(Space _space, IRandom _random, double boxSize) {
+        super(_space, _random, makePeriodicity(_space.D()), boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = (IVectorRandom)space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated

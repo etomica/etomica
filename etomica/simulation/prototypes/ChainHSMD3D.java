@@ -1,10 +1,8 @@
 package etomica.simulation.prototypes;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
@@ -48,7 +46,7 @@ public class ChainHSMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
 
-        model = new ModelChain();
+        model = new ModelChain(space);
         model.setNumAtoms(chainLength);
         model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
 

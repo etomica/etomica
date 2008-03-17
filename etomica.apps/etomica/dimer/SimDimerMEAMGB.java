@@ -84,9 +84,9 @@ public class SimDimerMEAMGB extends Simulation{
         
         //Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         
-        fixed = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        dimer = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        fixed = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        dimer = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
         
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);

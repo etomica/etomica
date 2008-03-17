@@ -256,7 +256,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
         IBox box = new Box(sim, sp);
         sim.addBox(box);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;

@@ -65,10 +65,10 @@ public class ReverseOsmosisWater extends Simulation {
         getController().addAction(activityIntegrate);
 
         //solute (1)
-        speciesSodium = new SpeciesSpheresMono(this, Sodium.INSTANCE);
+        speciesSodium = new SpeciesSpheresMono(this, space, Sodium.INSTANCE);
         getSpeciesManager().addSpecies(speciesSodium);
         
-        speciesChlorine = new SpeciesSpheresMono(this, Chlorine.INSTANCE);
+        speciesChlorine = new SpeciesSpheresMono(this, space, Chlorine.INSTANCE);
         getSpeciesManager().addSpecies(speciesChlorine);
         
         //solvent (2)
@@ -77,7 +77,7 @@ public class ReverseOsmosisWater extends Simulation {
         integrator.setOrientationCalc(speciesSolvent.getMoleculeType(), new OrientationCalcWater(space));
 
         //membrane
-        speciesMembrane = new SpeciesSpheresMono(this);
+        speciesMembrane = new SpeciesSpheresMono(this, space);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         getSpeciesManager().addSpecies(speciesMembrane);
         
@@ -219,7 +219,7 @@ public class ReverseOsmosisWater extends Simulation {
         IVector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.setDimensions(dim);
-        configMembrane = new ConfigurationMembraneWater(this);
+        configMembrane = new ConfigurationMembraneWater(this, space);
         configMembrane.setMembraneDim(0);
         configMembrane.setMembraneThickness(2*4.0);
         configMembrane.setNumMembraneLayers(2);

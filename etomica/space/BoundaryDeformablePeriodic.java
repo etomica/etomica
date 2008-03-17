@@ -3,7 +3,6 @@ package etomica.space;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -24,8 +23,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Make a cubic boundary with edges of length equal to the default boxSize and
      * periodic in every direction.
      */
-	public BoundaryDeformablePeriodic(ISimulation sim) {
-		this(sim.getSpace(), sim.getRandom(), 10.0);
+	public BoundaryDeformablePeriodic(IRandom _random, Space _space) {
+		this(_space, _random, 10.0);
 	}
 
     /**

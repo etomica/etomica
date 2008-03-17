@@ -70,7 +70,7 @@ public class JouleThomsonSim extends Simulation {
         integrator.setTargetP(pUnit.toSim(100.0));
 	    
 	    //species and potential
-	    species = new SpeciesSpheresMono(this);
+	    species = new SpeciesSpheresMono(this, space);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         ((ElementSimple)((AtomTypeSphere)species.getLeafType()).getElement()).setMass(40);
         getSpeciesManager().addSpecies(species);

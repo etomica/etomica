@@ -56,13 +56,13 @@ public class TestYukawaMC3D extends Simulation{
 		integrator.getMoveManager().setEquilibrating(false);
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
-		species = new SpeciesSpheresMono(this);
+		species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 		box = new Box(this, space);
         addBox(box);
 		box.setNMolecules(species, numAtoms);
 		box.setDensity(0.65);
-		potential = new P2Yukawa(this);
+		potential = new P2Yukawa(space);
 		double truncationRadius = 3.0*potential.getKappa();
 		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
@@ -105,7 +105,7 @@ public class TestYukawaMC3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, sim.getSpace()));
         nSelector.setPostAction(repaintAction);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);

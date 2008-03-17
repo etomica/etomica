@@ -284,7 +284,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sim, sp);
         sim.addBox(box);
-        SpeciesParacetamol species = new SpeciesParacetamol(sim);
+        SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
         PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
         sim.getSpeciesManager().addSpecies(species);

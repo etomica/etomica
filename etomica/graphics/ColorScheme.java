@@ -48,13 +48,13 @@ public abstract class ColorScheme implements java.io.Serializable {
       final String APP_NAME = "Color Scheme";
 
       etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-      final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
+      final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp);
       final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-      nSelector.setResetAction(new SimulationRestart(sim));
+      nSelector.setResetAction(new SimulationRestart(sim, sp));
       nSelector.setSpecies(sim.species);
       nSelector.setBox(sim.box);
       nSelector.setPostAction(repaintAction);
@@ -66,7 +66,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
       final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
-      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box);
+      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box, sp.D());
       nghb.setAtom(sim.box.getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);

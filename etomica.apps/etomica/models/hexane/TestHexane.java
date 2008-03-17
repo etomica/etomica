@@ -75,10 +75,10 @@ public class TestHexane extends Simulation {
 //    public PairIndexerMolecule pri;
 
     
-    public TestHexane(Space space, double dens, int xCells, int yCells, int zCells) {
+    public TestHexane(Space _space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         //One molecule per cell
@@ -97,7 +97,7 @@ public class TestHexane extends Simulation {
 
         double bondFactor = 0.4;
 
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);

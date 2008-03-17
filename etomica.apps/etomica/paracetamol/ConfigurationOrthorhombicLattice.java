@@ -306,7 +306,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sim, sp);
         sim.addBox(box);
-        SpeciesParacetamol species = new SpeciesParacetamol(sim);
+        SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         

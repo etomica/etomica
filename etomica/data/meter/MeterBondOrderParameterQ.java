@@ -24,15 +24,15 @@ import etomica.units.Undefined;
 
 public class MeterBondOrderParameterQ  extends DataSourceScalar {
 	
-    public MeterBondOrderParameterQ(ISimulation sim) {
-        this(sim.getSpace(), 5.0);
+    public MeterBondOrderParameterQ(Space _space) {
+        this(_space, 5.0);
     }
     
-    public MeterBondOrderParameterQ(Space space, double rCut) {
+    public MeterBondOrderParameterQ(Space _space, double rCut) {
         super("Bond Q Order Parameter", Undefined.DIMENSION);
         setL(6);
         setR2Cut(rCut*rCut);
-        dr = space.makeVector();
+        dr = _space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

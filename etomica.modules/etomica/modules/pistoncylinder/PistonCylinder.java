@@ -47,7 +47,7 @@ public class PistonCylinder extends Simulation {
         IPotentialMaster potentialMaster = new PotentialMaster(space);
         lambda = 2.0;
         double sigma = 4.0;
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         ((ElementSimple)species.getLeafType().getElement()).setMass(16);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         getSpeciesManager().addSpecies(species);

@@ -30,8 +30,8 @@ import etomica.space.Space;
 public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
 
-    public BoundaryTruncatedOctahedron(ISimulation sim) {
-        this(sim.getSpace(), 30.0);
+    public BoundaryTruncatedOctahedron(Space _space) {
+        this(_space, 30.0);
     }
     public BoundaryTruncatedOctahedron(Space _space, double boxSize) {
         super(_space, new TruncatedOctahedron(_space));

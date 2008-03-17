@@ -41,20 +41,23 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells. 
 	 */
 	public PotentialMasterSite(ISimulation sim, int nCells, Space _space) {
-        this(sim, new BoxAgentSiteManager(nCells, _space));
+        this(sim, new BoxAgentSiteManager(nCells, _space), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource) {
-        this(sim, boxAgentSource, new BoxAgentManager(boxAgentSource));
+    public PotentialMasterSite(ISimulation sim,
+    		                   BoxAgentSource boxAgentSource, Space _space) {
+        this(sim, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, BoxAgentManager agentManager) {
-        this(sim, boxAgentSource, agentManager, new Api1ASite(sim.getSpace().D(),agentManager));
+    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource,
+    		BoxAgentManager agentManager, Space _space) {
+        this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager), _space);
     }
     
     protected PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
-        super(sim, boxAgentSource, agentManager);
+            BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator,
+            Space _space) {
+        super(sim, boxAgentSource, agentManager, _space);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
 	}

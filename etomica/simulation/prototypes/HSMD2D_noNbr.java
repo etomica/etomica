@@ -50,19 +50,15 @@ public class HSMD2D_noNbr extends Simulation {
     public IBox box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
-
-    public HSMD2D_noNbr() {
-    	this(Space2D.getInstance());
-    }
     
-    public HSMD2D_noNbr(Space space) {
-        super(space);
+    public HSMD2D_noNbr(Space _space) {
+        super(_space);
         IPotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 	    box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         addBox(box);
@@ -113,7 +109,8 @@ public class HSMD2D_noNbr extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "HSMD2D no Nbr";
 
-        final HSMD2D_noNbr sim = new HSMD2D_noNbr();
+    	Space sp = Space2D.getInstance();
+        final HSMD2D_noNbr sim = new HSMD2D_noNbr(sp);
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         sim.activityIntegrate.setSleepPeriod(10);
 //        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
@@ -126,7 +123,7 @@ public class HSMD2D_noNbr extends Simulation {
         temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, sp));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
         IAction repaintAction = graphic.getPaintAction(sim.box);

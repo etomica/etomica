@@ -48,8 +48,8 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapSoftSphere extends Simulation {
 
-    public SimOverlapSoftSphere(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, double softness) {
-        super(space, true);
+    public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, double softness) {
+        super(_space, true);
 
         PotentialMaster potentialMasterTarget = new PotentialMaster(space);
         integrators = new IntegratorBox[2];
@@ -57,7 +57,7 @@ public class SimOverlapSoftSphere extends Simulation {
         meters = new DataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         // TARGET
@@ -126,7 +126,7 @@ public class SimOverlapSoftSphere extends Simulation {
         
     
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(this);
+        boundaryHarmonic = new BoundaryRectangularPeriodic(random, space);
         boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);

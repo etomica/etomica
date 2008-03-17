@@ -58,8 +58,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30.0));
         integratorHard1.setBox(box);
-        speciesA = new SpeciesSpheresMono(this);
-        speciesB = new SpeciesSpheresMono(this);
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesB = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);

@@ -42,12 +42,12 @@ public class TestSWChain extends Simulation {
     public IntegratorHard integrator;
     public IBox box;
 
-    public TestSWChain() {
-        this(500);
+    public TestSWChain(Space _space) {
+        this(_space, 500);
     }
     
-    public TestSWChain(int numMolecules) {
-        super(Space3D.getInstance(), true);
+    public TestSWChain(Space _space, int numMolecules) {
+        super(_space, true);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
@@ -70,7 +70,7 @@ public class TestSWChain extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(neighborRangeFac*sqwLambda*sigma);
 
-        SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
+        SpeciesSpheres species = new SpeciesSpheres(this,_space,chainLength);
         getSpeciesManager().addSpecies(species);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
@@ -106,7 +106,8 @@ public class TestSWChain extends Simulation {
         if (args.length > 0) {
             numMolecules = Integer.valueOf(args[0]).intValue();
         }
-        TestSWChain sim = new TestSWChain(numMolecules);
+        Space sp = Space3D.getInstance();
+        TestSWChain sim = new TestSWChain(sp, numMolecules);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);

@@ -64,10 +64,10 @@ public class TestHexaneHarmonic extends Simulation {
 
 	private static final String APP_NAME = "Test Hexane Harmonic";
 
-    public TestHexaneHarmonic(Space space, int numMolecules) {
+    public TestHexaneHarmonic(Space _space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -85,7 +85,7 @@ public class TestHexaneHarmonic extends Simulation {
 
         double bondFactor = 0.4;
 
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{4,6,6};
         bdry =  new BoundaryDeformableLattice(primitive, getRandom(), nCells);

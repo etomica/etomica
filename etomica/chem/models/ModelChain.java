@@ -7,6 +7,7 @@ import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.potential.Potential2;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -20,8 +21,9 @@ public class ModelChain extends Model {
      * must be set before making the Species.  The conformation and element can
      * also be set if desired.
      */
-    public ModelChain() {
+    public ModelChain(Space _space) {
         speciesMade = false;
+        space = _space;
     }
 
     /**
@@ -130,12 +132,12 @@ public class ModelChain extends Model {
         }
         
         if (conformation == null) {
-            ISpecies species = new SpeciesSpheres(sim, numAtoms, element);
+            ISpecies species = new SpeciesSpheres(sim, space, numAtoms, element);
             setConformation(species.getMoleculeType().getConformation());
         }
         
         speciesMade = true;
-        return new SpeciesSpheres(sim, numAtoms, element, conformation);
+        return new SpeciesSpheres(sim, numAtoms, element, conformation, space);
     }
 
     private static final long serialVersionUID = 1L;
@@ -144,4 +146,5 @@ public class ModelChain extends Model {
     protected Conformation conformation;
     protected Element element;
     protected boolean speciesMade;
+    private final Space space;
 }

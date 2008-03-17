@@ -46,13 +46,13 @@ public class Heisenberg extends Simulation {
     /**
      * 
      */
-    public Heisenberg(Space space, int nCells) {
-        super(space, false);
+    public Heisenberg(Space _space, int nCells) {
+        super(_space, false);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(this, space);
         addBox(box);
         int numAtoms = space.powerD(nCells);
-        spins = new SpeciesSpheresMono(this);
+        spins = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
         new ConfigurationAligned().initializeCoordinates(box);

@@ -186,15 +186,15 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
-        snFixedA = new SpeciesSpheresMono(this, SnF);
-        snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        snFixedA = new SpeciesSpheresMono(this, space, SnF);
+        snA = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
 //        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
 //        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
         Copper CuF = new Copper("CuF", Double.POSITIVE_INFINITY);
-        cuFixedB = new SpeciesSpheresMono(this, CuF);
+        cuFixedB = new SpeciesSpheresMono(this, space, CuF);
 //        snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
 //        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        cuB = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
         
         getSpeciesManager().addSpecies(snFixedA);
         getSpeciesManager().addSpecies(snA);
@@ -294,7 +294,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //		potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
         potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), cuFixedB.getLeafType(), cuB.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         

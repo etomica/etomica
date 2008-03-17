@@ -56,15 +56,15 @@ public class Box implements java.io.Serializable, IBox {
     /**
      * Constructs box with default rectangular periodic boundary.
      */
-    public Box(ISimulation sim, Space space) {
-        this(new BoundaryRectangularPeriodic(sim), space);
+    public Box(ISimulation sim, Space _space) {
+        this(new BoundaryRectangularPeriodic(sim.getRandom(), _space), _space);
     }
     
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, Space space) {
-    	this.space = space;
+    public Box(IBoundary boundary, Space _space) {
+    	this.space = _space;
         eventManager = new BoxEventManager();
         setBoundary(boundary);
         

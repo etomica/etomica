@@ -41,12 +41,12 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimTarget extends Simulation {
 
-    public SimTarget(Space space, int numAtoms, double density) {
-        super(space, true);
+    public SimTarget(Space _space, int numAtoms, double density) {
+        super(_space, true);
 
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMaster(space));
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         box = new Box(this, space);

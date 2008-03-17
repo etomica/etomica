@@ -41,7 +41,7 @@ public class LjMd2D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         box = new Box(this, space);
         addBox(box);

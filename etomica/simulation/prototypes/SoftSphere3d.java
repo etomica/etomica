@@ -56,7 +56,7 @@ public class SoftSphere3d extends Simulation {
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
         
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         //species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         //getSpeciesManager().addSpecies(species2);

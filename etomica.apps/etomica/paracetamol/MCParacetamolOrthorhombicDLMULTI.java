@@ -70,8 +70,8 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
     public static final int SIMCALCS = 2;
     public static final int LATTICEHARMONIC = 3;
   
-    public MCParacetamolOrthorhombicDLMULTI(Space space, int numMolecules, double temperature, int simType, int[] cellDim) {
-    	super(space, true);
+    public MCParacetamolOrthorhombicDLMULTI(Space _space, int numMolecules, double temperature, int simType, int[] cellDim) {
+    	super(_space, true);
         potentialMaster = new PotentialMaster(space);
         this.simType = simType;
         this.cellDim = cellDim;
@@ -93,7 +93,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         getController().addAction(actionIntegrate);
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(this);
+        species = new SpeciesParacetamol(this, space);
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

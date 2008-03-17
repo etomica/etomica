@@ -40,12 +40,12 @@ public class SimHarmonic extends Simulation {
 
 	private static final String APP_NAME = "Sim Harmonic";
 
-    public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true);
+    public SimHarmonic(Space _space, int numAtoms, double density, String filename, double harmonicFudge) {
+        super(_space, true);
 
         int D = space.D();
 
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         box = new Box(this, space);

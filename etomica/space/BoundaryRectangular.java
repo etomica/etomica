@@ -21,8 +21,8 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation. 
      */
-    public BoundaryRectangular(ISimulation sim, boolean[] periodicity) {
-        this(sim.getSpace(), sim.getRandom(), periodicity, 10.0);
+    public BoundaryRectangular(IRandom _random, Space _space, boolean[] periodicity) {
+        this(_space, _random, periodicity, 10.0);
     }
 
     /**

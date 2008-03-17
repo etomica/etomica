@@ -29,11 +29,11 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcS extends Simulation {
 
-    public SimCalcS(Space space, int numAtoms, double density) {
-        super(space, true);
+    public SimCalcS(Space _space, int numAtoms, double density) {
+        super(_space, true);
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         box = new Box(this, space);

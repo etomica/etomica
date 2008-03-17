@@ -19,7 +19,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresRotating;
 
 /**
@@ -31,8 +30,8 @@ public class GEMCWithRotation extends Simulation {
     private static final long serialVersionUID = 1L;
 
     
-    public GEMCWithRotation(Space space) {
-        super(space, false);
+    public GEMCWithRotation(Space _space) {
+        super(_space, false);
         double sigma = 1.2;
         IPotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorGEMC(getRandom());
@@ -41,7 +40,7 @@ public class GEMCWithRotation extends Simulation {
         getController().addAction(activityIntegrate);
         activityIntegrate.setSleepPeriod(1);
 	    
-	    species = new SpeciesSpheresRotating(this);
+	    species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(sigma);
 

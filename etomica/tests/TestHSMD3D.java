@@ -28,8 +28,8 @@ public class TestHSMD3D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public IBox box;
 
-    public TestHSMD3D(Space space, int numAtoms) {
-        super(space, true);
+    public TestHSMD3D(Space _space, int numAtoms) {
+        super(_space, true);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         
         double neighborRangeFac = 1.6;
@@ -44,12 +44,12 @@ public class TestHSMD3D extends Simulation {
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
         getController().addAction(actionIntegrate);
         actionIntegrate.setMaxSteps(20000000/numAtoms);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().removeSpecies(species);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-        species2 = new SpeciesSpheresMono(this);
+        species2 = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species2);
         IAtomType type1 = species.getLeafType();
         IAtomType type2 = species2.getLeafType();

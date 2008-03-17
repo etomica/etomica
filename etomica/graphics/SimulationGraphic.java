@@ -89,7 +89,7 @@ public class SimulationGraphic implements SimulationContainer {
         default:
             throw new IllegalArgumentException("I don't understand graphicType "+graphicType);
         }
-        dcb = new DeviceTrioControllerButton(simulation);
+        dcb = new DeviceTrioControllerButton(simulation, space);
         add(dcb);
         setupDisplayBox();
     }
@@ -366,7 +366,7 @@ public class SimulationGraphic implements SimulationContainer {
 		IAction repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, space));
         nSelector.setSpecies(sim.getSpeciesManager().getSpecies()[0]);
         nSelector.setBox(sim.getBoxs()[0]);
         nSelector.setPostAction(repaintAction);

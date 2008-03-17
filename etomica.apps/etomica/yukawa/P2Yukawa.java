@@ -18,12 +18,12 @@ import etomica.space.Space;
 
 public final class P2Yukawa extends Potential2SoftSpherical {
 	
-    public P2Yukawa(ISimulation sim) {
-		this(sim.getSpace(), 1.0, 1.0);
+    public P2Yukawa(Space _space) {
+		this(_space, 1.0, 1.0);
 	}
 	
-	public P2Yukawa(Space space, double kappa, double vzero){
-		super(space);
+	public P2Yukawa(Space _space, double kappa, double vzero){
+		super(_space);
 		setKappa(kappa);
 		setVZero(vzero);
 	}

@@ -43,12 +43,12 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(ISimulation sim){
-		this(sim.getSpace(), 1.0, 1.0);
+	public P2HC2Yukawa(Space _space){
+		this(_space, 1.0, 1.0);
 	}
 	
-	public P2HC2Yukawa(Space space, double sigma, double epsilon){
-		super(space);
+	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
+		super(_space);
 		
 		dr = space.makeVector();
 		setSigma(sigma);

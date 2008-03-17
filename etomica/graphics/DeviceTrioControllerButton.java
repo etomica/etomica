@@ -13,6 +13,7 @@ import etomica.api.IController;
 import etomica.api.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
+import etomica.space.Space;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -37,9 +38,9 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(ISimulation simulation) {
+    public DeviceTrioControllerButton(ISimulation simulation, Space space) {
         this();
-        setSimulation(simulation);
+        setSimulation(simulation, space);
     }
     
     /**
@@ -68,9 +69,9 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    public void setSimulation(ISimulation sim) {
+    protected void setSimulation(ISimulation sim, Space space) {
         simulation = sim;
-        simRestart = new SimulationRestart(sim);
+        simRestart = new SimulationRestart(sim, space);
         final Controller c = (Controller)sim.getController();
         setController(c);
         startButton.setController(c);
@@ -170,7 +171,7 @@ public class DeviceTrioControllerButton extends Device {
         etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D(); 
 
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
+        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim, sp);
             button.setShape("HORIZONTAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
 //          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"

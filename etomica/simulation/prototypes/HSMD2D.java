@@ -49,8 +49,8 @@ public class HSMD2D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species1 = new SpeciesSpheresMono(this);
-	    species2 = new SpeciesSpheresMono(this);
+        species1 = new SpeciesSpheresMono(this, space);
+	    species2 = new SpeciesSpheresMono(this, space);
 	    AtomTypeSphere leafType1 = (AtomTypeSphere)species1.getLeafType();
         AtomTypeSphere leafType2 = (AtomTypeSphere)species2.getLeafType();
         leafType1.setDiameter(sigma);

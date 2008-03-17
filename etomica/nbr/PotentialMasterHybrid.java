@@ -49,14 +49,14 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-            BoxAgentManager agentManager, Space space) {
-        super(sim, boxAgentSource, agentManager);
+            BoxAgentManager agentManager, Space _space) {
+        super(sim, boxAgentSource, agentManager, _space);
         potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, space);
-        potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager);
+        potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, space);
 	}
     
     public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupHybrid(nBody,simulation.getSpace());
+        return new PotentialGroupHybrid(nBody,space);
     }
     
     public PotentialMasterList getPotentialMasterList() {

@@ -50,20 +50,20 @@ public class CrystalViewer extends SimulationPanel {
         super(APP_NAME);
         Space space = Space3D.getInstance();
         sim = new Simulation(space);
-        center = sim.getSpace().makeVector();
+        center = space.makeVector();
 
-        species = new SpeciesSpheresMono(sim);
+        species = new SpeciesSpheresMono(sim, space);
         sim.getSpeciesManager().addSpecies(species);
 
-        BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
+        BasisMonatomic basisMonatomic = new BasisMonatomic(space);
         
         BravaisLattice[] lattices = new BravaisLattice[] {
                 new LatticeCubicSimple(),
-                new BravaisLatticeCrystal(new PrimitiveTetragonal(sim.getSpace()), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveHexagonal(sim.getSpace()), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveOrthorhombic(sim.getSpace()), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveMonoclinic(sim.getSpace()), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveTriclinic(sim.getSpace()), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveTetragonal(space), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveHexagonal(space), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveOrthorhombic(space), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveMonoclinic(space), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveTriclinic(space), basisMonatomic),
                 new LatticeCubicFcc(),
                 new LatticeCubicBcc(),
                 new LatticeHcp(),

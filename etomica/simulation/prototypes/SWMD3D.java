@@ -58,8 +58,8 @@ public class SWMD3D extends Simulation {
 
 	}
 	
-  public SWMD3D(Space space) {
-	super(space);
+  public SWMD3D(Space _space) {
+	super(_space);
 	IPotentialMaster potentialMaster = new PotentialMaster(space);
 	
     integrator = new IntegratorHard(this, potentialMaster, space);
@@ -76,7 +76,7 @@ public class SWMD3D extends Simulation {
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(lambda);
 
-    species  = new etomica.species.SpeciesSpheresMono(this);
+    species  = new etomica.species.SpeciesSpheresMono(this, space);
     getSpeciesManager().addSpecies(species);
     box.setNMolecules(species, 108);
     integrator.setNullPotential(new P1HardPeriodic(space, lambda), species.getLeafType());

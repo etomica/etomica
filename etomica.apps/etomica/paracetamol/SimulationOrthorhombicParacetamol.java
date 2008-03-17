@@ -16,15 +16,15 @@ import etomica.units.ElectronVolt;
  */
 public class SimulationOrthorhombicParacetamol extends Simulation {
 
-    public SimulationOrthorhombicParacetamol(Space space, int numAtoms, double temperature) {
-        super(space, true);
+    public SimulationOrthorhombicParacetamol(Space _space, int numAtoms, double temperature) {
+        super(_space, true);
         potentialMaster = new PotentialMaster(space);
         
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();;
         primitive = new PrimitiveOrthorhombic(space, 17.248, 12.086, 7.382);
 
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        SpeciesParacetamol species = new SpeciesParacetamol(this);
+        SpeciesParacetamol species = new SpeciesParacetamol(this, space);
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
 

@@ -63,23 +63,19 @@ public class HSMD3D extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public HSMD3D() {
-        this(new HSMD3DParam());
-    }
-    
-    public HSMD3D(HSMD3DParam params) {
-        this(Space3D.getInstance(), params);
+    public HSMD3D(Space _space) {
+        this(_space, new HSMD3DParam());
     }
     
     //we use a second, private constructor to permit the space to
     //appear twice in the call to the superclass constructor; alternatively
     //we could have passed Space3D.getInstance() twice
-    private HSMD3D(Space space, HSMD3DParam params) {
+    private HSMD3D(Space _space, HSMD3DParam params) {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true);
+        super(_space, true);
 
         potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6, space) : new PotentialMaster(space);
 
@@ -98,7 +94,7 @@ public class HSMD3D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         AtomTypeLeaf leafType = species.getLeafType();
@@ -141,12 +137,13 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "HSMD3D";
 
+    	Space sp = Space3D.getInstance();
         HSMD3DParam params = new HSMD3DParam();
         params.ignoreOverlap = true;
-        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(params);
+        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp, params);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, sp));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
 

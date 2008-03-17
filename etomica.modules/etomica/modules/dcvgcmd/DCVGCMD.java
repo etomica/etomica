@@ -70,9 +70,9 @@ public class DCVGCMD extends Simulation {
         this(Space3D.getInstance());
     }
 
-    private DCVGCMD(Space space) {
+    private DCVGCMD(Space _space) {
         //Instantiate classes
-        super(space, true);
+        super(_space, true);
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
         double mass = 40.;
         double sigma = 3.0;
@@ -80,9 +80,9 @@ public class DCVGCMD extends Simulation {
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
-        species1 = new SpeciesSpheresMono(this);
-        species2 = new SpeciesSpheresMono(this);
-        speciesTube = new SpeciesTube(this, 20, 40);
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        speciesTube = new SpeciesTube(this, 20, 40, space);
         getSpeciesManager().addSpecies(species1);
         getSpeciesManager().addSpecies(species2);
         getSpeciesManager().addSpecies(speciesTube);

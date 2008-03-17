@@ -49,10 +49,10 @@ public class LatticePlaneTestUtility {
     	// Create a simulation
 		this.space = Space3D.getInstance();
     	sim = new Simulation(space);
-    	sim.getSpace().makeVector();
+    	space.makeVector();
 
     	// Create a species with one atom / molecule
-    	species = new SpeciesSpheresMono(sim);
+    	species = new SpeciesSpheresMono(sim, space);
     	sim.getSpeciesManager().addSpecies(species);
 
 	}
@@ -68,24 +68,24 @@ public class LatticePlaneTestUtility {
     		lattice = new LatticeCubicSimple();
     		break;
     	case TETRAGONAL:
-            basisMonatomic = new BasisMonatomic(sim.getSpace());
-            lattice = new BravaisLatticeCrystal(new PrimitiveTetragonal(sim.getSpace()), basisMonatomic);
+            basisMonatomic = new BasisMonatomic(space);
+            lattice = new BravaisLatticeCrystal(new PrimitiveTetragonal(space), basisMonatomic);
     		break;
     	case HEXAGONAL:
-            basisMonatomic = new BasisMonatomic(sim.getSpace());
-            lattice = new BravaisLatticeCrystal(new PrimitiveHexagonal(sim.getSpace()), basisMonatomic);
+            basisMonatomic = new BasisMonatomic(space);
+            lattice = new BravaisLatticeCrystal(new PrimitiveHexagonal(space), basisMonatomic);
     		break;
     	case ORTHORHOMBIC:
-            basisMonatomic = new BasisMonatomic(sim.getSpace());
-            lattice = new BravaisLatticeCrystal(new PrimitiveOrthorhombic(sim.getSpace()), basisMonatomic);
+            basisMonatomic = new BasisMonatomic(space);
+            lattice = new BravaisLatticeCrystal(new PrimitiveOrthorhombic(space), basisMonatomic);
     		break;
     	case MONOCLINIC:
-            basisMonatomic = new BasisMonatomic(sim.getSpace());
-            lattice = new BravaisLatticeCrystal(new PrimitiveMonoclinic(sim.getSpace()), basisMonatomic);
+            basisMonatomic = new BasisMonatomic(space);
+            lattice = new BravaisLatticeCrystal(new PrimitiveMonoclinic(space), basisMonatomic);
     		break;
     	case TRICLINIC:
-            basisMonatomic = new BasisMonatomic(sim.getSpace());
-            lattice = new BravaisLatticeCrystal(new PrimitiveTriclinic(sim.getSpace()), basisMonatomic);
+            basisMonatomic = new BasisMonatomic(space);
+            lattice = new BravaisLatticeCrystal(new PrimitiveTriclinic(space), basisMonatomic);
     		break;
     	case FCC:
     		lattice = new LatticeCubicFcc();

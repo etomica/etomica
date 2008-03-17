@@ -99,9 +99,9 @@ public class SimDimerMEAMinterstitial extends Simulation{
     //SPECIES
     	// Sn
     	Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
-    	fixed = new SpeciesSpheresMono(this, tinFixed);
-        movable = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        interstitial = new SpeciesSpheresMono(this, Copper.INSTANCE);
+    	fixed = new SpeciesSpheresMono(this, space, tinFixed);
+        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        interstitial = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         getSpeciesManager().addSpecies(interstitial);

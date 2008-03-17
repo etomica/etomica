@@ -39,16 +39,17 @@ public class PotentialMasterCell extends PotentialMasterSite {
 
     public PotentialMasterCell(ISimulation sim, double range,
             AtomPositionDefinition positionDefinition, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space));
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space), _space);
     }
     
-    public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
-        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource));
+    public PotentialMasterCell(ISimulation sim, double range, 
+    		BoxAgentSourceCellManager boxAgentSource, Space _space) {
+        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
     }
     
     public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-            BoxAgentManager agentManager) {
-        super(sim, boxAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
+            BoxAgentManager agentManager, Space _space) {
+        super(sim, boxAgentSource, agentManager, new Api1ACell(_space.D(),range,agentManager), _space);
         setRange(range);
     }
     

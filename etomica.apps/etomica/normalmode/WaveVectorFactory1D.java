@@ -63,11 +63,12 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     
     public static void main(String[] args) {
         int nCells = 6;
-        Simulation sim = new Simulation(Space1D.getInstance());
+        Space sp = Space1D.getInstance();
+        Simulation sim = new Simulation(sp);
         IBox box = new Box(sim, sim.getSpace());
         sim.addBox(box);
         box.setDimensions(new Vector1D(nCells));
-        ISpecies species = new SpeciesSpheresMono(sim);
+        ISpecies species = new SpeciesSpheresMono(sim, sp);
         box.setNMolecules(species, nCells*nCells*nCells);
         
         WaveVectorFactory1D foo = new WaveVectorFactory1D(sim.getSpace().D());

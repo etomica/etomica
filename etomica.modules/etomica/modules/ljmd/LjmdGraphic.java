@@ -232,7 +232,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peDisplay.setAccumulator(peAccumulator);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim));
+        nSlider.setResetAction(new SimulationRestart(sim, space));
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);

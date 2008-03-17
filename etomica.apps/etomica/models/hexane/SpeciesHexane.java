@@ -5,6 +5,7 @@ package etomica.models.hexane;
 
 import etomica.atom.AtomPositionCOM;
 import etomica.chem.elements.ElementSimple;
+import etomica.space.Space;
 import etomica.api.ISimulation;
 
 /**
@@ -15,10 +16,10 @@ import etomica.api.ISimulation;
  */
 
 public class SpeciesHexane extends etomica.species.SpeciesSpheres {
-    public SpeciesHexane(ISimulation sim){
+    public SpeciesHexane(ISimulation sim, Space _space){
         super(sim, 6, new ElementSimple("M", 1.0), 
-              new ConformationHexane(sim.getSpace()));
-        getMoleculeType().setPositionDefinition(new AtomPositionCOM(sim.getSpace()));
+              new ConformationHexane(_space), _space);
+        getMoleculeType().setPositionDefinition(new AtomPositionCOM(_space));
     
         
         bondLength = 0.4;

@@ -42,19 +42,19 @@ public class LJMD3DThreaded extends Simulation {
 
     public LJMD3DThreaded(int numAtoms, int numThreads) {
         super(Space3D.getInstance(), true);
-        PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this);
+        PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this, space);
         // need optimization of fac and time step
         double neighborFac = 1.35;
 
         
-        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
+        integrator = new IntegratorVelocityVerletThreaded(random, space, potentialMaster, numThreads);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.001);
         activityIntegrate = new ActivityIntegrate(integrator);
         //activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         box = new Box(this, space);
         addBox(box);

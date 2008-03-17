@@ -18,14 +18,14 @@ import etomica.units.Length;
 
 public class ConformationChainLinear extends ConformationChain {
     
-    public ConformationChainLinear(ISimulation sim) {
-        this(sim.getSpace(), 0.55);
+    public ConformationChainLinear(Space _space) {
+        this(_space, 0.55);
     }
-    public ConformationChainLinear(Space space, double bondLength) {
-    	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
+    public ConformationChainLinear(Space _space, double bondLength) {
+    	this(_space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
-    public ConformationChainLinear(Space space, double bondLength, double[] initAngles) {
-        super(space);
+    public ConformationChainLinear(Space _space, double bondLength, double[] initAngles) {
+        super(_space);
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];

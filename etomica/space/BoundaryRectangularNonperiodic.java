@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 
 /**
@@ -12,12 +11,6 @@ import etomica.api.IVector;
  */
 public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
 
-    /**
-     * Make a boundary with unit volume.
-     */
-    public BoundaryRectangularNonperiodic(ISimulation sim) {
-        this(sim.getSpace(), sim.getRandom());
-    }
 
     /**
      * Make a boundary with unit volume.

@@ -19,20 +19,21 @@ import etomica.space.Space;
  */
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart(ISimulation sim) {
-        setSimulation(sim);
+    public SimulationRestart(ISimulation sim, Space _space) {
+        setSimulation(sim, _space);
     }
 
-    public void setSimulation(ISimulation sim) {
-        super.setSimulation(sim);
-        if (sim.getSpace().D() == 3) {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(), sim.getSpace()));
+    protected void setSimulation(ISimulation sim, Space _space) {
+        super.setSimulation(sim, _space);
+        if (space.D() == 3) {
+            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(), space));
         }
-        else if (sim.getSpace().D() == 2) {
-            setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), sim.getSpace()));
+        else if (space.D() == 2) {
+            setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space));
         }
         else {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(Space.getInstance(1), 1.0), sim.getSpace()));
+        	Space sp = Space.getInstance(1);
+            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp));
         }
         ignoreOverlap = false;
         accumulatorAction = new SimulationDataAction(new ResetAccumulators());

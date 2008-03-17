@@ -122,7 +122,7 @@ public class ZeoliteSimulation extends Simulation {
         integrator.addIntervalAction(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
-        	species[i] = new SpeciesSpheresMono(this);
+        	species[i] = new SpeciesSpheresMono(this, space);
             getSpeciesManager().addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
         	((AtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
@@ -220,7 +220,7 @@ public class ZeoliteSimulation extends Simulation {
         zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, sim.space, APP_NAME);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, sim.space));
         nSelector.setSpecies(sim.species[num-1]);
         nSelector.setBox(sim.box);
         simGraphic.add(nSelector);

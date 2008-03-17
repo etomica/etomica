@@ -441,7 +441,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
             super();
             species = s;
             nSlider = new DeviceNSelector(sim.getController());
-            nSlider.setResetAction(new SimulationRestart(sim));
+            nSlider.setResetAction(new SimulationRestart(sim, space));
             nSlider.setSpecies(species);
             nSlider.setBox(box);
             //nSlider.setDisplayBox(DisplayBox1);

@@ -47,7 +47,7 @@ public class VLESimLJ extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
         
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);

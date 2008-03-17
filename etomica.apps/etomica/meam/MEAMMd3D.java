@@ -177,9 +177,9 @@ public class MEAMMd3D extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
 
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(ag);
@@ -242,7 +242,7 @@ public class MEAMMd3D extends Simulation {
 		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         

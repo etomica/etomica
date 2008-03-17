@@ -42,8 +42,8 @@ public class HsMc2d extends Simulation {
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
-        species2 = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species2);
         box = new Box(this, space);

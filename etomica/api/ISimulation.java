@@ -47,11 +47,6 @@ public interface ISimulation {
     public SpeciesManager getSpeciesManager();
 
     /**
-     * @return the space
-     */
-    public Space getSpace();
-
-    /**
      * @return Returns a flag indicating whether the simulation involves molecular dynamics.
      */
     public boolean isDynamic();

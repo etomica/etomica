@@ -72,10 +72,10 @@ public class TestHexaneFileConfig extends Simulation {
 //    public PairIndexerMolecule pri;
 
     
-    public TestHexaneFileConfig(Space space, double dens, int xCells, int yCells, int zCells) {
+    public TestHexaneFileConfig(Space _space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         //One molecule per cell
@@ -86,15 +86,7 @@ public class TestHexaneFileConfig extends Simulation {
         primitive.scaleSize(Math.pow(0.4165783882178116/dens,1.0/3.0));
         lattice = new BravaisLattice(primitive);
 
-        //This is the factor that multiples by the range of the potential in
-        // order to define the area/volume in which neighbors are searched for.
-        //This becomes the bond delta, which is the percentage the bond can
-        // stretch, and I assume compress.
-        double neighborRangeFac = 1.2;
-
-        double bondFactor = 0.4;
-
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);

@@ -62,7 +62,7 @@ public class TestYukawaMD3D extends Simulation{
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
 		
-		species = new SpeciesSpheresMono(this);
+		species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 		box = new Box(this, space);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
@@ -71,7 +71,7 @@ public class TestYukawaMD3D extends Simulation{
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
-		potential = new P2Yukawa(this);
+		potential = new P2Yukawa(space);
 		
 		double truncationRadius = 2.5*potential.getKappa();
 		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
@@ -92,7 +92,7 @@ public class TestYukawaMD3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setResetAction(new SimulationRestart(sim, sim.space));
         nSelector.setPostAction(repaintAction);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);

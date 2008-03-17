@@ -106,7 +106,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         getController().addAction(actionIntegrate);
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(this);
+        species = new SpeciesParacetamol(this, space);
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

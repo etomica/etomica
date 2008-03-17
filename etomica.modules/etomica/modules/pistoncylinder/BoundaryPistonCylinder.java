@@ -15,13 +15,8 @@ import etomica.space.Space;
  */
 public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
 
-
-    public BoundaryPistonCylinder(ISimulation sim) {
-        this(sim.getSpace(), sim.getRandom());
-    }
-
-    public BoundaryPistonCylinder(Space space, IRandom random) {
-        super(space, random);
+    public BoundaryPistonCylinder(Space _space, IRandom random) {
+        super(_space, random);
     }
     
     public void setPistonPotential(P1HardMovingBoundary newPistonPotential) {

@@ -72,11 +72,14 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
     
     public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, Space _space){
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space));
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
     }
             
-    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
-        super(sim, boxAgentSource, agentManager);
+    public PotentialMasterList(ISimulation sim, double range,
+    		BoxAgentSourceCellManager boxAgentSource,
+    		BoxAgentManager agentManager,
+    		NeighborListAgentSource neighborListAgentSource, Space _space) {
+        super(sim, boxAgentSource, agentManager, _space);
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
         neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
@@ -178,7 +181,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
-        CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), potential.getRange(), 0.0);
+        CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);

@@ -31,8 +31,8 @@ public class SpeciesSpheresHetero extends Species {
      * (AtomFactoryHetero) before use.  The actual number of desired children 
      * can also be set in the factory.
      */
-    public SpeciesSpheresHetero(ISimulation sim) {
-        this(sim,0);
+    public SpeciesSpheresHetero(ISimulation sim, Space _space) {
+        this(sim,_space, 0);
     }
     
     /**
@@ -41,8 +41,8 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, int nComponents) {
-        this(sim,makeElements(sim,nComponents));
+    public SpeciesSpheresHetero(ISimulation sim, Space _space, int nComponents) {
+        this(sim, _space, makeElements(sim,nComponents));
     }
     
     private static Element[] makeElements(ISimulation sim, int nComponents) {
@@ -59,8 +59,8 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, Element[] leafElements) {
-        this(sim.getSpace(), sim.isDynamic(), makeAtomTypeSpheres(leafElements));
+    public SpeciesSpheresHetero(ISimulation sim, Space _space, Element[] leafElements) {
+        this(_space, sim.isDynamic(), makeAtomTypeSpheres(leafElements));
     }
     
     protected static final AtomTypeSphere[] makeAtomTypeSpheres(Element[] leafElements) {

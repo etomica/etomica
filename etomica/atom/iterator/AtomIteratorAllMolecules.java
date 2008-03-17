@@ -52,9 +52,9 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
 
         Space space = Space2D.getInstance();
         ISimulation sim = new Simulation(space);
-        ISpecies species2 = new SpeciesSpheresMono(sim);
-        ISpecies species1 = new SpeciesSpheres(sim, 3);
-        ISpecies species0 = new SpeciesSpheres(sim, 2);
+        ISpecies species2 = new SpeciesSpheresMono(sim, space);
+        ISpecies species1 = new SpeciesSpheres(sim, space, 3);
+        ISpecies species0 = new SpeciesSpheres(sim, space, 2);
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);

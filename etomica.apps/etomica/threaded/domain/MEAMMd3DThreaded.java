@@ -90,7 +90,7 @@ public class MEAMMd3DThreaded extends Simulation {
     public MEAMMd3DThreaded(int numAtoms, int numThreads) {
         super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterListThreaded(this, space);
-        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
+        integrator = new IntegratorVelocityVerletThreaded(random, space, potentialMaster, numThreads);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -98,9 +98,9 @@ public class MEAMMd3DThreaded extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
 
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(ag);
@@ -176,7 +176,7 @@ public class MEAMMd3DThreaded extends Simulation {
         ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
         
         ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
-        ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
+        ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, space, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
         integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         

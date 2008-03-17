@@ -65,12 +65,12 @@ public class UnitTestUtil {
         ISpecies species1 = null;
         int nBox = 0;
         if (n0 != null) {
-            species0 = new SpeciesSpheres(sim, nA0);
+            species0 = new SpeciesSpheres(sim, space, nA0);
             sim.getSpeciesManager().addSpecies(species0);
             nBox = n0.length;
         }
         if (n1 != null) {
-            species1 = new SpeciesSpheresMono(sim);
+            species1 = new SpeciesSpheresMono(sim, space);
             sim.getSpeciesManager().addSpecies(species1);
             nBox = n1.length;
         }
@@ -121,7 +121,7 @@ public class UnitTestUtil {
             for (int j = 0; j < nAtoms[i].length; j++) {
                 leafTypes[j] = new AtomTypeSphere(sim);
             }
-            SpeciesSpheresHetero species = new SpeciesSpheresHetero(sim.getSpace(), false, leafTypes);
+            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, false, leafTypes);
             species.setChildCount(nAtoms[i]);
             sim.getSpeciesManager().addSpecies(species);
             box.setNMolecules(species, nMolecules[i]);

@@ -29,10 +29,10 @@ public class HexaneVolumeFraction extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
        
-    public HexaneVolumeFraction(Space space, int xCells, int yCells, int zCells) {
+    public HexaneVolumeFraction(Space _space, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         //One molecule per cell
@@ -43,7 +43,7 @@ public class HexaneVolumeFraction extends Simulation {
         lattice = new BravaisLattice(primitive);
 
 
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);

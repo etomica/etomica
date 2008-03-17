@@ -180,8 +180,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         Simulation sim = new Simulation(Space3D.getInstance());
 		IBox box = new Box(sim, sp);
         sim.addBox(box);
-        SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
-		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);
+        SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim, sp);
+		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species2);
         ((AtomTypeSphere)species1.getLeafType()).setDiameter(3.0);
@@ -189,7 +189,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 		int k = 4;
 		box.setNMolecules(species1, 2*k*k*k);
         box.setNMolecules(species2, 2*k*k*k);
-        SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10);
+        SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10, sp);
         sim.getSpeciesManager().addSpecies(speciesTube);
         ((AtomTypeSphere)speciesTube.getMoleculeType().getChildTypes()[0]).setDiameter(3.0);
         

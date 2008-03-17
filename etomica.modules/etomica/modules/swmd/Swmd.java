@@ -55,7 +55,7 @@ public class Swmd extends Simulation {
         integrator.setTimeStep(1);
 
 	    //species and potentials
-	    species = new SpeciesSpheresMono(this);//index 1
+	    species = new SpeciesSpheresMono(this, space);//index 1
 	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(species);
         integrator.setNullPotential(new P1HardMoleculeMonatomic(space, nullPotential), species.getMoleculeType());

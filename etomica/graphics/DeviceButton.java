@@ -110,7 +110,7 @@ public class DeviceButton extends Device {
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
         
         //here's the part unique to this class
-        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
+        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim, sp);
         DeviceButton button = new DeviceButton(sim.getController(),action);
         button.setLabel("Device Button");
 

@@ -82,7 +82,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         normalModes.setTemperature(Kelvin.UNIT.toSim(100));
        
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(this);
+        species = new SpeciesParacetamol(this, space);
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

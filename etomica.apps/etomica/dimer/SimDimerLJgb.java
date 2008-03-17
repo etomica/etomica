@@ -79,8 +79,8 @@ public class SimDimerLJgb extends Simulation{
     //SPECIES
     	double sigma = 1.0;
     	Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
-    	fixed = new SpeciesSpheresMono(this, tinFixed);
-        movable = new SpeciesSpheresMono(this);      
+    	fixed = new SpeciesSpheresMono(this, space, tinFixed);
+        movable = new SpeciesSpheresMono(this, space);      
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);

@@ -187,13 +187,13 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
-        snFixedA = new SpeciesSpheresMono(this, SnF);
-        snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        snFixedA = new SpeciesSpheresMono(this, space, SnF);
+        snA = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
 //        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
 //        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        agFixedB = new SpeciesSpheresMono(this, SnF);
+        agFixedB = new SpeciesSpheresMono(this, space, SnF);
 //        snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        agB = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
 //        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
 
         getSpeciesManager().addSpecies(snFixedA);
@@ -292,7 +292,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 		potentialN.setParametersIMC(agFixedB.getLeafType(), ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), agFixedB.getLeafType(), agB.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         

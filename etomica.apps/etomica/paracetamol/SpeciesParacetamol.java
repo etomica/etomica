@@ -24,9 +24,9 @@ import etomica.units.ElectronVolt;
 
 public class SpeciesParacetamol extends Species {
 
-	public SpeciesParacetamol(ISimulation sim) {
-		super(new AtomTypeMolecule(new AtomPositionGeometricCenter(sim.getSpace())));
-		space = sim.getSpace();
+	public SpeciesParacetamol(ISimulation sim, Space _space) {
+		super(new AtomTypeMolecule(new AtomPositionGeometricCenter(_space)));
+		space = _space;
 		isDynamic = sim.isDynamic();
         
         //atomic Instance Class, atomic diameter
@@ -44,7 +44,7 @@ public class SpeciesParacetamol extends Species {
         atomType.addChildType(hyType);
 
         //CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
-        atomType.setConformation(new ConformationParacetamolOrthorhombic(sim.getSpace()));
+        atomType.setConformation(new ConformationParacetamolOrthorhombic(space));
     }
     
     

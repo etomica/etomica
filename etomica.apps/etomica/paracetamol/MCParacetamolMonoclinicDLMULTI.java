@@ -82,8 +82,8 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     public static final int LATTICEHARMONIC = 3;
 
   
-    public MCParacetamolMonoclinicDLMULTI(Space space, int numMolecules, double temperature, int simType, int[] cellDim) {
-    	super(space, true);
+    public MCParacetamolMonoclinicDLMULTI(Space _space, int numMolecules, double temperature, int simType, int[] cellDim) {
+    	super(_space, true);
     	potentialMaster = new PotentialMaster(space);
     	this.simType = simType;
     	this.cellDim = cellDim;
@@ -108,7 +108,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         getController().addAction(actionIntegrate);
         
         ConformationParacetamolMonoclinic conformation = new ConformationParacetamolMonoclinic(space);
-        species = new SpeciesParacetamol(this);
+        species = new SpeciesParacetamol(this, space);
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

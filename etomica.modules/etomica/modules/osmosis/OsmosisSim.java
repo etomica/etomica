@@ -47,16 +47,16 @@ public class OsmosisSim extends Simulation {
     public P1HardWall boundarySemiB;
     public ActivityIntegrate activityIntegrate;
 
-    public OsmosisSim(Space space) {
+    public OsmosisSim(Space _space) {
 
-        super(space);
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
         final double sigma = 1.0;
 
-	    speciesSolvent = new SpeciesSpheresMono(this);
+	    speciesSolvent = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(speciesSolvent);
-	    speciesSolute = new SpeciesSpheresMono(this);
+	    speciesSolute = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(speciesSolute);
         ((AtomTypeSphere)speciesSolvent.getLeafType()).setDiameter(sigma);
         ((AtomTypeSphere)speciesSolute.getLeafType()).setDiameter(sigma);

@@ -53,17 +53,17 @@ public class ReverseOsmosis extends Simulation {
         getController().addAction(activityIntegrate);
 
         //solute (1)
-        speciesSolute = new SpeciesSpheresMono(this);
+        speciesSolute = new SpeciesSpheresMono(this, space);
         ((ElementSimple)speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(speciesSolute);
         
         //solvent (2)
-        speciesSolvent = new SpeciesSpheresMono(this);
+        speciesSolvent = new SpeciesSpheresMono(this, space);
         ((ElementSimple)speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(speciesSolvent);
 
         //membrane
-        speciesMembrane = new SpeciesSpheresMono(this);
+        speciesMembrane = new SpeciesSpheresMono(this, space);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         getSpeciesManager().addSpecies(speciesMembrane);
 

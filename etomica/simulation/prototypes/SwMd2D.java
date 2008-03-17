@@ -42,7 +42,7 @@ public class SwMd2D extends Simulation {
         integrator.setTimeStep(0.02);
         integrator.setTemperature(1.);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         AtomTypeSphere leafType = (AtomTypeSphere)species.getLeafType();
         leafType.setDiameter(sigma);

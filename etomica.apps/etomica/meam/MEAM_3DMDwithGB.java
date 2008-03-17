@@ -183,12 +183,12 @@ public class MEAM_3DMDwithGB extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
-        snFixedA = new SpeciesSpheresMono(this, SnF);
-        snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        snFixedA = new SpeciesSpheresMono(this, space, SnF);
+        snA = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
 //        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
 //        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        snFixedB = new SpeciesSpheresMono(this, SnF);
-        snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        snFixedB = new SpeciesSpheresMono(this, space, SnF);
+        snB = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
 //        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
 //        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
         
@@ -229,7 +229,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         
         //FCC Cu
         /**
-        aA = bA = cA = 3.6148;
+        aA = bA = cA = 3.6148;SpeciesSpheresMono
 	    boxA.setDimensions(new Vector3D(aA*4, aA*4, aA*4));
 	    PrimitiveCubic primitiveA = new PrimitiveCubic(space, aA);
 	    LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
@@ -321,7 +321,7 @@ public class MEAM_3DMDwithGB extends Simulation {
 //        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, snFixedB, snB, agB, cuB});    
         this.potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), snFixedB.getLeafType(), snB.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         

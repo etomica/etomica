@@ -39,10 +39,10 @@ public class TestHexaneCBMCOnly extends Simulation {
 
 	private static final String APP_NAME = "Test Hexane CBMC Only";
 
-    public TestHexaneCBMCOnly(Space space, int numMolecules) {
+    public TestHexaneCBMCOnly(Space _space, int numMolecules) {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false);
+        super(_space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -56,15 +56,8 @@ public class TestHexaneCBMCOnly extends Simulation {
         lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice, space);
 
-        // This is the factor that multiples by the range of the potential in
-        // order to define the area/volume in which neighbors are searched for.
-        // This becomes the bond delta, which is the percentage the bond can
-        // stretch, and I assume compress.
-        double neighborRangeFac = 1.2;
 
-        double bondFactor = 0.4;
-
-        SpeciesHexane species = new SpeciesHexane(this);
+        SpeciesHexane species = new SpeciesHexane(this, space);
         getSpeciesManager().addSpecies(species);
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[] {
             4, 6, 6 });

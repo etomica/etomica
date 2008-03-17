@@ -9,7 +9,5 @@ import etomica.api.ISimulation;
  */
 public interface SimulationAction extends Action {
 
-	public void setSimulation(ISimulation sim);
-
 	public ISimulation getSimulation();
 }

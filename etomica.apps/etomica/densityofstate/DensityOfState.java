@@ -62,11 +62,11 @@ public class DensityOfState extends Simulation{
 		integrator.getMoveManager().setEquilibrating(false);
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
-		species = new SpeciesSpheresMono(this);
+		species = new SpeciesSpheresMono(this, space);
 		box.setNMolecules(species, numAtoms);
 		box = new Box(this, space);
 		box.setDensity(0.65);
-		potential = new P2Yukawa(this);
+		potential = new P2Yukawa(space);
 		double truncationRadius = 3.0*potential.getKappa();
 		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));

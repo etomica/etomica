@@ -3,6 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.api.ISimulation;
 
 import etomica.chem.elements.ElementSimple;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -15,9 +16,9 @@ import etomica.species.SpeciesSpheres;
 public class SpeciesTube extends SpeciesSpheres {
 	
 	
-	public SpeciesTube(ISimulation sim, int atomsPerRing, int numberOfRings){
+	public SpeciesTube(ISimulation sim, int atomsPerRing, int numberOfRings, Space _space){
 		super(sim, atomsPerRing*numberOfRings, new ElementSimple("T", Double.POSITIVE_INFINITY), 
-                new ConformationTube(sim.getSpace(), atomsPerRing));
+                new ConformationTube(_space, atomsPerRing), _space);
 	}
 	
     private static final long serialVersionUID = 1L;

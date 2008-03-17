@@ -13,13 +13,14 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
+import etomica.space.Space;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
     protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager boxAgentManager) {
-        super(sim.getSpace());
+            BoxAgentManager boxAgentManager, Space _space) {
+        super(_space);
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
@@ -36,7 +37,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupNbr(nBody, simulation.getSpace());
+        return new PotentialGroupNbr(nBody, space);
     }
     
     public void addPotential(IPotential potential, ISpecies[] species) {

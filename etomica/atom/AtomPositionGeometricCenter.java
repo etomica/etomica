@@ -20,8 +20,8 @@ import etomica.space.Space;
  */
 public class AtomPositionGeometricCenter implements AtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenter(ISimulation sim) {
-        this(sim.getSpace());
+    public AtomPositionGeometricCenter(ISimulation sim, Space _space) {
+        this(_space);
     }
     
     public AtomPositionGeometricCenter(Space space) {

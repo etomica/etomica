@@ -22,13 +22,13 @@ import etomica.space.Space;
 
 public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
 	
-	public P2ElectrostaticDreiding(ISimulation sim) {
-        this(sim.getSpace(), 1.0, 1.0, 1.0);
+	public P2ElectrostaticDreiding(Space _space) {
+        this(_space, 1.0, 1.0, 1.0);
        
     }
 	
-    public P2ElectrostaticDreiding(Space space, double AA, double BB, double CC) {
-        super(space, AA, BB, CC);
+    public P2ElectrostaticDreiding(Space _space, double AA, double BB, double CC) {
+        super(_space, AA, BB, CC);
     }
     
     public double energy(IAtomSet atomSet) {
