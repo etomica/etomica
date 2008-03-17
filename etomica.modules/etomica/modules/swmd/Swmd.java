@@ -45,7 +45,7 @@ public class Swmd extends Simulation {
         double lambda = 2.0;
         
         //controller and integrator
-	    integrator = new IntegratorHard(this, potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300), space);
+	    integrator = new IntegratorHard(this, potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300), space, true);
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
@@ -56,7 +56,7 @@ public class Swmd extends Simulation {
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);//index 1
-	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
+	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         getSpeciesManager().addSpecies(species);
         integrator.setNullPotential(new P1HardMoleculeMonatomic(space, nullPotential), species.getMoleculeType());
         
