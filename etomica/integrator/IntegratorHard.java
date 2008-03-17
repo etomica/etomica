@@ -73,14 +73,16 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     
     protected AtomAgentManager agentManager;
     protected final AtomTypeAgentManager nullPotentialManager;
+    protected final boolean doMoleculePotentials;
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, false);
     }
     
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, Space _space, boolean doMoleculePotentials) {
         super(potentialMaster,random,timeStep,temperature, _space);
+        this.doMoleculePotentials = doMoleculePotentials;
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
         reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);
@@ -400,19 +402,23 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-        IAtomSet leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
-		}
-        IAtomSet moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getAtomCount();
-        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IAtom a = moleculeList.getAtom(iMolecule);
-            ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-        }
+	    if (!doMoleculePotentials) {
+            IAtomSet leafList = box.getLeafList();
+            int nLeaf = leafList.getAtomCount();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+                ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
+    			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
+    		}
+	    }
+	    else {
+            IAtomSet moleculeList = box.getMoleculeList();
+            int nMolecules = moleculeList.getAtomCount();
+            for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+                IAtom a = moleculeList.getAtom(iMolecule);
+                ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
+            }
+	    }
 	}
 
     public void reset() throws ConfigurationOverlapException {
@@ -445,35 +451,47 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      */
     public void resetCollisionTimes() {
         if(!initialized) return;
-        IAtomSet leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+        if (!doMoleculePotentials) {
+            IAtomSet leafList = box.getLeafList();
+            int nLeaf = leafList.getAtomCount();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtom atom = leafList.getAtom(iLeaf);
+                ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+            }
         }
-        IAtomSet moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getAtomCount();
-        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IAtom atom = moleculeList.getAtom(iMolecule);
-            ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+        else {
+            IAtomSet moleculeList = box.getMoleculeList();
+            int nMolecules = moleculeList.getAtomCount();
+            for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+                IAtom atom = moleculeList.getAtom(iMolecule);
+                ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+            }
         }
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = 0;
         potential.calculate(box, upList, collisionHandlerUp); //assumes only one box
         eventList.reset();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent(atom);
-            if (agent.collisionPotential != null) {
-                eventList.add(agent.eventLinker);
+        if (!doMoleculePotentials) {
+            IAtomSet leafList = box.getLeafList();
+            int nLeaf = leafList.getAtomCount();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtom atom = leafList.getAtom(iLeaf);
+                Agent agent = (Agent)agentManager.getAgent(atom);
+                if (agent.collisionPotential != null) {
+                    eventList.add(agent.eventLinker);
+                }
             }
         }
-        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IAtom atom = moleculeList.getAtom(iMolecule);
-            Agent agent = (Agent)agentManager.getAgent(atom);
-            if (agent.collisionPotential != null) {
-                eventList.add(agent.eventLinker);
+        else {
+            IAtomSet moleculeList = box.getMoleculeList();
+            int nMolecules = moleculeList.getAtomCount();
+            for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+                IAtom atom = moleculeList.getAtom(iMolecule);
+                Agent agent = (Agent)agentManager.getAgent(atom);
+                if (agent.collisionPotential != null) {
+                    eventList.add(agent.eventLinker);
+                }
             }
         }
     }
@@ -505,7 +523,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        updateAtom(((IAtomLeaf)atom).getParentGroup());
+        updateAtom(doMoleculePotentials ? ((IAtomLeaf)atom).getParentGroup() : atom);
     }
     
     /**
