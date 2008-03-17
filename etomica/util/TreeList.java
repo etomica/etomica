@@ -1,6 +1,3 @@
-/*
- * Created on Aug 23, 2004
- */
 package etomica.util;
 
 
@@ -22,6 +19,7 @@ package etomica.util;
  */
 public class TreeList implements java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     private TreeLinker head;
 
     public TreeList() {
@@ -174,7 +172,7 @@ public class TreeList implements java.io.Serializable {
                     throw new IllegalStateException("connections inconsistent");
                 }
                 if (node.sortKey > node.nextRight.sortKey) {
-                    System.out.println("node "+node+" node.r "+node.nextRight);
+                    System.out.println("node "+node+"\nnode.r "+node.nextRight);
                     throw new IllegalStateException("node's nextRight should have a higher sortKey");
                 }
             }
