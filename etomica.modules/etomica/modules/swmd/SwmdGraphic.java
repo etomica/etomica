@@ -124,7 +124,7 @@ public class SwmdGraphic extends SimulationGraphic {
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
         lambda = 2.0;
         epsilon = eUnit.toSim(space.D() == 3 ? 1000 : 1500);
-        mass = 40;
+        mass = space.D() == 3 ? 131 : 40;
         sigma = 4.0;
         if (sim.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
@@ -506,6 +506,12 @@ public class SwmdGraphic extends SimulationGraphic {
     	add(tBox);
     	add(pDisplay);
     	add(peDisplay);
+    	
+        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
+        d.width -= 50;
+        ePlot.getPlot().setSize(d);
+        vPlot.getPlot().setSize(d);
+        rdfPlot.getPlot().setSize(d);
     }
 
     public void setPotential(String potentialDesc) {
