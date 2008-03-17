@@ -28,8 +28,8 @@ import etomica.units.Quantity;
 public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
 
     public MeterChainLength(AtomAgentManager aam) {
-        setupData(40);
         tag = new DataTag();
+        setupData(40);
         agentManager = aam;
     }
     
