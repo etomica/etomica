@@ -17,6 +17,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -90,6 +91,9 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		// **** Setting Up the thermometer Meter *****
 		
 		thermometer = new MeterTemperature(box, space.D());
+		
+		integratorHard1.setNullPotential(new P1HardPeriodic(space, 3), speciesA.getLeafType());
+        integratorHard1.setNullPotential(new P1HardPeriodic(space, 3), speciesB.getLeafType());
         
 		activityIntegrate = new ActivityIntegrate(integratorHard1, 1, true);
 		getController().addAction(activityIntegrate);
