@@ -10,7 +10,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -19,7 +18,6 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -67,7 +65,9 @@ public class SimOverlap extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, getRandom(), 4, 1.0, space);
+        IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
+        integratorTarget.setTimeStep(4);
+        integratorTarget.setTemperature(1.0);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
