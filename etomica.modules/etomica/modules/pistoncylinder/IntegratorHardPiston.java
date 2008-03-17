@@ -25,7 +25,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     public IntegratorHardPiston(ISimulation sim,
     		           IPotentialMaster potentialMaster,
     		           P1HardMoleculeMonatomic potentialWrapper, Space _space) {
-        super(sim, potentialMaster, _space);
+        super(sim, potentialMaster, sim.getRandom(), 1.0, 1.0, _space, true);
         pistonPotential = potentialWrapper;
         atomSetSinglet = new AtomSetSinglet();
     }
