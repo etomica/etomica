@@ -13,11 +13,9 @@ public class ConformationChain3D extends ConformationChain {
 	
 	public ConformationChain3D(Space space, IVector[] vex){
 		super(space);
-		if(vex.length != vectors.length){
-			throw new IllegalArgumentException("Different vector array lengths in ConformationChain3D.");
-		}
-		
+		vectors = new IVector[vex.length];
 		for(int i = 0; i < vex.length; i++){
+		    vectors[i] = space.makeVector();
 			vectors[i].E(vex[i]);
 		}
 		tracker = 0;
