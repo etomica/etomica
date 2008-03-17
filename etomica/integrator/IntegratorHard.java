@@ -402,16 +402,16 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-	    if (!doMoleculePotentials) {
-            IAtomSet leafList = box.getLeafList();
-            int nLeaf = leafList.getAtomCount();
-            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            if (!doMoleculePotentials) {
                 ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-    			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
-    		}
-	    }
-	    else {
+            }
+			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
+		}
+	    if (doMoleculePotentials) {
             IAtomSet moleculeList = box.getMoleculeList();
             int nMolecules = moleculeList.getAtomCount();
             for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
