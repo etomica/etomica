@@ -160,7 +160,7 @@ public class WriteConfigurationDLPOLY implements Action {
             
             for (int flipIndex=0; flipIndex<2; flipIndex++){
             	
-	            for (int iMolec=0; iMolec<box.moleculeCount(); iMolec++) {
+	            for (int iMolec=0; iMolec<box.getMoleculeList().getAtomCount(); iMolec++) {
 	            	
 	            	//for Orthorhombic Paracetamol
 	            	if(boundaryType==2){

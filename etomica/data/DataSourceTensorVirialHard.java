@@ -51,7 +51,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
         }
         IBox box = integratorHard.getBox();
 
-        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*dim*box.atomCount()));
+        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*dim*box.getLeafList().getAtomCount()));
         data.x.E(work);
         //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
         return data;
@@ -69,7 +69,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
      */
     public Tensor collisionValue(IntegratorHard.Agent agent) {
         data.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-        data.x.TE(1/(double)integratorHard.getBox().atomCount());
+        data.x.TE(1/(double)integratorHard.getBox().getLeafList().getAtomCount());
         return data.x;
     }
                 

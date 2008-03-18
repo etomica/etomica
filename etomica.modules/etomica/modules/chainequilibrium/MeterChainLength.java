@@ -100,7 +100,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         }
 
         for (int i=0; i<histogram.length; i++) {
-            histogram[i] /= box.atomCount();
+            histogram[i] /= box.getLeafList().getAtomCount();
         }
         
         return data;

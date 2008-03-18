@@ -114,7 +114,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
 
         if (!residual) {
             // multiply by V/N
-            sum *= box.volume() / box.getNMolecules(species);
+            sum *= box.getBoundary().volume() / box.getNMolecules(species);
         }
         return sum / nInsert; //return average
     }

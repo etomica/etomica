@@ -55,7 +55,7 @@ public class MeterTemperature extends DataSourceScalar {
 	}
 
 	public double getDataAsScalar() {
-	    int totalD = box.atomCount() * dim;
+	    int totalD = box.getLeafList().getAtomCount() * dim;
 	    if (sim != null) {
 	        totalD = 0;
 	        ISpecies[] species = sim.getSpeciesManager().getSpecies();

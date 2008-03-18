@@ -56,7 +56,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             data.x.PE(v);
         }
 
-        data.x.TE(1.0/box.atomCount());
+        data.x.TE(1.0/box.getLeafList().getAtomCount());
     
         return data;
     }

@@ -78,7 +78,7 @@ public class MeterPressure extends DataSourceScalar {
         IBox box = integrator.getBox();
         integrator.getPotential().calculate(box, iteratorDirective, virial);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
-        return box.getDensity()*integrator.getTemperature() - virial.getSum()/(box.getBoundary().volume()*dim);
+        return (box.getMoleculeList().getAtomCount() / box.getBoundary().volume())*integrator.getTemperature() - virial.getSum()/(box.getBoundary().volume()*dim);
     }
 
     private static final long serialVersionUID = 1L;

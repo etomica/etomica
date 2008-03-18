@@ -281,7 +281,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 		
 		// Set positions of atoms in replicas equal to box
-		for(int i=0; i<box.atomCount(); i++){
+		for(int i=0; i<box.getLeafList().getAtomCount(); i++){
 			((IAtomPositioned)((IMolecule)box1.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
 			((IAtomPositioned)((IMolecule)box2.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
 		}

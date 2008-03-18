@@ -69,8 +69,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         uOld1 = integrator1.getPotentialEnergy();
         uOld2 = integrator2.getPotentialEnergy();
         hOld = uOld1 + uOld2;
-        double v1Old = firstBox.volume();
-        double v2Old = secondBox.volume();
+        double v1Old = firstBox.getBoundary().volume();
+        double v2Old = secondBox.getBoundary().volume();
         double step = stepSize * (random.nextDouble() - 0.5); 
         double vRatio = v1Old/v2Old * Math.exp(step);
         double v2New = (v1Old + v2Old)/(1 + vRatio);
@@ -94,8 +94,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
         double T = integrator1.getTemperature();
-        return Math.exp(B/T) * Math.pow(v1Scale,(firstBox.moleculeCount()+1))
-                * Math.pow(v2Scale,(secondBox.moleculeCount()+1));
+        return Math.exp(B/T) * Math.pow(v1Scale,(firstBox.getMoleculeList().getAtomCount()+1))
+                * Math.pow(v2Scale,(secondBox.getMoleculeList().getAtomCount()+1));
     }
         
     public double getB() {

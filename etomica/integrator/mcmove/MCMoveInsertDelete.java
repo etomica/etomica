@@ -97,8 +97,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }//end of doTrial
     
     public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? box.volume()/box.getNMolecules(species) 
-                      : (box.getNMolecules(species)+1)/box.volume();        
+        return insert ? box.getBoundary().volume()/box.getNMolecules(species) 
+                      : (box.getNMolecules(species)+1)/box.getBoundary().volume();        
     }
     
     public double getB() {

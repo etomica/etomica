@@ -211,7 +211,7 @@ public class SimOverlapLJ extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.moleculeCount());
+                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getAtomCount());
             }
         }
         else {

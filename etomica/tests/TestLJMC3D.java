@@ -102,7 +102,7 @@ public class TestLJMC3D extends Simulation {
         sim.getController().actionPerformed();
         
         //XXX double Z = 1 + ...  ??
-        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.box.volume()/(sim.box.moleculeCount()*sim.integrator.getTemperature());
+        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getAtomCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("Z="+Z);

@@ -64,7 +64,7 @@ public class DataSourceProbabilityDensity implements DataSource, IAction, IInteg
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.RESET) {
             box = ((IntegratorBox)evt.getSource()).getBox();
-            totalAtomCount = box.moleculeCount();
+            totalAtomCount = box.getMoleculeList().getAtomCount();
             IVector dimensions = box.getBoundary().getDimensions();
             if (data.getLength() != (int)Math.round(dimensions.x(0))) {
                 int newSize = (int)Math.round(dimensions.x(0));

@@ -79,8 +79,8 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                             forceBottom.PE(f[i]);
                         }
                 } 
-		        forceTop.TE(2.0/box.atomCount());
-		        forceBottom.TE(2.0/box.atomCount());
+		        forceTop.TE(2.0/box.getLeafList().getAtomCount());
+		        forceBottom.TE(2.0/box.getLeafList().getAtomCount());
 		        for (int i=0; i<atoms.getAtomCount(); i++){
                     rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
                     

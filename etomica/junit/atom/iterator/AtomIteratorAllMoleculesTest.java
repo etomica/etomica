@@ -50,6 +50,6 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toArray());
-        assertEquals(list.size(), box.moleculeCount());
+        assertEquals(list.size(), box.getMoleculeList().getAtomCount());
     }
 }

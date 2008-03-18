@@ -56,7 +56,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        double vOld = box.volume();
+        double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
         vScale = (2.*random.nextDouble()-1.)*stepSize;
@@ -70,7 +70,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     }//end of doTrial
     
     public double getA() {
-        return Math.exp((box.moleculeCount()+1)*vScale);
+        return Math.exp((box.getMoleculeList().getAtomCount()+1)*vScale);
     }
     
     public double getB() {

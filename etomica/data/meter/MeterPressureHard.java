@@ -33,7 +33,7 @@ public class MeterPressureHard extends DataSourceScalar implements
         if(elapsedTime == 0.0) return Double.NaN;
         double numAtomTemp = integratorHard.getKineticEnergy() * 2 / dim;
         if (integratorHard.isIsothermal()) {
-            numAtomTemp = integratorHard.getTemperature()*box.atomCount();
+            numAtomTemp = integratorHard.getTemperature()*box.getLeafList().getAtomCount();
         }
         double value = (numAtomTemp - virialSum/(dim*elapsedTime)) / 
                         box.getBoundary().volume();

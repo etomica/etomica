@@ -413,7 +413,7 @@ public class JouleThomson extends SimulationGraphic {
     	    double targetDensity = 0.5;
     	    if(currentSig > 0.5) {
     	        sim.box.setDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
-    	        double size = currentSig*Math.pow(sim.box.atomCount()/targetDensity,1.0/sim.getSpace().D());
+    	        double size = currentSig*Math.pow(sim.box.getLeafList().getAtomCount()/targetDensity,1.0/sim.getSpace().D());
                 IVector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.box.getBoundary().setDimensions(v);

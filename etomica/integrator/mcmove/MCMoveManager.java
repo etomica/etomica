@@ -220,7 +220,7 @@ public class MCMoveManager implements Serializable {
             fullFrequency = (int)(frequency * move.getNominalFrequency());
             if ((move instanceof MCMoveBox) && ((MCMoveBox)move).getBox() != null
                     && ((MCMoveBox)move).isNominallyPerParticleFrequency() ) {
-                fullFrequency *= ((MCMoveBox)move).getBox().moleculeCount();
+                fullFrequency *= ((MCMoveBox)move).getBox().getMoleculeList().getAtomCount();
             }
         }
 

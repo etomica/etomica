@@ -81,7 +81,7 @@ public class EwaldSummation implements IPotential{
 		this.atomAgentManager = atomAgentManager;
 		this.moleculeBasis = new AtomSetSinglet();
 		this.nVectorMax = nVectorMax;
-		this.alpha = 5/Math.pow(box.volume(), 1.0/3.0);
+		this.alpha = 5/Math.pow(box.getBoundary().volume(), 1.0/3.0);
 		atomPair = new AtomPair();
 		
 		setCriterion(new CriterionNone());
@@ -250,8 +250,8 @@ public class EwaldSummation implements IPotential{
 		 * Computing uFourier
 		 */
 		
-		double preFactor = 1/(2*Math.PI*box.volume());
-		double L = Math.pow(box.volume(), 1.0/3.0)  ;
+		double preFactor = 1/(2*Math.PI*box.getBoundary().volume());
+		double L = Math.pow(box.getBoundary().volume(), 1.0/3.0)  ;
 		double b = Math.PI*Math.PI/((alpha*alpha)*(L*L));
 		double sumVectorTerm = 0.0;
 		

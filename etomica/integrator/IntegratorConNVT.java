@@ -91,7 +91,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         //Advance velocities from T-Dt/2 to T without constraint
         double Free=0.0;
         //degrees of freedom
-        Free=((box.moleculeCount()-1)*dim); 
+        Free=((box.getMoleculeList().getAtomCount()-1)*dim); 
 
         double k=0.0;
         double chi;

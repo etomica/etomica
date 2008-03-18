@@ -81,8 +81,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}//end of doTrial
 
 	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? zFraction*box.volume()/(activeAtoms.getAtomCount()+1) 
-					  : activeAtoms.getAtomCount()/zFraction/box.volume();        
+		return insert ? zFraction*box.getBoundary().volume()/(activeAtoms.getAtomCount()+1) 
+					  : activeAtoms.getAtomCount()/zFraction/box.getBoundary().volume();        
 	}
 
 	public void acceptNotify() {

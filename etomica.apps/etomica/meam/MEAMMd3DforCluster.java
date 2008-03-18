@@ -85,12 +85,12 @@ public class MEAMMd3DforCluster {
     			getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).x;
     	double systemTemp = sim.integrator.getTemperature();
     	cvPE /= systemTemp;
-    	cvPE *= cvPE/sim.box.moleculeCount();
+    	cvPE *= cvPE/sim.box.getMoleculeList().getAtomCount();
     	
     	double cvKE = ((DataDouble)((DataGroup)accumulatorAverageKE.getData()).
     			getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).x;
       	cvKE /= systemTemp;
-    	cvKE *= cvKE/sim.box.moleculeCount();
+    	cvKE *= cvKE/sim.box.getMoleculeList().getAtomCount();
     
     	System.out.println("PE contribution to Cv/k is  "+ cvPE + " (simulation units)");
     	System.out.println("KE contribution to Cv/k is  "+ cvKE + " (simulation units)");

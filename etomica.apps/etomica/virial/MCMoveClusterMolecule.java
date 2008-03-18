@@ -29,7 +29,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     }
     
     public boolean doTrial() {
-        if(box.moleculeCount()==1) return false;
+        if(box.getMoleculeList().getAtomCount()==1) return false;
         
         atom = atomSource.getAtom();
         while (atom.getIndex() == 0) {

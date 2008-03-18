@@ -59,7 +59,7 @@ public class MCMoveRotate extends MCMoveBoxStep {
     }
      
     public boolean doTrial() {
-        if(box.moleculeCount()==0) {return false;}
+        if(box.getMoleculeList().getAtomCount()==0) {return false;}
         molecule = (IAtomOriented)((IMolecule)atomSource.getAtom()).getChildList().getAtom(0);
 
         energyMeter.setTarget(molecule);

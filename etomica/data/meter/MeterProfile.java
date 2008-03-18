@@ -114,7 +114,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
             y[i] += value;
         }
         double dx = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
-        double norm = 1.0/(box.atomCount()*dx);
+        double norm = 1.0/(box.getLeafList().getAtomCount()*dx);
         data.TE(norm);
         return data;
     }

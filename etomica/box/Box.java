@@ -268,15 +268,10 @@ public class Box implements java.io.Serializable, IBox {
     }
     
     /* (non-Javadoc)
-	 * @see etomica.box.IBox#volume()
-	 */
-    public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
-    
-    /* (non-Javadoc)
 	 * @see etomica.box.IBox#setDensity(double)
 	 */
     public void setDensity(double rho) {
-        double vNew = moleculeCount()/rho;
+        double vNew = getMoleculeList().getAtomCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
@@ -284,21 +279,11 @@ public class Box implements java.io.Serializable, IBox {
     }
     
     /* (non-Javadoc)
-	 * @see etomica.box.IBox#getDensity()
-	 */
-    public double getDensity() {return moleculeCount()/boundary.volume();}
-    
-    /* (non-Javadoc)
 	 * @see etomica.box.IBox#getDensityDimension()
 	 */
     public Dimension getDensityDimension() {
         return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
     }
-
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#atomCount()
-	 */
-    public int atomCount() {return leafList.getAtomCount();}
 
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getEventManager()
@@ -324,13 +309,6 @@ public class Box implements java.io.Serializable, IBox {
     public void removeSpeciesNotify(ISpecies species) {
         moleculeLists = (AtomArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
-    }
-
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#moleculeCount()
-	 */
-    public int moleculeCount() {
-        return allMoleculeList.getAtomCount();
     }
 
     /* (non-Javadoc)

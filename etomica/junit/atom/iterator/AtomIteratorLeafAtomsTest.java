@@ -43,7 +43,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
             iterator.setBox(box[i]);
             int count = nA0 * n0[i] + n1[i];
             LinkedList list = testIterates(iterator, ((AtomArrayList)box[i].getLeafList()).toArray());
-            assertEquals(list.size(), box[i].atomCount());
+            assertEquals(list.size(), box[i].getLeafList().getAtomCount());
             assertEquals(list.size(), count);
         }
 

@@ -69,18 +69,9 @@ public interface IBox {
 
 	public abstract void setDimensions(IVector d);
 
-	public abstract double volume(); //infinite volume unless using PBC
-
 	public abstract void setDensity(double rho);
 
-	public abstract double getDensity();
-
 	public abstract Dimension getDensityDimension();
-
-	/**
-	 * returns the number of leaf atoms in the box
-	 */
-	public abstract int atomCount();
 
 	/* (non-Javadoc)
 	 * @see etomica.box.IBox#getEventManager()
@@ -94,11 +85,6 @@ public interface IBox {
 	 * should only be called by the SpeciesManager.
 	 */
 	public abstract void removeSpeciesNotify(ISpecies species);
-
-	/**
-	 * Returns the number of molecules in the Box
-	 */
-	public abstract int moleculeCount();
 
 	/* (non-Javadoc)
 	 * @see etomica.box.IBox#getLeafList()

@@ -76,7 +76,7 @@ public class MCMoveMoleculeExchange extends MCMove {
             iBox = box2;
             dBox = box1;
         }
-        if(dBox.moleculeCount() == 0) { //no molecules to delete; trial is over
+        if(dBox.getMoleculeList().getAtomCount() == 0) { //no molecules to delete; trial is over
             uNew = uOld = 0.0;
             return false;
         }
@@ -119,8 +119,8 @@ public class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType().getSpecies())+1)/dBox.volume()
-               * iBox.volume()/iBox.getNMolecules(molecule.getType().getSpecies()); 
+        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType().getSpecies())+1)/dBox.getBoundary().volume()
+               * iBox.getBoundary().volume()/iBox.getNMolecules(molecule.getType().getSpecies()); 
     }
     
     public double getB() {

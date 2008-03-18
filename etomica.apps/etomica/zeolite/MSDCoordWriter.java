@@ -180,12 +180,12 @@ public class MSDCoordWriter implements IAction,
 		}
 				
 		public void setBox(IBox box){
-			atomOldCoord = new IVector[box.atomCount()];
+			atomOldCoord = new IVector[box.getLeafList().getAtomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();
 			}
 						
-			atomPBIarray = new int[box.atomCount()][space.D()];
+			atomPBIarray = new int[box.getLeafList().getAtomCount()][space.D()];
 			iterator.setBox(box);
 			boxDim = box.getBoundary().getDimensions();
 			updateAtomOldCoord();
