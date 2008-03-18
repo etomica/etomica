@@ -75,27 +75,18 @@ public class SimDimerMEAMadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
+    public IVector adAtomPos;
     public IAtomSet movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
-
-    public SimDimerMEAMadatom(String fileName, Boolean useConfig, Boolean ortho, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
+    public SimDimerMEAMadatom() {
         super(Space3D.getInstance(), true);    	
     	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
         addBox(box);
-    	
-    // INTEGRATOR - MD
-    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
-    	integratorMD.setTimeStep(0.001);
-    	integratorMD.setTemperature(Kelvin.UNIT.toSim(295));
-    	integratorMD.setThermostatInterval(100);
-    	integratorMD.setIsothermal(true);
-    	integratorMD.setBox(box);
-    	activityIntegrateMD = new ActivityIntegrate(integratorMD);
-
+        
     //SPECIES
     	// Sn
     	Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
@@ -206,7 +197,7 @@ public class SimDimerMEAMadatom extends Simulation{
         // Sn
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
-        IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
+        adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         adAtomPos.setX(0, 10.0);
         adAtomPos.setX(1, 0.1);
         adAtomPos.setX(2, -0.1);
@@ -231,64 +222,15 @@ public class SimDimerMEAMadatom extends Simulation{
         ((IAtomPositioned)iAtom).getPosition().setX(1, 0.9477016722828758);
         ((IAtomPositioned)iAtom).getPosition().setX(2, 1.0709520701043456);
         */
-        
-  //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
-    	/**
-    	//Ag
-    	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
-    	 */
-        /**
-        //Cu
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, fileName);
-         */
-        //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
-        integratorDimer.setBox(box);
-        integratorDimer.setOrtho(ortho, false, false);
-        integratorDimer.setFileName(fileName);
-        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
-
-    //ADD CONTROLLER ACTIONS
-    	getController().addAction(activityIntegrateMD);
-    	getController().addAction(activityIntegrateDimer);
-    	
-    //FINE-DIMER SETTINGS
-        if(saddleFine){
-        	getController().removeAction(activityIntegrateMD);
-        	
-        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
-        	configFile.initializeCoordinates(box);
-        	
-        	integratorDimer.file = fileName+"_fine";
-            integratorDimer.deltaR = 0.0005;
-            integratorDimer.dXl = 10E-5;       
-            integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
-            integratorDimer.dFrot = 0.01;
-        }
-                        
-    //INTEGRATOR - Minimum Energy Path
-        if(minSearch){
-        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
-        	configFile.initializeCoordinates(box);
-            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
-            integratorDimerMin.setBox(box);
-            activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
-            integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
-            getController().removeAction(activityIntegrateMD);
-            getController().removeAction(activityIntegrateDimer);
-            getController().addAction(activityIntegrateMin);
-        }
-
-     //SET MOVABLE ATOMS
-        IVector rij = space.makeVector();
+    }
+    
+    public void setMovableAtoms(double distance){
+    	IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         IAtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            if(Math.abs(rij.x(0))<5.0 && Math.abs(rij.x(1))<5.0 && Math.abs(rij.x(2))<5.0){
+            if(Math.abs(rij.x(0))<distance && Math.abs(rij.x(1))<distance && Math.abs(rij.x(2))<distance){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -297,132 +239,176 @@ public class SimDimerMEAMadatom extends Simulation{
            box.removeMolecule((IMolecule)movableList.getAtom(i));
         }
         movableSet = box.getMoleculeList(movable);
-  
-    //GENERATE CONFIGURATIONS FROM GAUSSIAN 
-        if(false){
-            getController().removeAction(activityIntegrateMD);
-            getController().removeAction(activityIntegrateDimer);
-            RandomNumberGenerator random = new RandomNumberGenerator();
-            IVector workVector = space.makeVector();
-            IVector [] currentPos = new IVector [movableSet.getAtomCount()];
-            for(int i=0; i<currentPos.length; i++){
-                currentPos[i] = space.makeVector();
-                currentPos[i].E(((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            }
-            ConfigurationFile configRandom = new ConfigurationFile(fileName+"_A_minimum");
-            configRandom.initializeCoordinates(box);
-            //Create multiple configurations
-            for(int m=0; m<50; m++){
-                WriteConfiguration genConfig = new WriteConfiguration(space);
-                genConfig.setBox(box);
-                genConfig.setConfName(fileName+"_config_"+m);
-                //Displaces atom's by at most +/-0.03 in each coordinate
-                for(int i=0; i<movableSet.getAtomCount(); i++){
-                    IVector atomPosition = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition();
-                    for(int j=0; j<3; j++){
-                        workVector.setX(j,0.03*random.nextGaussian());
-                    }
-                    atomPosition.Ev1Pv2(currentPos[i],workVector);
-                }
-                genConfig.actionPerformed();            
-            }
+    }
+    
+    public void initializeConfiguration(String fileName){
+    	ConfigurationFile config = new ConfigurationFile(fileName);
+        config.initializeCoordinates(box);
+    }
+    
+    public void generateConfigs(String fileName){       
+    	setMovableAtoms(5.0);
+    	
+        RandomNumberGenerator random = new RandomNumberGenerator();
+        IVector workVector = space.makeVector();
+        IVector [] currentPos = new IVector [movableSet.getAtomCount()];
+        for(int i=0; i<currentPos.length; i++){
+            currentPos[i] = space.makeVector();
+            currentPos[i].E(((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
         }
         
-    //RUN DIMER METHOD FROM GENERATED CONFIG FILE
-        if(useConfig){
-            ConfigurationFile configFileFromMD = new ConfigurationFile(fileName);
-            configFileFromMD.initializeCoordinates(box);
-        }
-     
-      //CALCULATE VIBRATIONAL MODES
-        if(calcModes){
-            getController().removeAction(activityIntegrateMD);
-            getController().removeAction(activityIntegrateDimer);
-            String file = fileName;
-            ConfigurationFile configFile = new ConfigurationFile(file);
-            configFile.initializeCoordinates(box);
-            
-            System.out.println(file+" ***Vibrational Normal Mode Analysis***");
-            System.out.println("  -Reading in system coordinates...");
-            
-            calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet, space);
-            d = new int[movableSet.getAtomCount()*3];
-            positions = new double[d.length];
-            dForces = new double[positions.length][positions.length];
-            
-            // setup position array
+        //Create multiple configurations
+        for(int m=0; m<50; m++){
+            WriteConfiguration genConfig = new WriteConfiguration(space);
+            genConfig.setBox(box);
+            genConfig.setConfName(fileName+"_config_"+m);
+            //Displaces atom's by at most +/-0.03 in each coordinate
             for(int i=0; i<movableSet.getAtomCount(); i++){
+                IVector atomPosition = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition();
                 for(int j=0; j<3; j++){
-                    positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
+                    workVector.setX(j,0.03*random.nextGaussian());
                 }
+                atomPosition.Ev1Pv2(currentPos[i],workVector);
             }
-            
-            // fill dForces array
-            for(int l=0; l<d.length; l++){
-                d[l] = 1;
-                System.arraycopy(calcGradientDifferentiable.df2(d, positions), 0, dForces[l], 0, d.length);
-                System.out.println("  -Calculating force constant row "+l+"...");
-                d[l] = 0;
-            }
-            
-            calcVibrationalModes = new CalcVibrationalModes(dForces);
-            modeSigns = new int[3];
-        
-            // calculate vibrational modes and frequencies
-            System.out.println("  -Calculating lambdas...");
-            lambdas = calcVibrationalModes.getLambdas();
-            System.out.println("  -Calculating frequencies...");
-            frequencies = calcVibrationalModes.getFrequencies();
-            modeSigns = calcVibrationalModes.getModeSigns();
-            
-            System.out.println("  -Writing data...");
-            // output data
-            FileWriter writer;
-            
-            //LAMBDAS
-            try { 
-                writer = new FileWriter(file+"_lambdas");
-                for(int i=0; i<lambdas.length; i++){
-                    writer.write(lambdas[i]+"\n");
-                }
-                writer.close();
-            }catch(IOException e) {
-                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-                return;
-            }
-            
-            //FREQUENCIES
-            try { 
-                writer = new FileWriter(file+"_frequencies");
-                for(int i=0; i<frequencies.length; i++){
-                    writer.write(frequencies[i]+"\n");
-                }
-                writer.close();
-            }catch(IOException e) {
-                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-                return;
-            }
-            
-            //MODE INFO
-            try { 
-                writer = new FileWriter(file+"_modeSigns");
-                writer.write(modeSigns[0]+" positive modes"+"\n");
-                writer.write(modeSigns[1]+" negative modes"+"\n");
-                writer.write(modeSigns[2]+" total modes"+"\n");
-                writer.close();
-            }catch(IOException e) {
-                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-                return;
-            }
-        
-            System.out.println("Done.");
-            
+            genConfig.actionPerformed();            
         }
     }
     
+    public void calculateVibrationalModes(String fileName){
+    	setMovableAtoms(5.0);
+    	
+        String file = fileName;
+        ConfigurationFile configFile = new ConfigurationFile(file);
+        configFile.initializeCoordinates(box); 
+        System.out.println(file+" ***Vibrational Normal Mode Analysis***");
+        System.out.println("  -Reading in system coordinates...");
+        calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet, space);
+        d = new int[movableSet.getAtomCount()*3];
+        positions = new double[d.length];
+        dForces = new double[positions.length][positions.length];
+        
+        // setup position array
+        for(int i=0; i<movableSet.getAtomCount(); i++){
+            for(int j=0; j<3; j++){
+                positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
+            }
+        }
+        // fill dForces array
+        for(int l=0; l<d.length; l++){
+            d[l] = 1;
+            System.arraycopy(calcGradientDifferentiable.df2(d, positions), 0, dForces[l], 0, d.length);
+            System.out.println("  -Calculating force constant row "+l+"...");
+            d[l] = 0;
+        }
+        calcVibrationalModes = new CalcVibrationalModes(dForces);
+        modeSigns = new int[3];
+    
+        // calculate vibrational modes and frequencies
+        System.out.println("  -Calculating lambdas...");
+        lambdas = calcVibrationalModes.getLambdas();
+        System.out.println("  -Calculating frequencies...");
+        frequencies = calcVibrationalModes.getFrequencies();
+        modeSigns = calcVibrationalModes.getModeSigns();
+        System.out.println("  -Writing data...");
+        // output data
+        FileWriter writer;
+        //LAMBDAS
+        try { 
+            writer = new FileWriter(file+"_lambdas");
+            for(int i=0; i<lambdas.length; i++){
+                writer.write(lambdas[i]+"\n");
+            }
+            writer.close();
+        }catch(IOException e) {
+            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
+            return;
+        }
+        //FREQUENCIES
+        try { 
+            writer = new FileWriter(file+"_frequencies");
+            for(int i=0; i<frequencies.length; i++){
+                writer.write(frequencies[i]+"\n");
+            }
+            writer.close();
+        }catch(IOException e) {
+            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
+            return;
+        }
+        //MODE INFO
+        try { 
+            writer = new FileWriter(file+"_modeSigns");
+            writer.write(modeSigns[0]+" positive modes"+"\n");
+            writer.write(modeSigns[1]+" negative modes"+"\n");
+            writer.write(modeSigns[2]+" total modes"+"\n");
+            writer.close();
+        }catch(IOException e) {
+            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
+            return;
+        }
+        System.out.println("Done.");
+    }
+    
+    public void enableMolecularDynamics(long maxSteps){
+    	setMovableAtoms(5.0);
+    	
+    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
+    	integratorMD.setTimeStep(0.001);
+    	integratorMD.setTemperature(Kelvin.UNIT.toSim(295));
+    	integratorMD.setThermostatInterval(100);
+    	integratorMD.setIsothermal(true);
+    	integratorMD.setBox(box);
+    	activityIntegrateMD = new ActivityIntegrate(integratorMD);
+    	getController().addAction(activityIntegrateMD);
+    	activityIntegrateMD.setMaxSteps(maxSteps);
+    }
+    
+    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
+    	setMovableAtoms(5.0);
+    	
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
+        //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
+        integratorDimer.setBox(box);
+       	integratorDimer.setOrtho(orthoSearch, false);
+        if(fine){
+        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        	configFile.initializeCoordinates(box);
+        	
+        	integratorDimer.setFileName(fileName+"_fine");
+            integratorDimer.deltaR = 0.0005;
+            integratorDimer.dXl = 10E-5;       
+            integratorDimer.deltaXmax = 0.005;
+            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFrot = 0.01;
+        }
+        integratorDimer.setFileName(fileName);
+        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
+    	getController().addAction(activityIntegrateDimer);
+    	activityIntegrateDimer.setMaxSteps(maxSteps);
+    }
+        
+	public void enableMinimumSearch(String fileName, Boolean normalDir, Boolean onlyMin){
+		setMovableAtoms(5.0);
+		
+        if(onlyMin){
+            ConfigurationFile configFile = new ConfigurationFile(fileName);
+            configFile.initializeCoordinates(box);
+        }
+        else{
+        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle_fine");
+        	configFile.initializeCoordinates(box);
+        }
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
+        integratorDimerMin.setBox(box);
+        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
+        integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
+        getController().addAction(activityIntegrateMin);
+	}
+    
     public static void main(String[] args){
 
-        final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("meam", false, false, false, false, false, false);
+        final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
 
         sim.activityIntegrateMD.setMaxSteps(0);
         sim.activityIntegrateDimer.setMaxSteps(0);
