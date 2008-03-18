@@ -22,15 +22,15 @@ public class SimDimerMEAMGBCluster extends Simulation{
 
 	public static void main(String[] args){
 	        
-        String fileName = args[0];
-        int mdSteps = Integer.parseInt(args[1]);
-        int h = Integer.parseInt(args[2]);
-        int k = Integer.parseInt(args[3]);
-        int l = Integer.parseInt(args[4]);
+        String fileName = "gb210"; //args[0];
+        int mdSteps = 10000;//Integer.parseInt(args[1]);
+        //int h = Integer.parseInt(args[2]);
+        //int k = Integer.parseInt(args[3]);
+        //int l = Integer.parseInt(args[4]);
         
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
     	
-    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("fileName",new int[] {h,k,l});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("fileName",new int[] {2,1,0});
     	
     	XYZWriter xyzwriter = new XYZWriter(sim.box);
         xyzwriter.setFileName(fileName+".xyz");

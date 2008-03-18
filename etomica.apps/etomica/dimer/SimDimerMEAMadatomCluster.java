@@ -22,54 +22,23 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	        
         String fileName = args[0];
         int mdSteps = Integer.parseInt(args[1]);
+        boolean ortho = Boolean.parseBoolean(args[2]);
         
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
+
+    	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
+    	sim.initializeConfiguration(fileName);
+    	sim.enableDimerSearch(fileName, mdSteps, ortho, false);
+
+    	XYZWriter xyzwriter = new XYZWriter(sim.box);
+    	xyzwriter.setFileName(fileName+".xyz");
+    	xyzwriter.setIsAppend(true);
     	
-    	//Simulation 1 - MD and Dimer search
-    	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false, false, false);
-    	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
-    	sim1.activityIntegrateDimer.setMaxSteps(2000);
+    	sim.integratorDimer.addIntervalAction(xyzwriter);
+    	sim.integratorDimer.setActionInterval(xyzwriter, 5);
     	
-    	XYZWriter xyzwritermd = new XYZWriter(sim1.box);
-        xyzwritermd.setFileName(fileName+"-md.xyz");
-        xyzwritermd.setIsAppend(true);
-    	XYZWriter xyzwriterd = new XYZWriter(sim1.box);
-        xyzwriterd.setFileName(fileName+"-d.xyz");
-        xyzwriterd.setIsAppend(true);
-        sim1.integratorMD.addIntervalAction(xyzwritermd);
-        sim1.integratorMD.setActionInterval(xyzwritermd, 10);
-        sim1.integratorDimer.addIntervalAction(xyzwriterd);
-        sim1.integratorDimer.setActionInterval(xyzwriterd, 1);
-        
-        sim1.getController().actionPerformed();
-        /**
-        //Simulation 2 - Fine grain Dimer search
-        final SimDimerMEAMadatom sim2 = new SimDimerMEAMadatom(fileName, true, false, false, false);
-        sim2.activityIntegrateDimer.setMaxSteps(100);
-        sim2.getController().actionPerformed();
-        
-        //Simulation 3 - Vibrational normal mode analysis
-        final SimDimerMEAMadatom sim3 = new SimDimerMEAMadatom(fileName+"_fine_saddle", false, true, false, false);
-        sim3.getController().actionPerformed();
-        
-        //Simulation 4 - Minimum Search - A direction
-        final SimDimerMEAMadatom sim4 = new SimDimerMEAMadatom(fileName, false, false, true, false);
-    	sim4.activityIntegrateMin.setMaxSteps(500);
-        sim4.getController().actionPerformed();
-        
-	    //Simulation 5 - Vibrational normal mode analysis
-        final SimDimerMEAMadatom sim5 = new SimDimerMEAMadatom(fileName+"_A_minimum", false, true, false, false);
-        sim5.getController().actionPerformed();
-        
-        //Simulation 6 - Minimum Search - B direction
-        final SimDimerMEAMadatom sim6 = new SimDimerMEAMadatom(fileName, false, false, true, true);
-    	sim6.activityIntegrateMin.setMaxSteps(500);
-        sim6.getController().actionPerformed();
-        
-	    //Simulation 7 - Vibrational normal mode analysis
-        final SimDimerMEAMadatom sim7 = new SimDimerMEAMadatom(fileName+"_B_minimum", false, true, false, false);
-        sim7.getController().actionPerformed();
-        */
+    	sim.getController().actionPerformed();
+
     }
 
 }

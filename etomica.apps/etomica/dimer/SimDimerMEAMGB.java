@@ -144,7 +144,7 @@ public class SimDimerMEAMGB extends Simulation{
         //Cu
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, "CuAdatom");
          */
-        integratorDimer.setOrtho(false, false, false);
+        integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(file);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
 
@@ -228,7 +228,7 @@ public class SimDimerMEAMGB extends Simulation{
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
         gbtilt.setGBplane(millerPlane);
-        gbtilt.setBoxSize(box, new int[] {6,6,10});
+        gbtilt.setBoxSize(box, new int[] {4,4,12});
         gbtilt.initializeCoordinates(box);
         
         /*
@@ -250,7 +250,7 @@ public class SimDimerMEAMGB extends Simulation{
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomGB";
-    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {1,1,1});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {0,3,1});
     	
     	sim.activityIntegrateMD.setMaxSteps(900);
         sim.activityIntegrateDimer.setMaxSteps(1000);

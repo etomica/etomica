@@ -247,7 +247,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setOrtho(ortho, false, false);
+        integratorDimer.setOrtho(ortho, false);
         integratorDimer.setFileName(fileName);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
