@@ -71,8 +71,6 @@ public interface IBox {
 
 	public abstract void setDensity(double rho);
 
-	public abstract Dimension getDensityDimension();
-
 	/* (non-Javadoc)
 	 * @see etomica.box.IBox#getEventManager()
 	 */

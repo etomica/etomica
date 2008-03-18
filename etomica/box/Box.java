@@ -277,13 +277,6 @@ public class Box implements java.io.Serializable, IBox {
         inflater.setScale(scale);
         inflater.actionPerformed();
     }
-    
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#getDensityDimension()
-	 */
-    public Dimension getDensityDimension() {
-        return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
-    }
 
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#getEventManager()
