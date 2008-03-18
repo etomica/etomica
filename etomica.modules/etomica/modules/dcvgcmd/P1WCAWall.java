@@ -50,7 +50,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         IVector dimensions = boundary.getDimensions();
         double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
         double dzHalf = 0.5 * dimensions.x(wallDim);
-        return energy(sigma + dzHalf + rz) + energy(sigma + dzHalf - rz);
+        return energy(dzHalf + rz) + energy(dzHalf - rz);
     }
 
     private double energy(double r) {
@@ -77,7 +77,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         IVector dimensions = boundary.getDimensions();
         double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
         double dzHalf = 0.5 * dimensions.x(wallDim);
-        double gradz = gradient(sigma + rz + dzHalf) - gradient(sigma + dzHalf - rz);
+        double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
         gradient[0].setX(wallDim, gradz);
         return gradient;
     }
