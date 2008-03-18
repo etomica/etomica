@@ -125,13 +125,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	/**
 	 * Set's the Dimer search's orthogonality criteria.
 	 * @param orthoON (if true) Once the rotation scheme has converged to a small enough Frot value, the ortogonal search is started.
-	 * @param o1 (if true) Dimer follows a path orthogonal to the system's lowest curvature mode.
 	 * @param o2 (if true) Launches another orthogonal path search after the primary orthogonal search.
 	 * 
 	 */
-	public void setOrtho(boolean orthoON, boolean o1, boolean o2){
-		startOrtho = 
-		ortho = o1;
+	public void setOrtho(boolean orthoON, boolean o2){
+		startOrtho = orthoON;
 		ortho2 = o2;
 	}
 	
