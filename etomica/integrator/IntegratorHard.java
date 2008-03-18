@@ -67,10 +67,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     protected final ReverseCollisionHandler reverseCollisionHandler;
     protected final CollisionHandlerUp collisionHandlerUp;
     protected final CollisionHandlerDown collisionHandlerDown;
-    
+
     protected double collisionTimeStep;
     protected int collisionCount;
-    
+
     protected AtomAgentManager agentManager;
     protected final AtomTypeAgentManager nullPotentialManager;
     protected final boolean doMoleculePotentials;
@@ -78,7 +78,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, false);
     }
-    
+
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, Space _space, boolean doMoleculePotentials) {
         super(potentialMaster,random,timeStep,temperature, _space);
@@ -121,7 +121,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
         }
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.Integrator#setTemperature(double)
      */
@@ -129,11 +129,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         super.setTemperature(temperature);
         minDelta = -5.e-8/Math.sqrt(temperature);
     }
-    
+
     public IntegratorHard.Agent colliderAgent() {
         return colliderAgent;
     }
-    
+
     /** 
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
@@ -273,11 +273,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 
         if(isothermal) doThermostat();
     }//end of doStep
-    
+
     public int getCollisionCount() {
         return collisionCount;
     }
-    
+
    /**
 	* Loops through all atoms to identify the one with the smallest value of collisionTime
 	* Collision time is obtained from the value stored in the Integrator.Agent from each atom.
@@ -338,7 +338,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(box, downList, collisionHandlerDown);
     }
-    
 
     /**
      * updates collision time for a single atom (and any atom that might a 
@@ -395,7 +394,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
         }
     }
-    
 
 	/**
      * Advances all atom coordinates by tStep, without any intervening collisions.
@@ -516,7 +514,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         // recalculate collision times
         resetCollisionTimes();
     }
-    
+
     /**
      * Updates collision time appropriately after randomizing momentum
      * as part of the Andersen thermostat.
@@ -525,7 +523,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         super.randomizeMomentum(atom);
         updateAtom(doMoleculePotentials ? ((IAtomLeaf)atom).getParentGroup() : atom);
     }
-    
+
     /**
      * Registers an object that implements the CollisionListener interface.
      * This causes the collisionAction method of the object to be called after each collision.
@@ -539,6 +537,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         //OK, not in list, now register it by adding it to the beginning of the list
         collisionListenerHead = new CollisionListenerLinker(cl, collisionListenerHead);
     }
+
     /**
      * De-registers an object from the list of collision listeners.
      * No exception is generated if the listener is not in the list; 
@@ -602,7 +601,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
         }
     }
-    
+
     //collision handler is passed to the potential and is notified of each collision
     //the potential detects.  The collision handler contains the necessary logic to
     //process this information so that the collision lists are kept up to date.
@@ -627,7 +626,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         public void reset() {
             atom1 = null;
         }
-        
+
         public void setAgentManager(AtomAgentManager newAgentManager) {
             integratorAgentManager = newAgentManager;
         }
@@ -671,15 +670,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         CollisionHandlerDown(TreeList list) {
             eventList = list;
         }
-        
+
         public void setAgentManager(AtomAgentManager newAgentManager) {
             integratorAgentManager = newAgentManager;
         }
-        
+
 		public void doCalculation(IAtomSet atoms, IPotential potential) {
 			if (atoms.getAtomCount() != 2) return;
             PotentialHard pHard = (PotentialHard)potential;
-            
+
 			double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
                 System.out.println("collision down time "+collisionTime+" for atoms "+atoms+" "+pHard.getClass());
@@ -699,7 +698,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 			}
 		}
 	}
-
 
     /**
      * A PotentialCalculation to find atoms that thought they would collide
@@ -739,7 +737,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 		EtomicaInfo info = new EtomicaInfo("Collision-based molecular dynamics simulation of hard potentials");
 		return info;
 	}
-    
+
     /**
      * Class used to construct a linked list of collision listeners
      */
@@ -756,7 +754,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     public Class getAgentClass() {
         return Agent.class;
     }
-    
+
     /**
 	 * Produces the Agent for this integrator. This method gets
      * called by the agentManager, which allocates/deallocates 
@@ -767,7 +765,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
         return agent;
     }
-    
+
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
     public void releaseAgent(Object agent, IAtom atom) {}
@@ -801,7 +799,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         protected AtomSetSinglet atomSetSinglet;
         protected double nullCollisionTime;
         protected final IntegratorHard integrator;
-        
+
         public Agent(IAtom a, IntegratorHard integrator) {
             atom = a;
             eventLinker = new TreeLinker(this);
@@ -809,14 +807,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             nullCollisionTime = Double.POSITIVE_INFINITY;
             this.integrator = integrator;
         }
-        
+
         public void setNullPotential(PotentialHard newNullPotential) {
             nullPotential = newNullPotential;
         }
-        
+
         public String toString() {
             return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
         }
+
         public final IAtom atom() {return atom;}
         public final IAtom collisionPartner() {return collisionPartner;}
 
@@ -841,7 +840,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
             collisionPartner = null;
         }
-        
+
         /**
          * resets time, potential and partner.  caller should remove 
          * eventLinker from the tree if needed before calling this method.
@@ -866,7 +865,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
             collisionPartner = null;
         }
-        
+
         /**
          * Sets parameters associated with next two-body collision of this atom with another atom.
          *
@@ -880,7 +879,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             eventLinker.sortKey = time;
         }
 
-
         /**
          * Decreases the recorded time to collision of this atom
          * This action is performed when the atom is advanced without a collision
@@ -889,12 +887,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             eventLinker.sortKey -= interval;
             nullCollisionTime -= interval;
         }
+
         /**
          * Accessor method for the time to next collision of this atom
          */
         public final double collisionTime() {return eventLinker.sortKey;}
     }//end of Agent
-    
+
     public interface CollisionListener {
         public void collisionAction(Agent colliderAgent);
     }
