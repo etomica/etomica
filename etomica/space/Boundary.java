@@ -78,8 +78,14 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
 	 */
     public abstract float[][] getOverflowShifts(IVector r, double distance);
 
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#imageOrigins(int)
+	/**
+	 * Set of vectors describing the displacements needed to translate the
+	 * central image to all of the periodic images. The first index specifies
+	 * each periodic image, while the second index indicates the xyz components
+	 * of the translation vector.
+	 * 
+	 * @param nShells
+	 *            the number of shells of images to be computed
 	 */
     public abstract double[][] imageOrigins(int nShells);
 

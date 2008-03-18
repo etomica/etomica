@@ -59,10 +59,6 @@ public interface IBoundary extends NearestImageTransformer {
 	 */
 	public abstract IVector randomPosition();
 
-	public abstract IVector[] getPeriodicVectors();
-
-	public abstract IndexIteratorSizable getIndexIterator();
-
 	/**
 	 * Provides information needed so that drawing can be done of portions of
 	 * the periodic images of an atom that overflow into the volume (because the
@@ -77,17 +73,6 @@ public interface IBoundary extends NearestImageTransformer {
 	 *         needed to the overflow image
 	 */
 	public abstract float[][] getOverflowShifts(IVector r, double distance);
-
-	/**
-	 * Set of vectors describing the displacements needed to translate the
-	 * central image to all of the periodic images. The first index specifies
-	 * each periodic image, while the second index indicates the xyz components
-	 * of the translation vector.
-	 * 
-	 * @param nShells
-	 *            the number of shells of images to be computed
-	 */
-	public abstract double[][] imageOrigins(int nShells);
 
 	/**
 	 * Returns the length of the sides of a rectangular box oriented in the lab

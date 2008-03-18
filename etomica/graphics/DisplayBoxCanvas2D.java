@@ -195,12 +195,15 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             }
         }
 
-        //Draw periodic images if indicated
-        if(displayBox.getImageShells() > 0) {
-            double[][] origins = displayBox.getBox().getBoundary().imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
-            for(int i=0; i<origins.length; i++) {
-                g.copyArea(displayBox.getOrigin()[0],displayBox.getOrigin()[1],displayBox.getDrawSize()[0],displayBox.getDrawSize()[1],(int)(displayBox.getToPixels()*origins[i][0]),(int)(displayBox.getToPixels()*origins[i][1]));
-            }
+        //Draw periodic images if indicated ONLY for an etomica Boundary
+        if(displayBox.getBox().getBoundary() instanceof Boundary) {
+        	if(displayBox.getImageShells() > 0) {
+
+	            double[][] origins = ((Boundary)displayBox.getBox().getBoundary()).imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
+	            for(int i=0; i<origins.length; i++) {
+	                g.copyArea(displayBox.getOrigin()[0],displayBox.getOrigin()[1],displayBox.getDrawSize()[0],displayBox.getDrawSize()[1],(int)(displayBox.getToPixels()*origins[i][0]),(int)(displayBox.getToPixels()*origins[i][1]));
+	            }
+        	}
         }
         //Draw bar showing scale if indicated
         if(writeScale) {

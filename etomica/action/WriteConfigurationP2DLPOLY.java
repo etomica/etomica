@@ -18,6 +18,7 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryPeriodic;
 import etomica.space3d.BoundaryTruncatedOctahedron;
@@ -69,6 +70,9 @@ public class WriteConfigurationP2DLPOLY implements Action {
      * Sets the box whose atom coordinates get written to the file.
      */
     public void setBox(IBox newBox) {
+    	if(!(box.getBoundary() instanceof Boundary)) {
+    		throw new RuntimeException("The boundary within the box in WriteConfigurationP2DLPOLY MUST be derived from etomica.space.Boundary.");
+        }
         box = newBox;
         setDoApplyPBC(true);
     }
@@ -165,7 +169,7 @@ public class WriteConfigurationP2DLPOLY implements Action {
         
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
         	
-        	IVector[] cell = boundary.getPeriodicVectors();
+        	IVector[] cell = ((Boundary)boundary).getPeriodicVectors();
         	for (int i=0; i<cell.length; i++){
         		for (int j=0; j<3; j++){
         			/*

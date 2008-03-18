@@ -300,9 +300,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			if (polytope != oldPolytope) {
 	
 				// force trunc. oct. to make vecs else null pointer exception
-				boundary.getPeriodicVectors();
+				((Boundary)boundary).getPeriodicVectors();
 				// send iterator to g3dsys
-				gsys.setBoundaryVectorsIterator(wrapIndexIterator((boundary
+				gsys.setBoundaryVectorsIterator(wrapIndexIterator((((Boundary)boundary)
 						.getIndexIterator())));
 	
 				if (polytopeLines != null) {
@@ -350,21 +350,22 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				boundaryDisplayed = true;
 			}
 
-		}
 
-		// set boundary vectors for image shell
-		IVector[] vecs = boundary.getPeriodicVectors();
-		double[] dvecs = new double[vecs.length * 3]; // assuming
-														// 3-dimensional vectors
-		for (int i = 0; i < vecs.length; i++) {
-			if (vecs[i] == null)
-				continue;
-			dvecs[i * 3] = vecs[i].x(0);
-			dvecs[i * 3 + 1] = vecs[i].x(1);
-			dvecs[i * 3 + 2] = vecs[i].x(2);
-		}
-		gsys.setBoundaryVectors(dvecs);
 
+			// set boundary vectors for image shell
+			IVector[] vecs = ((Boundary)boundary).getPeriodicVectors();
+			double[] dvecs = new double[vecs.length * 3]; // assuming
+															// 3-dimensional vectors
+			for (int i = 0; i < vecs.length; i++) {
+				if (vecs[i] == null)
+					continue;
+				dvecs[i * 3] = vecs[i].x(0);
+				dvecs[i * 3 + 1] = vecs[i].x(1);
+				dvecs[i * 3 + 2] = vecs[i].x(2);
+			}
+			gsys.setBoundaryVectors(dvecs);
+		}
+		
 		IVector bounds = boundary.getBoundingBox();
 		gsys.setBoundingBox((float) (-bounds.x(0) * 0.5),
 				(float) (-bounds.x(1) * 0.5), (float) (-bounds.x(2) * 0.5),
