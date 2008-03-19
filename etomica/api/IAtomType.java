@@ -36,6 +36,4 @@ public interface IAtomType {
 
 	public abstract int compareTo(Object otherAtomType);
 
-	public abstract String toString();
-
 }
