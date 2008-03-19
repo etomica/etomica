@@ -79,7 +79,7 @@ public class NormalModesSoftSpherical implements NormalModes {
             }
             final DataTensor tensor = new DataTensor(Space3D.getInstance());
             final DataInfo dataInfo = new DataTensor.DataInfoTensor("",Dimension.MIXED,Space3D.getInstance());
-            final Tensor3D identity = new Tensor3D(new double[] {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0});
+            final Tensor3D identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
         };
         
         LatticeSum summer = new LatticeSum(lattice);
