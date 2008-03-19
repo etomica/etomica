@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
