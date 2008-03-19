@@ -16,10 +16,8 @@ public interface IPotential {
     public Dimension getRangeDimension();
 
     /**
-     * Informs the potential of the box on which it acts. Typically this
-     * requires at least that it update the nearestImageTransformer of its
-     * coordinatePair (if it uses one), e.g.:
-     * cPair.setNearestImageTransformer(box.boundary());
+     * Informs the potential of the box on which it acts so that it can
+     * properly consider the boundaries.
      */
     public void setBox(IBox box);
 
