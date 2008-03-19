@@ -59,8 +59,8 @@ public interface Tensor extends Cloneable {
      * Tensor values are filled row-wise, so array values 0, 1, 2,... are 
      * assigned to xx, xy, xz, yx, etc. respectively.
      */
-    public abstract void E(double[] d);
-    
+    public abstract void E(double[][] d);
+
     /**
      * Applies the given tensor transformation to this vector, replaced its
      * elements with the transformed values.

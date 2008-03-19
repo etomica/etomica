@@ -4,7 +4,7 @@ package etomica.space3d;
 import etomica.api.IFunction;
 import etomica.api.IVector;
 import etomica.space.Tensor;
-import etomica.space2d.Tensor2D;
+import etomica.util.Debug;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
 
@@ -23,7 +23,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
      * Constructs tensor with elements set by the given array.  Elements
      * are interpreted in order as xx, xy, xz, yx, yy, yz, zx, zy, zz.
      */
-    public Tensor3D (double[] d) {
+    public Tensor3D (double[][] d) {
         this.E(d);
     }
     
@@ -204,14 +204,21 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
     
     public void E(double[] d) {
-        if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
+        if(Debug.ON && d.length != 9) throw new IllegalArgumentException("Array size incorrect for tensor");
         xx = d[0]; xy = d[1]; xz = d[2];
         yx = d[3]; yy = d[4]; yz = d[5];
         zx = d[6]; zy = d[7]; zz = d[8];
     }
     
+    public void E(double[][] d) {
+        if(Debug.ON && d.length != 3) throw new IllegalArgumentException("Array size incorrect for tensor");
+        xx = d[0][0]; xy = d[0][1]; xz = d[0][2];
+        yx = d[1][0]; yy = d[1][1]; yz = d[1][2];
+        zx = d[2][0]; zy = d[2][1]; zz = d[2][2];
+    }
+    
     public void assignTo(double[] d) {
-        if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
+        if(Debug.ON && d.length != 9) throw new IllegalArgumentException("Array size incorrect for tensor");
         d[0] = xx; d[1] = xy; d[2] = xz; 
         d[3] = yx; d[4] = yy; d[5] = yz;
         d[6] = zx; d[7] = zy; d[8] = zz;

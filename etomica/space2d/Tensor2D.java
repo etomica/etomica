@@ -23,7 +23,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
      * Constructs tensor with elements set by the given array.  Elements
      * are interpreted in order as xx, xy, yx, yy.
      */
-    public Tensor2D (double[] d) {
+    public Tensor2D (double[][] d) {
         this.E(d);
     }
     
@@ -178,6 +178,12 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         xx = d[0]; xy = d[1];
         yx = d[2]; yy = d[3];
+    }
+    
+    public void E(double[][] d) {
+        if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
+        xx = d[0][0]; xy = d[0][1];
+        yx = d[1][0]; yy = d[1][1];
     }
     
     public void assignTo(double[] d) {

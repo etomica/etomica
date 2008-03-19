@@ -20,7 +20,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = 0.0;
     }
 
-    public Tensor1D(double[] d) {
+    public Tensor1D(double[][] d) {
         this.E(d);
     }
 
@@ -54,6 +54,10 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
 
     public void E(double a) {
         xx = a;
+    }
+    
+    public void E(double[][] a) {
+        xx = a[0][0];
     }
     
     public void E(IVector[] v) {
