@@ -34,6 +34,4 @@ public interface IAtomType {
 	 */
 	public abstract boolean isInteracting();
 
-	public abstract int compareTo(Object otherAtomType);
-
 }
