@@ -61,7 +61,6 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IAtom targetAtom = id.getTargetAtom();
-    	mostRecentBox = box;
 
         for(PotentialLinker link=first; link!=null; link=link.next) {
     	    if(!link.enabled) continue;
@@ -346,7 +345,6 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     
     private static final long serialVersionUID = 1L;
 	protected PotentialMasterLrc lrcMaster;
-	protected IBox mostRecentBox = null;
 	protected IteratorFactory iteratorFactory;
 
     protected PotentialLinker first, last;

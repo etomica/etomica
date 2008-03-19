@@ -33,16 +33,12 @@ public class PotentialMasterLrc extends PotentialMaster {
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
-        boolean boxChanged = (box != mostRecentBox);
-        mostRecentBox = box;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(!link.enabled) continue;
             final IPotential potential = link.potential;
             final AtomsetIteratorPDT atomIterator = link.iterator;
-            if(boxChanged) {
-                atomIterator.setBox(box);
-                potential.setBox(box);
-            }
+            atomIterator.setBox(box);
+            potential.setBox(box);
             atomIterator.setTarget(targetAtom);
             ((Potential0Lrc)potential).setTargetAtoms(targetAtom);
             if (potential instanceof PotentialGroup) {
