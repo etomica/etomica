@@ -9,9 +9,8 @@ import javax.swing.border.TitledBorder;
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.api.IController;
 import etomica.api.ISimulation;
-import etomica.simulation.Simulation;
+import etomica.data.DataPump;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.Space;
 
@@ -94,7 +93,7 @@ public class DeviceTrioControllerButton extends Device {
      * This streams from this ArrayList are reset when the user presses the 
      * reinitialize and reset averages buttons.
      */
-    public ArrayList getDataStreamPumps() {
+    public ArrayList<DataPump> getDataStreamPumps() {
         return simRestart.getDataResetAction().getDataStreamPumps();
     }
     

@@ -2,6 +2,7 @@ package etomica.action;
 
 import java.util.ArrayList;
 
+import etomica.data.DataPump;
 import etomica.data.DataStreamAction;
 
 /**
@@ -12,11 +13,11 @@ import etomica.data.DataStreamAction;
 public class SimulationDataAction implements Action, java.io.Serializable {
 
     public SimulationDataAction(DataStreamAction action) {
-		dataStreamPumps = new ArrayList();
+		dataStreamPumps = new ArrayList<DataPump>();
         streamAction = action;
 	}
     
-    public ArrayList getDataStreamPumps() {
+    public ArrayList<DataPump> getDataStreamPumps() {
         return dataStreamPumps;
     }
 
@@ -28,6 +29,6 @@ public class SimulationDataAction implements Action, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-	private final ArrayList dataStreamPumps;
+	private final ArrayList<DataPump> dataStreamPumps;
     private DataStreamAction streamAction;
 }
