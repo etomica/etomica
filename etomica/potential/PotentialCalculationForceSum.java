@@ -20,6 +20,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         integratorAgentManager = agentManager;
         agentIterator = integratorAgentManager.makeIterator();
     }
+
     /**
      * Re-zeros the force vectors.
      *
@@ -34,27 +35,27 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
             }
         }
     }
-    
+
     /**
-	 * Adds forces due to given potential acting on the atoms produced by the iterator.
-	 * Implemented for only 1- and 2-body potentials.
-	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
-		PotentialSoft potentialSoft = (PotentialSoft)potential;
-		int nBody = potential.nBody();
-		IVector[] f = potentialSoft.gradient(atoms);
-		switch(nBody) {
-			case 1:
-				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-				break;
-			case 2:
+     * Adds forces due to given potential acting on the atoms produced by the iterator.
+     * Implemented for only 1- and 2-body potentials.
+     */
+    public void doCalculation(IAtomSet atoms, IPotential potential) {
+        PotentialSoft potentialSoft = (PotentialSoft)potential;
+        int nBody = potential.nBody();
+        IVector[] f = potentialSoft.gradient(atoms);
+        switch(nBody) {
+            case 1:
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+                break;
+            case 2:
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
-		 		break;
+                break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
-                //array of vectors to be large enough for one AtomSet and then not resize it
-                //back down for another AtomSet with fewer atoms.
+                //array of vectors to be large enough for one IAtomSet and then not resize it
+                //back down for another IAtomSet with fewer atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++) {
                     ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
                 }
