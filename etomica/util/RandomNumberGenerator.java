@@ -31,6 +31,10 @@ public class RandomNumberGenerator implements IRandom, java.io.Serializable {
         return jRandom.nextGaussian();
     }
     
+    public Random getWrappedRandom() {
+        return jRandom;
+    }
+    
     private static final long serialVersionUID = 1L;
     private final Random jRandom;
 }
