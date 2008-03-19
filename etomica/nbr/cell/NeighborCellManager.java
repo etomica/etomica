@@ -132,6 +132,23 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         lattice.setDimensions(dimensions);
         for (int i=0; i<D; i++) {
             nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
+            if (nCells[i] < cellRange*2+1) {
+                // the box is too small for the lattice, but things might still be OK.
+                // it's possible the box is big enough for the potential range, but
+                // the extra padding that's needed for happy cells is missing.
+                // capping the number of cells means we can proceed and just don't
+                // get any advantage from using cells in this direction.  ideally
+                // we would make the neighbor iterator non-wrapping in this direction
+                // and use 1 cell.
+                nCells[i] = cellRange*2+1;
+                if (range > dimensions.x(i)/2) {
+                    // box was too small for the potentials too.  doh.
+                    // Perhaps the direction is not periodic or we're in the middle
+                    // of multiple changes which will (in the end) be happy.
+                    System.err.println("range is greater than half the box length in direction "+i);
+                }
+                System.err.println("capping number of cells in direction "+i+" at "+nCells[i]);
+            }
         }
         //only update the lattice (expensive) if the number of cells changed
         int[] oldSize = lattice.getSize();
