@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.space.Space;
 import etomica.units.Dimension;
 
 public interface IPotential {

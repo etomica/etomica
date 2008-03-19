@@ -2,7 +2,6 @@ package etomica.api;
 
 import etomica.atom.iterator.IteratorDirective;
 import etomica.chem.models.Model;
-import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMasterLrc;

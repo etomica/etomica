@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.lattice.IndexIteratorSizable;
 import etomica.space.NearestImageTransformer;
 
 public interface IBoundary extends NearestImageTransformer {

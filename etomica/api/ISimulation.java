@@ -1,9 +1,7 @@
 package etomica.api;
 
-import etomica.action.activity.Controller;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
-import etomica.space.Space;
 
 public interface ISimulation {
 
