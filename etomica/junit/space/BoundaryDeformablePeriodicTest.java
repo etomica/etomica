@@ -29,9 +29,9 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
 //                                                          0.8, 1.0});
 //        Tensor2D deformation = new Tensor2D(new double[] {1.0, 12.0,
 //      -.20, 1.0});
-        Tensor3D deformation = new Tensor3D(new double[] {1.0, 0.10, 0.1,
-                                                         -0.2, 1.0, .15,
-                                                         -0.1, 0.5, 1.0});
+        Tensor3D deformation = new Tensor3D(new double[][] {{1.0, 0.10, 0.1},
+                                                            {-0.2, 1.0, .15},
+                                                            {-0.1, 0.5, 1.0}});
         deformation.TE(30);
         boundary.deform(deformation);
         //System.out.println("in constructor, boundary="+boundary.getDimensions().toString());
