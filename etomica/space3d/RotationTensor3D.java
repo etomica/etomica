@@ -70,7 +70,7 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         
         Vector3D r1 = new Vector3D(2,2,3);
         System.out.println("r1_before" + r1.toString());
-        Tensor3D tensor = new Tensor3D(new double[] {1,2,0,1,1,2,0,0,1});
+        Tensor3D tensor = new Tensor3D(new double[][] {{1,2,0},{1,1,2},{0,0,1}});
         RotationTensor3D tensor2 = new RotationTensor3D();
         tensor2.E(tensor);
         System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
