@@ -1,6 +1,7 @@
 package etomica.nbr.list;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -14,7 +15,6 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;

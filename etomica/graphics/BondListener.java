@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -12,7 +13,6 @@ import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;

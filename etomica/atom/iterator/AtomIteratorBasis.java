@@ -7,10 +7,10 @@ package etomica.atom.iterator;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.atom.AtomArrayList;
-import etomica.atom.IAtomLeaf;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification

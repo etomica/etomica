@@ -1,6 +1,7 @@
 package etomica.box;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -13,7 +14,6 @@ import etomica.api.IVector;
 import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomLeaf;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.units.Dimension;

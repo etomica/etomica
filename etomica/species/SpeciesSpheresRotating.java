@@ -2,11 +2,11 @@ package etomica.species;
 
 import java.lang.reflect.Constructor;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAngular;
 import etomica.atom.AtomLeafAngularDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.IAtomLeaf;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;
 

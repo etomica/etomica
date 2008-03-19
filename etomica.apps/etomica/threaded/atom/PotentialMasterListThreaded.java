@@ -1,6 +1,7 @@
 package etomica.threaded.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -9,7 +10,6 @@ import etomica.api.ISimulation;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeMolecule;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.PotentialGroupNbr;

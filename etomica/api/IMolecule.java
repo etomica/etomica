@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.atom.IAtomLeaf;
 
 /**
  * Interface for a group of IAtoms, typically a molecule or a SpeciesAgent.

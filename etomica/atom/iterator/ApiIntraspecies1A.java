@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.AtomToAtomSetSpecies;
-import etomica.atom.IAtomLeaf;
 
 /**
  * Gives pairs formed from the molecules of a species in a box, taking one

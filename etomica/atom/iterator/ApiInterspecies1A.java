@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**

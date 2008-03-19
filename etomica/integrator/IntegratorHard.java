@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -21,7 +22,6 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxEvent;

@@ -1,7 +1,7 @@
 package etomica.nbr;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.atom.IAtomLeaf;
 
 /**
  * @author andrew

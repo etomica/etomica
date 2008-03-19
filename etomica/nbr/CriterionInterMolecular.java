@@ -1,7 +1,7 @@
 package etomica.nbr;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.atom.IAtomLeaf;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in the same 

@@ -1,6 +1,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -9,7 +10,6 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.data.Data;
 import etomica.data.DataSource;

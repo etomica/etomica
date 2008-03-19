@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 
 public class AtomToParentChildList implements AtomToAtomSet, java.io.Serializable {

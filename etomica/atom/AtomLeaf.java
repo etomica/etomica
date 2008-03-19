@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;

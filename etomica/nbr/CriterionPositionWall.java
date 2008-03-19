@@ -1,13 +1,13 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;

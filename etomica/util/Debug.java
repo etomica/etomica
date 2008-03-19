@@ -1,10 +1,10 @@
 package etomica.util;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
-import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 
 /**
