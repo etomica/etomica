@@ -5,10 +5,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate
@@ -34,13 +31,6 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
      * contain all Atoms.
      */
     public void setTarget(IAtom newTargetAtom) {
-    }
-
-    /** 
-     * Has no effect, but is included as part of the AtomsetIteratorPDT interface.
-     * Besides, you didn't really want to iterate down, did you?
-     */
-    public void setDirection(Direction newDirection) {
     }
 
     public void reset() {
