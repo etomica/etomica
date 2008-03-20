@@ -147,7 +147,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
                     // of multiple changes which will (in the end) be happy.
                     System.err.println("range is greater than half the box length in direction "+i);
                 }
-                System.err.println("capping number of cells in direction "+i+" at "+nCells[i]);
+                if (Debug.ON) System.err.println("capping number of cells in direction "+i+" at "+nCells[i]);
             }
         }
         //only update the lattice (expensive) if the number of cells changed
