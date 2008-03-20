@@ -24,8 +24,8 @@ public class SpeciesManager implements java.io.Serializable {
         this.sim = sim;
         speciesList = new ISpecies[0];
         numAtomTypes = 0;
-        elementSymbolHash = new HashMap();
-        elementAtomTypeHash = new HashMap();
+        elementSymbolHash = new HashMap<String,Element>();
+        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomType>>();
         typeReservoirCount = -1;
         moleculeTypes = new AtomTypeMolecule[0];
     }
@@ -125,7 +125,7 @@ public class SpeciesManager implements java.io.Serializable {
     public void atomTypeAddedNotify(IAtomType newChildType) {
         if (newChildType instanceof AtomTypeLeaf) {
             Element newElement = ((AtomTypeLeaf)newChildType).getElement();
-            Element oldElement = (Element)elementSymbolHash.get(newElement.getSymbol());
+            Element oldElement = elementSymbolHash.get(newElement.getSymbol());
             if (oldElement != null && oldElement != newElement) {
                 // having two AtomTypes with the same Element is OK, but having
                 // two Elements with the same symbol is not allowed.
@@ -133,9 +133,9 @@ public class SpeciesManager implements java.io.Serializable {
             }
             // remember the element so we can check for future duplication
             elementSymbolHash.put(newElement.getSymbol(), newElement);
-            LinkedList atomTypeList = (LinkedList)elementAtomTypeHash.get(newElement);
+            LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
             if (atomTypeList == null) {
-                atomTypeList = new LinkedList();
+                atomTypeList = new LinkedList<IAtomType>();
                 elementAtomTypeHash.put(newElement, atomTypeList);
             }
             atomTypeList.add(newChildType);
@@ -273,8 +273,8 @@ public class SpeciesManager implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     private ISpecies[] speciesList;
-    private final HashMap elementSymbolHash;
-    private final HashMap elementAtomTypeHash;
+    private final HashMap<String,Element> elementSymbolHash;
+    private final HashMap<Element,LinkedList<IAtomType>> elementAtomTypeHash;
     private int numAtomTypes;
     private int[] typeIndexReservoir;
     private int typeReservoirCount;
