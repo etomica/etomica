@@ -37,7 +37,6 @@ public class NormalModesPotential implements NormalModes {
 
     public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space space) {
         
-        harmonicFudge = 1.0;
         needToCalculateModes = true;
         
         lattice = new BravaisLatticeCrystal(primitive, basis);
@@ -175,21 +174,17 @@ public class NormalModesPotential implements NormalModes {
     }
 
     public void setHarmonicFudge(double newHarmonicFudge) {
-        needToCalculateModes = true;
-        harmonicFudge = newHarmonicFudge;
+        // we ignore fudge
     }
     
     public void setTemperature(double newTemperature) {
-        needToCalculateModes = true;
-        temperature = newTemperature;
+        // we ignore temperature
     }
 
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;
-    private double harmonicFudge;
-    private double temperature;
     private double[][] omega2;
     private double[][][] eigenvectors;
     private boolean needToCalculateModes;

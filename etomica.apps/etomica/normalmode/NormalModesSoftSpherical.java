@@ -36,7 +36,6 @@ public class NormalModesSoftSpherical implements NormalModes {
 
     public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, Space space) {
         
-        harmonicFudge = 1.0;
         needToCalculateModes = true;
         
         setPrimitive(primitive);
@@ -152,20 +151,16 @@ public class NormalModesSoftSpherical implements NormalModes {
     }
 
     public void setHarmonicFudge(double newHarmonicFudge) {
-        needToCalculateModes = true;
-        harmonicFudge = newHarmonicFudge;
+        // we ignore fudge
     }
     
     public void setTemperature(double newTemperature) {
-        needToCalculateModes = true;
-        temperature = newTemperature;
+        // we ignore temperature
     }
 
     private BravaisLattice lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
-    private double harmonicFudge;
-    private double temperature;
     private double[][] omega2;
     private double[][][] eigenvectors;
     private boolean needToCalculateModes;
