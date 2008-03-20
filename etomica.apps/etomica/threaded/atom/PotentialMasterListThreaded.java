@@ -2,13 +2,13 @@ package etomica.threaded.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
 
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
@@ -41,7 +41,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
-			AtomPositionDefinition positionDefinition) {
+			IAtomPositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
 		// TODO Auto-generated constructor stub
 	}

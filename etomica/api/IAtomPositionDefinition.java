@@ -1,7 +1,5 @@
-package etomica.atom;
+package etomica.api;
 
-import etomica.api.IAtom;
-import etomica.api.IVector;
 
 
 /**
@@ -10,7 +8,7 @@ import etomica.api.IVector;
  * are based on the center of mass, or on the position of the first
  * leaf atom in the group.
  */
-public interface AtomPositionDefinition {
+public interface IAtomPositionDefinition {
 
     /**
      * Returns the defined position for the given atom, which 

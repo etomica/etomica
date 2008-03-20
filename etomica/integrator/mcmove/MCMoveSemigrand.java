@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -9,7 +10,6 @@ import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -35,7 +35,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private final AtomIteratorArrayListSimple affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
     private final AtomActionTranslateTo moleculeTranslator;
-    private AtomPositionDefinition atomPositionDefinition;
+    private IAtomPositionDefinition atomPositionDefinition;
     private final IRandom random;
     
     private transient IMolecule deleteMolecule, insertMolecule;
@@ -190,13 +190,13 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * @return Returns the positionDefinition.
      */
-    public AtomPositionDefinition geAtomPositionDefinition() {
+    public IAtomPositionDefinition geAtomPositionDefinition() {
         return atomPositionDefinition;
     }
     /**
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
+    public void setAtomPositionDefinition(IAtomPositionDefinition positionDefinition) {
         this.atomPositionDefinition = positionDefinition;
         moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }

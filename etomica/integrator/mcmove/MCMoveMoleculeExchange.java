@@ -3,13 +3,13 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
@@ -184,14 +184,14 @@ public class MCMoveMoleculeExchange extends MCMove {
     /**
      * @return Returns the atomPositionDefinition.
      */
-    public AtomPositionDefinition getAtomPositionDefinition() {
+    public IAtomPositionDefinition getAtomPositionDefinition() {
         return moleculeTranslator.getAtomPositionDefinition();
     }
     /**
      * @param atomPositionDefinition The atomPositionDefinition to set.
      */
     public void setAtomPositionDefinition(
-            AtomPositionDefinition atomPositionDefinition) {
+            IAtomPositionDefinition atomPositionDefinition) {
         moleculeTranslator.setAtomPositionDefinition(atomPositionDefinition);
     }
 }//end of MCMoveMoleculeExchange

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.space.Space;
@@ -24,7 +25,7 @@ import etomica.space.Space;
  * @author David Kofke
  */
 
-public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
+public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
 
     public AtomPositionCOM(Space space) {
         vectorSum = space.makeVector();

@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.math.geometry.Shape;
 
 
@@ -48,7 +49,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
     /**
      * @return Returns the positionDefinition.
      */
-    public AtomPositionDefinition getPositionDefinition() {
+    public IAtomPositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
     /**
@@ -56,11 +57,11 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
      * each atom's type will be used.
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setPositionDefinition(AtomPositionDefinition positionDefinition) {
+    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
     }
     
     private static final long serialVersionUID = 1L;
     private Shape shape;
-    private AtomPositionDefinition positionDefinition;
+    private IAtomPositionDefinition positionDefinition;
 }

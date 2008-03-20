@@ -1,6 +1,7 @@
 package etomica.nbr.cell;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
@@ -12,7 +13,6 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
@@ -44,7 +44,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     protected final CellLattice lattice;
     protected final Space space;
     protected final AtomIteratorTreeBox atomIterator;
-    protected final AtomPositionDefinition positionDefinition;
+    protected final IAtomPositionDefinition positionDefinition;
     protected final IBox box;
     protected int cellRange = 2;
     protected double range;
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final IBox box, double potentialRange, AtomPositionDefinition positionDefinition, Space _space) {
+    public NeighborCellManager(final IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, Space _space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         space = _space;
@@ -306,7 +306,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         }
         
         private static final long serialVersionUID = 1L;
-        private final AtomPositionDefinition moleculePosition;
+        private final IAtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;
         private final IBox box;

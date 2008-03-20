@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.atom.AtomPositionDefinition;
 
 public interface IAtomType {
 
@@ -18,13 +17,13 @@ public interface IAtomType {
 	 * 
 	 * @return Returns the PositionDefinition for an atom of this type.
 	 */
-	public abstract AtomPositionDefinition getPositionDefinition();
+	public abstract IAtomPositionDefinition getPositionDefinition();
 
 	/**
 	 * Sets the PositionDefinition used for this AtomType
 	 */
 	public abstract void setPositionDefinition(
-			AtomPositionDefinition newPositionDefinition);
+			IAtomPositionDefinition newPositionDefinition);
 
 	public abstract void setInteracting(boolean b);
 

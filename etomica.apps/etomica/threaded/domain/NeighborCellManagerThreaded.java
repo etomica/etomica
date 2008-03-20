@@ -1,8 +1,8 @@
 package etomica.threaded.domain;
 
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.Space;
 
@@ -16,7 +16,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     }
 
     public NeighborCellManagerThreaded(IBox box, double potentialRange,
-            AtomPositionDefinition positionDefinition, Space space) {
+            IAtomPositionDefinition positionDefinition, Space space) {
         super(box, potentialRange, positionDefinition, space);
         // TODO Auto-generated constructor stub
     }

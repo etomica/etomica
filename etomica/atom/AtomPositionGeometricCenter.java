@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
@@ -18,7 +19,7 @@ import etomica.space.Space;
  * 
  * @author David Kofke
  */
-public class AtomPositionGeometricCenter implements AtomPositionDefinition, Serializable {
+public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Serializable {
 
     public AtomPositionGeometricCenter(ISimulation sim, Space _space) {
         this(_space);

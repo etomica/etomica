@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 
@@ -28,7 +29,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
 
     protected int index;
 
-    protected AtomPositionDefinition positionDefinition;
+    protected IAtomPositionDefinition positionDefinition;
 
     private boolean isInteracting = false;
 
@@ -45,7 +46,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
      *            used by many classes as default choice for defining the
      *            spatial position of an instance of an atom(group) of this type
      */
-    public AtomType(AtomPositionDefinition positionDefinition) {
+    public AtomType(IAtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         index = -1;
 //        setParentType(null);
@@ -73,14 +74,14 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
     /* (non-Javadoc)
 	 * @see etomica.atom.IAtomType#getPositionDefinition()
 	 */
-    public AtomPositionDefinition getPositionDefinition() {
+    public IAtomPositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
 
     /* (non-Javadoc)
 	 * @see etomica.atom.IAtomType#setPositionDefinition(etomica.atom.AtomPositionDefinition)
 	 */
-    public void setPositionDefinition(AtomPositionDefinition newPositionDefinition) {
+    public void setPositionDefinition(IAtomPositionDefinition newPositionDefinition) {
         positionDefinition = newPositionDefinition;
     }
 

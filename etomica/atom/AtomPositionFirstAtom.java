@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
@@ -12,7 +13,7 @@ import etomica.util.Debug;
  * the first child leaf atom.
  */
 
-public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Serializable {
+public class AtomPositionFirstAtom implements IAtomPositionDefinition, java.io.Serializable {
 
     public IVector position(IAtom atom) {
         IAtomPositioned atomLeaf = getFirstChildLeafAtom(atom);

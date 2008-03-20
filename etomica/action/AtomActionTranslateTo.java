@@ -4,9 +4,9 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomPositionDefinition;
 import etomica.space.Space;
 
 /**
@@ -18,7 +18,7 @@ public class AtomActionTranslateTo implements AtomAction, Serializable {
     
     private static final long serialVersionUID = 1L;
     private final IVector destination;
-    private AtomPositionDefinition atomPositionDefinition;
+    private IAtomPositionDefinition atomPositionDefinition;
     private AtomGroupAction atomTranslator;
     private final IVector translationVector;
 
@@ -57,14 +57,14 @@ public class AtomActionTranslateTo implements AtomAction, Serializable {
     /**
      * @return Returns the atomPositionDefinition.
      */
-    public AtomPositionDefinition getAtomPositionDefinition() {
+    public IAtomPositionDefinition getAtomPositionDefinition() {
         return atomPositionDefinition;
     }
     /**
      * @param atomPositionDefinition The atomPositionDefinition to set.
      */
     public void setAtomPositionDefinition(
-            AtomPositionDefinition atomPositionDefinition) {
+            IAtomPositionDefinition atomPositionDefinition) {
         this.atomPositionDefinition = atomPositionDefinition;
     }
     

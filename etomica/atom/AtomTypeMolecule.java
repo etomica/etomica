@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.ISpecies;
 import etomica.config.Conformation;
 import etomica.simulation.SpeciesManager;
@@ -16,7 +17,7 @@ public class AtomTypeMolecule extends AtomType {
     /**
      * Simple invokes parent constructor with same arguments.
      */
-    public AtomTypeMolecule(AtomPositionDefinition positionDefinition) {
+    public AtomTypeMolecule(IAtomPositionDefinition positionDefinition) {
         super(positionDefinition);
     }
     
