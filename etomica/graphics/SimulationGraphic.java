@@ -8,7 +8,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -289,7 +288,7 @@ public class SimulationGraphic implements SimulationContainer {
     	final DisplayBox display = getDisplayBox(box);
     	if(display != null) {
 
-    		repaintAction = new Action() {
+    		repaintAction = new IAction() {
     			public void actionPerformed() {
     			    display.repaint();
     			}

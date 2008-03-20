@@ -5,7 +5,7 @@ import java.awt.TextArea;
 
 import javax.swing.JFrame;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
@@ -15,7 +15,7 @@ import etomica.atom.IAtomKinetic;
  * Action that opens a new window and dumps the velocities into the window.
  * @author andrew
  */
-public class ActionVelocityWindow implements Action {
+public class ActionVelocityWindow implements IAction {
     private final IAtomSet leafList;
     
     public ActionVelocityWindow(IBox box) {

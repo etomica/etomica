@@ -3,7 +3,6 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.activity.Controller;
@@ -97,7 +96,7 @@ public class DeviceToggleButton extends DeviceButton {
     }
 
     protected ActionToggle toggleAction;
-    private final IAction relabelButton = new Action() {
+    private final IAction relabelButton = new IAction() {
 
         public void actionPerformed() {
             DeviceToggleButton.this.setLabel(toggleAction.getLabel());

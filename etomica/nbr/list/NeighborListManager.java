@@ -2,9 +2,9 @@ package etomica.nbr.list;
 
 import java.io.Serializable;
 
-import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
+import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
@@ -36,7 +36,7 @@ import etomica.util.Debug;
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
 public class NeighborListManager implements IIntegratorNonintervalListener,
-        Action, AgentSource, Serializable {
+        IAction, AgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataProcessorFunction;
@@ -177,7 +177,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         uB.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
         uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
-        Action uUpdate = new Action() {
+        IAction uUpdate = new IAction() {
             public void actionPerformed() {
                 uA.update();
                 uB.update();
@@ -213,7 +213,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         getPanel().graphicsPanel.add(displayPanel);
 
-        getController().getReinitButton().setPostAction(new Action() {
+        getController().getReinitButton().setPostAction(new IAction() {
         	public void actionPerformed() {
                 getDisplayBox(sim.box).repaint();
                 energyPlot.getPlot().repaint();

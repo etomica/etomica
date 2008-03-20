@@ -2,7 +2,6 @@ package etomica.action.activity;
 
 import java.util.HashMap;
 
-import etomica.action.Action;
 import etomica.action.Activity;
 import etomica.api.IAction;
 import etomica.api.IController;

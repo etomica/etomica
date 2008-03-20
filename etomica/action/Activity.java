@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.api.IAction;
 
 /**
  * An Action that supports the capability of pausing/unpausing and terminating
@@ -8,7 +9,7 @@ package etomica.action;
  * 
  * @author Andrew Schultz and David Kofke
  */
-public abstract class Activity implements Action, java.io.Serializable {
+public abstract class Activity implements IAction, java.io.Serializable {
 
     /**
      * Create class with a simple default label.

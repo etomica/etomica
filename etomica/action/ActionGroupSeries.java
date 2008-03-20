@@ -2,7 +2,7 @@ package etomica.action;
 
 import etomica.api.IAction;
 import etomica.util.Arrays;
-
+import etomica.api.IAction;
 
 /**
  * A set of Action instances grouped and performed in series 
@@ -13,7 +13,7 @@ import etomica.util.Arrays;
  * @author David Kofke
  *
  */
-public class ActionGroupSeries implements Action, java.io.Serializable, ActionGroup {
+public class ActionGroupSeries implements IAction, java.io.Serializable, ActionGroup {
 
     /**
      * Constructs an action group that holds no actions.

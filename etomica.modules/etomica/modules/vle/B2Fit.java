@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DevicePlotPoints;
 import etomica.graphics.SimulationGraphic;
@@ -67,7 +67,7 @@ public class B2Fit extends SimulationPanel {
                 TitledBorder.CENTER, TitledBorder.TOP));
 
         DeviceButton recalcButton = new DeviceButton(null);
-        recalcButton.setAction(new Action() {
+        recalcButton.setAction(new IAction() {
             public void actionPerformed() {
                 functionMayerB2LJQ.reset();
                 dPlot.refresh();

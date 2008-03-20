@@ -5,7 +5,7 @@ import java.awt.TextArea;
 
 import javax.swing.JFrame;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -15,7 +15,7 @@ import etomica.api.IVector;
  * Action that opens a new window and dumps the coordinates into the window.
  * @author Andrew Schultz
  */
-public class ActionConfigWindow implements Action {
+public class ActionConfigWindow implements IAction {
     private final IAtomSet leafList;
     
     public ActionConfigWindow(IBox box) {

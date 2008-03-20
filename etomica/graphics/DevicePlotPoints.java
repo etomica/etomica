@@ -13,8 +13,6 @@ import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
-import etomica.action.Action;
 import etomica.api.IAction;
 import etomica.api.IFunction;
 import etomica.data.Data;
@@ -124,7 +122,7 @@ public class DevicePlotPoints {
         delButton.setLabel("Delete Point(s)");
         ((JPanel)table.graphic()).add(delButton.graphic(), vertGBC);
 
-	    IAction deletePointAction = new Action() {
+	    IAction deletePointAction = new IAction() {
 	        public void actionPerformed() {
 	        	
 	        	int[] selRows = table.getSelectedRows();
@@ -242,7 +240,7 @@ public class DevicePlotPoints {
 	    //
 	    // Update action to pipe any data changes and redraw plot
 	    //
-	    updateAction = new Action() {
+	    updateAction = new IAction() {
 	        public void actionPerformed() {
 
 	            // sniff out min and max y values from the functions.

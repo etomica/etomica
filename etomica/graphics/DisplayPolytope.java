@@ -7,7 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
@@ -29,7 +29,7 @@ import etomica.units.Pixel;
  * @author Steve Hotchkiss
  */
  
-public class DisplayPolytope extends Display implements Action {
+public class DisplayPolytope extends Display implements IAction {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;

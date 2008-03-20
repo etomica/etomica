@@ -3,12 +3,11 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -18,7 +17,7 @@ import etomica.space.Space;
  *
  * @author Andrew Schultz
  */
-public class WriteS implements Action {
+public class WriteS implements IAction {
 
     public WriteS(Space _space) {
         temperature = 1.0;

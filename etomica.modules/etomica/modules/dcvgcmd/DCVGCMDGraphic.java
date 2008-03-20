@@ -6,10 +6,9 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-
-import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomFilter;
@@ -121,7 +120,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		sim.integratorDCV.setActionInterval(tpump, 100);
 	    box1.setUnit((Kelvin.UNIT));
 	    box1.setLabel("Measured Temperature");
-		temperatureSlider.setSliderPostAction(new Action() {
+		temperatureSlider.setSliderPostAction(new IAction() {
 			public void actionPerformed() {
 				tpump.actionPerformed();
 			}
@@ -180,7 +179,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    SimulationRestart simRestart = (SimulationRestart)getController().getReinitButton().getAction();
 	    simRestart.setConfiguration(sim.config);
 	    ActionGroupSeries reinitActions = new ActionGroupSeries();
-	    reinitActions.addAction(new Action() {
+	    reinitActions.addAction(new IAction() {
 	        public void actionPerformed() {
 	            sim.box.setNMolecules(sim.species1, 20);
 	            sim.box.setNMolecules(sim.species2, 20);

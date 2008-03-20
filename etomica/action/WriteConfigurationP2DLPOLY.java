@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
@@ -36,7 +37,7 @@ import etomica.space3d.BoundaryTruncatedOctahedron;
  * In this system, it is made as a non-periodic boundary condition
  * 
  */
-public class WriteConfigurationP2DLPOLY implements Action {
+public class WriteConfigurationP2DLPOLY implements IAction {
 	
 	public WriteConfigurationP2DLPOLY(){
 		elementHash = new HashMap();

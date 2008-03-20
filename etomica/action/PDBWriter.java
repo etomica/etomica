@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
@@ -21,7 +22,7 @@ import etomica.atom.AtomTypeSphere;
  * writeRasmolScript can be called to write a script that will properly 
  * initialize the atomic radii.
  */
-public class PDBWriter implements Action, Serializable {
+public class PDBWriter implements IAction, Serializable {
 
     public PDBWriter() {
         try {

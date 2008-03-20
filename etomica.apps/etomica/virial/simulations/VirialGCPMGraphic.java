@@ -1,10 +1,9 @@
 package etomica.virial.simulations;
 
 
-
 import java.awt.Color;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.atom.AtomTypeMolecule;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -88,7 +87,7 @@ public class VirialGCPMGraphic {
         // if running interactively, set filename to null so that it doens't read
         // (or write) to a refpref file
         sim.getController().removeAction(sim.ai);
-        sim.getController().addAction(new Action() {
+        sim.getController().addAction(new IAction() {
             public void actionPerformed() {
                 sim.initRefPref(null, 10);
                 sim.equilibrate(null,20);

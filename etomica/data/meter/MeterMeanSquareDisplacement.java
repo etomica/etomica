@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
@@ -88,7 +88,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         return sum/nAtoms;
     }
     
-    private static class BeforePbc implements Action, java.io.Serializable {
+    private static class BeforePbc implements IAction, java.io.Serializable {
         BeforePbc(MeterMeanSquareDisplacement meter) {
             this.meter = meter;
         }
@@ -111,7 +111,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         final MeterMeanSquareDisplacement meter;
     }
     
-    private static class AfterPbc implements Action, java.io.Serializable {
+    private static class AfterPbc implements IAction, java.io.Serializable {
         AfterPbc(MeterMeanSquareDisplacement meter) {
             this.meter = meter;
         }

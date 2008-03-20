@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.api.IAction;
 import etomica.api.ISimulation;
 
 /**
@@ -7,7 +8,7 @@ import etomica.api.ISimulation;
  * simulation.
  *  
  */
-public interface SimulationAction extends Action {
+public interface SimulationAction extends IAction {
 
 	public ISimulation getSimulation();
 }

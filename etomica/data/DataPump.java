@@ -1,12 +1,12 @@
 package etomica.data;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 
 /**
  * A DataProcessor whose action is to actively take Data from a DataSource and send it to
  * DataSinks.  
  */
-public class DataPump extends DataProcessor implements Action {
+public class DataPump extends DataProcessor implements IAction {
 
     /**
 	 * Constructs DataPump with the given DataSource and

@@ -1,8 +1,8 @@
 package etomica.modules.vle;
 
-import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
@@ -205,7 +205,7 @@ public class LSimCO2 extends Simulation {
 //                splitter.setDataSink(i, avgPressureLiquidByDV[i]);
 //            }
             
-            Action writeAction = new Action() {
+            IAction writeAction = new IAction() {
                 public void actionPerformed() {
                     for (int i=0; i<nCutoff; i++) {
                         double pressureLRC = ((DataGroup)pressureAvg[i][0].getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);

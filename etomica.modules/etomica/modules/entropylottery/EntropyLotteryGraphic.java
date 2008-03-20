@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.data.AccumulatorHistory;
@@ -95,7 +95,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         nUrnSelector.setMaximum(30);
         nUrnSelector.setLabel("Number of Urns");
         nUrnSelector.setShowBorder(true);
-        Action resetDisplay = new Action() {
+        IAction resetDisplay = new IAction() {
             public void actionPerformed() {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
@@ -112,11 +112,11 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         SimulationRestart restartAction =
         	(SimulationRestart)getController().getReinitButton().getAction();
 
-        nUrnSelector.setPostAction(new ActionGroupSeries(new Action[]
+        nUrnSelector.setPostAction(new ActionGroupSeries(new IAction[]
                                    {resetDisplay, restartAction}));
         nUrnSelector.doUpdate();
 
-        nSelector.setResetAction(new ActionGroupSeries(new Action[]
+        nSelector.setResetAction(new ActionGroupSeries(new IAction[]
                                   {resetDisplay, restartAction}));
         nSelector.doUpdate();
 

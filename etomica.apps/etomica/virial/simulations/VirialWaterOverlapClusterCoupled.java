@@ -1,8 +1,7 @@
 package etomica.virial.simulations;
 
 
-
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -205,7 +204,7 @@ public class VirialWaterOverlapClusterCoupled {
 //                catch (IOException e) {throw new RuntimeException(e);}
 //            }
 //        };
-        Action progressReport = new Action() {
+        IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double ratio = sim.dsvo.getDataAsScalar();

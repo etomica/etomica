@@ -1,5 +1,5 @@
 package etomica.data.meter;
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -29,7 +29,7 @@ import etomica.units.Null;
  *
  * @author David Kofke
  */
-public class MeterRDF implements Action, DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements IAction, DataSource, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all

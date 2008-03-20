@@ -15,7 +15,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
@@ -613,7 +612,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         if (doNMoleculeSlider) {
             nSlider.setController(pc.getController());
-            nSlider.setResetAction(new Action() {
+            nSlider.setResetAction(new IAction() {
                 public void actionPerformed() {
                     pc.integrator.resetPiston();
                     getController().getReinitButton().getAction().actionPerformed();
@@ -751,7 +750,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             dataStreamPumps.add(pump);
             pc.integrator.addIntervalAction(pump);
             
-            getController().getResetAveragesButton().setPostAction(new Action() {
+            getController().getResetAveragesButton().setPostAction(new IAction() {
                 public void actionPerformed() {
                     meterRDF.reset();
                 }
@@ -769,7 +768,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // re-initialize the integrator expclitly.  This resets the piston
         // position back to the top.  Also, force the data into the
         // display boxes and repaint the boxes.
-        getController().getReinitButton().setPostAction(new Action() {
+        getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 pc.integrator.resetPiston();
                 if (pc.integrator.isInitialized()) {
@@ -796,7 +795,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         });
         
         if (pc.getSpace().D() == 3) {
-            goFastButton.setAction(new Action() {
+            goFastButton.setAction(new IAction() {
                 public void actionPerformed() {
                     if (isFast) {
                         isFast = false;
@@ -833,7 +832,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        pc.getController().doActionNow( new Action() {
+        pc.getController().doActionNow( new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

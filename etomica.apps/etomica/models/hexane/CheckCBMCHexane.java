@@ -1,12 +1,11 @@
 package etomica.models.hexane;
 
+import etomica.api.IAction;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-
-import etomica.action.Action;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
@@ -17,7 +16,7 @@ import etomica.space.Space;
  * @author cribbin
  * 
  */
-public class CheckCBMCHexane implements Action {
+public class CheckCBMCHexane implements IAction {
 
     public CheckCBMCHexane(IBox p, PotentialMaster potentialMaster, Space space) {
         box = p;

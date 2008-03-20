@@ -10,8 +10,6 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IAction;
-
-import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
@@ -97,7 +95,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
             setBox(box);
             setSpecies(species);
             
-            IAction anotherAction = new Action() {
+            IAction anotherAction = new IAction() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);

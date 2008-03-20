@@ -14,11 +14,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.Action;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -173,7 +172,7 @@ public class LatticeEditor {
             sizePanel.add(newBox.graphic());
             sizeBoxes = (DeviceBox[])Arrays.addObject(sizeBoxes, newBox);
 
-            newBox.setPostAction(new Action() {
+            newBox.setPostAction(new IAction() {
                 public void actionPerformed() {
                     update();
                 }
@@ -190,7 +189,7 @@ public class LatticeEditor {
             anglePanel.setBorder(new TitledBorder("Angles"));
             angleBoxes = (DeviceBox[])Arrays.addObject(angleBoxes, newBox);
 
-            newBox.setPostAction(new Action() {
+            newBox.setPostAction(new IAction() {
                 public void actionPerformed() {
                     update();
                 }

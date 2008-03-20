@@ -2,6 +2,7 @@ package etomica.action;
 
 import java.util.ArrayList;
 
+import etomica.api.IAction;
 import etomica.data.DataPump;
 import etomica.data.DataStreamAction;
 
@@ -10,7 +11,7 @@ import etomica.data.DataStreamAction;
  * of accumulators, as specified via a list of AccumulatorManager
  * instances.
  */
-public class SimulationDataAction implements Action, java.io.Serializable {
+public class SimulationDataAction implements IAction, java.io.Serializable {
 
     public SimulationDataAction(DataStreamAction action) {
 		dataStreamPumps = new ArrayList<DataPump>();

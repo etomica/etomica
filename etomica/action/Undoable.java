@@ -4,13 +4,14 @@
  */
 package etomica.action;
 
+import etomica.api.IAction;
 
 /**
  * Interface for an action that can be "undone", such that its effect
  * is reversed if the undo() method is invoked immediately after the
  * actionPerformed().
  */
-public interface Undoable extends Action {
+public interface Undoable extends IAction {
 	
 	/**
 	 * Causes the effect of most recent call to actionPerformed to be reversed.

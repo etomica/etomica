@@ -1,9 +1,8 @@
 package etomica.modules.vle;
 
+import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-
-import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
@@ -187,7 +186,7 @@ public class LSimNPT extends Simulation {
 //                splitter.setDataSink(i, avgPressureLiquidByDV[i]);
 //            }
             
-            Action writeAction = new Action() {
+            IAction writeAction = new IAction() {
                 public void actionPerformed() {
                     double measuredPressure = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);
                     double error = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(0);

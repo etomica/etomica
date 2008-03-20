@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.data.Data;
@@ -22,7 +22,7 @@ import etomica.units.Null;
  * Calculates the S-matrix for a configuration.  This matrix is formed as T(k) T^(-k), where
  * T is the collective generalized-coordinate vector.
  */
-public class MeterNormalMode implements DataSource, Action, Serializable {
+public class MeterNormalMode implements DataSource, IAction, Serializable {
 
     public MeterNormalMode() {
         tag = new DataTag();

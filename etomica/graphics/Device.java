@@ -3,8 +3,6 @@ import java.awt.Component;
 
 import etomica.api.IAction;
 import etomica.api.IController;
-
-import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
@@ -91,7 +89,7 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     public Unit getUnit() {return unit;}
     public Dimension getDimension() {return unit.dimension();} //may want to override this in most cases
 
-    protected static class ActionSet implements Action {
+    protected static class ActionSet implements IAction {
         IAction preAction, postAction, action;
         
         public void actionPerformed() {

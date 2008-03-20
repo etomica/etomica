@@ -14,7 +14,6 @@ import javax.swing.event.ChangeListener;
 
 import etomica.api.IAction;
 import etomica.api.IController;
-import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
@@ -334,7 +333,7 @@ public class DeviceThermoSliderGEMC extends Device {
 
     }
 
-    private IAction integratorBoxIsoChangeSetIso = new Action() {
+    private IAction integratorBoxIsoChangeSetIso = new IAction() {
         public void actionPerformed() {
             integrator1.setIsothermal(isIsothermal());
             integrator2.setIsothermal(isIsothermal());

@@ -2,6 +2,7 @@ package etomica.action;
 
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
+import etomica.api.IAction;
 
 /**
  * Action that toggles a boolean value. This action can connect to any object
@@ -11,7 +12,7 @@ import etomica.modifier.ModifierBoolean;
  * 
  * @author David Kofke
  */
-public class ActionToggle implements Action, java.io.Serializable {
+public class ActionToggle implements IAction, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     private ModifierBoolean modifier;

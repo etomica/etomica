@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IController;
@@ -85,7 +84,7 @@ public class DeviceThermoSelector extends Device {
     }
 
     public void setIntegrator(final IntegratorBox integrator) {
-        targetAction = new Action() {
+        targetAction = new IAction() {
             public void actionPerformed() {
                 if(integrator == null) return;
                 integrator.setIsothermal(isothermal);

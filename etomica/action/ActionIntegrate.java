@@ -3,11 +3,12 @@ package etomica.action;
 import etomica.api.IIntegrator;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.util.Debug;
+import etomica.api.IAction;
 
 /**
  * Action that repeatedly invokes an Integrator's doStep method.
  */
-public class ActionIntegrate implements Action {
+public class ActionIntegrate implements IAction {
 
     /**
 	 * Constructs activity to generate configurations with

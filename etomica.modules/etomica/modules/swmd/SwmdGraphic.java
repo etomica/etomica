@@ -13,7 +13,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeSphere;
@@ -453,7 +453,7 @@ public class SwmdGraphic extends SimulationGraphic {
         velocityButton.setLabel("Show Velocities");
         velocityButton.setAction(new ActionVelocityWindow(sim.box));
 
-        Action resetAction = new Action() {
+        IAction resetAction = new IAction() {
         	public void actionPerformed() {
         	    try {
         	        sim.integrator.initialize();
@@ -517,7 +517,7 @@ public class SwmdGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        sim.getController().doActionNow( new Action() {
+        sim.getController().doActionNow( new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(sim.box);

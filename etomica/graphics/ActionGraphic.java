@@ -8,7 +8,7 @@ import etomica.api.IAction;
  *
  * @author David Kofke
  */
-public class ActionGraphic implements etomica.action.Action, java.awt.event.ActionListener, java.io.Serializable { 
+public class ActionGraphic implements IAction, java.awt.event.ActionListener, java.io.Serializable { 
     
     public ActionGraphic(IAction action) {
         simulationAction = action;

@@ -1,6 +1,6 @@
 package etomica.modules.vle;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -65,7 +65,7 @@ public class VLE extends SimulationGraphic {
         sigmaSlider.setLabel("sigma (A)");
         add(sigmaSlider);
         sigmaSlider.doUpdate();
-        sigmaSlider.setPostAction(new Action() {
+        sigmaSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 getPaintAction(sim.boxLiquid).actionPerformed();
                 getPaintAction(sim.boxVapor).actionPerformed();

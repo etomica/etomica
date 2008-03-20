@@ -1,13 +1,13 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 
 /**
  * Action that informs the integrator that some property of the piston
  * has changed (pressure, mass, velocity)
  */
 
-public class ActionPistonUpdate implements Action {
+public class ActionPistonUpdate implements IAction {
     public ActionPistonUpdate(IntegratorHardPiston integrator) {
         pistonIntegrator = integrator;
     }

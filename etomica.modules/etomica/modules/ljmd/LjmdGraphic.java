@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -289,7 +288,7 @@ public class LjmdGraphic extends SimulationGraphic {
         configButton.setLabel("Show Config");
         configButton.setAction(new ActionConfigWindow(sim.box));
 
-        Action resetAction = new Action() {
+        IAction resetAction = new IAction() {
         	public void actionPerformed() {
                 rdfMeter.reset();
 

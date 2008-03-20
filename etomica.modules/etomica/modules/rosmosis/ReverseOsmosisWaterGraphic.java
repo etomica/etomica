@@ -9,8 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.Action;
 import etomica.action.SimulationRestart;
+import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -293,7 +293,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         setupPanel.add(configPanel, "Configuration");
         setupPanel.add(solutePanel, "Solute");
 
-        Action neighborRangeReset = new Action() {
+        IAction neighborRangeReset = new IAction() {
             public void actionPerformed() {
 //                ((PotentialMasterList)sim.integrator.getPotential()).reset();
 //                double nbrRange = ((PotentialMasterList)sim.integrator.getPotential()).getMaxPotentialRange();
@@ -516,7 +516,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-        final Action resetAction = new Action() {
+        final IAction resetAction = new IAction() {
         	public void actionPerformed() {
         	    try {
         	        sim.integrator.reset();
@@ -543,7 +543,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
-        Action reconfigAction = new Action() {
+        IAction reconfigAction = new IAction() {
             public void actionPerformed() {
                 sim.configMembrane.initializeCoordinates(sim.box);
                 resetAction.actionPerformed();

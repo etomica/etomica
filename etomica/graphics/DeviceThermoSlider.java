@@ -14,12 +14,8 @@ import javax.swing.event.ChangeListener;
 
 import etomica.api.IAction;
 import etomica.api.IController;
-
-import etomica.action.Action;
 import etomica.action.activity.Controller;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorHard;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
@@ -301,7 +297,7 @@ public class DeviceThermoSlider extends Device {
 
     }
 
-    private IAction integratorBoxIsoChangeSetIso = new Action() {
+    private IAction integratorBoxIsoChangeSetIso = new IAction() {
         public void actionPerformed() {
             integrator.setIsothermal(isIsothermal());
         }

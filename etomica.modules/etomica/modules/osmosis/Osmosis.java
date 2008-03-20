@@ -12,8 +12,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.Action;
 import etomica.action.SimulationRestart;
+import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -251,7 +251,7 @@ public class Osmosis extends SimulationGraphic {
         getPanel().plotPanel.add(leftMetricsPanel, vertGBC);
         getPanel().plotPanel.add(rightMetricsPanel, vertGBC);
 
-        Action reinitDisplayAction = new Action() {
+        IAction reinitDisplayAction = new IAction() {
         	public void actionPerformed() {
         		molePumpLeft.actionPerformed();
         		leftMFBox.putData(moleFractionAvgLeft.getData());
@@ -266,7 +266,7 @@ public class Osmosis extends SimulationGraphic {
         	}
         };
 
-        Action resetDisplayAction = new Action() {
+        IAction resetDisplayAction = new IAction() {
         	public void actionPerformed() {
         		molePumpLeft.actionPerformed();
         		leftMFBox.putData(moleFractionAvgLeft.getData());
@@ -374,7 +374,7 @@ public class Osmosis extends SimulationGraphic {
     		ChangeListener totalChange = new ChangeListener() {
     			public void stateChanged(ChangeEvent evt) {
 
-    	    		Action setAction = new Action() {
+    	    		IAction setAction = new IAction() {
     	    			public void actionPerformed() {
     	    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
     					               (((float)soluteVsSolvent.getValue()) / 100.0f));
@@ -424,7 +424,7 @@ public class Osmosis extends SimulationGraphic {
     		ChangeListener pctChange = new ChangeListener() {
     			public void stateChanged(ChangeEvent evt) {
 
-    	    		Action setAction = new Action() {
+    	    		IAction setAction = new IAction() {
     	    			public void actionPerformed() {
                             config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
     				        simRestart.getDataResetAction().actionPerformed();

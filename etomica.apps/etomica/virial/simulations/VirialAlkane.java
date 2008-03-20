@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
@@ -181,7 +181,7 @@ public class VirialAlkane {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new Action() {
+            sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
                     sim.initRefPref(null, 100);
                     sim.equilibrate(null, 200);
@@ -214,7 +214,7 @@ public class VirialAlkane {
                 +sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
         
-        Action progressReport = new Action() {
+        IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double ratio = sim.dsvo.getDataAsScalar();

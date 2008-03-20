@@ -3,6 +3,7 @@ package etomica.modules.osmosis;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
@@ -114,7 +115,7 @@ public class OsmosisSim extends Simulation {
 
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim", sp);
     	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
-    	simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action () {
+    	simGraphic.getController().getReinitButton().setPostAction(new IAction () {
     		public void actionPerformed() {
     	        config.initializeCoordinates(sim.box);
     			simGraphic.getDisplayBox(sim.box).repaint();

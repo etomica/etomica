@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -30,7 +31,7 @@ import etomica.space3d.BoundaryTruncatedOctahedron;
  * named 'CONFIG', which is read by the DL_MULTI package as an input file
  * 
  */
-public class WriteConfigurationDLPOLY implements Action {
+public class WriteConfigurationDLPOLY implements IAction {
 	
 	public WriteConfigurationDLPOLY(){
 		elementHash = new HashMap();

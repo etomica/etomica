@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
@@ -22,7 +23,7 @@ import etomica.chem.elements.ElementChemical;
  * writeRasmolScript can be called to write a script that will properly 
  * initialize the atomic radii.
  */
-public class XYZWriter implements Action, Serializable {
+public class XYZWriter implements IAction, Serializable {
 
     public XYZWriter(IBox aBox) {
         leafList = aBox.getLeafList();

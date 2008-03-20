@@ -3,6 +3,7 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -15,7 +16,7 @@ import etomica.space.Space;
  * "pos_new" extension, which should be renamed to "pos" for use with
  * ConfigurationFile.
  */
-public class WriteConfiguration implements Action {
+public class WriteConfiguration implements IAction {
 
 	public WriteConfiguration(Space space) {
 		this.space = space;

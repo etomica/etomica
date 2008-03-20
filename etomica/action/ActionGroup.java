@@ -2,7 +2,7 @@ package etomica.action;
 
 import etomica.api.IAction;
 
-public interface ActionGroup extends Action {
+public interface ActionGroup extends IAction {
 
     /**
      * Removes the given oldAction from the group.  oldAction must currently be

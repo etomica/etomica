@@ -1,6 +1,6 @@
 package etomica.modifier;
 
-import etomica.action.Action;
+import etomica.api.IAction;
 import etomica.units.Dimension;
 
 
@@ -14,7 +14,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  *
  */
-public class ModifyAction implements Action, java.io.Serializable {
+public class ModifyAction implements IAction, java.io.Serializable {
 
     /**
      * Constuctor requires the wrapped Modifier, which is final.

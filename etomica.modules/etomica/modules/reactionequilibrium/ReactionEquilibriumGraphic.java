@@ -5,10 +5,9 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IBox;
-
-import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
@@ -376,7 +375,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		add(tBox);
 		add(densityDisplay);
 
-        Action reinitDisplayAction = new Action() {
+        IAction reinitDisplayAction = new IAction() {
         	public void actionPerformed() {
         		tPump.actionPerformed();
         		tBox.putData(tempAccum.getData());
@@ -447,7 +446,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
             //nSlider.setDisplayBox(DisplayBox1);
             nSlider.setMinimum(0);
             nSlider.setMaximum(40);
-            nSlider.setPostAction(new Action() {
+            nSlider.setPostAction(new IAction() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);

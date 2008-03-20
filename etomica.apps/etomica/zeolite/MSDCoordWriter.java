@@ -3,7 +3,6 @@ package etomica.zeolite;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.Action;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.api.IAction;
@@ -166,7 +165,7 @@ public class MSDCoordWriter implements IAction,
 	 * -------------------------SUBCLASS AfterPBC----------------------------------
 	 */
 	
-	private static class AfterPBC implements Action {
+	private static class AfterPBC implements IAction {
 		
 		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
 			workVector = _space.makeVector();
