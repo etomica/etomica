@@ -1,5 +1,6 @@
 package etomica.box;
 
+import etomica.action.BoxInflate;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
@@ -10,16 +11,11 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Quantity;
-import etomica.units.Volume;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -128,7 +124,7 @@ public class Box implements java.io.Serializable, IBox {
 	 */
     public IMolecule addNewMolecule(ISpecies species) {
         IMolecule aNew = species.makeMolecule();
-        addMolecule(aNew, species);
+        addMolecule(aNew);
         return aNew;
     }
     
@@ -139,12 +135,7 @@ public class Box implements java.io.Serializable, IBox {
 	 * @see etomica.box.IBox#addMolecule(etomica.api.IMolecule)
 	 */
     public void addMolecule(IMolecule molecule) {
-        ISpecies species = molecule.getType().getSpecies();
-        addMolecule(molecule, species);
-    }
-    
-    protected void addMolecule(IMolecule molecule, ISpecies species) {
-        int speciesIndex = species.getIndex();
+        int speciesIndex = molecule.getType().getIndex();
         if (moleculeLists[speciesIndex].contains(molecule)) {
             throw new RuntimeException("you bastard!");
         }
@@ -166,13 +157,8 @@ public class Box implements java.io.Serializable, IBox {
 	 * @see etomica.box.IBox#removeMolecule(etomica.api.IMolecule)
 	 */
     public void removeMolecule(IMolecule molecule) {
-        ISpecies species = molecule.getType().getSpecies();
-        removeMolecule(molecule, species);
-    }
-    
-    protected void removeMolecule(IMolecule molecule, ISpecies species) {
         int moleculeIndex = molecule.getIndex();
-        AtomArrayList moleculeList = moleculeLists[species.getIndex()];
+        AtomArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
         if (moleculeList.getAtom(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find "+molecule);
         }

@@ -189,7 +189,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         public void actionPerformed(IAtomSet atomSet) {
 //            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
             //assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
-            assertTrue(atomSet.getAtom(0).getType().getSpecies().getIndex() < atomSet.getAtom(1).getType().getSpecies().getIndex());
+            assertTrue(atomSet.getAtom(0).getType().getIndex() < atomSet.getAtom(1).getType().getIndex());
         }
     }
 
