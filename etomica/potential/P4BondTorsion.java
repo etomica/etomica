@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 
@@ -64,7 +64,7 @@ public class P4BondTorsion extends Potential {
     }
 
     protected final IVector dr21, dr23, dr34;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected double a1, a2, a3;
     private static final long serialVersionUID = 1L;
 }

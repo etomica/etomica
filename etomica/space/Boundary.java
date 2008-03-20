@@ -1,6 +1,7 @@
 package etomica.space;
 
 import etomica.api.IBoundary;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -13,7 +14,7 @@ import etomica.math.geometry.Polytope;
  * by objects that enforce periodic images.
  * 
  */
-public abstract class Boundary implements NearestImageTransformer, java.io.Serializable, IBoundary {
+public abstract class Boundary implements INearestImageTransformer, java.io.Serializable, IBoundary {
 
     /**
      * Subclasses must invoke this constructor and provide a Space instance that

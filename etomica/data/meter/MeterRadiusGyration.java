@@ -6,10 +6,10 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -60,7 +60,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         if (box == null)
             throw new IllegalStateException(
                     "must call setBox before using meter");
-        NearestImageTransformer nearestImageTransformer = box.getBoundary();
+        INearestImageTransformer nearestImageTransformer = box.getBoundary();
         iterator.setBox(box);
         iterator.reset();
         int nLeafAtomsTot = 0;

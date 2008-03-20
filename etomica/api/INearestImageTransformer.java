@@ -1,6 +1,5 @@
-package etomica.space;
+package etomica.api;
 
-import etomica.api.IVector;
 
 /**
  * Interface for a class that performs a nearest-image transformation to a
@@ -13,7 +12,7 @@ import etomica.api.IVector;
  * this interface is specified.
  * 
  */
-public interface NearestImageTransformer {
+public interface INearestImageTransformer {
 
     public void nearestImage(IVector dr);
 }

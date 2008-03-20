@@ -4,6 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -11,7 +12,6 @@ import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Undefined;
 
@@ -52,7 +52,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        NearestImageTransformer nearestImageTransformer = box.getBoundary();
+        INearestImageTransformer nearestImageTransformer = box.getBoundary();
         pairIterator.setBox(box);
         pairIterator.reset();
         for (IAtomSet pair = pairIterator.next(); pair != null;

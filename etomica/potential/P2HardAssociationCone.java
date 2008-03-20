@@ -2,9 +2,9 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.units.Dimension;
@@ -27,7 +27,7 @@ public class P2HardAssociationCone extends Potential2 {
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
     private final IVector dr;
-    private NearestImageTransformer nearestImageTransformer;
+    private INearestImageTransformer nearestImageTransformer;
     
     public P2HardAssociationCone(Space space) {
         this(space, 1.0, 1.0, 2.0);

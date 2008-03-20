@@ -4,8 +4,8 @@ import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Tensor;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -189,7 +189,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     protected double rCutoff, r2Cutoff;
     protected final IPotentialTorque potential;
     protected final IVector dr;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected final IVector[][] zeroGradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;

@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -289,6 +289,6 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
     protected final IVector[] gradient;
     protected double phiEq, beta;
     protected int n;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     private static final long serialVersionUID = 1L;
 }

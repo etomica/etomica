@@ -3,10 +3,10 @@ package etomica.potential;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.box.Box;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 
@@ -167,7 +167,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
     protected final IVector dr;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected final IVector[] zeroGradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;

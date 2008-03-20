@@ -4,8 +4,8 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
 /**
@@ -123,7 +123,7 @@ public class P2TriangleWell extends Potential2 {
     private double constant;
     private final IVector force;
     private final IVector dr;
-    private NearestImageTransformer nearestImageTransformer;
+    private INearestImageTransformer nearestImageTransformer;
 }
 
   

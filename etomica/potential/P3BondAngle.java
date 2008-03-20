@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.units.Dimension;
@@ -92,7 +92,7 @@ public class P3BondAngle extends Potential {
     }
 
     protected final IVector dr12, dr23;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;

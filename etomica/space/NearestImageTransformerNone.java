@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 
 /**
@@ -7,7 +8,7 @@ import etomica.api.IVector;
  * periodic boundaries are not involved.
  * @author Andrew Schultz
  */
-public class NearestImageTransformerNone implements NearestImageTransformer {
+public class NearestImageTransformerNone implements INearestImageTransformer {
 
     /**
      * Does nothing

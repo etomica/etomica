@@ -3,12 +3,12 @@ package etomica.meam;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 
 import etomica.atom.AtomTypeLeaf;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -1285,7 +1285,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	private ParameterSetMEAM pSn = ParameterSetMEAM.Sn;
 	private ParameterSetMEAM pAg = ParameterSetMEAM.Ag;
 	private ParameterSetMEAM pCu = ParameterSetMEAM.Cu;
-	protected NearestImageTransformer nearestImageTransformer;
+	protected INearestImageTransformer nearestImageTransformer;
     
     double[] sum = new double[25];
 	public static final int RHOj0 = 0;

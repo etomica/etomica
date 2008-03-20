@@ -1,8 +1,7 @@
 package etomica.api;
 
-import etomica.space.NearestImageTransformer;
 
-public interface IBoundary extends NearestImageTransformer {
+public interface IBoundary extends INearestImageTransformer {
 
 	/**
 	 * @return the volume enclosed by the boundary
@@ -22,17 +21,6 @@ public interface IBoundary extends NearestImageTransformer {
 	 *         central-image location
 	 */
 	public abstract IVector centralImage(IVector r);
-
-	/**
-	 * Transforms the given vector to replace it with a minimum-image distance
-	 * vector consistent with the periodic boundaries. Implementation of
-	 * nearestImageTransformer interface.
-	 * 
-	 * @param dr
-	 *            a distance vector between two points in the volume; upon
-	 *            return this vector is replaced with the minimum-image vector
-	 */
-	public abstract void nearestImage(IVector dr);
 
 	/**
 	 * Returns a copy of the dimensions, as a Vector. Manipulation of this copy

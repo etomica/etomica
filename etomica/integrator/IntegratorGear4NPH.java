@@ -5,6 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -23,7 +24,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -284,7 +284,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double vf;
         private final IVector dr;
         private final IVector dv;
-        private NearestImageTransformer nearestImageTransformer;
+        private INearestImageTransformer nearestImageTransformer;
 
         public ForceSumNPH(Space space) {
             dr = space.makeVector();

@@ -4,8 +4,8 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
 /**
@@ -157,7 +157,7 @@ public class P22CLJQ extends Potential2 {
     private double epsilon, epsilon4;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private NearestImageTransformer nearestImageTransformer;
+    private INearestImageTransformer nearestImageTransformer;
 
     private final IVector com1;
     private final IVector com2;

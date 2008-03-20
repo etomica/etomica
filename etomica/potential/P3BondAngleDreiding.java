@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -218,7 +218,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	
     protected final IVector dr12, dr23;
     protected final IVector[] gradient;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     private double gamma;
     private double thetaEq;
     private static final long serialVersionUID = 1L;

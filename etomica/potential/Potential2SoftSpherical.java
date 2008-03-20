@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -112,7 +112,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     protected final IVector[] gradient;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected final IVector dr;
     
 }//end of Potential2SoftSpherical

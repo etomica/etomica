@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -9,7 +10,6 @@ import etomica.exception.MethodNotImplementedException;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.IVectorRandom;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -263,7 +263,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private NearestImageTransformer nearestImageTransformer;
+    private INearestImageTransformer nearestImageTransformer;
     private final IVector dr, drunit, dcos1dr, dcos2dr;
     private final IVector[] gradient;
     protected double temperature;

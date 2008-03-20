@@ -4,8 +4,8 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -221,6 +221,6 @@ public class P2SoftTruncated extends Potential2
     protected double rCutoff, r2Cutoff;
     protected final IVector dr;
     protected final Potential2Soft wrappedPotential;
-    protected NearestImageTransformer nearestImageTransformer;
+    protected INearestImageTransformer nearestImageTransformer;
     protected final IVector[] gradient;
 }
