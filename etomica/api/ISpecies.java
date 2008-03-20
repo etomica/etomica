@@ -2,7 +2,6 @@ package etomica.api;
 
 import etomica.atom.AtomTypeMolecule;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.SpeciesManager;
 
 /**
  * An ISpecies holds information about how to construct a molecule, and
@@ -20,11 +19,10 @@ import etomica.simulation.SpeciesManager;
 public interface ISpecies {
 
     /**
-     * Informs the ISpecies that it is the child of the given SpeciesManager
-     * and that it should recalculate its own index (based on its position
-     * within the SpeciesManager's array of Species).
+     * Informs the ISpecies what its index should be.  This should only be
+     * called by the SpeciesManager.
      */
-    public void resetIndex(SpeciesManager speciesManager);
+    public void setIndex(int newIndex);
 
     /**
      * Returns the index for this ISpecies, within the context of an

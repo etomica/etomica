@@ -30,10 +30,20 @@ public class AtomTypeMolecule extends AtomType {
         }
         this.species = species;
     }
-    
+
+    /**
+     * Sets the index of this molecule type (should match the Species index)
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /**
+     * Sets the SpeciesManager.  This is used for callbacks for notification of
+     * removal and addition of child types (not that that should ever happen!)
+     */
     public void setSpeciesManager(SpeciesManager newSpeciesManager) {
         speciesManager = newSpeciesManager;
-        index = speciesManager.requestTypeIndex();
         for (int i=0; i<childTypes.length; i++) {
             childTypes[i].setIndex(speciesManager.requestTypeIndex());
         }
@@ -55,6 +65,7 @@ public class AtomTypeMolecule extends AtomType {
             childTypes[i].setChildIndex(i);
         }
         if (speciesManager != null) {
+            System.err.println("removing child types is generally a bit scary, but you did it while the molecule type was in the simulation, which makes you a bad person");
             speciesManager.atomTypeRemovedNotify(removedType);
         }
     }
@@ -81,6 +92,7 @@ public class AtomTypeMolecule extends AtomType {
         newChildType.setChildIndex(childTypes.length);
         childTypes = (AtomTypeLeaf[]) Arrays.addObject(childTypes, newChildType);
         if (speciesManager != null) {
+            System.err.println("You really shouldn't be adding leaf atom types after the Species has been added to the simulation");
             speciesManager.atomTypeAddedNotify(newChildType);
             newChildType.setIndex(speciesManager.requestTypeIndex());
         }

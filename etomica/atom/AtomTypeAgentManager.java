@@ -193,6 +193,9 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
             int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
             IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
+            if (atomType.getIndex() >= agents.length) {
+                agents = Arrays.resizeArray(agents, atomType.getIndex()+1);
+            }
             agents[atomType.getIndex()] = agents[oldIndex];
             agents[oldIndex] = null;
         }

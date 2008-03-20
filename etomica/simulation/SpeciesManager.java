@@ -43,9 +43,31 @@ public class SpeciesManager implements java.io.Serializable {
                 throw new IllegalArgumentException("Species already exists");
             }
         }
+        int index = speciesList.length;
+        species.setIndex(index);
         speciesList = (ISpecies[])Arrays.addObject(speciesList,species);
-        species.resetIndex(this);
         AtomTypeMolecule moleculeType = species.getMoleculeType();
+        
+        for (int i=0; i<moleculeTypes.length; i++) {
+            boolean success = false;
+            int[] childIndices = getChildIndices(moleculeTypes[i]);
+            for (int j=0; j<childIndices.length; j++) {
+                if (childIndices[j] == index) {
+                    // this punk has our index!
+                    AtomTypeLeaf leafType = moleculeTypes[i].getChildTypes()[j];
+                    moleculeTypes[i].getChildTypes()[j].setIndex(++numAtomTypes);
+                    sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, index));
+                    success = true;
+                    break;
+                }
+            }
+            if (success) break;
+        }
+        
+        moleculeType.setIndex(index);
+        if (numAtomTypes == 0 && index == 0) {
+            numAtomTypes = 1;
+        }
         moleculeType.setSpeciesManager(this);
         moleculeTypes = (AtomTypeMolecule[])Arrays.addObject(moleculeTypes, moleculeType);
 
@@ -87,9 +109,9 @@ public class SpeciesManager implements java.io.Serializable {
         
         speciesList = (ISpecies[])Arrays.removeObject(speciesList,removedSpecies);
         for (int i=removedSpecies.getIndex(); i<speciesList.length; i++) {
-            speciesList[i].resetIndex(this);
+            speciesList[i].setIndex(i);
         }
-        
+
         IBox[] boxList = sim.getBoxs();
         for (int i=0; i<boxList.length; i++) {
             boxList[i].removeSpeciesNotify(removedSpecies);
@@ -179,19 +201,8 @@ public class SpeciesManager implements java.io.Serializable {
         int[] childIndices = new int[0];
         for (int i=0; i<atomType.getChildTypes().length; i++) {
             IAtomType childType = atomType.getChildTypes()[i];
-            if (childType instanceof AtomTypeMolecule) {
-                // recursion!
-                int[] iChildIndices = getChildIndices((AtomTypeMolecule)childType);
-                int oldSize = childIndices.length;
-                int newSize = oldSize + iChildIndices.length + 1;
-                childIndices = Arrays.resizeArray(childIndices, newSize);
-                childIndices[oldSize] = childType.getIndex();
-                System.arraycopy(iChildIndices, 0, childIndices, oldSize+1, iChildIndices.length);
-            }
-            else {
-                childIndices = Arrays.resizeArray(childIndices, childIndices.length+1);
-                childIndices[childIndices.length-1] = childType.getIndex();
-            }
+            childIndices = Arrays.resizeArray(childIndices, childIndices.length+1);
+            childIndices[childIndices.length-1] = childType.getIndex();
         }
         return childIndices;
     }

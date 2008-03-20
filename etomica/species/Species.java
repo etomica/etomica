@@ -2,7 +2,6 @@ package etomica.species;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeMolecule;
-import etomica.simulation.SpeciesManager;
 
 /**
  * Base implementation of ISpecies, providing basic AtomType and index
@@ -20,17 +19,10 @@ public abstract class Species implements java.io.Serializable, ISpecies {
         isMutable = true;
     }
     
-    public void resetIndex(SpeciesManager speciesManager) {
-        ISpecies[] allSpecies = speciesManager.getSpecies();
-        for (int i=0; i<allSpecies.length; i++) {
-            if (allSpecies[i] == this) {
-                index = i;
-                return;
-            }
-        }
-        throw new RuntimeException("I couldn't find myself.  That's bad.");
+    public void setIndex(int newIndex) {
+        index = newIndex;
     }
-    
+
     public int getIndex() {
         return index;
     }
