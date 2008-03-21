@@ -72,7 +72,6 @@ public class SpeciesSpheresHetero extends Species {
         super(new AtomPositionGeometricCenter(space));
         this.space = space;
         this.isDynamic = isDynamic;
-        this.leafTypes = atomTypes.clone();
         numberFraction = new double[atomTypes.length];
         childCount = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
@@ -87,9 +86,9 @@ public class SpeciesSpheresHetero extends Species {
     public IMolecule makeMolecule() {
         Molecule group = new Molecule(this);
         // make block copolymers
-        for (int i = 0; i < leafTypes.length; i++) {
+        for (int i = 0; i < childTypes.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
-                group.addChildAtom(makeLeafAtom(leafTypes[i]));
+                group.addChildAtom(makeLeafAtom(childTypes[i]));
             }
         }
         return group;
@@ -101,7 +100,7 @@ public class SpeciesSpheresHetero extends Species {
     }
 
     public int getNumComponents() {
-        return leafTypes.length;
+        return childTypes.length;
     }
 
     /**
@@ -118,7 +117,7 @@ public class SpeciesSpheresHetero extends Species {
      *             if all number fractions=0
      */
     public void setNumberFraction(double[] newNumberFraction) {
-        if (newNumberFraction.length != leafTypes.length) {
+        if (newNumberFraction.length != childTypes.length) {
             throw new IllegalArgumentException("the number of numberFracions must be equal to the number of child factories");
         }
         numberFraction = newNumberFraction.clone();
@@ -143,10 +142,10 @@ public class SpeciesSpheresHetero extends Species {
         // on the fraction remaining and the number of atoms remaining so that
         // the number of children is equal to totalChildCount
         int atomsRemaining = totalChildCount;
-        for (int i=0; i<leafTypes.length; i++) {
+        for (int i=0; i<childTypes.length; i++) {
             int k = -1;
             double minFraction = Double.POSITIVE_INFINITY;
-            for (int j=0; j<leafTypes.length; j++) {
+            for (int j=0; j<childTypes.length; j++) {
                 if (childCount[j] != -1) {
                     // already did this type
                     continue;
@@ -179,7 +178,7 @@ public class SpeciesSpheresHetero extends Species {
      *             if any childCount is < 0
      */
     public void setChildCount(int[] newChildCount) {
-        if (leafTypes.length != newChildCount.length) {
+        if (childTypes.length != newChildCount.length) {
             throw new IllegalArgumentException("Number of child factories must equal length of newChildCount.  " +
                     "Call setChildFactory first");
         }
@@ -215,17 +214,16 @@ public class SpeciesSpheresHetero extends Species {
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
      */
-    public void setLeafTypes(IAtomTypeLeaf[] newLeafTypes) {
-        for (int i=0; i<leafTypes.length; i++) {
-            removeChildType(leafTypes[i]);
+    public void setchildTypes(IAtomTypeLeaf[] newchildTypes) {
+        for (int i=0; i<childTypes.length; i++) {
+            removeChildType(childTypes[i]);
         }
-        leafTypes = newLeafTypes.clone();
-        for (int i=0; i<leafTypes.length; i++) {
-            addChildType(newLeafTypes[i]);
+        for (int i=0; i<childTypes.length; i++) {
+            addChildType(newchildTypes[i]);
         }
-        if (numberFraction.length != leafTypes.length) {
-            double[] fraction = new double[leafTypes.length];
-            java.util.Arrays.fill(fraction, 1.0/leafTypes.length);
+        if (numberFraction.length != childTypes.length) {
+            double[] fraction = new double[childTypes.length];
+            java.util.Arrays.fill(fraction, 1.0/childTypes.length);
             setNumberFraction(fraction);
         }
     }
@@ -235,10 +233,9 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for ensuring that the AtomType for the child factory is a
      * child of this AtomFactory's AtomType.
      */
-    public void addLeafType(IAtomTypeLeaf newLeafType) {
-        addChildType(newLeafType);
-        leafTypes = (IAtomTypeLeaf[])Arrays.addObject(leafTypes,newLeafType);
-        if (leafTypes.length > 1) {
+    public void addChildType(IAtomTypeLeaf newLeafType) {
+        super.addChildType(newLeafType);
+        if (childTypes.length > 1) {
             // assume fraction = 0 for new childFactory
             numberFraction = Arrays.resizeArray(numberFraction,numberFraction.length+1);
             childCount = Arrays.resizeArray(childCount,childCount.length+1);
@@ -253,19 +250,9 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for removing the AtomType for the child factory from its
      * parent AtomType.
      */
-    public boolean removeLeafType(IAtomTypeLeaf oldLeafType) {
-        int typeIndex = -1;
-        for (int i=0; i<leafTypes.length; i++) {
-            if (leafTypes[i] == oldLeafType) {
-                typeIndex = i;
-                break;
-            }
-        }
-        if (typeIndex == -1) {
-            return false;
-        }
-        leafTypes = (IAtomTypeLeaf[])Arrays.removeObject(leafTypes, oldLeafType);
-        if (leafTypes.length > 0) {
+    public void removeChildType(IAtomTypeLeaf oldLeafType) {
+        super.removeChildType(oldLeafType);
+        if (childTypes.length > 0) {
             double[] newNumberFraction = new double[numberFraction.length-1];
             System.arraycopy(numberFraction,0,newNumberFraction,0,index);
             System.arraycopy(numberFraction,index+1,newNumberFraction,index,numberFraction.length-index-1);
@@ -276,7 +263,6 @@ public class SpeciesSpheresHetero extends Species {
             numberFraction = new double[0];
             childCount = new int[0];
         }
-        return true;
     }
     
     /**
@@ -311,5 +297,4 @@ public class SpeciesSpheresHetero extends Species {
     protected double[] numberFraction;
     protected int[] childCount;
     protected int totalChildCount;
-    protected IAtomTypeLeaf[] leafTypes;
 }
