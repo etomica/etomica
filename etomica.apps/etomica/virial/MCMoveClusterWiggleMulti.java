@@ -52,9 +52,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        work1 = new Vector3D();
-        work2 = new Vector3D();
-        work3 = new Vector3D();
+        work1 = _space.makeVector();
+        work2 = _space.makeVector();
+        work3 = _space.makeVector();
     }
 
     public void setBox(IBox p) {
@@ -117,7 +117,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 //work3 is a vector normal to both work1 and work2
                 work3.E(work1);
                 work3.XE(work2);
-                work3.TE(1.0/bondLength);
+                work3.TE(bondLength/Math.sqrt(work3.squared()));
                 
                 double phi = (random.nextDouble()-0.5)*Math.PI;
                 work2.TE(Math.cos(phi));
@@ -149,6 +149,11 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             position.PEa1Tv1(Math.sin(theta),work2);
 
             translationVectors[i].PE(position);
+            work1.E(translationVectors[i]);
+            work1.TE(1.0/childList.getAtomCount());
+            for (int k=0; k<childList.getAtomCount(); k++) {
+                ((IAtomPositioned)childList.getAtom(k)).getPosition().ME(work1);
+            }
             if (Debug.ON && Debug.DEBUG_NOW) {
                 for (int k=0; k<numChildren; k++) {
 //                    System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -193,12 +198,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
     
     public double getA() {
-        return (wOld==0.0) ? Double.POSITIVE_INFINITY : wNew/wOld;
+        return wNew/wOld;
     }
 	
     private IAtomPositioned[] selectedAtoms;
-    private double bondLength;
-    private final IVector3D work1, work2, work3;
+    protected double bondLength;
+    protected final IVector3D work1, work2, work3;
     private IVector3D[] translationVectors;
     private double wOld, wNew;
     private final Space space;
