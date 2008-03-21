@@ -34,12 +34,12 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         super.setBox(p);
         weightMeter.setBox(p);
         IAtomSet moleculeList = box.getMoleculeList();
-        oldPositions = new IVector[moleculeList.getAtomCount()-1][];
-        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+        oldPositions = new IVector[moleculeList.getAtomCount()][];
+        for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
-            oldPositions[i-1] = new IVector[molecule.getChildList().getAtomCount()];
-            for (int j=0; j<oldPositions[i-1].length; j++) {
-                oldPositions[i-1][j] = space.makeVector();
+            oldPositions[i] = new IVector[molecule.getChildList().getAtomCount()];
+            for (int j=0; j<oldPositions[i].length; j++) {
+                oldPositions[i][j] = space.makeVector();
             }
         }
     }
@@ -52,7 +52,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             trialCount = relaxInterval;
         }
         IAtomSet moleculeList = box.getMoleculeList();
-        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+        for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
             IAtomSet leafAtoms = molecule.getChildList();
             r0.E(molecule.getType().getPositionDefinition().position(molecule));
@@ -61,7 +61,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             rotationTensor.setAxial(random.nextInt(3),dTheta);
 
             for (int j=0; j<leafAtoms.getAtomCount(); j++) {
-                oldPositions[i-1][j].E(((IAtomPositioned)leafAtoms.getAtom(j)).getPosition());
+                oldPositions[i][j].E(((IAtomPositioned)leafAtoms.getAtom(j)).getPosition());
             }
             doTransform();
             
@@ -97,11 +97,11 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     public void rejectNotify() {
         IAtomSet moleculeList = box.getMoleculeList();
-        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+        for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
             IAtomSet leafAtoms = molecule.getChildList();
             for (int j=0; j<leafAtoms.getAtomCount(); j++) {
-                ((IAtomPositioned)leafAtoms.getAtom(j)).getPosition().E(oldPositions[i-1][j]);
+                ((IAtomPositioned)leafAtoms.getAtom(j)).getPosition().E(oldPositions[i][j]);
             }
         }
         ((BoxCluster)box).rejectNotify();
