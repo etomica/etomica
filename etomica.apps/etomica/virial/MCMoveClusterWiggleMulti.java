@@ -52,9 +52,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        work1 = _space.makeVector();
-        work2 = _space.makeVector();
-        work3 = _space.makeVector();
+        work1 = (IVector3D)_space.makeVector();
+        work2 = (IVector3D)_space.makeVector();
+        work3 = (IVector3D)_space.makeVector();
     }
 
     public void setBox(IBox p) {
