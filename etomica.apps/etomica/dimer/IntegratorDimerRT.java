@@ -3,22 +3,19 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.WriteConfiguration;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IRandom;
-
-import etomica.action.WriteConfiguration;
-import etomica.action.XYZWriter;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;

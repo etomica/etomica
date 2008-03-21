@@ -69,7 +69,7 @@ public class Osmosis extends SimulationGraphic {
 
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space);
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	sim = simulation;
         final int thickness = 4;
@@ -82,8 +82,8 @@ public class Osmosis extends SimulationGraphic {
         final DisplayBox displayBox = getDisplayBox(sim.box);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
 
-        colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
-        colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
+        colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
+        colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.red);
         displayBox.setColorScheme(colorScheme);
         displayBox.setAlign(1,DisplayBox.CENTER);
         displayBox.setOriginShift(0, thickness);

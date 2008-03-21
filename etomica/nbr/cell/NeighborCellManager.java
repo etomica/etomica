@@ -1,5 +1,7 @@
 package etomica.nbr.cell;
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
@@ -8,9 +10,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;

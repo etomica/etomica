@@ -1,18 +1,13 @@
 package etomica.models.water;
-import java.lang.reflect.Constructor;
-
 import etomica.api.IMolecule;
-import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.Space;
 import etomica.species.Species;
-import etomica.species.SpeciesSignature;
 
 /**
  * Species for 3-point water molecule.
@@ -20,27 +15,22 @@ import etomica.species.SpeciesSignature;
 public class SpeciesWater3P extends Species {
     
     public SpeciesWater3P(Space space) {
-        this(space, new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
-    }
-    
-    public SpeciesWater3P(Space space, AtomTypeMolecule moleculeType) {
-       super(moleculeType);
+        super(new AtomPositionGeometricCenter(space));
        this.space = space;
        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
-       atomType.addChildType(hType);
-       atomType.addChildType(oType);
+       addChildType(hType);
+       addChildType(oType);
 
-       atomType.setConformation(new ConformationWater3P(space));
+       setConformation(new ConformationWater3P(space));
     }
     
     public IMolecule makeMolecule() {
-        isMutable = false;
-        Molecule water = new Molecule(atomType);
+        Molecule water = new Molecule(this);
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, oType));
-        atomType.getConformation().initializePositions(water.getChildList());
+        getConformation().initializePositions(water.getChildList());
         return water;
     }
     
@@ -56,17 +46,6 @@ public class SpeciesWater3P extends Species {
         return 3;
     }
     
-    public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        return new SpeciesSignature(constructor,new Object[]{});
-    }
-
     public final static int indexH1 = 0;
     public final static int indexH2 = 1;
     public final static int indexO  = 2;

@@ -13,10 +13,10 @@ import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.box.BoxAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**

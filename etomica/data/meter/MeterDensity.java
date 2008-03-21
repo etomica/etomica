@@ -1,9 +1,9 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.data.DataSourceScalar;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;

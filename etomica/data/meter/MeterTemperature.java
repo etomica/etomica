@@ -2,17 +2,15 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMoleculeOriented;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.MoleculeOrientedDynamic;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-
+import etomica.species.ISpeciesOriented;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 
@@ -64,7 +62,7 @@ public class MeterTemperature extends DataSourceScalar {
 	            if (nMolecules > 0) {
 	                IMolecule molecule = (IMolecule)box.getMoleculeList(species[i]).getAtom(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
-	                    if (Double.isInfinite(((AtomTypeMoleculeOriented)species[i].getMoleculeType()).getMass())) {
+	                    if (Double.isInfinite(((ISpeciesOriented)species[i]).getMass())) {
 	                        continue;
 	                    }
                         totalD += 6*nMolecules;
@@ -72,7 +70,7 @@ public class MeterTemperature extends DataSourceScalar {
 	                else {
 	                    IAtomSet children = molecule.getChildList();
 	                    if (children.getAtomCount() == 0 || 
-	                        Double.isInfinite(((AtomTypeLeaf)children.getAtom(0).getType()).getMass())) {
+	                        Double.isInfinite(((IAtomTypeLeaf)children.getAtom(0).getType()).getMass())) {
 	                        continue;
 	                    }
 	                    if (children.getAtom(0).getType() instanceof AtomTypeOrientedSphere) {

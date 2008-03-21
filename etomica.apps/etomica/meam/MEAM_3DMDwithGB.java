@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -151,12 +151,12 @@ public class MEAM_3DMDwithGB extends Simulation {
     	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simgraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.snFixedA.getMoleculeType(),java.awt.Color.blue);
-    	colorScheme.setColor(sim.snA.getMoleculeType(),java.awt.Color.red);
+    	colorScheme.setColor(sim.snFixedA.getLeafType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.snA.getLeafType(),java.awt.Color.red);
 //    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
 //    	colorScheme.setColor(sim.cuA.getMoleculeType(),java.awt.Color.orange);
-    	colorScheme.setColor(sim.snFixedB.getMoleculeType(),java.awt.Color.yellow);
-    	colorScheme.setColor(sim.snB.getMoleculeType(),java.awt.Color.green);
+    	colorScheme.setColor(sim.snFixedB.getLeafType(),java.awt.Color.yellow);
+    	colorScheme.setColor(sim.snB.getLeafType(),java.awt.Color.green);
 //    	colorScheme.setColor(sim.agB.getMoleculeType(),java.awt.Color.gray);
 //    	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
 
@@ -319,7 +319,7 @@ public class MEAM_3DMDwithGB extends Simulation {
 //		potentialN.setParametersIMC(cuB.getLeafType(), ParameterSetMEAM.Cu3Sn);
 //		potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
 //        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, snFixedB, snB, agB, cuB});    
-        this.potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), snFixedB.getLeafType(), snB.getLeafType()});    
+        this.potentialMaster.addPotential(potentialN, new IAtomTypeLeaf[]{snFixedA.getLeafType(), snA.getLeafType(), snFixedB.getLeafType(), snB.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));

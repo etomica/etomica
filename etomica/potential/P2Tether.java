@@ -1,8 +1,8 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -62,8 +62,8 @@ public class P2Tether extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
+        double rm0 = ((IAtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((IAtomTypeLeaf)atom1.getType()).rm();
         lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);

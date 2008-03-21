@@ -5,11 +5,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import etomica.EtomicaInfo;
 import etomica.api.IAction;
 import etomica.api.IController;
-
-import etomica.EtomicaInfo;
-import etomica.action.activity.Controller;
 
 /**
  * Button that causes an action to be performed.

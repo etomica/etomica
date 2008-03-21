@@ -6,6 +6,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -13,12 +14,10 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.Space;
@@ -101,7 +100,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
-            v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
 
@@ -119,12 +118,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);
-            workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
+            workTensor.TE(((IAtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent(a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         
         pressureTensor.TE(1/box.getBoundary().volume());

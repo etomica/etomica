@@ -1,11 +1,10 @@
 package etomica.virial;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.api.IAtomSet;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
-
-import etomica.atom.AtomTypeMolecule;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -33,7 +32,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 		for (int i=0; i<moleculeList.getAtomCount(); i++) {
             // initialize coordinates of child atoms
 		    IMolecule a = (IMolecule)moleculeList.getAtom(i);
-            Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+            Conformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
         }
 

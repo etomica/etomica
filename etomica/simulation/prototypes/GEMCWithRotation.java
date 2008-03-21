@@ -1,7 +1,7 @@
 package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeSphere;
@@ -42,7 +42,7 @@ public class GEMCWithRotation extends Simulation {
 	    
 	    species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(sigma);
+        ((AtomTypeSphere)species.getChildTypes()[0]).setDiameter(sigma);
 
 	    box1 = new Box(this, space);
         addBox(box1);
@@ -84,7 +84,7 @@ public class GEMCWithRotation extends Simulation {
 	    potential = new P2LennardJones(space);
 	    potential.setSigma(sigma);
 
-        potentialMaster.addPotential(potential,new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential,new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
 
         integratorMC1.addIntervalAction(new BoxImposePbc(box1, space));
         integratorMC2.addIntervalAction(new BoxImposePbc(box2, space));

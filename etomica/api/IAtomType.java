@@ -7,8 +7,6 @@ public interface IAtomType {
 
 	public abstract int getIndex();
 
-	public abstract ISpecies getSpecies();
-
 	/**
 	 * The position definition held by the type provides an appropriate default
 	 * to define the position of an atom of this type. This field is set in the

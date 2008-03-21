@@ -5,17 +5,16 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
@@ -83,7 +82,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
         neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
-        atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
@@ -185,10 +183,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
-            if ((atomType[0] instanceof AtomTypeLeaf) &&
-                    (atomType[1] instanceof AtomTypeLeaf)) {
-                IAtomType moleculeType0 = ((AtomTypeLeaf)atomType[0]).getParentType();
-                IAtomType moleculeType1 = ((AtomTypeLeaf)atomType[1]).getParentType();
+            if ((atomType[0] instanceof IAtomTypeLeaf) &&
+                    (atomType[1] instanceof IAtomTypeLeaf)) {
+                ISpecies moleculeType0 = ((IAtomTypeLeaf)atomType[0]).getSpecies();
+                ISpecies moleculeType1 = ((IAtomTypeLeaf)atomType[1]).getSpecies();
                 if (moleculeType0 == moleculeType1) {
                     criterion = new CriterionInterMolecular(criterion);
                 }
@@ -422,7 +420,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             if (targetAtom instanceof IAtomLeaf) {
                 //first walk up the tree looking for 1-body range-independent potentials that apply to parents
                 IMolecule parentAtom = ((IAtomLeaf)targetAtom).getParentGroup();
-                potentialArray = getIntraPotentials((AtomTypeMolecule)parentAtom.getType());
+                potentialArray = getIntraPotentials((ISpecies)parentAtom.getType());
                 potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
@@ -503,7 +501,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }//end of switch
         }//end of for
         
-        potentialArray = getIntraPotentials((AtomTypeMolecule)molecule.getType());
+        potentialArray = getIntraPotentials((ISpecies)molecule.getType());
         potentials = potentialArray.getPotentials();
         for(int i=0; i<potentials.length; i++) {
             ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id,pc);
@@ -623,7 +621,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorArrayListSimple atomIterator;
     private final AtomIteratorSinglet singletIterator;
     protected final AtomSetSinglet atomSetSinglet;
     protected final AtomPair atomPair;

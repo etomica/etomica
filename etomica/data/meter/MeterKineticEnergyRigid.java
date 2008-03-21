@@ -2,13 +2,12 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMoleculeOriented;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -16,6 +15,7 @@ import etomica.data.DataSourceScalar;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
+import etomica.species.ISpeciesOriented;
 import etomica.units.Energy;
 
 /**
@@ -63,12 +63,12 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
             if (molecule0 instanceof MoleculeOrientedDynamic) {
                 for (int j=0; j<moleculeList.getAtomCount(); j++) {
                     IAtomOrientedKinetic moleculeOrientedKinetic = (IAtomOrientedKinetic)moleculeList.getAtom(j);
-                    double mass = ((AtomTypeMoleculeOriented)molecule0.getType()).getMass();
+                    double mass = ((ISpeciesOriented)molecule0.getType()).getMass();
                     if (Double.isInfinite(mass)) {
                         continue;
                     }
                     ke += 0.5*mass*((IAtomKinetic)molecule0).getVelocity().squared();
-                    IVector moment = ((AtomTypeMoleculeOriented)molecule0.getType()).getMomentOfInertia();
+                    IVector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
@@ -86,7 +86,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                     IAtomSet children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                        double mass = ((AtomTypeLeaf)a.getType()).getMass();
+                        double mass = ((IAtomTypeLeaf)a.getType()).getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                         IVector velocity = a.getVelocity();

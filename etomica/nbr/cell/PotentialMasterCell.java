@@ -5,8 +5,8 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
-import etomica.nbr.site.PotentialMasterSite;
 import etomica.box.BoxAgentManager;
+import etomica.nbr.site.PotentialMasterSite;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 

@@ -1,9 +1,9 @@
 package etomica.integrator;
 
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 

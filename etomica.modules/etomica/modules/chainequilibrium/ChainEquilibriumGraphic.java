@@ -50,7 +50,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         // ********* Data Declaration Section *******	

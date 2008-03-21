@@ -3,8 +3,8 @@ package etomica.normalmode;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -143,7 +143,7 @@ public class SimHarmonic extends Simulation {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
         PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim, sim.space) : new PotentialMaster(sim.getSpace()));
-        potentialMaster.addPotential(p2, new AtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
+        potentialMaster.addPotential(p2, new IAtomTypeLeaf[]{sim.species.getLeafType(),sim.species.getLeafType()});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;

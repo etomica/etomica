@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -62,8 +62,8 @@ public class SimTarget extends Simulation {
         getController().addAction(activityIntegrate);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
-        AtomType sphereType = species.getMoleculeType();
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
+        IAtomTypeLeaf sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
                 sphereType });
 
         int nCells;

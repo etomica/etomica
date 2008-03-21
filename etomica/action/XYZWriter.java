@@ -11,8 +11,8 @@ import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
@@ -73,7 +73,7 @@ public class XYZWriter implements IAction, Serializable {
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
-                Element element = ((AtomTypeLeaf)atom.getType()).getElement();
+                Element element = ((IAtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
                     Iterator elementIterator = elementAtomType.iterator();

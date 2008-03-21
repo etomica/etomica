@@ -85,7 +85,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             throw new IllegalArgumentException("You shouldn't pass a null Box.  Why would you do that?");
         }
         box = newBox;
-        if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
+        if (species0.getIndex() > species1.getIndex()) {
             // species were out of order.  swap them
             ISpecies tempSpecies = species0;
             species0 = species1;
@@ -139,13 +139,13 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             if (targetMolecule instanceof IAtomLeaf) {
                 targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
-            if (targetMolecule.getType().getSpecies() == species0) {
+            if (targetMolecule.getType() == species0) {
                 //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
                 iterator = apiUp;
                 aiInner.setList(box.getMoleculeList(species1));
             }
-            else if (targetMolecule.getType().getSpecies() == species1) {
+            else if (targetMolecule.getType() == species1) {
                 //target is species1
                 allowedDirection = IteratorDirective.Direction.DOWN;
                 iterator = apiDown;

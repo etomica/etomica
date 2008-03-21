@@ -2,10 +2,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataSourceCountSteps;
@@ -52,11 +51,11 @@ public class HsMc2d extends Simulation {
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
-	    AtomTypeLeaf type1 = species.getLeafType();
-        AtomTypeLeaf type2 = species2.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] {type1, type1});
-        potentialMaster.addPotential(potential, new IAtomType[] {type1, type2});
-        potentialMaster.addPotential(potential, new IAtomType[] {type2, type2});
+	    IAtomTypeLeaf type1 = species.getLeafType();
+        IAtomTypeLeaf type2 = species2.getLeafType();
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] {type1, type1});
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] {type1, type2});
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] {type2, type2});
 	    meterCycles = new DataSourceCountSteps(integrator);
 
         integrator.setBox(box);

@@ -6,7 +6,6 @@ import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.Space;
-import etomica.space3d.IVector3D;
 
 /**
  * Torsion potential.

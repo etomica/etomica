@@ -12,9 +12,9 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 
+import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IController;
-import etomica.action.activity.Controller;
 import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;

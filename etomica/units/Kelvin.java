@@ -1,6 +1,4 @@
 package etomica.units;
-import java.io.ObjectStreamException;
-
 import etomica.util.Constants;
 
 public final class Kelvin extends SimpleUnit {

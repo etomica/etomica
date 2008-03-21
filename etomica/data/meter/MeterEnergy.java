@@ -1,9 +1,8 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
-import etomica.data.DataSourceScalar;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.data.DataSourceScalar;
 import etomica.units.Energy;
 
 /**

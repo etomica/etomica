@@ -2,13 +2,11 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.data.Data;
@@ -21,7 +19,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.space.Space;
-
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -175,7 +172,7 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
             // oh, the irony
             return null;
         }
-        ISpecies thisSpecies = a.getType().getSpecies();
+        ISpecies thisSpecies = (ISpecies)a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
                 IVector vec = space.makeVector();

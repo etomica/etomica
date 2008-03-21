@@ -1,16 +1,12 @@
 package etomica.paracetamol;
 
-import java.lang.reflect.Constructor;
-
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
@@ -19,13 +15,12 @@ import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.Space;
 import etomica.species.Species;
-import etomica.species.SpeciesSignature;
 import etomica.units.ElectronVolt;
 
 public class SpeciesParacetamol extends Species {
 
 	public SpeciesParacetamol(ISimulation sim, Space _space) {
-		super(new AtomTypeMolecule(new AtomPositionGeometricCenter(_space)));
+		super(new AtomPositionGeometricCenter(_space));
 		space = _space;
 		isDynamic = sim.isDynamic();
         
@@ -33,24 +28,24 @@ public class SpeciesParacetamol extends Species {
         //L. Pauling, The Nature of the Chemical Bond, Cornell University Press, USA, 1945.
         //1.7, 1.55, 1.52, 1.2
         oType = new AtomTypeSphere(Oxygen.INSTANCE, 2*1.7);
-        atomType.addChildType(oType);
+        addChildType(oType);
         cType = new AtomTypeSphere(Carbon.INSTANCE, 2*1.55);
-        atomType.addChildType(cType);
+        addChildType(cType);
         nType = new AtomTypeSphere(Nitrogen.INSTANCE, 2*1.52);
-        atomType.addChildType(nType);
+        addChildType(nType);
         hpType = new AtomTypeSphere(HydrogenP.INSTANCE, 2*1.20);
-        atomType.addChildType(hpType);
+        addChildType(hpType);
         hyType = new AtomTypeSphere(Hydrogen.INSTANCE, 2*1.20);
-        atomType.addChildType(hyType);
+        addChildType(hyType);
 
         //CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
-        atomType.setConformation(new ConformationParacetamolOrthorhombic(space));
+        setConformation(new ConformationParacetamolOrthorhombic(space));
     }
     
     
     public IMolecule makeMolecule() {
 
-        Molecule moleculeParacetamol = new Molecule(atomType);
+        Molecule moleculeParacetamol = new Molecule(this);
 
         int countC = 0;
         int countH = 0;
@@ -83,11 +78,11 @@ public class SpeciesParacetamol extends Species {
             }
         }            
         
-        atomType.getConformation().initializePositions(moleculeParacetamol.getChildList());
+        getConformation().initializePositions(moleculeParacetamol.getChildList());
         return moleculeParacetamol; 
     }
     
-    protected IAtomLeaf makeLeafAtom(AtomTypeLeaf leafType) {
+    protected IAtomLeaf makeLeafAtom(IAtomTypeLeaf leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new AtomLeaf(space, leafType);
     }
@@ -121,17 +116,6 @@ public class SpeciesParacetamol extends Species {
         return hyType;
     }
 
-
-    public SpeciesSignature getSpeciesSignature(){
-		Constructor constructor = null;
-		try {
-			constructor = this.getClass().getConstructor(new Class[] {ISimulation.class});
-		}
-		catch(NoSuchMethodException e){
-			System.err.println("Have NO CONSTRUCTOR");
-		}
-		return new SpeciesSignature(constructor,new Object[]{});
-	}
 
     public final static int[] indexC = new int[]{0,1,3,5,7,9,14,16};
     public final static int[] indexH = new int[]{2,4,8,10,17,18,19};

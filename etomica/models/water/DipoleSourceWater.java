@@ -1,9 +1,9 @@
 package etomica.models.water;
 
-import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeOriented;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.atom.DipoleSource;
+import etomica.atom.MoleculeOriented;
 import etomica.space.Space;
 
 /**

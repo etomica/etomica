@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.Space;
@@ -15,7 +16,7 @@ import etomica.util.Debug;
   */
 public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
 
-    public AtomLeaf(Space space, AtomTypeLeaf type) {
+    public AtomLeaf(Space space, IAtomTypeLeaf type) {
         super(type);
         position = space.makeVector();
     }

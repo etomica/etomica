@@ -2,9 +2,9 @@ package etomica.modules.vle;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -13,7 +13,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveRotate;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -81,7 +80,7 @@ public class VLESim extends Simulation {
         p2Truncated = new P2SoftTruncated(p2LJQ, range, space);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
         if (doNBR) {
-            potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+            potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
         }
         else {
             potentialMaster.addPotential(new P2SoftMoleculeMonatomicTruncated(space, p2Truncated), new ISpecies[]{species,species});

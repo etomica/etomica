@@ -7,7 +7,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;

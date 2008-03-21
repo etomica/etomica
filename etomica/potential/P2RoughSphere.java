@@ -3,11 +3,10 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomOrientedKinetic;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -63,8 +62,8 @@ public class P2RoughSphere extends P2HardSphere {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
+        double rm0 = ((IAtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((IAtomTypeLeaf)atom1.getType()).rm();
         double kappa = 4*((AtomType.Rotator)atom0.getType()).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
         omegaSum.E(coord0.getAngularVelocity());
         omegaSum.PE(coord1.getAngularVelocity());
@@ -83,7 +82,7 @@ public class P2RoughSphere extends P2HardSphere {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(((AtomTypeLeaf)atom0.getType()).getMass());
+        impulse.TE(((IAtomTypeLeaf)atom0.getType()).getMass());
         
         coord0.getVelocity().PEa1Tv1( rm0,impulse);
         coord1.getVelocity().PEa1Tv1(-rm1,impulse);

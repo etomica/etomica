@@ -1,10 +1,10 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Energy;

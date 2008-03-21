@@ -1,7 +1,8 @@
 package etomica.api;
 
-import etomica.atom.AtomTypeMolecule;
+import etomica.config.Conformation;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.SpeciesManager;
 
 /**
  * An ISpecies holds information about how to construct a molecule, and
@@ -16,7 +17,7 @@ import etomica.potential.PotentialMaster;
  * @see IBox
  * @see PotentialMaster
  */
-public interface ISpecies {
+public interface ISpecies extends IAtomType {
 
     /**
      * Informs the ISpecies what its index should be.  This should only be
@@ -32,6 +33,12 @@ public interface ISpecies {
     public int getIndex();
 
     /**
+     * Sets the SpeciesManager.  This is used for callbacks for notification of
+     * removal and addition of child types (not that that should ever happen!)
+     */
+    public void setSpeciesManager(SpeciesManager newSpeciesManager);
+
+    /**
      * Builds and returns the IMolecule of this ISpecies.
      */
     public IMolecule makeMolecule();
@@ -43,17 +50,23 @@ public interface ISpecies {
     public int getNumLeafAtoms();
 
     /**
-     * Returns true if ISpecies methods can be called which would change the
-     * definition of the Species (setFoo(foo)).  If a mutator method is called
-     * when the ISpecies is not mutable, an exception is thrown.  Typically, an
-     * ISpecies is mutable until a molecule is created.
+     * Returns the array of child types of this group.
      */
-    public boolean isMutable();
+    public IAtomTypeLeaf[] getChildTypes();
+
+    public void addChildType(IAtomTypeLeaf newChildType);
+
+    public void removeChildType(IAtomTypeLeaf removedType);
 
     /**
-     * Returns the atom type of molecules of this ISpecies. 
-     * @return
+     * Sets the conformation used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
      */
-    public AtomTypeMolecule getMoleculeType();
+    public void setConformation(Conformation config);
 
+    /**
+     * Returns the conformation used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
+     */
+    public Conformation getConformation();
 }

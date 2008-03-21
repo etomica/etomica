@@ -2,9 +2,9 @@ package etomica.modules.reactionequilibrium;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
@@ -118,8 +118,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
+        double rm0 = ((IAtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((IAtomTypeLeaf)atom1.getType()).rm();
 //		System.out.println("Bumping "+pair.toString());
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);

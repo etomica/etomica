@@ -3,18 +3,16 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.WriteConfiguration;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-
-import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -26,7 +24,6 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.dimer.IntegratorDimerRT.PotentialMasterListDimer;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
@@ -37,7 +34,6 @@ import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
-import etomica.nbr.CriterionSimple;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -102,7 +98,7 @@ public class SimDimerMEAMadatom extends Simulation{
     	potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
 		potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
 		
-		this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType()});
+		this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
 		//potentialMaster.setSpecies(new Species [] {movable});
 		//potentialMaster.setRange(potential.getRange()*1.1);
 		//potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));

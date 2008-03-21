@@ -3,9 +3,10 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.atom.AtomTypeLeaf;
+import etomica.api.ISpecies;
 import etomica.space.Space;
 
 /**
@@ -64,11 +65,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected final boolean interType;
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
-//    protected final ISpeciesAgent[] agents = new ISpeciesAgent[2];
     
     public Potential0Lrc(Space space, IAtomType[] types, Potential truncatedPotential) {
         super(space);
-        this.types = (IAtomType[])types.clone();
+        this.types = types.clone();
         if(types.length != 2) {
             throw new IllegalArgumentException("LRC developed only for two-body potentials; must give two species to constructor");
         }
@@ -89,11 +89,11 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             // count the number of Atoms of the relevant type in each molecule
             for (int i=0; i<2; i++) {
                 if (lrcAtomsPerMolecule[i] == 0) {
-                    if (types[i] instanceof AtomTypeLeaf) {
+                    if (types[i] instanceof IAtomTypeLeaf) {
                         lrcAtomsPerMolecule[i] = 1;
                     }
-                    else if (p.getNMolecules(types[i].getSpecies()) > 0) {
-                        IAtomSet childList = ((IMolecule)p.getMoleculeList(types[i].getSpecies()).getAtom(0)).getChildList();
+                    else if (p.getNMolecules((ISpecies)types[i]) > 0) {
+                        IAtomSet childList = ((IMolecule)p.getMoleculeList((ISpecies)types[i]).getAtom(0)).getChildList();
                         int numAtoms = 0;
                         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                             if (childList.getAtom(iChild).getType() == types[i]) numAtoms++;
@@ -112,16 +112,17 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             return;
         }
         int typeIndex = 1;
-        if (types[0] == targetAtom.getType() || (types[0] instanceof AtomTypeLeaf && 
-             ((AtomTypeLeaf)types[0]).getParentType() == targetAtom.getType())) {
+        if (types[0] == targetAtom.getType() || (types[0] instanceof IAtomTypeLeaf && 
+             ((IAtomTypeLeaf)types[0]).getSpecies() == targetAtom.getType())) {
             typeIndex = 0;
         }
-        else if (!(types[1] == targetAtom.getType() || (types[1] instanceof AtomTypeLeaf && 
-                  ((AtomTypeLeaf)types[1]).getParentType() == targetAtom.getType()))) {
+        else if (!(types[1] == targetAtom.getType() || (types[1] instanceof IAtomTypeLeaf && 
+                  ((IAtomTypeLeaf)types[1]).getSpecies() == targetAtom.getType()))) {
             divisor = 0;
             return;
         }
-        divisor = box.getNMolecules(types[typeIndex].getSpecies()) * lrcAtomsPerMolecule[typeIndex];
+        ISpecies species = types[typeIndex] instanceof ISpecies ? (ISpecies)types[typeIndex] : ((IAtomTypeLeaf)types[typeIndex]).getSpecies();
+        divisor = box.getNMolecules(species) * lrcAtomsPerMolecule[typeIndex];
         if (!interType) {
             divisor = divisor/2.0;
         }
@@ -136,9 +137,11 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected int nPairs() {
         if(divisor == 0) return 0;
         int nPairs = 0;
-        int n0 = box.getNMolecules(types[0].getSpecies())*lrcAtomsPerMolecule[0];
+        ISpecies species0 = types[0] instanceof ISpecies ? (ISpecies)types[0] : ((IAtomTypeLeaf)types[0]).getSpecies();
+        int n0 = box.getNMolecules(species0)*lrcAtomsPerMolecule[0];
         if(interType) {
-            int n1 = box.getNMolecules(types[1].getSpecies());
+            ISpecies species1 = types[1] instanceof ISpecies ? (ISpecies)types[1] : ((IAtomTypeLeaf)types[1]).getSpecies();
+            int n1 = box.getNMolecules(species1);
             nPairs = n0*n1*lrcAtomsPerMolecule[1];
         }
         else {

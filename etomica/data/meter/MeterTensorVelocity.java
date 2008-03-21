@@ -2,9 +2,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
@@ -75,7 +75,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     public Data getData(IAtom atom) {
         IVector vel = ((IAtomKinetic)atom).getVelocity();
         atomData.x.Ev1v2(vel, vel);
-        atomData.TE(((AtomTypeLeaf)atom.getType()).rm());
+        atomData.TE(((IAtomTypeLeaf)atom.getType()).rm());
         return atomData;
     }
 

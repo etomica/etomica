@@ -16,7 +16,7 @@ public class SpeciesFactoryWater4P implements SpeciesFactory, java.io.Serializab
     }
     public ISpecies makeSpecies(ISimulation sim, Space space) {
         SpeciesWater4P species = new SpeciesWater4P(space);
-        species.getMoleculeType().setConformation(conformation);
+        species.setConformation(conformation);
         return species;
     }
     

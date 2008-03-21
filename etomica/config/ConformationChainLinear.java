@@ -1,9 +1,6 @@
 package etomica.config;
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;

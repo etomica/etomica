@@ -4,7 +4,6 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.space.Space;
 

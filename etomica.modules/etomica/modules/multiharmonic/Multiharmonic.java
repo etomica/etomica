@@ -1,11 +1,11 @@
 package etomica.modules.multiharmonic;
 
-import etomica.api.IAtomPositioned;
-import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.api.IController;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -54,7 +54,7 @@ public class Multiharmonic extends Simulation {
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
-        potentialMaster.addPotential(potentialA, new AtomType[] {species.getLeafType()});
+        potentialMaster.addPotential(potentialA, new IAtomTypeLeaf[] {species.getLeafType()});
         
         box.setNMolecules(species, 20);
         

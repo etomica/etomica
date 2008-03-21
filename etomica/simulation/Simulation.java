@@ -1,13 +1,11 @@
 package etomica.simulation;
 
+import etomica.action.activity.Controller;
 import etomica.api.IBox;
 import etomica.api.IController;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-
-import etomica.action.activity.Controller;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.util.Arrays;
 import etomica.util.RandomNumberGenerator;
 

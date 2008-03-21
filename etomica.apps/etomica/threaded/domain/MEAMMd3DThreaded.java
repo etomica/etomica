@@ -3,8 +3,8 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -171,7 +171,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
 		potentialThreaded = new PotentialThreaded(space, potentialN);
        
-        potentialMaster.addPotential(potentialThreaded, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
+        potentialMaster.addPotential(potentialThreaded, new IAtomTypeLeaf[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
         
         ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
         
@@ -267,9 +267,9 @@ public class MEAMMd3DThreaded extends Simulation {
 
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
-    	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
-    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
+    	colorScheme.setColor(sim.sn.getLeafType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.ag.getLeafType(),java.awt.Color.gray);
+    	colorScheme.setColor(sim.cu.getLeafType(),java.awt.Color.orange);
 
     	simGraphic.makeAndDisplayFrame(APP_NAME);
 

@@ -3,12 +3,9 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
-import etomica.atom.AtomPair;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.util.Debug;
 
 /**
  * Performs actions that cause volume of a deformable system to expand, with molecule

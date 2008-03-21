@@ -1,12 +1,11 @@
 package etomica.dimer;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -92,9 +91,9 @@ public class SimDimerLJgb extends Simulation{
     	
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
-		potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), movable.getLeafType()});
         
     	
 	 //CRYSTAL

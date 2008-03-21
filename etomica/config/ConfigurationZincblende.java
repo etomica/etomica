@@ -127,8 +127,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim, space);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
-        ((AtomTypeSphere)speciesSpheres0.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
-        ((AtomTypeSphere)speciesSpheres1.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
+        ((AtomTypeSphere)speciesSpheres0.getLeafType()).setDiameter(5.0);
+        ((AtomTypeSphere)speciesSpheres1.getLeafType()).setDiameter(5.0);
         box.setNMolecules(speciesSpheres0, 32);
         box.setNMolecules(speciesSpheres1, 32);
         ConfigurationZincblende config = new ConfigurationZincblende(15, space);
@@ -137,8 +137,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, space);
         simGraphic.add(new DisplayBox(box, space));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
-        colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
-        colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
+        colorScheme.setColor(speciesSpheres0.getLeafType(),new java.awt.Color(0,255,0));
+        colorScheme.setColor(speciesSpheres1.getLeafType(), java.awt.Color.red);
 
         simGraphic.getController().getSimRestart().setConfiguration(config);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(box));

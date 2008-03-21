@@ -4,11 +4,11 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
+import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.IteratorDirective;
@@ -152,7 +152,7 @@ public class PotentialMasterListWorker extends Thread {
 
 		//		if atom has children, repeat process with them
         if(atom instanceof IMolecule) {
-            potentialArray = pmlt.getIntraPotentials((AtomTypeMolecule)atom.getType());
+            potentialArray = pmlt.getIntraPotentials((ISpecies)atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
             

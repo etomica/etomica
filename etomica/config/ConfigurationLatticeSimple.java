@@ -5,17 +5,17 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -109,11 +109,9 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         indexIterator.reset();
         for (IAtom a = atomIterator.nextAtom(); a != null;
              a = atomIterator.nextAtom()) {
-            if (a instanceof IMolecule) {
-                // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
-                config.initializePositions(((IMolecule)a).getChildList());
-            }
+            // initialize coordinates of child atoms
+            Conformation config = ((ISpecies)a.getType()).getConformation();
+            config.initializePositions(((IMolecule)a).getChildList());
 
             atomActionTranslateTo.setDestination((IVector)lattice.site(indexIterator.next()));
             atomActionTranslateTo.actionPerformed(a);
@@ -171,7 +169,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
+        ((AtomTypeSphere)species.getLeafType()).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);

@@ -1,13 +1,13 @@
 package etomica.potential;
 
-import etomica.atom.MoleculeOrientedDynamic;
-import etomica.models.water.P2WaterSPCSoft;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.Tensor;
+import etomica.atom.MoleculeOrientedDynamic;
+import etomica.models.water.P2WaterSPCSoft;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 
 

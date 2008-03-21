@@ -1,7 +1,6 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;

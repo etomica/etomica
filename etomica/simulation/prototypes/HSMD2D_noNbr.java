@@ -1,9 +1,8 @@
 package etomica.simulation.prototypes;
-import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -23,14 +22,12 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardBoundary;
-import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -66,9 +63,9 @@ public class HSMD2D_noNbr extends Simulation {
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
-	    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+	    potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
-        potentialMaster.addPotential(potentialBoundary, new IAtomType[] {species.getLeafType()});
+        potentialMaster.addPotential(potentialBoundary, new IAtomTypeLeaf[] {species.getLeafType()});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);

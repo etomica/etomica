@@ -6,10 +6,10 @@ import java.util.HashMap;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.box.BoxAgentManager;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.box.BoxAgentManager;
 
 public class ColorSchemeCell extends ColorScheme {
     

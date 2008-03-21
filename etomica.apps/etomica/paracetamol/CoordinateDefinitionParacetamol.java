@@ -2,17 +2,16 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
@@ -122,7 +121,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             if (configuration == null) {
                 // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+                Conformation config = ((ISpecies)molecule.getType()).getConformation();
                 config.initializePositions(molecule.getChildList());
             }
             
@@ -501,7 +500,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	for (int a=0; a<3; a++){
 	      		t.setComponent(a, a, basisOrientation[i][a]);
 	      	}
-            Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+            Conformation config = ((ISpecies)molecule.getType()).getConformation();
             config.initializePositions(molecule.getChildList());
 	      	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
 	      	atomGroupAction.actionPerformed(molecule);

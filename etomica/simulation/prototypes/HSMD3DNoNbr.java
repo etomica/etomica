@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -51,7 +51,7 @@ public class HSMD3DNoNbr extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
 
         box = new Box(this, space);
         addBox(box);

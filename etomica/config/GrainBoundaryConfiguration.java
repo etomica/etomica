@@ -17,13 +17,13 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionDefinitionSimple;
-import etomica.atom.AtomTypeMolecule;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
@@ -163,11 +163,9 @@ public class GrainBoundaryConfiguration implements Configuration {
             	iMobileA++;
             	//System.out.println(ii[2] + "  |  " + a);
             }
-            if (a instanceof IMolecule) {
-                // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
-                config.initializePositions(((IMolecule)a).getChildList());
-            }
+            // initialize coordinates of child atoms
+            Conformation config = ((ISpecies)a.getType()).getConformation();
+            config.initializePositions(((IMolecule)a).getChildList());
             IVector site = (IVector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
@@ -190,11 +188,9 @@ public class GrainBoundaryConfiguration implements Configuration {
             	a = listMobileB.getAtom(iMobileB);
             	
             }
-            if (a instanceof IMolecule) {
-                // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
-                config.initializePositions(((IMolecule)a).getChildList());
-            }
+            // initialize coordinates of child atoms
+            Conformation config = ((ISpecies)a.getType()).getConformation();
+            config.initializePositions(((IMolecule)a).getChildList());
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);

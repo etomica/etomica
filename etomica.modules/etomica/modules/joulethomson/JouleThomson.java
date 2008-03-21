@@ -9,11 +9,11 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 
 import etomica.action.AtomAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
@@ -115,7 +115,7 @@ public class JouleThomson extends SimulationGraphic {
             getDisplayBox(sim.box).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
             ColorSchemeByType colorScheme = new ColorSchemeByType();
-            colorScheme.setColor(sim.species.getMoleculeType(), Color.blue);
+            colorScheme.setColor(sim.species.getLeafType(), Color.blue);
             getDisplayBox(sim.box).setColorScheme(colorScheme);
         }
         ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayBox(sim.box), "scale");
@@ -363,7 +363,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomAction() {
-            public void actionPerformed(IAtom a) {((ElementSimple)((AtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
+            public void actionPerformed(IAtom a) {((ElementSimple)((IAtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         private final Space space;

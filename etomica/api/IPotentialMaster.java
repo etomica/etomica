@@ -13,13 +13,13 @@ public interface IPotentialMaster {
 	 * Returns the object that oversees the long-range
 	 * correction zero-body potentials.
 	 */
-	public abstract PotentialMasterLrc lrcMaster();
+	public PotentialMasterLrc lrcMaster();
 
 	/**
 	 * Returns an nBody PotentialGroup appropriate for this type of 
 	 * PotentialMaster.
 	 */
-	public abstract PotentialGroup makePotentialGroup(int nBody);
+	public PotentialGroup makePotentialGroup(int nBody);
 
 	/**
 	 * Performs the given PotentialCalculation on the atoms of the given Box.
@@ -28,13 +28,13 @@ public interface IPotentialMaster {
 	 * and applies doCalculation of given PotentialCalculation with the iterators
 	 * and potentials.
 	 */
-	public abstract void calculate(IBox box, IteratorDirective id,
+	public void calculate(IBox box, IteratorDirective id,
 			PotentialCalculation pc);
 
 	/**
 	 * Add the given Model's intramolecular potentials to this PotentialMaster
 	 */
-	public abstract void addModel(Model newModel);
+	public void addModel(Model newModel);
 
 	/**
 	 * Indicates to the PotentialMaster that the given potential should apply to 
@@ -45,7 +45,7 @@ public interface IPotentialMaster {
 	 * intra-species potential, defining the iteractions between molecules of the
 	 * same species).
 	 */
-	public abstract void addPotential(IPotential potential, ISpecies[] species);
+	public void addPotential(IPotential potential, ISpecies[] species);
 
 	/**
 	 * Indicates to the PotentialMaster that the given potential should apply to 
@@ -59,8 +59,8 @@ public interface IPotentialMaster {
 	 * method of AtomType) before doing anything else.
 	 * 
 	 */
-	public abstract void addPotential(IPotential potential,
-			IAtomType[] atomTypes);
+	public void addPotential(IPotential potential,
+			IAtomTypeLeaf[] atomTypes);
 
 	/**
 	 * Notifies the PotentialMaster that the sub-potential has been added to 
@@ -69,14 +69,14 @@ public interface IPotentialMaster {
 	 * This method is called by PotentialGroup and should not be called in
 	 * other circumstances.
 	 */
-	public abstract void potentialAddedNotify(IPotential subPotential,
+	public void potentialAddedNotify(IPotential subPotential,
 			PotentialGroup pGroup);
 
 	/**
 	 * Returns the potential that applies to the specified types,
 	 * or null of no existing potential applies.
 	 */
-	public abstract PotentialGroup getPotential(IAtomType[] types);
+	public PotentialGroup getPotential(IAtomType[] types);
 
 	/**
 	 * Returns the AtomTypes that the given potential applies to if the given 
@@ -84,30 +84,30 @@ public interface IPotentialMaster {
 	 * contained by the potential master or any PotentialGroup it holds, or 
 	 * does not apply to specific AtomTypes, null is returned.
 	 */
-	public abstract IAtomType[] getAtomTypes(IPotential potential);
+	public IAtomType[] getAtomTypes(IPotential potential);
 
 	/**
 	 * Removes given potential from the group.  No error is generated if
 	 * potential is not in group.
 	 */
-	public abstract void removePotential(IPotential potential);
+	public void removePotential(IPotential potential);
 
 	/**
 	 * @return Returns enabled flag.
 	 */
-	public abstract boolean isEnabled();
+	public boolean isEnabled();
 
 	/**
 	 * Permits enabling/disabling of all potentials.  Default is enabled (true).
 	 * @param enabled flags if potentials are enabled.
 	 */
-	public abstract void setEnabled(boolean enabled);
+	public void setEnabled(boolean enabled);
 
 	/**
 	 * Indicates that the specified potential should not contribute to potential
 	 * calculations. If potential is not in this group, no action is taken.
 	 */
-	public abstract void setEnabled(IPotential potential, boolean enabled);
+	public void setEnabled(IPotential potential, boolean enabled);
 
 	/**
 	 * Returns true if the potential is in this group and has not been disabled
@@ -118,11 +118,11 @@ public interface IPotentialMaster {
 	/**
 	 * @return Returns the space.
 	 */
-	public abstract Space getSpace();
+	public Space getSpace();
 
 	/**
 	 * Returns an array containing all molecular Potentials.
 	 */
-	public abstract IPotential[] getPotentials();
+	public IPotential[] getPotentials();
 
 }

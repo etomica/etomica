@@ -1,6 +1,8 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -13,8 +15,6 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.space.Space;
 import etomica.units.Null;
 

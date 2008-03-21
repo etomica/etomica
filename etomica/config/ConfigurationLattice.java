@@ -5,8 +5,8 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -181,7 +181,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             }
             // initialize coordinates of child atoms
         	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
-            Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+            Conformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
@@ -258,7 +258,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
+        ((AtomTypeSphere)species.getLeafType()).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);

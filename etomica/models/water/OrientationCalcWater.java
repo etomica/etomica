@@ -1,12 +1,12 @@
 package etomica.models.water;
 
-import etomica.atom.AtomLeaf;
-import etomica.atom.AtomPositionCOM;
-import etomica.atom.OrientationCalc;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPositionCOM;
+import etomica.atom.OrientationCalc;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;

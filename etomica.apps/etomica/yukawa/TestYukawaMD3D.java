@@ -100,6 +100,6 @@ public class TestYukawaMD3D extends Simulation{
 		simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 		simGraphic.makeAndDisplayFrame(APP_NAME);
 		ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-		colorScheme.setColor(sim.species.getMoleculeType(), Color.red);
+		colorScheme.setColor(sim.species.getLeafType(), Color.red);
 	}
 }

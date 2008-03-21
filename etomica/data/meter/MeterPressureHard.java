@@ -1,7 +1,7 @@
 package etomica.data.meter;
+import etomica.api.IBox;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.units.Pressure;
 

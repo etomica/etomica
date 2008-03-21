@@ -3,7 +3,7 @@ import java.awt.Color;
 import java.util.HashMap;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 
 /**
  * Colors the atom according to the color given by its type field.
@@ -16,15 +16,15 @@ public final class ColorSchemeByType extends ColorScheme {
         colorMap = new HashMap();
     }
   
-    public void setColor(IAtomType type, Color c) {
+    public void setColor(IAtomTypeLeaf type, Color c) {
         colorMap.put(type,c);
     }
     
     public Color getAtomColor(IAtom a) {
-        return getColor(a.getType());
+        return getColor((IAtomTypeLeaf)a.getType());
     }
     
-    public Color getColor(IAtomType type) {
+    public Color getColor(IAtomTypeLeaf type) {
         Color color = (Color)colorMap.get(type);
         if (color == null) {
             if (defaultColorsUsed < moreDefaultColors.length) {

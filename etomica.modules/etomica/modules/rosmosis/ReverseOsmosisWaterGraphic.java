@@ -11,6 +11,7 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -50,7 +51,6 @@ import etomica.potential.P2Electrostatic;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
@@ -374,7 +374,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         meterFlux.setBoundaries(0, new double[]{-0.25*xLength, 0.25*xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
         meterFlux.setBox(sim.box);
-        meterFlux.setSpecies(new Species[]{sim.speciesSodium, sim.speciesChlorine, sim.speciesSolvent});
+        meterFlux.setSpecies(new ISpecies[]{sim.speciesSodium, sim.speciesChlorine, sim.speciesSolvent});
         AccumulatorAverageCollapsing fluxAvg = new AccumulatorAverageCollapsing();
         fluxAvg.setPushInterval(10);
         DataPump fluxPump = new DataPump(meterFlux, fluxAvg);

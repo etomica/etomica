@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IController;

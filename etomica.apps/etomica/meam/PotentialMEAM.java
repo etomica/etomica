@@ -2,17 +2,15 @@ package etomica.meam;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-
-import etomica.atom.AtomTypeLeaf;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.util.Arrays;
 
 /**
@@ -24,7 +22,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		super(space);
     }
 	
-	 public void setParameters(AtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
+	 public void setParameters(IAtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
 		 int index = atomTypeLeaf.getIndex();
 		 if(index > parameters.length) { //15 parameters for each species
 			 parameters = (ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
@@ -32,7 +30,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		 parameters[index] = p;
 	 }
 
-	 public void setParametersIMC(AtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
+	 public void setParametersIMC(IAtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
 	 	 //If Cu (Ag) is involved, the reference IMC structure is Cu3Sn (Ag3Sn).
 		 int index = atomTypeLeaf.getIndex();
 		 if(index > parametersIMC.length) {

@@ -13,9 +13,9 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
-import etomica.space.Boundary;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
+import etomica.space.Boundary;
 import etomica.space.Space;
 
 //Class used to define canvas onto which configuration is drawn

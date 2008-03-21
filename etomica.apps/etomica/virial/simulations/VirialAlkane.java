@@ -1,9 +1,9 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
+import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -20,7 +20,6 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.api.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -99,13 +98,12 @@ public class VirialAlkane {
 //        sim.integratorOS.setStepFreq0(1);
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
-        AtomTypeMolecule alkaneType = species.getMoleculeType();
-        AtomTypeLeaf typeCH3 = (AtomTypeLeaf)alkaneType.getChildTypes()[0];
-        AtomTypeLeaf typeCH2 = (AtomTypeLeaf)alkaneType.getChildTypes()[1];
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
-        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
+        IAtomTypeLeaf typeCH3 = species.getChildTypes()[0];
+        IAtomTypeLeaf typeCH2 = species.getChildTypes()[1];
+        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
+        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
         

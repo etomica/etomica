@@ -2,15 +2,15 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -160,7 +160,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         box.setDimensions(new Vector3D(nCells, nCells, nCells));
-        Species species = new SpeciesSpheresMono(sim, sp);
+        ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 4*nCells*nCells*nCells);
         PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));

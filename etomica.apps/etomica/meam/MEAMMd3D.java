@@ -3,8 +3,8 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -151,9 +151,9 @@ public class MEAMMd3D extends Simulation {
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
-    	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
-    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
+    	colorScheme.setColor(sim.sn.getLeafType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.ag.getLeafType(),java.awt.Color.gray);
+    	colorScheme.setColor(sim.cu.getLeafType(),java.awt.Color.orange);
 
     	simGraphic.makeAndDisplayFrame(APP_NAME);
 
@@ -240,7 +240,7 @@ public class MEAMMd3D extends Simulation {
 		potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
 		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
+        this.potentialMaster.addPotential(potentialN, new IAtomTypeLeaf[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));

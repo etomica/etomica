@@ -2,7 +2,7 @@
 package etomica.graphics2;
 
 import etomica.api.IAtom;
-import etomica.atom.AtomTypeLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -51,7 +51,7 @@ public class ColorSchemeTemperature implements ColorScheme {
         
     public int atomColor(IAtom a) {
         float blueness = 0.0f;
-        double ke = ((AtomTypeLeaf)a.getType()).getMass()*((IAtomKinetic)a).getVelocity().squared();
+        double ke = ((IAtomTypeLeaf)a.getType()).getMass()*((IAtomKinetic)a).getVelocity().squared();
         if(ke > KEMax) {blueness = 0.0f;}
         else if(ke < KEMin) {blueness = 1.0f;}
         else {blueness = (float)((KEMax-ke)*range);}

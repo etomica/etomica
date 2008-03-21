@@ -11,8 +11,6 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.TableModel;
 
-import etomica.graphics.DeviceTableModelGeneric;
-
 /**
  * Presents a table of numeric properties that can be edited by typing in values.
  *

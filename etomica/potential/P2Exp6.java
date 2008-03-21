@@ -1,7 +1,6 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;

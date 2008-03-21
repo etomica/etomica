@@ -8,7 +8,6 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.potential.Potential2;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 

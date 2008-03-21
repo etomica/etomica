@@ -1,12 +1,10 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.action.PDBWriter;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.units.Energy;
 

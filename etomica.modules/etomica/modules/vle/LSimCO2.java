@@ -3,8 +3,8 @@ package etomica.modules.vle;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -76,7 +76,7 @@ public class LSimCO2 extends Simulation {
         p2LJ.setTemperature(temperature);
         potential = new P2SoftTruncated(p2LJ, cutoffFac*sigma, space);
         potential.setBox(boxLiquid);
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);
@@ -172,7 +172,7 @@ public class LSimCO2 extends Simulation {
                 PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
                 P2SoftTruncated potential = new P2SoftTruncated(sim.p2LJ, (i*cutoffStep+2.5)*sim.p2LJ.getSigma(), sim.space);
                 potential.setBox(sim.boxLiquid);
-                potentialMaster.addPotential(potential, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 
                 pressureMeters[i][0] = new MeterPressure2(sim.getSpace());
                 pressureMeters[i][0].setIncludeLrc(true);

@@ -2,6 +2,8 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -23,8 +25,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -298,13 +298,13 @@ public class ZeoliteSimulation extends Simulation {
         for(int i=0;i<sim.species.length;i++){
         	switch(i){
         		case 0:
-        			colorScheme.setColor(sim.species[i].getMoleculeType(), java.awt.Color.red);
+        			colorScheme.setColor(sim.species[i].getLeafType(), java.awt.Color.red);
         			break;
         		case 1:
-        			colorScheme.setColor(sim.species[i].getMoleculeType(), java.awt.Color.blue);
+        			colorScheme.setColor(sim.species[i].getLeafType(), java.awt.Color.blue);
         			break;
         		default:
-        			colorScheme.setColor(sim.species[i].getMoleculeType(), java.awt.Color.white);
+        			colorScheme.setColor(sim.species[i].getLeafType(), java.awt.Color.white);
         	}
         	
         }

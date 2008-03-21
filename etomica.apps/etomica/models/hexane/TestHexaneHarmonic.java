@@ -3,8 +3,8 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -146,7 +146,7 @@ public class TestHexaneHarmonic extends Simulation {
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
                 sphereType });
         
 //         //INTRAMOLECULAR POTENTIAL STUFF

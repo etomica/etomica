@@ -3,10 +3,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -51,14 +50,14 @@ public class LjMd3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(sigma);
+        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
-        AtomTypeLeaf leafType = species.getLeafType();
+        IAtomTypeLeaf leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType,leafType});
         
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);

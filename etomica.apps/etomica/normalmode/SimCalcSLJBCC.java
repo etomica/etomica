@@ -1,8 +1,8 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -70,8 +70,8 @@ public class SimCalcSLJBCC extends Simulation {
         Potential2SoftSpherical potential = new P2LennardJones(space);
         double truncationRadius = boundary.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
-        AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new AtomType[] {sphereType, sphereType});
+        IAtomTypeLeaf sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
         move.setPotential(pTruncated);
 
         box.setBoundary(boundary);

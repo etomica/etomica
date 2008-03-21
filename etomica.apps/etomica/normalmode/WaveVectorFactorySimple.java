@@ -2,16 +2,16 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -153,7 +153,7 @@ outer:              for (int i=0; i<3; i++){
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         box.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
-        Species species = new SpeciesSpheresMono(sim, sp);
+        ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);

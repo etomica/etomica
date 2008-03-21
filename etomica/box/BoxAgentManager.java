@@ -4,12 +4,12 @@ import java.lang.reflect.Array;
 
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationEventManager;
-import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationBoxAddedEvent;
 import etomica.simulation.SimulationBoxEvent;
 import etomica.simulation.SimulationBoxRemovedEvent;
+import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SimulationListener;
 import etomica.util.Arrays;
 
 /**

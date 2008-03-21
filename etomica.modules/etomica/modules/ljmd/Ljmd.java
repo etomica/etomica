@@ -1,8 +1,8 @@
 package etomica.modules.ljmd;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -49,7 +49,7 @@ public class Ljmd extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential,2.5);
-	    potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+	    potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
 	    box = new Box(this, space);

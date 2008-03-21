@@ -1,9 +1,11 @@
-package etomica.atom;
+package etomica.species;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.atom.AtomPositionCOM;
 import etomica.space.Space;
 
 
@@ -12,17 +14,19 @@ import etomica.space.Space;
  * of inertia.  The molecule holds the orientation and the type holds the
  * moment.
  */
-public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
+public abstract class SpeciesOriented extends Species implements ISpeciesOriented {
 
-    public AtomTypeMoleculeOriented(Space space) {
+    public SpeciesOriented(Space space) {
         super(new AtomPositionCOM(space));
         moment = space.makeVector();
         this.space = space;
+        // we could call init here, but the subclass might not be ready to make
+        // a molecule yet.  Subclass will call init when it's ready.
     }
     
-    public void init() {
+    protected void init() {
         // make a pretend molecule and calculate its moment of inertia
-        IMolecule molecule = species.makeMolecule();
+        IMolecule molecule = makeMolecule();
         IAtomSet children = molecule.getChildList();
         conformation.initializePositions(children);
         IVector com = space.makeVector();
@@ -33,7 +37,7 @@ public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
         for (int i=0; i<children.getAtomCount(); i++) {
             IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
             xWork.Ev1Mv2(atom.getPosition(), com);
-            double atomMass = ((AtomTypeLeaf)atom.getType()).getMass();
+            double atomMass = ((IAtomTypeLeaf)atom.getType()).getMass();
             mass += atomMass;
             for (int j=0; j<3; j++) {
                 for (int k=0; k<3; k++) {
@@ -45,15 +49,16 @@ public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
         moment.E(I);
     }
 
-    /**
-     * Returns the principle components of the moment of inertia of the
-     * molecule within the body-fixed frame.  Do NOT modify the returned moment
-     * of inertia returned.
+    /* (non-Javadoc)
+     * @see etomica.atom.ISpeciesOriented#getMomentOfInertia()
      */
     public IVector getMomentOfInertia() {
         return moment;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.atom.ISpeciesOriented#getMass()
+     */
     public double getMass() {
         return mass;
     }

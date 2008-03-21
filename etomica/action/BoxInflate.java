@@ -7,12 +7,9 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.space.Space;
-import etomica.util.Debug;
 
 /**
  * Performs actions that cause volume of system to expand, with molecule

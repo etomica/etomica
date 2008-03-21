@@ -19,7 +19,7 @@ public class SpeciesHexane extends etomica.species.SpeciesSpheres {
     public SpeciesHexane(ISimulation sim, Space _space){
         super(sim, 6, new ElementSimple("M", 1.0), 
               new ConformationHexane(_space), _space);
-        getMoleculeType().setPositionDefinition(new AtomPositionCOM(_space));
+        setPositionDefinition(new AtomPositionCOM(_space));
     
         
         bondLength = 0.4;

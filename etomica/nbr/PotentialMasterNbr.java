@@ -5,7 +5,6 @@ import etomica.api.IPotential;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.AtomTypeMolecule;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.PotentialArray;
@@ -43,16 +42,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     public void addPotential(IPotential potential, ISpecies[] species) {
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
-             IAtomType[] atomTypes = moleculeTypes(species);
              if (potential.getRange() == Double.POSITIVE_INFINITY) {
                  System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
                  return;
              }
              //the potential is range-dependent 
-             for (int i=0; i<atomTypes.length; i++) {
-                 addRangedPotential(potential,atomTypes[i]);
+             for (int i=0; i<species.length; i++) {
+                 addRangedPotential(potential,species[i]);
              }
-             addRangedPotentialForTypes(potential, atomTypes);
+             addRangedPotentialForTypes(potential, species);
         }
     }
 
@@ -130,7 +128,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 
-    public PotentialArray getIntraPotentials(AtomTypeMolecule atomType) {
+    public PotentialArray getIntraPotentials(ISpecies atomType) {
         return (PotentialArray)intraAgentManager.getAgent(atomType);
     }
     

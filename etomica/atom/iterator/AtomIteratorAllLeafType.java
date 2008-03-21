@@ -8,7 +8,6 @@ import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.species.Species;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate

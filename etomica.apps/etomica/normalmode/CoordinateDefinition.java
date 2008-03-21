@@ -2,16 +2,15 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomSet;
+import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -93,7 +92,7 @@ public abstract class CoordinateDefinition {
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             // initialize coordinates of child atoms
-            Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+            Conformation config = ((ISpecies)molecule.getType()).getConformation();
             config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();

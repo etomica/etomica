@@ -4,12 +4,11 @@ import java.util.ArrayList;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.box.Box;
@@ -50,7 +49,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
 		species = new SpeciesWater4P(space);
-		species.getMoleculeType().setConformation(config);
+		species.setConformation(config);
 		getSpeciesManager().addSpecies(species);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
@@ -82,7 +81,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		//Potential
 		P2LennardJones potentialLJ = new P2LennardJones(space, 3.154,Kelvin.UNIT.toSim(78.02));
-		potentialMaster.addPotential(potentialLJ, new IAtomType[]{species.getOxygenType(), species.getOxygenType()} );
+		potentialMaster.addPotential(potentialLJ, new IAtomTypeLeaf[]{species.getOxygenType(), species.getOxygenType()} );
         
 		CriterionAll criterionAll = new CriterionAll();
 		
@@ -137,10 +136,9 @@ public class TestEwaldTIP4PWater extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        AtomTypeMolecule atomType = sim.species.getMoleculeType();
-        colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.white);
-        colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.blue);
-        ((AtomTypeSphere)atomType.getChildTypes()[2]).setDiameter(0);
+        colorScheme.setColor(sim.species.getChildTypes()[0], java.awt.Color.white);
+        colorScheme.setColor(sim.species.getChildTypes()[1], java.awt.Color.blue);
+        ((AtomTypeSphere)sim.species.getChildTypes()[2]).setDiameter(0);
         
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

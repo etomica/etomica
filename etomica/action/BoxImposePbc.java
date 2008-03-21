@@ -1,17 +1,14 @@
 package etomica.action;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomPositionCOM;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.space.Space;
 
 /**

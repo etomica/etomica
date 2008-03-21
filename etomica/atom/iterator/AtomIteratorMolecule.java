@@ -78,7 +78,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
             if (molecule instanceof IAtomLeaf) {
                 molecule = ((IAtomLeaf)molecule).getParentGroup();
             }
-            if (molecule.getType().getSpecies() != species) {
+            if (molecule.getType() != species) {
                 molecule = null;
             }
             littleList.clear();

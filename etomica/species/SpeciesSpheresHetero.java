@@ -1,14 +1,11 @@
 package etomica.species;
-import java.lang.reflect.Constructor;
-
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -71,15 +68,15 @@ public class SpeciesSpheresHetero extends Species {
         return types;
     }
     
-    public SpeciesSpheresHetero(Space space, boolean isDynamic, AtomTypeLeaf[] atomTypes) {
-        super(new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
+    public SpeciesSpheresHetero(Space space, boolean isDynamic, IAtomTypeLeaf[] atomTypes) {
+        super(new AtomPositionGeometricCenter(space));
         this.space = space;
         this.isDynamic = isDynamic;
-        this.leafTypes = (AtomTypeLeaf[])atomTypes.clone();
+        this.leafTypes = atomTypes.clone();
         numberFraction = new double[atomTypes.length];
         childCount = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
-            atomType.addChildType(atomTypes[i]);
+            addChildType(atomTypes[i]);
         }
     }
     
@@ -88,8 +85,7 @@ public class SpeciesSpheresHetero extends Species {
      * each sub-type.
      */
     public IMolecule makeMolecule() {
-        isMutable = false;
-        Molecule group = new Molecule(atomType);
+        Molecule group = new Molecule(this);
         // make block copolymers
         for (int i = 0; i < leafTypes.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
@@ -99,7 +95,7 @@ public class SpeciesSpheresHetero extends Species {
         return group;
     }
 
-    protected IAtomLeaf makeLeafAtom(AtomTypeLeaf leafType) {
+    protected IAtomLeaf makeLeafAtom(IAtomTypeLeaf leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new AtomLeaf(space, leafType);
     }
@@ -122,13 +118,10 @@ public class SpeciesSpheresHetero extends Species {
      *             if all number fractions=0
      */
     public void setNumberFraction(double[] newNumberFraction) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
         if (newNumberFraction.length != leafTypes.length) {
             throw new IllegalArgumentException("the number of numberFracions must be equal to the number of child factories");
         }
-        numberFraction = (double[])newNumberFraction.clone();
+        numberFraction = newNumberFraction.clone();
         childCount = new int[numberFraction.length];
         
         double totalFraction = 0;
@@ -186,14 +179,11 @@ public class SpeciesSpheresHetero extends Species {
      *             if any childCount is < 0
      */
     public void setChildCount(int[] newChildCount) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
         if (leafTypes.length != newChildCount.length) {
             throw new IllegalArgumentException("Number of child factories must equal length of newChildCount.  " +
                     "Call setChildFactory first");
         }
-        childCount = (int[])newChildCount.clone();
+        childCount = newChildCount.clone();
         totalChildCount = 0;
         for (int i=0; i<childCount.length; i++) {
             if (childCount[i] < 0) {
@@ -225,16 +215,13 @@ public class SpeciesSpheresHetero extends Species {
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
      */
-    public void setLeafTypes(AtomTypeLeaf[] newLeafTypes) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
+    public void setLeafTypes(IAtomTypeLeaf[] newLeafTypes) {
         for (int i=0; i<leafTypes.length; i++) {
-            atomType.removeChildType(leafTypes[i]);
+            removeChildType(leafTypes[i]);
         }
-        leafTypes = (AtomTypeLeaf[])newLeafTypes.clone();
+        leafTypes = newLeafTypes.clone();
         for (int i=0; i<leafTypes.length; i++) {
-            atomType.addChildType(newLeafTypes[i]);
+            addChildType(newLeafTypes[i]);
         }
         if (numberFraction.length != leafTypes.length) {
             double[] fraction = new double[leafTypes.length];
@@ -248,12 +235,9 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for ensuring that the AtomType for the child factory is a
      * child of this AtomFactory's AtomType.
      */
-    public void addLeafType(AtomTypeLeaf newLeafType) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
-        atomType.addChildType(newLeafType);
-        leafTypes = (AtomTypeLeaf[])Arrays.addObject(leafTypes,newLeafType);
+    public void addLeafType(IAtomTypeLeaf newLeafType) {
+        addChildType(newLeafType);
+        leafTypes = (IAtomTypeLeaf[])Arrays.addObject(leafTypes,newLeafType);
         if (leafTypes.length > 1) {
             // assume fraction = 0 for new childFactory
             numberFraction = Arrays.resizeArray(numberFraction,numberFraction.length+1);
@@ -269,10 +253,7 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for removing the AtomType for the child factory from its
      * parent AtomType.
      */
-    public boolean removeLeafType(AtomTypeLeaf oldLeafType) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
+    public boolean removeLeafType(IAtomTypeLeaf oldLeafType) {
         int typeIndex = -1;
         for (int i=0; i<leafTypes.length; i++) {
             if (leafTypes[i] == oldLeafType) {
@@ -283,7 +264,7 @@ public class SpeciesSpheresHetero extends Species {
         if (typeIndex == -1) {
             return false;
         }
-        leafTypes = (AtomTypeLeaf[])Arrays.removeObject(leafTypes, oldLeafType);
+        leafTypes = (IAtomTypeLeaf[])Arrays.removeObject(leafTypes, oldLeafType);
         if (leafTypes.length > 0) {
             double[] newNumberFraction = new double[numberFraction.length-1];
             System.arraycopy(numberFraction,0,newNumberFraction,0,index);
@@ -307,9 +288,6 @@ public class SpeciesSpheresHetero extends Species {
      *             if numChildren < 0
      */
     public void setTotalChildren(int numChildren) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
         if (numChildren < 0) {
             throw new IllegalArgumentException("Number of children must not be negative");
         }
@@ -327,28 +305,11 @@ public class SpeciesSpheresHetero extends Species {
         return total;
     }
 
-    
-    public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class,Element[].class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        Element[] leafElements = new Element[leafTypes.length];
-        for (int i=0; i<leafTypes.length; i++) {
-            leafElements[i] = leafTypes[i].getElement();
-        }
-        //XXX broken
-        return new SpeciesSignature(constructor,new Object[]{leafElements});
-    }
-    
     private static final long serialVersionUID = 1L;
     protected Space space;
     protected boolean isDynamic;
     protected double[] numberFraction;
     protected int[] childCount;
     protected int totalChildCount;
-    protected AtomTypeLeaf[] leafTypes;
+    protected IAtomTypeLeaf[] leafTypes;
 }

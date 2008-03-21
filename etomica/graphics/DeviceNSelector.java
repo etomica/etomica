@@ -1,13 +1,11 @@
 package etomica.graphics;
 
+import etomica.action.ActionGroupSeries;
+import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IController;
 import etomica.api.ISpecies;
-
-import etomica.action.ActionGroupSeries;
-import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
 

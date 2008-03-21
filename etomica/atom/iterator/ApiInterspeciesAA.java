@@ -51,7 +51,7 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
      * @throws a NullPointerException if the Box is null
      */
     public void setBox(IBox box) {
-        if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
+        if (species0.getIndex() > species1.getIndex()) {
             // species were out of order.  swap them
             ISpecies tempSpecies = species0;
             species0 = species1;

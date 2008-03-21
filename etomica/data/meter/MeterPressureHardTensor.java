@@ -1,8 +1,8 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -52,7 +52,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             v.Ev1v2(a.getVelocity(), a.getVelocity());
-            v.TE((((AtomTypeLeaf)a.getType()).rm()));
+            v.TE((((IAtomTypeLeaf)a.getType()).rm()));
             data.x.PE(v);
         }
 

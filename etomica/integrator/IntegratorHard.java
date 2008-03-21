@@ -7,12 +7,14 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
@@ -20,7 +22,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -562,7 +563,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     /**
      * @return Returns the nullPotential.
      */
-    public PotentialHard getNullPotential(AtomType atomType) {
+    public PotentialHard getNullPotential(IAtomType atomType) {
         return (PotentialHard)nullPotentialManager.getAgent(atomType);
     }
 
@@ -571,7 +572,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * a 1-body potential used by IntegratorHard to handle Atoms that wrap
      * around periodic boundaries when neighbor listing is not used.
      */
-    public void setNullPotential(PotentialHard nullPotential, AtomType type) {
+    public void setNullPotential(PotentialHard nullPotential, IAtomType type) {
         // if nullPotentialManager is null, it's because you passed a null
         // ISimulation when you constructed this class
         nullPotentialManager.setAgent(type, nullPotential);
@@ -579,7 +580,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             nullPotential.setBox(box);
         }
         if (box != null) {
-            if (type instanceof AtomTypeLeaf) {
+            if (type instanceof IAtomTypeLeaf) {
                 // inefficient -- we could loop over molecules of type.getSpecies()
                 // and then their children.  oh well.
                 IAtomSet leafList = box.getLeafList();
@@ -592,7 +593,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 }
             }
             else {
-                IAtomSet moleculeList = box.getMoleculeList(type.getSpecies());
+                IAtomSet moleculeList = box.getMoleculeList((ISpecies)type);
                 int nMolecules = moleculeList.getAtomCount();
                 for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
                     IAtom atom = moleculeList.getAtom(iMolecule);

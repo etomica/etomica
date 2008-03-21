@@ -1,11 +1,11 @@
 
 package etomica.models.water;
 
-import etomica.atom.MoleculeOrientedDynamic;
-import etomica.potential.IPotentialTorque;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
+import etomica.atom.MoleculeOrientedDynamic;
+import etomica.potential.IPotentialTorque;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IVector3D;

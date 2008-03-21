@@ -16,8 +16,7 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
     }
 
     public IMolecule makeMolecule() {
-        isMutable = false;
-        Molecule group = new Molecule(atomType);
+        Molecule group = new Molecule(this);
         //make straight alkane CH3-CH2-...-CH2-CH3
         group.addChildAtom(makeLeafAtom(leafTypes[0]));
         for(int j = 0; j < childCount[1]; j++) {
@@ -40,4 +39,5 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         }
     }
 
+    private static final long serialVersionUID = 1L;
 }

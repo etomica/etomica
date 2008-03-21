@@ -138,8 +138,8 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
             this.species1 = species1;
         }
         public void actionPerformed(IAtomSet atomSet) {
-            assertTrue(atomSet.getAtom(0).getType().getSpecies() == species0);
-            assertTrue(atomSet.getAtom(1).getType().getSpecies() == species1);
+            assertTrue(atomSet.getAtom(0).getType() == species0);
+            assertTrue(atomSet.getAtom(1).getType() == species1);
         }
     }
     

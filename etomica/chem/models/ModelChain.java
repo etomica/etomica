@@ -133,7 +133,7 @@ public class ModelChain extends Model {
         
         if (conformation == null) {
             ISpecies species = new SpeciesSpheres(sim, space, numAtoms, element);
-            setConformation(species.getMoleculeType().getConformation());
+            setConformation(species.getConformation());
         }
         
         speciesMade = true;

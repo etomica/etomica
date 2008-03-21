@@ -1,7 +1,7 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
@@ -77,12 +77,12 @@ public class TestSWChain extends Simulation {
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
 
         potentialMaster.addPotential(potentialChainIntra, new ISpecies[] {species});
-        ((ConformationLinear)species.getMoleculeType().getConformation()).setBondLength(sigma);
+        ((ConformationLinear)species.getConformation()).setBondLength(sigma);
 
         P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
 
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
-        potentialMaster.addPotential(potential,new IAtomType[]{sphereType,sphereType});
+        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{sphereType,sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);

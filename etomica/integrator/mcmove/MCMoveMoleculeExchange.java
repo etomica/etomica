@@ -8,6 +8,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSource;
@@ -119,8 +120,8 @@ public class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType().getSpecies())+1)/dBox.getBoundary().volume()
-               * iBox.getBoundary().volume()/iBox.getNMolecules(molecule.getType().getSpecies()); 
+        return Math.exp(B/T) * (dBox.getNMolecules((ISpecies)molecule.getType())+1)/dBox.getBoundary().volume()
+               * iBox.getBoundary().volume()/iBox.getNMolecules((ISpecies)molecule.getType()); 
     }
     
     public double getB() {

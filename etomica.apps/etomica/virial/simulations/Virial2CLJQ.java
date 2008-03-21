@@ -8,7 +8,6 @@ import etomica.data.types.DataGroup;
 import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;

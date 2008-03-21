@@ -7,10 +7,10 @@ import javax.swing.border.TitledBorder;
 
 import etomica.api.IAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
@@ -484,7 +484,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					((ElementSimple)((AtomTypeLeaf)species.getLeafType()).getElement()).setMass(newMass);
+					((ElementSimple)((IAtomTypeLeaf)species.getLeafType()).getElement()).setMass(newMass);
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}

@@ -1,14 +1,13 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IController;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtom;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.api.IController;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
@@ -80,12 +79,12 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
 
 		potentialMaster.addPotential(AAbonded,
-		        new AtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
+		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesA.getLeafType() });
 		potentialMaster.addPotential(ABbonded,
-		        new AtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
+		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesB.getLeafType() });
 		
 		potentialMaster.addPotential(BBbonded,
-		        new AtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
+		        new IAtomTypeLeaf[] { speciesB.getLeafType(), speciesB.getLeafType() });
 
 
 		// **** Setting Up the thermometer Meter *****

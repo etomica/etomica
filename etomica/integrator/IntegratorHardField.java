@@ -3,15 +3,14 @@ package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.Potential1;
@@ -79,8 +78,8 @@ public final class IntegratorHardField extends IntegratorHard {
             a.getPosition().PEa1Tv1(tStep,a.getVelocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.getPosition().PEa1Tv1(t2*((AtomTypeLeaf)a.getType()).rm(),agent.force);
-                a.getVelocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);
+                a.getPosition().PEa1Tv1(t2*((IAtomTypeLeaf)a.getType()).rm(),agent.force);
+                a.getVelocity().PEa1Tv1(tStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);
             }
         }
     }

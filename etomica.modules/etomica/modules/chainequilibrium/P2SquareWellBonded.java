@@ -2,10 +2,10 @@ package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
@@ -189,7 +189,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// ke is kinetic energy due to components of velocity
 		
-		double reduced_m = 2.0 / (((AtomTypeLeaf)atom0.getType()).rm() + ((AtomTypeLeaf)atom1.getType()).rm());
+		double reduced_m = 2.0 / (((IAtomTypeLeaf)atom0.getType()).rm() + ((IAtomTypeLeaf)atom1.getType()).rm());
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
 		
@@ -225,10 +225,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		coord0.getVelocity().PEa1Tv1(((AtomTypeLeaf)atom0.getType()).rm(), dv);
-		coord1.getVelocity().PEa1Tv1(-((AtomTypeLeaf)atom1.getType()).rm(), dv);
-		coord0.getPosition().PEa1Tv1(-falseTime * ((AtomTypeLeaf)atom0.getType()).rm(), dv);
-		coord1.getPosition().PEa1Tv1(falseTime * ((AtomTypeLeaf)atom1.getType()).rm(), dv);
+		coord0.getVelocity().PEa1Tv1(((IAtomTypeLeaf)atom0.getType()).rm(), dv);
+		coord1.getVelocity().PEa1Tv1(-((IAtomTypeLeaf)atom1.getType()).rm(), dv);
+		coord0.getPosition().PEa1Tv1(-falseTime * ((IAtomTypeLeaf)atom0.getType()).rm(), dv);
+		coord1.getPosition().PEa1Tv1(falseTime * ((IAtomTypeLeaf)atom1.getType()).rm(), dv);
 		
 		if (nudge != 0) 
 		{

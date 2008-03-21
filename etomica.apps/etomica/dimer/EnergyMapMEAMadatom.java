@@ -1,11 +1,10 @@
 package etomica.dimer;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-
-import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -105,7 +104,7 @@ public class EnergyMapMEAMadatom extends Simulation{
         potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
 		
         /**
         // Cu
@@ -205,10 +204,10 @@ public class EnergyMapMEAMadatom extends Simulation{
 
     	//Sn
     
-    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.gray);
-        colorScheme.setColor(sim.snFix.getMoleculeType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.snAdatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
+    	colorScheme.setColor(sim.sn.getLeafType(),java.awt.Color.gray);
+        colorScheme.setColor(sim.snFix.getLeafType(),java.awt.Color.blue);
+        colorScheme.setColor(sim.snAdatom.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
       
         /**
         

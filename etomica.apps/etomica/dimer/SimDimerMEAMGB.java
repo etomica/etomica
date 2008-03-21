@@ -2,18 +2,13 @@ package etomica.dimer;
 
 import etomica.action.XYZWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
-import etomica.config.ConfigurationFile;
 import etomica.config.GrainBoundaryTiltConfiguration;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -34,7 +29,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -159,7 +153,7 @@ public class SimDimerMEAMGB extends Simulation{
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
         
         /**
         //Ag

@@ -88,7 +88,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             if (targetMolecule instanceof IAtomLeaf) {
                 targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
-            if (targetMolecule.getType().getSpecies() != species) {
+            if (targetMolecule.getType() != species) {
                 targetMolecule = null;
             }
         }

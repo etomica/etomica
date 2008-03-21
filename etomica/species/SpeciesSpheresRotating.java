@@ -1,7 +1,5 @@
 package etomica.species;
 
-import java.lang.reflect.Constructor;
-
 import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAngular;
@@ -15,7 +13,6 @@ import etomica.space.Space;
  *
  * @author David Kofke
  * @see AtomTypeOrientedSphere
- * 
  */
 public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     
@@ -28,17 +25,5 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
                          : new AtomLeafAngular(space, leafAtomType);
     }
     
-              
-    public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        return new SpeciesSignature(constructor,new Object[]{});
-    }
-
     private static final long serialVersionUID = 1L;
 }

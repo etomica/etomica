@@ -1,11 +1,13 @@
 package etomica.threaded.domain;
 
-import etomica.atom.AtomTypeMolecule;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotential;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
@@ -14,10 +16,8 @@ import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.api.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.api.ISimulation;
 import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
@@ -90,7 +90,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             if (targetAtom instanceof IAtomLeaf) {
                 IMolecule molecule = ((IAtomLeaf)targetAtom).getParentGroup();
-                PotentialArray potentialArray = getIntraPotentials((AtomTypeMolecule)molecule.getType());
+                PotentialArray potentialArray = getIntraPotentials((ISpecies)molecule.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);

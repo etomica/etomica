@@ -3,17 +3,16 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -38,10 +37,8 @@ import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -116,7 +113,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
 		potential.setParameters(interstitial.getLeafType(), ParameterSetMEAM.Cu);
 		potential.setParametersIMC(interstitial.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		
-		this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType(), interstitial.getLeafType()});
+		this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), interstitial.getLeafType()});
 		//potentialMaster.setSpecies(new Species [] {movable});
 		//potentialMaster.setRange(potential.getRange()*1.1);
 		//potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
@@ -234,7 +231,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
         */
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, space);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
     	/**
     	//Ag
     	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
@@ -274,7 +271,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
         if(minSearch){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
         	configFile.initializeCoordinates(box);
-            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{movable}, fileName, normalDir, space);
+            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
             integratorDimerMin.setBox(box);
             activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
             integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

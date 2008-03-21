@@ -7,8 +7,9 @@ import etomica.action.BoxInflateDeformable;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
+import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -22,14 +23,12 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -172,11 +171,11 @@ public class TestHexane extends Simulation {
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
                 sphereType });
         
-        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
-                species.getMoleculeType(), species.getMoleculeType() }  ));
+        coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
+                species, species }  ));
 
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);

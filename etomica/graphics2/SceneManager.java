@@ -11,9 +11,9 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentIterator;
-import etomica.space.Boundary;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 

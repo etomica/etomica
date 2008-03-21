@@ -1,14 +1,13 @@
 package etomica.modules.dcvgcmd;
 
+import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -161,7 +160,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {
             IMolecule a = (IMolecule)tubeList.getAtom(i);
-        	Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+        	Conformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }
@@ -191,7 +190,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         box.setNMolecules(species2, 2*k*k*k);
         SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10, sp);
         sim.getSpeciesManager().addSpecies(speciesTube);
-        ((AtomTypeSphere)speciesTube.getMoleculeType().getChildTypes()[0]).setDiameter(3.0);
+        ((AtomTypeSphere)speciesTube.getLeafType()).setDiameter(3.0);
         
         box.setNMolecules(speciesTube, 1);
 //        CubicLattice lattice = new LatticeCubicBcc();
@@ -205,8 +204,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, sp);
         simGraphic.add(new DisplayBox(box, sp));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
-        colorScheme.setColor(species1.getMoleculeType(), java.awt.Color.blue);
-        colorScheme.setColor(species2.getMoleculeType(), java.awt.Color.white);
+        colorScheme.setColor(species1.getLeafType(), java.awt.Color.blue);
+        colorScheme.setColor(species2.getLeafType(), java.awt.Color.white);
 		simGraphic.makeAndDisplayFrame();
 	}
 

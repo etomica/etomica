@@ -1,14 +1,11 @@
 package etomica.species;
-import java.lang.reflect.Constructor;
-
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionFirstAtom;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -40,15 +37,15 @@ public class SpeciesSpheresMono extends Species {
     }
     
     public SpeciesSpheresMono(Space space, boolean isDynamic, AtomTypeSphere leafAtomType) {
-        super(new AtomTypeMolecule(new AtomPositionFirstAtom()));
+        super(new AtomPositionFirstAtom());
         this.space = space;
         this.leafAtomType = leafAtomType;
-        atomType.addChildType(leafAtomType);
-        atomType.setConformation(new ConformationLinear(space, 1));
+        addChildType(leafAtomType);
+        setConformation(new ConformationLinear(space, 1));
         this.isDynamic = isDynamic;
     }
     
-    public AtomTypeLeaf getLeafType() {
+    public IAtomTypeLeaf getLeafType() {
         return leafAtomType;
     }
     
@@ -56,8 +53,7 @@ public class SpeciesSpheresMono extends Species {
      * Constructs a new group.
      */
      public IMolecule makeMolecule() {
-         isMutable = false;
-         Molecule group = new Molecule(atomType);
+         Molecule group = new Molecule(this);
          group.addChildAtom(makeLeafAtom());
          return group;
      }
@@ -71,19 +67,8 @@ public class SpeciesSpheresMono extends Species {
          return 1;
      }
      
-     public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class,Element.class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        return new SpeciesSignature(constructor,new Object[]{getLeafType().getElement()});
-    }
-    
      private static final long serialVersionUID = 1L;
      protected final Space space;
      protected final boolean isDynamic;
-     protected final AtomTypeLeaf leafAtomType;
+     protected final IAtomTypeLeaf leafAtomType;
 }

@@ -5,7 +5,6 @@ import java.awt.Color;
 import etomica.EtomicaInfo;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
-import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IController;
 import etomica.modifier.ModifierBoolean;
@@ -124,14 +123,14 @@ public class DeviceToggleButton extends DeviceButton {
 
             public void setBoolean(boolean b) {
                 if (b)
-                    colorScheme.setColor(sim.species1.getMoleculeType(), Color.RED);
+                    colorScheme.setColor(sim.species1.getLeafType(), Color.RED);
                 else
-                    colorScheme.setColor(sim.species1.getMoleculeType(), Color.BLUE);
+                    colorScheme.setColor(sim.species1.getLeafType(), Color.BLUE);
                 //                sim.panel().repaint();
             }
 
             public boolean getBoolean() {
-                return colorScheme.getColor(sim.species1.getMoleculeType()) == Color.RED;
+                return colorScheme.getColor(sim.species1.getLeafType()) == Color.RED;
             }
         };
         DeviceToggleButton button = new DeviceToggleButton(sim.getController(),

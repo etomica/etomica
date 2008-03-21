@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -22,8 +23,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.api.ISpecies;
-import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.BoxCluster;

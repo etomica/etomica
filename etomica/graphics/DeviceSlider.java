@@ -15,11 +15,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.EtomicaInfo;
 import etomica.api.IAction;
 import etomica.api.IController;
-
-import etomica.EtomicaInfo;
-import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;

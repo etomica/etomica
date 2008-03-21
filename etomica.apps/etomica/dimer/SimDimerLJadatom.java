@@ -3,19 +3,17 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -109,9 +107,9 @@ public class SimDimerLJadatom extends Simulation{
     	box.setDensity(1);
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
-		potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), movable.getLeafType()});
         
     //CRYSTAL
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);

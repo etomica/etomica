@@ -1,17 +1,17 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMoveEventManager;
+import etomica.integrator.mcmove.MCMoveManager;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of

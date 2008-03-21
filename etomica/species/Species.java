@@ -1,52 +1,108 @@
 package etomica.species;
-import etomica.api.IMolecule;
+
+import etomica.api.IAtomPositionDefinition;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeMolecule;
+import etomica.atom.AtomType;
+import etomica.config.Conformation;
+import etomica.simulation.SpeciesManager;
+import etomica.util.Arrays;
 
 /**
- * Base implementation of ISpecies, providing basic AtomType and index
- * management.
- * @see ISpecies
+ * Type for atom that is a group of other atoms, and for which its node is an
+ * instance of AtomTreeNodeGroup.
+ * 
+ * @author andrew
  */
-public abstract class Species implements java.io.Serializable, ISpecies {
+public abstract class Species extends AtomType implements ISpecies {
 
     /**
-     * Constructs species with molecules of the given atom type.
+     * Simple invokes parent constructor with same arguments.
      */
-    public Species(AtomTypeMolecule atomType) {
-        this.atomType = atomType;
-        atomType.setSpecies(this);
-        isMutable = true;
-    }
-    
-    public void setIndex(int newIndex) {
-        index = newIndex;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-    
-    public abstract IMolecule makeMolecule();
-
-    public abstract int getNumLeafAtoms();
-    
-    public boolean isMutable() {
-        return isMutable;
-    }
-    
-    public AtomTypeMolecule getMoleculeType() {
-        return atomType;
+    public Species(IAtomPositionDefinition positionDefinition) {
+        super(positionDefinition);
     }
     
     /**
-     * Returns a SpeciesSignature for this Species.  Subclasses must override
-     * this method.
+     * Sets the SpeciesManager.  This is used for callbacks for notification of
+     * removal and addition of child types (not that that should ever happen!)
      */
-    public abstract SpeciesSignature getSpeciesSignature();
+    public void setSpeciesManager(SpeciesManager newSpeciesManager) {
+        speciesManager = newSpeciesManager;
+        for (int i=0; i<childTypes.length; i++) {
+            childTypes[i].setIndex(speciesManager.requestTypeIndex());
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#removeChildType(etomica.atom.AtomTypeLeaf)
+     */
+    public void removeChildType(IAtomTypeLeaf removedType) {
+        boolean success = false;
+        for (int i=0; i<childTypes.length; i++) {
+            if (childTypes[i] == removedType) {
+                success = true;
+                break;
+            }
+        }
+        if (!success) {
+            throw new IllegalArgumentException("AtomType "+removedType+" is not my child!");
+        }
+        childTypes = (IAtomTypeLeaf[])Arrays.removeObject(childTypes,removedType);
+        for (int i = 0; i < childTypes.length; i++) {
+            childTypes[i].setChildIndex(i);
+        }
+        if (speciesManager != null) {
+            System.err.println("removing child types is generally a bit scary, but you did it while the molecule type was in the simulation, which makes you a bad person");
+            speciesManager.atomTypeRemovedNotify(removedType);
+        }
+    }
+    
+    /**
+     * @return Returns the species.
+     */
+    public ISpecies getSpecies() {
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#getChildTypes()
+     */
+    public IAtomTypeLeaf[] getChildTypes() {
+        return childTypes;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#addChildType(etomica.atom.AtomTypeLeaf)
+     */
+    public void addChildType(IAtomTypeLeaf newChildType) {
+        if (newChildType.getSpecies() != null) {
+            throw new IllegalArgumentException(newChildType+" already has a parent");
+        }
+        newChildType.setSpecies(this);
+        newChildType.setChildIndex(childTypes.length);
+        childTypes = (IAtomTypeLeaf[]) Arrays.addObject(childTypes, newChildType);
+        if (speciesManager != null) {
+            System.err.println("You really shouldn't be adding leaf atom types after the Species has been added to the simulation");
+            speciesManager.atomTypeAddedNotify(newChildType);
+            newChildType.setIndex(speciesManager.requestTypeIndex());
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#setConformation(etomica.config.Conformation)
+     */
+    public void setConformation(Conformation config) {
+        conformation = config;
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeMolecule#getConformation()
+     */
+    public Conformation getConformation() {return conformation;}
     
     private static final long serialVersionUID = 2L;
-    protected final AtomTypeMolecule atomType;
-    protected boolean isMutable;
-    protected int index;
+    protected Conformation conformation;
+    protected SpeciesManager speciesManager;
+    protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
 }

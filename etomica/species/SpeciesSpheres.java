@@ -1,14 +1,11 @@
 package etomica.species;
-import java.lang.reflect.Constructor;
-
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -23,7 +20,6 @@ import etomica.space.Space;
  * 
  * @author David Kofke
  */
-
 public class SpeciesSpheres extends Species {
 
     public SpeciesSpheres(ISimulation sim, Space _space) {
@@ -42,26 +38,25 @@ public class SpeciesSpheres extends Species {
         this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
     }
     
-    public SpeciesSpheres(Space _space, boolean isDynamic, int nA, AtomTypeLeaf leafAtomType, Conformation conformation) {
-        super(new AtomTypeMolecule(new AtomPositionGeometricCenter(_space)));
+    public SpeciesSpheres(Space _space, boolean isDynamic, int nA, IAtomTypeLeaf leafAtomType, Conformation conformation) {
+        super(new AtomPositionGeometricCenter(_space));
         this.space = _space;
-        atomType.addChildType(leafAtomType);
+        addChildType(leafAtomType);
         setNumLeafAtoms(nA);
-        atomType.setConformation(conformation);
+        setConformation(conformation);
         this.leafAtomType = leafAtomType;
         this.isDynamic = isDynamic;
     }
     
-    public AtomTypeLeaf getLeafType() {
-        return getMoleculeType().getChildTypes()[0];
+    public IAtomTypeLeaf getLeafType() {
+        return getChildTypes()[0];
     }
     
     /**
      * Constructs a new group.
      */
      public IMolecule makeMolecule() {
-         isMutable = false;
-         Molecule group = new Molecule(atomType);
+         Molecule group = new Molecule(this);
          for(int i=0; i<atomsPerGroup; i++) {
              group.addChildAtom(makeLeafAtom());
          }
@@ -79,9 +74,6 @@ public class SpeciesSpheres extends Species {
      * @param na The new number of atoms per group
      */
     public void setNumLeafAtoms(int na) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
         atomsPerGroup = na;
     }
 
@@ -89,20 +81,9 @@ public class SpeciesSpheres extends Species {
          return atomsPerGroup;
      }
 
-     public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class, Integer.class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        return new SpeciesSignature(constructor,new Object[]{new Integer(atomsPerGroup)});
-    }
-    
      private static final long serialVersionUID = 1L;
      protected final boolean isDynamic;
      protected final Space space;
      protected int atomsPerGroup;
-     protected final AtomTypeLeaf leafAtomType;
+     protected final IAtomTypeLeaf leafAtomType;
 }

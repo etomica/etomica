@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
-import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IController;
 import etomica.api.ISimulation;

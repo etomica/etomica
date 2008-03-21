@@ -5,9 +5,9 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.box.BoxCellManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.box.BoxCellManager;
 import etomica.space.Space;
 
 /**

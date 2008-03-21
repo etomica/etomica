@@ -6,7 +6,6 @@ import java.util.Formatter;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
-
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;

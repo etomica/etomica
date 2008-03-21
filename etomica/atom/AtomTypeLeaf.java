@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtomPositionDefinition;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Element;
 import etomica.units.Dimension;
@@ -14,7 +15,7 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-public class AtomTypeLeaf extends AtomType {
+public class AtomTypeLeaf extends AtomType implements IAtomTypeLeaf {
 
     public AtomTypeLeaf(Element element) {
         this(element, new AtomPositionDefinitionSimple());
@@ -30,55 +31,71 @@ public class AtomTypeLeaf extends AtomType {
         index = -1;
     }
 
-    /**
-     * Returns the parent AtomType of this AtomType.
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getParentType()
      */
-    public AtomTypeMolecule getParentType() {
+    public ISpecies getParentType() {
         return parentType;
     }
     
-    public void setParentType(AtomTypeMolecule newParent) {
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#setParentType(etomica.atom.AtomTypeMolecule)
+     */
+    public void setSpecies(ISpecies newParent) {
         parentType = newParent;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#setChildIndex(int)
+     */
     public void setChildIndex(int newChildIndex) {
         childIndex = newChildIndex;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getChildIndex()
+     */
     public int getChildIndex() {
         return childIndex;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getSpecies()
+     */
     public ISpecies getSpecies() {
-        return parentType.getSpecies();
+        return parentType;
     }
 
-    /**
-     * Returns the value of the mass.
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getMass()
      */
     public final double getMass() {
         return element.getMass();
     }
 
-    /**
-     * Returns the reciprocal of the mass, 1.0/mass
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#rm()
      */
     public final double rm() {
         return element.rm();
     }
 
-    /**
-     * Returns Dimension.MASS, indicating that "mass" has dimensions of mass.
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getMassDimension()
      */
     public final Dimension getMassDimension() {
         return Mass.DIMENSION;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomTypeLeaf#getElement()
+     */
     public final Element getElement() {
         return element;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final Element element;
-    protected AtomTypeMolecule parentType;
+    protected ISpecies parentType;
     protected int childIndex;
 }

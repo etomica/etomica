@@ -3,7 +3,6 @@ import java.awt.Component;
 
 import etomica.api.IAction;
 import etomica.api.IController;
-import etomica.action.activity.Controller;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
 import etomica.units.Unit;

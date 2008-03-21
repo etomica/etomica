@@ -108,7 +108,7 @@ public class TestHC2YukawaMC3D extends Simulation{
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
 /*
 		double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.box.volume()/(sim.box.moleculeCount().sim.integrator.getTemperature());

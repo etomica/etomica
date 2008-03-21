@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.atom.DipoleSource;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -8,6 +7,7 @@ import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IPotential;
 import etomica.api.IVector;
+import etomica.atom.DipoleSource;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IVector3D;

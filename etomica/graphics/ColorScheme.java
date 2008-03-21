@@ -74,7 +74,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       IAction act = new IAction() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
-          ct.setColor(sim.species.getMoleculeType(), 
+          ct.setColor(sim.species.getLeafType(), 
               new java.awt.Color(sim.getRandom().nextInt(256),
                   sim.getRandom().nextInt(256),
                   sim.getRandom().nextInt(256))
@@ -108,7 +108,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       };
       IAction act6 = new IAction() {
         public void actionPerformed() {
-          ct.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
+          ct.setColor(sim.species.getLeafType(), java.awt.Color.red);
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
           dp.setColorScheme(ct);
         }
@@ -178,7 +178,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       //ColorSchemeTemperature colorScheme = new ColorSchemeTemperature(0.0f,5.0f);
 
       ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-      colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
+      colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
       DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
       dp.setColorScheme(colorScheme);

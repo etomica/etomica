@@ -1,7 +1,7 @@
 package etomica.graphics;
 
-import etomica.api.IController;
 import etomica.action.activity.Controller;
+import etomica.api.IController;
 
 /**
  * Button that attaches to a controller to toggle its pause/resume state.

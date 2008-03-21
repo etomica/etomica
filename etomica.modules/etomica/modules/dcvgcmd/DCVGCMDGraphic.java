@@ -6,11 +6,12 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.ActionGroupSeries;
+import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.action.ActionGroupSeries;
-import etomica.action.SimulationRestart;
+import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -156,9 +157,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    //set color of molecules
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
-		colorScheme.setColor(sim.species1.getMoleculeType(), speciesColors[0]);
-		colorScheme.setColor(sim.species2.getMoleculeType(), speciesColors[1]);
-		colorScheme.setColor(sim.speciesTube.getMoleculeType().getChildTypes()[0],java.awt.Color.cyan);
+		colorScheme.setColor(sim.species1.getLeafType(), speciesColors[0]);
+		colorScheme.setColor(sim.species2.getLeafType(), speciesColors[1]);
+		colorScheme.setColor(sim.speciesTube.getChildTypes()[0],java.awt.Color.cyan);
 
 
 	    //panel for Mu's
@@ -223,7 +224,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         
         public boolean accept(IAtom atom) {
             if(!active) return true;
-            if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
+            if(((IAtomTypeLeaf)atom.getType()).getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.x(0);
             return ((IAtomPositioned)atom).getPosition().x(0) < x0;
 

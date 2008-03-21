@@ -1,13 +1,14 @@
 package etomica.modules.rosmosis;
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -15,10 +16,8 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.space.Space;
-
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.species.Species;
+import etomica.space.Space;
 
 public class ConfigurationMembraneWater implements Configuration {
 
@@ -76,7 +75,7 @@ public class ConfigurationMembraneWater implements Configuration {
         pretendBox.setNMolecules(speciesSolvent, nMolecules - nSolutes);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        Species[] fluidSpecies = new Species[]{speciesSolute1, speciesSolvent};
+        ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute1, speciesSolvent};
         for (int iSpecies=0; iSpecies<fluidSpecies.length; iSpecies++) {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
             for (int i=molecules.getAtomCount()-1; i>-1; i--) {
@@ -254,39 +253,39 @@ public class ConfigurationMembraneWater implements Configuration {
         membraneDim = newMembraneDim;
     }
 
-    public Species getSpeciesSolute1() {
+    public ISpecies getSpeciesSolute1() {
         return speciesSolute1;
     }
 
-    public void setSpeciesSolute1(Species newSpeciesSolute1) {
+    public void setSpeciesSolute1(ISpecies newSpeciesSolute1) {
         speciesSolute1 = newSpeciesSolute1;
     }
 
-    public Species getSpeciesSolute2() {
+    public ISpecies getSpeciesSolute2() {
         return speciesSolute2;
     }
 
-    public void setSpeciesSolute2(Species newSpeciesSolute2) {
+    public void setSpeciesSolute2(ISpecies newSpeciesSolute2) {
         speciesSolute2 = newSpeciesSolute2;
     }
 
-    public Species getSpeciesSolvent() {
+    public ISpecies getSpeciesSolvent() {
         return speciesSolvent;
     }
 
-    public void setSpeciesSolvent(Species newSpeciesSolvent) {
+    public void setSpeciesSolvent(ISpecies newSpeciesSolvent) {
         speciesSolvent = newSpeciesSolvent;
     }
 
-    public Species getSpeciesMembrane() {
+    public ISpecies getSpeciesMembrane() {
         return speciesMembrane;
     }
 
-    public void setSpeciesMembrane(Species newSpeciesMembrane) {
+    public void setSpeciesMembrane(ISpecies newSpeciesMembrane) {
         speciesMembrane = newSpeciesMembrane;
     }
 
-    protected Species speciesSolute1, speciesSolute2, speciesSolvent, speciesMembrane;
+    protected ISpecies speciesSolute1, speciesSolute2, speciesSolvent, speciesMembrane;
     protected double membraneTotalThickness;
     protected int numMembraneLayers, membraneWidth;
     protected double solventChamberDensity, solutionChamberDensity;

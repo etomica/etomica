@@ -3,10 +3,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -97,9 +96,9 @@ public class HSMD3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        AtomTypeLeaf leafType = species.getLeafType();
+        IAtomTypeLeaf leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
+        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType, leafType});
 
         box = new Box(this, space);
         addBox(box);
@@ -154,7 +153,7 @@ public class HSMD3D extends Simulation {
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
     }
 
     public static HSMD3DParam getParameters() {

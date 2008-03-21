@@ -94,7 +94,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         species = new SpeciesParacetamol(this, space);
-        species.getMoleculeType().setConformation(conformation);
+        species.setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         box = new Box(this, space);

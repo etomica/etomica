@@ -16,8 +16,8 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.lattice.CellLattice;
 import etomica.box.BoxAgentManager;
+import etomica.lattice.CellLattice;
 import etomica.space.BoundaryPeriodic;
 
 /**

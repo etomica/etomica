@@ -5,11 +5,11 @@ import java.util.Arrays;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIteratorAll;
 import etomica.atom.iterator.AtomsetIteratorPDT;
@@ -91,7 +91,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#addModel(etomica.chem.models.Model)
 	 */
     public void addModel(Model newModel) {
-        if (getPotential(new IAtomType[]{newModel.getSpecies().getMoleculeType()}) != null) {
+        if (getPotential(new IAtomType[]{newModel.getSpecies()}) != null) {
             throw new IllegalArgumentException(newModel+" has already been added");
         }
         PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
@@ -118,9 +118,9 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     	}
         else {
             AtomsetIteratorPDT iterator = iteratorFactory.makeMoleculeIterator(species);
-            addPotential(potential, iterator, moleculeTypes(species));
+            addPotential(potential, iterator, species);
             if(potential instanceof PotentialTruncated) {
-                Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(moleculeTypes(species)); 
+                Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(species); 
                 if(lrcPotential != null) {
                     lrcMaster().addPotential(
                         lrcPotential,
@@ -133,7 +133,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#addPotential(etomica.api.IPotential, etomica.api.IAtomType[])
 	 */
-    public void addPotential(IPotential potential, IAtomType[] atomTypes) {
+    public void addPotential(IPotential potential, IAtomTypeLeaf[] atomTypes) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     		return;
@@ -144,24 +144,9 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         
     	Arrays.sort(atomTypes);
         // depth of molecules
-        boolean haveLeafTypes = false;
+        ISpecies[] parentAtomTypes = new ISpecies[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
-            if (atomTypes[i] instanceof AtomTypeLeaf) {
-                haveLeafTypes = true;
-            }
-        }
-        if (!haveLeafTypes) {
-            addPotential(potential,moleculeSpecies(atomTypes));
-            return;
-        }
-        IAtomType[] parentAtomTypes = new IAtomType[atomTypes.length];
-        for (int i=0; i<atomTypes.length; i++) {
-            if (atomTypes[i] instanceof AtomTypeLeaf) {
-                parentAtomTypes[i] = ((AtomTypeLeaf)atomTypes[i]).getParentType();
-            }
-            else {
-                parentAtomTypes[i] = atomTypes[i];
-            }
+            parentAtomTypes[i] = atomTypes[i].getSpecies();
         }
         // look for a PotentialGroup that applies to parentAtomTypes
         PotentialGroup pGroup = getPotential(parentAtomTypes);
@@ -214,27 +199,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         }
         return null;
     }
-    
-    /**
-     * Returns an array containing the atom types for the molecules
-     * corresponding to the given array of species.
-     */
-    protected IAtomType[] moleculeTypes(ISpecies[] species) {
-        IAtomType[] types = new IAtomType[species.length];
-        for(int i=0; i<species.length; i++) {
-            types[i] = species[i].getMoleculeType();
-        }
-        return types;
-    }
-    
-    private ISpecies[] moleculeSpecies(IAtomType[] types) {
-        ISpecies[] species = new ISpecies[types.length];
-        for (int i=0; i<types.length; i++) {
-            species[i] = types[i].getSpecies();
-        }
-        return species;
-    }
-    
+
     public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, IAtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
@@ -374,7 +339,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
             iterator = i;
             next = l;
             if (t != null) {
-                types = (IAtomType[])t.clone();
+                types = t.clone();
             }
             else {
                 types = null;

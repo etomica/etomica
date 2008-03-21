@@ -1,9 +1,10 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.Basis;
@@ -11,7 +12,6 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.box.Box;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -51,7 +51,7 @@ public class SimCalcS extends Simulation {
 
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
                 sphereType });
 
         int nCells;

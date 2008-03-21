@@ -2,12 +2,12 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.box.Box;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
@@ -29,8 +29,6 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         shapeOrigin = space.makeVector();
         iterator.setBox(box);
         setShape(((Boundary)box.getBoundary()).getShape());
-        this.space = space;
-        setSpecies(null);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -91,7 +89,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
-                if(a.getType().getSpecies() == species) speciesSum++;
+                if(((IAtomTypeLeaf)a.getType()).getSpecies() == species) speciesSum++;
             }
         }
         if(totalSum == 0) return Double.NaN;
@@ -141,5 +139,4 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     private Polytope shape;
     private IVector shapeOrigin;
     private IVector tempVec;
-    private final Space space;
 }

@@ -2,8 +2,8 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -70,8 +70,8 @@ public class SimCalcSMorse extends Simulation {
         Potential2SoftSpherical potential = new P2Morse(space, 1.0, 1.0, 6.0);
         double truncationRadius = boundary.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
-        AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new AtomType[] {sphereType, sphereType});
+        IAtomTypeLeaf sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
         move.setPotential(pTruncated);
 
         box.setBoundary(boundary);

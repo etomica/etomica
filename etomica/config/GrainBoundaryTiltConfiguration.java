@@ -1,8 +1,8 @@
 package etomica.config;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IBox;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;

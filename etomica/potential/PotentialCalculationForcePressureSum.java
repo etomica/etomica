@@ -3,7 +3,6 @@ package etomica.potential;
 import etomica.api.IAtomSet;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
