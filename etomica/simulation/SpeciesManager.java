@@ -46,26 +46,26 @@ public class SpeciesManager implements java.io.Serializable {
         species.setIndex(index);
         speciesList = (ISpecies[])Arrays.addObject(speciesList,species);
         
-        for (int i=0; i<moleculeTypes.length; i++) {
-            boolean success = false;
-            int[] childIndices = getChildIndices(moleculeTypes[i]);
-            for (int j=0; j<childIndices.length; j++) {
-                if (childIndices[j] == index) {
-                    // this punk has our index!
-                    IAtomTypeLeaf leafType = moleculeTypes[i].getChildTypes()[j];
-                    moleculeTypes[i].getChildTypes()[j].setIndex(++numAtomTypes);
-                    sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, index));
-                    success = true;
-                    break;
+        // PotentialMaster depends on leafTypeA.index > leafTypeB.index if
+        // speciesA.index > speciesB.index
+        // bump all leaf indices up one. sorry.
+        int previousIndex = Integer.MAX_VALUE;
+        for (int i=moleculeTypes.length-1; i>-1; i--) {
+            IAtomTypeLeaf[] leafTypes = moleculeTypes[i].getChildTypes();
+            for (int j=leafTypes.length-1; j>-1; j--) {
+                IAtomTypeLeaf leafType = leafTypes[j];
+                int oldIndex = leafType.getIndex();
+                if (oldIndex >= previousIndex) {
+                    throw new RuntimeException("Leaf type indicies seem to be out of order.  "+previousIndex+" came after "+oldIndex);
                 }
+                previousIndex = oldIndex;
+                moleculeTypes[i].getChildTypes()[j].setIndex(oldIndex+1);
+                sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex));
             }
-            if (success) break;
         }
         
         species.setIndex(index);
-        if (numAtomTypes == 0 && index == 0) {
-            numAtomTypes = 1;
-        }
+        numAtomTypes++;
         species.setSpeciesManager(this);
         moleculeTypes = (ISpecies[])Arrays.addObject(moleculeTypes, species);
 
