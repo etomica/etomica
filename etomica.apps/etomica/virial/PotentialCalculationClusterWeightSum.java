@@ -18,7 +18,10 @@ public class PotentialCalculationClusterWeightSum implements PotentialCalculatio
     }
 
     public void doCalculation(IAtomSet atoms, IPotential potential) {
-        weight *= ((P0Cluster)potential).weight();
+        // we'll also get intramolecular potentials... ignore them
+        if (potential instanceof P0Cluster) {
+            weight *= ((P0Cluster)potential).weight();
+        }
 	}
 
     protected double weight;
