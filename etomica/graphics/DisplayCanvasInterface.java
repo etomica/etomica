@@ -9,13 +9,6 @@ import etomica.units.Pixel;
 
 public interface DisplayCanvasInterface {
 
-    //Quality Constants
-    static final int DRAW_QUALITY_VERY_LOW = 0;
-    static final int DRAW_QUALITY_LOW = 1;
-    static final int DRAW_QUALITY_NORMAL = 2;
-    static final int DRAW_QUALITY_HIGH = 3;
-    static final int DRAW_QUALITY_VERY_HIGH = 4;
-    static final int DRAW_QUALITY_MAX = 5;
     //Boundary Constants
     static final int DRAW_BOUNDARY_NONE = 0;
     static final int DRAW_BOUNDARY_OUTLINE = 1;
@@ -35,8 +28,6 @@ public interface DisplayCanvasInterface {
     public boolean isResizable();
     public void setWriteScale(boolean s);
     public boolean getWriteScale();
-    public void setQuality(int q);
-    public int getQuality();
     public void setDrawBoundary(int b);
     public int getDrawBoundary();
     //public boolean getDrawOverflow();

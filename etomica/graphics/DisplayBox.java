@@ -868,10 +868,6 @@ public class DisplayBox extends Display {
                     case 'b':
                         canvas.setDrawBoundary(canvas.getDrawBoundary()+1);
                         break;
-                    case 'q':
-                        canvas.setQuality(canvas.getQuality()+1);
-//                        canvas.setHighQuality(!canvas.getHighQuality());
-                        break;
                     default:
                         break;
                 }

@@ -34,20 +34,10 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements Displa
      */
     boolean movable = false;
 
-    /**
-     * Variable that sets the quality of the rendered image.
-     */
-    int quality = DRAW_QUALITY_NORMAL;
-
     /** 
      * Flag to indicate if value of scale should be superimposed on image
      */
     boolean writeScale = false;
-    
-    /**
-     *  Sets the quality of the rendered image, false = low, true = high
-      */
-    boolean highQuality = false;
     
     protected Pixel pixel;
 
@@ -93,15 +83,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements Displa
     public void setWriteScale(boolean s) {writeScale = s;}
     public boolean getWriteScale() {return(writeScale);}
 
-    public void setQuality(int q) {
-      if(q > DRAW_QUALITY_VERY_HIGH)
-        q -= DRAW_QUALITY_MAX;
-      if(q < DRAW_QUALITY_VERY_LOW)
-        q += DRAW_QUALITY_MAX;
-      quality = q;
-    }
-    public int getQuality() {return(quality);}
-    
     public void setDrawBoundary(int b) {
       if(b>DRAW_BOUNDARY_ALL)
         b-=DRAW_BOUNDARY_MAX;

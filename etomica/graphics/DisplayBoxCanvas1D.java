@@ -129,25 +129,6 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         int w = getSize().width;
         int h = getSize().height;
             
-        String vers = System.getProperty("java.version");
-        if (vers.compareTo("1.2") >= 0) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                RenderingHints.VALUE_RENDER_SPEED);
-            g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            if(quality>=DRAW_QUALITY_HIGH) {
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                    RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                    RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            }
-        }
-            
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayBox.computeImageParameters2(w, h);
