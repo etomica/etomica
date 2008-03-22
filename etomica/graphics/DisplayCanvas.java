@@ -84,10 +84,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements Displa
     public boolean getWriteScale() {return(writeScale);}
 
     public void setDrawBoundary(int b) {
-      if(b>DRAW_BOUNDARY_ALL)
-        b-=DRAW_BOUNDARY_MAX;
-      else if(b<DRAW_BOUNDARY_NONE)
-        b+=DRAW_BOUNDARY_MAX;
       drawBoundary = b;
     }
     public int getDrawBoundary() {return drawBoundary;}

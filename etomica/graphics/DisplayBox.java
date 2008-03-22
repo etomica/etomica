@@ -866,7 +866,11 @@ public class DisplayBox extends Display {
                         drawOverflow = !drawOverflow;
                         break;
                     case 'b':
-                        canvas.setDrawBoundary(canvas.getDrawBoundary()+1);
+                        int drawBoundary = canvas.getDrawBoundary()+1;
+                        if (drawBoundary > DisplayCanvas.DRAW_BOUNDARY_MAX) {
+                            drawBoundary = 0;
+                        }
+                        canvas.setDrawBoundary(drawBoundary);
                         break;
                     default:
                         break;
