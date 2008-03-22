@@ -179,7 +179,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
        int D = space.D();
        int numVectors = 1;
        for (int i=1; i<D; i++) {
-          if ((rr.x(i) - distance < 0.0) || (rr.x(i) + distance > dimensions.x(i))) {
+          if ((rr.x(i) - distance < -0.5*dimensions.x(i)) || (rr.x(i) + distance > 0.5*dimensions.x(i))) {
              //each previous vector will need an additional copy in this dimension 
              numVectors *= 2;
              //remember that
@@ -196,7 +196,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
        double[] rrArray = new double[D];
        rr.assignTo(rrArray);
        for (int i=0; i<D; i++) {
-          shifts[0][i] = (float)rrArray[i];
+//          shifts[0][i] = (float)rrArray[i];
        }
        int iVector = 1;
 
@@ -206,7 +206,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
              continue;
           }
           double delta = -dimensions.x(i);
-          if (rr.x(i) - distance < 0.0) {
+          if (rr.x(i) - distance < -0.5*dimensions.x(i)) {
              delta = -delta;
           }
           //copy all previous vectors and apply a shift of delta to the copies

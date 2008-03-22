@@ -188,8 +188,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
                 if(!(a.getType() instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
-                    shiftOrigin[0] = origin[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
-                    shiftOrigin[1] = origin[1] + (int)(displayBox.getToPixels()*shifts[i][1]);
+                    shiftOrigin[0] = atomOrigin[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
+                    shiftOrigin[1] = atomOrigin[1] + (int)(displayBox.getToPixels()*shifts[i][1]);
                     drawAtom(g, shiftOrigin, a);
                 }
             }
