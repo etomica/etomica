@@ -299,6 +299,12 @@ public class DisplayBox extends Display {
         switch(space.D()) {
             case 3:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                if (boxX > boxY) {
+                    boxY = boxX;
+                }
+                else {
+                    boxX = boxY;
+                }
                 boxX *=1.4;
                 boxY *=1.4;
                 //canvas = new DisplayBoxCanvas3DOpenGL(this, boxX, boxY);
@@ -364,6 +370,12 @@ public class DisplayBox extends Display {
         switch(space.D()) {
             case 3:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                if (boxX > boxY) {
+                    boxY = boxX;
+                }
+                else {
+                    boxX = boxY;
+                }
                 boxX *=1.4;
                 boxY *=1.4;
                 break;
@@ -543,6 +555,12 @@ public class DisplayBox extends Display {
             switch(space.D()) {
                 case 3:
                     boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                    if (boxX > boxY) {
+                        boxY = boxX;
+                    }
+                    else {
+                        boxX = boxY;
+                    }
                     boxX *=1.4;
                     boxY *=1.4;
                     break;
