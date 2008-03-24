@@ -24,7 +24,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
 	 public void setParameters(IAtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
 		 int index = atomTypeLeaf.getIndex();
-		 if(index > parameters.length) { //15 parameters for each species
+		 if(index >= parameters.length) { //15 parameters for each species
 			 parameters = (ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
 		 }
 		 parameters[index] = p;
