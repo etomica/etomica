@@ -1,10 +1,11 @@
 package etomica.virial;
 
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.api.ISimulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresHetero;
 
@@ -26,6 +27,14 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
             group.addChildAtom(makeLeafAtom(childTypes[0]));
         }
         return group;
+    }
+    
+    public IAtomTypeLeaf getCH2Type() {
+        return childTypes[0];
+    }
+    
+    public IAtomTypeLeaf getCH3Type() {
+        return childTypes[1];
     }
     
     public void setTotalChildren(int newTotalChildren) {
