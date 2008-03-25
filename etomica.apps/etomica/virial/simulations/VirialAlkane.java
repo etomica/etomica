@@ -131,11 +131,9 @@ public class VirialAlkane {
                 quads[i][3] = i+3;
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 4) {
             pIntra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres-1}}));
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 5) {
             int[][] pairs = new int[2*(nSpheres-5)][2];
@@ -146,7 +144,6 @@ public class VirialAlkane {
                 pairs[2*i+1][1] = i+1;
             }
             pIntra.addPotential(p2CH3,new ApiIndexList(pairs));
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 6) {
             int[][] pairs = new int[(nSpheres-6)*(nSpheres-5)/2][2];
@@ -159,7 +156,6 @@ public class VirialAlkane {
                 }
             }
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         
         if (false) {
