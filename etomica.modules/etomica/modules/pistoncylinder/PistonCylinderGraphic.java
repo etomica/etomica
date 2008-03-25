@@ -394,6 +394,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         //
 
 	    //slider for scale of display
+        JPanel controlsPanel = new JPanel(new GridBagLayout());
+        setupPanel.add(controlsPanel, "Controls");
         JPanel scaleSliderPanel = null;
         if (pc.getSpace().D() == 2) {
             scaleSliderPanel = new JPanel();
@@ -424,9 +426,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
         if (scaleSliderPanel != null) {
-            getPanel().controlPanel.add(scaleSliderPanel, vertGBC);
+            controlsPanel.add(scaleSliderPanel, vertGBC);
         }
-        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
+        controlsPanel.add(delaySlider.graphic(), vertGBC);
         add(displayCycles);
         add(densityDisplayTextBox);
         add(temperatureDisplayTextBox);
