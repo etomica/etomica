@@ -203,7 +203,17 @@ public class SimulationGraphic implements SimulationContainer {
         if(component == null) return; //display is not graphic
 
         if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
-            getPanel().plotPanel.add(component, SimulationPanel.getVertGBC());
+        	if(this.graphicType == GRAPHIC_ONLY) {
+                getPanel().plotPanel.add(component, SimulationPanel.getVertGBC());
+        	}
+        	else {
+        		getPanel().metricPanel.add(component, SimulationPanel.getVertGBC());
+        		if(getPanel().metricPanel.isAncestorOf(getPanel().tabbedPane) == false) {
+        		    getPanel().tabbedPane.add(getPanel().metricPanel);
+        		    int idx = getPanel().tabbedPane.indexOfComponent(getPanel().metricPanel);
+                    getPanel().tabbedPane.setTitleAt(idx,"Metrics");
+        		}
+        	}
         }
         else {
             if(this.graphicType == GRAPHIC_ONLY) {
@@ -229,7 +239,17 @@ public class SimulationGraphic implements SimulationContainer {
         final Component component = display.graphic(null);
     	if(component == null) return; //display is not graphic
     	if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
-    	    getPanel().plotPanel.remove(component);
+        	if(this.graphicType == GRAPHIC_ONLY) {
+                getPanel().plotPanel.remove(component);
+        	}
+        	else {
+        		getPanel().metricPanel.remove(component);
+        		// Remove metricPanel if nothing on it
+        		if(getPanel().metricPanel.getComponentCount() == 0) {
+        		    getPanel().tabbedPane.remove(getPanel().metricPanel);
+        		}
+        	}
+
     	}
     	else {
     	    if(this.graphicType == GRAPHIC_ONLY) {

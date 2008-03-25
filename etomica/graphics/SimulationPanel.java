@@ -33,6 +33,7 @@ public class SimulationPanel extends JPanel {
     public final JPanel graphicsPanel = new JPanel();
     public final JPanel footerPanel = new JPanel();
     public final JPanel plotPanel = new JPanel();
+    protected final JPanel metricPanel = new JPanel();
     public final JTabbedPane tabbedPane = new JTabbedPane();
     public final DefaultToolbar toolbar;
 
@@ -46,6 +47,7 @@ public class SimulationPanel extends JPanel {
         footerPanel.setLayout(new GridBagLayout());
         graphicsPanel.setLayout(new BorderLayout());
         plotPanel.setLayout(new GridBagLayout());
+    	metricPanel.setLayout(new GridBagLayout());
         setLayout(new BorderLayout(10, 10));
         toolbar = new DefaultToolbar(this, appName);
         toolbarPanel.add(toolbar.graphic());

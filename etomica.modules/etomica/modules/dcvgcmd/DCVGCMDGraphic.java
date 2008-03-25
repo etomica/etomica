@@ -73,16 +73,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    boxB.setPrecision(3);
 	    boxA.setIntegerDisplay(true);
 	    boxB.setIntegerDisplay(true);
-	    boxA.setLabel("   Blue ");
-	    boxB.setLabel("  Green ");
+	    boxA.setLabel("# Blue Atoms");
+	    boxB.setLabel("# Green Atoms");
 	    final DataPump meterAPump = new DataPump(meterA,boxA);
 	    final DataPump meterBPump = new DataPump(meterB,boxB);
         sim.integratorDCV.addIntervalAction(meterAPump);
         sim.integratorDCV.addIntervalAction(meterBPump);
-	    JPanel nMoleculePanel = new JPanel();
-	    nMoleculePanel.add(boxA.graphic());
-	    nMoleculePanel.add(boxB.graphic());
-	    nMoleculePanel.setBorder(new TitledBorder("Number of Atoms"));
 	    meterAPump.actionPerformed();
 	    meterBPump.actionPerformed();
 
@@ -170,7 +166,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 		add(getController());
 		add(cutawayButton);
-	    getPanel().plotPanel.add(nMoleculePanel, vertGBC);
+		add(boxA);
+		add(boxB);
 		add(temperatureSlider);
 	    getPanel().controlPanel.add(muPanel,vertGBC);
 	    //panel for the temperature control/display

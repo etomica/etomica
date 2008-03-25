@@ -269,22 +269,18 @@ public class JouleThomson extends SimulationGraphic {
         DisplayTextBoxesCAE densityDisplay = new DisplayTextBoxesCAE();
         densityDisplay.setAccumulator(densityAverage);
         densityDisplay.setUnit(dadUnit);
-        add(densityDisplay);
 
         DisplayTextBoxesCAE temperatureDisplay = new DisplayTextBoxesCAE();
         temperatureDisplay.setAccumulator(temperatureAverage);
         temperatureDisplay.setUnit(tUnit);
-        add(temperatureDisplay);
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(pressureAverage);
         pressureDisplay.setUnit(pUnit);
-        add(pressureDisplay);
 
         DisplayTextBoxesCAE enthalpyDisplay = new DisplayTextBoxesCAE();
         enthalpyDisplay.setAccumulator(enthalpyAverage);
         enthalpyDisplay.setUnit(hUnit);
-        add(enthalpyDisplay);
 
         timeBox = new DeviceBox();
         timeBox.setLabel("Time Step");
@@ -317,16 +313,15 @@ public class JouleThomson extends SimulationGraphic {
 
         // Add objects to tabbed pane (display area)
 	    getPanel().tabbedPane.add(getDisplayBox(sim.box).getLabel(), displayBoxPanel);
+        add(densityDisplay);
+        add(temperatureDisplay);
+        add(pressureDisplay);
+        add(enthalpyDisplay);
 	    getPanel().tabbedPane.add(plotD.getLabel(), plotD.graphic());
 	    getPanel().tabbedPane.add(plotT.getLabel(), plotT.graphic());
         getPanel().tabbedPane.add(plotP.getLabel(), plotP.graphic());
         getPanel().tabbedPane.add(plotH.getLabel(), plotH.graphic());
 
-	    // Default for Simulation panel is to use a single
-	    // graphic.  Remove the single graphic and add the
-	    // tabbed pane.
-	    getPanel().remove(getPanel().graphicsPanel);
-	    getPanel().add(getPanel().tabbedPane);
 	    getPanel().toolbar.addContributor("Colin Tedlock");
 
 	    getController().getReinitButton().setPostAction(getPaintAction(sim.box));

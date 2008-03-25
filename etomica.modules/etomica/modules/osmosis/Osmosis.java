@@ -67,7 +67,7 @@ public class Osmosis extends SimulationGraphic {
 
     public Osmosis(OsmosisSim simulation, Space _space) {
 
-    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
@@ -109,7 +109,6 @@ public class Osmosis extends SimulationGraphic {
 
         cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);
-        displayCycles.setLabelType(LabelType.BORDER);
         displayCycles.setLabel("Cycle Time");
 	    displayCycles.setPrecision(6);	
 
@@ -125,6 +124,8 @@ public class Osmosis extends SimulationGraphic {
         final DisplayTextBoxesCAE osmoticBox = new DisplayTextBoxesCAE();
         osmoticBox.setAccumulator(osmosisPMeterAvg);
         osmoticBox.setPrecision(5);
+//        osmoticBox.setLabelType(LabelType.BORDER);
+        osmoticBox.setLabel("Osmotic Pressure (PV/Nk)");
 
         //
         // Delay panel
@@ -171,6 +172,8 @@ public class Osmosis extends SimulationGraphic {
         final DisplayTextBoxesCAE rightMFBox = new DisplayTextBoxesCAE();
         rightMFBox.setAccumulator(moleFractionAvgRight);
         rightMFBox.setPrecision(5);
+//        rightMFBox.setLabelType(LabelType.BORDER);
+        rightMFBox.setLabel("Mole Fraction Right of Membrane(nSolute/nSolution)");
 
         // Left side of membrane mole fraction
         moleFractionLeft = new MeterLocalMoleFraction(space, sim.box);
@@ -193,6 +196,8 @@ public class Osmosis extends SimulationGraphic {
         final DisplayTextBoxesCAE leftMFBox = new DisplayTextBoxesCAE();
         leftMFBox.setAccumulator(moleFractionAvgLeft);
         leftMFBox.setPrecision(5);
+//        leftMFBox.setLabelType(LabelType.BORDER);
+        leftMFBox.setLabel("Mole Fraction Left of Membrane(nSolute/nSolution)");
 
         ChangeListener cl = new ChangeListener() {
         	public void stateChanged(ChangeEvent evt) {
@@ -211,11 +216,6 @@ public class Osmosis extends SimulationGraphic {
 
         InitializeMolecules initPanel = new InitializeMolecules(config, simRestart);
         initPanel.addStateChangedListener(cl);
-
-        // panel for osmotic pressure
-        JPanel osmoticPanel = new JPanel(new FlowLayout());
-        osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
-        osmoticPanel.add(osmoticBox.graphic(null));
 
         // left side panel for mole fraction
         JPanel leftMoleFractionPanel = new JPanel(new FlowLayout());
@@ -237,19 +237,19 @@ public class Osmosis extends SimulationGraphic {
         rightMetricsPanel.setBorder(new TitledBorder(null, "Right of Membrane", TitledBorder.CENTER, TitledBorder.TOP));
         rightMetricsPanel.add(rightMoleFractionPanel);
 
-
-        //panel for all the controls
-
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+
+        add(displayCycles);
+        add(tBox);
+        add(osmoticBox);
+        add(leftMFBox);
+        add(rightMFBox);
+        
+        //panel for all the controls
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(initPanel.graphic(), vertGBC);
-        getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
-        getPanel().plotPanel.add(tBox.graphic(), vertGBC);
-        getPanel().plotPanel.add(osmoticPanel, vertGBC);
-        getPanel().plotPanel.add(leftMetricsPanel, vertGBC);
-        getPanel().plotPanel.add(rightMetricsPanel, vertGBC);
 
         IAction reinitDisplayAction = new IAction() {
         	public void actionPerformed() {

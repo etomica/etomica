@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.BorderFactory;
 
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -124,7 +125,8 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
     public void setLabel(String s) {
         jLabelPanelParentGroup.setText(s);
         if(labelType == LabelType.BORDER) {
-            panelParentGroup.setBorder(new javax.swing.border.TitledBorder(s));
+            panelParentGroup.setBorder(BorderFactory.createTitledBorder(s));
+            
         }
         if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
     }
@@ -145,7 +147,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
 
     public void setLabelType(LabelType labelType) {
         this.labelType = labelType;
-        if(labelType != LabelType.BORDER) panelParentGroup.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+        if(labelType != LabelType.BORDER) panelParentGroup.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         if(labelType != LabelType.STRING) panelParentGroup.remove(jLabelPanelParentGroup);
         setLabel(jLabelPanelParentGroup.getText());
     }
