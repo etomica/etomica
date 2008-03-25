@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.config.Conformation;
 import etomica.models.water.SpeciesWater4P;
+import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.space.Space;
@@ -11,7 +11,7 @@ import etomica.space.Space;
  * SpeciesFactory that makes SpeciesWater
  */
 public class SpeciesFactoryWater4P implements SpeciesFactory, java.io.Serializable {
-    public SpeciesFactoryWater4P(Conformation conformation) {
+    public SpeciesFactoryWater4P(IConformation conformation) {
         this.conformation = conformation;
     }
     public ISpecies makeSpecies(ISimulation sim, Space space) {
@@ -20,5 +20,5 @@ public class SpeciesFactoryWater4P implements SpeciesFactory, java.io.Serializab
         return species;
     }
     
-    protected Conformation conformation;
+    protected IConformation conformation;
 }

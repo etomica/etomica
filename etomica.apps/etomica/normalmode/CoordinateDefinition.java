@@ -6,6 +6,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -14,7 +15,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.config.Conformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -92,7 +92,7 @@ public abstract class CoordinateDefinition {
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             // initialize coordinates of child atoms
-            Conformation config = ((ISpecies)molecule.getType()).getConformation();
+            IConformation config = ((ISpecies)molecule.getType()).getConformation();
             config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();

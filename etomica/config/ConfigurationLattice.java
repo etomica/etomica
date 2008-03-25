@@ -3,6 +3,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
@@ -181,7 +182,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             }
             // initialize coordinates of child atoms
         	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
-            Conformation config = ((ISpecies)a.getType()).getConformation();
+            IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));

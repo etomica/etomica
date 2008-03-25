@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.chem.elements.ElementSimple;
-import etomica.config.Conformation;
+import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.space.Space;
@@ -11,7 +11,7 @@ import etomica.species.SpeciesSpheres;
  * SpeciesFactory that makes a tangent sphere species.
  */
 public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Serializable {
-    public SpeciesFactoryTangentSpheres(int nA, Conformation conformation) {
+    public SpeciesFactoryTangentSpheres(int nA, IConformation conformation) {
         this.nA = nA;
         this.conformation = conformation;
     }
@@ -24,5 +24,5 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
     
     private static final long serialVersionUID = 1L;
     private final int nA;
-    private final Conformation conformation;
+    private final IConformation conformation;
 }

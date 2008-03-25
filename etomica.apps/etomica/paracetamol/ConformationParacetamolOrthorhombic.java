@@ -1,11 +1,8 @@
 package etomica.paracetamol;
 
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.config.Conformation;
+import etomica.api.IConformation;
 import etomica.space.Space;
 
 /*
@@ -14,13 +11,10 @@ import etomica.space.Space;
  * @author Tai Tan
  */
 
-public class ConformationParacetamolOrthorhombic extends Conformation{
-	
-	private final AtomIteratorArrayListSimple iterator;
+public class ConformationParacetamolOrthorhombic implements IConformation {
 	
 	public ConformationParacetamolOrthorhombic(Space space) {
-		super(space);
-		iterator = new AtomIteratorArrayListSimple();	
+		this.space = space;
 	}
 	
 	public void initializePositions(IAtomSet list){
@@ -151,4 +145,5 @@ public class ConformationParacetamolOrthorhombic extends Conformation{
 	}
 
 	private static final long serialVersionUID = 1L;
+    protected final Space space;
 }

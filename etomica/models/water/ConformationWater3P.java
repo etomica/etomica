@@ -1,19 +1,19 @@
 package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.config.Conformation;
+import etomica.api.IConformation;
 import etomica.space.Space;
 
 /**
  * Conformation for 3-point water molecule.
  */
-public class ConformationWater3P extends Conformation {
+public class ConformationWater3P implements IConformation {
 
     protected static final double bondLengthOH = 1.0;
     protected static final double angleHOH = 109.5*Math.PI/180.;
 
     public ConformationWater3P(Space space) {
-        super(space);
+        this.space = space;
     }
     
     public void initializePositions(IAtomSet list){
@@ -32,4 +32,5 @@ public class ConformationWater3P extends Conformation {
     }
     
     private static final long serialVersionUID = 1L;
+    protected final Space space;
 }

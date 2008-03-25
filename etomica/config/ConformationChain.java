@@ -2,6 +2,7 @@ package etomica.config;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IConformation;
 import etomica.api.IVector;
 import etomica.space.Space;
 
@@ -11,10 +12,10 @@ import etomica.space.Space;
  * @author nancycribbin
  */
 
-public abstract class ConformationChain extends Conformation {
+public abstract class ConformationChain implements IConformation, java.io.Serializable {
 
 	public ConformationChain(Space space){	
-		super(space);		
+		this.space = space;
 		//orientationVector = space.makeVector();
 		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
 	}
@@ -57,6 +58,7 @@ public abstract class ConformationChain extends Conformation {
     	}
 	}
 	
+    protected final Space space;
 	/**
 	 * The vector drawn from the head of the molecule to the tail of the molecule.
 	 */

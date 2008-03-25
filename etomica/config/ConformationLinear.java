@@ -1,8 +1,7 @@
 package etomica.config;
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IConformation;
 import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -15,7 +14,7 @@ import etomica.units.Length;
  * @author David Kofke
  */
 
-public class ConformationLinear extends Conformation {
+public class ConformationLinear implements IConformation, java.io.Serializable {
     
     public ConformationLinear(Space _space) {
         this(_space, 0.55);
@@ -34,14 +33,11 @@ public class ConformationLinear extends Conformation {
     }
     
     public ConformationLinear(Space space, double bondLength, double[] initAngles) {
-        super(space);
+        this.space = space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
-        translator = new AtomActionTranslateBy(space);
-        moveToOrigin = new AtomActionTranslateTo(space);
-        translationVector = translator.getTranslationVector();
     }
 
     public void setBondLength(double b) {
@@ -89,10 +85,8 @@ public class ConformationLinear extends Conformation {
     }
 
     private static final long serialVersionUID = 1L;
+    protected final Space space;
     protected double bondLength;
     private IVector orientation;
     private double[] angle;
-    private IVector translationVector;
-    private AtomActionTranslateBy translator;
-    private AtomActionTranslateTo moveToOrigin;
 }

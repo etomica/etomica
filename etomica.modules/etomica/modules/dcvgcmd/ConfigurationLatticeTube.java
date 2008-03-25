@@ -4,6 +4,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -11,7 +12,6 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -160,7 +160,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {
             IMolecule a = (IMolecule)tubeList.getAtom(i);
-        	Conformation config = ((ISpecies)a.getType()).getConformation();
+        	IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }

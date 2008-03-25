@@ -11,7 +11,7 @@ import etomica.space.Space;
  */
 public class ConformationChain3D extends ConformationChain {
 	
-	public ConformationChain3D(Space space, IVector[] vex){
+    public ConformationChain3D(Space space, IVector[] vex){
 		super(space);
 		vectors = new IVector[vex.length];
 		for(int i = 0; i < vex.length; i++){
@@ -41,6 +41,7 @@ public class ConformationChain3D extends ConformationChain {
 	    return vectors[tracker-1];
 	}
 
+    private static final long serialVersionUID = 1L;
 	IVector[] vectors;
 	int tracker;			//Tracker is used to track which vector the counter is on.
 }

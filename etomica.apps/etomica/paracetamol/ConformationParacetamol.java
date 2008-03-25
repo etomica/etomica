@@ -1,10 +1,9 @@
 package etomica.paracetamol;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
-
+import etomica.api.IAtomSet;
+import etomica.api.IConformation;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.config.Conformation;
 import etomica.space.Space;
 
 /*
@@ -14,7 +13,7 @@ import etomica.space.Space;
  * @author Tai Tan
  */
 
-public class ConformationParacetamol extends Conformation{
+public class ConformationParacetamol implements IConformation {
 	
 	/*
 	 * Bond Length [unit in Amstrom]
@@ -51,7 +50,7 @@ public class ConformationParacetamol extends Conformation{
 	private final AtomIteratorArrayListSimple iterator;
 	
 	public ConformationParacetamol(Space space) {
-		super(space);
+	    this.space = space;
 		iterator = new AtomIteratorArrayListSimple();	
 	}
 	
@@ -117,4 +116,5 @@ public class ConformationParacetamol extends Conformation{
 	}
 
 	private static final long serialVersionUID = 1L;
+    protected final Space space;
 }

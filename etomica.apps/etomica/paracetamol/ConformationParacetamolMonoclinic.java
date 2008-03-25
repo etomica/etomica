@@ -1,9 +1,8 @@
 package etomica.paracetamol;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
-
-import etomica.config.Conformation;
+import etomica.api.IAtomSet;
+import etomica.api.IConformation;
 import etomica.space.Space;
 
 /*
@@ -12,10 +11,10 @@ import etomica.space.Space;
  * @author Tai Tan
  */
 
-public class ConformationParacetamolMonoclinic extends Conformation{
+public class ConformationParacetamolMonoclinic implements IConformation {
 	
 	public ConformationParacetamolMonoclinic(Space space) {
-		super(space);
+	    this.space = space;
 	}
 	
 	public void initializePositions(IAtomSet list){
@@ -146,4 +145,5 @@ public class ConformationParacetamolMonoclinic extends Conformation{
 	}
 
 	private static final long serialVersionUID = 1L;
+    protected final Space space;
 }

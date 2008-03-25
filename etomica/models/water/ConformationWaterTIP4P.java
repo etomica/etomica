@@ -1,21 +1,17 @@
 package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.config.Conformation;
+import etomica.api.IConformation;
 import etomica.space.Space;
 import etomica.units.Electron;
 
 /**
  * Conformation for 4-point water molecule.
  */
-public class ConformationWaterTIP4P extends Conformation {
-
-    private double bondLengthOH = 0.9572;
-    private double angleHOH = 104.52*Math.PI/180.;
-    private double rOM=0.15;
+public class ConformationWaterTIP4P implements IConformation, java.io.Serializable {
 
     public ConformationWaterTIP4P(Space space) {
-        super(space);
+        this.space = space;
     }
     
     public void initializePositions(IAtomSet list){
@@ -46,4 +42,8 @@ public class ConformationWaterTIP4P extends Conformation {
     }
     
     private static final long serialVersionUID = 1L;
+    protected final Space space;
+    private double bondLengthOH = 0.9572;
+    private double angleHOH = 104.52*Math.PI/180.;
+    private double rOM=0.15;
 }

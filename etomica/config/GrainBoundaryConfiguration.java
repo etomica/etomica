@@ -13,6 +13,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -23,12 +24,11 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
  */
-public class GrainBoundaryConfiguration implements Configuration {
+public class GrainBoundaryConfiguration implements Configuration, java.io.Serializable {
 
     /**
      * Construct class that will place atoms on sites of the given lattices,
@@ -164,7 +164,7 @@ public class GrainBoundaryConfiguration implements Configuration {
             	//System.out.println(ii[2] + "  |  " + a);
             }
             // initialize coordinates of child atoms
-            Conformation config = ((ISpecies)a.getType()).getConformation();
+            IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(((IMolecule)a).getChildList());
             IVector site = (IVector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
@@ -189,7 +189,7 @@ public class GrainBoundaryConfiguration implements Configuration {
             	
             }
             // initialize coordinates of child atoms
-            Conformation config = ((ISpecies)a.getType()).getConformation();
+            IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(((IMolecule)a).getChildList());
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);

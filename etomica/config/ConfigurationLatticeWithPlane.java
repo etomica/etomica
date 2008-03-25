@@ -48,8 +48,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
     private static final long serialVersionUID = 2L;
     private Plane plane;
-    private ArrayList species;
-    private HashMap allocation;
+    private ArrayList<ISpecies> species;
+    private HashMap<ISpecies,Float> allocation;
     
     private final int LEFT  = 0;
     private final int RIGHT = 1;
@@ -75,8 +75,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.plane = plane;
-        species = new ArrayList();
-        allocation = new HashMap();
+        species = new ArrayList<ISpecies>();
+        allocation = new HashMap<ISpecies,Float>();
     }
 
     /**
@@ -127,12 +127,10 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * on the left side of the plane (0.0 <= pct <= 1.0)
      */
     public float getSpeciesAllocation(ISpecies sp) {
-    	float fValue = 0.0f;
     	if(allocation.containsKey(sp)) {
-    		Float value = ((Float)allocation.get(sp));
-    		fValue = value.floatValue();
-    	}
-		return fValue;
+    		return allocation.get(sp);
+     	}
+		return 0;
     }
 
     /**
@@ -149,7 +147,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         int sumOfMolecules = 0;
         for (int i = 0; i < numSpecies; i++) {
-            speciesCount[i] = box.getNMolecules((ISpecies)species.get(i));
+            speciesCount[i] = box.getNMolecules(species.get(i));
             sumOfMolecules = sumOfMolecules + speciesCount[i];
         }
 
@@ -162,7 +160,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         int [] maxMolecules = { 0, 0 };
 
         for (int i = 0; i < numSpecies; i++) {
-        	ISpecies sp = ((ISpecies)species.get(i));
+        	ISpecies sp = species.get(i);
             molecules[LEFT][i] =  (int)(box.getNMolecules(sp) * getSpeciesAllocation(sp));
             molecules[RIGHT][i] = box.getNMolecules(sp) - molecules[LEFT][i];
             maxMolecules[LEFT] += molecules[LEFT][i];
@@ -206,7 +204,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
         for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList((ISpecies)species.get(i)));
+            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList(species.get(i)));
             atomIterator[i].reset();
         }
 

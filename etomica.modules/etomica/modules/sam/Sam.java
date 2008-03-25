@@ -5,6 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
@@ -16,7 +17,6 @@ import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.config.Conformation;
 import etomica.config.ConformationChainZigZag;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayCanvas;
@@ -26,6 +26,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.paracetamol.ApiIndexList;
 import etomica.potential.P2Harmonic;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedSwitched;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
@@ -54,6 +55,7 @@ public class Sam extends Simulation {
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
     public P2LennardJones p2CH2, p2CH3, p2CH2CH3;
+    public P2SoftSphericalTruncatedSwitched p2CH2t, p2CH3t, p2CH2CH3t;
     public P2Harmonic p2Bond;
     public P3BondAngle p3Bond;
     public P4BondTorsion p4Bond;
@@ -68,7 +70,7 @@ public class Sam extends Simulation {
         int nCellZ = 10;
         double sizeCellX = 4;
         double sizeCellZ = 4;
-        chainLength = 7;
+        chainLength = 14;
 
         double surfaceSigma = 4.0;
         double sigma = 4.0;
@@ -104,7 +106,7 @@ public class Sam extends Simulation {
         IVector vector2 = space.makeVector();
         vector2.setX(0, -Math.cos(bondTheta/2)*bondL);
         vector2.setX(1, Math.sin(bondTheta/2)*bondL);
-        Conformation conformation = new ConformationChainZigZag(space, vector1, vector2);
+        IConformation conformation = new ConformationChainZigZag(space, vector1, vector2);
         species.setConformation(conformation);
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
@@ -146,15 +148,22 @@ public class Sam extends Simulation {
         double epsilonCH2 = Kelvin.UNIT.toSim(47);
         double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
+        double rCut = box.getBoundary().getDimensions().x(0);
+        if (box.getBoundary().getDimensions().x(2) < rCut) {
+            rCut = box.getBoundary().getDimensions().x(2);
+        }
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
         p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
         p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
+        p2CH2t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
+        p2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
+        p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
         
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
-        pGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
-        pGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pGroup.addPotential(p2CH2t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        pGroup.addPotential(p2CH2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
+        pGroup.addPotential(p2CH2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
+        pGroup.addPotential(p2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
         potentialMaster.addPotential(pGroup, new ISpecies[]{species,species});
         p1Intra = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
@@ -184,7 +193,6 @@ public class Sam extends Simulation {
         
         P2LennardJones p2Surface = new P2LennardJones(space, 4.0, Kelvin.UNIT.toSim(50));
         potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
-
     }
     
     public void setChainLength(int newChainLength) {
@@ -218,7 +226,7 @@ public class Sam extends Simulation {
         p1Intra.addPotential(p4Bond, new Atomset4IteratorIndexList(quads));
 
         
-        p1Intra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,chainLength-1}}));
+        p1Intra.addPotential(p2CH3t,new ApiIndexList(new int[][]{{0,chainLength-1}}));
 
         int[][] pairs = new int[2*(chainLength-5)][2];
         for (int i=0; i<chainLength-5; i++) {
@@ -227,7 +235,7 @@ public class Sam extends Simulation {
             pairs[2*i+1][0] = chainLength-1;
             pairs[2*i+1][1] = i+1;
         }
-        p1Intra.addPotential(p2CH3,new ApiIndexList(pairs));
+        p1Intra.addPotential(p2CH3t,new ApiIndexList(pairs));
 
         pairs = new int[(chainLength-6)*(chainLength-5)/2][2];
         int k = 0;
@@ -238,15 +246,14 @@ public class Sam extends Simulation {
                 k++;
             }
         }
-        p1Intra.addPotential(p2CH2,new ApiIndexList(pairs));
-        
+        p1Intra.addPotential(p2CH2t,new ApiIndexList(pairs));
     }
 
     public static void main(String[] args) {
         Sam sim = new Sam();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance());
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
-        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
+//        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
         ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
         simGraphic.makeAndDisplayFrame();
     }

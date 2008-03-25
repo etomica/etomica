@@ -1,17 +1,18 @@
 package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.config.Conformation;
+import etomica.api.IConformation;
 import etomica.space.Space;
 
-public class ConformationWaterGCPM extends Conformation {
+public class ConformationWaterGCPM implements IConformation, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     private double bondLengthOH = 0.9572;
     private double angleHOH = 104.52*Math.PI/180.;
     private double rOM=0.27;
 
     public ConformationWaterGCPM(Space space) {
-        super(space);
+        this.space = space;
     }
     
     public void initializePositions(IAtomSet list){
@@ -60,6 +61,6 @@ public class ConformationWaterGCPM extends Conformation {
         m.coord.position().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
 */
     }//end of initializePositions
-    
-    
+
+    protected final Space space;
 }

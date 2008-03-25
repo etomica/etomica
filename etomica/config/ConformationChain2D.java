@@ -12,12 +12,12 @@ import etomica.space.Space;
  */
 public class ConformationChain2D extends ConformationChain {
 	
-	public ConformationChain2D(Space space, IVector[] vex){
+    public ConformationChain2D(Space space, IVector[] vex){
 		super(space);
-		if(vex.length != vectors.length){
-			throw new IllegalArgumentException("Different vector array lengths in ConformationChain2D.");
+		vectors = new IVector[vex.length];
+		for (int i=0; i<vex.length; i++) {
+		    vectors[i] = space.makeVector();
 		}
-				
 		for(int i = 0; i < vex.length; i++){
 			vectors[i].E(vex[i]);
 		}
@@ -44,7 +44,7 @@ public class ConformationChain2D extends ConformationChain {
 	    return vectors[tracker-1];
 	}
 
-	IVector[] vectors;
-	int tracker;			//Tracker is used to track which vector the counter is on.
-
+    private static final long serialVersionUID = 1L;
+	protected final IVector[] vectors;
+	protected int tracker;			//Tracker is used to track which vector the counter is on.
 }

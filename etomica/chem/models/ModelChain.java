@@ -1,11 +1,11 @@
 package etomica.chem.models;
 
+import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.config.Conformation;
 import etomica.potential.Potential2;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
@@ -75,7 +75,7 @@ public class ModelChain extends Model {
      * Sets the Conformation for the molecule.  If no Conformation
      * is set, a ConformationLinear will be used.
      */
-    public void setConformation(Conformation newConformation) {
+    public void setConformation(IConformation newConformation) {
         if (speciesMade) {
             throw new RuntimeException("Species already created");
         }
@@ -86,7 +86,7 @@ public class ModelChain extends Model {
      * Returns the Conformation for the molecule, or null if no Conformation
      * has been set (a ConformationLinear will be used).
      */
-    public Conformation getConformation() {
+    public IConformation getConformation() {
         return conformation;
     }
 
@@ -143,7 +143,7 @@ public class ModelChain extends Model {
     private static final long serialVersionUID = 1L;
     protected Potential2 bondingPotential;
     protected int numAtoms;
-    protected Conformation conformation;
+    protected IConformation conformation;
     protected Element element;
     protected boolean speciesMade;
     private final Space space;

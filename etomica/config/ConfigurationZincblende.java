@@ -53,7 +53,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(IBox box, Space space) {
+    public void initializeCoordinates(IBox box) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(space));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(space));
         IAtomSet[] lists = new IAtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};

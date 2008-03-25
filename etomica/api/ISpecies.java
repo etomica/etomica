@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.config.Conformation;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.SpeciesManager;
 
@@ -54,13 +53,23 @@ public interface ISpecies extends IAtomType {
      */
     public IAtomTypeLeaf[] getChildTypes();
 
+    /**
+     * Add the given leaf type as a child of this ISpecies.  Where possible,
+     * you should only call this method before the ISpecies has been added to
+     * the ISimulation
+     */
     public void addChildType(IAtomTypeLeaf newChildType);
 
+    /**
+     * Removes the given leaf type as a child of this ISpecies.  Where
+     * possible, you should only call this method before the ISpecies has been
+     * added to the ISimulation
+     */
     public void removeChildType(IAtomTypeLeaf removedType);
 
     /**
      * Returns the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
-    public Conformation getConformation();
+    public IConformation getConformation();
 }

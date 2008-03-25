@@ -2,9 +2,9 @@ package etomica.species;
 
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IConformation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
-import etomica.config.Conformation;
 import etomica.simulation.SpeciesManager;
 import etomica.util.Arrays;
 
@@ -92,17 +92,17 @@ public abstract class Species extends AtomType implements ISpecies {
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeMolecule#setConformation(etomica.config.Conformation)
      */
-    public void setConformation(Conformation config) {
+    public void setConformation(IConformation config) {
         conformation = config;
     }
     
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeMolecule#getConformation()
      */
-    public Conformation getConformation() {return conformation;}
+    public IConformation getConformation() {return conformation;}
     
     private static final long serialVersionUID = 2L;
-    protected Conformation conformation;
+    protected IConformation conformation;
     protected SpeciesManager speciesManager;
     protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
 }

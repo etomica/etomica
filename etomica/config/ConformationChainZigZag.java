@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class ConformationChainZigZag extends ConformationChain {
 	
-	public ConformationChainZigZag(Space space){
+    public ConformationChainZigZag(Space space){
 		super(space);
 		
 		v1 = space.makeVector();
@@ -53,6 +53,7 @@ public class ConformationChainZigZag extends ConformationChain {
 		return v2;
 	}
 
+    private static final long serialVersionUID = 1L;
 	protected IVector v1;
 	protected IVector v2;
 	boolean isVectorOne;

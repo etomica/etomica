@@ -1,9 +1,8 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
-
-import etomica.config.Conformation;
+import etomica.api.IAtomSet;
+import etomica.api.IConformation;
 import etomica.space.Space;
 
 /**
@@ -13,7 +12,7 @@ import etomica.space.Space;
  *  
  */
 
-public class ConformationTube extends Conformation {
+public class ConformationTube implements IConformation {
 
     private static final long serialVersionUID = 1L;
 	int atomsPerRing;
@@ -25,8 +24,8 @@ public class ConformationTube extends Conformation {
 	double dtheta;
 
 	public ConformationTube(Space space, int atomsPerRing) {
-		
-		super(space);	
+		this.space = space;
+
 		this.atomsPerRing = atomsPerRing;
 
 		dtheta = Math.PI * 2.0 / atomsPerRing;
@@ -110,4 +109,5 @@ public class ConformationTube extends Conformation {
 		}
 	}
 
+    protected final Space space;
 }
