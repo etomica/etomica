@@ -99,10 +99,11 @@ public class Sam extends Simulation {
         bondL = 1.54;
         double bondTheta = Math.PI*114/180;
         IVector vector1 = space.makeVector();
-        vector1.setX(0, bondL);
+        vector1.setX(0, Math.cos(bondTheta/2)*bondL);
+        vector1.setX(1, Math.sin(bondTheta/2)*bondL);
         IVector vector2 = space.makeVector();
-        vector2.setX(0, bondL*Math.cos(bondTheta));
-        vector2.setX(1, bondL*Math.sin(bondTheta));
+        vector2.setX(0, -Math.cos(bondTheta/2)*bondL);
+        vector2.setX(1, Math.sin(bondTheta/2)*bondL);
         Conformation conformation = new ConformationChainZigZag(space, vector1, vector2);
         species.setConformation(conformation);
 
@@ -113,7 +114,7 @@ public class Sam extends Simulation {
         config.setCellSizeZ(4);
         config.setNCellsX(4);
         config.setNCellsZ(4);
-        config.setYOffset(4);
+        config.setYOffset(3.3);
 
         config.initializeCoordinates(box);
 
