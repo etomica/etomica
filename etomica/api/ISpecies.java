@@ -59,12 +59,6 @@ public interface ISpecies extends IAtomType {
     public void removeChildType(IAtomTypeLeaf removedType);
 
     /**
-     * Sets the conformation used to set the standard arrangement of
-     * the atoms/atom-groups produced by this factory.
-     */
-    public void setConformation(Conformation config);
-
-    /**
      * Returns the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
