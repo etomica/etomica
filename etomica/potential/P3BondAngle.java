@@ -9,12 +9,14 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * Simple 3-body soft bond-angle potential 
@@ -121,7 +123,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         }
         double dtheta = Math.acos(costheta) - angle;
         gradient[0].Ea1Tv1(dr12_23, dr23);
-        gradient[0].PEa1Tv1(-costheta/dr12.squared(), dr12);
+        gradient[0].PEa1Tv1(costheta/dr12.squared(), dr12);
         gradient[0].TE(-epsilon*dtheta/Math.sqrt(1.0-costheta*costheta));
 
         gradient[2].Ea1Tv1(-dr12_23, dr12);
@@ -129,13 +131,13 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         gradient[2].TE(-epsilon*dtheta/Math.sqrt(1.0-costheta*costheta));
         
         gradient[1].Ea1Tv1(-1, gradient[0]);
-        gradient[1].Ea1Tv1(-1, gradient[2]);
+        gradient[1].PEa1Tv1(-1, gradient[2]);
         
         return gradient;
     }
 
     public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
-        return null;
+        return gradient(atoms);
     }
 
     public double virial(IAtomSet atoms) {
@@ -151,10 +153,11 @@ public class P3BondAngle extends Potential implements PotentialSoft {
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
+        RandomNumberGenerator random = new RandomNumberGenerator();
         P3BondAngle potential = new P3BondAngle(space);
         potential.setEpsilon(1.0);
         potential.setAngle(Math.PI/2.0);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space, null), space);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         potential.setBox(box);
         AtomLeaf atom0 = new AtomLeaf(space);
         atom0.getPosition().setX(0, 1);
@@ -170,7 +173,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         double U = 0;
         IVector oldGradient = space.makeVector();
         IVector gradient = space.makeVector();
-        IVector dr = space.makeVector();
+        IVectorRandom dr = (IVectorRandom)space.makeVector();
         for (int i=0; i<n+1; i++) {
             oldoldU = oldU;
             oldU = U;
@@ -181,13 +184,36 @@ public class P3BondAngle extends Potential implements PotentialSoft {
             atom2.getPosition().setX(1, Math.sin(theta));
             U = potential.energy(atoms);
             gradient.E(potential.gradient(atoms)[2]);
-            System.out.println(theta+" "+potential.energy(atoms)+" "+potential.gradient(atoms)[2]);
+//            System.out.println(theta+" "+potential.energy(atoms)+" "+potential.gradient(atoms)[2]);
             dr.setX(0, -Math.cos((i-2)*Math.PI/n));
             dr.setX(1, -Math.sin((i-2)*Math.PI/n));
             dr.PE(atom2.getPosition());
             
             System.out.println((i-1)*Math.PI/n+" "+oldGradient.dot(dr)+" "+(U-oldoldU));
+        }
+
+        System.out.println("all random");
+        for (int i=0; i<n; i++) {
+            atom0.getPosition().E(box.getBoundary().randomPosition());
+            atom1.getPosition().E(box.getBoundary().randomPosition());
+            atom2.getPosition().E(box.getBoundary().randomPosition());
             
+            U = potential.energy(atoms);
+
+            int iRand = random.nextInt(3);
+            iRand = 1;
+            IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(iRand);
+            gradient.E(potential.gradient(atoms)[iRand]);
+            
+            dr.setRandomSphere(random);
+            dr.TE(0.0001);
+            double expectedDeltaU = gradient.dot(dr);
+            
+            atom.getPosition().PE(dr);
+            
+            double newU = potential.energy(atoms);
+            
+            System.out.println(expectedDeltaU+" "+(newU-U)+" "+(expectedDeltaU-newU+U));
         }
     }
 }
