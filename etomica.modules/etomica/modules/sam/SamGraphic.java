@@ -27,7 +27,7 @@ public class SamGraphic extends SimulationGraphic {
     
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace());
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
 
@@ -106,6 +106,19 @@ public class SamGraphic extends SimulationGraphic {
         Sam sim = new Sam();
         SamGraphic graphic = new SamGraphic(sim);
         graphic.makeAndDisplayFrame();
-        sim.activityIntegrate.setSleepPeriod(10);
+//        sim.activityIntegrate.setSleepPeriod(10);
+    }
+    
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            getRootPane().putClientProperty(
+                            "defeatSystemEventQueueCheck", Boolean.TRUE);
+            SamGraphic samGraphic = new SamGraphic(new Sam());
+
+            getContentPane().add(samGraphic.getPanel());
+        }
+
+        private static final long serialVersionUID = 1L;
     }
 }
