@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 31, 2004 by kofke
- */
 package etomica.potential;
 
 import etomica.api.IAtomSet;
