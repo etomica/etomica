@@ -33,7 +33,7 @@ public class HexaneVolumeFraction extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
        
-    public HexaneVolumeFraction(Space _space, int xCells, int yCells, int zCells) {
+    public HexaneVolumeFraction(Space _space) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space, false);
@@ -41,27 +41,21 @@ public class HexaneVolumeFraction extends Simulation {
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = 6;
-        primitive = new PrimitiveHexane(_space);
-        lattice = new BravaisLattice(primitive);
 
 
         SpeciesHexane species = new SpeciesHexane(this, _space);
         getSpeciesManager().addSpecies(species);
-        int[] nCells = new int[]{xCells, yCells, zCells};
 
-//      int[] nCells = new int[]{10, 10, 10};
         bdry = new BoundaryRectangularPeriodic(getRandom(), _space);
         box = new Box(bdry, _space);
         addBox(box);
-        box.setNMolecules(species, 1);
-//        IVector tem = _space.makeVector();
-//        tem.E(10.0);
-//        System.out.println(tem);
-//        box.setDimensions(tem);
+        box.setNMolecules(species, 10);
+        IVector tem = _space.makeVector();
+        tem.E(10.0);
+        System.out.println(tem);
+        box.setDimensions(tem);
 
-         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, _space);
-        coordinateDefinition.initializeCoordinates(nCells);
+
        
     }
     /**
@@ -71,7 +65,7 @@ public class HexaneVolumeFraction extends Simulation {
         boolean graphic = true;
         int numberOfTests = 1000000;
         
-        HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance(), 2,2,2);
+        HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
         
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
