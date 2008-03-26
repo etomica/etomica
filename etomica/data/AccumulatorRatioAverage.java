@@ -58,7 +58,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
             ratioError.DE(average);
             ratioError.TE(ratioError);
             ratioError.PE(errorRatio0);
-            ratioError.map(Function.Sqrt.INSTANCE);
+            ratioError.TE(ratio);
             ratioError.TE(ratio);
             ratioError.map(Function.Sqrt.INSTANCE);
 
@@ -67,7 +67,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
             ratioStandardDeviation.DE(average);
             ratioStandardDeviation.TE(ratioStandardDeviation);
             ratioStandardDeviation.PE(stdevRatio0);
-            ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
+            ratioStandardDeviation.TE(ratio);
             ratioStandardDeviation.TE(ratio);
             ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
         }
