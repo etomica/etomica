@@ -187,12 +187,15 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
                     IAtomSet atomList = box.getLeafList();
-                    int index = random.nextInt(atomList.getAtomCount());
-                    IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
-                    double m = ((IAtomTypeLeaf)a.getType()).getMass();
-                    currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
-                    randomizeMomentum(a);
-                    currentKineticEnergy += 0.5*m*a.getVelocity().squared();
+                    int atomCount = atomList.getAtomCount();
+                    if (atomCount > 0) {
+                        int index = random.nextInt(atomList.getAtomCount());
+                        IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
+                        double m = ((IAtomTypeLeaf)a.getType()).getMass();
+                        currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
+                        randomizeMomentum(a);
+                        currentKineticEnergy += 0.5*m*a.getVelocity().squared();
+                    }
                 }
             }
             // ANDERSEN was handled at the start
