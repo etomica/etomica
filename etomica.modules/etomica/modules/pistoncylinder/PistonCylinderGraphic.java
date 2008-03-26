@@ -124,6 +124,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public Unit eUnit;
     public double lambda, epsilon, mass, sigma;
     public DeviceSlider doSleepSlider, integratorTimeStepSlider;
+    public static final String IDEAL_GAS = "Ideal gas";
+    public static final String REPULSION_ONLY = "Repulsion only";
+    public static final String REPULSION_ATTRACTION = "Repulsion and attraction";
 
     protected boolean doConfigButton = false;
     protected boolean doRDF = false;
@@ -343,11 +346,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         //
         
 	    //combo box to select potentials
-        final String idealGas = "Ideal gas";
-        final String repulsionOnly = "Repulsion only";
-        final String repulsionAttraction = "Repulsion and attraction";
 	    potentialChooser = new javax.swing.JComboBox(new String[] {
-	    		idealGas, repulsionOnly, repulsionAttraction});
+	    		IDEAL_GAS, REPULSION_ONLY, REPULSION_ATTRACTION});
 
 
         sigBox = new DeviceBox();
@@ -569,8 +569,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
-                if((String)evt.getItem() == idealGas ||
-                   (String)evt.getItem() == repulsionOnly) {
+                if((String)evt.getItem() == IDEAL_GAS ||
+                   (String)evt.getItem() == REPULSION_ONLY) {
                 	epsBox.setEditable(false);
                 	lamBox.setEditable(false);
                 }
@@ -832,8 +832,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
     
     public void setPotential(String potentialDesc) {
-        final boolean HS = potentialDesc.equals("Repulsion only"); 
-        final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
+        final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
+        final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
         pc.getController().doActionNow( new IAction() {
             public void actionPerformed() {
                 if (HS) {
