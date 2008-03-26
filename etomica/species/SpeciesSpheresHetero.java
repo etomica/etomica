@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationLinear;
 import etomica.space.Space;
 import etomica.util.Arrays;
 
@@ -77,6 +78,7 @@ public class SpeciesSpheresHetero extends Species {
         for (int i=0; i<atomTypes.length; i++) {
             addChildType(atomTypes[i]);
         }
+        setConformation(new ConformationLinear(space));
     }
     
     /**
