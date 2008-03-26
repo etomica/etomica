@@ -255,13 +255,13 @@ public class SwmdGraphic extends SimulationGraphic {
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         sim.integrator.addIntervalAction(rdfMeter);
-        sim.integrator.setActionInterval(rdfMeter, 1);
+        sim.integrator.setActionInterval(rdfMeter, 10);
         rdfMeter.getXDataSource().setXMax(12.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(rdfPump);
-        sim.integrator.setActionInterval(rdfPump, 1);
+        sim.integrator.setActionInterval(rdfPump, 10);
         
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -275,19 +275,20 @@ public class SwmdGraphic extends SimulationGraphic {
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         sim.integrator.addIntervalAction(velocityPump);
-        sim.integrator.setActionInterval(velocityPump, 1);
-        rmsAverage.setPushInterval(10);
+        sim.integrator.setActionInterval(velocityPump, 10);
+        rmsAverage.setPushInterval(1);
         dataStreamPumps.add(velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+        vPlot.setLegend(new DataTag[]{meterVelocity.getTag()}, "measured");
         vPlot.setDoLegend(false);
         vPlot.getPlot().setTitle("Velocity Distribution");
         vPlot.setDoLegend(true);
         vPlot.setLabel("Velocity");
 		
 		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),sim.species.getLeafType().getMass());
-		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
+		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann",
                 Null.DIMENSION, mbDistribution, 100, "Speed (A/ps)", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
@@ -298,7 +299,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		mbSource.update();
         DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(mbPump);
-        sim.integrator.setActionInterval(mbPump, 1);
+        sim.integrator.setActionInterval(mbPump, 10);
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
