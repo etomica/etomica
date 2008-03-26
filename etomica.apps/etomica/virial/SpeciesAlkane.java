@@ -26,6 +26,7 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         if (childCount[0] > 1) {
             group.addChildAtom(makeLeafAtom(childTypes[0]));
         }
+        conformation.initializePositions(group.getChildList());
         return group;
     }
     

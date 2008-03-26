@@ -91,6 +91,7 @@ public class SpeciesSpheresHetero extends Species {
                 group.addChildAtom(makeLeafAtom(childTypes[i]));
             }
         }
+        conformation.initializePositions(group.getChildList());
         return group;
     }
 

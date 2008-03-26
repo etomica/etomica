@@ -31,7 +31,7 @@ public class SpeciesWater3POriented extends SpeciesOriented {
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, oType));
-        getConformation().initializePositions(water.getChildList());
+        conformation.initializePositions(water.getChildList());
         return water;
     }
 

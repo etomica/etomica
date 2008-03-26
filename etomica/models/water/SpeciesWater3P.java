@@ -30,7 +30,7 @@ public class SpeciesWater3P extends Species {
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, hType));
         water.addChildAtom(new AtomLeaf(space, oType));
-        getConformation().initializePositions(water.getChildList());
+        conformation.initializePositions(water.getChildList());
         return water;
     }
     

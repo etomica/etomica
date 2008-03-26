@@ -60,6 +60,7 @@ public class SpeciesSpheres extends Species {
          for(int i=0; i<atomsPerGroup; i++) {
              group.addChildAtom(makeLeafAtom());
          }
+         conformation.initializePositions(group.getChildList());
          return group;
      }
      

@@ -35,7 +35,7 @@ public class SpeciesWater4P extends Species {
          water.addChildAtom(new AtomLeaf(space, hType));
          water.addChildAtom(new AtomLeaf(space, oType));
          water.addChildAtom(new AtomLeaf(space, mType));
-         getConformation().initializePositions(water.getChildList());
+         conformation.initializePositions(water.getChildList());
          return water;
      }
 

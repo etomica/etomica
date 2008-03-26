@@ -78,7 +78,7 @@ public class SpeciesParacetamol extends Species {
             }
         }            
         
-        getConformation().initializePositions(moleculeParacetamol.getChildList());
+        conformation.initializePositions(moleculeParacetamol.getChildList());
         return moleculeParacetamol; 
     }
     
