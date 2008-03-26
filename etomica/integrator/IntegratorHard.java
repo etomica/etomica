@@ -20,7 +20,6 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
