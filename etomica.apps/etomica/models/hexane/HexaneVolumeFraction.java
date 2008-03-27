@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
@@ -27,11 +28,8 @@ public class HexaneVolumeFraction extends Simulation {
     public IntegratorMC integrator;
 
     public IBox box;
-
     public BoundaryRectangularPeriodic bdry;
-    public BravaisLattice lattice;
-    public CoordinateDefinition coordinateDefinition;
-    public Primitive primitive;
+    public MCMoveMolecule moveMolecule;
        
     public HexaneVolumeFraction(Space _space) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
@@ -48,13 +46,18 @@ public class HexaneVolumeFraction extends Simulation {
 
         bdry = new BoundaryRectangularPeriodic(getRandom(), _space);
         box = new Box(bdry, _space);
-        addBox(box);
-        box.setNMolecules(species, 10);
-        IVector tem = _space.makeVector();
-        tem.E(10.0);
-        System.out.println(tem);
-        box.setDimensions(tem);
+        addBox(box);        
+        box.setDimensions(Space.makeVector(new double[] {3.8, 3.8, 3.8}));
+        box.setNMolecules(species, 1);
 
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setMaxSteps(2000000);
+        getController().addAction(activityIntegrate);
+  
+        integrator.setBox(box);
+        
 
        
     }
@@ -62,8 +65,8 @@ public class HexaneVolumeFraction extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        boolean graphic = true;
-        int numberOfTests = 1000000;
+        boolean graphic = false;
+        int numberOfTests = 100000000;
         
         HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
         
@@ -76,7 +79,8 @@ public class HexaneVolumeFraction extends Simulation {
             System.out.println(time);
             long time1;
             long time2;
-            
+
+            IVector temp = sim.space.makeVector();
             IVector rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
@@ -84,18 +88,35 @@ public class HexaneVolumeFraction extends Simulation {
             
             time1 = System.currentTimeMillis();
             for(int count = 0; count < numberOfTests; count++){
-                rand = ((BoundaryDeformablePeriodic)sim.box.getBoundary()).randomPosition();
+                rand = ((BoundaryRectangularPeriodic)sim.box.getBoundary()).randomPosition();
                 ail.reset();
-                
-                for(int atomNumber = 0; atomNumber < 512; atomNumber++){
+
+                while(ail.nextAtom() != null){
                     atom = (AtomLeaf)ail.nextAtom();
-                    
+                    temp.E(((AtomLeaf)atom).getPosition());
+                    temp.ME(rand);
+                    double length = Math.sqrt(temp.dot(temp));
+                    if(length <= 1.0){
+                        overlaps += 1;
+                        break;
+                    }
+//                    System.out.println(count);
                 }
             }
+
             time2 = System.currentTimeMillis();
-            System.out.println("start  " + time);
-            System.out.println("simulation  " + time1);
-            System.out.println("data collection  " + time2);
+            System.out.println("start:  " + time);
+            System.out.println("simulation:  " + time1);
+            System.out.println("data collection:  " + time2);
+            System.out.println("overlaps:  " + overlaps);
+            System.out.println("total tries:  " + numberOfTests);
+            double td = (double)overlaps/(double)numberOfTests;
+            System.out.println("percentage in molecule:  " + td);
+            double vol = ((BoundaryRectangularPeriodic)sim.bdry).volume();
+            System.out.println("volume of box:  " + vol);
+            double another = td * vol;
+            System.out.println("volume of molecule:  " + another);
+        
         }
     }
 }
