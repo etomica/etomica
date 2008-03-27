@@ -188,11 +188,12 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
         }
-        if (nSites - siteCount > 1) {
+        if (nSites - siteCount > Math.ceil(1.0/(1.0-voidFrac))) {
             // nSites - siteCount = 0 is ideal.
             // indexIterator.next() would throw if nSites < siteCount
             // nSites - siteCount = 1 will be typical for cases where the void distribution can't be perfect
             // so we just need to check for nSites - siteCount > 1
+            // for very low occupancy lattices, we'll do worse.
             throw new RuntimeException("Failed to properly iterate through the lattice sites "+nSites+" "+siteCount);
         }
     }
