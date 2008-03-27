@@ -9,8 +9,8 @@ import etomica.space.Space;
  */
 public class ConformationWater3P implements IConformation {
 
-    protected static final double bondLengthOH = 1.0;
-    protected static final double angleHOH = 109.5*Math.PI/180.;
+    public static final double bondLengthOH = 1.0;
+    public static final double angleHOH = 109.5*Math.PI/180.;
 
     public ConformationWater3P(Space space) {
         this.space = space;
