@@ -132,6 +132,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     protected boolean doRDF = false;
     protected boolean doDensityInput = false;
     protected boolean doNMoleculeSlider = false;
+    protected boolean doFastButton = false;
 
     /**
      * Creates a PistonCylinder graphic instance.  init() must be called before
@@ -173,6 +174,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
     public void setRepaintInterval(int newRepaintInterval) {
         pc.integrator.setActionInterval(getPaintAction(pc.box), newRepaintInterval);
+    }
+    
+    public void setDoFastButton(boolean newDoFastButton) {
+        doFastButton = newDoFastButton;
     }
     
     /**
@@ -250,7 +255,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             getPanel().controlPanel.add(configPanel,vertGBC);
         }
         
-        if (pc.getSpace().D() == 3) {
+        if (doFastButton) {
             goFastButton = new DeviceButton(pc.getController());
             goFastButton.setLabel("Go Fast");
             getPanel().controlPanel.add(goFastButton.graphic(), vertGBC);
@@ -796,7 +801,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             }
         });
         
-        if (pc.getSpace().D() == 3) {
+        if (doFastButton) {
             goFastButton.setAction(new IAction() {
                 public void actionPerformed() {
                     if (isFast) {
@@ -939,12 +944,40 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        PistonCylinder sim = new PistonCylinder(2);
+        int D = 2;
+        boolean doRDF = false;
+        boolean doDensityInput = false;
+        boolean doConfigButton = false;
+        boolean doNMoleculeSlider = false;
+        boolean doFastButton = false;
+        for (int i=0; i<args.length; i++) {
+            if (args[i].equals("-dim") && i+1<args.length) {
+                i++;
+                D = Integer.parseInt(args[i]);
+            }
+            else if (args[i].equals("-rdf")) {
+                doRDF = true;
+            }
+            else if (args[i].equals("-densityInput")) {
+                doDensityInput = true;
+            }
+            else if (args[i].equals("-configButton")) {
+                doConfigButton = true;
+            }
+            else if (args[i].equals("-nMoleculeSlider")) {
+                doNMoleculeSlider = true;
+            }
+            else if (args[i].equals("-fastButton")) {
+                doFastButton = true;
+            }
+        }
+        PistonCylinder sim = new PistonCylinder(D);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim, sim.getSpace());
-        pcg.setDoRDF(true);
-        pcg.setDoDensityInput(true);
-        pcg.setDoConfigButton(true);
-        pcg.setDoNMoleculeSlider(true);
+        pcg.setDoRDF(doRDF);
+        pcg.setDoDensityInput(doDensityInput);
+        pcg.setDoConfigButton(doConfigButton);
+        pcg.setDoNMoleculeSlider(doNMoleculeSlider);
+        pcg.setDoFastButton(doFastButton);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
@@ -974,6 +1007,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             String doNMoleculeSlider = getParameter("doNMoleculeSlider");
             if (doNMoleculeSlider != null) {
                 pcg.setDoNMoleculeSlider(Boolean.valueOf(doNMoleculeSlider).booleanValue());
+            }
+            String doFastButton = getParameter("doFastButton");
+            if (doNMoleculeSlider != null) {
+                pcg.setDoFastButton(Boolean.valueOf(doFastButton).booleanValue());
             }
             pcg.init();
             String repaintIntervalStr = getParameter("repaintInterval");
