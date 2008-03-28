@@ -116,7 +116,7 @@ public class DeviceToggleButton extends DeviceButton {
 
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
-        final ColorSchemeByType colorScheme = new ColorSchemeByType();
+        final ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
         ((DisplayBox) graphic.displayList().getFirst())
                 .setColorScheme(colorScheme);
         ModifierBoolean modifier = new ModifierBoolean() {

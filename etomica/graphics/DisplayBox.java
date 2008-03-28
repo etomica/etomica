@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -37,7 +38,7 @@ public class DisplayBox extends Display {
     public static final int BOTTOM = +1;
     //Explicit to 2D because drawing to 2D image
     private final int D = 2;
-    protected ColorScheme colorScheme = new ColorSchemeByType();
+    protected ColorScheme colorScheme;
     protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
@@ -86,8 +87,8 @@ public class DisplayBox extends Display {
      */
     private boolean drawOverflow = false;
   
-    public DisplayBox(IBox box, Space space) {
-        this(box,space,new Pixel());
+    public DisplayBox(ISimulation sim, IBox box, Space space) {
+        this(sim, box,space,new Pixel());
     }
     
     /**
@@ -95,7 +96,7 @@ public class DisplayBox extends Display {
      * display.canvas.setVisible false and then true to fix the 'sometimes
      * gray' bug.
      * 
-     * i.e.;
+     * i.e.; = new ColorSchemeByType()
      * if(display.canvas instanceof JComponent) {
      * ((JComponent)display.canvas).setVisible(false);
      * ((JComponent)display.canvas).setVisible(true);
@@ -103,9 +104,10 @@ public class DisplayBox extends Display {
      * @param box
      * @param pixel
      */
-    public DisplayBox(IBox box, Space space, Pixel pixel) {
+    public DisplayBox(ISimulation sim, IBox box, Space space, Pixel pixel) {
         super();
         this.space = space;
+        colorScheme = new ColorSchemeByType(sim);
         setPixelUnit(pixel);
         setLabel("Configuration");
 

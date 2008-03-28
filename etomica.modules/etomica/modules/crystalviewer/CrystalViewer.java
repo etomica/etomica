@@ -80,14 +80,14 @@ public class CrystalViewer extends SimulationPanel {
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
-        displayBox = new DisplayBox(box, space);
+        displayBox = new DisplayBox(sim, box, space);
         displayBox.setPixelUnit(new Pixel(20));
         displayBox.setResizeOnNewBox(false);
 
         // we pass these to make LatticePlane happy.  they'll get whacked by update() later
         latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[] {1,0,0});
         
-        clipPlaneEditor = new ClipPlaneEditor(latticePlane, displayBox);
+        clipPlaneEditor = new ClipPlaneEditor(sim, latticePlane, displayBox);
         
         latticeEditor = new LatticeEditor(this, lattices, latticeNames, space);
         

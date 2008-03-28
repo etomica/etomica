@@ -3,6 +3,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 
@@ -16,7 +17,8 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     
     protected AtomLeafAgentManager agentManager;
     
-    public ColorSchemeCollective(IBox box) {
+    public ColorSchemeCollective(ISimulation sim, IBox box) {
+    	super(sim);
         agentManager = new AtomLeafAgentManager(this, box);
     }
     

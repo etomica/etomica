@@ -6,15 +6,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.api.ISimulation;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.DisplayTextBox;
 import etomica.lattice.LatticePlane;
-import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.space3d.Vector3D;
@@ -70,7 +70,7 @@ public class ClipPlaneEditor {
 	private final int MILLER_INDEX_MIN = -10;
 	private final int MILLER_INDEX_MAX = 10;
 
-    public ClipPlaneEditor(final LatticePlane latticePlane, final DisplayBox display) {
+    public ClipPlaneEditor(ISimulation sim, final LatticePlane latticePlane, final DisplayBox display) {
 
         this.latticePlane = latticePlane;
         this.display = display;
@@ -86,7 +86,7 @@ public class ClipPlaneEditor {
         });
         
         //box that toggles highlighting of atoms in the plane
-        colorScheme = new ColorSchemePlane(latticePlane,highlightColor,atomColor);
+        colorScheme = new ColorSchemePlane(sim, latticePlane,highlightColor,atomColor);
         display.setColorScheme(colorScheme);
         DeviceCheckBox highlightToggle = new DeviceCheckBox("Highlight", new ModifierBoolean() {
             public boolean getBoolean() {return colorScheme.getColorIn().equals(highlightColor);}

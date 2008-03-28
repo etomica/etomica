@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 
 public final class ColorSchemeNull extends ColorScheme {
     
-    public ColorSchemeNull() {}
+    public ColorSchemeNull() {super(null);}
         
  /**
   * Return without changing atom's color.

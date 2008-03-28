@@ -3,7 +3,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-
+import etomica.api.ISimulation;
 import etomica.graphics.ColorScheme;
 import etomica.lattice.LatticePlane;
 import etomica.space3d.Vector3D;
@@ -20,9 +20,9 @@ public class ColorSchemePlane extends ColorScheme {
     private Color colorIn, colorOut;
     private LatticePlane plane;
     
-    public ColorSchemePlane(LatticePlane plane) {this(plane, Color.red, Color.green);}
-    public ColorSchemePlane(LatticePlane plane, Color colorIn, Color colorOut) {
-        super(colorOut);
+    public ColorSchemePlane(ISimulation sim, LatticePlane plane) {this(sim, plane, Color.red, Color.green);}
+    public ColorSchemePlane(ISimulation sim, LatticePlane plane, Color colorIn, Color colorOut) {
+        super(sim, colorOut);
         this.plane = plane;
         this.colorIn = colorIn;
         this.colorOut = colorOut;

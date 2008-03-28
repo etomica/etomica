@@ -9,6 +9,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.api.ISimulation;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -128,7 +129,8 @@ public class SWMD3D extends Simulation {
 
   
   public static class MyColorScheme extends ColorScheme {
-      public MyColorScheme(IAtom redAtom) {
+      public MyColorScheme(ISimulation sim, IAtom redAtom) {
+    	  super(sim);
           atom = redAtom;
       }
 	  public java.awt.Color getAtomColor(IAtom a) {

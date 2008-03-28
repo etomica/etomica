@@ -2,6 +2,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.api.IAtom;
+import etomica.api.ISimulation;
 import etomica.integrator.IntegratorHard;
 
 /**
@@ -13,8 +14,8 @@ public class ColorSchemeColliders extends ColorScheme {
     
     IntegratorHard integrator;
     
-    public ColorSchemeColliders(IntegratorHard integrator) {
-        super();
+    public ColorSchemeColliders(ISimulation sim, IntegratorHard integrator) {
+        super(sim);
         this.integrator = integrator;
     }
     /**

@@ -1,23 +1,40 @@
 package etomica.graphics;
+
 import java.awt.Color;
-import java.util.HashMap;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.ISimulation;
+import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomTypeAgentManager.AgentSource;
 
 /**
  * Colors the atom according to the color given by its type field.
  *
  * @author David Kofke
  */
-public final class ColorSchemeByType extends ColorScheme {
+public final class ColorSchemeByType extends ColorScheme implements AgentSource {
     
-    public ColorSchemeByType() {
-        colorMap = new HashMap();
+    public ColorSchemeByType(ISimulation sim) {
+    	super(sim);
+        colorMap = new AtomTypeAgentManager(this, sim.getSpeciesManager(),
+                                            sim.getEventManager(), false);
     }
-  
+
+    public Object makeAgent(IAtomType atom) {
+    	return null;
+    }
+
+    public void releaseAgent(Object obj, IAtomType atom) {
+    }
+
+    public Class getTypeAgentClass() {
+    	return Color.class;
+    }
+    
     public void setColor(IAtomTypeLeaf type, Color c) {
-        colorMap.put(type,c);
+    	colorMap.setAgent(type, c);
     }
     
     public Color getAtomColor(IAtom a) {
@@ -25,7 +42,7 @@ public final class ColorSchemeByType extends ColorScheme {
     }
     
     public Color getColor(IAtomTypeLeaf type) {
-        Color color = (Color)colorMap.get(type);
+        Color color = (Color)colorMap.getAgent(type);
         if (color == null) {
             if (defaultColorsUsed < moreDefaultColors.length) {
                 color = moreDefaultColors[defaultColorsUsed];
@@ -40,7 +57,7 @@ public final class ColorSchemeByType extends ColorScheme {
         return color;
     }
     
-    private final HashMap colorMap;
+    private final AtomTypeAgentManager colorMap;
     protected final Color[] moreDefaultColors = new Color[]{ColorScheme.DEFAULT_ATOM_COLOR, Color.BLUE, Color.GREEN, Color.YELLOW, Color.ORANGE};
     protected int defaultColorsUsed = 0;
 }

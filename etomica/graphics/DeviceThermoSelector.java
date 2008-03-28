@@ -181,7 +181,7 @@ public class DeviceThermoSelector extends Device {
         for(Iterator iter=displays.iterator(); iter.hasNext();) {
             Display next = (Display)iter.next();
             if(next instanceof DisplayBox) {
-                ((DisplayBox)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
+                ((DisplayBox)next).setColorScheme(new ColorSchemeTemperature(sim, 0.5, 5.0));
             }
         }
 

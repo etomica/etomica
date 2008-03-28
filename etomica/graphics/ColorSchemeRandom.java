@@ -4,12 +4,14 @@ import java.awt.Color;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 
 public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
-    public ColorSchemeRandom(IBox box, IRandom random) {
+    public ColorSchemeRandom(ISimulation sim, IBox box, IRandom random) {
+    	super(sim);
         this.random = random;
         agentManager = new AtomLeafAgentManager(this, box);
     }
