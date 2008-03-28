@@ -168,6 +168,8 @@ public class DCVGCMD extends Simulation {
 
 
         box = new Box(this, space);
+        box.setBoundary(new BoundaryRectangularSlit(this, 2, space));
+        box.setDimensions(new Vector3D(40, 40, 80));
         addBox(box);
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);
@@ -200,9 +202,6 @@ public class DCVGCMD extends Simulation {
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integratorMD.addIntervalAction(nbrManager);
         integratorMD.addNonintervalListener(nbrManager);
-        box.setBoundary(new BoundaryRectangularSlit(this, 2, space));
-//        box.setBoundary(new BoundaryRectangularPeriodic(space));
-        box.setDimensions(new Vector3D(40, 40, 80));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
