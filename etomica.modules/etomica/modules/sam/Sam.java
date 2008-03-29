@@ -73,9 +73,6 @@ public class Sam extends Simulation {
         chainLength = 14;
 
         double surfaceSigma = 4.0;
-        double sigma = 4.0;
-        double bondL = 3.0;
-        double epsilon = Kelvin.UNIT.toSim(100);
 
         //controller and integrator
 
@@ -89,7 +86,7 @@ public class Sam extends Simulation {
 	    box = new Box(new BoundaryRectangularSlit(this, 1, space), space);
         addBox(box);
         IVector dim = space.makeVector();
-        dim.E(new double[]{sizeCellX*nCellX, chainLength*bondL, sizeCellZ*nCellZ});
+        dim.E(new double[]{sizeCellX*nCellX, chainLength*3, sizeCellZ*nCellZ});
         box.setDimensions(dim);
         box.setNMolecules(species, nCellX*nCellZ);
 
@@ -98,7 +95,7 @@ public class Sam extends Simulation {
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         getSpeciesManager().addSpecies(speciesSurface);
 
-        bondL = 1.54;
+        double bondL = 1.54;
         double bondTheta = Math.PI*114/180;
         IVector vector1 = space.makeVector();
         vector1.setX(0, Math.cos(bondTheta/2)*bondL);
@@ -186,7 +183,7 @@ public class Sam extends Simulation {
         P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, bondL+1);
         potentialMaster.addPotential(p2SurfaceBond, apiTether, null);
 
-        wallPotential = new P1WCAWall(space, 1, 10, 1000);
+        wallPotential = new P1WCAWall(space, 1, 4, 1000);
         wallPotential.setWallPosition(20);
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
