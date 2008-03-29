@@ -255,12 +255,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             getPanel().controlPanel.add(configPanel,vertGBC);
         }
         
-        if (doFastButton) {
-            goFastButton = new DeviceButton(pc.getController());
-            goFastButton.setLabel("Go Fast");
-            getPanel().controlPanel.add(goFastButton.graphic(), vertGBC);
-        }
-
         //
         // State tabbed pane page
         //
@@ -430,6 +424,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
+
+        if (doFastButton) {
+            goFastButton = new DeviceButton(pc.getController());
+            goFastButton.setLabel("Go Fast");
+            controlsPanel.add(goFastButton.graphic(), vertGBC);
+        }
         if (scaleSliderPanel != null) {
             controlsPanel.add(scaleSliderPanel, vertGBC);
         }
