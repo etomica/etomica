@@ -476,7 +476,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(pc.config);
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
         ((ElementSimple)pc.species.getLeafType().getElement()).setMass(mass);
         int D = pc.getSpace().D();
@@ -756,6 +756,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             pc.integrator.addIntervalAction(meterRDF);
             dataStreamPumps.add(pump);
             pc.integrator.addIntervalAction(pump);
+            pc.integrator.setActionInterval(pump, dataInterval);
             
             getController().getResetAveragesButton().setPostAction(new IAction() {
                 public void actionPerformed() {
@@ -763,6 +764,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 }
             });
         }
+        final DataPump rdfPump = doRDF ? pump : null;
+
         
         if (doConfigButton) {
             configButton.setController(pc.getController());
@@ -809,12 +812,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         goFastButton.setLabel("Go Fast");
                         pc.integrator.setTimeStep(1);
                         setRepaintInterval(1);
-                        pc.integrator.setEventInterval(1);
                         densityHistory.setActive(true);
                         temperatureHistory.setActive(true);
                         pressureHistory.setActive(true);
                         targetTemperatureHistory.setActive(true);
                         targetPressureHistory.setActive(true);
+                        pc.integrator.setActionInterval(rdfPump, 10);
                     }
                     else {
                         isFast = true;
@@ -822,12 +825,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pc.integrator.setTimeStep(10);
                         pc.ai.setSleepPeriod(0);
                         setRepaintInterval(10000);
-                        pc.integrator.setEventInterval(1);
                         densityHistory.setActive(false);
                         temperatureHistory.setActive(false);
                         pressureHistory.setActive(false);
                         targetTemperatureHistory.setActive(false);
                         targetPressureHistory.setActive(false);
+                        pc.integrator.setActionInterval(rdfPump, 10000);
                     }
                 }
                 
