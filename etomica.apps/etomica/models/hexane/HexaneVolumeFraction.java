@@ -6,18 +6,15 @@ package etomica.models.hexane;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
 import etomica.api.IVector;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.crystal.Primitive;
-import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -66,7 +63,7 @@ public class HexaneVolumeFraction extends Simulation {
      */
     public static void main(String[] args) {
         boolean graphic = false;
-        int numberOfTests = 100000000;
+        double numberOfTests = 10000;
         
         HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
         
@@ -74,7 +71,7 @@ public class HexaneVolumeFraction extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
             simGraphic.makeAndDisplayFrame();
         } else {
-            int overlaps = 0;
+            long overlaps = 0;
             long time = System.currentTimeMillis();
             System.out.println(time);
             long time1;
@@ -91,17 +88,40 @@ public class HexaneVolumeFraction extends Simulation {
                 rand = ((BoundaryRectangularPeriodic)sim.box.getBoundary()).randomPosition();
                 ail.reset();
 
-                while(ail.nextAtom() != null){
-                    atom = (AtomLeaf)ail.nextAtom();
+//                //FIRST METHOD OF LOOPING
+//                while((atom = (AtomLeaf)ail.nextAtom()) != null){
+//                    temp.E(((AtomLeaf)atom).getPosition());
+//                    temp.ME(rand);
+//                    double length = Math.sqrt(temp.dot(temp));
+//                    if(length <= 0.5){
+//                        overlaps += 1;
+//                        break;
+//                    }
+//                }
+//                
+//                //SECOND METHOD OF LOOPING
+//                for(atom = (AtomLeaf)ail.nextAtom(); atom != null; atom = (AtomLeaf)ail.nextAtom()){
+//                    temp.E(((AtomLeaf)atom).getPosition());
+//                    temp.ME(rand);
+//                    double length = Math.sqrt(temp.dot(temp));
+//                    if(length <= 0.5){
+//                        overlaps++;
+//                        break;
+//                    }
+//                }
+                                
+                //THIRD METHOD OF LOOPING
+                AtomArrayList list = (AtomArrayList)sim.box.getLeafList();
+                for(int i = 0; i < list.getAtomCount(); atom = (AtomLeaf)list.getAtom(i++)){
                     temp.E(((AtomLeaf)atom).getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));
-                    if(length <= 1.0){
-                        overlaps += 1;
+                    if(length <= 0.5){
+                        overlaps++;
                         break;
                     }
-//                    System.out.println(count);
                 }
+                
             }
 
             time2 = System.currentTimeMillis();
