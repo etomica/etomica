@@ -76,7 +76,7 @@ public class VirialAlkane {
         PotentialGroup pTargetGroup = new PotentialGroup(2, space);
         System.out.println("Siepman "+nSpheres+"-mer chains B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
-        double epsilonCH2 = Kelvin.UNIT.toSim(47);
+        double epsilonCH2 = Kelvin.UNIT.toSim(46);
         double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
         P2LennardJones p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
@@ -122,7 +122,7 @@ public class VirialAlkane {
             sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 3) {
-            P4BondTorsion p4 = new P4BondTorsion(space, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
+            P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
             int[][] quads = new int[nSpheres-3][4];
             for (int i=0; i<nSpheres-3; i++) {
                 quads[i][0] = i;
