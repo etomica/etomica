@@ -1,20 +1,21 @@
 package etomica.modules.sam;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag;
@@ -38,7 +39,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.virial.SpeciesAlkane;
 
 /**
  * Self-assembled monolayer module.
@@ -48,17 +48,18 @@ import etomica.virial.SpeciesAlkane;
 public class Sam extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public SpeciesAlkane species;
+    public SpeciesAlkaneThiol species;
+    public SpeciesSpheresMono speciesSurface;
     public IBox box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
-    public P2LennardJones p2CH2, p2CH3, p2CH2CH3;
-    public P2SoftSphericalTruncatedSwitched p2CH2t, p2CH3t, p2CH2CH3t;
-    public P2Harmonic p2Bond;
+    public P2LennardJones p2CH2, p2CH3, p2CH2CH3, p2S, p2SCH2;
+    public P2SoftSphericalTruncatedSwitched p2CH2t, p2CH3t, p2CH2CH3t, p2St, p2SCH2t;
+    public P2Harmonic p2BondCC, p2BondCS;
     public P3BondAngle p3Bond;
-    public P4BondTorsion p4Bond;
+    public P4BondTorsion p4BondCCCC, p4BondCCCS;
     public PotentialGroup p1Intra;
     public int chainLength;
     
@@ -68,18 +69,19 @@ public class Sam extends Simulation {
 
         int nCellX = 4;
         int nCellZ = 3;
-        double sizeCellX = 4;
-        double sizeCellZ = Math.sqrt(3)*sizeCellX;
+        // gold has FCC unit cell, a=4.0782A
+        double sizeCellZ = 4.0782/Math.sqrt(2)*3; //Math.sqrt(3)*sizeCellX;
+        double sizeCellX = sizeCellZ/Math.sqrt(3);
         chainLength = 14;
 
-        double surfaceSigma = 4.0;
+        double surfaceSigma = 3.0;
 
         //controller and integrator
 
 	    //species and potentials
 //	    species = new SpeciesSpheres(this, chainLength, new ElementSimple(this), new ConformationChain3D(space, new IVector[]{space.makeVector(new double[]{0, bondL, 0})}), space);
 //	    ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
-        species = new SpeciesAlkane(this, space, chainLength);
+        species = new SpeciesAlkaneThiol(this, space, chainLength-1);
         getSpeciesManager().addSpecies(species);
 
         //construct box
@@ -90,31 +92,41 @@ public class Sam extends Simulation {
         box.setDimensions(dim);
         box.setNMolecules(species, nCellX*nCellZ);
 
-        SpeciesSpheresMono speciesSurface = new SpeciesSpheresMono(this, space);
+        speciesSurface = new SpeciesSpheresMono(this, space);
         ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         getSpeciesManager().addSpecies(speciesSurface);
 
-        double bondL = 1.54;
+        double bondL_CC = 1.54;
+        double bondL_CS = 1.82;
         double bondTheta = Math.PI*114/180;
         IVector vector1 = space.makeVector();
-        vector1.setX(0, Math.cos(bondTheta/2)*bondL);
-        vector1.setX(1, Math.sin(bondTheta/2)*bondL);
+        vector1.setX(0, Math.cos(bondTheta/2)*bondL_CC);
+        vector1.setX(1, Math.sin(bondTheta/2)*bondL_CC);
         IVector vector2 = space.makeVector();
-        vector2.setX(0, -Math.cos(bondTheta/2)*bondL);
-        vector2.setX(1, Math.sin(bondTheta/2)*bondL);
+        vector2.setX(0, -Math.cos(bondTheta/2)*bondL_CC);
+        vector2.setX(1, Math.sin(bondTheta/2)*bondL_CC);
         IConformation conformation = new ConformationChainZigZag(space, vector1, vector2);
         species.setConformation(conformation);
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
-        Basis myBasis = new Basis(new IVector[]{space.makeVector(new double[]{0,0,0}), space.makeVector(new double[]{0.5, 0, 0.5})});
-        config.setBasisMolecules(myBasis);
-        config.setBasisSurface(myBasis);
+        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{0,0,0}), space.makeVector(new double[]{0.5, 0, 0.5})});
+        Basis surfaceBasis = new Basis(new IVector[]{
+                space.makeVector(new double[]{2.0/6.0, 0, 0}),
+                space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
+                space.makeVector(new double[]{2.0/6.0, 0, 2.0/6.0}),
+                space.makeVector(new double[]{5.0/6.0, 0, 3.0/6.0}),
+                space.makeVector(new double[]{2.0/6.0, 0, 4.0/6.0}),
+                space.makeVector(new double[]{5.0/6.0, 0, 5.0/6.0})});
+        config.setBasisMolecules(alkaneBasis);
+        config.setBasisSurface(surfaceBasis);
         config.setCellSizeX(sizeCellX);
         config.setCellSizeZ(sizeCellZ);
         config.setNCellsX(nCellX);
         config.setNCellsZ(nCellZ);
-        config.setYOffset(3.3);
+        config.setSurfaceYOffset(3);
+        // not perfect, but close
+        config.setMoleculeOffset(space.makeVector(new double[]{1.2, 0, 0}));
 
         config.initializeCoordinates(box);
 
@@ -137,61 +149,96 @@ public class Sam extends Simulation {
 
         IAtomTypeLeaf typeCH2 = species.getCH2Type();
         IAtomTypeLeaf typeCH3 = species.getCH3Type();
+        IAtomTypeLeaf typeS = species.getSulfurType();
         
         double sigmaCH2 = 3.95;
         double sigmaCH3 = 3.75;
+        double sigmaSulfur = 3.62;
 
-        ((AtomTypeSphere)species.getCH2Type()).setDiameter(sigmaCH2);
-        ((AtomTypeSphere)species.getCH3Type()).setDiameter(sigmaCH3);
+        ((AtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
+        ((AtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
+        ((AtomTypeSphere)typeS).setDiameter(sigmaSulfur);
 
         double epsilonCH2 = Kelvin.UNIT.toSim(47);
-        double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
+        double epsilonCH3 = Kelvin.UNIT.toSim(98);
+        double epsilonSulfur = Kelvin.UNIT.toSim(232);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
+        double epsilonCH2Sulfur = Math.sqrt(epsilonCH2*epsilonSulfur);
+        // sulfur and CH3 will never be close
+        //double epsilonCH3Sulfur = Math.sqrt(epsilonCH3*epsilonSulfur);
         double rCut = box.getBoundary().getDimensions().x(0);
         if (box.getBoundary().getDimensions().x(2) < rCut) {
             rCut = box.getBoundary().getDimensions().x(2);
         }
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
         p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
+        p2S = new P2LennardJones(space, sigmaSulfur, epsilonSulfur);
         p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
+        p2SCH2 = new P2LennardJones(space, 0.5*(sigmaSulfur+sigmaCH2), epsilonCH2Sulfur);
         p2CH2t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
         p2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
         p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
+        p2St = new P2SoftSphericalTruncatedSwitched(p2S, rCut);
+        p2SCH2t = new P2SoftSphericalTruncatedSwitched(p2SCH2, rCut);
         
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
         pGroup.addPotential(p2CH2t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
+        pGroup.addPotential(p2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pGroup.addPotential(p2St, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeS, typeS}));
+        pGroup.addPotential(p2SCH2t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeS, typeCH2}));
         pGroup.addPotential(p2CH2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
         pGroup.addPotential(p2CH2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pGroup.addPotential(p2CH3t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
         potentialMaster.addPotential(pGroup, new ISpecies[]{species,species});
         p1Intra = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
 
-        p2Bond = new P2Harmonic(space, 10000, bondL);
+        p2BondCC = new P2Harmonic(space, 10000, bondL_CC);
+        p2BondCS = new P2Harmonic(space, 10000, bondL_CS);
+        // bond angle potential is the same for CCC and CCS
         p3Bond = new P3BondAngle(space);
         p3Bond.setAngle(Math.PI*114.0/180.0);
         p3Bond.setEpsilon(Kelvin.UNIT.toSim(62500));
-        p4Bond = new P4BondTorsion(space, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
+        p4BondCCCC = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
+        p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);
 
-        ApiTether apiTether = new ApiTether(species);
+        ApiTether3 apiTether = new ApiTether3(species);
         apiTether.setBox(box);
         IAtomSet polymerMolecules = box.getMoleculeList(species);
         IAtomSet surfaceMolecules = box.getMoleculeList(speciesSurface);
         int nMolecules = box.getNMolecules(species);
+        double maxDistance = 3.5*3.5;
+        IVector dr = space.makeVector();
+        IBoundary boundary = box.getBoundary();
         for (int i=0; i<nMolecules; i++) {
-            apiTether.setBondedSurfaceAtom((IMolecule)polymerMolecules.getAtom(i), (IAtomLeaf)((IMolecule)surfaceMolecules.getAtom(i)).getChildList().getAtom(0));
+            AtomArrayList bondedSurfaceAtoms = new AtomArrayList(3);
+            IAtomPositioned sulfur = (IAtomPositioned)((IMolecule)polymerMolecules.getAtom(i)).getChildList().getAtom(0);
+            for (int j=0; j<surfaceMolecules.getAtomCount(); j++) {
+                IAtomPositioned gold = (IAtomPositioned)((IMolecule)surfaceMolecules.getAtom(j)).getChildList().getAtom(0);
+                dr.Ev1Mv2(sulfur.getPosition(), gold.getPosition());
+                boundary.nearestImage(dr);
+                if (dr.squared() < maxDistance) {
+                    bondedSurfaceAtoms.add(gold);
+                }
+            }
+            if (bondedSurfaceAtoms.getAtomCount() != 3) {
+                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
+            }
+            apiTether.setBondedSurfaceAtoms((IMolecule)polymerMolecules.getAtom(i), bondedSurfaceAtoms);
         }
-        P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, bondL+1);
+        P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, 2);
         potentialMaster.addPotential(p2SurfaceBond, apiTether, null);
 
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        wallPotential.setWallPosition(20);
+        double surfacePosition = ((IAtomPositioned)((IMolecule)surfaceMolecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+        wallPotential.setWallPosition(surfacePosition+25);
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
         
         P2LennardJones p2Surface = new P2LennardJones(space, 4.0, Kelvin.UNIT.toSim(50));
         potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
+        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH3Type()});
     }
     
     public void setChainLength(int newChainLength) {
@@ -204,9 +251,18 @@ public class Sam extends Simulation {
         p1Intra = integrator.getPotential().makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
 
-        AtomsetIteratorBasisDependent bondIterator = ApiBuilder.makeAdjacentPairIterator();
-        p1Intra.addPotential(p2Bond, bondIterator);
+        int[][] pairs = new int[1][2];
+        pairs[0][0] = 0;
+        pairs[0][1] = 1;
+        p1Intra.addPotential(p2BondCS, new ApiIndexList(pairs));
+        pairs = new int[chainLength-2][2];
+        for (int i=1; i<chainLength-1; i++) {
+            pairs[i-1][0] = i;
+            pairs[i-1][1] = i+1;
+        }
+        p1Intra.addPotential(p2BondCC, new ApiIndexList(pairs));
 
+        // CCC and CCS bond is the same
         int[][] triplets = new int[chainLength-2][3];
         for (int i=0; i<chainLength-2; i++) {
             triplets[i][0] = i;
@@ -215,26 +271,30 @@ public class Sam extends Simulation {
         }
         p1Intra.addPotential(p3Bond, new Atomset3IteratorIndexList(triplets));
 
-        int[][] quads = new int[chainLength-3][4];
+        int[][] quads = new int[][]{{0,1,2,3}};
+        p1Intra.addPotential(p4BondCCCS, new Atomset4IteratorIndexList(quads));
+        quads = new int[chainLength-3][4];
         for (int i=0; i<chainLength-3; i++) {
             quads[i][0] = i;
             quads[i][1] = i+1;
             quads[i][2] = i+2;
             quads[i][3] = i+3;
         }
-        p1Intra.addPotential(p4Bond, new Atomset4IteratorIndexList(quads));
+        p1Intra.addPotential(p4BondCCCC, new Atomset4IteratorIndexList(quads));
 
-        
-        p1Intra.addPotential(p2CH3t,new ApiIndexList(new int[][]{{0,chainLength-1}}));
-
-        int[][] pairs = new int[2*(chainLength-5)][2];
-        for (int i=0; i<chainLength-5; i++) {
-            pairs[2*i][0] = 0;
-            pairs[2*i][1] = chainLength-2-i;
-            pairs[2*i+1][0] = chainLength-1;
-            pairs[2*i+1][1] = i+1;
+        pairs = new int[chainLength-5][2];
+        for (int i=1; i<chainLength-4; i++) {
+            pairs[i-1][0] = chainLength-1;
+            pairs[i-1][1] = i;
         }
-        p1Intra.addPotential(p2CH3t,new ApiIndexList(pairs));
+        p1Intra.addPotential(p2CH2CH3t,new ApiIndexList(pairs));
+
+        pairs = new int[chainLength-5][2];
+        for (int i=4; i<chainLength-1; i++) {
+            pairs[i-4][0] = 0;
+            pairs[i-4][1] = i;
+        }
+        p1Intra.addPotential(p2SCH2t,new ApiIndexList(pairs));
 
         pairs = new int[(chainLength-6)*(chainLength-5)/2][2];
         int k = 0;

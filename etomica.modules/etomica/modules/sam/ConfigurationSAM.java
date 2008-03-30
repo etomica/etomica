@@ -1,5 +1,7 @@
 package etomica.modules.sam;
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -24,8 +26,16 @@ public class ConfigurationSAM implements Configuration {
         this.space = space;
         this.speciesMolecules = speciesMolecules;
         this.speciesSurface = speciesSurface;
+        moleculeOffset = space.makeVector();
     }
     
+    public void setMoleculeOffset(IVector newMoleculeOffset) {
+        moleculeOffset.E(newMoleculeOffset);
+    }
+    
+    public IVector getMoleculeOffset() {
+        return moleculeOffset;
+    }
     
     public void initializeCoordinates(IBox box) {
         Box pretendBox = new Box(box.getBoundary(), space);
@@ -42,8 +52,12 @@ public class ConfigurationSAM implements Configuration {
         pretendBox.setDimensions(dim);
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, boxLengthY, cellSizeZ);
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basisMolecules);
-        Configuration config = new ConfigurationLattice(lattice, space);
+        ConfigurationLattice config = new ConfigurationLattice(lattice, space);
         config.initializeCoordinates(pretendBox);
+        
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
+        translator.getTranslationVector().E(moleculeOffset);
+        AtomGroupAction groupTranslator = new AtomGroupAction(translator);
 
         IAtomSet molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
@@ -51,6 +65,7 @@ public class ConfigurationSAM implements Configuration {
             IMolecule molecule = (IMolecule)molecules.getAtom(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
+            groupTranslator.actionPerformed(molecule);
         }
 
         nMolecules = nCellsX*nCellsZ*basisSurface.getScaledCoordinates().length;
@@ -70,11 +85,11 @@ public class ConfigurationSAM implements Configuration {
         }
     }
 
-    public double getYOffset() {
+    public double getSurfaceYOffset() {
         return yOffset;
     }
     
-    public void setYOffset(double newYOffset) {
+    public void setSurfaceYOffset(double newYOffset) {
         yOffset = newYOffset;
     }
     
@@ -146,4 +161,5 @@ public class ConfigurationSAM implements Configuration {
     protected Basis basisMolecules;
     protected Basis basisSurface;
     protected double yOffset;
+    protected final IVector moleculeOffset;
 }

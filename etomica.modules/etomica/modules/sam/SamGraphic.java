@@ -1,6 +1,10 @@
 package etomica.modules.sam;
 
+import java.awt.Color;
+
 import etomica.api.IAction;
+import etomica.api.IAtomPositioned;
+import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -12,6 +16,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -22,8 +27,11 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.BasisMonatomic;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Bar;
+import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -36,9 +44,15 @@ public class SamGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setShowBoundary(false);
         
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(sim.wallPotential));
+        
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(200, 200, 200));
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH3Type(), new Color(220, 220, 220));
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
         thermoSlider.setIntegrator(sim.integrator);
+        thermoSlider.setMaximum(500);
         add(thermoSlider);
         
         DisplayTimer timer = new DisplayTimer(sim.integrator);
@@ -49,14 +63,15 @@ public class SamGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(pump);
         add(temperatureDisplay);
 
-        ModifierGeneral wallPositionModifier = new ModifierGeneral(sim.wallPotential, "wallPosition");
+        Modifier wallPositionModifier = new ModifierWallPosition(sim);
         DeviceSlider wallPositionSlider = new DeviceSlider(sim.getController(), wallPositionModifier);
         wallPositionSlider.setPrecision(1);
         wallPositionSlider.setShowBorder(true);
         wallPositionSlider.setLabel("Wall position");
-        wallPositionSlider.setMinimum(5);
-        wallPositionSlider.setMaximum(20);
+        wallPositionSlider.setMinimum(15);
+        wallPositionSlider.setMaximum(30);
         wallPositionSlider.setShowValues(true);
+        wallPositionSlider.setPostAction(getPaintAction(sim.box));
         add(wallPositionSlider);
 
         DeviceSelector primitiveSelect = new DeviceSelector(sim.getController());
@@ -112,6 +127,7 @@ public class SamGraphic extends SimulationGraphic {
         fork.addDataSink(wallPressureAvg);
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setUnit(Bar.UNIT);
+        pressureDisplay.setLabel("Wall Pressure (bar)");
         pressureDisplay.setAccumulator(wallPressureAvg);
         sim.integrator.addIntervalAction(pump);
         wallPressureAvg.setPushInterval(10);
@@ -123,7 +139,7 @@ public class SamGraphic extends SimulationGraphic {
         DisplayPlot pressurePlot = new DisplayPlot();
         pressurePlot.setUnit(Bar.UNIT);
         wallPressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressurePlot.setLabel("Wall Pressure");
+        pressurePlot.setLabel("Wall Pressure (bar)");
         add(pressurePlot);
         
         
@@ -146,6 +162,36 @@ public class SamGraphic extends SimulationGraphic {
 //        sim.activityIntegrate.setSleepPeriod(10);
     }
     
+    public static class ModifierWallPosition implements Modifier {
+        private final Sam sim;
+        protected double surfacePosition;
+
+        public ModifierWallPosition(Sam sim) {
+            this.sim = sim;
+            update();
+        }
+
+        public void update() {
+            surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+        }
+
+        public void setValue(double newValue) {
+            sim.wallPotential.setWallPosition(newValue + surfacePosition);
+        }
+
+        public double getValue() {
+            return sim.wallPotential.getWallPosition() - surfacePosition;
+        }
+
+        public Dimension getDimension() {
+            return Length.DIMENSION;
+        }
+
+        public String getLabel() {
+            return "Wall Position";
+        }
+    }
+
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
