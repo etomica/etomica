@@ -15,5 +15,6 @@ public class Tin extends ElementChemical {
         super(symbol, mass, 50);
     }
 
+    private static final long serialVersionUID = 1L;
     public static final Tin INSTANCE = new Tin("Sn");
 }

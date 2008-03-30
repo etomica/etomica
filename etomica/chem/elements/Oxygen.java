@@ -15,5 +15,6 @@ public class Oxygen extends ElementChemical {
         super(symbol, mass, 8);
     }
 
+    private static final long serialVersionUID = 1L;
     public static final Oxygen INSTANCE = new Oxygen("O");
 }

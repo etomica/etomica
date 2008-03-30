@@ -15,5 +15,6 @@ public class Silver extends ElementChemical {
         super(symbol, mass, 47);
     }
 
+    private static final long serialVersionUID = 1L;
     public static final Silver INSTANCE = new Silver("Ag");
 }

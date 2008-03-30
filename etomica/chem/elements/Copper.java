@@ -15,5 +15,6 @@ public class Copper extends ElementChemical {
         super(symbol, mass, 29);
     }
 
+    private static final long serialVersionUID = 1L;
     public static final Copper INSTANCE = new Copper("Cu");
 }

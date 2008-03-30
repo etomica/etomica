@@ -15,5 +15,6 @@ public class Hydrogen extends ElementChemical {
         super(symbol, mass, 1);
     }
     
+    private static final long serialVersionUID = 1L;
     public static final Hydrogen INSTANCE = new Hydrogen("H");
 }
