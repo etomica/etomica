@@ -41,8 +41,8 @@ import etomica.util.EnumeratedType;
 public class Controller extends ActivityGroupSeries implements java.io.Serializable, IController {
     
     public Controller() {
-        actionStatusMap = new HashMap();
-        actionExceptionMap = new HashMap();
+        actionStatusMap = new HashMap<IAction, ActionStatus>();
+        actionExceptionMap = new HashMap<IAction, Exception>();
         waitObject = new WaitObject();
         urgentWaitObject = new UrgentWaitObject();
         eventManager = new ControllerEventManager();
@@ -79,7 +79,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * null for actions not held by the controller.
      */
     public synchronized ActionStatus getActionStatus(IAction action) {
-        return (ActionStatus)actionStatusMap.get(action);
+        return actionStatusMap.get(action);
     }
     
     /**
@@ -88,7 +88,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * held by the controller.
      */
     public synchronized Exception getException(IAction action) {
-        return (Exception)actionExceptionMap.get(action);
+        return actionExceptionMap.get(action);
     }
     
     /**
@@ -298,7 +298,8 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     };
 
     private static final long serialVersionUID = 1L;
-    private final HashMap actionStatusMap, actionExceptionMap;
+    protected final HashMap<IAction,ActionStatus> actionStatusMap;
+    protected final HashMap<IAction,Exception> actionExceptionMap;
     
     /**
      * Enumerated type describing the status of an action.
