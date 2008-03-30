@@ -134,6 +134,7 @@ public class SamGraphic extends SimulationGraphic {
         plot.setLegend(new DataTag[]{meterPE.getTag()}, "PE");
         historyE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterEnergy.getTag()}, "E");
+        plot.setLabel("Energy");
 
         add(plot);
     }

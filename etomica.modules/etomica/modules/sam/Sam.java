@@ -22,7 +22,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.Basis;
 import etomica.paracetamol.ApiIndexList;
 import etomica.potential.P2Harmonic;
 import etomica.potential.P2LennardJones;
@@ -66,10 +66,10 @@ public class Sam extends Simulation {
         super(Space.getInstance(3));
         PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
 
-        int nCellX = 10;
-        int nCellZ = 10;
+        int nCellX = 4;
+        int nCellZ = 3;
         double sizeCellX = 4;
-        double sizeCellZ = 4;
+        double sizeCellZ = Math.sqrt(3)*sizeCellX;
         chainLength = 14;
 
         double surfaceSigma = 4.0;
@@ -107,17 +107,19 @@ public class Sam extends Simulation {
         species.setConformation(conformation);
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
-        config.setBasisMolecules(new BasisMonatomic(space));
-        config.setBasisSurface(new BasisMonatomic(space));
-        config.setCellSizeX(4);
-        config.setCellSizeZ(4);
-        config.setNCellsX(4);
-        config.setNCellsZ(4);
+        Basis myBasis = new Basis(new IVector[]{space.makeVector(new double[]{0,0,0}), space.makeVector(new double[]{0.5, 0, 0.5})});
+        config.setBasisMolecules(myBasis);
+        config.setBasisSurface(myBasis);
+        config.setCellSizeX(sizeCellX);
+        config.setCellSizeZ(sizeCellZ);
+        config.setNCellsX(nCellX);
+        config.setNCellsZ(nCellZ);
         config.setYOffset(3.3);
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, 0, space);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.004, 300, space);
+        integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
