@@ -215,12 +215,24 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 if (!wasPaused) {
                     pause();
                 }
-
-                doUrgentAction(action);
+                
+                // catch any exception this throws and then rethrow it after
+                // we've unpaused ourselves
+                RuntimeException thrownException = null;
+                try {
+                    doUrgentAction(action);
+                }
+                catch (RuntimeException e) {
+                    thrownException = e;
+                }
 
                 //If we had to pause the controller, unpause it now
                 if (!wasPaused) {
                     unPause();
+                }
+                
+                if (thrownException != null) {
+                    throw thrownException;
                 }
             }
             else {
