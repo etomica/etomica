@@ -25,11 +25,12 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P4BondTorsion extends Potential implements PotentialSoft {
 
-    public P4BondTorsion(Space space, double a1, double a2, double a3) {
+    public P4BondTorsion(Space space, double a0, double a1, double a2, double a3) {
         super(4, space);
         dr21 = space.makeVector();
         dr23 = space.makeVector();
         dr34 = space.makeVector();
+        this.a0 = a0;
         this.a1 = a1;
         this.a2 = a2;
         this.a3 = a3;
@@ -73,7 +74,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         double cos2phi = 2*cosphi*cosphi-1;
         double cos3phi = cosphi*(2*cos2phi-1);
 
-        return a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
+        return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
     }
 
     public double getRange() {
@@ -174,12 +175,12 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
     protected final IVector v1, v2;
     protected final IVector gtmp;
     protected INearestImageTransformer nearestImageTransformer;
-    protected double a1, a2, a3;
+    protected double a0, a1, a2, a3;
     protected final IVector[] gradient;
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
-        P4BondTorsion potential = new P4BondTorsion(space, 10, 20, 30);
+        P4BondTorsion potential = new P4BondTorsion(space, 0, 10, 20, 30);
         IRandom random = new RandomNumberGenerator();
         Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         potential.setBox(box);
