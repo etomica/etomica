@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -28,7 +29,6 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.modifier.Modifier;
-import etomica.modifier.ModifierGeneral;
 import etomica.units.Bar;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -139,7 +139,8 @@ public class SamGraphic extends SimulationGraphic {
         DisplayPlot pressurePlot = new DisplayPlot();
         pressurePlot.setUnit(Bar.UNIT);
         wallPressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressurePlot.setLabel("Wall Pressure (bar)");
+        pressurePlot.setLabel("Pressure");
+        pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Pressure (bar)");
         add(pressurePlot);
         
         
@@ -176,6 +177,18 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         public void setValue(double newValue) {
+            double maxAtomPos = -100;
+            IAtomSet leafList = sim.box.getLeafList();
+            for (int i=0; i<leafList.getAtomCount(); i++) {
+                IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(i);
+                double atomPos = atom.getPosition().x(1);
+                if (atomPos > maxAtomPos) {
+                    maxAtomPos = atomPos;
+                }
+            }
+            if (newValue+surfacePosition < maxAtomPos + 4) {
+                throw new RuntimeException("Slow down tiger!");
+            }
             sim.wallPotential.setWallPosition(newValue + surfacePosition);
         }
 
