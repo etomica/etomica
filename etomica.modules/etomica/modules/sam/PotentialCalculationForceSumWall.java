@@ -33,12 +33,21 @@ public class PotentialCalculationForceSumWall extends
         IVector[] f = potentialSoft.gradient(atoms);
         switch(nBody) {
             case 1:
+                if (f[0].squared() > 2.5e9) {
+                    double scale = 50000/Math.sqrt(f[0].squared());
+                    f[0].TE(scale);
+                }
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
                 if (potential == wallPotential) {
                     wallForceSum += f[0].x(wallPotential.getWallDim());
                 }
                 break;
             case 2:
+                if (f[0].squared() > 2.5e9) {
+                    double scale = 50000/Math.sqrt(f[0].squared());
+                    f[0].TE(scale);
+                    f[1].TE(scale);
+                }
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
                 break;
