@@ -1,4 +1,4 @@
-package etomica.paracetamol;
+package etomica.atom.iterator;
 
 import etomica.api.IAtomSet;
 import etomica.api.IAtom;
@@ -6,7 +6,6 @@ import etomica.api.IMolecule;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomPair;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 /**
  * Iterator that expires after returning a single atom pair, which is specified
