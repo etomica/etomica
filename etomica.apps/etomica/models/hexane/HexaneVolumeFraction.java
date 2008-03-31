@@ -63,7 +63,7 @@ public class HexaneVolumeFraction extends Simulation {
      */
     public static void main(String[] args) {
         boolean graphic = false;
-        double numberOfTests = 10000;
+        double numberOfTests = 1000000000;
         
         HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
         
@@ -112,7 +112,8 @@ public class HexaneVolumeFraction extends Simulation {
                                 
                 //THIRD METHOD OF LOOPING
                 AtomArrayList list = (AtomArrayList)sim.box.getLeafList();
-                for(int i = 0; i < list.getAtomCount(); atom = (AtomLeaf)list.getAtom(i++)){
+                for(int i = 0; i < list.getAtomCount(); i++){
+                    atom = (AtomLeaf)list.getAtom(i);
                     temp.E(((AtomLeaf)atom).getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));
