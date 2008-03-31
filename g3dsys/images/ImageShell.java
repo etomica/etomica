@@ -24,9 +24,9 @@ public class ImageShell extends Figure {
   
   //reusable point objects for conversions
   private Point3f p = new Point3f();
-  private Point3f q = new Point3f();
   private Point3i s = new Point3i();
-  private Point3i t = new Point3i();
+  private Point3i s2 = new Point3i();
+  private Point3i s3 = new Point3i();
   
   //large box helper
   
@@ -117,7 +117,7 @@ public class ImageShell extends Figure {
          * want; work around that by checking safety of each dimension before
          * building offsets. Normal 3D periodicity still works with this.
          */
-    	dx += (float)( (ia[i]-numLayers) * vectors[3*i]);
+        dx += (float)( (ia[i]-numLayers) * vectors[3*i]);
         dy += (float)( (ia[i]-numLayers) * vectors[3*i+1]);
         dz += (float)( (ia[i]-numLayers) * vectors[3*i+2]);
       }
@@ -141,12 +141,12 @@ public class ImageShell extends Figure {
           p.set(((Line)f).getStart().x+dx,
                 ((Line)f).getStart().y+dy,
                 ((Line)f).getStart().z+dz);
-          q.set(((Line)f).getEnd().x+dx,
-                ((Line)f).getEnd().y+dy,
-                ((Line)f).getEnd().z+dz);
           _gsys.screenSpace(p, s);
-          _gsys.screenSpace(q, t);
-          g3d.drawDashedLine(((Line)f).getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+          p.set(((Line)f).getEnd().x+dx,
+                  ((Line)f).getEnd().y+dy,
+                  ((Line)f).getEnd().z+dz);
+          _gsys.screenSpace(p, s2);
+          g3d.drawDashedLine(((Line)f).getColor(),0,0,s.x,s.y,s.z,s2.x,s2.y,s2.z);
         }
         else if(f instanceof g3dsys.images.Axes) {
         }
@@ -161,22 +161,35 @@ public class ImageShell extends Figure {
           p.set(b.getEndpoint1().x+dx,
                 b.getEndpoint1().y+dy,
                 b.getEndpoint1().z+dz);
-          q.set(b.getEndpoint2().x+dx,
-                b.getEndpoint2().y+dy,
-                b.getEndpoint2().z+dz);
           _gsys.screenSpace(p,s);
-          _gsys.screenSpace(q,t);
+          p.set(b.getEndpoint2().x+dx,
+                  b.getEndpoint2().y+dy,
+                  b.getEndpoint2().z+dz);
+          _gsys.screenSpace(p,s2);
           switch(((Bond)f).getBondType()) {
           case Bond.CYLINDER:
             _gsys.getG3D().fillCylinder(b.getColor1(),b.getColor2(),
                 Graphics3D.ENDCAPS_FLAT,(int)b.getD(),
-                s.x,s.y,s.z,t.x,t.y,t.z);
+                s.x,s.y,s.z,s2.x,s2.y,s2.z);
             break;
           case Bond.WIREFRAME:
-            _gsys.getG3D().drawDashedLine(b.getColor1(), 0, 0, s.x, s.y, s.z, t.x, t.y, t.z);
+            _gsys.getG3D().drawDashedLine(b.getColor1(), 0, 0, s.x, s.y, s.z, s2.x, s2.y, s2.z);
             //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
             break;
           }
+        }
+        else if(f instanceof Triangle) {
+          Triangle tr = (Triangle) f;
+          Point3f v = tr.getVertex1();
+          p.set(v.x+dx, v.y+dy, v.z+dz);
+          _gsys.screenSpace(p, s);
+          v = tr.getVertex2();
+          p.set(v.x+dx, v.y+dy, v.z+dz);
+          _gsys.screenSpace(p, s2);
+          v = tr.getVertex3();
+          p.set(v.x+dx, v.y+dy, v.z+dz);
+          _gsys.screenSpace(p, s3);
+          _gsys.getG3D().fillTriangle(tr.getColor(), s, s2, s3);
         }
       }
 
@@ -193,12 +206,12 @@ public class ImageShell extends Figure {
           p.set(((Line)figs[i]).getStart().x * (2*numLayers+1),
               ((Line)figs[i]).getStart().y * (2*numLayers+1),
               ((Line)figs[i]).getStart().z * (2*numLayers+1));
-          q.set(((Line)figs[i]).getEnd().x * (2*numLayers+1),
-              ((Line)figs[i]).getEnd().y * (2*numLayers+1),
-              ((Line)figs[i]).getEnd().z * (2*numLayers+1));
           _gsys.screenSpace(p, s);
-          _gsys.screenSpace(q, t);
-          g3d.drawDashedLine(((Line)figs[i]).getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+          p.set(((Line)figs[i]).getEnd().x * (2*numLayers+1),
+                  ((Line)figs[i]).getEnd().y * (2*numLayers+1),
+                  ((Line)figs[i]).getEnd().z * (2*numLayers+1));
+          _gsys.screenSpace(p, s2);
+          g3d.drawDashedLine(((Line)figs[i]).getColor(),0,0,s.x,s.y,s.z,s2.x,s2.y,s2.z);
         }
       }
     }
