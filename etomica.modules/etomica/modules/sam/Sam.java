@@ -12,6 +12,8 @@ import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPositionDefinitionSimple;
+import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
@@ -88,29 +90,45 @@ public class Sam extends Simulation {
 	    box = new Box(new BoundaryRectangularSlit(this, 1, space), space);
         addBox(box);
         IVector dim = space.makeVector();
-        dim.E(new double[]{sizeCellX*nCellX, chainLength*3, sizeCellZ*nCellZ});
+        dim.E(new double[]{sizeCellX*nCellX, chainLength*2, sizeCellZ*nCellZ});
         box.setDimensions(dim);
         box.setNMolecules(species, nCellX*nCellZ);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
         ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
+        speciesSurface.setPositionDefinition(new AtomPositionFirstAtom());
         getSpeciesManager().addSpecies(speciesSurface);
 
         double bondL_CC = 1.54;
         double bondL_CS = 1.82;
         double bondTheta = Math.PI*114/180;
+        double bondTheta0 = Math.PI-.5*bondTheta;
+        double psi = 0;
         IVector vector1 = space.makeVector();
-        vector1.setX(0, Math.cos(bondTheta/2)*bondL_CC);
-        vector1.setX(1, Math.sin(bondTheta/2)*bondL_CC);
+        vector1.setX(0, Math.cos(psi)*Math.cos(bondTheta0)*bondL_CC);
+        vector1.setX(1, Math.sin(bondTheta0)*bondL_CC);
+        vector1.setX(2, Math.sin(psi)*bondL_CC);
         IVector vector2 = space.makeVector();
-        vector2.setX(0, -Math.cos(bondTheta/2)*bondL_CC);
-        vector2.setX(1, Math.sin(bondTheta/2)*bondL_CC);
+        vector2.setX(0, Math.cos(psi)*(Math.cos(bondTheta0 - (Math.PI-bondTheta)))*bondL_CC);
+        vector2.setX(1, Math.sin(bondTheta0 - (Math.PI-bondTheta))*bondL_CC);
+        vector1.setX(2, Math.sin(psi)*bondL_CC);
         IConformation conformation = new ConformationChainZigZag(space, vector1, vector2);
         species.setConformation(conformation);
+        // get position of sulfur atom so we know how far to offset
+        IMolecule molecule = species.makeMolecule();
+        IVector moleculePos = space.makeVector();
+        moleculePos.E(molecule.getType().getPositionDefinition().position(molecule));
+        IVector sulfurPosition = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+        sulfurPosition.ME(moleculePos);
+        molecule = null;
+//        sulfurPosition.setX(1, 0);
+        sulfurPosition.TE(-1);
+        sulfurPosition.setX(1, sulfurPosition.x(1)+3);
+//        sulfurPosition.setX(0, sulfurPosition.x(0));
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
-        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{0,0,0}), space.makeVector(new double[]{0.5, 0, 0.5})});
+        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
         Basis surfaceBasis = new Basis(new IVector[]{
                 space.makeVector(new double[]{2.0/6.0, 0, 0}),
                 space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
@@ -126,7 +144,7 @@ public class Sam extends Simulation {
         config.setNCellsZ(nCellZ);
         config.setSurfaceYOffset(3);
         // not perfect, but close
-        config.setMoleculeOffset(space.makeVector(new double[]{1.2, 0, 0}));
+        config.setMoleculeOffset(sulfurPosition);
 
         config.initializeCoordinates(box);
 
@@ -222,7 +240,7 @@ public class Sam extends Simulation {
                 }
             }
             if (bondedSurfaceAtoms.getAtomCount() != 3) {
-                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
+//                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
             }
             apiTether.setBondedSurfaceAtoms((IMolecule)polymerMolecules.getAtom(i), bondedSurfaceAtoms);
         }

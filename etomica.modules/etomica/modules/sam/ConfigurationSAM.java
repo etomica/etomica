@@ -11,7 +11,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
+import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
@@ -52,7 +52,7 @@ public class ConfigurationSAM implements Configuration {
         pretendBox.setDimensions(dim);
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, boxLengthY, cellSizeZ);
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basisMolecules);
-        ConfigurationLattice config = new ConfigurationLattice(lattice, space);
+        ConfigurationLatticeSimple config = new ConfigurationLatticeSimple(lattice, space);
         config.initializeCoordinates(pretendBox);
         
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
@@ -60,7 +60,7 @@ public class ConfigurationSAM implements Configuration {
         AtomGroupAction groupTranslator = new AtomGroupAction(translator);
 
         IAtomSet molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+        double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(0);
             pretendBox.removeMolecule(molecule);
@@ -72,7 +72,7 @@ public class ConfigurationSAM implements Configuration {
         pretendBox.setNMolecules(speciesMolecules, 0);
         pretendBox.setNMolecules(speciesSurface, nMolecules);
         lattice = new BravaisLatticeCrystal(primitive, basisSurface);
-        config = new ConfigurationLattice(lattice, space);
+        config = new ConfigurationLatticeSimple(lattice, space);
         config.initializeCoordinates(pretendBox);
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
