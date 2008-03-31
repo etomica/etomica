@@ -19,7 +19,7 @@ public class WallPlane extends Plane {
     
     // DisplayBoxCanvasG3DSys calls this
     public double distanceTo(IVector v) {
-        return v.x(1) - wallPotential.getWallPosition()+1;
+        return v.x(1) - wallPotential.getWallPosition()+2;
     }
     
     public double getA() {
@@ -36,7 +36,7 @@ public class WallPlane extends Plane {
 
     // DisplayBoxCanvasG3DSys calls this
     public double getD() {
-        return -wallPotential.getWallPosition();
+        return -wallPotential.getWallPosition()+2;
     }
     
     private static final long serialVersionUID = 1L;
