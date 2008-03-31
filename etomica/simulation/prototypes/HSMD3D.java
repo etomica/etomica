@@ -66,10 +66,7 @@ public class HSMD3D extends Simulation {
         this(_space, new HSMD3DParam());
     }
     
-    //we use a second, private constructor to permit the space to
-    //appear twice in the call to the superclass constructor; alternatively
-    //we could have passed Space3D.getInstance() twice
-    private HSMD3D(Space _space, HSMD3DParam params) {
+    public HSMD3D(Space _space, HSMD3DParam params) {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
