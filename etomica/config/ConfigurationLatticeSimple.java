@@ -108,13 +108,17 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         // Place molecules
         atomIterator.reset();
         indexIterator.reset();
+        IVector offset = space.makeVector();
+        offset.Ea1Tv1(-0.5, box.getBoundary().getDimensions());
+        IVector destinationVector = atomActionTranslateTo.getDestination();
         for (IAtom a = atomIterator.nextAtom(); a != null;
              a = atomIterator.nextAtom()) {
             // initialize coordinates of child atoms
             IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(((IMolecule)a).getChildList());
 
-            atomActionTranslateTo.setDestination((IVector)lattice.site(indexIterator.next()));
+            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }
     }
