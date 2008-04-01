@@ -127,13 +127,13 @@ public class Sam extends Simulation {
         config.setCellSizeZ(sizeCellZ);
         config.setNCellsX(nCellX);
         config.setNCellsZ(nCellZ);
-        config.setSurfaceYOffset(2.5);
+        config.setSurfaceYOffset(2);
 
         updateConformation();
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.01, 300, space);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.005, 300, space);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -216,7 +216,7 @@ public class Sam extends Simulation {
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
         
-        P2LennardJones p2Surface = new P2LennardJones(space, 4.0, Kelvin.UNIT.toSim(50));
+        P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
         potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
         potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
         potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH3Type()});
