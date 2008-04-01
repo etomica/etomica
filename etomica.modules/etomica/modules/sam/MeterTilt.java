@@ -35,8 +35,8 @@ public class MeterTilt extends DataSourceScalar {
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
             dr.E(((IAtomPositioned)molecule.getChildList().getAtom(leafCount-1)).getPosition());
-            dr.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
-            double costheta = dr.x(1)*dr.x(1)/dr.squared();
+            dr.ME(((IAtomPositioned)molecule.getChildList().getAtom(1)).getPosition());
+            double costheta = dr.x(1)/Math.sqrt(dr.squared());
             thetasum += Math.acos(costheta);
         }
         return thetasum / nMolecules;
