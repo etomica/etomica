@@ -52,6 +52,14 @@ public class ConformationChainZigZag extends ConformationChain {
 		isVectorOne = true;
 		return v2;
 	}
+	
+	public IVector getFirstVector() {
+	    return v1;
+	}
+	
+	public IVector getSecondVector() {
+	    return v2;
+	}
 
     private static final long serialVersionUID = 1L;
 	protected IVector v1;
