@@ -2,10 +2,10 @@ package etomica.modules.multiharmonic;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
 import etomica.data.AccumulatorAverage;
@@ -48,7 +48,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(simulation.dataPump);
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().x(0)));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(380/sim.box.getBoundary().getDimensions().x(0)));
 
         final DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
@@ -106,10 +106,6 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         omegaBSlider.setMaximum(10.0);
         omegaBSlider.setValue(1.0);
 
-        omegaASlider.getSlider().setBorder(new javax.swing.border.TitledBorder("omegaA"));
-        omegaBSlider.getSlider().setBorder(new javax.swing.border.TitledBorder("omegaB"));
-        x0Slider.getSlider().setBorder(new javax.swing.border.TitledBorder("x0"));
-        
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
                 return 0.5*sim.box.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
@@ -195,14 +191,14 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         //controls -- start/pause and sliders
-        JPanel sliderPanel = new JPanel(new GridLayout(3,1));
-        sliderPanel.add(x0Slider.graphic());
-        sliderPanel.add(omegaASlider.graphic());
-        sliderPanel.add(omegaBSlider.graphic());
+        JTabbedPane sliderPanel = new JTabbedPane();
+        sliderPanel.add(x0Slider.graphic(), "x0");
+        sliderPanel.add(omegaASlider.graphic(), "omegaA");
+        sliderPanel.add(omegaBSlider.graphic(), "omegaB");
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         
         //energy plot
-        energyPlot.setSize(300,200);
+        energyPlot.setSize(300,250);
         getPanel().controlPanel.add(energyPlot.graphic(), vertGBC);
         
         //plot of potential and display of box and running average
@@ -210,6 +206,9 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         displayPanel.add(uPlot.graphic(), vertGBC);
         displayPanel.add(getDisplayBox(sim.box).graphic(), vertGBC);
         displayPanel.add(plot.graphic(), vertGBC);
+        
+        plot.setSize(450, 250);
+        uPlot.setSize(450, 250);
 
         getPanel().graphicsPanel.add(displayPanel);
 
