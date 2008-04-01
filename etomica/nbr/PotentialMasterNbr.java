@@ -4,6 +4,7 @@ import etomica.api.IAtomType;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.ISpeciesManager;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
@@ -11,7 +12,6 @@ import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.SimulationEventManager;
-import etomica.simulation.SpeciesManager;
 import etomica.space.Space;
 import etomica.util.Arrays;
 
@@ -26,7 +26,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         rangedAgentManager = new AtomTypeAgentManager(this);
         intraAgentManager = new AtomTypeAgentManager(this);
 
-        SpeciesManager speciesManager = sim.getSpeciesManager();
+        ISpeciesManager speciesManager = sim.getSpeciesManager();
         SimulationEventManager simEventManager = sim.getEventManager();
         rangedAgentManager.init(speciesManager, simEventManager);
         intraAgentManager.init(speciesManager, simEventManager);

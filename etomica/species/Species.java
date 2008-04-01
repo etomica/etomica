@@ -4,8 +4,8 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IConformation;
 import etomica.api.ISpecies;
+import etomica.api.ISpeciesManager;
 import etomica.atom.AtomType;
-import etomica.simulation.SpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -27,7 +27,7 @@ public abstract class Species extends AtomType implements ISpecies {
      * Sets the SpeciesManager.  This is used for callbacks for notification of
      * removal and addition of child types (not that that should ever happen!)
      */
-    public void setSpeciesManager(SpeciesManager newSpeciesManager) {
+    public void setSpeciesManager(ISpeciesManager newSpeciesManager) {
         speciesManager = newSpeciesManager;
         for (int i=0; i<childTypes.length; i++) {
             childTypes[i].setIndex(speciesManager.requestTypeIndex());
@@ -103,6 +103,6 @@ public abstract class Species extends AtomType implements ISpecies {
     
     private static final long serialVersionUID = 2L;
     protected IConformation conformation;
-    protected SpeciesManager speciesManager;
+    protected ISpeciesManager speciesManager;
     protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
 }

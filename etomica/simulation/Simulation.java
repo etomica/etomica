@@ -5,6 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IController;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpeciesManager;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.RandomNumberGenerator;
@@ -115,7 +116,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         return eventManager;
     }
     
-    public SpeciesManager getSpeciesManager() {
+    public ISpeciesManager getSpeciesManager() {
         return speciesManager;
     }
 
@@ -123,7 +124,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     protected final Space space;
     protected final SimulationEventManager eventManager;
     private IBox[] boxList;
-    private final SpeciesManager speciesManager;
+    private final ISpeciesManager speciesManager;
     protected final IRandom random;
     protected final boolean dynamic;
     private IController controller;

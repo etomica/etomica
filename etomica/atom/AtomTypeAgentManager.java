@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
 import etomica.api.ISpecies;
+import etomica.api.ISpeciesManager;
 import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
@@ -12,7 +13,6 @@ import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
-import etomica.simulation.SpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -31,7 +31,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         isBackend = true;
     }
     
-    public AtomTypeAgentManager(AgentSource source, SpeciesManager speciesManager,
+    public AtomTypeAgentManager(AgentSource source, ISpeciesManager speciesManager,
             SimulationEventManager simEventManager, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
@@ -158,7 +158,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(SpeciesManager newSpeciesManager, SimulationEventManager newSimEventManager) {
+    public void init(ISpeciesManager newSpeciesManager, SimulationEventManager newSimEventManager) {
         simEventManager = newSimEventManager;
         speciesManager = newSpeciesManager;
         simEventManager.addListener(this, isBackend);
@@ -236,7 +236,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     private final AgentSource agentSource;
     protected Object[] agents;
     protected SimulationEventManager simEventManager;
-    protected SpeciesManager speciesManager;
+    protected ISpeciesManager speciesManager;
     private final boolean isBackend;
 
     /**

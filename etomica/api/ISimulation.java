@@ -1,7 +1,6 @@
 package etomica.api;
 
 import etomica.simulation.SimulationEventManager;
-import etomica.simulation.SpeciesManager;
 
 public interface ISimulation {
 
@@ -42,7 +41,7 @@ public interface ISimulation {
     /**
      * Returns the SpeciesManager, which tracks the Species in the Simulation.
      */
-    public SpeciesManager getSpeciesManager();
+    public ISpeciesManager getSpeciesManager();
 
     /**
      * @return Returns a flag indicating whether the simulation involves molecular dynamics.

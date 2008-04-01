@@ -8,6 +8,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.ISpeciesManager;
 import etomica.chem.elements.Element;
 import etomica.util.Arrays;
 
@@ -17,7 +18,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class SpeciesManager implements java.io.Serializable {
+public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
 
     public SpeciesManager(ISimulation sim) {
         this.sim = sim;
@@ -29,13 +30,9 @@ public class SpeciesManager implements java.io.Serializable {
         moleculeTypes = new ISpecies[0];
     }
 
-    /**
-     * Adds species to the list of all species in the simulation, and
-     * adds new species agent to every box currently in simulation.
-     * This is called by the Species constructor.
-     * 
-     * @return the index assigned to the new species
-     */
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#addSpecies(etomica.api.ISpecies)
+	 */
     public void addSpecies(ISpecies species) {
         for (int i=0; i<speciesList.length; i++) {
             if (speciesList[i] == species) {
@@ -80,17 +77,18 @@ public class SpeciesManager implements java.io.Serializable {
         sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#boxAddedNotify(etomica.api.IBox)
+	 */
     public void boxAddedNotify(IBox newBox) {
         for(int i=0; i<speciesList.length; i++) {
             newBox.addSpeciesNotify(speciesList[i]);
         }
     }
 
-    /**
-     * Removes the given AtomTypes associated with the given Species from the 
-     * Simulation and does cleanup, including renumbering indices and firing 
-     * AtomType-related event notifications.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#removeSpecies(etomica.api.ISpecies)
+	 */
     public boolean removeSpecies(ISpecies removedSpecies) {
         boolean success = false;
         for (int i=0; i<speciesList.length; i++) {
@@ -129,19 +127,16 @@ public class SpeciesManager implements java.io.Serializable {
         return true;
     }
 
-    /**
-     * Returns an array of the Species in the Simulation.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#getSpecies()
+	 */
     public ISpecies[] getSpecies() {
         return speciesList;
     }
 
-    /**
-     * This method notifies the SpeciesManager that the give atomType was added
-     * to the system.  This method should be called by the AtomType at the top
-     * of the AtomType hierarchy whenver it receives notification of a new
-     * AtomType.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#atomTypeAddedNotify(etomica.api.IAtomType)
+	 */
     public void atomTypeAddedNotify(IAtomType newChildType) {
         if (newChildType instanceof IAtomTypeLeaf) {
             Element newElement = ((IAtomTypeLeaf)newChildType).getElement();
@@ -205,6 +200,9 @@ public class SpeciesManager implements java.io.Serializable {
         return childIndices;
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#requestTypeIndex()
+	 */
     public int requestTypeIndex() {
         if (typeIndexReservoir == null) {
             // if no reservoir, just return the next index
@@ -215,6 +213,9 @@ public class SpeciesManager implements java.io.Serializable {
         return typeIndexReservoir[typeReservoirCount++];
     }
 
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#atomTypeRemovedNotify(etomica.api.IAtomType)
+	 */
     public void atomTypeRemovedNotify(IAtomType removedType) {
         typeReservoirCount = 0;
         // put the removed AtomType indices in a reservoir
@@ -244,6 +245,9 @@ public class SpeciesManager implements java.io.Serializable {
         typeReservoirCount = -1;
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.simulation.ISpeciesManager#getMoleculeTypes()
+	 */
     public ISpecies[] getMoleculeTypes() {
         return moleculeTypes;
     }

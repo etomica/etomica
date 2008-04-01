@@ -4,6 +4,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.simulation.SpeciesManager;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 
@@ -18,7 +19,7 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
     
     public ISpecies makeSpecies(ISimulation sim, Space space) {
         return new SpeciesSpheres(sim, nA, new ElementSimple(
-                (sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
+                ((SpeciesManager)sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
                 1.0), conformation, space);
     }
     

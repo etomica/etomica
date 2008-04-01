@@ -1,7 +1,6 @@
 package etomica.api;
 
 import etomica.potential.PotentialMaster;
-import etomica.simulation.SpeciesManager;
 
 /**
  * An ISpecies holds information about how to construct a molecule, and
@@ -35,7 +34,7 @@ public interface ISpecies extends IAtomType {
      * Sets the SpeciesManager.  This is used for callbacks for notification of
      * removal and addition of child types (not that that should ever happen!)
      */
-    public void setSpeciesManager(SpeciesManager newSpeciesManager);
+    public void setSpeciesManager(ISpeciesManager newSpeciesManager);
 
     /**
      * Builds and returns the IMolecule of this ISpecies.
