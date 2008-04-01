@@ -41,6 +41,7 @@ public class ConfigurationSAM implements Configuration {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
         box.setNMolecules(speciesMolecules, 0);
+        box.setNMolecules(speciesSurface, 0);
         int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
         pretendBox.setNMolecules(speciesMolecules, nMolecules);
         
