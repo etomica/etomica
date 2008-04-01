@@ -2,6 +2,7 @@ package etomica.modules.sam;
 
 import java.awt.Color;
 
+import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -29,7 +30,7 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.modifier.Modifier;
-import etomica.units.Angle;
+import etomica.modifier.ModifierGeneral;
 import etomica.units.Bar;
 import etomica.units.Degree;
 import etomica.units.Dimension;
@@ -52,6 +53,9 @@ public class SamGraphic extends SimulationGraphic {
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
 
+        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
+        getController().getReinitButton().setPostAction(getPaintAction(sim.box));
+        
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
@@ -75,6 +79,49 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setShowValues(true);
         wallPositionSlider.setPostAction(getPaintAction(sim.box));
         add(wallPositionSlider);
+        
+        ModifierGeneral phiModifier = new ModifierGeneral(sim, "chainPhi");
+        DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
+        phiSlider.setShowBorder(true);
+        phiSlider.setLabel("Phi");
+        phiSlider.setUnit(Degree.UNIT);
+        phiSlider.setMinimum(0);
+        phiSlider.setMaximum(90);
+        phiSlider.setShowValues(true);
+        IAction reinitAction = new IAction() {
+            public void actionPerformed() {
+                sim.config.initializeCoordinates(sim.box);
+                sim.findTetherBonds();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {}
+                getPaintAction(sim.box).actionPerformed();
+            }
+        };
+        phiSlider.setPostAction(reinitAction);
+        add(phiSlider);
+
+        ModifierGeneral psiModifier = new ModifierGeneral(sim, "chainPsi");
+        DeviceSlider psiSlider = new DeviceSlider(sim.getController(), psiModifier);
+        psiSlider.setShowBorder(true);
+        psiSlider.setLabel("Psi");
+        psiSlider.setUnit(Degree.UNIT);
+        psiSlider.setMinimum(0);
+        psiSlider.setMaximum(360);
+        psiSlider.setShowValues(true);
+        psiSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
+                sim.config.initializeCoordinates(sim.box);
+                sim.findTetherBonds();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {}
+                getPaintAction(sim.box).actionPerformed();
+            }
+        });
+        add(psiSlider);
 
         DeviceSelector primitiveSelect = new DeviceSelector(sim.getController());
         primitiveSelect.addOption("1", new IAction() {
@@ -187,7 +234,7 @@ public class SamGraphic extends SimulationGraphic {
         graphic.makeAndDisplayFrame();
 //        sim.activityIntegrate.setSleepPeriod(10);
     }
-    
+
     public static class ModifierWallPosition implements Modifier {
         private final Sam sim;
         protected double surfacePosition;

@@ -6,13 +6,11 @@ import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
@@ -63,7 +61,13 @@ public class Sam extends Simulation {
     public P3BondAngle p3Bond;
     public P4BondTorsion p4BondCCCC, p4BondCCCS;
     public PotentialGroup p1Intra;
+    public ApiTether3 apiTether;
     public int chainLength;
+    public double chainPsi;
+    public double chainPhi;
+    public double bondL_CC;
+    public double bondTheta;
+
     
     public Sam() {
         super(Space.getInstance(3));
@@ -100,32 +104,13 @@ public class Sam extends Simulation {
         speciesSurface.setPositionDefinition(new AtomPositionFirstAtom());
         getSpeciesManager().addSpecies(speciesSurface);
 
-        double bondL_CC = 1.54;
+        bondL_CC = 1.54;
         double bondL_CS = 1.82;
-        double bondTheta = Math.PI*114/180;
-        double bondTheta0 = Math.PI-.5*bondTheta;
-        double psi = 0;
-        IVector vector1 = space.makeVector();
-        vector1.setX(0, Math.cos(psi)*Math.cos(bondTheta0)*bondL_CC);
-        vector1.setX(1, Math.sin(bondTheta0)*bondL_CC);
-        vector1.setX(2, Math.sin(psi)*bondL_CC);
-        IVector vector2 = space.makeVector();
-        vector2.setX(0, Math.cos(psi)*(Math.cos(bondTheta0 - (Math.PI-bondTheta)))*bondL_CC);
-        vector2.setX(1, Math.sin(bondTheta0 - (Math.PI-bondTheta))*bondL_CC);
-        vector1.setX(2, Math.sin(psi)*bondL_CC);
-        IConformation conformation = new ConformationChainZigZag(space, vector1, vector2);
+        bondTheta = Math.PI*114/180;
+        ConformationChainZigZag conformation = new ConformationChainZigZag(space);
         species.setConformation(conformation);
-        // get position of sulfur atom so we know how far to offset
-        IMolecule molecule = species.makeMolecule();
-        IVector moleculePos = space.makeVector();
-        moleculePos.E(molecule.getType().getPositionDefinition().position(molecule));
-        IVector sulfurPosition = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-        sulfurPosition.ME(moleculePos);
-        molecule = null;
-//        sulfurPosition.setX(1, 0);
-        sulfurPosition.TE(-1);
-        sulfurPosition.setX(1, sulfurPosition.x(1)+3);
-//        sulfurPosition.setX(0, sulfurPosition.x(0));
+        chainPhi = 0;
+        chainPsi = 0;
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
         Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
@@ -142,9 +127,9 @@ public class Sam extends Simulation {
         config.setCellSizeZ(sizeCellZ);
         config.setNCellsX(nCellX);
         config.setNCellsZ(nCellZ);
-        config.setSurfaceYOffset(3);
-        // not perfect, but close
-        config.setMoleculeOffset(sulfurPosition);
+        config.setSurfaceYOffset(2.5);
+
+        updateConformation();
 
         config.initializeCoordinates(box);
 
@@ -220,8 +205,67 @@ public class Sam extends Simulation {
         p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);
 
-        ApiTether3 apiTether = new ApiTether3(species);
+        apiTether = new ApiTether3(species);
         apiTether.setBox(box);
+        findTetherBonds();
+        P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, 2);
+        potentialMaster.addPotential(p2SurfaceBond, apiTether, null);
+
+        wallPotential = new P1WCAWall(space, 1, 4, 1000);
+        wallPotential.setWallPosition(box.getBoundary().getDimensions().x(1));
+        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
+        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
+        
+        P2LennardJones p2Surface = new P2LennardJones(space, 4.0, Kelvin.UNIT.toSim(50));
+        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
+        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH3Type()});
+    }
+
+    protected void updateConformation() {
+        double bondTheta0 = chainPhi + .5*(Math.PI - bondTheta);
+        IVector vector1 = ((ConformationChainZigZag)species.getConformation()).getFirstVector();
+        vector1.setX(0, Math.cos(chainPsi)*Math.sin(bondTheta0)*bondL_CC);
+        vector1.setX(1, Math.cos(bondTheta0)*bondL_CC);
+        vector1.setX(2, Math.sin(chainPsi)*Math.sin(bondTheta0)*bondL_CC);
+        double bondTheta2 = bondTheta0 - (Math.PI - bondTheta);
+        IVector vector2 = ((ConformationChainZigZag)species.getConformation()).getSecondVector();
+        vector2.setX(0, Math.cos(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+        vector2.setX(1, Math.cos(bondTheta2)*bondL_CC);
+        vector2.setX(2, Math.sin(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+        
+        IMolecule molecule = species.makeMolecule();
+        IVector moleculePos = space.makeVector();
+        moleculePos.E(molecule.getType().getPositionDefinition().position(molecule));
+        IVector sulfurPosition = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+        sulfurPosition.ME(moleculePos);
+        molecule = null;
+//        sulfurPosition.setX(1, 0);
+        sulfurPosition.TE(-1);
+        sulfurPosition.setX(1, sulfurPosition.x(1)+2.5);
+        
+        config.setMoleculeOffset(sulfurPosition);
+    }
+    
+    public void setChainPhi(double newPhi) {
+        chainPhi = newPhi;
+        updateConformation();
+    }
+    
+    public double getChainPhi() {
+        return chainPhi;
+    }
+    
+    public void setChainPsi(double newPsi) {
+        chainPsi = newPsi;
+        updateConformation();
+    }
+    
+    public double getChainPsi() {
+        return chainPsi;
+    }
+    
+    public void findTetherBonds() {
         IAtomSet polymerMolecules = box.getMoleculeList(species);
         IAtomSet surfaceMolecules = box.getMoleculeList(speciesSurface);
         int nMolecules = box.getNMolecules(species);
@@ -240,23 +284,10 @@ public class Sam extends Simulation {
                 }
             }
             if (bondedSurfaceAtoms.getAtomCount() != 3) {
-//                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
+                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
             }
             apiTether.setBondedSurfaceAtoms((IMolecule)polymerMolecules.getAtom(i), bondedSurfaceAtoms);
         }
-        P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, 2);
-        potentialMaster.addPotential(p2SurfaceBond, apiTether, null);
-
-        wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        double surfacePosition = ((IAtomPositioned)((IMolecule)surfaceMolecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
-        wallPotential.setWallPosition(surfacePosition+25);
-        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
-        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
-        
-        P2LennardJones p2Surface = new P2LennardJones(space, 4.0, Kelvin.UNIT.toSim(50));
-        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
-        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
-        potentialMaster.addPotential(p2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH3Type()});
     }
     
     public void setChainLength(int newChainLength) {
