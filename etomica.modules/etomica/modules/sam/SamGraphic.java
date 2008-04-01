@@ -29,7 +29,9 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.modifier.Modifier;
+import etomica.units.Angle;
 import etomica.units.Bar;
+import etomica.units.Degree;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Pixel;
@@ -134,6 +136,7 @@ public class SamGraphic extends SimulationGraphic {
         add(pressureDisplay);
 
         AccumulatorHistory wallPressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        wallPressureHistory.setTimeDataSource(timeCounter);
         fork.addDataSink(wallPressureHistory);
         wallPressureHistory.setPushInterval(10);
         DisplayPlot pressurePlot = new DisplayPlot();
@@ -143,6 +146,28 @@ public class SamGraphic extends SimulationGraphic {
         pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Pressure (bar)");
         add(pressurePlot);
         
+        MeterTilt meterTilt = new MeterTilt(space, sim.species);
+        meterTilt.setBox(sim.box);
+        fork = new DataFork();
+        pump = new DataPump(meterTilt, fork);
+        AccumulatorAverageCollapsing tiltAvg = new AccumulatorAverageCollapsing();
+        fork.addDataSink(tiltAvg);
+        DisplayTextBoxesCAE tiltDisplay = new DisplayTextBoxesCAE();
+        tiltDisplay.setAccumulator(tiltAvg);
+        tiltDisplay.setUnit(Degree.UNIT);
+        tiltDisplay.setLabel("Tilt angle");
+        sim.integrator.addIntervalAction(pump);
+        sim.integrator.setActionInterval(pump, 10);
+        add(tiltDisplay);
+        
+        AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        tiltHistory.setTimeDataSource(timeCounter);
+        fork.addDataSink(tiltHistory);
+        DisplayPlot tiltPlot = new DisplayPlot();
+        tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
+        tiltPlot.setUnit(Degree.UNIT);
+        tiltPlot.setLabel("Tilt");
+        add(tiltPlot);
         
         DisplayPlot plot = new DisplayPlot();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());

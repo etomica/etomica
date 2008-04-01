@@ -70,7 +70,7 @@ public class Sam extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
 
         int nCellX = 4;
-        int nCellZ = 3;
+        int nCellZ = 2;
         // gold has FCC unit cell, a=4.0782A
         double sizeCellZ = 4.0782/Math.sqrt(2)*3; //Math.sqrt(3)*sizeCellX;
         double sizeCellX = sizeCellZ/Math.sqrt(3);
@@ -148,7 +148,7 @@ public class Sam extends Simulation {
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.004, 300, space);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.01, 300, space);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -177,7 +177,7 @@ public class Sam extends Simulation {
         ((AtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
         ((AtomTypeSphere)typeS).setDiameter(sigmaSulfur);
 
-        double epsilonCH2 = Kelvin.UNIT.toSim(47);
+        double epsilonCH2 = Kelvin.UNIT.toSim(46);
         double epsilonCH3 = Kelvin.UNIT.toSim(98);
         double epsilonSulfur = Kelvin.UNIT.toSim(232);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
