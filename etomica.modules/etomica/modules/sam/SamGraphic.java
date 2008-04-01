@@ -198,6 +198,7 @@ public class SamGraphic extends SimulationGraphic {
         fork = new DataFork();
         pump = new DataPump(meterTilt, fork);
         AccumulatorAverageCollapsing tiltAvg = new AccumulatorAverageCollapsing();
+        tiltAvg.setPushInterval(1);
         fork.addDataSink(tiltAvg);
         DisplayTextBoxesCAE tiltDisplay = new DisplayTextBoxesCAE();
         tiltDisplay.setAccumulator(tiltAvg);
