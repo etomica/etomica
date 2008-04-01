@@ -57,6 +57,7 @@ public class SamGraphic extends SimulationGraphic {
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
         
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
+        thermoSlider.setIsothermalButtonsVisibility(false);
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
         add(thermoSlider);
@@ -86,7 +87,7 @@ public class SamGraphic extends SimulationGraphic {
         phiSlider.setLabel("Phi");
         phiSlider.setUnit(Degree.UNIT);
         phiSlider.setMinimum(0);
-        phiSlider.setMaximum(90);
+        phiSlider.setMaximum(50);
         phiSlider.setShowValues(true);
         IAction reinitAction = new IAction() {
             public void actionPerformed() {
