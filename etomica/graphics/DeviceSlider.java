@@ -342,7 +342,9 @@ public class DeviceSlider extends Device {
         if(n>5){column = n;}
         else {column = 5;}
         slider.setPrecision(n);
-        doUpdate();
+        if (modifyAction != null) {
+            doUpdate();
+        }
     }    
     
     public double getValue(){return slider.getDecimalSliderValue();}    
