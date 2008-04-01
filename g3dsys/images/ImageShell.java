@@ -130,14 +130,16 @@ public class ImageShell extends Figure {
         if(!f.drawme) continue;
         if(f instanceof Ball) {
           if(wireframe) continue; //skip spheres in wireframe mode
+          if (!g3d.setColix(((Ball)f).getColor())) continue;
           p.set(((Ball)f).getX()+dx,((Ball)f).getY()+dy,((Ball)f).getZ()+dz);
           _gsys.screenSpace(p, s);
-          g3d.fillSphereCentered(((Ball)f).getColor(), _gsys.perspective(s.z, ((Ball)f).getD()), s);
+          g3d.fillSphereCentered(_gsys.perspective(s.z, ((Ball)f).getD()), s);
         }
         else if(f instanceof g3dsys.images.Box) {
         }
         else if(f instanceof g3dsys.images.Line) {
           if(drawBoundaryType != DRAW_EVERY_BOX) { continue; }
+          if (!g3d.setColix(((Line)f).getColor())) continue;
           p.set(((Line)f).getStart().x+dx,
                 ((Line)f).getStart().y+dy,
                 ((Line)f).getStart().z+dz);
@@ -146,7 +148,7 @@ public class ImageShell extends Figure {
                   ((Line)f).getEnd().y+dy,
                   ((Line)f).getEnd().z+dz);
           _gsys.screenSpace(p, s2);
-          g3d.drawDashedLine(((Line)f).getColor(),0,0,s.x,s.y,s.z,s2.x,s2.y,s2.z);
+          g3d.drawDashedLine(0,0,s,s2);
         }
         else if(f instanceof g3dsys.images.Axes) {
         }
@@ -173,13 +175,15 @@ public class ImageShell extends Figure {
                 s.x,s.y,s.z,s2.x,s2.y,s2.z);
             break;
           case Bond.WIREFRAME:
-            _gsys.getG3D().drawDashedLine(b.getColor1(), 0, 0, s.x, s.y, s.z, s2.x, s2.y, s2.z);
+            if (!_gsys.getG3D().setColix(b.getColor1())) continue;
+            _gsys.getG3D().drawDashedLine(0, 0, s, s2);
             //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
             break;
           }
         }
         else if(f instanceof Triangle) {
           Triangle tr = (Triangle) f;
+          if (!_gsys.getG3D().setColix(tr.getColor())) return;
           Point3f v = tr.getVertex1();
           p.set(v.x+dx, v.y+dy, v.z+dz);
           _gsys.screenSpace(p, s);
@@ -189,7 +193,7 @@ public class ImageShell extends Figure {
           v = tr.getVertex3();
           p.set(v.x+dx, v.y+dy, v.z+dz);
           _gsys.screenSpace(p, s3);
-          _gsys.getG3D().fillTriangle(tr.getColor(), s, s2, s3);
+          _gsys.getG3D().fillTriangle(s, s2, s3);
         }
       }
 
@@ -203,6 +207,7 @@ public class ImageShell extends Figure {
     if(drawBoundaryType == DRAW_LARGE_BOX && iter.isLazySafe()) {
       for(int i=0; i<figs.length; i++) {
         if(figs[i] instanceof Line) {
+          if (!g3d.setColix(((Line)figs[i]).getColor())) continue;
           p.set(((Line)figs[i]).getStart().x * (2*numLayers+1),
               ((Line)figs[i]).getStart().y * (2*numLayers+1),
               ((Line)figs[i]).getStart().z * (2*numLayers+1));
@@ -211,7 +216,7 @@ public class ImageShell extends Figure {
                   ((Line)figs[i]).getEnd().y * (2*numLayers+1),
                   ((Line)figs[i]).getEnd().z * (2*numLayers+1));
           _gsys.screenSpace(p, s2);
-          g3d.drawDashedLine(((Line)figs[i]).getColor(),0,0,s.x,s.y,s.z,s2.x,s2.y,s2.z);
+          g3d.drawDashedLine(0,0,s,s2);
         }
       }
     }

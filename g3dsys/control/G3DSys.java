@@ -65,9 +65,9 @@ public class G3DSys {
     //3/5/2007 rearranged init sequence so g3d is set earlier
     //  needed for imageshell
     g3d = new Graphics3D(dm);
-    g3d.setWindowSize(window.getWidth(), window.getHeight(), false);
+    g3d.setWindowParameters(window.getWidth(), window.getHeight(), false);
     g3d.setBackgroundArgb(0xFF000000);
-    g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE);
+    g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE, false);
     
     fm = new FigureManager(this);
     tm = new TransformManager(this);
@@ -364,8 +364,11 @@ public class G3DSys {
   public float getMaxZ() { return fm.getMaxZ(); }
   public void draw() {
     tm.finalizeTransformParameters();
-    g3d.setSlabAndDepthValues((int)tm.slabValue, (int)tm.depthValue);
+    g3d.setSlabAndDepthValues((int)tm.slabValue, (int)tm.depthValue, false);
     fm.draw();
+    if (g3d.setPass2(false)) {
+      fm.draw();
+    }
   }
 
   /**

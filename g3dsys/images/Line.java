@@ -23,9 +23,10 @@ protected short _c;
 
   public void draw() {
     if(!drawme) return;
+    if (!_gsys.getG3D().setColix(_c)) return;
     _gsys.screenSpace(start, s);
     _gsys.screenSpace(end, e);
-    _gsys.getG3D().drawDashedLine(_c, 0, 0, s.x, s.y, s.z, e.x, e.y, e.z);
+    _gsys.getG3D().drawDashedLine(0, 0, s, e);
   }
 
   public float getD() { return 0; }

@@ -48,38 +48,40 @@ public class Box extends Figure {
 	}
 
 	public void draw() {
-		resize(); //must resize in case the model has changed
 		Graphics3D g3d = _gsys.getG3D();
 		
-		//four top to bottom lines
+		if (!g3d.setColix(_c)) return;
+        resize(); //must resize in case the model has changed
+
+        //four top to bottom lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LUB, t2);
-		g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+		g3d.drawLine(t1, t2);
         _gsys.screenSpace(LDT, t1); _gsys.screenSpace(LDB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RUB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(RDT, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
 		
 		//four left to right lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(RUT, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(LDT, t1); _gsys.screenSpace(RDT, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(LUB, t1); _gsys.screenSpace(RUB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(LDB, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
 		
 		//four up to down lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LDT, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RDT, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(LUB, t1); _gsys.screenSpace(LDB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
         _gsys.screenSpace(RUB, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        g3d.drawLine(t1, t2);
 	}
 	
 	public float getD() {

@@ -27,11 +27,12 @@ public class Triangle extends Figure {
 	
 	public void draw() {
         if(!drawme) return;
+        if (!_gsys.getG3D().setColix(_c)) return;
 		//if overhead is too much, give figures actual references later
         _gsys.screenSpace(p1, s1);
         _gsys.screenSpace(p2, s2);
         _gsys.screenSpace(p3, s3);
-		_gsys.getG3D().fillTriangle(_c, s1, s2, s3);
+		_gsys.getG3D().fillTriangle(s1, s2, s3);
 	}
 	
     /** @return the color of the figure */

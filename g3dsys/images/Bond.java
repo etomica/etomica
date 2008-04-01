@@ -55,8 +55,8 @@ protected float _d;
           p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     case WIREFRAME:
-      _gsys.getG3D().drawDashedLine(ball1.getColor(), 0, 0,
-          p1i.x, p1i.y, p1i.z, p2i.x, p2i.y, p2i.z);
+      if (!_gsys.getG3D().setColix(ball1.getColor())) return;
+      _gsys.getG3D().drawDashedLine(0, 0, p1i, p2i);
       //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     }

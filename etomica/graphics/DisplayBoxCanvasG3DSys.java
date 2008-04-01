@@ -501,7 +501,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
         while (intersectionCount > planeTriangles[iPlane].length+2) {
             planeTriangles[iPlane] = (Triangle[])Arrays.addObject(planeTriangles[iPlane], new Triangle(
-                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(planeColor), true), new Point3f(), new Point3f(), new Point3f()));
+                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(planeColor), true, 0.5f), new Point3f(), new Point3f(), new Point3f()));
             gsys.addFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
         }
 

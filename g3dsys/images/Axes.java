@@ -20,6 +20,7 @@ public class Axes extends Figure {
 	}
 
 	public void draw() {
+        if (!_gsys.getG3D().setColix(_c)) return;
 		Point3f cor = gsys.getCenterOfRotation();
 		Point3f xNeg = new Point3f(gsys.getMinX(),cor.y,cor.z);
 		Point3f xPos = new Point3f(gsys.getMaxX(),cor.y,cor.z);
@@ -28,11 +29,11 @@ public class Axes extends Figure {
 		Point3f zNeg = new Point3f(cor.x,cor.y,gsys.getMinZ());
 		Point3f zPos = new Point3f(cor.x,cor.y,gsys.getMaxZ());
         _gsys.screenSpace(xNeg, t1); _gsys.screenSpace(xPos, t2);
-        _gsys.getG3D().drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        _gsys.getG3D().drawLine(t1, t2);
         _gsys.screenSpace(yNeg, t1); _gsys.screenSpace(yPos, t2);
-        _gsys.getG3D().drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        _gsys.getG3D().drawLine(t1, t2);
         _gsys.screenSpace(zNeg, t1); _gsys.screenSpace(zPos, t2);
-        _gsys.getG3D().drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
+        _gsys.getG3D().drawLine(t1, t2);
 	}
 
 	public float getD() { return 0; }
