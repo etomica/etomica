@@ -4,11 +4,11 @@ import java.lang.reflect.Array;
 
 import etomica.api.IBox;
 import etomica.api.ISimulation;
+import etomica.api.ISimulationEventManager;
 import etomica.simulation.SimulationBoxAddedEvent;
 import etomica.simulation.SimulationBoxEvent;
 import etomica.simulation.SimulationBoxRemovedEvent;
 import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.util.Arrays;
 
@@ -119,7 +119,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
 
     private static final long serialVersionUID = 1L;
     private final BoxAgentSource agentSource;
-    protected SimulationEventManager simEventManager;
+    protected ISimulationEventManager simEventManager;
     protected Object[] agents;
     private final boolean isBackend;
     

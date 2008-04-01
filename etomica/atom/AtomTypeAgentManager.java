@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
+import etomica.api.ISimulationEventManager;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
 import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
@@ -32,7 +32,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     public AtomTypeAgentManager(AgentSource source, ISpeciesManager speciesManager,
-            SimulationEventManager simEventManager, boolean isBackend) {
+            ISimulationEventManager simEventManager, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
         init(speciesManager, simEventManager);
@@ -158,7 +158,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISpeciesManager newSpeciesManager, SimulationEventManager newSimEventManager) {
+    public void init(ISpeciesManager newSpeciesManager, ISimulationEventManager newSimEventManager) {
         simEventManager = newSimEventManager;
         speciesManager = newSpeciesManager;
         simEventManager.addListener(this, isBackend);
@@ -235,7 +235,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected SimulationEventManager simEventManager;
+    protected ISimulationEventManager simEventManager;
     protected ISpeciesManager speciesManager;
     private final boolean isBackend;
 

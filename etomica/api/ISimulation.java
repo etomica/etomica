@@ -1,7 +1,5 @@
 package etomica.api;
 
-import etomica.simulation.SimulationEventManager;
-
 public interface ISimulation {
 
     /**
@@ -36,7 +34,7 @@ public interface ISimulation {
      * Returns the Simulation's event manager, which fires events for
      * Boxs and Species being added and removed.
      */
-    public SimulationEventManager getEventManager();
+    public ISimulationEventManager getEventManager();
 
     /**
      * Returns the SpeciesManager, which tracks the Species in the Simulation.

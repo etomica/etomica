@@ -1,20 +1,25 @@
 package etomica.util;
 import java.io.IOException;
 
+import etomica.api.IEventManager;
+
 /**
  * Class to take care of listener lists and event firing for simulation elements.
  * A class can make an instance of this manager as a field, and delegate any 
  * listener management functions to it.  
  */
-public abstract class EventManager implements java.io.Serializable {
+public abstract class EventManager implements java.io.Serializable, IEventManager {
     
-    /**
-     * Adds a listener.  Synchronized to avoid conflict with removeListener.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.util.IEventManager#addListener(java.lang.Object)
+	 */
     public synchronized void addListener(Object listener) {
         addListener(listener, true);
     }
     
+    /* (non-Javadoc)
+	 * @see etomica.util.IEventManager#addListener(java.lang.Object, boolean)
+	 */
     public synchronized void addListener(Object listener, boolean doSerialize) {
         if (listener.getClass().isInstance(getListenerClass())) {
             throw new IllegalArgumentException("must add listeners of class "+getListenerClass());
@@ -24,9 +29,9 @@ public abstract class EventManager implements java.io.Serializable {
         first = new EventManager.Linker(listener, first, doSerialize);
     }
 
-    /**
-     * Removes a listener.  Synchronized to avoid conflict with addListener.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.util.IEventManager#removeListener(java.lang.Object)
+	 */
     public synchronized void removeListener(Object listener) {
         Linker previous = null;
         for(Linker link=first; link!=null; link=link.next) {
