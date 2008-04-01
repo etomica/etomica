@@ -31,15 +31,13 @@ public class MeterTilt extends DataSourceScalar {
         IAtomSet molecules = box.getMoleculeList(species);
         int nMolecules = molecules.getAtomCount();
         int leafCount = species.getNumLeafAtoms();
-        double thetasum = 0;
+        dr.E(0);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
-            dr.E(((IAtomPositioned)molecule.getChildList().getAtom(leafCount-1)).getPosition());
+            dr.PE(((IAtomPositioned)molecule.getChildList().getAtom(leafCount-1)).getPosition());
             dr.ME(((IAtomPositioned)molecule.getChildList().getAtom(1)).getPosition());
-            double costheta = dr.x(1)/Math.sqrt(dr.squared());
-            thetasum += Math.acos(costheta);
         }
-        return thetasum / nMolecules;
+        return Math.acos(dr.x(1)/Math.sqrt(dr.squared()));
     }
 
     private static final long serialVersionUID = 1L;
