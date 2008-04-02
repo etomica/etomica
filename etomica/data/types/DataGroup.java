@@ -211,10 +211,11 @@ public class DataGroup implements Data, java.io.Serializable {
         int l = 0;
         for (int j=0; j<data.length; j++) {
             int jl = data[j].getLength();
-            if (jl > i) {
-                return data[j].getValue(jl-i);
+            l += jl;
+            if (l > i) {
+                return data[j].getValue(l-i-1);
             }
-            l += data[j].getLength();
+           
         }
         throw new IllegalArgumentException("Length is only "+getLength());
     }
