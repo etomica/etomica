@@ -23,7 +23,7 @@ public class DisplayTimer extends DisplayTextBox {
         this.integrator = integrator;
         dataPump = new DataPump(timer, this);
         integrator.addIntervalAction(dataPump);
-        setUpdateInterval(100);
+        setUpdateInterval(10);
         this.setUnit(new PrefixedUnit(Second.UNIT));
         ((PrefixedUnit)unit).setPrefix(Prefix.PICO);
         this.setPrecision(7);
