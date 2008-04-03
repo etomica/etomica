@@ -1,6 +1,10 @@
 package etomica.modules.sam;
 
 import java.awt.Color;
+import java.awt.GridBagLayout;
+
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
@@ -20,7 +24,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -29,7 +32,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
-import etomica.lattice.crystal.BasisMonatomic;
+import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Bar;
@@ -82,11 +85,16 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setPostAction(getPaintAction(sim.box));
         add(wallPositionSlider);
         
+        JTabbedPane conformationTabs = new JTabbedPane();
+        getPanel().controlPanel.add(conformationTabs, SimulationPanel.getVertGBC());
+
+        JPanel chain1 = new JPanel(new GridBagLayout());
+        conformationTabs.add(chain1, "chain 1");
         ModifierGeneral phiModifier = new ModifierGeneral(sim, "chainPhi");
         DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
         phiSlider.setShowBorder(true);
-        phiSlider.setLabel("Phi");
         phiSlider.setUnit(Degree.UNIT);
+        phiSlider.setLabel("Phi");
         phiSlider.setMinimum(0);
         phiSlider.setMaximum(50);
         phiSlider.setShowValues(true);
@@ -102,58 +110,43 @@ public class SamGraphic extends SimulationGraphic {
             }
         };
         phiSlider.setPostAction(reinitAction);
-        add(phiSlider);
+        chain1.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
 
         ModifierGeneral psiModifier = new ModifierGeneral(sim, "chainPsi");
         DeviceSlider psiSlider = new DeviceSlider(sim.getController(), psiModifier);
         psiSlider.setShowBorder(true);
-        psiSlider.setLabel("Psi");
         psiSlider.setUnit(Degree.UNIT);
+        psiSlider.setLabel("Psi");
         psiSlider.setMinimum(0);
         psiSlider.setMaximum(360);
         psiSlider.setShowValues(true);
         psiSlider.setPostAction(reinitAction);
-        add(psiSlider);
+        chain1.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
 
+        JPanel chain2 = new JPanel(new GridBagLayout());
+        conformationTabs.add(chain2, "chain 2");
         ModifierGeneral secondaryPhiModifier = new ModifierGeneral(sim, "secondaryChainPhi");
         DeviceSlider secondaryPhiSlider = new DeviceSlider(sim.getController(), secondaryPhiModifier);
         secondaryPhiSlider.setShowBorder(true);
-        secondaryPhiSlider.setLabel("Phi");
         secondaryPhiSlider.setUnit(Degree.UNIT);
+        secondaryPhiSlider.setLabel("Phi");
         secondaryPhiSlider.setMinimum(0);
         secondaryPhiSlider.setMaximum(50);
         secondaryPhiSlider.setShowValues(true);
         secondaryPhiSlider.setPostAction(reinitAction);
-        add(secondaryPhiSlider);
+        chain2.add(secondaryPhiSlider.graphic(), SimulationPanel.getVertGBC());
 
         ModifierGeneral secondaryPsiModifier = new ModifierGeneral(sim, "secondaryChainPsi");
         DeviceSlider secondaryPsiSlider = new DeviceSlider(sim.getController(), secondaryPsiModifier);
         secondaryPsiSlider.setShowBorder(true);
-        secondaryPsiSlider.setLabel("Psi");
         secondaryPsiSlider.setUnit(Degree.UNIT);
+        secondaryPsiSlider.setLabel("Psi");
         secondaryPsiSlider.setMinimum(0);
         secondaryPsiSlider.setMaximum(360);
         secondaryPsiSlider.setShowValues(true);
         secondaryPsiSlider.setPostAction(reinitAction);
-        add(secondaryPsiSlider);
+        chain2.add(secondaryPsiSlider.graphic(), SimulationPanel.getVertGBC());
 
-        DeviceSelector primitiveSelect = new DeviceSelector(sim.getController());
-        primitiveSelect.addOption("1", new IAction() {
-            public void actionPerformed() {
-                sim.config.setBasisMolecules(new BasisMonatomic(sim.getSpace()));
-                sim.config.setBasisSurface(new BasisMonatomic(sim.getSpace()));
-                sim.config.setCellSizeX(4);
-                sim.config.setCellSizeZ(4);
-                sim.config.initializeCoordinates(sim.box);
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {}
-            }
-        });
-        add(primitiveSelect);
-        primitiveSelect.setLabel("Basis size");
-        
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
         meterKE.setBox(sim.box);
