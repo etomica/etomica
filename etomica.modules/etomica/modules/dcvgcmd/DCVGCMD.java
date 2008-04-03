@@ -2,6 +2,7 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
@@ -92,7 +93,7 @@ public class DCVGCMD extends Simulation {
         ((ElementSimple)speciestype1.getElement()).setMass(mass);
         speciestype.setDiameter(sigma);
         speciestype1.setDiameter(sigma);
-        ((AtomTypeSphere)tubetype).setDiameter(sigma);
+        ((IAtomTypeSphere)tubetype).setDiameter(sigma);
         
         double neighborRangeFac = 1.4;
         potentialMaster.setCellRange(1);

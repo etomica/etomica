@@ -4,6 +4,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -12,7 +13,6 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionFirstAtom;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -99,7 +99,7 @@ public class Sam extends Simulation {
         box.setNMolecules(species, nCellX*nCellZ);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
-        ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
+        ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         speciesSurface.setPositionDefinition(new AtomPositionFirstAtom());
         getSpeciesManager().addSpecies(speciesSurface);
@@ -163,9 +163,9 @@ public class Sam extends Simulation {
         double sigmaCH3 = 3.75;
         double sigmaSulfur = 3.62;
 
-        ((AtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
-        ((AtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
-        ((AtomTypeSphere)typeS).setDiameter(sigmaSulfur);
+        ((IAtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
+        ((IAtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
+        ((IAtomTypeSphere)typeS).setDiameter(sigmaSulfur);
 
         double epsilonCH2 = Kelvin.UNIT.toSim(46);
         double epsilonCH3 = Kelvin.UNIT.toSim(98);

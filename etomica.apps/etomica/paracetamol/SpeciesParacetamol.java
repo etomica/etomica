@@ -2,6 +2,7 @@ package etomica.paracetamol;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
@@ -92,27 +93,27 @@ public class SpeciesParacetamol extends Species {
         return 20;
     }
     
-	public AtomTypeSphere getCType() {
+	public IAtomTypeSphere getCType() {
         return cType;
     }
 
 
-    public AtomTypeSphere getOType() {
+    public IAtomTypeSphere getOType() {
         return oType;
     }
 
 
-    public AtomTypeSphere getNType() {
+    public IAtomTypeSphere getNType() {
         return nType;
     }
 
 
-    public AtomTypeSphere getHpType() {
+    public IAtomTypeSphere getHpType() {
         return hpType;
     }
 
 
-    public AtomTypeSphere getHyType() {
+    public IAtomTypeSphere getHyType() {
         return hyType;
     }
 

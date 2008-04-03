@@ -3,9 +3,9 @@ package etomica.modules.vle;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -57,7 +57,7 @@ public class VLESim extends Simulation {
         
         species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxLiquid);
@@ -140,7 +140,7 @@ public class VLESim extends Simulation {
         sigma = newSigma;
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
     }
 
     public double getSigma() {

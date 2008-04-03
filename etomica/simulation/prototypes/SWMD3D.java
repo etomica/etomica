@@ -7,10 +7,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
@@ -43,7 +43,7 @@ public class SWMD3D extends Simulation {
 		 */
 		public void setValue(double d) {
 			potential.setCoreDiameter(d);
-			((AtomTypeSphere)species.getLeafType()).setDiameter(d);
+			((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
 		}
 
 		/**

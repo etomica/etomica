@@ -2,9 +2,9 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -125,7 +125,7 @@ public class ZeoliteSimulation extends Simulation {
         	species[i] = new SpeciesSpheresMono(this, space);
             getSpeciesManager().addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
-        	((AtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
+        	((IAtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
         	    ((ElementSimple)(species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);

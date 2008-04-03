@@ -3,10 +3,10 @@ package etomica.dimer;
 import etomica.action.XYZWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
@@ -87,9 +87,9 @@ public class SimDimerMEAMGB extends Simulation{
         getSpeciesManager().addSpecies(dimer);
         
         
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        ((AtomTypeSphere)dimer.getLeafType()).setDiameter(3.022);
+        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
+        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
+        ((IAtomTypeSphere)dimer.getLeafType()).setDiameter(3.022);
         
         
         //Ag

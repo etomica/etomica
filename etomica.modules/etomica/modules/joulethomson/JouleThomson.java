@@ -10,11 +10,11 @@ import javax.swing.border.TitledBorder;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 
 import etomica.action.AtomAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -400,7 +400,7 @@ public class JouleThomson extends SimulationGraphic {
                     ((ElementSimple)sim.species.getLeafType().getElement()).setMass(currentMass);
                     currentEps = epsilon[i];
                     currentSig = sigma[i];
-                    ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(sigma[i]);
+                    ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(sigma[i]);
                     sim.potential.setEpsilon(epsilon[i]);
                     sim.potential.setSigma(sigma[i]);
                 }

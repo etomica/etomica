@@ -22,8 +22,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -919,7 +919,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         public void setValue(double d) {
             //assume one type of atom
-            ((AtomTypeSphere)pc.species.getLeafType()).setDiameter(d);
+            ((IAtomTypeSphere)pc.species.getLeafType()).setDiameter(d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             ((P1HardMovingBoundary)pc.pistonPotentialWrapper.getWrappedPotential()).setCollisionRadius(0.5*d);

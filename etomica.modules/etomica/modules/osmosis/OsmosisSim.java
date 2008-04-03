@@ -5,8 +5,8 @@ import java.awt.Color;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -59,8 +59,8 @@ public class OsmosisSim extends Simulation {
         getSpeciesManager().addSpecies(speciesSolvent);
 	    speciesSolute = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(speciesSolute);
-        ((AtomTypeSphere)speciesSolvent.getLeafType()).setDiameter(sigma);
-        ((AtomTypeSphere)speciesSolute.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)speciesSolvent.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)speciesSolute.getLeafType()).setDiameter(sigma);
 
 	    potentialAA = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAA, new IAtomTypeLeaf[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});

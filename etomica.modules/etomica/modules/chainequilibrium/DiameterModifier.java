@@ -6,7 +6,7 @@
  */
 package etomica.modules.chainequilibrium;
 
-import etomica.atom.AtomTypeSphere;
+import etomica.api.IAtomTypeSphere;
 import etomica.graphics.DisplayBox;
 import etomica.modifier.Modifier;
 import etomica.species.SpeciesSpheresMono;
@@ -47,14 +47,14 @@ class DiameterModifier implements Modifier {
 		potentialRR.setCoreDiameter(newCoreDiameter);
 		potentialRB.setCoreDiameter(newCoreDiameter);
 		potentialBB.setCoreDiameter(newCoreDiameter);
-		((AtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
-        ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
+		((IAtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
+        ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
 		if (display != null)
 			display.repaint();
 	}
 
 	public double getValue() {
-		return ((AtomTypeSphere)speciesR.getLeafType()).getDiameter();
+		return ((IAtomTypeSphere)speciesR.getLeafType()).getDiameter();
 	}
 
 	public void setDisplay(DisplayBox display) {

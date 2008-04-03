@@ -11,9 +11,9 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -584,7 +584,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((AtomTypeSphere)species.getLeafType()).setDiameter(d);
+            ((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
             potential.setSigma(d);
             for (int i=0; i<crossPotentials.length; i++) {
                 double otherSigma = otherPurePotentials[i].getSigma();
@@ -593,7 +593,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return ((AtomTypeSphere)species.getLeafType()).getDiameter();
+            return ((IAtomTypeSphere)species.getLeafType()).getDiameter();
         }
 
         public Dimension getDimension() {

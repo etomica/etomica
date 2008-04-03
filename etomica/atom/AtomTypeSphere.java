@@ -4,6 +4,7 @@
  */
 package etomica.atom;
 
+import etomica.api.IAtomTypeSphere;
 import etomica.api.ISimulation;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -14,7 +15,7 @@ import etomica.chem.elements.ElementSimple;
  * (AtomPositionDefinitionSimple).
  */
 
-public class AtomTypeSphere extends AtomTypeLeaf {
+public class AtomTypeSphere extends AtomTypeLeaf implements IAtomTypeSphere {
     
     private static final long serialVersionUID = 1L;
     protected double diameter;
@@ -32,13 +33,14 @@ public class AtomTypeSphere extends AtomTypeLeaf {
         setDiameter(d);
     }
                 
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomTypeSphere#getDiameter()
+	 */
     public double getDiameter() {return diameter;}
     
-    /**
-    * Sets diameter of this atom and updates radius accordingly.
-    *
-    * @param d   new value for diameter
-    */
+    /* (non-Javadoc)
+	 * @see etomica.atom.IAtomTypeSphere#setDiameter(double)
+	 */
     public void setDiameter(double d) {
         if (d < 0) {
             throw new IllegalArgumentException("diameter must not be negative");

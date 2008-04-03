@@ -12,12 +12,12 @@ import org.jmol.g3d.Graphics3D;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
@@ -185,7 +185,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
-			if (a == null || !(a.getType() instanceof AtomTypeSphere))
+			if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
 			if (ball == null) {
@@ -247,7 +247,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		    Ball ball = null;
 		    try {
 		        a = (IAtomPositioned) leafList.getAtom(iLeaf);
-	            if (a == null || !(a.getType() instanceof AtomTypeSphere))
+	            if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 	                continue;
 	            ball = (Ball) aam.getAgent(a);
 		    }
@@ -277,7 +277,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				continue;
 			}
 			a.getPosition().assignTo(coords);
-			float diameter = (float) ((AtomTypeSphere) a.getType())
+			float diameter = (float) ((IAtomTypeSphere) a.getType())
 					.getDiameter();
 			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
 			ball.setD(diameter);
@@ -574,11 +574,11 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	}
 
 	public Object makeAgent(IAtom a) {
-		if (!(a.getType() instanceof AtomTypeSphere))
+		if (!(a.getType() instanceof IAtomTypeSphere))
 			return null;
 		((IAtomPositioned) a).getPosition().assignTo(coords);
 
-		float diameter = (float) ((AtomTypeSphere) a.getType()).getDiameter();
+		float diameter = (float) ((IAtomTypeSphere) a.getType()).getDiameter();
 		Ball newBall = new Ball(gsys, G3DSys.getColix((displayBox
 				.getColorScheme().getAtomColor(a))), (float) coords[0],
 				(float) coords[1], (float) coords[2], diameter);

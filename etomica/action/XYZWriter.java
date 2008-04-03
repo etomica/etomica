@@ -12,8 +12,8 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
 
@@ -123,7 +123,7 @@ public class XYZWriter implements IAction, Serializable {
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = (ElementLinker)elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+((AtomTypeSphere)thisElement.type).getDiameter()*0.5);
+                fileWriter.write("spacefill "+((IAtomTypeSphere)thisElement.type).getDiameter()*0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

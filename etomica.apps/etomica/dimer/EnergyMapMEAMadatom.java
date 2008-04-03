@@ -3,9 +3,9 @@ package etomica.dimer;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -64,10 +64,10 @@ public class EnergyMapMEAMadatom extends Simulation{
         getSpeciesManager().addSpecies(snAdatom);
         getSpeciesManager().addSpecies(movable);
         
-        ((AtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
-        ((AtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
+        ((IAtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
+        ((IAtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
+        ((IAtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
+        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         
         /**
         // Cu

@@ -13,8 +13,8 @@ import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
@@ -154,7 +154,7 @@ public class PDBWriter implements IAction, Serializable {
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = (ElementLinker)elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+((AtomTypeSphere)thisElement.type).getDiameter()*0.5);
+                fileWriter.write("spacefill "+((IAtomTypeSphere)thisElement.type).getDiameter()*0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

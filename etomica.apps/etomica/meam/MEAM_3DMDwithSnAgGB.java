@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Silver;
 import etomica.chem.elements.Tin;
@@ -255,19 +255,19 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	     * "Elements of X-Ray Diffraction" (2001)
 	     */
 	    
-	    ((AtomTypeSphere)snFixedA.getLeafType()).setDiameter(3.022); 
+	    ((IAtomTypeSphere)snFixedA.getLeafType()).setDiameter(3.022); 
 	    
-	    ((AtomTypeSphere)snA.getLeafType()).setDiameter(3.022); 
+	    ((IAtomTypeSphere)snA.getLeafType()).setDiameter(3.022); 
 	        
 //	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
 	    
-	    ((AtomTypeSphere)agFixedB.getLeafType()).setDiameter(2.8895); 
+	    ((IAtomTypeSphere)agFixedB.getLeafType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeSphere)agB.getLeafType()).setDiameter(2.8895); 
+	    ((IAtomTypeSphere)agB.getLeafType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
 	     

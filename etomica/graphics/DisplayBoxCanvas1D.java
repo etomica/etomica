@@ -9,9 +9,9 @@ import java.util.Iterator;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 
@@ -76,9 +76,9 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         baseXP = origin[0] + (int)(displayBox.getToPixels()*r.x(0));
         int drawingHeight = displayBox.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
-        if(a.getType() instanceof AtomTypeSphere) {
+        if(a.getType() instanceof IAtomTypeSphere) {
             /* Draw the core of the atom */
-            sigmaP = (int)(displayBox.getToPixels()*((AtomTypeSphere)a.getType()).getDiameter());
+            sigmaP = (int)(displayBox.getToPixels()*((IAtomTypeSphere)a.getType()).getDiameter());
             if (sigmaP == 0) {
                 sigmaP = 1;
             }
@@ -99,8 +99,8 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     }
             
     protected boolean computeShiftOrigin(IAtomPositioned a, IBoundary b) {
-        if(a.getType() instanceof AtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
+        if(a.getType() instanceof IAtomTypeSphere) {
+            float[][] shifts = b.getOverflowShifts(a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayBox.getOrigin()[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayBox.getOrigin()[1] + (int)(displayBox.getToPixels()*shifts[i][1]);

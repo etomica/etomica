@@ -8,10 +8,10 @@ import javax.swing.border.TitledBorder;
 import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
@@ -545,14 +545,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			potentialRR.setCoreDiameter(newCoreDiameter);
 			potentialRB.setCoreDiameter(newCoreDiameter);
 			potentialBB.setCoreDiameter(newCoreDiameter);
-			((AtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
-			((AtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
+			((IAtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
+			((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
 			if (display != null)
 				display.repaint();
 		}
 
 		public double getValue() {
-			return ((AtomTypeSphere)speciesR.getLeafType()).getDiameter();
+			return ((IAtomTypeSphere)speciesR.getLeafType()).getDiameter();
 		}
 
 		public void setDisplay(DisplayBox display) {

@@ -9,12 +9,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -98,8 +98,8 @@ public class SimDimerLJadatom extends Simulation{
         movable = new SpeciesSpheresMono(this, space);      
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	
         // Must be in same order as the respective species is added to SpeciesManager
         box.setNMolecules(fixed, 256);    	

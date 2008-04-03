@@ -2,13 +2,13 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -174,7 +174,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(5.0);
+        ((IAtomTypeSphere)species.getLeafType()).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);

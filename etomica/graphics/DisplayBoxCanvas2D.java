@@ -7,10 +7,10 @@ import java.util.Iterator;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeOrientedSphere;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
 import etomica.math.geometry.LineSegment;
@@ -76,9 +76,9 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
 
         baseXP = origin[0] + (int)(displayBox.getToPixels()*r.x(0));
         baseYP = origin[1] + (int)(displayBox.getToPixels()*r.x(1));
-        if(a.getType() instanceof AtomTypeSphere) {
+        if(a.getType() instanceof IAtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(displayBox.getToPixels()*((AtomTypeSphere)a.getType()).getDiameter());
+            sigmaP = (int)(displayBox.getToPixels()*((IAtomTypeSphere)a.getType()).getDiameter());
             sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
@@ -185,8 +185,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             IBoundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-                if(!(a.getType() instanceof AtomTypeSphere)) continue;
-                float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
+                if(!(a.getType() instanceof IAtomTypeSphere)) continue;
+                float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = atomOrigin[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
                     shiftOrigin[1] = atomOrigin[1] + (int)(displayBox.getToPixels()*shifts[i][1]);

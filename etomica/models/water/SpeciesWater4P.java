@@ -1,5 +1,6 @@
 package etomica.models.water;
 
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
@@ -39,7 +40,7 @@ public class SpeciesWater4P extends Species {
          return water;
      }
 
-     public AtomTypeSphere getHydrogenType() {
+     public IAtomTypeSphere getHydrogenType() {
          return hType;
      }
 
@@ -47,7 +48,7 @@ public class SpeciesWater4P extends Species {
          return oType;
      }
 
-     public AtomTypeSphere getMType() {
+     public IAtomTypeSphere getMType() {
          return mType;
      }
 

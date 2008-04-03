@@ -10,10 +10,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.api.IAction;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -107,13 +107,13 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         epsilonSolute = sim.potential11.getEpsilon();
         massSolute = sim.speciesSolute.getLeafType().getMass();
-        sigmaSolute = ((AtomTypeSphere)sim.speciesSolute.getLeafType()).getDiameter();
+        sigmaSolute = ((IAtomTypeSphere)sim.speciesSolute.getLeafType()).getDiameter();
         epsilonSolvent = sim.potential22.getEpsilon();
         massSolvent = sim.speciesSolvent.getLeafType().getMass();
-        sigmaSolvent = ((AtomTypeSphere)sim.speciesSolvent.getLeafType()).getDiameter();
+        sigmaSolvent = ((IAtomTypeSphere)sim.speciesSolvent.getLeafType()).getDiameter();
         epsilonMembrane = sim.potentialMM.getEpsilon();
         massMembrane = sim.speciesMembrane.getLeafType().getMass();
-        sigmaMembrane = ((AtomTypeSphere)sim.speciesMembrane.getLeafType()).getDiameter();
+        sigmaMembrane = ((IAtomTypeSphere)sim.speciesMembrane.getLeafType()).getDiameter();
 
         if (sim.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
@@ -528,10 +528,10 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((AtomTypeSphere)species.getLeafType()).setDiameter(d);
+            ((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
             potential.setSigma(d);
             for (int i=0; i<otherPotentials.length; i++) {
-                double otherSigma = ((AtomTypeSphere)otherSpecies[i].getLeafType()).getDiameter();
+                double otherSigma = ((IAtomTypeSphere)otherSpecies[i].getLeafType()).getDiameter();
                 otherPotentials[i].setSigma(0.5*(d+otherSigma));
             }
 //            new BoxImposePbc(sim.box).actionPerformed();
@@ -557,7 +557,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return ((AtomTypeSphere)species.getLeafType()).getDiameter();
+            return ((IAtomTypeSphere)species.getLeafType()).getDiameter();
 
         }
 

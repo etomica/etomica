@@ -1,4 +1,5 @@
 package etomica.models.water;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafDynamic;
@@ -40,11 +41,11 @@ public class SpeciesWater3P extends Species {
         return water;
     }
     
-    public AtomTypeSphere getHydrogenType() {
+    public IAtomTypeSphere getHydrogenType() {
         return hType;
     }
     
-    public AtomTypeSphere getOxygenType() {
+    public IAtomTypeSphere getOxygenType() {
         return oType;
     }
 

@@ -4,8 +4,8 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -62,7 +62,7 @@ public class LSimCO2 extends Simulation {
         
         species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxLiquid);

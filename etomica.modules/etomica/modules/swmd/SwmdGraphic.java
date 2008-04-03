@@ -14,9 +14,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.api.IAction;
+import etomica.api.IAtomTypeSphere;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -549,7 +549,7 @@ public class SwmdGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
+            ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
             SwmdGraphic.this.potentialHS.setCollisionDiameter(d);
             SwmdGraphic.this.potentialSW.setCoreDiameter(d);
             new BoxImposePbc(sim.box, space).actionPerformed();

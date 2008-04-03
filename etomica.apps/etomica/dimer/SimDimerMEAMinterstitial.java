@@ -8,12 +8,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Tin;
@@ -102,9 +102,9 @@ public class SimDimerMEAMinterstitial extends Simulation{
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         getSpeciesManager().addSpecies(interstitial);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        ((AtomTypeSphere)interstitial.getLeafType()).setDiameter(2.5561);
+        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
+        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
+        ((IAtomTypeSphere)interstitial.getLeafType()).setDiameter(2.5561);
         box.setNMolecules(fixed, 216);
         
     	potential = new PotentialMEAM(space);

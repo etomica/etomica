@@ -3,8 +3,8 @@ package etomica.virial.simulations;
 import etomica.api.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -165,8 +165,8 @@ public class VirialAlkane {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
-            ((AtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
-            ((AtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
+            ((IAtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
+            ((IAtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);

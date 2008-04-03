@@ -3,13 +3,13 @@ package etomica.graphics2;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -225,16 +225,16 @@ public final class SceneManager {
         }
         
         public Object makeAgent(IAtom a) {
-            if (!(a.getType() instanceof AtomTypeSphere)) {
+            if (!(a.getType() instanceof IAtomTypeSphere)) {
                 return null;
             }
             SphereShapeWrapper wrapper = new SphereShapeWrapper();
             wrapper.atom = (IAtomPositioned)a;
-            if (a.getType() instanceof AtomTypeSphere) {
+            if (a.getType() instanceof IAtomTypeSphere) {
                 wrapper.shape = renderer.createSphere();
                 
                 // Scale to atom's given size
-                double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
+                double diameter = ((IAtomTypeSphere)a.getType()).getDiameter();
                 atomScale.E(diameter);
                 wrapper.shape.setScale(atomScale);
             }

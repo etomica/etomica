@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -138,7 +138,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getChildTypes()[0], java.awt.Color.white);
         colorScheme.setColor(sim.species.getChildTypes()[1], java.awt.Color.blue);
-        ((AtomTypeSphere)sim.species.getChildTypes()[2]).setDiameter(0);
+        ((IAtomTypeSphere)sim.species.getChildTypes()[2]).setDiameter(0);
         
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
