@@ -32,6 +32,10 @@ public class DataSplitter implements DataSink {
         return dataSinks[i];
     }
 
+    public int getNumDataSinks() {
+        return dataSinks.length;
+    }
+    
     /**
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
