@@ -12,6 +12,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -111,18 +112,30 @@ public class SamGraphic extends SimulationGraphic {
         psiSlider.setMinimum(0);
         psiSlider.setMaximum(360);
         psiSlider.setShowValues(true);
-        psiSlider.setPostAction(new IAction() {
-            public void actionPerformed() {
-                sim.config.initializeCoordinates(sim.box);
-                sim.findTetherBonds();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {}
-                getPaintAction(sim.box).actionPerformed();
-            }
-        });
+        psiSlider.setPostAction(reinitAction);
         add(psiSlider);
+
+        ModifierGeneral secondaryPhiModifier = new ModifierGeneral(sim, "secondaryChainPhi");
+        DeviceSlider secondaryPhiSlider = new DeviceSlider(sim.getController(), secondaryPhiModifier);
+        secondaryPhiSlider.setShowBorder(true);
+        secondaryPhiSlider.setLabel("Phi");
+        secondaryPhiSlider.setUnit(Degree.UNIT);
+        secondaryPhiSlider.setMinimum(0);
+        secondaryPhiSlider.setMaximum(50);
+        secondaryPhiSlider.setShowValues(true);
+        secondaryPhiSlider.setPostAction(reinitAction);
+        add(secondaryPhiSlider);
+
+        ModifierGeneral secondaryPsiModifier = new ModifierGeneral(sim, "secondaryChainPsi");
+        DeviceSlider secondaryPsiSlider = new DeviceSlider(sim.getController(), secondaryPsiModifier);
+        secondaryPsiSlider.setShowBorder(true);
+        secondaryPsiSlider.setLabel("Psi");
+        secondaryPsiSlider.setUnit(Degree.UNIT);
+        secondaryPsiSlider.setMinimum(0);
+        secondaryPsiSlider.setMaximum(360);
+        secondaryPsiSlider.setShowValues(true);
+        secondaryPsiSlider.setPostAction(reinitAction);
+        add(secondaryPsiSlider);
 
         DeviceSelector primitiveSelect = new DeviceSelector(sim.getController());
         primitiveSelect.addOption("1", new IAction() {
@@ -196,8 +209,11 @@ public class SamGraphic extends SimulationGraphic {
         
         MeterTilt meterTilt = new MeterTilt(space, sim.species);
         meterTilt.setBox(sim.box);
+        DataSplitter tiltSplitter = new DataSplitter(); 
+        pump = new DataPump(meterTilt, tiltSplitter);
+        getController().getDataStreamPumps().add(pump);
         fork = new DataFork();
-        pump = new DataPump(meterTilt, fork);
+        tiltSplitter.setDataSink(0, fork);
         AccumulatorAverageCollapsing tiltAvg = new AccumulatorAverageCollapsing();
         tiltAvg.setPushInterval(1);
         fork.addDataSink(tiltAvg);
@@ -214,9 +230,18 @@ public class SamGraphic extends SimulationGraphic {
         fork.addDataSink(tiltHistory);
         DisplayPlot tiltPlot = new DisplayPlot();
         tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
+        tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, "net tilt");
         tiltPlot.setUnit(Degree.UNIT);
         tiltPlot.setLabel("Tilt");
         add(tiltPlot);
+
+        AccumulatorHistory tilt2History = new AccumulatorHistory(new HistoryCollapsingAverage());
+        tilt2History.setTimeDataSource(timeCounter);
+        tiltSplitter.setDataSink(1, tilt2History);
+        tilt2History.setDataSink(tiltPlot.getDataSet().makeDataSink());
+        tiltPlot.setLegend(new DataTag[]{tilt2History.getTag()}, "avg tilt");
+        add(tiltPlot);
+
         
         DisplayPlot plot = new DisplayPlot();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());

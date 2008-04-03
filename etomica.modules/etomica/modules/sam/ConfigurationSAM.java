@@ -5,6 +5,7 @@ import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -27,6 +28,14 @@ public class ConfigurationSAM implements Configuration {
         this.speciesMolecules = speciesMolecules;
         this.speciesSurface = speciesSurface;
         moleculeOffset = space.makeVector();
+    }
+    
+    public void setSecondaryConformation(IConformation newSecondaryConformation) {
+        secondaryConformation = newSecondaryConformation;
+    }
+    
+    public IConformation getSecondaryConformation() {
+        return secondaryConformation;
     }
     
     public void setMoleculeOffset(IVector newMoleculeOffset) {
@@ -59,6 +68,8 @@ public class ConfigurationSAM implements Configuration {
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         translator.getTranslationVector().E(moleculeOffset);
         AtomGroupAction groupTranslator = new AtomGroupAction(translator);
+        
+        IVector secondaryOffset = space.makeVector();
 
         IAtomSet molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
@@ -67,6 +78,14 @@ public class ConfigurationSAM implements Configuration {
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
             groupTranslator.actionPerformed(molecule);
+            if (i % 2 == 0 && secondaryConformation != null) {
+                secondaryOffset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                secondaryConformation.initializePositions(molecule.getChildList());
+                secondaryOffset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                translator.getTranslationVector().E(secondaryOffset);
+                groupTranslator.actionPerformed(molecule);
+                translator.getTranslationVector().E(moleculeOffset);        
+            }
         }
 
         nMolecules = nCellsX*nCellsZ*basisSurface.getScaledCoordinates().length;
@@ -163,4 +182,5 @@ public class ConfigurationSAM implements Configuration {
     protected Basis basisSurface;
     protected double yOffset;
     protected final IVector moleculeOffset;
+    protected IConformation secondaryConformation;
 }

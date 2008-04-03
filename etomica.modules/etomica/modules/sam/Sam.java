@@ -63,8 +63,8 @@ public class Sam extends Simulation {
     public PotentialGroup p1Intra;
     public ApiTether3 apiTether;
     public int chainLength;
-    public double chainPsi;
-    public double chainPhi;
+    public double chainPsi, chainPhi;
+    public double secondaryChainPsi, secondaryChainPhi;
     public double bondL_CC;
     public double bondTheta;
 
@@ -130,6 +130,11 @@ public class Sam extends Simulation {
         config.setSurfaceYOffset(2);
 
         updateConformation();
+        ConformationChainZigZag secondaryConformation = new ConformationChainZigZag(space);
+        species.setConformation(secondaryConformation);
+        updateConformation();
+        species.setConformation(conformation);
+        config.setSecondaryConformation(secondaryConformation);
 
         config.initializeCoordinates(box);
 
@@ -264,6 +269,38 @@ public class Sam extends Simulation {
     public double getChainPsi() {
         return chainPsi;
     }
+    
+    protected void updateSecondaryConformation() {
+        double bondTheta0 = secondaryChainPhi + .5*(Math.PI - bondTheta);
+        IVector vector1 = ((ConformationChainZigZag)config.getSecondaryConformation()).getFirstVector();
+        vector1.setX(0, Math.cos(secondaryChainPsi)*Math.sin(bondTheta0)*bondL_CC);
+        vector1.setX(1, Math.cos(bondTheta0)*bondL_CC);
+        vector1.setX(2, Math.sin(secondaryChainPsi)*Math.sin(bondTheta0)*bondL_CC);
+        double bondTheta2 = bondTheta0 - (Math.PI - bondTheta);
+        IVector vector2 = ((ConformationChainZigZag)config.getSecondaryConformation()).getSecondVector();
+        vector2.setX(0, Math.cos(secondaryChainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+        vector2.setX(1, Math.cos(bondTheta2)*bondL_CC);
+        vector2.setX(2, Math.sin(secondaryChainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+    }
+        
+    public void setSecondaryChainPhi(double newSecondaryPhi) {
+        secondaryChainPhi = newSecondaryPhi;
+        updateSecondaryConformation();
+    }
+    
+    public double getSecondaryChainPhi() {
+        return secondaryChainPhi;
+    }
+    
+    public void setSecondaryChainPsi(double newSecondaryPsi) {
+        secondaryChainPsi = newSecondaryPsi;
+        updateSecondaryConformation();
+    }
+    
+    public double getSecondaryChainPsi() {
+        return secondaryChainPsi;
+    }
+    
     
     public void findTetherBonds() {
         IAtomSet polymerMolecules = box.getMoleculeList(species);
