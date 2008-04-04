@@ -213,7 +213,7 @@ public class DataGroup implements Data, java.io.Serializable {
             int jl = data[j].getLength();
             l += jl;
             if (l > i) {
-                return data[j].getValue(l-i-1);
+                return data[j].getValue(jl-(l-i));
             }
            
         }
