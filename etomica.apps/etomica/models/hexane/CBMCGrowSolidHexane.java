@@ -116,7 +116,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     }
 
     protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
-            IAtomPositioned c, int place) {
+            IAtomPositioned c) {
         // Get a random number, and place it between the limits on the new
         // atom's placement. The angle must be between lowerTorsLimit,
         // and upperTorsLimit.
