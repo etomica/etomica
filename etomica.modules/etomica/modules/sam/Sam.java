@@ -35,6 +35,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
+import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -63,8 +64,8 @@ public class Sam extends Simulation {
     public PotentialGroup p1Intra;
     public ApiTether3 apiTether;
     public int chainLength;
-    public double chainPsi, chainPhi;
-    public double secondaryChainPsi, secondaryChainPhi;
+    public double chainTheta, chainPsi, chainPhi;
+    public double secondaryChainTheta, secondaryChainPsi, secondaryChainPhi;
     public double bondL_CC;
     public double bondTheta;
 
@@ -109,8 +110,9 @@ public class Sam extends Simulation {
         bondTheta = Math.PI*114/180;
         ConformationChainZigZag conformation = new ConformationChainZigZag(space);
         species.setConformation(conformation);
-        chainPhi = 0;
+        chainTheta = 0;
         chainPsi = 0;
+        chainPhi = 0;
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
         Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
@@ -138,8 +140,9 @@ public class Sam extends Simulation {
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.005, 300, space);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.005, Kelvin.UNIT.toSim(300), space);
         integrator.setIsothermal(true);
+        integrator.setThermostatInterval(500);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
@@ -228,7 +231,7 @@ public class Sam extends Simulation {
     }
 
     protected void updateConformation() {
-        double bondTheta0 = chainPhi + .5*(Math.PI - bondTheta);
+        double bondTheta0 = chainTheta + .5*(Math.PI - bondTheta);
         IVector vector1 = ((ConformationChainZigZag)species.getConformation()).getFirstVector();
         vector1.setX(0, Math.cos(chainPsi)*Math.sin(bondTheta0)*bondL_CC);
         vector1.setX(1, Math.cos(bondTheta0)*bondL_CC);
@@ -238,6 +241,16 @@ public class Sam extends Simulation {
         vector2.setX(0, Math.cos(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
         vector2.setX(1, Math.cos(bondTheta2)*bondL_CC);
         vector2.setX(2, Math.sin(chainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+        
+        IVector vector0 = space.makeVector();
+        vector0.Ev1Pv2(vector1, vector2);
+        IOrientation3D orientation = (IOrientation3D)space.makeOrientation();
+        orientation.setDirection(vector1);
+        IVector vector0Axis = space.makeVector();
+        vector0Axis.Ea1Tv1(1.0/Math.sqrt(vector0.squared()), vector0);
+        orientation.rotateBy(chainPhi, vector0Axis);
+        vector1.Ea1Tv1(Math.sqrt(vector1.squared()), orientation.getDirection());
+        vector2.Ev1Mv2(vector0, vector1);
         
         IMolecule molecule = species.makeMolecule();
         IVector moleculePos = space.makeVector();
@@ -252,13 +265,13 @@ public class Sam extends Simulation {
         config.setMoleculeOffset(sulfurPosition);
     }
     
-    public void setChainPhi(double newPhi) {
-        chainPhi = newPhi;
+    public void setChainTheta(double newTheta) {
+        chainTheta = newTheta;
         updateConformation();
     }
     
-    public double getChainPhi() {
-        return chainPhi;
+    public double getChainTheta() {
+        return chainTheta;
     }
     
     public void setChainPsi(double newPsi) {
@@ -270,8 +283,17 @@ public class Sam extends Simulation {
         return chainPsi;
     }
     
+    public void setChainPhi(double newPhi) {
+        chainPhi = newPhi;
+        updateConformation();
+    }
+    
+    public double getChainPhi() {
+        return chainPhi;
+    }
+    
     protected void updateSecondaryConformation() {
-        double bondTheta0 = secondaryChainPhi + .5*(Math.PI - bondTheta);
+        double bondTheta0 = secondaryChainTheta + .5*(Math.PI - bondTheta);
         IVector vector1 = ((ConformationChainZigZag)config.getSecondaryConformation()).getFirstVector();
         vector1.setX(0, Math.cos(secondaryChainPsi)*Math.sin(bondTheta0)*bondL_CC);
         vector1.setX(1, Math.cos(bondTheta0)*bondL_CC);
@@ -281,15 +303,25 @@ public class Sam extends Simulation {
         vector2.setX(0, Math.cos(secondaryChainPsi)*(Math.sin(bondTheta2))*bondL_CC);
         vector2.setX(1, Math.cos(bondTheta2)*bondL_CC);
         vector2.setX(2, Math.sin(secondaryChainPsi)*(Math.sin(bondTheta2))*bondL_CC);
+
+        IVector vector0 = space.makeVector();
+        vector0.Ev1Pv2(vector1, vector2);
+        IOrientation3D orientation = (IOrientation3D)space.makeOrientation();
+        orientation.setDirection(vector1);
+        IVector vector0Axis = space.makeVector();
+        vector0Axis.Ea1Tv1(1.0/Math.sqrt(vector0.squared()), vector0);
+        orientation.rotateBy(secondaryChainPhi, vector0Axis);
+        vector1.Ea1Tv1(Math.sqrt(vector1.squared()), orientation.getDirection());
+        vector2.Ev1Mv2(vector0, vector1);
     }
         
-    public void setSecondaryChainPhi(double newSecondaryPhi) {
-        secondaryChainPhi = newSecondaryPhi;
+    public void setSecondaryChainTheta(double newSecondaryTheta) {
+        secondaryChainTheta = newSecondaryTheta;
         updateSecondaryConformation();
     }
     
-    public double getSecondaryChainPhi() {
-        return secondaryChainPhi;
+    public double getSecondaryChainTheta() {
+        return secondaryChainTheta;
     }
     
     public void setSecondaryChainPsi(double newSecondaryPsi) {
@@ -301,6 +333,14 @@ public class Sam extends Simulation {
         return secondaryChainPsi;
     }
     
+    public void setSecondaryChainPhi(double newSecondaryPhi) {
+        secondaryChainPhi = newSecondaryPhi;
+        updateSecondaryConformation();
+    }
+    
+    public double getSecondaryChainPhi() {
+        return secondaryChainPhi;
+    }
     
     public void findTetherBonds() {
         IAtomSet polymerMolecules = box.getMoleculeList(species);
