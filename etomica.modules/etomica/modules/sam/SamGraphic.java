@@ -38,6 +38,7 @@ import etomica.modifier.ModifierGeneral;
 import etomica.units.Bar;
 import etomica.units.Degree;
 import etomica.units.Dimension;
+import etomica.units.Kelvin;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
@@ -62,6 +63,7 @@ public class SamGraphic extends SimulationGraphic {
         
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
         thermoSlider.setIsothermalButtonsVisibility(false);
+        thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
         add(thermoSlider);
@@ -70,6 +72,7 @@ public class SamGraphic extends SimulationGraphic {
         add(timer);
         MeterTemperature thermometer = new MeterTemperature(sim, sim.box, 3);
         DisplayTextBox temperatureDisplay = new DisplayTextBox();
+        temperatureDisplay.setUnit(Kelvin.UNIT);
         DataPump pump = new DataPump(thermometer, temperatureDisplay);
         sim.integrator.addIntervalAction(pump);
         add(temperatureDisplay);
@@ -90,14 +93,14 @@ public class SamGraphic extends SimulationGraphic {
 
         JPanel chain1 = new JPanel(new GridBagLayout());
         conformationTabs.add(chain1, "chain 1");
-        ModifierGeneral phiModifier = new ModifierGeneral(sim, "chainPhi");
-        DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
-        phiSlider.setShowBorder(true);
-        phiSlider.setUnit(Degree.UNIT);
-        phiSlider.setLabel("Phi");
-        phiSlider.setMinimum(0);
-        phiSlider.setMaximum(50);
-        phiSlider.setShowValues(true);
+        ModifierGeneral thetaModifier = new ModifierGeneral(sim, "chainTheta");
+        DeviceSlider thetaSlider = new DeviceSlider(sim.getController(), thetaModifier);
+        thetaSlider.setShowBorder(true);
+        thetaSlider.setUnit(Degree.UNIT);
+        thetaSlider.setLabel("Theta");
+        thetaSlider.setMinimum(0);
+        thetaSlider.setMaximum(50);
+        thetaSlider.setShowValues(true);
         IAction reinitAction = new IAction() {
             public void actionPerformed() {
                 sim.config.initializeCoordinates(sim.box);
@@ -109,8 +112,8 @@ public class SamGraphic extends SimulationGraphic {
                 getPaintAction(sim.box).actionPerformed();
             }
         };
-        phiSlider.setPostAction(reinitAction);
-        chain1.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
+        thetaSlider.setPostAction(reinitAction);
+        chain1.add(thetaSlider.graphic(), SimulationPanel.getVertGBC());
 
         ModifierGeneral psiModifier = new ModifierGeneral(sim, "chainPsi");
         DeviceSlider psiSlider = new DeviceSlider(sim.getController(), psiModifier);
@@ -123,18 +126,29 @@ public class SamGraphic extends SimulationGraphic {
         psiSlider.setPostAction(reinitAction);
         chain1.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
 
+        ModifierGeneral phiModifier = new ModifierGeneral(sim, "chainPhi");
+        DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
+        phiSlider.setShowBorder(true);
+        phiSlider.setUnit(Degree.UNIT);
+        phiSlider.setLabel("Phi");
+        phiSlider.setMinimum(0);
+        phiSlider.setMaximum(360);
+        phiSlider.setShowValues(true);
+        phiSlider.setPostAction(reinitAction);
+        chain1.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
+
         JPanel chain2 = new JPanel(new GridBagLayout());
         conformationTabs.add(chain2, "chain 2");
-        ModifierGeneral secondaryPhiModifier = new ModifierGeneral(sim, "secondaryChainPhi");
-        DeviceSlider secondaryPhiSlider = new DeviceSlider(sim.getController(), secondaryPhiModifier);
-        secondaryPhiSlider.setShowBorder(true);
-        secondaryPhiSlider.setUnit(Degree.UNIT);
-        secondaryPhiSlider.setLabel("Phi");
-        secondaryPhiSlider.setMinimum(0);
-        secondaryPhiSlider.setMaximum(50);
-        secondaryPhiSlider.setShowValues(true);
-        secondaryPhiSlider.setPostAction(reinitAction);
-        chain2.add(secondaryPhiSlider.graphic(), SimulationPanel.getVertGBC());
+        ModifierGeneral secondaryThetaModifier = new ModifierGeneral(sim, "secondaryChainTheta");
+        DeviceSlider secondaryThetaSlider = new DeviceSlider(sim.getController(), secondaryThetaModifier);
+        secondaryThetaSlider.setShowBorder(true);
+        secondaryThetaSlider.setUnit(Degree.UNIT);
+        secondaryThetaSlider.setLabel("Theta");
+        secondaryThetaSlider.setMinimum(0);
+        secondaryThetaSlider.setMaximum(50);
+        secondaryThetaSlider.setShowValues(true);
+        secondaryThetaSlider.setPostAction(reinitAction);
+        chain2.add(secondaryThetaSlider.graphic(), SimulationPanel.getVertGBC());
 
         ModifierGeneral secondaryPsiModifier = new ModifierGeneral(sim, "secondaryChainPsi");
         DeviceSlider secondaryPsiSlider = new DeviceSlider(sim.getController(), secondaryPsiModifier);
@@ -146,6 +160,17 @@ public class SamGraphic extends SimulationGraphic {
         secondaryPsiSlider.setShowValues(true);
         secondaryPsiSlider.setPostAction(reinitAction);
         chain2.add(secondaryPsiSlider.graphic(), SimulationPanel.getVertGBC());
+
+        ModifierGeneral secondaryPhiModifier = new ModifierGeneral(sim, "secondaryChainPhi");
+        DeviceSlider secondaryPhiSlider = new DeviceSlider(sim.getController(), secondaryPhiModifier);
+        secondaryPhiSlider.setShowBorder(true);
+        secondaryPhiSlider.setUnit(Degree.UNIT);
+        secondaryPhiSlider.setLabel("Phi");
+        secondaryPhiSlider.setMinimum(0);
+        secondaryPhiSlider.setMaximum(360);
+        secondaryPhiSlider.setShowValues(true);
+        secondaryPhiSlider.setPostAction(reinitAction);
+        chain2.add(secondaryPhiSlider.graphic(), SimulationPanel.getVertGBC());
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
