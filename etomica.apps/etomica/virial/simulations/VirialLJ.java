@@ -29,9 +29,15 @@ public class VirialLJ {
 
         VirialLJParam params = new VirialLJParam();
         if (args.length > 0) {
+            params.writeRefPref = true;
             ReadParameters readParameters = new ReadParameters(args[0], params);
             readParameters.readParameters();
         }
+        
+        runVirial(params);
+    }
+    
+    public static void runVirial(VirialLJParam params) {
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;
@@ -72,7 +78,7 @@ public class VirialLJ {
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
-        String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
+        String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
 //        sim.setRefPref(1.0082398078547523);
         sim.initRefPref(refFileName, steps/100);
@@ -125,8 +131,6 @@ public class VirialLJ {
         System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-
-            
 	}
 
     /**
@@ -137,5 +141,6 @@ public class VirialLJ {
         public double temperature = 1;
         public long numSteps = 100000;
         public double sigmaHSRef = 1.5;
+        public boolean writeRefPref = false;
     }
 }
