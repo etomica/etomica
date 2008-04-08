@@ -95,7 +95,11 @@ public class WriteS implements IAction {
         NormalModeEigenGetter.doit(thisFilename);
 
         BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
-        CalcHarmonicA.doit(thisFilename, space.D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
+        lastA = CalcHarmonicA.doit(thisFilename, space.D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
+    }
+    
+    public double getLastA() {
+        return lastA;
     }
 
     protected MeterNormalMode meterNormalMode;
@@ -105,4 +109,5 @@ public class WriteS implements IAction {
     protected WaveVectorFactory waveVectorFactory;
     protected double temperature;
     private final Space space;
+    protected double lastA;
 }

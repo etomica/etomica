@@ -76,7 +76,7 @@ public class SimCalcSLJ extends Simulation {
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+
         integrator.setBox(box);
     }
 

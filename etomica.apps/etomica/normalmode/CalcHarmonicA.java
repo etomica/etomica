@@ -44,7 +44,7 @@ public class CalcHarmonicA {
         doit(filename, D, harmonicFudge, temperature, basisSize, totalCells);
     }
     
-    public static void doit(String filename, int D, double harmonicFudge, double temperature, int basisSize, int totalCells) {
+    public static double doit(String filename, int D, double harmonicFudge, double temperature, int basisSize, int totalCells) {
         NormalModesFromFile normalModes = new NormalModesFromFile(filename, D);
         normalModes.setHarmonicFudge(harmonicFudge);
         normalModes.setTemperature(temperature);
@@ -67,5 +67,6 @@ public class CalcHarmonicA {
         }
         
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
+        return AHarmonic*temperature;
     }
 }
