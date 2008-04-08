@@ -99,13 +99,11 @@ public class SimDimerMEAMadatom extends Simulation{
 		potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
 		
 		this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
-		//potentialMaster.setSpecies(new Species [] {movable});
+		//potentialMaster.setSpecies(new ISpecies [] {movable});
 		//potentialMaster.setRange(potential.getRange()*1.1);
-		//potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
+		//potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
-        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        //integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
-      
+
 		
 		/**
         //Ag
@@ -242,7 +240,7 @@ public class SimDimerMEAMadatom extends Simulation{
         config.initializeCoordinates(box);
     }
     
-    public void generateConfigs(String fileName){       
+    public void generateConfigs(String fileName, double percentd){       
     	setMovableAtoms(5.0);
     	
         RandomNumberGenerator random = new RandomNumberGenerator();
@@ -262,7 +260,7 @@ public class SimDimerMEAMadatom extends Simulation{
             for(int i=0; i<movableSet.getAtomCount(); i++){
                 IVector atomPosition = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition();
                 for(int j=0; j<3; j++){
-                    workVector.setX(j,0.03*random.nextGaussian());
+                    workVector.setX(j,percentd*random.nextGaussian());
                 }
                 atomPosition.Ev1Pv2(currentPos[i],workVector);
             }
@@ -353,6 +351,8 @@ public class SimDimerMEAMadatom extends Simulation{
     	integratorMD.setThermostatInterval(100);
     	integratorMD.setIsothermal(true);
     	integratorMD.setBox(box);
+        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
+       // integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
     	activityIntegrateMD = new ActivityIntegrate(integratorMD);
     	getController().addAction(activityIntegrateMD);
     	activityIntegrateMD.setMaxSteps(maxSteps);
@@ -392,7 +392,8 @@ public class SimDimerMEAMadatom extends Simulation{
             configFile.initializeCoordinates(box);
         }
         else{
-        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle_fine");
+        	fileName = fileName+"_fine";
+        	ConfigurationFile configFile = new ConfigurationFile(fileName);
         	configFile.initializeCoordinates(box);
         }
         integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
