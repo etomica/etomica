@@ -12,7 +12,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -25,7 +25,7 @@ import etomica.util.Debug;
  */
 public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.Serializable {
 
-	public CriterionSimple(ISimulation sim, Space _space, double interactionRange, double neighborRadius) {
+	public CriterionSimple(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();
@@ -136,7 +136,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     public void releaseAgent(Object agent, IAtom atom) {}
 
     private static final long serialVersionUID = 1L;
-    protected final Space space;
+    protected final ISpace space;
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final IVector dr;
     private INearestImageTransformer nearestImageTransformer;

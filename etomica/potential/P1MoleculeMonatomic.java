@@ -5,7 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.atom.AtomSetSinglet;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * 2-body Potential class for use between two monatomic molecules.  The
@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class P1MoleculeMonatomic extends Potential {
 
-    public P1MoleculeMonatomic(Space space, IPotential potential) {
+    public P1MoleculeMonatomic(ISpace space, IPotential potential) {
         super(1, space);
         wrappedPotential = potential;
         leafAtomSet = new AtomSetSinglet();

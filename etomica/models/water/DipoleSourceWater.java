@@ -4,7 +4,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeOriented;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Implementation of DipoleSource that can handle water molecules that are
@@ -20,7 +20,7 @@ import etomica.space.Space;
  */
 public class DipoleSourceWater implements DipoleSource {
 
-    public DipoleSourceWater(Space space) {
+    public DipoleSourceWater(ISpace space) {
         dipole = space.makeVector();
     }
 

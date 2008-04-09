@@ -5,12 +5,12 @@ import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
@@ -42,7 +42,7 @@ import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
@@ -68,7 +68,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     protected DisplayTextBoxesCAE densityDisplay;
     private DeviceThermoSlider temperatureSelect;
 
-	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
+	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, ISpace space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space);
         this.sim = simulation;

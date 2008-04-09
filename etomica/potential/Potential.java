@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IPotential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -17,7 +17,7 @@ import etomica.units.Length;
 public abstract class Potential implements java.io.Serializable, IPotential {
     
 	private final int nBody;
-	protected final Space space;
+	protected final ISpace space;
 
     /**
      * General constructor for a potential instance
@@ -25,12 +25,12 @@ public abstract class Potential implements java.io.Serializable, IPotential {
      * for example with a pair potential nBody = 2; for a single-body potential,
      * nBody = 1.
      */
-    public Potential(int nBody, Space space) {
+    public Potential(int nBody, ISpace space) {
         this.nBody = nBody;
         this.space = space;
     }
 
-    public Space getSpace() {
+    public ISpace getSpace() {
         return space;
     }
 

@@ -11,12 +11,12 @@ import etomica.api.IVector;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, Space space){
+	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, ISpace space){
 		super(box, potentialMaster, space);
 		rotationAxis = (IVector3D)space.makeVector();
 		a      = (IVector3D)space.makeVector();

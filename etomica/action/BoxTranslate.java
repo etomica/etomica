@@ -3,7 +3,7 @@ package etomica.action;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Action that moves (translates) all the atoms in a box by a specified
@@ -19,7 +19,7 @@ public final class BoxTranslate extends BoxActionAdapter implements Undoable {
 	 * 
 	 * @param space
 	 */
-	public BoxTranslate(Space space) {
+	public BoxTranslate(ISpace space) {
 		translationVector = space.makeVector();
 	}
 

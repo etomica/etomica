@@ -7,7 +7,7 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.Potential2;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -21,7 +21,7 @@ public class ModelChain extends Model {
      * must be set before making the Species.  The conformation and element can
      * also be set if desired.
      */
-    public ModelChain(Space _space) {
+    public ModelChain(ISpace _space) {
         speciesMade = false;
         space = _space;
     }
@@ -146,5 +146,5 @@ public class ModelChain extends Model {
     protected IConformation conformation;
     protected Element element;
     protected boolean speciesMade;
-    private final Space space;
+    private final ISpace space;
 }

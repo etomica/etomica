@@ -20,7 +20,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one box to another.
@@ -55,7 +55,7 @@ public class MCMoveMoleculeExchange extends MCMove {
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
-        Space space = potentialMaster.getSpace();
+        ISpace space = potentialMaster.getSpace();
         moleculeReplacer = new AtomGroupAction(new AtomActionTranslateBy(space));
         moleculeTranslator = new AtomActionTranslateTo(space);
         translationVector = moleculeTranslator.getTranslationVector();

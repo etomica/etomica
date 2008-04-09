@@ -2,7 +2,7 @@ package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IConformation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Electron;
 
 /**
@@ -10,7 +10,7 @@ import etomica.units.Electron;
  */
 public class ConformationWaterTIP4P implements IConformation, java.io.Serializable {
 
-    public ConformationWaterTIP4P(Space space) {
+    public ConformationWaterTIP4P(ISpace space) {
         this.space = space;
     }
     
@@ -42,7 +42,7 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     }
     
     private static final long serialVersionUID = 1L;
-    protected final Space space;
+    protected final ISpace space;
     private double bondLengthOH = 0.9572;
     private double angleHOH = 104.52*Math.PI/180.;
     private double rOM=0.15;

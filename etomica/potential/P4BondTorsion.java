@@ -10,6 +10,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -25,7 +26,7 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P4BondTorsion extends Potential implements PotentialSoft {
 
-    public P4BondTorsion(Space space, double a0, double a1, double a2, double a3) {
+    public P4BondTorsion(ISpace space, double a0, double a1, double a2, double a3) {
         super(4, space);
         dr21 = space.makeVector();
         dr23 = space.makeVector();

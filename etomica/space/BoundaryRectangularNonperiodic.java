@@ -15,7 +15,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Make a boundary with unit volume.
      */
-    public BoundaryRectangularNonperiodic(Space space, IRandom random) {
+    public BoundaryRectangularNonperiodic(ISpace space, IRandom random) {
         super(space, random, new boolean[space.D()], 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }

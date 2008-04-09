@@ -7,7 +7,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 
@@ -43,7 +43,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(Space space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+	public P2SquareWellBonded(ISpace space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
         agentManager = aam;
 	}

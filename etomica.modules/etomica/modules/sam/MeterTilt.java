@@ -12,7 +12,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Angle;
 
 /**
@@ -22,7 +22,7 @@ import etomica.units.Angle;
  */
 public class MeterTilt implements DataSource {
 
-    public MeterTilt(Space space, ISpecies species) {
+    public MeterTilt(ISpace space, ISpecies species) {
         this.species = species;
         dr = space.makeVector();
         drSum = space.makeVector();

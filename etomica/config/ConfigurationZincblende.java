@@ -13,6 +13,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -28,7 +29,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     private AtomGroupAction translator0, translator1;
     protected ISpecies[] species;
     
-    public ConfigurationZincblende(double latticeConstant, Space space) {
+    public ConfigurationZincblende(double latticeConstant, ISpace space) {
         super(new LatticeCubicFcc(latticeConstant), space);
         species = new ISpecies[2];
     }

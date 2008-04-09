@@ -6,7 +6,7 @@ import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 
 /**
@@ -20,7 +20,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private final Plane plane;
     private Primitive primitive;
     private IVector3D normal, delta;
-    private Space space;
+    private ISpace space;
     private int[] millerIndices;
     private IVector origin;
     

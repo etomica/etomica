@@ -11,11 +11,11 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class PotentialGroupNbr extends PotentialGroup {
 
-    protected PotentialGroupNbr(int nBody, Space space) {
+    protected PotentialGroupNbr(int nBody, ISpace space) {
         super(nBody, space);
         atomSetSinglet = new AtomSetSinglet();
     }

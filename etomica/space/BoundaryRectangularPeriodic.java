@@ -11,14 +11,14 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     /**
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
-    public BoundaryRectangularPeriodic(IRandom _random, Space _space) {
+    public BoundaryRectangularPeriodic(IRandom _random, ISpace _space) {
         this(_space, _random, 10.0);
     }
     
     /**
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
-    public BoundaryRectangularPeriodic(Space _space, IRandom _random, double boxSize) {
+    public BoundaryRectangularPeriodic(ISpace _space, IRandom _random, double boxSize) {
         super(_space, _random, makePeriodicity(_space.D()), boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = (IVectorRandom)space.makeVector();

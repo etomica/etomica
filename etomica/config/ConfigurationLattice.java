@@ -18,6 +18,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -50,7 +51,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLattice(SpaceLattice lattice, Space space) {
+    public ConfigurationLattice(SpaceLattice lattice, ISpace space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -60,7 +61,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, Space space) {
+            IndexIteratorSizable indexIterator, ISpace space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -249,7 +250,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     protected double boundaryPadding;
-    protected final Space space;
+    protected final ISpace space;
     private static final long serialVersionUID = 3L;
 
     public static void main(String[] args) {
@@ -319,7 +320,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             this.site = l.getSpace().makeVector();
         }
 
-        public Space getSpace() {
+        public ISpace getSpace() {
             return lattice.getSpace();
         }
 

@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtomType;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Molecule class appropriate for a rigid molecule in a dynamic context.  The
@@ -13,7 +13,7 @@ import etomica.space.Space;
  */
 public class MoleculeOrientedDynamic extends MoleculeOriented implements IAtomOrientedKinetic {
 
-    public MoleculeOrientedDynamic(Space space, IAtomType type) {
+    public MoleculeOrientedDynamic(ISpace space, IAtomType type) {
         super(space, type);
         angularMomentum = space.makeVector();
         velocity = space.makeVector();

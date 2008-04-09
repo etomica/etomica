@@ -6,7 +6,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -16,11 +16,11 @@ import etomica.space.Space;
 
 public class P2TriangleWell extends Potential2 {
 
-    public P2TriangleWell(Space space) {
+    public P2TriangleWell(ISpace space) {
         this(space, 1.0, 2.0, 1.0);
     }
   
-    public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {
+    public P2TriangleWell(ISpace space, double coreDiameter, double lambda, double epsilon) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);

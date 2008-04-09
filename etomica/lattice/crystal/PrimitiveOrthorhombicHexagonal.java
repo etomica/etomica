@@ -2,7 +2,7 @@ package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Primitive group for an orthorhombic system.  Primitive vectors orthogonal 
@@ -11,7 +11,7 @@ import etomica.space.Space;
  */
 public class PrimitiveOrthorhombicHexagonal extends Primitive {
     
-    public PrimitiveOrthorhombicHexagonal(Space space, double a) {
+    public PrimitiveOrthorhombicHexagonal(ISpace space, double a) {
         super(space);
         //set up orthogonal vectors of unit size
         setSize(new double[]{a, Math.sqrt(3)*a});

@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.potential.Potential2;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -21,7 +21,7 @@ import etomica.units.Kelvin;
  */
 public class P2WaterTIP4P extends Potential2 {
 
-    public P2WaterTIP4P(Space space) {
+    public P2WaterTIP4P(ISpace space) {
 	    super(space);
 	    work = space.makeVector();
 	    shift = space.makeVector();

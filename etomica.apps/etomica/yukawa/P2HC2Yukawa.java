@@ -8,7 +8,7 @@ import etomica.api.IVector;
 import etomica.api.IAtomPositioned;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.api.ISimulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
@@ -43,11 +43,11 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(Space _space){
+	public P2HC2Yukawa(ISpace _space){
 		this(_space, 1.0, 1.0);
 	}
 	
-	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
+	public P2HC2Yukawa(ISpace _space, double sigma, double epsilon){
 		super(_space);
 		
 		dr = space.makeVector();

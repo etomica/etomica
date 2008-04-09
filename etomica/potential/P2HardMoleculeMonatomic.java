@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -14,7 +14,7 @@ import etomica.space.Tensor;
  public class P2HardMoleculeMonatomic extends P2MoleculeMonatomic implements
         PotentialHard {
 
-    public P2HardMoleculeMonatomic(Space space, IPotential potential) {
+    public P2HardMoleculeMonatomic(ISpace space, IPotential potential) {
         super(space, potential);
     }
 

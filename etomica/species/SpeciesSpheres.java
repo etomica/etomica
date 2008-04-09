@@ -12,7 +12,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -22,23 +22,23 @@ import etomica.space.Space;
  */
 public class SpeciesSpheres extends Species {
 
-    public SpeciesSpheres(ISimulation sim, Space _space) {
+    public SpeciesSpheres(ISimulation sim, ISpace _space) {
         this(sim, _space, 1);
     }
-    public SpeciesSpheres(ISimulation sim, Space _space, int nA) {
+    public SpeciesSpheres(ISimulation sim, ISpace _space, int nA) {
         this(sim, _space, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(ISimulation sim, Space _space, int nA, Element leafElement) {
+    public SpeciesSpheres(ISimulation sim, ISpace _space, int nA, Element leafElement) {
         this(sim, nA, leafElement, new ConformationLinear(_space), _space);
     }
     
     public SpeciesSpheres(ISimulation sim, int nA, Element leafElement,
-    		              IConformation conformation, Space _space) {
+    		              IConformation conformation, ISpace _space) {
         this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
     }
     
-    public SpeciesSpheres(Space _space, boolean isDynamic, int nA, IAtomTypeLeaf leafAtomType, IConformation conformation) {
+    public SpeciesSpheres(ISpace _space, boolean isDynamic, int nA, IAtomTypeLeaf leafAtomType, IConformation conformation) {
         super(new AtomPositionGeometricCenter(_space));
         this.space = _space;
         addChildType(leafAtomType);
@@ -84,7 +84,7 @@ public class SpeciesSpheres extends Species {
 
      private static final long serialVersionUID = 1L;
      protected final boolean isDynamic;
-     protected final Space space;
+     protected final ISpace space;
      protected int atomsPerGroup;
      protected final IAtomTypeLeaf leafAtomType;
 }

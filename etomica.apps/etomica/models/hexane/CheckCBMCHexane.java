@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * 
@@ -18,7 +18,7 @@ import etomica.space.Space;
  */
 public class CheckCBMCHexane implements IAction {
 
-    public CheckCBMCHexane(IBox p, PotentialMaster potentialMaster, Space space) {
+    public CheckCBMCHexane(IBox p, PotentialMaster potentialMaster, ISpace space) {
         box = p;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setBox(box);

@@ -26,7 +26,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.Species;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -39,23 +39,23 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(ISimulation sim, int nCells, Space _space) {
+	public PotentialMasterSite(ISimulation sim, int nCells, ISpace _space) {
         this(sim, new BoxAgentSiteManager(nCells, _space), _space);
     }
     
     public PotentialMasterSite(ISimulation sim,
-    		                   BoxAgentSource boxAgentSource, Space _space) {
+    		                   BoxAgentSource boxAgentSource, ISpace _space) {
         this(sim, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
     }
     
     public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource,
-    		BoxAgentManager agentManager, Space _space) {
+    		BoxAgentManager agentManager, ISpace _space) {
         this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager), _space);
     }
     
     protected PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, 
             BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator,
-            Space _space) {
+            ISpace _space) {
         super(sim, boxAgentSource, agentManager, _space);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
@@ -304,7 +304,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class BoxAgentSiteManager implements BoxAgentSource {
-        public BoxAgentSiteManager(int nCells, Space _space) {
+        public BoxAgentSiteManager(int nCells, ISpace _space) {
             this.nCells = nCells;
             this.space = _space;
         }
@@ -321,6 +321,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         
         private final int nCells;
-        private final Space space;
+        private final ISpace space;
     }
 }

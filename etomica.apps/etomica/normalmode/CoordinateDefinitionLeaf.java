@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * CoordinateDefinition implementation for monatomic molecules that are simply
@@ -26,11 +26,11 @@ import etomica.space.Space;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Space space) {
+    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, ISpace space) {
         this(box, primitive, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Basis basis, Space space) {
+    public CoordinateDefinitionLeaf(IBox box, Primitive primitive, Basis basis, ISpace space) {
         super(box, space.D()*basis.getScaledCoordinates().length, primitive, basis, space);
         workVector = space.makeVector();
         u = new double[coordinateDim];

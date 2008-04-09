@@ -5,6 +5,7 @@ import etomica.api.ISimulation;
 
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -18,7 +19,7 @@ public class BoxCluster extends Box {
 	/**
 	 * Constructor for BoxCluster.
 	 */
-	public BoxCluster(ISimulation sim, ClusterWeight cluster, Space _space) {
+	public BoxCluster(ISimulation sim, ClusterWeight cluster, ISpace _space) {
 		super(new BoundaryRectangularNonperiodic(_space, sim.getRandom()), _space);
         sampleCluster = cluster;
         this.space = _space;
@@ -103,5 +104,5 @@ public class BoxCluster extends Box {
 	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
     private AtomPairSet aPairSet;
 	private final ClusterWeight sampleCluster;
-	private final Space space;
+	private final ISpace space;
 }

@@ -2,7 +2,7 @@ package etomica.data.meter;
 import etomica.api.IBox;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Pressure;
 
 /**
@@ -16,7 +16,7 @@ public class MeterPressureHard extends DataSourceScalar implements
                                                 IntegratorHard.CollisionListener,
                                                 DataSourceCollisional {
     
-    public MeterPressureHard(Space space) {
+    public MeterPressureHard(ISpace space) {
         super("Pressure", Pressure.dimension(space.D()));
         dim = space.D();
     }

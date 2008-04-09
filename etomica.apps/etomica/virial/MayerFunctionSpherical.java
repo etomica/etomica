@@ -4,7 +4,7 @@ import etomica.api.IVector;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
 
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author kofke
@@ -14,7 +14,7 @@ import etomica.space.Space;
  */
 public abstract class MayerFunctionSpherical implements MayerFunction, java.io.Serializable {
 
-    public MayerFunctionSpherical(Space space) {
+    public MayerFunctionSpherical(ISpace space) {
         dr = space.makeVector();
     }
 

@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomType;
 import etomica.api.IPotential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * 2-body soft truncated Potential class for use between two monatomic
@@ -16,7 +16,7 @@ import etomica.space.Space;
 public class P2SoftMoleculeMonatomicTruncated extends P2SoftMoleculeMonatomic
         implements PotentialTruncated {
 
-    public P2SoftMoleculeMonatomicTruncated(Space space, IPotential potential) {
+    public P2SoftMoleculeMonatomicTruncated(ISpace space, IPotential potential) {
         super(space, potential);
     }
 

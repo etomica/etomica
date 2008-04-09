@@ -9,7 +9,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Action that imposes the central-image effect of a box having periodic
@@ -24,7 +24,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * before action can have any effect. Default is to apply central-imaging at
 	 * the atom rather than molecule level.
 	 */
-	public BoxImposePbc(Space space) {
+	public BoxImposePbc(ISpace space) {
 		setApplyToMolecules(false);
 		this.space = space;
 	}
@@ -36,7 +36,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(IBox box, Space space) {
+	public BoxImposePbc(IBox box, ISpace space) {
 		this(space);
 		setBox(box);
 	}
@@ -146,7 +146,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	private AtomIteratorBoxDependent iterator;
     private AtomActionTranslateBy translator;
     private AtomGroupAction moleculeTranslator;
-    private Space space;
+    private ISpace space;
 
 	private boolean applyToMolecules;
 }

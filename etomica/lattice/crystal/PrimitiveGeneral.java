@@ -2,7 +2,7 @@ package etomica.lattice.crystal;
 
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 
 /**
@@ -13,7 +13,7 @@ import etomica.space3d.IVector3D;
  */
 public class PrimitiveGeneral extends Primitive {
 
-    public PrimitiveGeneral(Space space, IVector[] primitiveVectors) {
+    public PrimitiveGeneral(ISpace space, IVector[] primitiveVectors) {
         super(space);
         for (int i=0; i<latticeVectors.length; i++) {
             latticeVectors[i].E(primitiveVectors[i]);

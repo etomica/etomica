@@ -3,7 +3,7 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.api.IBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Null;
 
@@ -16,7 +16,7 @@ import etomica.units.Null;
 
 public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
-    public DataSourceTensorVirialHard(Space space) {
+    public DataSourceTensorVirialHard(ISpace space) {
     	dim = space.D();
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
@@ -25,7 +25,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
         dataInfo.addTag(tag);
     }
     
-    public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
+    public DataSourceTensorVirialHard(ISpace space, IntegratorHard integrator) {
         this(space);
         setIntegrator(integrator);
     }

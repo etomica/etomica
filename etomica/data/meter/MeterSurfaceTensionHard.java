@@ -5,7 +5,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Energy;
 
@@ -20,7 +20,7 @@ import etomica.units.Energy;
 
 public class MeterSurfaceTensionHard extends DataSourceScalar {
     
-    public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
+    public MeterSurfaceTensionHard(ISpace space, IntegratorHard integrator) {
         super("Surface Tension",Energy.DIMENSION);
         velocityTensor = new MeterTensorVelocity(space);
         velocityTensor.setBox(integrator.getBox());

@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Undefined;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a box.
@@ -23,11 +23,11 @@ import etomica.units.Undefined;
 
 public class MeterBondOrderParameterQ  extends DataSourceScalar {
 	
-    public MeterBondOrderParameterQ(Space _space) {
+    public MeterBondOrderParameterQ(ISpace _space) {
         this(_space, 5.0);
     }
     
-    public MeterBondOrderParameterQ(Space _space, double rCut) {
+    public MeterBondOrderParameterQ(ISpace _space, double rCut) {
         super("Bond Q Order Parameter", Undefined.DIMENSION);
         setL(6);
         setR2Cut(rCut*rCut);

@@ -6,7 +6,7 @@ import etomica.data.Data;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * MeterRDF sublcass that properly calculates the RDF for the Piston/Cylinder
@@ -21,7 +21,7 @@ import etomica.space.Space;
  */
 public class MeterRDFCylinder extends MeterRDF {
 
-    public MeterRDFCylinder(Space space) {
+    public MeterRDFCylinder(ISpace space) {
         super(space);
     }
     

@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -20,11 +20,11 @@ import etomica.units.Length;
 
 public class P2LennardJonesDreiding extends Potential2SoftSpherical {
 	
-	public P2LennardJonesDreiding(Space space) {
+	public P2LennardJonesDreiding(ISpace space) {
         this(space, 1.0, 1.0);
     }
 	
-    public P2LennardJonesDreiding(Space space, double sigma, double epsilon) {
+    public P2LennardJonesDreiding(ISpace space, double sigma, double epsilon) {
         super(space);
         dr01 = space.makeVector();
         setSigma(sigma);

@@ -7,7 +7,7 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
 import etomica.api.ISpeciesManager;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.RandomNumberGenerator;
 
@@ -24,11 +24,11 @@ public class Simulation implements java.io.Serializable, ISimulation  {
      * Creates a new simulation using the given space, with a default
      * setting of isDynamic = true.
      */
-    public Simulation(Space space) {
+    public Simulation(ISpace space) {
         this(space, true);
     }
     
-    public Simulation(Space space, boolean isDynamic) {
+    public Simulation(ISpace space, boolean isDynamic) {
         this.space = space;
         this.dynamic = isDynamic;
         boxList = new IBox[0];
@@ -105,7 +105,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     /**
      * @return the space
      */
-    public final Space getSpace() {
+    public final ISpace getSpace() {
         return space;
     }
 
@@ -122,7 +122,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
 
     private static final long serialVersionUID = 4L;
-    protected final Space space;
+    protected final ISpace space;
     protected final ISimulationEventManager eventManager;
     private IBox[] boxList;
     private final ISpeciesManager speciesManager;

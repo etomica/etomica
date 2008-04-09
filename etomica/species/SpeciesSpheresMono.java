@@ -11,7 +11,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Species in which molecules are each made of a single spherical atom.
@@ -28,15 +28,15 @@ public class SpeciesSpheresMono extends Species {
     /**
      * Constructs instance with a default element
      */
-    public SpeciesSpheresMono(ISimulation sim, Space _space) {
+    public SpeciesSpheresMono(ISimulation sim, ISpace _space) {
         this(sim, _space, new ElementSimple(sim));
     }
     
-    public SpeciesSpheresMono(ISimulation sim, Space _space, Element element) {
+    public SpeciesSpheresMono(ISimulation sim, ISpace _space, Element element) {
         this(_space, sim.isDynamic(), new AtomTypeSphere(element));
     }
     
-    public SpeciesSpheresMono(Space space, boolean isDynamic, AtomTypeSphere leafAtomType) {
+    public SpeciesSpheresMono(ISpace space, boolean isDynamic, AtomTypeSphere leafAtomType) {
         super(new AtomPositionFirstAtom());
         this.space = space;
         this.leafAtomType = leafAtomType;
@@ -68,7 +68,7 @@ public class SpeciesSpheresMono extends Species {
      }
      
      private static final long serialVersionUID = 1L;
-     protected final Space space;
+     protected final ISpace space;
      protected final boolean isDynamic;
      protected final IAtomTypeLeaf leafAtomType;
 }

@@ -7,7 +7,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 
 /**
@@ -33,7 +33,7 @@ public class DataVector implements Data, java.io.Serializable {
      * @param dimension
      *            the physical dimensions of the data
      */
-    public DataVector(Space space) {
+    public DataVector(ISpace space) {
         super();
         x = space.makeVector();
     }
@@ -147,7 +147,7 @@ public class DataVector implements Data, java.io.Serializable {
     
     public static class DataInfoVector extends DataInfo {
         
-        public DataInfoVector(String label, Dimension dimension, Space space) {
+        public DataInfoVector(String label, Dimension dimension, ISpace space) {
             super(label, dimension);
             this.space = space;
         }
@@ -160,7 +160,7 @@ public class DataVector implements Data, java.io.Serializable {
             return new DataInfoVectorFactory(this);
         }
         
-        public Space getSpace() {
+        public ISpace getSpace() {
             return space;
         }
         
@@ -169,7 +169,7 @@ public class DataVector implements Data, java.io.Serializable {
         }
 
         private static final long serialVersionUID = 1L;
-        protected final Space space;
+        protected final ISpace space;
     }
 
     public static class DataInfoVectorFactory extends DataInfoFactory {
@@ -185,18 +185,18 @@ public class DataVector implements Data, java.io.Serializable {
         /**
          * Sets the Space
          */
-        public void setSpace(Space newSpace) {
+        public void setSpace(ISpace newSpace) {
             space = newSpace;
         }
         
         /**
          * Returns the Space
          */
-        public Space getSpace() {
+        public ISpace getSpace() {
             return space;
         }
 
         private static final long serialVersionUID = 1L;
-        protected Space space;
+        protected ISpace space;
     }
 }

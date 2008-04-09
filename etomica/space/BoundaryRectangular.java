@@ -20,14 +20,14 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation. 
      */
-    public BoundaryRectangular(IRandom _random, Space _space, boolean[] periodicity) {
+    public BoundaryRectangular(IRandom _random, ISpace _space, boolean[] periodicity) {
         this(_space, _random, periodicity, 10.0);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(Space space, IRandom random, boolean[] periodicity, double boxSize) {
+    public BoundaryRectangular(ISpace space, IRandom random, boolean[] periodicity, double boxSize) {
         this(space, random, periodicity, makeArray(space.D(), boxSize));
     }
     
@@ -43,7 +43,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(Space space, IRandom random, boolean[] periodicity, double[] boxSize) {
+    public BoundaryRectangular(ISpace space, IRandom random, boolean[] periodicity, double[] boxSize) {
         super(space, makeShape(space));
         this.random = random;
         isPeriodic = (boolean[])periodicity.clone();
@@ -58,7 +58,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     }
     
     //used by constructors
-    private static Polytope makeShape(Space space) {
+    private static Polytope makeShape(ISpace space) {
         switch(space.D()) {
             case 1: return new LineSegment(space);
             case 2: return new Rectangle(space);

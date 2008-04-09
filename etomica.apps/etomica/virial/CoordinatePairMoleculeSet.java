@@ -5,7 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtom;
 
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 
 /**
@@ -24,7 +24,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairMoleculeSet(IAtomSet list, Space space) {
+    public CoordinatePairMoleculeSet(IAtomSet list, ISpace space) {
         atoms = new IAtom[list.getAtomCount()];
         numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];

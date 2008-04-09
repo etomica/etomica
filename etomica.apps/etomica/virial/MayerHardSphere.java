@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.api.IBox;
 import etomica.api.IPotential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author kofke
@@ -17,10 +17,10 @@ public class MayerHardSphere extends MayerFunctionSpherical {
     /**
      * Constructor for MayerHardSphere.
      */
-    public MayerHardSphere(Space _space) {
+    public MayerHardSphere(ISpace _space) {
         this(_space, 1.0);
     }
-    public MayerHardSphere(Space _space, double sigma) {
+    public MayerHardSphere(ISpace _space, double sigma) {
         super(_space);
         setSigma(sigma);
     }

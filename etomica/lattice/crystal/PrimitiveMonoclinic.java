@@ -1,6 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -13,10 +14,10 @@ public class PrimitiveMonoclinic extends Primitive {
     
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveMonoclinic(Space space) {
+    public PrimitiveMonoclinic(ISpace space) {
         this(space, 1.0, 1.0, 1.0, rightAngle);
     }
-    public PrimitiveMonoclinic(Space space, double a, double b, double c, double beta) {
+    public PrimitiveMonoclinic(ISpace space, double a, double b, double c, double beta) {
         super(space);
         setSize(new double[]{a, b, c});//also sets reciprocal via update
         setAngleBeta(beta);
@@ -120,7 +121,7 @@ public class PrimitiveMonoclinic extends Primitive {
     protected static class PrimitiveMonoclinicReciprocal extends PrimitiveMonoclinic {
         private static final long serialVersionUID = 1L;
 
-        public PrimitiveMonoclinicReciprocal(Space space, double a, double b, double c, double beta) {
+        public PrimitiveMonoclinicReciprocal(ISpace space, double a, double b, double c, double beta) {
             super(space, a, b, c, beta);
         }
 

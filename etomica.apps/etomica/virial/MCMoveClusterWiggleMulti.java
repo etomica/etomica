@@ -9,7 +9,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
@@ -33,7 +33,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
-    public MCMoveClusterWiggleMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, Space _space) {
+    public MCMoveClusterWiggleMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
         setBondLength(1.0);
     }
@@ -46,7 +46,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleMulti(IPotentialMaster potentialMaster, 
-            IRandom random, double stepSize, int nAtoms, Space _space) {
+            IRandom random, double stepSize, int nAtoms, ISpace _space) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.space = _space;
         setStepSizeMax(Math.PI);
@@ -206,5 +206,5 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     protected final IVector3D work1, work2, work3;
     private IVector3D[] translationVectors;
     private double wOld, wNew;
-    private final Space space;
+    private final ISpace space;
 }

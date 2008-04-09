@@ -8,7 +8,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 
@@ -18,7 +18,7 @@ import etomica.space.Space;
  */
 public class WriteConfiguration implements IAction {
 
-	public WriteConfiguration(Space space) {
+	public WriteConfiguration(ISpace space) {
 		this.space = space;
 	}
 
@@ -108,5 +108,5 @@ public class WriteConfiguration implements IAction {
     private String confName;
     private IBox box;
     private boolean doApplyPBC;
-    private final Space space;
+    private final ISpace space;
 }

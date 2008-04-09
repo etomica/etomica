@@ -7,7 +7,7 @@ import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 
@@ -35,7 +35,7 @@ public class DataTensor implements Data, java.io.Serializable {
      * @param dimension
      *            the physical dimensions of the data
      */
-    public DataTensor(Space space) {
+    public DataTensor(ISpace space) {
         super();
         x = space.makeTensor();
     }
@@ -156,7 +156,7 @@ public class DataTensor implements Data, java.io.Serializable {
     
     public static class DataInfoTensor extends DataInfo {
         
-        public DataInfoTensor(String label, Dimension dimension, Space space) {
+        public DataInfoTensor(String label, Dimension dimension, ISpace space) {
             super(label, dimension);
             this.space = space;
         }
@@ -169,7 +169,7 @@ public class DataTensor implements Data, java.io.Serializable {
             return new DataInfoTensorFactory(this);
         }
         
-        public Space getSpace() {
+        public ISpace getSpace() {
             return space;
         }
         
@@ -178,7 +178,7 @@ public class DataTensor implements Data, java.io.Serializable {
         }
         
         private static final long serialVersionUID = 1L;
-        protected final Space space;
+        protected final ISpace space;
     }
     
     public static class DataInfoTensorFactory extends DataInfoFactory {
@@ -197,18 +197,18 @@ public class DataTensor implements Data, java.io.Serializable {
         /**
          * Sets the Space
          */
-        public void setSpace(Space newSpace) {
+        public void setSpace(ISpace newSpace) {
             space = newSpace;
         }
         
         /**
          * Returns the Space
          */
-        public Space getSpace() {
+        public ISpace getSpace() {
             return space;
         }
         
         private static final long serialVersionUID = 1L;
-        protected Space space;
+        protected ISpace space;
     }
 }

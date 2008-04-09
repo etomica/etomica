@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -15,7 +15,7 @@ import etomica.space.Tensor;
  public class P2SoftMoleculeMonatomic extends P2MoleculeMonatomic implements
         Potential2Soft {
 
-    public P2SoftMoleculeMonatomic(Space space, IPotential potential) {
+    public P2SoftMoleculeMonatomic(ISpace space, IPotential potential) {
         super(space, potential);
     }
 

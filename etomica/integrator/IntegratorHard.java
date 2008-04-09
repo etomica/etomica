@@ -30,7 +30,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.list.BoxEventNeighborsUpdated;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
@@ -75,12 +75,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     protected final AtomTypeAgentManager nullPotentialManager;
     protected final boolean doMoleculePotentials;
 
-    public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space, false);
     }
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space, boolean doMoleculePotentials) {
+            double timeStep, double temperature, ISpace _space, boolean doMoleculePotentials) {
         super(potentialMaster,random,timeStep,temperature, _space);
         this.doMoleculePotentials = doMoleculePotentials;
         pair = new AtomPair();

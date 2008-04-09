@@ -9,7 +9,7 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of the
@@ -21,11 +21,11 @@ import etomica.space.Space;
  */
 public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenter(ISimulation sim, Space _space) {
+    public AtomPositionGeometricCenter(ISimulation sim, ISpace _space) {
         this(_space);
     }
     
-    public AtomPositionGeometricCenter(Space space) {
+    public AtomPositionGeometricCenter(ISpace space) {
         vectorSum = space.makeVector();
         center = space.makeVector();
         myAction = new MyAction(vectorSum);

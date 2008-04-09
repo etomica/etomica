@@ -1,7 +1,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * A zero-dimensional polytope, a mathematical point in space.
@@ -11,11 +11,11 @@ import etomica.space.Space;
  */
 public class Point extends Polytope {
 
-    public Point(Space embeddedSpace) {
+    public Point(ISpace embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(Space embeddedSpace, IVector vectorRandom) {
+    public Point(ISpace embeddedSpace, IVector vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 

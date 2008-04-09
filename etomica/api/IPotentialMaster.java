@@ -5,7 +5,7 @@ import etomica.chem.models.Model;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMasterLrc;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public interface IPotentialMaster {
 
@@ -118,7 +118,7 @@ public interface IPotentialMaster {
 	/**
 	 * @return Returns the space.
 	 */
-	public Space getSpace();
+	public ISpace getSpace();
 
 	/**
 	 * Returns an array containing all molecular Potentials.

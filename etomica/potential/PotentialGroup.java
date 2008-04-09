@@ -21,7 +21,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -38,7 +38,7 @@ public class PotentialGroup extends Potential {
      * This constructor should only be called by the PotentialMaster.  Use 
      * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
-    public PotentialGroup(int nBody, Space space) {
+    public PotentialGroup(int nBody, ISpace space) {
         super(nBody, space);
     }
     

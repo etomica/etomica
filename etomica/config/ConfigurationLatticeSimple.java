@@ -19,6 +19,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -49,7 +50,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeSimple(SpaceLattice lattice, Space space) {
+    public ConfigurationLatticeSimple(SpaceLattice lattice, ISpace space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -59,7 +60,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * iterator.
      */
     public ConfigurationLatticeSimple(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, Space space) {
+            IndexIteratorSizable indexIterator, ISpace space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -161,7 +162,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
     protected final AtomActionTranslateTo atomActionTranslateTo;
-    private final Space space;
+    private final ISpace space;
     private static final long serialVersionUID = 2L;
 
     public static void main(String[] args) {

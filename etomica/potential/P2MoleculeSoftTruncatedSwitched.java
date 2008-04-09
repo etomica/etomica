@@ -6,7 +6,7 @@ import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 
@@ -17,7 +17,7 @@ import etomica.space3d.Space3D;
  */
 public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPotentialTorque {
     
-    public P2MoleculeSoftTruncatedSwitched(IPotentialTorque potential, double truncationRadius, Space _space) {
+    public P2MoleculeSoftTruncatedSwitched(IPotentialTorque potential, double truncationRadius, ISpace _space) {
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
@@ -130,7 +130,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     }
 
     public static void main(String[] args) {
-    	Space sp = Space3D.getInstance();
+    	ISpace sp = Space3D.getInstance();
         P2MoleculeSoftTruncatedSwitched p095 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);
         p095.setSwitchFac(0.95);
         P2MoleculeSoftTruncatedSwitched p080 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(sp), 2, sp);

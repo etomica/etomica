@@ -8,7 +8,7 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
-public abstract class Space implements java.io.Serializable {
+public abstract class Space implements java.io.Serializable, ISpace {
 
     protected Space() {
     }
@@ -31,73 +31,63 @@ public abstract class Space implements java.io.Serializable {
         }
     }
     
-    /**
-     * The dimension of this space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#D()
+	 */
     public abstract int D();
 
-    /**
-     * Returns the given value raised to the power 1/D, where D is the dimension of the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#rootD(double)
+	 */
     public abstract double rootD(double a);
     
-    /**
-     * Returns the given value raised to the Dth power, where D is the dimension of the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#powerD(int)
+	 */
     public abstract int powerD(int a);
     
-    /**
-     * Returns the given value raised to the Dth power, where D is the dimension of the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#powerD(double)
+	 */
     public abstract double powerD(double a);
     
-    /**
-     * Constructs and returns a new Vector appropriate to the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeVector()
+	 */
     public abstract IVector makeVector();
 
-    /**
-     * Constructs and returns a new Orientation appropriate to the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeOrientation()
+	 */
     public abstract IOrientation makeOrientation();
     
-    /**
-     * Constructs and returns a new Tensor appropriate to the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeTensor()
+	 */
     public abstract Tensor makeTensor();
 
-    /**
-     * Constructs and returns a new RotationTensor appropriate to the space.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeRotationTensor()
+	 */
     public abstract RotationTensor makeRotationTensor();
     
-    /**
-     * Returns an array of dimension D, with each element equal to the given value.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeArrayD(int)
+	 */
     public abstract int[] makeArrayD(int i);
-    /**
-     * Returns an array of dimension D, with each element equal to the given value.
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeArrayD(double)
+	 */
     public abstract double[] makeArrayD(double d);
 
-    /**
-     * Returns the "volume" of the "sphere" defined in the D-dimensional space.
-     * In 1-D, this is twice the radius; in 2-D the area of the circle; 
-     * in 3-D the volume of the sphere.
-     *
-     * @param r the radius
-     * @return the volume
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#sphereVolume(double)
+	 */
     public abstract double sphereVolume(double r);
 
-    /**
-     * Returns the surface "area" of the "sphere" defined in the D-dimensional space.
-     * In 1-D this is zero; in 2-D the circumference of the circle; in 3-D 
-     * the surface area of the sphere.
-     *
-     * @param r the radius
-     * @return the area
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#sphereArea(double)
+	 */
     public abstract double sphereArea(double r);
     
     /**
@@ -153,12 +143,9 @@ public abstract class Space implements java.io.Serializable {
         return makeVector(a);
     }
     
-    /**
-     * Instance methods that makes and returns an array of vectors having the
-     * given number of elements.
-     * @param n number of vectors in the returned array
-     * @return an array of n new vectors made by the space instance
-     */
+    /* (non-Javadoc)
+	 * @see etomica.space.ISpace#makeVectorArray(int)
+	 */
     public IVector[] makeVectorArray(int n) {
         IVector[] vectors = new IVector[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();

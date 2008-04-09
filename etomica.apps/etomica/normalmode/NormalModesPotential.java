@@ -17,8 +17,8 @@ import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
@@ -35,7 +35,7 @@ import etomica.util.RandomNumberGenerator;
 
 public class NormalModesPotential implements NormalModes {
 
-    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space space) {
+    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace space) {
         
         needToCalculateModes = true;
         

@@ -14,7 +14,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.Potential1;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.
@@ -37,12 +37,12 @@ public final class IntegratorHardField extends IntegratorHard {
 	    }
     };
 
-    public IntegratorHardField(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorHardField(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
     public IntegratorHardField(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(sim, potentialMaster,random,timeStep,temperature, _space, false);
         forceSum = new PotentialCalculationForceSum();
         //XXX not serializable

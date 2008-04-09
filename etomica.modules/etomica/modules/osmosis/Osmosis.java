@@ -32,12 +32,12 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
 import etomica.potential.P1HardBoundary;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
@@ -65,7 +65,7 @@ public class Osmosis extends SimulationGraphic {
     public OsmosisSim sim;
     private DeviceThermoSlider temperatureSelect;
 
-    public Osmosis(OsmosisSim simulation, Space _space) {
+    public Osmosis(OsmosisSim simulation, ISpace _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 

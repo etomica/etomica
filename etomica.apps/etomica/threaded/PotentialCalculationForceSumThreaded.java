@@ -12,15 +12,15 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource{
 
 	final protected PotentialCalculationForceSum[] pc;
 	protected AtomLeafAgentManager[] atomAgentManager;
-	private final Space space;
+	private final ISpace space;
     
-	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc, Space _space) {
+	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc, ISpace _space) {
 		this.pc = pc;
 		this.space = _space;
 	}

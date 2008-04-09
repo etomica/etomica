@@ -8,7 +8,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.graphics.Drawable;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -39,11 +39,11 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private int lastCollisionDim;
     private final Tensor lastVirialTensor;
     
-    public P1HardBoundary(Space space) {
+    public P1HardBoundary(ISpace space) {
         this(space, false);
     }
     
-    public P1HardBoundary(Space space, boolean ignoreOverlap) {
+    public P1HardBoundary(ISpace space, boolean ignoreOverlap) {
         super(space);
         this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();

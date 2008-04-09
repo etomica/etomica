@@ -21,7 +21,7 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
      * can be used to generate Vectors, and a Polytope that defines the shape
      * and volume of the boundary region. Both are final.
      */
-    public Boundary(Space space, Polytope shape) {
+    public Boundary(ISpace space, Polytope shape) {
         this.space = space;
         this.shape = shape;
     }
@@ -97,6 +97,6 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
     
 //    protected final Space space;
     protected final Polytope shape;
-    protected final Space space;
+    protected final ISpace space;
 
 }

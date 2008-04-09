@@ -17,11 +17,11 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class ConfigurationSAM implements Configuration {
 
-    public ConfigurationSAM(ISimulation sim, Space space,
+    public ConfigurationSAM(ISimulation sim, ISpace space,
             ISpecies speciesMolecules, ISpecies speciesSurface) {
         this.sim = sim;
         this.space = space;
@@ -172,7 +172,7 @@ public class ConfigurationSAM implements Configuration {
         this.basisSurface = basisSurface;
     }
     
-    protected final Space space;
+    protected final ISpace space;
     protected final ISimulation sim;
     protected final ISpecies speciesMolecules;
     protected final ISpecies speciesSurface;

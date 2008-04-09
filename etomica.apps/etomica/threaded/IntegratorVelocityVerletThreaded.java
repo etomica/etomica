@@ -4,19 +4,19 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 public class IntegratorVelocityVerletThreaded extends IntegratorVelocityVerlet {
 
     private static final long serialVersionUID = 1L;
 
-    public IntegratorVelocityVerletThreaded(IRandom _random, Space _space, IPotentialMaster potentialMaster, int numThreads) {
+    public IntegratorVelocityVerletThreaded(IRandom _random, ISpace _space, IPotentialMaster potentialMaster, int numThreads) {
         this(potentialMaster,_random, 0.05, 1.0, numThreads, _space);
     }
 
     public IntegratorVelocityVerletThreaded(IPotentialMaster potentialMaster,
-            IRandom random, double timeStep, double temperature, int numThreads, Space _space) {
+            IRandom random, double timeStep, double temperature, int numThreads, ISpace _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         
         PotentialCalculationForceSum[] pcfs = new PotentialCalculationForceSum[numThreads];

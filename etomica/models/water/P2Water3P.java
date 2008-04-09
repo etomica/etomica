@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.potential.Potential2;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 
 /** 
@@ -19,7 +19,7 @@ import etomica.space3d.IVector3D;
  */
 public class P2Water3P extends Potential2 {
 
-	public P2Water3P(Space space, double sigma, double epsilon, double chargeO, double chargeH) {
+	public P2Water3P(ISpace space, double sigma, double epsilon, double chargeO, double chargeH) {
 		super(space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;

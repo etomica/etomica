@@ -4,7 +4,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMoleculeMonatomic;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * data source front for virial sum from P1HardMovingBoundary
@@ -12,7 +12,7 @@ import etomica.space.Space;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(Space space, P1HardMoleculeMonatomic potentialWrapper) {
+    public DataSourceWallPressure(ISpace space, P1HardMoleculeMonatomic potentialWrapper) {
         super(space);
         wallPotentialWrapper = potentialWrapper;
     }

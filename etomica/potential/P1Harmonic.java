@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -27,7 +27,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     private final IVector[] force;
     private final IVector x0;
     
-    public P1Harmonic(Space space) {
+    public P1Harmonic(ISpace space) {
         super(space);
         force = new IVector[]{space.makeVector()};
         x0 = space.makeVector();

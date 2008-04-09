@@ -25,7 +25,7 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 
 /**
@@ -41,7 +41,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
 
     private static final long serialVersionUID = 1L;
     protected final CellLattice lattice;
-    protected final Space space;
+    protected final ISpace space;
     protected final AtomIteratorTreeBox atomIterator;
     protected final IAtomPositionDefinition positionDefinition;
     protected final IBox box;
@@ -54,7 +54,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(IBox box, double potentialRange, Space _space) {
+    public NeighborCellManager(IBox box, double potentialRange, ISpace _space) {
         this(box, potentialRange, null, _space);
     }
     
@@ -65,7 +65,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, Space _space) {
+    public NeighborCellManager(final IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace _space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         space = _space;
@@ -256,7 +256,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     }
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
-        public MyMCMoveListener(Space space, IBox box, NeighborCellManager manager) {
+        public MyMCMoveListener(ISpace space, IBox box, NeighborCellManager manager) {
             moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);

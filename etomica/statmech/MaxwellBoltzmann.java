@@ -1,5 +1,5 @@
 package etomica.statmech;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Mass;
 
 /**
@@ -18,10 +18,10 @@ public final class MaxwellBoltzmann {
     public static class Distribution implements etomica.util.Function, java.io.Serializable {
         private double temperature;
         private double mass;
-        private Space space;
+        private ISpace space;
         private double a, c;
 
-        public Distribution(Space space, double temperature, double mass) {
+        public Distribution(ISpace space, double temperature, double mass) {
             this.temperature = temperature;
             this.mass = mass;
             this.space = space;

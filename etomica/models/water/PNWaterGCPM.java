@@ -10,7 +10,7 @@ import etomica.atom.AtomPair;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialPolarizable;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -26,7 +26,7 @@ import etomica.util.Arrays;
  */
 public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
 
-    public PNWaterGCPM(Space space) {
+    public PNWaterGCPM(ISpace space) {
 	    super(space);
 	    pair = new AtomPair();
         sigma = 3.69;

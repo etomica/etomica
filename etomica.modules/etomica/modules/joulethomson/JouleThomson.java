@@ -46,6 +46,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -361,9 +362,9 @@ public class JouleThomson extends SimulationGraphic {
             public void actionPerformed(IAtom a) {((ElementSimple)((IAtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
-        private final Space space;
+        private final ISpace space;
         
-        SpeciesChooser(JouleThomson simGraphic, Space _space) {
+        SpeciesChooser(JouleThomson simGraphic, ISpace _space) {
             super(names);
             this.space = _space;
             this.simGraphic = simGraphic;

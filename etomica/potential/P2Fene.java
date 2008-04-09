@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -17,11 +17,11 @@ public class P2Fene extends Potential2SoftSpherical {
     private static final long serialVersionUID = 1L;
     private double r0, r02, h, prefactor;
     
-    public P2Fene(Space _space) {
+    public P2Fene(ISpace _space) {
         this(_space, 1.50, 30.0);
     }
     
-    public P2Fene(Space _space, double r0, double amplitude) {
+    public P2Fene(ISpace _space, double r0, double amplitude) {
         super(_space);
         setMaximumSeparation(r0);
         setAmplitude(amplitude);

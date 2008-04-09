@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 
 import etomica.potential.Potential1;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -20,7 +20,7 @@ public class P1MagneticField extends Potential1 {
     /**
      * @param space
      */
-    public P1MagneticField(Space space) {
+    public P1MagneticField(ISpace space) {
         super(space);
         direction = space.makeVector();
         direction.E(0.0);

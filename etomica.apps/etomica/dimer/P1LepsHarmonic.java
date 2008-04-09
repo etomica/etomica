@@ -5,7 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IVector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 /**
  * A combination of the basic LEPS potential describing 3 atoms moving in 1-dimension, paired with a harmonic potential.
@@ -43,7 +43,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
     public double sy1 = 0.35;
     public double sy2 = 0.7;
     
-	public P1LepsHarmonic(Space space){
+	public P1LepsHarmonic(ISpace space){
 		super(space);
 	    force = new IVector[]{space.makeVector()};
 	}

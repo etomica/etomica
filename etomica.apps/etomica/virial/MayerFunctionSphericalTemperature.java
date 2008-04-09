@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.api.IBox;
 import etomica.api.IPotential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Mayer function that wraps another MayerFunctionSpherical and ignores 
@@ -11,7 +11,7 @@ import etomica.space.Space;
  */
 public class MayerFunctionSphericalTemperature extends MayerFunctionSpherical {
 
-    public MayerFunctionSphericalTemperature(Space space, MayerFunctionSpherical fWrapped, double temperature) {
+    public MayerFunctionSphericalTemperature(ISpace space, MayerFunctionSpherical fWrapped, double temperature) {
         super(space);
         mayerFunction = fWrapped;
         beta = 1/temperature;

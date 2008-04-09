@@ -1,6 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -22,11 +22,11 @@ import etomica.units.Length;
  */
 public final class P2SoftSphere extends Potential2SoftSpherical {
 
-    public P2SoftSphere(Space space) {
+    public P2SoftSphere(ISpace space) {
         this(space, 1.0, 1.0, 0.1);
     }
     
-    public P2SoftSphere(Space space, double sigma, double epsilon, double s) {
+    public P2SoftSphere(ISpace space, double sigma, double epsilon, double s) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

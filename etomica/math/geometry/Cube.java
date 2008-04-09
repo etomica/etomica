@@ -5,7 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
 /**
@@ -19,7 +19,7 @@ public class Cube extends Hexahedron {
     /**
      * Constructs a cube of unit size.
      */
-    public Cube(Space embeddedSpace) {
+    public Cube(ISpace embeddedSpace) {
         this(embeddedSpace, 1.0);
     }
     
@@ -28,7 +28,7 @@ public class Cube extends Hexahedron {
      * @param size edge length of the cube
      */
     //TODO generalize for any embedded space
-    public Cube(Space embeddedSpace, double size) {
+    public Cube(ISpace embeddedSpace, double size) {
         super(embeddedSpace);
         setEdgeLength(size);
     }

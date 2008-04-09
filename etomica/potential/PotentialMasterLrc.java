@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Collects potentials used for long-range correction.
@@ -20,7 +20,7 @@ import etomica.space.Space;
  
 public class PotentialMasterLrc extends PotentialMaster {
 
-    protected PotentialMasterLrc(Space space) {
+    protected PotentialMasterLrc(ISpace space) {
         super(space);
     }
     

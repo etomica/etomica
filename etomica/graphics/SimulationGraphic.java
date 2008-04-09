@@ -18,6 +18,7 @@ import etomica.api.ISimulation;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.SimulationContainer;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -47,30 +48,31 @@ public class SimulationGraphic implements SimulationContainer {
     private final LinkedList deviceList = new LinkedList();
     private HashMap repaintActions = new HashMap();
     private int graphicType = GRAPHIC_ONLY;
-    protected final Space space;
+    protected final ISpace space;
 
 
-    public SimulationGraphic(ISimulation simulation, Space space) {
+    public SimulationGraphic(ISimulation simulation, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, Space space) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, ISpace space) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName, Space space) {
+    public SimulationGraphic(ISimulation simulation, String appName, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, Space space) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, ISpace space) {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval, Space space) {
+    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, int updateInterval, Space space) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName,
+    		                 int updateInterval, ISpace space) {
         this.simulation = simulation;
         this.space = space;
         this.updateInterval = updateInterval;

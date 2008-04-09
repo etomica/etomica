@@ -3,7 +3,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -25,7 +25,7 @@ public class Plane implements java.io.Serializable {
     private IVector3D[] inPlane; //work vectors used by inPlaneSquare method
     private IVector3D work0; //work vector used by inPlaneSquare method (no-x0 version)
     private IVector3D work1; //work vector used by inPlaneSquare method (no-x0 version)
-    private final Space space;
+    private final ISpace space;
     
     /**
      * Tolerance used to judge if a given point is in the plane.
@@ -37,7 +37,7 @@ public class Plane implements java.io.Serializable {
     /**
      * Default constructor returns the y-z plane.
      */
-    public Plane(Space space) {
+    public Plane(ISpace space) {
         this(space, 1.0, 0.0, 0.0, 0.0);
     }
     /**
@@ -50,7 +50,7 @@ public class Plane implements java.io.Serializable {
     /**
      * Constructs a Plane satisfying the equation a x + b y + c z + d = 0
      */
-    public Plane(Space space, double a, double b, double c, double d) {
+    public Plane(ISpace space, double a, double b, double c, double d) {
         if(a == 0 && b == 0 && c == 0) throw new IllegalArgumentException("Arguments to Plane constructor do not define a plane");
         this.space = space;
         this.a = a;

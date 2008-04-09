@@ -20,6 +20,7 @@ import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -58,7 +59,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane, Space space) {
+    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane, ISpace space) {
         this(lattice, plane, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -68,7 +69,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * iterator.
      */
     private ConfigurationLatticeWithPlane(SpaceLattice lattice,
-            Plane plane, IndexIteratorSizable indexIterator, Space space) {
+            Plane plane, IndexIteratorSizable indexIterator, ISpace space) {
     	super(lattice, indexIterator, space);
 
         if(indexIterator.getD() != lattice.D()) {

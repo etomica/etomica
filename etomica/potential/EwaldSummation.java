@@ -14,6 +14,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.units.Dimension;
@@ -59,7 +60,7 @@ public class EwaldSummation implements IPotential{
 		return Length.DIMENSION;
 	}
 
-	public Space getSpace() {
+	public ISpace getSpace() {
 		// TODO Auto-generated method stub
 		return space;
 	}

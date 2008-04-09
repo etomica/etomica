@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 
 import etomica.potential.Potential0;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author David Kofke
@@ -19,7 +19,7 @@ public class P0Cluster extends Potential0 {
 	/**
 	 * Constructor for P0Cluster.
 	 */
-	public P0Cluster(Space space) {
+	public P0Cluster(ISpace space) {
 		super(space);
 	}
 	

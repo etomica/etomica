@@ -8,7 +8,7 @@ import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Undefined;
 
 /**
@@ -25,11 +25,11 @@ import etomica.units.Undefined;
 public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     
-    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator) {
+    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator) {
         this(space, integrator, new AtomIteratorLeafAtoms());
     }
 
-    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
+    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
         super("Mean square displacement", Undefined.DIMENSION);
         this.space = space;
         this.integrator = integrator;
@@ -135,6 +135,6 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     AtomIteratorBoxDependent iterator;
     IntegratorBox integrator;
     protected IVector[] rAccum, rLast;
-    private final Space space;
+    private final ISpace space;
 
 }//end of class

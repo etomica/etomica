@@ -7,7 +7,7 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Null;
 
 /**
@@ -29,7 +29,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertion extends DataSourceScalar {
 
-    public MeterWidomInsertion(Space space) {
+    public MeterWidomInsertion(ISpace space) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         setResidual(true);

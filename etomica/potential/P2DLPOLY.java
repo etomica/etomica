@@ -7,11 +7,11 @@ import java.io.IOException;
 import etomica.action.WriteConfigurationP2DLPOLY;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class P2DLPOLY extends Potential{
 	
-	public P2DLPOLY(Space space){
+	public P2DLPOLY(ISpace space){
 		super(2, space);
        	configP2DLPOLY = new WriteConfigurationP2DLPOLY();
     	configP2DLPOLY.setConfName("CONFIG");

@@ -4,7 +4,7 @@ import etomica.models.water.SpeciesWater4P;
 import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -14,7 +14,7 @@ public class SpeciesFactoryWater4P implements SpeciesFactory, java.io.Serializab
     public SpeciesFactoryWater4P(IConformation conformation) {
         this.conformation = conformation;
     }
-    public ISpecies makeSpecies(ISimulation sim, Space space) {
+    public ISpecies makeSpecies(ISimulation sim, ISpace space) {
         SpeciesWater4P species = new SpeciesWater4P(space);
         species.setConformation(conformation);
         return species;

@@ -7,7 +7,7 @@ import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Calculates the mass average velocity over a set of atoms. The velocity
@@ -19,7 +19,7 @@ import etomica.space.Space;
  */
 public class AtomGroupVelocityAverage implements Serializable {
 
-    public AtomGroupVelocityAverage(Space space) {
+    public AtomGroupVelocityAverage(ISpace space) {
         vectorSum = space.makeVector();
         myAction = new MyAction(vectorSum);
         groupWrapper = new AtomGroupAction(myAction);

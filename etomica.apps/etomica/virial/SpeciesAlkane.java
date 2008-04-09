@@ -6,12 +6,12 @@ import etomica.api.ISimulation;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane extends SpeciesSpheresHetero {
 
-    public SpeciesAlkane(ISimulation sim, Space _space, int numCarbons) {
+    public SpeciesAlkane(ISimulation sim, ISpace _space, int numCarbons) {
         super(_space, sim.isDynamic(), makeAtomTypeSpheres(new Element[]{new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
         setTotalChildren(numCarbons);
     }

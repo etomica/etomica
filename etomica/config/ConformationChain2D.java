@@ -4,7 +4,7 @@
 package etomica.config;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author nancycribbin
@@ -12,7 +12,7 @@ import etomica.space.Space;
  */
 public class ConformationChain2D extends ConformationChain {
 	
-    public ConformationChain2D(Space space, IVector[] vex){
+    public ConformationChain2D(ISpace space, IVector[] vex){
 		super(space);
 		vectors = new IVector[vex.length];
 		for (int i=0; i<vex.length; i++) {

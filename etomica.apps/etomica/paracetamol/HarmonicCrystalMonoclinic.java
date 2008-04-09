@@ -13,7 +13,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialDLPOLY;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
@@ -29,7 +29,7 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystalMonoclinic {
 
-    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, IBox box, Space _space) {
+    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, IBox box, ISpace _space) {
         //this.potential = potential;
         this.nCells = (int[])nCells.clone();
         this.space = _space;
@@ -219,7 +219,7 @@ public class HarmonicCrystalMonoclinic {
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
-    private final Space space;
+    private final ISpace space;
     private static final long serialVersionUID = 1L;
     
 }

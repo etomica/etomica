@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -19,7 +19,7 @@ import etomica.units.Length;
 
 public class P2Exp6 extends Potential2SoftSpherical {
 
-    public P2Exp6(Space _space) {
+    public P2Exp6(ISpace _space) {
         // these defaults probably aren't appropriate -- need to develop A,B,C
         // from default size, well depth, and well extent (which doesn't exist!
         // maybe potl cutoff?)
@@ -27,7 +27,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
 
     }
 
-    public P2Exp6(Space _space, double AA, double BB, double CC) {
+    public P2Exp6(ISpace _space, double AA, double BB, double CC) {
         super(_space);
         dr01 = space.makeVector();
         setA(AA);

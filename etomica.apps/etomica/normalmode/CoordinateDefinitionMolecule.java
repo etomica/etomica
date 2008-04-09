@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -23,11 +23,11 @@ import etomica.space.Space;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Space space) {
+    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, ISpace space) {
         this(box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
         super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         work1 = space.makeVector();
         u = new double[coordinateDim];

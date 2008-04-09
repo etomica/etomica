@@ -11,7 +11,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -27,7 +27,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private double u1, u2, temp1, temp2, deltaU1;
 	private final IBox[] swappedBoxes = new IBox[2];
 
-	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2, Space space) {
+	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2, ISpace space) {
   		super(null);
 		r = space.makeVector();
 		this.integrator1 = integrator1;
@@ -122,7 +122,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     public final static SwapFactory FACTORY = new SwapFactory();
 
 	protected static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
-	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, Space _space) {
+	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, ISpace _space) {
 	        return new MCMoveSwapConfiguration(integrator1, integrator2, _space);
 	    }
         private static final long serialVersionUID = 1L;

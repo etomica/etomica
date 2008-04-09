@@ -6,7 +6,7 @@ import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Undefined;
 
 
@@ -23,7 +23,7 @@ public class MeterSpin extends DataSourceScalar implements DataSource {
     /**
      * 
      */
-    public MeterSpin(Space space) {
+    public MeterSpin(ISpace space) {
         super("Spin",Undefined.DIMENSION);
         sum = space.makeVector();
     }

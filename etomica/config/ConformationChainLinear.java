@@ -2,7 +2,7 @@ package etomica.config;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -15,13 +15,13 @@ import etomica.units.Length;
 
 public class ConformationChainLinear extends ConformationChain {
     
-    public ConformationChainLinear(Space _space) {
+    public ConformationChainLinear(ISpace _space) {
         this(_space, 0.55);
     }
-    public ConformationChainLinear(Space _space, double bondLength) {
+    public ConformationChainLinear(ISpace _space, double bondLength) {
     	this(_space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
-    public ConformationChainLinear(Space _space, double bondLength, double[] initAngles) {
+    public ConformationChainLinear(ISpace _space, double bondLength, double[] initAngles) {
         super(_space);
         this.bondLength = bondLength;
         orientation = space.makeVector();

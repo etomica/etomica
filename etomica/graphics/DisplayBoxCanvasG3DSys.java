@@ -23,7 +23,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
@@ -57,9 +57,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private IVector3D[] planeIntersections;
     private IVector3D work, work2, work3;
     private double[] planeAngles;
-    private final Space space;
+    private final ISpace space;
 
-	public DisplayBoxCanvasG3DSys(DisplayBox _box, Space _space) {
+	public DisplayBoxCanvasG3DSys(DisplayBox _box, ISpace _space) {
 		// old stuff
 		scaleText.setVisible(true);
 		scaleText.setEditable(false);

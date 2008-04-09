@@ -1,11 +1,9 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.ISimulation;
 import etomica.api.IRandom;
-
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -15,7 +13,7 @@ import etomica.space.Space;
  */
 public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
 
-    public BoundaryPistonCylinder(Space _space, IRandom random) {
+    public BoundaryPistonCylinder(ISpace _space, IRandom random) {
         super(_space, random);
     }
     

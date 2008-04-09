@@ -12,7 +12,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 
@@ -25,7 +25,7 @@ import etomica.space.Tensor;
  */
 public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
-    public P1Tether(IBox box, ISpecies species, Space _space) {
+    public P1Tether(IBox box, ISpecies species, ISpace _space) {
         super(_space);
         this.species = species;
         agentManager = new AtomAgentManager(this, box);

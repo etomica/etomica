@@ -4,7 +4,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.AtomGroupVelocityAverage;
 import etomica.atom.IAtomKinetic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Sets the velocity of an atom to a specified vector value.  If applied
@@ -23,7 +23,7 @@ public class AtomActionAccelerateTo implements AtomAction {
     /**
      * Creates new action with target velocity equal to zero.
      */
-    public AtomActionAccelerateTo(Space space) {
+    public AtomActionAccelerateTo(ISpace space) {
         dr = space.makeVector();
         targetVelocity = space.makeVector();
         atomAccelerator = new AtomGroupAction(new AtomActionAccelerateBy(space));

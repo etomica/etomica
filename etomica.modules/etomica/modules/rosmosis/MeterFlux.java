@@ -18,7 +18,7 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -40,7 +40,7 @@ import etomica.units.Time;
  */
 public class MeterFlux implements DataSource, AgentSource, IIntegratorNonintervalListener {
 
-    public MeterFlux(Space _space) {
+    public MeterFlux(ISpace _space) {
     	this.space = _space;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
@@ -208,5 +208,5 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;
-    private final Space space;
+    private final ISpace space;
 }

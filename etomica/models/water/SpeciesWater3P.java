@@ -8,7 +8,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.Species;
 
 /**
@@ -16,11 +16,11 @@ import etomica.species.Species;
  */
 public class SpeciesWater3P extends Species {
     
-    public SpeciesWater3P(Space space) {
+    public SpeciesWater3P(ISpace space) {
         this(space, false);
     }
     
-    public SpeciesWater3P(Space space, boolean isDynamic) {
+    public SpeciesWater3P(ISpace space, boolean isDynamic) {
         super(new AtomPositionGeometricCenter(space));
        this.space = space;
        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
@@ -58,7 +58,7 @@ public class SpeciesWater3P extends Species {
     public final static int indexO  = 2;
 
     private static final long serialVersionUID = 1L;
-    protected final Space space;
+    protected final ISpace space;
     protected final AtomTypeSphere oType, hType;
     protected final boolean isDynamic;
 }

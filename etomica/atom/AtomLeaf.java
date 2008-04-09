@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 
  /**
@@ -16,7 +16,7 @@ import etomica.util.Debug;
   */
 public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
 
-    public AtomLeaf(Space space, IAtomTypeLeaf type) {
+    public AtomLeaf(ISpace space, IAtomTypeLeaf type) {
         super(type);
         position = space.makeVector();
     }
@@ -26,7 +26,7 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
      * node is for a leaf atom; type is a sphere with unit mass and unit size, 
      * unique to the new atom; depth is 0.
      */
-    public AtomLeaf(Space space) {
+    public AtomLeaf(ISpace space) {
         super();
         position = space.makeVector();
     }

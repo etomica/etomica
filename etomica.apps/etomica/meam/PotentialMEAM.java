@@ -8,7 +8,7 @@ import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 import etomica.util.Arrays;
@@ -18,7 +18,7 @@ import etomica.util.Arrays;
  */
 public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
-	public PotentialMEAM(Space space) {
+	public PotentialMEAM(ISpace space) {
 		super(space);
     }
 	

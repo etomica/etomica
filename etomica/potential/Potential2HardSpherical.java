@@ -5,7 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -14,7 +14,7 @@ import etomica.space.Space;
 
 public abstract class Potential2HardSpherical extends Potential2 implements PotentialHard, Potential2Spherical {
    
-	public Potential2HardSpherical(Space space) {
+	public Potential2HardSpherical(ISpace space) {
 	    super(space);
         dr = space.makeVector();
 	}

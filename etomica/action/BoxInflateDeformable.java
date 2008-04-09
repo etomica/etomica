@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -16,13 +16,13 @@ import etomica.space.Tensor;
  */
 public class BoxInflateDeformable extends BoxInflate{
 
-    public BoxInflateDeformable(Space space){
+    public BoxInflateDeformable(ISpace space){
         super(space);
         tempTens = space.makeTensor();
         tempTensInv = space.makeTensor();
     }
     
-    public BoxInflateDeformable(IBox box, Space space){
+    public BoxInflateDeformable(IBox box, ISpace space){
         this(space);
         setBox(box);
     }

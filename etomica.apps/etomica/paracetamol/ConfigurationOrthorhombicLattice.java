@@ -19,6 +19,7 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.simulation.Simulation;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -46,13 +47,13 @@ import etomica.space3d.Space3D;
 public class ConfigurationOrthorhombicLattice implements Configuration, AgentSource, java.io.Serializable {
 
 	private final static String APP_NAME = "Configuration Orthorhombic Lattice";
-    private final Space space;
+    private final ISpace space;
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationOrthorhombicLattice(SpaceLattice lattice, Space _space) {
+    public ConfigurationOrthorhombicLattice(SpaceLattice lattice, ISpace _space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), _space);
     }
     
@@ -62,7 +63,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
      * iterator.
      */
     public ConfigurationOrthorhombicLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, Space _space) {
+            IndexIteratorSizable indexIterator, ISpace _space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -366,7 +367,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
             this.site = l.getSpace().makeVector();
         }
 
-        public Space getSpace() {
+        public ISpace getSpace() {
             return lattice.getSpace();
         }
 

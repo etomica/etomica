@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Vector2D;
 
@@ -18,16 +19,16 @@ public class Rectangle extends Polygon implements Rectangular {
     /**
      * Constructs a square rectangle of unit size.
      */
-    public Rectangle(Space embeddedSpace) {
+    public Rectangle(ISpace embeddedSpace) {
         this(embeddedSpace, 1.0, 1.0);
     }
     
     /**
      * Constructs a rectangle with edge lengths having the given values.
      */
-    public Rectangle(Space embeddedSpace, double xLength, double yLength) {
+    public Rectangle(ISpace embeddedSpace, double xLength, double yLength) {
         super(embeddedSpace, 4);
-        setEdgeLengths(embeddedSpace.makeVector(new double[]{xLength, yLength}));
+        setEdgeLengths(((Space)embeddedSpace).makeVector(new double[]{xLength, yLength}));
     }
 
     /**

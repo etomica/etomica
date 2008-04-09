@@ -18,7 +18,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -31,11 +31,11 @@ import etomica.space.Space;
  */
 public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     
-    public PotentialMaster(Space space) {
+    public PotentialMaster(ISpace space) {
         this(space,IteratorFactory.INSTANCE);
     } 
     
-    public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
+    public PotentialMaster(ISpace space, IteratorFactory iteratorFactory) {
         this.space = space;
         this.iteratorFactory = iteratorFactory;
     }
@@ -288,7 +288,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#getSpace()
 	 */
-    public Space getSpace() {
+    public ISpace getSpace() {
         return space;
     }
     
@@ -314,7 +314,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 
     protected PotentialLinker first, last;
     protected boolean enabled = true;
-    protected final Space space;
+    protected final ISpace space;
 
     public static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         private static final long serialVersionUID = 1L;

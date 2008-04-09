@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Potential acting on or within an atom, or between a pair of atoms or atom
@@ -16,7 +16,7 @@ public abstract class Potential2 extends Potential {
      * Constructs potential with given space a a default CoordinatePair for
      * spherical, non-kinetic molecules.
      */
-    public Potential2(Space space) {
+    public Potential2(ISpace space) {
         super(2, space);
     }
 

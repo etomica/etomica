@@ -65,7 +65,7 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -138,7 +138,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * Creates a PistonCylinder graphic instance.  init() must be called before
      * this can be used.
      */
-    public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
+    public PistonCylinderGraphic(PistonCylinder sim, ISpace _space) {
     	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
     	pc = sim;
     }

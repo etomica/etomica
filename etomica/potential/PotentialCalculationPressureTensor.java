@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -19,12 +19,12 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
-    protected final Space space;
+    protected final ISpace space;
     protected IAtomSet leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
     
-    public PotentialCalculationPressureTensor(Space space) {
+    public PotentialCalculationPressureTensor(ISpace space) {
         this.space = space;
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();

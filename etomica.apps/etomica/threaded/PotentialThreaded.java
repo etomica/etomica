@@ -5,13 +5,13 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 
 import etomica.potential.Potential;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class PotentialThreaded extends Potential {
 
 	final protected IPotential[] potential;
 	
-	public PotentialThreaded(Space space, IPotential[] potential) {
+	public PotentialThreaded(ISpace space, IPotential[] potential) {
 		super(potential[0].nBody(), space);
 		this.potential = potential;
 	

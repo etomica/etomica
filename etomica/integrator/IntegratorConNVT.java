@@ -13,7 +13,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -37,12 +37,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorConNVT(ISimulation sim, IPotentialMaster potentialMaster, Space space) {
+    public IntegratorConNVT(ISimulation sim, IPotentialMaster potentialMaster, ISpace space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     
     public IntegratorConNVT(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space space) {
+            double timeStep, double temperature, ISpace space) {
         super(potentialMaster,random,timeStep,temperature, space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
@@ -150,7 +150,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;
 
-        public Agent(Space space) {
+        public Agent(ISpace space) {
             force = space.makeVector();
         }
         

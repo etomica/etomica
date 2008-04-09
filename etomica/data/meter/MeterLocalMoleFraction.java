@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Fraction;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.Fraction;
  */
 public class MeterLocalMoleFraction extends DataSourceScalar {
 
-    public MeterLocalMoleFraction(Space space, IBox _box) {
+    public MeterLocalMoleFraction(ISpace space, IBox _box) {
         super("Local Mole Fraction",Fraction.DIMENSION);
         if(!(_box.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");

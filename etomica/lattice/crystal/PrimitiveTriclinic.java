@@ -1,7 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.IVector3D;
 import etomica.space3d.Space3D;
 
@@ -14,10 +14,10 @@ public class PrimitiveTriclinic extends Primitive {
     
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveTriclinic(Space space) {
+    public PrimitiveTriclinic(ISpace space) {
         this(space, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
     }
-    public PrimitiveTriclinic(Space space, double a, double b, double c, 
+    public PrimitiveTriclinic(ISpace space, double a, double b, double c, 
                                               double alpha, double beta, double gamma) {
         super(space);
         setSize(new double[]{a, b, c});

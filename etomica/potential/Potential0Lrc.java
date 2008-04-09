@@ -7,7 +7,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Zero-body potential implementing the long-range correction 
@@ -66,7 +66,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
     
-    public Potential0Lrc(Space space, IAtomType[] types, Potential truncatedPotential) {
+    public Potential0Lrc(ISpace space, IAtomType[] types, Potential truncatedPotential) {
         super(space);
         this.types = types.clone();
         if(types.length != 2) {

@@ -15,7 +15,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Length;
 
 /**
@@ -25,7 +25,7 @@ import etomica.units.Length;
  */
 public class MeterPositionCOM implements DataSource, java.io.Serializable {
 
-    public MeterPositionCOM(Space space) {
+    public MeterPositionCOM(ISpace space) {
         data = new DataVector(space);
         positionSum = data.x;
         dataInfo = new DataInfoVector("COM momentum", Length.DIMENSION, space);

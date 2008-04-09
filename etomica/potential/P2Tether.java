@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -18,11 +18,11 @@ import etomica.units.Length;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-    public P2Tether(Space space) {
+    public P2Tether(ISpace space) {
         this(space, 0.75, false);
     }
     
-    public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {
+    public P2Tether(ISpace space, double tetherLength, boolean ignoreOverlap) {
         super(space);
         setTetherLength(tetherLength);
         this.ignoreOverlap = ignoreOverlap;

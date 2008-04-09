@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtomType;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.OrientationFull3D;
 
 /**
@@ -13,7 +13,7 @@ import etomica.space3d.OrientationFull3D;
  */
 public class MoleculeOriented extends Molecule implements IAtomOriented {
 
-    public MoleculeOriented(Space space, IAtomType type) {
+    public MoleculeOriented(ISpace space, IAtomType type) {
         super(type);
         orientation = new OrientationFull3D(space);
         position = space.makeVector();

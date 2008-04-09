@@ -6,7 +6,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 
@@ -20,7 +20,7 @@ import etomica.space.Tensor;
 public class P2SoftTruncated extends Potential2
                implements PotentialTruncated, Potential2Soft {
     
-    public P2SoftTruncated(Potential2Soft potential, double truncationRadius, Space _space) {
+    public P2SoftTruncated(Potential2Soft potential, double truncationRadius, ISpace _space) {
         super(_space);
         this.wrappedPotential = potential;
         setTruncationRadius(truncationRadius);
@@ -152,7 +152,7 @@ public class P2SoftTruncated extends Potential2
         private final int D;
         private Potential2Soft potential;
         
-        public P0Lrc(Space space, Potential2Soft truncatedPotential, 
+        public P0Lrc(ISpace space, Potential2Soft truncatedPotential, 
                 Potential2Soft potential, IAtomType[] types) {
             super(space, types, (Potential)truncatedPotential);
             this.potential = potential;

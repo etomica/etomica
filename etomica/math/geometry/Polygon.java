@@ -1,7 +1,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Representation of a mathematical polygon, a 2-dimensional polytope. Contains
@@ -16,7 +16,7 @@ public abstract class Polygon extends Polytope {
     /**
      * Constructs a polygon with the given number of sides arranged in a closed loop.
      */
-    protected Polygon(Space embeddedSpace, int nSides) {
+    protected Polygon(ISpace embeddedSpace, int nSides) {
         this(makeEdges(embeddedSpace, nSides));
     }
 
@@ -28,7 +28,7 @@ public abstract class Polygon extends Polytope {
         this.edges = edges;
     }
     
-    private static LineSegment[] makeEdges(Space embeddedSpace, int nSides) {
+    private static LineSegment[] makeEdges(ISpace embeddedSpace, int nSides) {
         IVector[] vertices = embeddedSpace.makeVectorArray(nSides);
         LineSegment[] edges = new LineSegment[nSides];
         for (int i = 1; i < nSides; i++) {

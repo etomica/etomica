@@ -4,7 +4,7 @@ import etomica.api.IVector;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardBoundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Osmotic pressure meter that calculates the difference in 
@@ -16,7 +16,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
     private double collisionRadius;
     private final P1HardBoundary[] boundaryPotentials;
     
-    public MeterOsmoticPressure(Space space, P1HardBoundary[] boundaryPotentials) {
+    public MeterOsmoticPressure(ISpace space, P1HardBoundary[] boundaryPotentials) {
         super(space);
         this.boundaryPotentials = boundaryPotentials;
     }

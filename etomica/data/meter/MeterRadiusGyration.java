@@ -10,7 +10,7 @@ import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Length;
 
 /**
@@ -20,7 +20,7 @@ import etomica.units.Length;
  */
 public class MeterRadiusGyration extends DataSourceScalar {
 
-    public MeterRadiusGyration(Space space) {
+    public MeterRadiusGyration(ISpace space) {
         super("Radius of Gyration", Length.DIMENSION);
         iterator = new AtomIteratorAllMolecules();
         cm = space.makeVector();

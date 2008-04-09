@@ -3,7 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IConformation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author nsives, msellers
@@ -23,7 +23,7 @@ public class ConformationTube implements IConformation {
 
 	double dtheta;
 
-	public ConformationTube(Space space, int atomsPerRing) {
+	public ConformationTube(ISpace space, int atomsPerRing) {
 		this.space = space;
 
 		this.atomsPerRing = atomsPerRing;
@@ -109,5 +109,5 @@ public class ConformationTube implements IConformation {
 		}
 	}
 
-    protected final Space space;
+    protected final ISpace space;
 }

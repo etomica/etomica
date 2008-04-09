@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 /**
@@ -34,7 +34,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     private AtomAgentManager agentManager;
     private IBox box;
 
-	public P2SquareWellBonded(Space space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon) {
+	public P2SquareWellBonded(ISpace space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
 	}

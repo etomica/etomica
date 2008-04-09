@@ -115,14 +115,14 @@ public class Sam extends Simulation {
         chainPhi = 0;
 
         config = new ConfigurationSAM(this, space, species, speciesSurface);
-        Basis alkaneBasis = new Basis(new IVector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
+        Basis alkaneBasis = new Basis(new IVector[]{((Space)space).makeVector(new double[]{1.0/6.0,0,1.0/6.0}), ((Space)space).makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
         Basis surfaceBasis = new Basis(new IVector[]{
-                space.makeVector(new double[]{2.0/6.0, 0, 0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
-                space.makeVector(new double[]{2.0/6.0, 0, 2.0/6.0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 3.0/6.0}),
-                space.makeVector(new double[]{2.0/6.0, 0, 4.0/6.0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 5.0/6.0})});
+                ((Space)space).makeVector(new double[]{2.0/6.0, 0, 0}),
+                ((Space)space).makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
+                ((Space)space).makeVector(new double[]{2.0/6.0, 0, 2.0/6.0}),
+                ((Space)space).makeVector(new double[]{5.0/6.0, 0, 3.0/6.0}),
+                ((Space)space).makeVector(new double[]{2.0/6.0, 0, 4.0/6.0}),
+                ((Space)space).makeVector(new double[]{5.0/6.0, 0, 5.0/6.0})});
         config.setBasisMolecules(alkaneBasis);
         config.setBasisSurface(surfaceBasis);
         config.setCellSizeX(sizeCellX);

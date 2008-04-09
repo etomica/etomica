@@ -24,7 +24,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
@@ -54,12 +54,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4NPH(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
     public IntegratorGear4NPH(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
@@ -286,7 +286,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private final IVector dv;
         private INearestImageTransformer nearestImageTransformer;
 
-        public ForceSumNPH(Space space) {
+        public ForceSumNPH(ISpace space) {
             dr = space.makeVector();
             dv = space.makeVector();
         }

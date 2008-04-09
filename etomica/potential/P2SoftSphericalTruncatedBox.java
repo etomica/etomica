@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 
@@ -122,7 +122,7 @@ public class P2SoftSphericalTruncatedBox extends Potential2SoftSpherical
         private final int D;
         private P2SoftSphericalTruncatedBox potential;
         
-        public P0Lrc(Space space, Potential2SoftSpherical truncatedPotential, 
+        public P0Lrc(ISpace space, Potential2SoftSpherical truncatedPotential, 
                 P2SoftSphericalTruncatedBox potential, IAtomType[] types) {
             super(space, types, truncatedPotential);
             this.potential = potential;

@@ -2,7 +2,7 @@ package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IConformation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class ConformationWaterGCPM implements IConformation, java.io.Serializable {
 
@@ -11,7 +11,7 @@ public class ConformationWaterGCPM implements IConformation, java.io.Serializabl
     private double angleHOH = 104.52*Math.PI/180.;
     private double rOM=0.27;
 
-    public ConformationWaterGCPM(Space space) {
+    public ConformationWaterGCPM(ISpace space) {
         this.space = space;
     }
     
@@ -62,5 +62,5 @@ public class ConformationWaterGCPM implements IConformation, java.io.Serializabl
 */
     }//end of initializePositions
 
-    protected final Space space;
+    protected final ISpace space;
 }

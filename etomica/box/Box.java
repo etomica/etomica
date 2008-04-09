@@ -15,6 +15,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -52,14 +53,14 @@ public class Box implements java.io.Serializable, IBox {
     /**
      * Constructs box with default rectangular periodic boundary.
      */
-    public Box(ISimulation sim, Space _space) {
+    public Box(ISimulation sim, ISpace _space) {
         this(new BoundaryRectangularPeriodic(sim.getRandom(), _space), _space);
     }
     
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, Space _space) {
+    public Box(IBoundary boundary, ISpace _space) {
     	this.space = _space;
         eventManager = new BoxEventManager();
         setBoundary(boundary);
@@ -588,6 +589,6 @@ public class Box implements java.io.Serializable, IBox {
     private final BoxEvent inflateEvent;
     protected AtomArrayList[] moleculeLists;
     private int index;
-    private final Space space;
+    private final ISpace space;
     protected final AtomSetAllMolecules allMoleculeList;
 }

@@ -21,7 +21,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
@@ -41,7 +41,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
     protected ChainEquilibriumSim sim;
     private DeviceThermoSlider temperatureSelect;
 
-    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
+    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, ISpace _space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
         this.sim = simulation;

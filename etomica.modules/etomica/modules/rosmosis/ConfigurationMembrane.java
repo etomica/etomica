@@ -1,6 +1,8 @@
 package etomica.modules.rosmosis;
 
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -8,9 +10,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -19,11 +18,11 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class ConfigurationMembrane implements Configuration {
 
-    public ConfigurationMembrane(ISimulation sim, Space _space) {
+    public ConfigurationMembrane(ISimulation sim, ISpace _space) {
         soluteMoleFraction = 1;
         solutionChamberDensity = 0.5;
         solventChamberDensity = 0.5;
@@ -246,5 +245,5 @@ public class ConfigurationMembrane implements Configuration {
     protected double soluteMoleFraction;
     protected int membraneDim;
     protected final ISimulation sim;
-    private final Space space;
+    private final ISpace space;
 }

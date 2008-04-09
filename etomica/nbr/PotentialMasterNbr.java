@@ -12,13 +12,13 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
     protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager boxAgentManager, Space _space) {
+            BoxAgentManager boxAgentManager, ISpace _space) {
         super(_space);
         simulation = sim;
         this.boxAgentSource = boxAgentSource;

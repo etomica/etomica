@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Moves (translates) an atom to a specified position.  Location of the
@@ -27,7 +27,7 @@ public class AtomActionTranslateTo implements AtomAction, Serializable {
      * center of mass (via AtomPositionCOM).
      * @param space
      */
-    public AtomActionTranslateTo(Space space) {
+    public AtomActionTranslateTo(ISpace space) {
         destination = space.makeVector();
         atomPositionDefinition = new AtomPositionCOM(space);
         atomTranslator = new AtomGroupAction(new AtomActionTranslateBy(space));

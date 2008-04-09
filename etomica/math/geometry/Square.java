@@ -5,7 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space2d.Vector2D;
 
 /**
@@ -18,7 +18,7 @@ public class Square extends Polygon {
     /**
      * Constructs a square of unit size.
      */
-    public Square(Space embeddedSpace) {
+    public Square(ISpace embeddedSpace) {
         this(embeddedSpace, 1.0);
     }
     
@@ -26,7 +26,7 @@ public class Square extends Polygon {
      * Constructs a square with edge length having the given value.
      * @param size edge length of the cube
      */
-    public Square(Space embeddedSpace, double size) {
+    public Square(ISpace embeddedSpace, double size) {
         super(embeddedSpace, 4);
         setEdgeLength(size);
     }

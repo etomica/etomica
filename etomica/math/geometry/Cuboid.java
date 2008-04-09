@@ -5,7 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
 /**
@@ -20,14 +20,14 @@ public class Cuboid extends Hexahedron implements Rectangular {
     /**
      * Constructs a cuboid with equal faces of unit size (a cube).
      */
-    public Cuboid(Space embeddedSpace) {
+    public Cuboid(ISpace embeddedSpace) {
         this(embeddedSpace, 1.0, 1.0, 1.0);
     }
 
     /**
      * Constructs a cuboid with edges of lengths having the given values.
      */
-    public Cuboid(Space embeddedSpace, double a, double b, double c) {
+    public Cuboid(ISpace embeddedSpace, double a, double b, double c) {
         super(embeddedSpace);
         setEdgeLengths(a, b, c);
     }

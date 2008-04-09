@@ -19,7 +19,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Length;
 
 /**
@@ -35,7 +35,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfile(Space space) {
+    public MeterProfile(ISpace space) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);

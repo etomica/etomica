@@ -5,7 +5,7 @@ import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -29,11 +29,11 @@ public class P2HardAssociationCone extends Potential2 {
     private final IVector dr;
     private INearestImageTransformer nearestImageTransformer;
     
-    public P2HardAssociationCone(Space space) {
+    public P2HardAssociationCone(ISpace space) {
         this(space, 1.0, 1.0, 2.0);
     }
     
-    public P2HardAssociationCone(Space space, double sigma, double epsilon, double cutoffFactorLJ) {
+    public P2HardAssociationCone(ISpace space, double sigma, double epsilon, double cutoffFactorLJ) {
         super(space);
         dr = space.makeVector();
 

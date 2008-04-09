@@ -20,7 +20,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * An abstract class that defines the real-space generalized coordinates that are
@@ -36,11 +36,11 @@ import etomica.space.Space;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Space _space) {
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
         this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, Space _space) {
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -222,11 +222,11 @@ public abstract class CoordinateDefinition {
     protected final Basis basis;
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected BasisCell[] cells;
-    protected final Space space;
+    protected final ISpace space;
     
     protected static class SiteSource implements AgentSource, Serializable {
         
-        public SiteSource(Space space) {
+        public SiteSource(ISpace space) {
             this.space = space;
         }
         public Class getAgentClass() {
@@ -241,7 +241,7 @@ public abstract class CoordinateDefinition {
             //nothing to do
         }
 
-        private final Space space;
+        private final ISpace space;
         private static final long serialVersionUID = 1L;
     }
     

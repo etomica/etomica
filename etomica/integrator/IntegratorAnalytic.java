@@ -6,7 +6,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -22,12 +22,12 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
     
-    public IntegratorAnalytic(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorAnalytic(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, _space);
     }
     
     public IntegratorAnalytic(IPotentialMaster potentialMaster, IRandom random,
-                              double timeStep, Space _space) {
+                              double timeStep, ISpace _space) {
         super(potentialMaster,random,timeStep,0, _space);
     }
     

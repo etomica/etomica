@@ -1,6 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -15,11 +15,11 @@ import etomica.units.Length;
  */
 public class P2LennardJones extends Potential2SoftSpherical {
 
-    public P2LennardJones(Space space) {
+    public P2LennardJones(ISpace space) {
         this(space, 1.0, 1.0);
     }
     
-    public P2LennardJones(Space space, double sigma, double epsilon) {
+    public P2LennardJones(ISpace space, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

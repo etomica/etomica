@@ -13,7 +13,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Energy;
@@ -32,7 +32,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicCrystalSoftSphereBCC {
 
     public HarmonicCrystalSoftSphereBCC(int[] nCells, Primitive primitive,
-    		          Basis basis, Potential2SoftSpherical potential, Space _space) {
+    		          Basis basis, Potential2SoftSpherical potential, ISpace _space) {
         this.potential = potential;
         this.nCells = (int[])nCells.clone();
         this.space = _space;
@@ -162,7 +162,7 @@ public class HarmonicCrystalSoftSphereBCC {
         Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
         Basis basis = new BasisCubicBcc();
         
-        Space sp = Space3D.getInstance();
+        ISpace sp = Space3D.getInstance();
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, softness);
 
         int[] nCells = new int[] {nC, nC, nC};
@@ -207,7 +207,7 @@ public class HarmonicCrystalSoftSphereBCC {
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
-    private final Space space;
+    private final ISpace space;
     private static final long serialVersionUID = 1L;
     
 }

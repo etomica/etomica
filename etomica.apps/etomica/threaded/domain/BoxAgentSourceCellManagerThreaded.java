@@ -6,14 +6,14 @@ package etomica.threaded.domain;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
 public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource, java.io.Serializable {
 
-    public BoxAgentSourceCellManagerThreaded(IAtomPositionDefinition positionDefinition, Space _space) {
+    public BoxAgentSourceCellManagerThreaded(IAtomPositionDefinition positionDefinition, ISpace _space) {
         this.positionDefinition = positionDefinition;
         this.space = _space;
     }
@@ -33,5 +33,5 @@ public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource, java.i
     
     private static final long serialVersionUID = 1L;
     private final IAtomPositionDefinition positionDefinition;
-    private final Space space;
+    private final ISpace space;
 }

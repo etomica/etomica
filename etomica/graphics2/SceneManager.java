@@ -14,7 +14,7 @@ import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
 /**
@@ -24,7 +24,7 @@ import etomica.space3d.Vector3D;
  */
 public final class SceneManager {
     
-    public SceneManager(Space space) {
+    public SceneManager(ISpace space) {
     	this.space = space;
         setAtomFilter(AtomFilterStatic.ACCEPT_ALL);
         setScale(1.0);
@@ -216,7 +216,7 @@ public final class SceneManager {
       */
     boolean highQuality = false;
     
-    private final Space space;
+    private final ISpace space;
 
     public class SphereShapeSource implements AtomAgentManager.AgentSource {
 

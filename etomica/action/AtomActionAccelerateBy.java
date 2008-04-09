@@ -2,7 +2,7 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * 
@@ -17,7 +17,7 @@ public class AtomActionAccelerateBy implements AtomAction {
     private static final long serialVersionUID = 1L;
     private final IVector accelerationVector;
     
-    public AtomActionAccelerateBy(Space space) {
+    public AtomActionAccelerateBy(ISpace space) {
         accelerationVector = space.makeVector();
     }
     

@@ -12,7 +12,7 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Integrator implementing SHAKE algorithm.  Use adiabatically at your own risk.
@@ -28,12 +28,12 @@ public class IntegratorVelocityVerletShake extends IntegratorVelocityVerlet impl
     protected int maxIterations;
     protected boolean[][] moved;
 
-    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         dr = _space.makeVector();
         shakeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);

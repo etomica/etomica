@@ -20,7 +20,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 
 /**
@@ -42,7 +42,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            IBox box, Space space) {
+            IBox box, ISpace space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;

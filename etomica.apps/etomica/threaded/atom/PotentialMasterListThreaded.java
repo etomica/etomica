@@ -17,7 +17,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -29,29 +29,29 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	int ready2;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, Space _space) {
+	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
 		super(sim, _space);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range) {
+	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range) {
 		super(sim, range, _space);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
 			IAtomPositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
 			BoxAgentSourceCellManager boxAgentSource) {
 		super(sim, range, boxAgentSource, _space);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
 			BoxAgentSourceCellManager boxAgentSource,
 			BoxAgentManager agentManager) {
 		super(sim, range, boxAgentSource, agentManager, _space);

@@ -15,7 +15,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Angstrom;
 import etomica.units.CompoundUnit;
 import etomica.units.Debye;
@@ -36,7 +36,7 @@ public class VLE extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 200;
     public boolean showNumMoleculesPlots = false;
 
-    public VLE(final VLESim sim, Space _space) {
+    public VLE(final VLESim sim, ISpace _space) {
         super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));

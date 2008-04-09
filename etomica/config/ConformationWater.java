@@ -3,7 +3,7 @@ package etomica.config;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IConformation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 
 public class ConformationWater implements IConformation, java.io.Serializable {
@@ -12,7 +12,7 @@ public class ConformationWater implements IConformation, java.io.Serializable {
     private double bondLengthOH = 4.0;
     private double angleHOH = 109.5*Math.PI/180.;
 
-    public ConformationWater(Space space) {
+    public ConformationWater(ISpace space) {
         this.space = space;
     }
     
@@ -31,5 +31,5 @@ public class ConformationWater implements IConformation, java.io.Serializable {
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
     }
         
-    protected final Space space;
+    protected final ISpace space;
 }

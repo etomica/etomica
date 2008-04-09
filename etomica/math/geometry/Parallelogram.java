@@ -6,7 +6,7 @@ package etomica.math.geometry;
 
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space2d.Vector2D;
 
 /**
@@ -20,14 +20,14 @@ public class Parallelogram extends Polygon implements Parallelotope {
     /**
      * Default constructor makes a square of unit size
      */
-    public Parallelogram(Space embeddedSpace) {
+    public Parallelogram(ISpace embeddedSpace) {
         this(embeddedSpace, new Vector2D(1,0), new Vector2D(0,1));
     }
 
     /**
      * Constructs a parallelogram with the given edge vectors.
      */
-    public Parallelogram(Space embeddedSpace, IVector a, IVector b) {
+    public Parallelogram(ISpace embeddedSpace, IVector a, IVector b) {
         super(embeddedSpace, 4);
         this.a = embeddedSpace.makeVector();
         this.b = embeddedSpace.makeVector();

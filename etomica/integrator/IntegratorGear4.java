@@ -17,7 +17,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Gear 4th-order predictor-corrector integrator.
@@ -43,12 +43,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorGear4(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorGear4(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorGear4(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
@@ -213,7 +213,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         public IVector dr1, dr2, dr3, dr4;
         public IVector dv1, dv2, dv3, dv4;
 
-        public Agent(Space space) {
+        public Agent(ISpace space) {
             force = space.makeVector();
             dr1 = space.makeVector();
             dr2 = space.makeVector();

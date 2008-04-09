@@ -1,7 +1,7 @@
 
 package etomica.models.water;
 
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -10,7 +10,7 @@ import etomica.units.Kelvin;
  */
 public class P2WaterSPCSoft extends P2Water3PSoft {
 
-    public P2WaterSPCSoft(Space space) {
+    public P2WaterSPCSoft(ISpace space) {
         super(space, 3.1670, Kelvin.UNIT.toSim(78.23), 
                 Electron.UNIT.toSim(-0.82), Electron.UNIT.toSim(0.41));
     }

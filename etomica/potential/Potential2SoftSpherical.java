@@ -5,7 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -18,7 +18,7 @@ import etomica.space.Tensor;
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
-    public Potential2SoftSpherical(Space space) {
+    public Potential2SoftSpherical(ISpace space) {
         super(space);
         gradient = new IVector[2];
         gradient[0] = space.makeVector();

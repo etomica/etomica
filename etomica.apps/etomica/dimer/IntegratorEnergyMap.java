@@ -13,18 +13,18 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
     IAtomPositioned adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    private final Space space;
+    private final ISpace space;
 
     public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
     		                   IAtomPositioned aAdatom, String aFileTail,
-    		                   Space _space) {
+    		                   ISpace _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;

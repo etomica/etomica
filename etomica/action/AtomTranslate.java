@@ -3,7 +3,7 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Moves an atom by an amount specified.
@@ -12,7 +12,7 @@ public class AtomTranslate implements AtomAction {
     private static final long serialVersionUID = 1L;
     protected IVector displacement;
         
-    public AtomTranslate(Space space) {
+    public AtomTranslate(ISpace space) {
         super();
         displacement = space.makeVector();
     }

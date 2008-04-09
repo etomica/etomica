@@ -15,7 +15,7 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Null;
 
 /**
@@ -38,13 +38,13 @@ import etomica.units.Null;
  */
 public class IntegratorPT extends IntegratorManagerMC {
     
-    private final Space space;
+    private final ISpace space;
 
-    public IntegratorPT(IRandom random, Space _space) {
+    public IntegratorPT(IRandom random, ISpace _space) {
         this(random, MCMoveSwapConfiguration.FACTORY, _space);
     }
     
-    public IntegratorPT(IRandom random, MCMoveSwapFactory swapFactory, Space _space) {
+    public IntegratorPT(IRandom random, MCMoveSwapFactory swapFactory, ISpace _space) {
         super(random);
         this.space = _space;
         setGlobalMoveInterval(100);
@@ -89,7 +89,7 @@ public class IntegratorPT extends IntegratorManagerMC {
 	     * @param integrator1 integrator for one of the boxes being swapped
 	     * @param integrator2 integrator for the other box
 	     */
-	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, Space _space);
+	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, ISpace _space);
 	}
 
     /**

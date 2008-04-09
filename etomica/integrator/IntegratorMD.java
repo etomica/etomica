@@ -16,7 +16,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
@@ -30,7 +30,7 @@ import etomica.util.EnumeratedType;
 public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
 
     public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,temperature);
         this.random = random;
         this.space = _space;
@@ -371,6 +371,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     private MeterTemperature meterTemperature;
     private final IVector momentum;
     protected double currentTime;
-    protected final Space space;
+    protected final ISpace space;
 }
 

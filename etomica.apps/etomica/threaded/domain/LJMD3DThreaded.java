@@ -12,7 +12,7 @@ import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
@@ -40,7 +40,7 @@ public class LJMD3DThreaded extends Simulation {
     public ActivityIntegrate activityIntegrate;
 
 
-    public LJMD3DThreaded(Space _space) {
+    public LJMD3DThreaded(ISpace _space) {
         this(500, 1);
     }
 

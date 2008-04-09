@@ -27,7 +27,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.box.Box;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Degree;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
@@ -51,7 +51,7 @@ public class LatticeEditor {
     protected CrystalViewer viewer;
     protected final HashMap latticeNameHash;
     protected LatticeEditorBoxPropertyArray pvBox = null; 
-    private final Space space;
+    private final ISpace space;
     
     private final String[] fieldTitles = {"A", "B", "C",
                                           "Alpha", "Beta", "Gamma" };
@@ -75,7 +75,7 @@ public class LatticeEditor {
     private static final int ANGLE_END_INDEX = 5;
 
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices,
-    		             String[] latticeNames, Space _space) {
+    		             String[] latticeNames, ISpace _space) {
     
         this.viewer = viewer;
         this.space = _space;

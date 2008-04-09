@@ -12,6 +12,7 @@ import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
+import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -30,10 +31,10 @@ import etomica.space.Space;
 public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
 
-    public BoundaryTruncatedOctahedron(Space _space) {
+    public BoundaryTruncatedOctahedron(ISpace _space) {
         this(_space, 30.0);
     }
-    public BoundaryTruncatedOctahedron(Space _space, double boxSize) {
+    public BoundaryTruncatedOctahedron(ISpace _space, double boxSize) {
         super(_space, new TruncatedOctahedron(_space));
         plane = new Plane(space);
         isPeriodic = new boolean[space.D()];

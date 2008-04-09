@@ -9,10 +9,10 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.models.water.SpeciesWater3P;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class AtomActionRelaxWater3P implements AtomAction {
-    public AtomActionRelaxWater3P(Space space) {
+    public AtomActionRelaxWater3P(ISpace space) {
         work = space.makeVector();
         cosAngle = Math.cos(109.5/180.0*Math.PI);
         sinAngle = Math.sin(109.5/180.0*Math.PI);

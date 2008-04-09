@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.potential.Potential2Spherical;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * @author kofke
@@ -16,7 +16,7 @@ public class MayerGeneralSpherical extends MayerFunctionSpherical {
     /**
      * Constructor Mayer function using given potential.
      */
-    public MayerGeneralSpherical(Space space, Potential2Spherical potential) {
+    public MayerGeneralSpherical(ISpace space, Potential2Spherical potential) {
         super(space);
         this.potential = potential;
     }

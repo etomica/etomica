@@ -8,13 +8,13 @@ import etomica.api.INearestImageTransformer;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.IVector3D;
 
 public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, IPotentialTorque {
 
-    public P2ReactionFieldDipole(Space space) {
+    public P2ReactionFieldDipole(ISpace space) {
         super(space);
         iDipole = (IVector3D)space.makeVector();
         cavityDipole = (IVector3D)space.makeVector();

@@ -5,6 +5,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Polytope;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 
@@ -20,7 +21,7 @@ public abstract class Primitive implements java.io.Serializable {
     protected final int D;
     protected final double[] size;
     protected final double[] angle;
-    protected final Space space;
+    protected final ISpace space;
     protected static final double rightAngle = 0.5*Math.PI;
     
     /**
@@ -28,7 +29,7 @@ public abstract class Primitive implements java.io.Serializable {
      * its reciprocal primitive.  For construction of the direct-lattice
      * primitive, this constructor is called via the Primitive(Simulation) constructor.
      */
-    public Primitive(Space space) {
+    public Primitive(ISpace space) {
         this.space = space;
         D = space.D();
         latticeVectors = new IVector[D];
@@ -52,7 +53,7 @@ public abstract class Primitive implements java.io.Serializable {
     /**
      * @return the space
      */
-    public final Space getSpace() {
+    public final ISpace getSpace() {
         return space;
     }
 

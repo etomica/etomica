@@ -4,7 +4,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IAtomSet;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Empirical Isotropic atom-atom repulsion-dispersion potential
@@ -22,12 +22,12 @@ import etomica.space.Space;
 
 public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
 	
-	public P2ElectrostaticDreiding(Space _space) {
+	public P2ElectrostaticDreiding(ISpace _space) {
         this(_space, 1.0, 1.0, 1.0);
        
     }
 	
-    public P2ElectrostaticDreiding(Space _space, double AA, double BB, double CC) {
+    public P2ElectrostaticDreiding(ISpace _space, double AA, double BB, double CC) {
         super(_space, AA, BB, CC);
     }
     

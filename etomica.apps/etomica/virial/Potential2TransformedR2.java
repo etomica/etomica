@@ -10,7 +10,7 @@ import etomica.atom.AtomPair;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Transformed potential.  For distances less than some cutoff, the potential
@@ -24,7 +24,7 @@ public class Potential2TransformedR2 extends Potential2 {
     /**
      * @param space
      */
-    public Potential2TransformedR2(Space space, Potential2 p) {
+    public Potential2TransformedR2(ISpace space, Potential2 p) {
         super(space);
         potential = p;
         dr = space.makeVector();

@@ -11,7 +11,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Arrays;
 
 /**
@@ -29,7 +29,7 @@ public class SpeciesSpheresHetero extends Species {
      * (AtomFactoryHetero) before use.  The actual number of desired children 
      * can also be set in the factory.
      */
-    public SpeciesSpheresHetero(ISimulation sim, Space _space) {
+    public SpeciesSpheresHetero(ISimulation sim, ISpace _space) {
         this(sim,_space, 0);
     }
     
@@ -39,7 +39,7 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, Space _space, int nComponents) {
+    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, int nComponents) {
         this(sim, _space, makeElements(sim,nComponents));
     }
     
@@ -57,7 +57,7 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, Space _space, Element[] leafElements) {
+    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, Element[] leafElements) {
         this(_space, sim.isDynamic(), makeAtomTypeSpheres(leafElements));
     }
     
@@ -69,7 +69,7 @@ public class SpeciesSpheresHetero extends Species {
         return types;
     }
     
-    public SpeciesSpheresHetero(Space space, boolean isDynamic, IAtomTypeLeaf[] atomTypes) {
+    public SpeciesSpheresHetero(ISpace space, boolean isDynamic, IAtomTypeLeaf[] atomTypes) {
         super(new AtomPositionGeometricCenter(space));
         this.space = space;
         this.isDynamic = isDynamic;
@@ -295,7 +295,7 @@ public class SpeciesSpheresHetero extends Species {
     }
 
     private static final long serialVersionUID = 1L;
-    protected Space space;
+    protected ISpace space;
     protected boolean isDynamic;
     protected double[] numberFraction;
     protected int[] childCount;

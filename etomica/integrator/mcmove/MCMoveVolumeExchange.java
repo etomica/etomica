@@ -11,7 +11,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
@@ -45,7 +45,7 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         super(potentialMaster, new MCMoveStepTracker());
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        Space space = potentialMaster.getSpace();
+        ISpace space = potentialMaster.getSpace();
         ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);

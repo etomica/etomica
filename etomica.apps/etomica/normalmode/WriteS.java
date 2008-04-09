@@ -8,7 +8,7 @@ import etomica.api.IVector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Class that writes out S from the MeterNormalMode, calculates
@@ -19,7 +19,7 @@ import etomica.space.Space;
  */
 public class WriteS implements IAction {
 
-    public WriteS(Space _space) {
+    public WriteS(ISpace _space) {
         temperature = 1.0;
         doOverwrite = true;
         space = _space;
@@ -108,6 +108,6 @@ public class WriteS implements IAction {
     protected String filename;
     protected WaveVectorFactory waveVectorFactory;
     protected double temperature;
-    private final Space space;
+    private final ISpace space;
     protected double lastA;
 }

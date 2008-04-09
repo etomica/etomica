@@ -31,7 +31,7 @@ import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -44,14 +44,14 @@ public class PotentialMasterList extends PotentialMasterNbr {
     /**
      * Default constructor uses range of 1.0.
      */
-    public PotentialMasterList(ISimulation sim, Space _space) {
+    public PotentialMasterList(ISimulation sim, ISpace _space) {
         this(sim,1.0, _space);
     }
     
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
-    public PotentialMasterList(ISimulation sim, double range, Space _space) {
+    public PotentialMasterList(ISimulation sim, double range, ISpace _space) {
         this(sim, range, (IAtomPositionDefinition)null, _space);
     }
     
@@ -62,22 +62,22 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * @param positionDefinition
      *            if null, specifies use of atom type's position definition
      */
-    public PotentialMasterList(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, Space _space) {
+    public PotentialMasterList(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, ISpace _space) {
         this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space), _space);
     }
     
-    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, Space _space) {
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, ISpace _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
     }
     
-    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, Space _space){
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, ISpace _space){
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
     }
             
     public PotentialMasterList(ISimulation sim, double range,
     		BoxAgentSourceCellManager boxAgentSource,
     		BoxAgentManager agentManager,
-    		NeighborListAgentSource neighborListAgentSource, Space _space) {
+    		NeighborListAgentSource neighborListAgentSource, ISpace _space) {
         super(sim, boxAgentSource, agentManager, _space);
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
@@ -637,7 +637,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     protected static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource,
                                                               java.io.Serializable {
-        public NeighborListAgentSource(double range, Space space) {
+        public NeighborListAgentSource(double range, ISpace space) {
             
             this.range = range;
             this.space = space;
@@ -666,6 +666,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         private static final long serialVersionUID = 1L;
         protected PotentialMasterList potentialMaster;
         protected double range;
-        protected final Space space;
+        protected final ISpace space;
     }
 }

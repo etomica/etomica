@@ -1,7 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Primitive group for a trigonal system.  All primitive vectors have the same 
@@ -12,10 +12,10 @@ public class PrimitiveTrigonal extends Primitive {
 
     private static final long serialVersionUID = 1L;
 
-    public PrimitiveTrigonal(Space space) {
+    public PrimitiveTrigonal(ISpace space) {
         this(space, 1.0, rightAngle, rightAngle, rightAngle);
     }
-    public PrimitiveTrigonal(Space space, double cubicSize, 
+    public PrimitiveTrigonal(ISpace space, double cubicSize, 
                              double alpha, double beta, double gamma) {
         super(space);
         setCubicSize(cubicSize);

@@ -20,7 +20,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 
@@ -34,12 +34,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerlet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -174,7 +174,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         private static final long serialVersionUID = 1L;
         public IVector force;
 
-        public MyAgent(Space space) {
+        public MyAgent(ISpace space) {
             force = space.makeVector();
         }
         

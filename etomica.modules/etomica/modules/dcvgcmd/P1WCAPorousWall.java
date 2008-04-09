@@ -7,7 +7,7 @@ import etomica.api.IVector;
 import etomica.EtomicaInfo;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -27,11 +27,11 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     private IVector[] poreCenters;
     private double z;
 
-    public P1WCAPorousWall(Space space) {
+    public P1WCAPorousWall(ISpace space) {
         this(space, 1.0, 1.0);
     }
 
-    public P1WCAPorousWall(Space space, double sigma, double epsilon) {
+    public P1WCAPorousWall(ISpace space, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

@@ -12,7 +12,7 @@ import etomica.api.IIntegrator;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
@@ -47,7 +47,7 @@ import etomica.space.Space;
 public class MSDCoordWriter implements IAction,
                                        ControllerListener {
 	
-	public MSDCoordWriter(Space _space, String fileName){
+	public MSDCoordWriter(ISpace _space, String fileName){
 		// Creates an instance of subclass AfterPBC
 		iterator = new AtomIteratorLeafAtoms();
         afterPBCinstance = new AfterPBC(_space,iterator);
@@ -167,7 +167,7 @@ public class MSDCoordWriter implements IAction,
 	
 	private static class AfterPBC implements IAction {
 		
-		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
+		public AfterPBC(ISpace _space, AtomIteratorBoxDependent iterator){
 			workVector = _space.makeVector();
 			this.iterator = iterator;
 			this.space = _space;
@@ -233,7 +233,7 @@ public class MSDCoordWriter implements IAction,
 		private IVector workVector;
 		private IVector [] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
-		private final Space space;
+		private final ISpace space;
 	}
 	
 }

@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.api.IVector;
 import etomica.config.ConformationChainZigZag;
 import etomica.api.ISimulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.api.ISpecies;
 
 /**
@@ -11,7 +11,7 @@ import etomica.api.ISpecies;
  */
 public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Serializable {
 
-    public SpeciesFactorySiepmannSpheres(Space space, int nA) {
+    public SpeciesFactorySiepmannSpheres(ISpace space, int nA) {
         this.nA = nA;
         IVector vector1 = space.makeVector();
         vector1.setX(0, bondL);
@@ -21,7 +21,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
         conformation = new ConformationChainZigZag(space, vector1, vector2);
     }
     
-    public ISpecies makeSpecies(ISimulation sim, Space _space) {
+    public ISpecies makeSpecies(ISimulation sim, ISpace _space) {
         SpeciesAlkane species = new SpeciesAlkane(sim, _space, nA);
         species.setConformation(conformation);
         return species;

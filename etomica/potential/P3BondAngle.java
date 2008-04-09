@@ -9,6 +9,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -24,7 +25,7 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P3BondAngle extends Potential implements PotentialSoft {
 
-    public P3BondAngle(Space space) {
+    public P3BondAngle(ISpace space) {
         super(3, space);
         dr12 = space.makeVector();
         dr23 = space.makeVector();

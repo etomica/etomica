@@ -6,7 +6,7 @@ import etomica.atom.AtomLeafAngular;
 import etomica.atom.AtomLeafAngularDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     
-    public SpeciesSpheresRotating(ISimulation sim, Space _space) {
+    public SpeciesSpheresRotating(ISimulation sim, ISpace _space) {
         super(_space, sim.isDynamic(), new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0));
     }
 

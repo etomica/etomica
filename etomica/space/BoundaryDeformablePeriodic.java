@@ -23,14 +23,14 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Make a cubic boundary with edges of length equal to the default boxSize and
      * periodic in every direction.
      */
-	public BoundaryDeformablePeriodic(IRandom _random, Space _space) {
+	public BoundaryDeformablePeriodic(IRandom _random, ISpace _space) {
 		this(_space, _random, 10.0);
 	}
 
     /**
      * Make a cubic boundary of specified edge length and periodicity.
      */
-	public BoundaryDeformablePeriodic(Space space, IRandom random, double boxSize) {
+	public BoundaryDeformablePeriodic(ISpace space, IRandom random, double boxSize) {
 	    this(space, random, makeVectors(space, boxSize));
 	}
 	
@@ -43,7 +43,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *  @throws IllegalArgumentException if the dimension of space is not 2 or 3
      *  @throws IllegalArgumentException if the vex.length is not equal to the dimension of the space
      */
-	public BoundaryDeformablePeriodic(Space space, IRandom random, IVector[] vex) {
+	public BoundaryDeformablePeriodic(ISpace space, IRandom random, IVector[] vex) {
         super(space, makeShape(space, vex));
         this.random = random;
         D = space.D();
@@ -90,7 +90,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
     
     //used by constructor
-    private static IVector[] makeVectors(Space space, double boxSize) {
+    private static IVector[] makeVectors(ISpace space, double boxSize) {
         IVector[] vectors = new IVector[space.D()];
         for(int i=0; i<vectors.length; i++) {
             vectors[i] = space.makeVector();
@@ -100,7 +100,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 	
     //used only by constructor
-    private static Polytope makeShape(Space space, IVector[] vex) {
+    private static Polytope makeShape(ISpace space, IVector[] vex) {
         switch(space.D()) {
             case 2: return new Parallelogram(space, vex[0], vex[1]);
             case 3: return new Parallelepiped(space, (IVector3D)vex[0], (IVector3D)vex[1], (IVector3D)vex[2]);

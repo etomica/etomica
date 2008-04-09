@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -21,7 +22,7 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
      * @param space: space of lattice; values of 2D or 3D are expected, 1D might also work
      * @param latticeConstant spacing between adjacent lattice sites
      */
-    public LatticeCubicSimple(Space space, double latticeConstant) {
+    public LatticeCubicSimple(ISpace space, double latticeConstant) {
         super(new PrimitiveCubic(space));
         this.primitive = (PrimitiveCubic)getPrimitive();
         primitive.setSizeABC(latticeConstant);

@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 
 import etomica.potential.Potential2;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Magnetic spin potential, with an energy defined by
@@ -22,11 +22,11 @@ import etomica.space.Space;
  */
 public class P2Spin extends Potential2 {
 
-    public P2Spin(Space space) {
+    public P2Spin(ISpace space) {
         this(space, 1.0);
     }
 
-    public P2Spin(Space space, double coupling) {
+    public P2Spin(ISpace space, double coupling) {
         super(space);
         setCoupling(coupling);
     }

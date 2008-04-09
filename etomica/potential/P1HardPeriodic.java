@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
@@ -17,7 +17,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
      * Returns an instance of P1HardPeriodic with sigma = NaN.  call setSigma
      * to set the value you want.
      */
-    public P1HardPeriodic(Space space) {
+    public P1HardPeriodic(ISpace space) {
         this(space, Double.NaN);
         // use NaN so they'll have to call setSigma later
     }
@@ -26,7 +26,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
      * Returns an instance of P1HardPeriodic with the given value of sigma (the
      * maximum distance between two atoms where they interact)
      */
-    public P1HardPeriodic(Space space, double sigma) {
+    public P1HardPeriodic(ISpace space, double sigma) {
         super(space);
         this.sigma = sigma;
     }

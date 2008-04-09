@@ -14,13 +14,13 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.Species;
 import etomica.units.ElectronVolt;
 
 public class SpeciesParacetamol extends Species {
 
-	public SpeciesParacetamol(ISimulation sim, Space _space) {
+	public SpeciesParacetamol(ISimulation sim, ISpace _space) {
 		super(new AtomPositionGeometricCenter(_space));
 		space = _space;
 		isDynamic = sim.isDynamic();
@@ -149,7 +149,7 @@ public class SpeciesParacetamol extends Species {
     }
     
 	private static final long serialVersionUID = 1L;
-	protected final Space space;
+	protected final ISpace space;
 	protected final boolean isDynamic;
     protected final AtomTypeSphere cType, oType, nType, hpType, hyType;
 }

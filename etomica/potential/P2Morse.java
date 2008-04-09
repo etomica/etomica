@@ -1,6 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -23,11 +23,11 @@ import etomica.units.Length;
  */
 public final class P2Morse extends Potential2SoftSpherical {
 
-    public P2Morse(Space space) {
+    public P2Morse(ISpace space) {
         this(space, 1.0, 1.0, 1.0);
     }
     
-    public P2Morse(Space space, double epsilon, double re, double alpha) {
+    public P2Morse(ISpace space, double epsilon, double re, double alpha) {
         super(space);
         setEpsilon(epsilon);
         setRe(re);

@@ -6,14 +6,14 @@ package etomica.nbr.cell;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
 public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serializable {
 
-    public BoxAgentSourceCellManager(IAtomPositionDefinition positionDefinition, Space _space) {
+    public BoxAgentSourceCellManager(IAtomPositionDefinition positionDefinition, ISpace _space) {
         this.positionDefinition = positionDefinition;
         this.space = _space;
     }
@@ -38,5 +38,5 @@ public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serial
     private static final long serialVersionUID = 1L;
     private double range;
     private final IAtomPositionDefinition positionDefinition;
-    private final Space space;
+    private final ISpace space;
 }

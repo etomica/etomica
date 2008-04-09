@@ -3,7 +3,7 @@ package etomica.paracetamol;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IConformation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /*
  *  Geometry of Published Paracetamol Molecule (Orthorhombic)
@@ -13,7 +13,7 @@ import etomica.space.Space;
 
 public class ConformationParacetamolOrthorhombic implements IConformation {
 	
-	public ConformationParacetamolOrthorhombic(Space space) {
+	public ConformationParacetamolOrthorhombic(ISpace space) {
 		this.space = space;
 	}
 	
@@ -145,5 +145,5 @@ public class ConformationParacetamolOrthorhombic implements IConformation {
 	}
 
 	private static final long serialVersionUID = 1L;
-    protected final Space space;
+    protected final ISpace space;
 }

@@ -26,8 +26,8 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
-import etomica.space.Space;
 import etomica.units.ElectronVolt;
 
 
@@ -78,19 +78,19 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public boolean rotate, normalD;
 	public String file;
 	public WriteConfiguration writer;
-	private final Space space;
+	private final ISpace space;
 	
 	
 	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster,
 			                  ISpecies[] species, String fileName,
-			                  Boolean normalDir, Space _space) {
+			                  Boolean normalDir, ISpace _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, fileName, normalDir, _space);
 	}
 	
 	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster,
 			                  IRandom arandom, double temperature,
 			                  ISpecies[] aspecies, String fileName,
-			                  Boolean normalDir, Space _space) {
+			                  Boolean normalDir, ISpace _space) {
 		super(potentialMaster, temperature);
 		this.random = arandom;
 		this.sim = aSim;

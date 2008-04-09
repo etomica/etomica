@@ -5,12 +5,12 @@ import etomica.api.ISimulation;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sulfur;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkaneThiol extends SpeciesSpheresHetero {
 
-    public SpeciesAlkaneThiol(ISimulation sim, Space _space, int numCarbons) {
+    public SpeciesAlkaneThiol(ISimulation sim, ISpace _space, int numCarbons) {
         super(_space, sim.isDynamic(), makeAtomTypeSpheres(new Element[]{Sulfur.INSTANCE, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
         setTotalChildren(numCarbons+1);
     }

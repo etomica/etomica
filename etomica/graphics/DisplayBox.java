@@ -16,7 +16,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Pixel;
 
 /**
@@ -44,7 +44,7 @@ public class DisplayBox extends Display {
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private IBox box;
     private boolean graphicResizable = true;
-    private final Space space;
+    private final ISpace space;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvasInterface canvas = null;
@@ -87,7 +87,7 @@ public class DisplayBox extends Display {
      */
     private boolean drawOverflow = false;
   
-    public DisplayBox(ISimulation sim, IBox box, Space space) {
+    public DisplayBox(ISimulation sim, IBox box, ISpace space) {
         this(sim, box,space,new Pixel());
     }
     
@@ -104,7 +104,7 @@ public class DisplayBox extends Display {
      * @param box
      * @param pixel
      */
-    public DisplayBox(ISimulation sim, IBox box, Space space, Pixel pixel) {
+    public DisplayBox(ISimulation sim, IBox box, ISpace space, Pixel pixel) {
         super();
         this.space = space;
         colorScheme = new ColorSchemeByType(sim);

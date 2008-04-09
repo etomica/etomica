@@ -4,7 +4,7 @@ import etomica.api.IVector;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 /**
  * Primitive group for a cubic system.  All primitive
@@ -15,10 +15,10 @@ public class PrimitiveCubic extends Primitive {
     private static final long serialVersionUID = 1L;
     private double aBC;
     
-    public PrimitiveCubic(Space space) {
+    public PrimitiveCubic(ISpace space) {
         this(space, 1.0);
     }
-    public PrimitiveCubic(Space space, double latticeConstant) {
+    public PrimitiveCubic(ISpace space, double latticeConstant) {
         super(space);
         //set up orthogonal vectors of unit size
         setSizeABC(latticeConstant); //also sets reciprocal via update

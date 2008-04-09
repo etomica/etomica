@@ -28,8 +28,8 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
-import etomica.space.Space;
 import etomica.units.ElectronVolt;
 import etomica.util.Debug;
 
@@ -81,17 +81,17 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IteratorDirective allatoms;
 	public String file;
 	public ActivityIntegrate activityIntegrate;
-	private final Space space;
+	private final ISpace space;
 	
 	
 	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster,
-			                 ISpecies[] species, Space _space) {
+			                 ISpecies[] species, ISpace _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
 	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster,
 			                 IRandom random, double temperature,
-			                 ISpecies[] aspecies, Space _space) {
+			                 ISpecies[] aspecies, ISpace _space) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;
@@ -826,7 +826,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	public static class PotentialMasterListDimer extends PotentialMasterList{
 
-		public PotentialMasterListDimer(ISimulation sim, Space space) {
+		public PotentialMasterListDimer(ISimulation sim, ISpace space) {
 			super(sim, space);
 			
 		}

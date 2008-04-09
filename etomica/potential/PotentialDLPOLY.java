@@ -7,11 +7,11 @@ import java.io.IOException;
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 public class PotentialDLPOLY extends Potential{
 	
-	public PotentialDLPOLY(Space space){
+	public PotentialDLPOLY(ISpace space){
 		super(0, space);
 	}
 	

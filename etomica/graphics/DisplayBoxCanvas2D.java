@@ -16,7 +16,7 @@ import etomica.atom.IAtomOriented;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
-import etomica.space.Space;
+import etomica.space.ISpace;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayBoxCanvas2D extends DisplayCanvas {
@@ -29,9 +29,9 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
     private final int[] atomOrigin;
     private final IVector boundingBox;
-    protected final Space space;
+    protected final ISpace space;
         
-    public DisplayBoxCanvas2D(DisplayBox _box, Space _space) {
+    public DisplayBoxCanvas2D(DisplayBox _box, ISpace _space) {
     	this.space = _space;
         scaleText.setVisible(true);
         scaleText.setEditable(false);

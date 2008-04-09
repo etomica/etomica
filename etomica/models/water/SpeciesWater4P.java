@@ -9,7 +9,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.species.Species;
 
 /**
@@ -17,7 +17,7 @@ import etomica.species.Species;
  */
 public class SpeciesWater4P extends Species {
 
-    public SpeciesWater4P(Space space) {
+    public SpeciesWater4P(ISpace space) {
         super(new AtomPositionGeometricCenter(space));
         this.space = space;
         hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
@@ -62,6 +62,6 @@ public class SpeciesWater4P extends Species {
     public final static int indexM  = 3;
 
     private static final long serialVersionUID = 1L;
-    protected final Space space;
+    protected final ISpace space;
     protected final AtomTypeSphere oType, hType, mType;
 }
