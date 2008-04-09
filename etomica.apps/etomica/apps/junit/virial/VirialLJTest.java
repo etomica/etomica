@@ -52,7 +52,7 @@ public class VirialLJTest extends TestCase {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        assertTrue("Ref pref (alpha) within expected limits: "+sim.refPref, Math.abs(sim.refPref - 1.34) < 0.08);
+        assertTrue("Ref pref (alpha) within expected limits: "+sim.refPref, Math.abs(sim.refPref - 1.34) < 0.11);
         
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
@@ -60,9 +60,9 @@ public class VirialLJTest extends TestCase {
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         // check against expected values, 0.0604 +/- 0.0036
-        assertTrue("Final ratio within expected limits: "+ratio, Math.abs(ratio - 0.0604) < 0.007);
+        assertTrue("Final ratio within expected limits: "+ratio, Math.abs(ratio - 0.0604) < 0.011);
         // improvements to the algorithm might lower this.  be wary of changes that raise it.
         // improvements to uncertainty estimation might alter this up or down, but it shouldn't change by much.
-        assertTrue("Ratio uncertainty within expected limits: "+error, Math.abs(error - 0.0036) < 0.0003);
+        assertTrue("Ratio uncertainty within expected limits: "+error, Math.abs(error - 0.0036) < 0.0004);
     }
 }
