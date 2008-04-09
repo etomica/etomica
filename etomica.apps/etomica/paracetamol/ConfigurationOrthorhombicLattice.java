@@ -113,7 +113,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
         // determine scaled shape of simulation volume
         IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
-        IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -136,7 +136,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, AgentSou
             // to 1.0
             latticeScaling.E(box.getBoundary().getDimensions());
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(Space.makeVector(latticeDimensions));
+            latticeScaling.DE(space.makeVector(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }

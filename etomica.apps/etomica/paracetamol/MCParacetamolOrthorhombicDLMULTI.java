@@ -99,11 +99,11 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         
         box = new Box(this, space);
         addBox(box);
-        box.setDimensions(Space.makeVector(new double[] {25,25,25}));
+        box.setDimensions(space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numMolecules);        
 
         bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
-        bdry.setDimensions(Space.makeVector(new double []{cellDim[0]*17.248, cellDim[1]*12.086, cellDim[2]*7.382}));
+        bdry.setDimensions(space.makeVector(new double []{cellDim[0]*17.248, cellDim[1]*12.086, cellDim[2]*7.382}));
         box.setBoundary(bdry);
 
         coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);

@@ -30,7 +30,8 @@ public class WaveVectorFactoryFromFile implements WaveVectorFactory {
             for (int j = 0; j < D; j++) {
                 justWaveVector[j] = waveVectorsAndCoefficients[i][j + 1];
             }
-            waveVectors[i] = Space.makeVector(justWaveVector);
+            Space space = Space.getInstance(justWaveVector.length);
+            waveVectors[i] = space.makeVector(justWaveVector);
         }
 
     }

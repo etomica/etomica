@@ -2,6 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
@@ -11,8 +12,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.api.ISpecies;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
@@ -36,13 +36,13 @@ public class SimulationVirial extends Simulation {
     /**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
-	public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		box = new BoxCluster(this,sampleCluster, space);
-        box.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
+        box.getBoundary().setDimensions(space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this, space);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nMolecules);

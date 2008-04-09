@@ -90,7 +90,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         // determine scaled shape of simulation volume
         IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
-        IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction

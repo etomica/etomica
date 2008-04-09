@@ -30,7 +30,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
 
         box = new Box(this, space);
         addBox(box);
-        box.setDimensions(Space.makeVector(new double[] {25,25,25}));
+        box.setDimensions(space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numAtoms);
         
             /*
@@ -208,7 +208,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
        
             
         boundary = new BoundaryRectangularPeriodic(space, getRandom(), 1);
-        boundary.setDimensions(Space.makeVector(new double[] {2*17.248, 3*12.086, 4*7.382}));
+        boundary.setDimensions(space.makeVector(new double[] {2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionParacetamol(box, primitive, basis, space);

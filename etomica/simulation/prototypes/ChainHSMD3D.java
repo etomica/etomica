@@ -55,7 +55,7 @@ public class ChainHSMD3D extends Simulation {
         
         box = new Box(this, space);
         double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        box.getBoundary().setDimensions(Space.makeVector(new double[]{l,l,l}));
+        box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         addBox(box);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         box.setNMolecules(species, numAtoms);

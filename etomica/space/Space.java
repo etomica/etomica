@@ -124,7 +124,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public static IVector makeVector(double[] a) {
+    public IVector makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -137,7 +137,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * Returns a Vector initialized to the given set of values in the array (cast to double).
      * Spatial dimension of the Vector is determined by the length of a.
      */
-    public static IVector makeVector(int[] k) {
+    public IVector makeVector(int[] k) {
         double[] a = new double[k.length];
         for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);

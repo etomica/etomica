@@ -29,6 +29,10 @@ public interface ISpace {
 	 */
 	public abstract IVector makeVector();
 
+	public abstract IVector makeVector(double[] a);
+
+	public abstract IVector makeVector(int[] k);
+
 	/**
 	 * Constructs and returns a new Orientation appropriate to the space.
 	 */

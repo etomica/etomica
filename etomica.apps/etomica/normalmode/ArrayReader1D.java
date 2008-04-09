@@ -51,7 +51,8 @@ public class ArrayReader1D {
                     thisQ[i] = Double.parseDouble(valueStrings[i]);
                 }
                 if (useVectors) {
-                    allQ.add(Space.makeVector(thisQ));
+                	Space space = Space.getInstance(thisQ.length);
+                    allQ.add(space.makeVector(thisQ));
                 }
                 else {
                     allQ.add(thisQ);

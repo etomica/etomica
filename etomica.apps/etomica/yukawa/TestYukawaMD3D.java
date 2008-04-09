@@ -65,7 +65,7 @@ public class TestYukawaMD3D extends Simulation{
 		species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 		box = new Box(this, space);
-        box.setDimensions(Space.makeVector(new double[]{l,l,l}));
+        box.setDimensions(space.makeVector(new double[]{l,l,l}));
         addBox(box);
         box.setNMolecules(species, numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);

@@ -366,9 +366,9 @@ public class DisplayPolytope extends Display implements IAction {
         public void init() {
             Space3D space3D = Space3D.getInstance();
             Cuboid cuboid = new Cuboid(space3D);
-            Vector3D a = (Vector3D)Space.makeVector(new double[]{1.0,0.2,0.0});
-            Vector3D b = (Vector3D)Space.makeVector(new double[]{0.0,1.0,0.2});
-            Vector3D c = (Vector3D)Space.makeVector(new double[]{0.2,0.0,1.0});
+            Vector3D a = (Vector3D)space3D.makeVector(new double[]{1.0,0.2,0.0});
+            Vector3D b = (Vector3D)space3D.makeVector(new double[]{0.0,1.0,0.2});
+            Vector3D c = (Vector3D)space3D.makeVector(new double[]{0.2,0.0,1.0});
             Parallelepiped parallelepiped = new Parallelepiped(space3D,a,b,c);
             Space2D space2D = Space2D.getInstance();
             LineSegment lineS1 = new LineSegment(space2D);

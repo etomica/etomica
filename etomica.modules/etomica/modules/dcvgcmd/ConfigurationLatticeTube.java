@@ -69,7 +69,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
-        IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -91,7 +91,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             // in favorable situations, this should be approximately equal
             // to 1.0
             latticeScaling.E(shape);
-            latticeScaling.DE(Space.makeVector(latticeDimensions));
+            latticeScaling.DE(space.makeVector(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }
