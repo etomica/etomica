@@ -130,16 +130,16 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	//rotate Miller plane into Y axis, about Z axis (through XY plane).
     	projection.E(normal);
     	//get XY projection of normal
-    	projection.setX(2, 0);
-    	double theta = Math.acos( projection.dot(origin[1]) / Math.sqrt(projection.squared()) );
+    	projection.setX(2, 0.0);
+    	double theta = Math.acos(projection.dot(origin[1]) / Math.sqrt(projection.squared()));
     	setRotationTOP(2,theta);
     	setRotationBOTTOM(2,-theta);
     	
     	//rotate Miller plane into Z axis, about X axis (through YZ plane).
     	projection.E(normal);
     	//get YZ projection of normal
-    	projection.setX(0, 0);
-    	double phi = Math.acos( projection.dot(origin[2]) / Math.sqrt(projection.squared()) );
+    	projection.setX(0, 0.0);
+    	double phi = Math.acos(projection.dot(origin[2]) / Math.sqrt(projection.squared()));
     	setRotationTOP(0,phi);
     	setRotationBOTTOM(0,phi);
     }
