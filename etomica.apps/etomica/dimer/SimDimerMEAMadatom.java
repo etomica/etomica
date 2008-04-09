@@ -241,7 +241,6 @@ public class SimDimerMEAMadatom extends Simulation{
     }
     
     public void generateConfigs(String fileName, double percentd){       
-    	setMovableAtoms(5.0);
     	
         RandomNumberGenerator random = new RandomNumberGenerator();
         IVector workVector = space.makeVector();
@@ -269,7 +268,6 @@ public class SimDimerMEAMadatom extends Simulation{
     }
     
     public void calculateVibrationalModes(String fileName){
-    	setMovableAtoms(5.0);
     	
         String file = fileName;
         ConfigurationFile configFile = new ConfigurationFile(file);
@@ -343,7 +341,6 @@ public class SimDimerMEAMadatom extends Simulation{
     }
     
     public void enableMolecularDynamics(long maxSteps){
-    	setMovableAtoms(5.0);
     	
     	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
     	integratorMD.setTimeStep(0.001);
@@ -359,7 +356,6 @@ public class SimDimerMEAMadatom extends Simulation{
     }
     
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
-    	setMovableAtoms(5.0);
     	
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
