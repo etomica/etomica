@@ -11,6 +11,7 @@ import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomsetArrayList;
@@ -22,7 +23,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space3d.IVector3D;
 
 /**
  * CoordinateDefinition implementation for paracetamol molecule. The class takes the first

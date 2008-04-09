@@ -7,12 +7,12 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
-import etomica.space3d.IVector3D;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	

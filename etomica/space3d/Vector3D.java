@@ -3,6 +3,7 @@ package etomica.space3d;
 import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.space.IVectorRandom;
 
 /**

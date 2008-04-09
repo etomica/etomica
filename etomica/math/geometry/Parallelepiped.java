@@ -5,9 +5,9 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
-import etomica.space3d.IVector3D;
 import etomica.space3d.Vector3D;
 
 /**

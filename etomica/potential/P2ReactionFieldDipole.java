@@ -7,10 +7,10 @@ import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IPotential;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.DipoleSource;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space3d.IVector3D;
 
 public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, IPotentialTorque {
 

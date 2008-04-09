@@ -7,9 +7,9 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
-import etomica.space3d.IVector3D;
 
 /** 
  * 3-point potential for water.  Potential parameters are typically defined

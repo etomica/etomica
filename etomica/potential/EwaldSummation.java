@@ -7,6 +7,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
@@ -16,7 +17,6 @@ import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
 import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.space3d.IVector3D;
 import etomica.units.Dimension;
 import etomica.units.Length;
 

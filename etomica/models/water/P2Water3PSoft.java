@@ -4,11 +4,11 @@ package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialTorque;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space3d.IVector3D;
 
 /** 
  * 3-point potential for water that can calculate gradient and torque (for the

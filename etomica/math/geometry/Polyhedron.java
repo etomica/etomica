@@ -2,7 +2,7 @@ package etomica.math.geometry;
 import java.util.LinkedList;
 
 import etomica.api.IVector;
-import etomica.space3d.IVector3D;
+import etomica.api.IVector3D;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope. Contains

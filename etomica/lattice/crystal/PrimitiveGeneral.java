@@ -1,9 +1,9 @@
 package etomica.lattice.crystal;
 
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
-import etomica.space3d.IVector3D;
 
 /**
  * Primitive defined simply by its vectors.  Cannot be modified by setting

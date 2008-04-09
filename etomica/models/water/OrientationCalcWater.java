@@ -4,6 +4,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
@@ -11,7 +12,6 @@ import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
-import etomica.space3d.IVector3D;
 import etomica.space3d.RotationTensor3D;
 
 public class OrientationCalcWater extends ConformationWater3P implements 

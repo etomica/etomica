@@ -3,11 +3,11 @@ package etomica.lattice;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
 import etomica.space.ISpace;
-import etomica.space3d.IVector3D;
 
 /**
  * Class describing a plane through a lattice.  Holds a Plane

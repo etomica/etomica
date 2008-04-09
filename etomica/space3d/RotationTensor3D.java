@@ -1,5 +1,7 @@
 package etomica.space3d;
 
+import etomica.api.IVector3D;
+
 public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
     public RotationTensor3D() {super(); reset();}
     public void reset() {
