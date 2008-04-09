@@ -68,7 +68,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         
         integratorMD.setTimeStep(0.001);
-        integratorMD.setTemperature(Kelvin.UNIT.toSim(295));
+        integratorMD.setTemperature(Kelvin.UNIT.toSim(0));
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
         
@@ -222,7 +222,7 @@ public class SimDimerMEAMGB extends Simulation{
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
         gbtilt.setGBplane(millerPlane);
-        gbtilt.setBoxSize(box, new int[] {4,4,12});
+        gbtilt.setBoxSize(box, new int[] {4,4,10});
         gbtilt.initializeCoordinates(box);
         
         /*
@@ -244,7 +244,7 @@ public class SimDimerMEAMGB extends Simulation{
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomGB";
-    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {0,3,1});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {1,1,1});
     	
     	sim.activityIntegrateMD.setMaxSteps(900);
         sim.activityIntegrateDimer.setMaxSteps(1000);
