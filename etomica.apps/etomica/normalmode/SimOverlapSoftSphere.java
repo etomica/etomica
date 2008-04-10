@@ -44,11 +44,11 @@ import etomica.virial.overlap.IntegratorOverlap;
  * Simulation to run sampling with the hard sphere potential, but measuring
  * the harmonic potential based on normal mode data from a previous simulation.
  * 
- * @author Andrew Schultz
+ * @author Andrew Schultz & Tai Tan
  */
 public class SimOverlapSoftSphere extends Simulation {
 
-    public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, double softness) {
+    public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
 
         PotentialMaster potentialMasterTarget = new PotentialMaster(space);
@@ -93,7 +93,7 @@ public class SimOverlapSoftSphere extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, softness);
+        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
@@ -269,7 +269,8 @@ public class SimOverlapSoftSphere extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
-                throw new RuntimeException("Simulation failed to find a valid ref pref");
+                throw new RuntimeException("Simulation failed to fiq" +
+                		"nd a valid ref pref");
             }
             System.out.println("setting ref pref to "+refPref);
             
@@ -342,25 +343,26 @@ public class SimOverlapSoftSphere extends Simulation {
             readParameters.readParameters();
         }
         double density = params.density;
+        int exponentN = params.exponentN;
         long numSteps = params.numSteps;
         int numMolecules = params.numMolecules;
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
         int D = params.D;
-        String filename = "nm_SoftSphere_"+params.softness+"S_"+params.temperature+"T";
+        String filename = "FCC_SoftSphere_n"+exponentN+"_D"+ (int)Math.round(density*1000);
         if (filename.length() == 0) {
-            filename = "nm_SoftSphere_"+params.softness+"S_"+params.temperature+"T";
+            filename = "FCC_SoftSphere_n"+exponentN+"_D"+ (int)Math.round(density*1000);
         }
         String refFileName = args.length > 0 ? filename+"_ref" : null;
 
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
-        System.out.println("harmonic fudge: "+harmonicFudge);
+        System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
         System.out.println((numSteps/1000)+" total steps of 1000");
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, params.softness);
+        SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, params.exponentN);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -451,13 +453,14 @@ public class SimOverlapSoftSphere extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =108;
-        public double density = 3.33;
+        public int numMolecules =500;
+        public double density = 2;
+        public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 10000000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "S01_T10";
-        public double temperature = 0.2;
-        public double softness = 0.2;
+        public String filename = "FCC_SoftSphere_n12_D2000";
+        public double temperature = 0.1;
+        public double softness = 0.08333;
     }
 }

@@ -26,7 +26,8 @@ import etomica.util.FunctionGeneral;
  * 
  * BCC Crystal Structure
  * 
- * @author kofke
+ * @author kofke & Tai Tan
+ * 
  *
  */
 public class HarmonicCrystalSoftSphereBCC {
@@ -143,9 +144,9 @@ public class HarmonicCrystalSoftSphereBCC {
 
     public static void main(String[] args) {
         double rho = 2.204;
-        double softness = 0.16;
+        int exponent = 12;
         int maxLatticeShell = 49;
-        int nC =3;
+        int nC =4;
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
 
@@ -153,7 +154,7 @@ public class HarmonicCrystalSoftSphereBCC {
             rho = Double.parseDouble(args[0]);
         }
         if (args.length > 1) {
-            softness = Double.parseDouble(args[1]);
+            exponent = Integer.parseInt(args[1]);
         }
         if (args.length > 2) {
             nC = Integer.parseInt(args[2]);
@@ -163,7 +164,7 @@ public class HarmonicCrystalSoftSphereBCC {
         Basis basis = new BasisCubicBcc();
         
         ISpace sp = Space3D.getInstance();
-        final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, softness);
+        final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
 
         int[] nCells = new int[] {nC, nC, nC};
         
@@ -172,23 +173,25 @@ public class HarmonicCrystalSoftSphereBCC {
         harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
         
         System.out.println("Density: " + rho);
-        System.out.println("Softness: " + softness);
-
+        System.out.println("Exponent: " + exponent);
+        
+        
+        double temperature = 0.1;
         double u = harmonicCrystal.getLatticeEnergy();
         
-        double[] a = new double[100];
-        double temp =0.01;
-        for (int i =0; i<a.length; i++){
-        	a[i] = harmonicCrystal.getHelmholtzFreeEnergy(temp);
-        	temp+=0.01;
-        }
+       // double[] a = new double[100];
+       // double temp =0.01;
+       // for (int i =0; i<a.length; i++){
+        double a = harmonicCrystal.getHelmholtzFreeEnergy(temperature);
+       // 	temp+=0.01;
+       // }
         System.out.println(" ");
         
-        temp=0.01;
-        for (int i =0; i<a.length; i++){
-        	System.out.println("Helmholtz Free Energy at T"+temp+ " is: "+a[i]);
-        	temp+=0.01;
-        }
+        
+        //for (int i =0; i<a.length; i++){
+        	//System.out.println("Helmholtz Free Energy at T"+temp+ " is: "+a[i]);
+        	//temp+=0.01;
+        //}
         
         System.out.println("\nLattice Energy: " + u);
         

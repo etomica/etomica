@@ -30,7 +30,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSSoftSphereBCC extends Simulation {
 
-    public SimCalcSSoftSphereBCC(Space _space, int numAtoms, double density, double temperature, double softness) {
+    public SimCalcSSoftSphereBCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space, true);
 
         PotentialMaster potentialMaster = new PotentialMaster(space);
@@ -67,7 +67,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
             basis = new BasisCubicBcc();
         }
 
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, softness);
+        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundary.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
@@ -92,7 +92,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         int nA = 128;
         double density = 2.2;
         double temperature = 0.01;
-        double softness = 0.16;
+        int exponent = 12;
         if (D == 1) {
             nA = 3;
             density = 0.5;
@@ -113,9 +113,9 @@ public class SimCalcSSoftSphereBCC extends Simulation {
             temperature = Double.parseDouble(args[4]);
         }
         if (args.length > 5) {
-        	softness = Double.parseDouble(args[5]);
+        	exponent = Integer.parseInt(args[5]);
         }
-        String filename = "nm_SoftSphereBCC_" + softness + "S_"+temperature+"T";
+        String filename = "nm_SoftSphereBCC_n" + exponent + "_D"+density;
         if (args.length > 0) {
             filename = args[0];
         }
@@ -123,12 +123,12 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "BCC" : "2D hexagonal"))
                 + " soft sphere simulation");
-        System.out.println(nA + " atoms with softness " + softness+" and temperature "+temperature);
+        System.out.println(nA + " atoms with exponent " + exponent+" and temperature "+temperature);
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimCalcSSoftSphereBCC sim = new SimCalcSSoftSphereBCC(Space.getInstance(D), nA, density, temperature, softness);
+        SimCalcSSoftSphereBCC sim = new SimCalcSSoftSphereBCC(Space.getInstance(D), nA, density, temperature, exponent);
 
         // set up initial configuration and save nominal positions
         Primitive primitive = sim.primitive;
@@ -220,7 +220,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
-        pdbWriter.setFileName("calcS_"+softness+"_"+temperature+".pdb");
+        pdbWriter.setFileName("calcS_n"+exponent+"_D"+density+".pdb");
         pdbWriter.actionPerformed();
        
     }
