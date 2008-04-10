@@ -16,6 +16,8 @@ import etomica.units.Length;
  *       sigma  :  is the atom size parameter
  *         n    :  is the degree of softness, s=1/n, 
  *               eg: hard sphere when s=0 or n->infinity
+ *               
+ *     sigma/r  : sig_r
  * 
  *
  * @author Tai Boon Tan
@@ -23,14 +25,16 @@ import etomica.units.Length;
 public final class P2SoftSphere extends Potential2SoftSpherical {
 
     public P2SoftSphere(ISpace space) {
-        this(space, 1.0, 1.0, 0.1);
+        this(space, 1.0, 1.0, 12);
+
     }
     
-    public P2SoftSphere(ISpace space, double sigma, double epsilon, double s) {
+    public P2SoftSphere(ISpace space, double sigma, double epsilon, int n) {
+
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        setS(s);
+        setExponent(n);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -43,8 +47,18 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      */
     public double u(double r2) {
     	double r = Math.sqrt(r2);
-    	double n = 1/s;
-        return epsilon*Math.pow(sigma/r, n);
+    	int expN = getExponent();
+    	double sig_rn = sigma/r;
+    	
+    	if (expN ==0){
+    		sig_rn = 1;
+    	} else
+    		{
+    			for (int i=0; i<expN; i++){
+    				sig_rn *= sigma/r;
+    			}
+    		}
+    	return epsilon*sig_rn;
     }
 
     /**
@@ -52,8 +66,18 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      */
     public double du(double r2) {
     	double r = Math.sqrt(r2);
-    	double n = 1/s;
-        return -n*epsilon*Math.pow(sigma/r, n);
+    	int expN = getExponent();
+    	double sig_rn = sigma/r;
+    	
+    	if (expN ==0){
+    		sig_rn = 1;
+    	} else
+    		{
+    			for (int i=0; i<expN; i++){
+    				sig_rn *= sigma/r;
+    			}
+    		}
+        return -n*epsilon*sig_rn;
     }
 
    /**
@@ -62,8 +86,18 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     */
     public double d2u(double r2) {
     	double r = Math.sqrt(r2);
-    	double n = 1/s;
-        return n*(n+1)*epsilon*Math.pow(sigma/r, n);
+    	int expN = getExponent();
+    	double sig_rn = sigma/r;
+    	
+    	if (expN ==0){
+    		sig_rn = 1;
+    	} else
+    		{
+    			for (int i=0; i<expN; i++){
+    				sig_rn *= sigma/r;
+    			}
+    		}
+        return n*(n+1)*epsilon*sig_rn;
     }
             
     /**
@@ -73,10 +107,19 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rC3 = rC*rC*rC;
-        double rc = sigma/rC;
-        double n = 1/s;
-    
-        return epsilon*A*rC3*Math.pow(rc, n)/(n-D);  //complete LRC is obtained by multiplying by N1*N2/V
+         
+    	int expN = getExponent();
+    	double sig_rCn = sigma/rC;
+    	
+    	if (expN ==0){
+    		sig_rCn = 1;
+    	} else
+    		{
+    			for (int i=0; i<expN; i++){
+    				sig_rCn *= sigma/rC;
+    			}
+    		}
+       return epsilon*A*rC3*sig_rCn/(n-D);  //complete LRC is obtained by multiplying by N1*N2/V
     }
 
     /**
@@ -107,16 +150,16 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     /**
      * Accessor method for soft-sphere softness parameter
      */
-    public double getS() {return s;}
+    public int getExponent() {return n;}
     /**
      * Mutator method for soft-sphere softness parameter
      */
-    public final void setS(double ess) {
-        s = ess;
+    public final void setExponent(int en) {
+        n = en;
     }
     
     private static final long serialVersionUID = 1L;
     private double sigma;
     private double epsilon;
-    private double s;
+    private int n;
 }
