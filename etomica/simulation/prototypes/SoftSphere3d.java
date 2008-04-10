@@ -43,7 +43,7 @@ public class SoftSphere3d extends Simulation {
     public DataSourceCountSteps meterCycles;
     
 
-    public SoftSphere3d(double density, double softness, double temperature) {
+    public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMaster(space);
 	    integrator = new IntegratorMC(this, potentialMaster);
@@ -65,7 +65,7 @@ public class SoftSphere3d extends Simulation {
         box.setDensity(density);
        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
-	    potential = new P2SoftSphere(space,1,1,softness);
+	    potential = new P2SoftSphere(space,1,1,exponent);
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 	    
@@ -92,7 +92,7 @@ public class SoftSphere3d extends Simulation {
     public static void main(String[] args) {
    
     	double density = 1.338;
-    	double softness = 0.1;
+    	int exponent = 12;
     	double temperature = 0.1;
     	
     	
@@ -100,13 +100,13 @@ public class SoftSphere3d extends Simulation {
             density = Double.parseDouble(args[0]);
         }
         if (args.length > 1) {
-            softness = Double.parseDouble(args[1]);
+            exponent = Integer.parseInt(args[1]);
         }
         if (args.length > 1) {
             temperature = Double.parseDouble(args[2]);
         }
     	
-    	final SoftSphere3d sim = new SoftSphere3d(density, softness, temperature);
+    	final SoftSphere3d sim = new SoftSphere3d(density, exponent, temperature);
         int numAtoms = 108;
         
         MeterPotentialEnergyFromIntegrator meterEnergy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
