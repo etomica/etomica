@@ -481,6 +481,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             case Integer.MAX_VALUE: //N-body
                 // do the calculation considering the current Atom as the 
                 // "central" Atom.
+            	if(atomsetArrayList==null){
+            		atomsetArrayList = new AtomsetArrayList();
+            	}
+            	
                 doNBodyStuff(molecule, pc, i, potentials[i], neighborManager);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
@@ -552,6 +556,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
             case Integer.MAX_VALUE: //N-body
                 // do the calculation considering the current Atom as the 
                 // "central" Atom.
+            	if(atomsetArrayList==null){
+            		atomsetArrayList = new AtomsetArrayList();
+            	}
                 doNBodyStuff(atom, pc, i, potentials[i], neighborManager);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
