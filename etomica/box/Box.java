@@ -16,7 +16,6 @@ import etomica.atom.AtomSetSinglet;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 

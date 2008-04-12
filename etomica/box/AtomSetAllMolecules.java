@@ -45,6 +45,7 @@ public class AtomSetAllMolecules implements AtomSet {
         moleculeTotals[moleculeTotals.length-1] = moleculeTotals[moleculeTotals.length-2];
     }
     
+    private static final long serialVersionUID = 1L;
     protected IAtomSet[] moleculeLists;
     protected int[] moleculeTotals;
 }
