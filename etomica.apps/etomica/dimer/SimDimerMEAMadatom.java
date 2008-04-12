@@ -24,6 +24,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.dimer.IntegratorDimerRT.PotentialMasterListDimer;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
@@ -34,7 +35,8 @@ import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
-import etomica.potential.PotentialMaster;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
@@ -56,7 +58,8 @@ public class SimDimerMEAMadatom extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
-    public final PotentialMaster potentialMaster;
+    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterListDimer potentialMasterD;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
@@ -77,7 +80,8 @@ public class SimDimerMEAMadatom extends Simulation{
     
     public SimDimerMEAMadatom() {
         super(Space3D.getInstance(), true);    	
-    	potentialMaster = new PotentialMaster(space);
+    	potentialMaster = new PotentialMasterList(this, space);
+    	potentialMasterD = new PotentialMasterListDimer(this, space);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
@@ -99,10 +103,12 @@ public class SimDimerMEAMadatom extends Simulation{
 		potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
 		
 		this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
-		//potentialMaster.setSpecies(new ISpecies [] {movable});
-		//potentialMaster.setRange(potential.getRange()*1.1);
-		//potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
+		potentialMaster.setRange(potential.getRange()*1.1);
+		potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
+		this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
+		potentialMasterD.setRange(potential.getRange()*1.1);
+		potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
 
 		
 		/**
@@ -348,8 +354,8 @@ public class SimDimerMEAMadatom extends Simulation{
     	integratorMD.setThermostatInterval(100);
     	integratorMD.setIsothermal(true);
     	integratorMD.setBox(box);
-        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-       // integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
     	activityIntegrateMD = new ActivityIntegrate(integratorMD);
     	getController().addAction(activityIntegrateMD);
     	activityIntegrateMD.setMaxSteps(maxSteps);
@@ -374,6 +380,8 @@ public class SimDimerMEAMadatom extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
+        integratorDimer.addNonintervalListener(potentialMasterD.getNeighborManager(box));
+        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
     	getController().addAction(activityIntegrateDimer);
@@ -402,55 +410,36 @@ public class SimDimerMEAMadatom extends Simulation{
     public static void main(String[] args){
 
         final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
-
-        sim.activityIntegrateMD.setMaxSteps(0);
-        sim.activityIntegrateDimer.setMaxSteps(0);
-                
+        
+        sim.setMovableAtoms(5.0);
+        sim.enableMolecularDynamics(100);
+        sim.enableDimerSearch("test1", 100, false, false);
+        
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
-        
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
-        
         DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
         accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
-        
         DisplayPlot plotPE = new DisplayPlot();
         plotPE.setLabel("PE Plot");
-        
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-
         simGraphic.add(plotPE);
         
         sim.integratorMD.addIntervalAction(energyPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        
         sim.integratorDimer.addIntervalAction(energyPump);
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    //    sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	
-    	//Sn
     	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.gray);
         colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
-        /**
-        //Ag
-        colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.darkGray);
-        colorScheme.setColor(sim.agFix.getMoleculeType(),java.awt.Color.green);
-        colorScheme.setColor(sim.agAdatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
-         */
-        /**
-        //Cu
-        colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.yellow);
-        colorScheme.setColor(sim.cuFix.getMoleculeType(),java.awt.Color.cyan);
-        colorScheme.setColor(sim.cuAdatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
-         */
+
     	simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 
