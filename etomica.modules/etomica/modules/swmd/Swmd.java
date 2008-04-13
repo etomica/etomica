@@ -1,8 +1,8 @@
 package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -11,11 +11,10 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardMoleculeMonatomic;
 import etomica.potential.P1HardPeriodic;
-import etomica.potential.P2HardMoleculeMonatomic;
+import etomica.potential.P2HardWrapper;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -32,12 +31,12 @@ public class Swmd extends Simulation {
     public SpeciesSpheresMono species;
     public IBox box;
     public IntegratorHard integrator;
-    public P2HardMoleculeMonatomic potentialWrapper;
+    public P2HardWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;
     
     public Swmd(Space _space) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this, space); //List(this, 2.0);
         
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
         
@@ -45,7 +44,9 @@ public class Swmd extends Simulation {
         double lambda = 2.0;
         
         //controller and integrator
-	    integrator = new IntegratorHard(this, potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300), space, true);
+	    integrator = new IntegratorHard(this, potentialMaster, space);
+	    integrator.setTimeStep(1.0);
+	    integrator.setTemperature(Kelvin.UNIT.toSim(300));
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
@@ -58,12 +59,12 @@ public class Swmd extends Simulation {
 	    species = new SpeciesSpheresMono(this, space);//index 1
 	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         getSpeciesManager().addSpecies(species);
-        integrator.setNullPotential(new P1HardMoleculeMonatomic(space, nullPotential), species);
+        integrator.setNullPotential(nullPotential, species);
         
         //instantiate several potentials for selection in combo-box
 	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(space.D() == 3 ? 1000 : 1500), true);
-        potentialWrapper = new P2HardMoleculeMonatomic(space,potentialSW);
-        potentialMaster.addPotential(potentialWrapper,new ISpecies[]{species,species});
+        potentialWrapper = new P2HardWrapper(space,potentialSW);
+        potentialMaster.addPotential(potentialWrapper,new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
 	    box = new Box(this, space);
