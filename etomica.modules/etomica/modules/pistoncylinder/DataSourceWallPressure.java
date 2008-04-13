@@ -2,7 +2,6 @@ package etomica.modules.pistoncylinder;
 
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.P1HardMoleculeMonatomic;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.ISpace;
 
@@ -12,9 +11,9 @@ import etomica.space.ISpace;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(ISpace space, P1HardMoleculeMonatomic potentialWrapper) {
+    public DataSourceWallPressure(ISpace space, P1HardMovingBoundary pistonPotential) {
         super(space);
-        wallPotentialWrapper = potentialWrapper;
+        wallPotential = pistonPotential;
     }
     
     /**
@@ -22,12 +21,12 @@ public class DataSourceWallPressure extends MeterPressureHard {
      * Adds collision virial (from potential) to accumulator
      */
     public void collisionAction(IntegratorHard.Agent agent) {
-        if (agent.collisionPotential == wallPotentialWrapper) {
-            if (wallPotentialWrapper.getSpace().D() == 2) {
-                virialSum += ((P1HardMovingBoundary)wallPotentialWrapper.getWrappedPotential()).lastWallVirial();
+        if (agent.collisionPotential == wallPotential) {
+            if (wallPotential.getSpace().D() == 2) {
+                virialSum += wallPotential.lastWallVirial();
             }
             else {
-                virialSum -= ((P1HardMovingBoundary)wallPotentialWrapper.getWrappedPotential()).lastWallVirial();
+                virialSum -= wallPotential.lastWallVirial();
             }
         }
     }
@@ -41,5 +40,5 @@ public class DataSourceWallPressure extends MeterPressureHard {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final P1HardMoleculeMonatomic wallPotentialWrapper;
+    protected final P1HardMovingBoundary wallPotential;
 }

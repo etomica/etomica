@@ -187,7 +187,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType(simulation));
-        final P1HardMovingBoundary pistonPotential = (P1HardMovingBoundary)pc.pistonPotentialWrapper.getWrappedPotential();
+        final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
             ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(pistonPotential));
@@ -674,7 +674,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         dataStreamPumps.add(targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotentialWrapper);
+        pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
         pressureMeter.setIntegrator(pc.integrator);
         final AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
@@ -909,9 +909,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 }
             }
             yShift += (D==2 ? 1:-1) * 0.5*sigma;
-            double pistonY = ((P1HardMovingBoundary)pc.pistonPotentialWrapper.getWrappedPotential()).getWallPosition();
+            double pistonY = pc.pistonPotential.getWallPosition();
             pistonY = (pistonY + yShift) * (oldDensity / newValue) - yShift;
-            ((P1HardMovingBoundary)pc.pistonPotentialWrapper.getWrappedPotential()).setWallPosition(pistonY);
+            pc.pistonPotential.setWallPosition(pistonY);
         }
     }
 
@@ -922,7 +922,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             ((IAtomTypeSphere)pc.species.getLeafType()).setDiameter(d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
-            ((P1HardMovingBoundary)pc.pistonPotentialWrapper.getWrappedPotential()).setCollisionRadius(0.5*d);
+            pc.pistonPotential.setCollisionRadius(0.5*d);
             pc.wallPotential.setCollisionRadius(0.5*d);
             sigma = d;
             displayBox.repaint();

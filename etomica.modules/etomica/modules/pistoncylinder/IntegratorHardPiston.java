@@ -7,7 +7,6 @@ import etomica.api.ISimulation;
 import etomica.atom.AtomSetSinglet;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.P1HardMoleculeMonatomic;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;
@@ -24,18 +23,19 @@ public class IntegratorHardPiston extends IntegratorHard {
      */
     public IntegratorHardPiston(ISimulation sim,
     		           IPotentialMaster potentialMaster,
-    		           P1HardMoleculeMonatomic potentialWrapper, ISpace _space) {
-        super(sim, potentialMaster, sim.getRandom(), 1.0, 1.0, _space, true);
+    		           P1HardMovingBoundary potentialWrapper, ISpace _space) {
+        super(sim, potentialMaster, _space);
+        setTimeStep(1.0);
         pistonPotential = potentialWrapper;
         atomSetSinglet = new AtomSetSinglet();
     }
 
     public void resetPiston() {
         if (space.D() == 3) {
-            ((P1HardMovingBoundary)pistonPotential.getWrappedPotential()).setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
+            pistonPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
         }
         else {
-            ((P1HardMovingBoundary)pistonPotential.getWrappedPotential()).setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
+            pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
         }
     }
     
@@ -69,10 +69,10 @@ public class IntegratorHardPiston extends IntegratorHard {
     public void updatePiston() {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-        IAtomSet moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getAtomCount();
+        IAtomSet leafList = box.getLeafList();
+        int nMolecules = leafList.getAtomCount();
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IAtom atom1 = moleculeList.getAtom(iMolecule);
+            IAtom atom1 = leafList.getAtom(iMolecule);
             atomSetSinglet.atom = atom1;
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {
@@ -111,7 +111,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     
     public void advanceAcrossTimeStep(double tStep) {
         super.advanceAcrossTimeStep(tStep);
-        ((P1HardMovingBoundary)pistonPotential.getWrappedPotential()).advanceAcrossTimeStep(tStep);
+        pistonPotential.advanceAcrossTimeStep(tStep);
     }
     
     public synchronized void pistonUpdateRequested() {
@@ -119,7 +119,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     private static final long serialVersionUID = 1L;
-    private final P1HardMoleculeMonatomic pistonPotential;
+    private final P1HardMovingBoundary pistonPotential;
     private boolean pistonUpdateRequested = false;
     protected final AtomSetSinglet atomSetSinglet;
 }
