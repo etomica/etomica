@@ -23,7 +23,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -50,7 +50,7 @@ public class HSMD2D_noNbr extends Simulation {
     
     public HSMD2D_noNbr(Space _space) {
         super(_space);
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);

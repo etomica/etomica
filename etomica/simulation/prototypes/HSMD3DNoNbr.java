@@ -19,9 +19,8 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -35,7 +34,7 @@ public class HSMD3DNoNbr extends Simulation {
     
     public HSMD3DNoNbr() {
         super(Space3D.getInstance(), true);
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
 
         int numAtoms = 256;
         double sigma = 1.0;
