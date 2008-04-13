@@ -610,7 +610,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-    protected static final class CollisionHandlerUp implements PotentialCalculation {
+    protected static final class CollisionHandlerUp implements PotentialCalculation, java.io.Serializable {
         private static final long serialVersionUID = 1L;
         double minCollisionTime;
         IntegratorHard.Agent aia;
@@ -662,7 +662,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private static final class CollisionHandlerDown implements PotentialCalculation {
+	private static final class CollisionHandlerDown implements PotentialCalculation, java.io.Serializable {
         private static final long serialVersionUID = 1L;
         double collisionTimeStep;
         final TreeList eventList;
@@ -704,7 +704,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * with an atom.  The iterator should return an atom and its "down"
      * neighbors.  
      */
-    private static final class ReverseCollisionHandler implements PotentialCalculation {
+    private static final class ReverseCollisionHandler implements PotentialCalculation, java.io.Serializable {
         private static final long serialVersionUID = 1L;
         final AtomArrayList listToUpdate;
         private AtomAgentManager integratorAgentManager;
