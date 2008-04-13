@@ -43,7 +43,7 @@ public final class IntegratorHardField extends IntegratorHard {
     
     public IntegratorHardField(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
             double timeStep, double temperature, ISpace _space) {
-        super(sim, potentialMaster,random,timeStep,temperature, _space, false);
+        super(sim, potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
         //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
