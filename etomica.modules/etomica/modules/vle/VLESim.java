@@ -5,10 +5,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -17,9 +17,9 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LJQ;
-import etomica.potential.P2SoftMoleculeMonatomicTruncated;
 import etomica.potential.P2SoftTruncated;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
@@ -70,7 +70,7 @@ public class VLESim extends Simulation {
         config.initializeCoordinates(boxVapor);
 
         double range = 15.0;
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
             ((PotentialMasterCell)potentialMaster).setCellRange(2);
@@ -79,12 +79,7 @@ public class VLESim extends Simulation {
         p2LJQ.setTemperature(temperature);
         p2Truncated = new P2SoftTruncated(p2LJQ, range, space);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
-        if (doNBR) {
-            potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
-        }
-        else {
-            potentialMaster.addPotential(new P2SoftMoleculeMonatomicTruncated(space, p2Truncated), new ISpecies[]{species,species});
-        }
+        potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);
@@ -141,6 +136,15 @@ public class VLESim extends Simulation {
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        if (integratorLiquid.isInitialized()) {
+            try {
+                integratorLiquid.reset();
+                integratorVapor.reset();
+            }
+            catch (ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public double getSigma() {
@@ -149,6 +153,15 @@ public class VLESim extends Simulation {
     
     public void setEpsilon(double newEpsilon) {
         p2LJQ.setEpsilon(newEpsilon);
+        if (integratorLiquid.isInitialized()) {
+            try {
+                integratorLiquid.reset();
+                integratorVapor.reset();
+            }
+            catch (ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
     
     public double getEpsilon() {
@@ -157,6 +170,15 @@ public class VLESim extends Simulation {
     
     public void setMoment(double newQ) {
         p2LJQ.setQuadrupolarMomentSquare(newQ*newQ);
+        if (integratorLiquid.isInitialized()) {
+            try {
+                integratorLiquid.reset();
+                integratorVapor.reset();
+            }
+            catch (ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
     
     public double getMoment() {
