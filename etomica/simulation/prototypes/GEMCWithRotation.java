@@ -16,7 +16,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresRotating;
@@ -33,7 +33,7 @@ public class GEMCWithRotation extends Simulation {
     public GEMCWithRotation(Space _space) {
         super(_space, false);
         double sigma = 1.2;
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         integrator = new IntegratorGEMC(getRandom());
         integrator.setEventInterval(400);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

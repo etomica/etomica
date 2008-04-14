@@ -12,7 +12,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
@@ -35,7 +35,7 @@ public class LjMd2D extends Simulation {
 
     public LjMd2D() {
         super(Space2D.getInstance(), false);
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

@@ -17,7 +17,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -41,7 +41,7 @@ public class LjMd3D extends Simulation {
 
     public LjMd3D() {
         super(Space3D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);
@@ -80,7 +80,7 @@ public class LjMd3D extends Simulation {
         public void init() {
             final String APP_NAME = "LjMd3D";
             LjMd3D sim= new LjMd3D();
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.space);
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace());
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(sim.pump);

@@ -12,7 +12,7 @@ import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
@@ -33,7 +33,7 @@ public class SwMd2D extends Simulation {
 
     public SwMd2D() {
         super(Space2D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMaster(space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         double sigma = 0.8;
         integrator = new IntegratorHard(this, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

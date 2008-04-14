@@ -20,7 +20,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -61,7 +61,7 @@ public class SWMD3D extends Simulation {
 	
   public SWMD3D(Space _space) {
 	super(_space);
-	IPotentialMaster potentialMaster = new PotentialMaster(space);
+	IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
 	
     integrator = new IntegratorHard(this, potentialMaster, space);
     integrator.setTimeStep(0.01);

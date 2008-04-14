@@ -17,7 +17,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -73,7 +73,7 @@ public class HSMD3D extends Simulation {
         // the PotentialMaster is selected such as to implement neighbor listing
         super(_space, true);
 
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6, space) : new PotentialMaster(space);
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6, space) : new PotentialMasterMonatomic(this, space);
 
         int numAtoms = params.nAtoms;
         double neighborRangeFac = 1.6;

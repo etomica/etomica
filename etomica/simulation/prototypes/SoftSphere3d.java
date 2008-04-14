@@ -19,7 +19,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -45,7 +45,7 @@ public class SoftSphere3d extends Simulation {
 
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
-        potentialMaster = new PotentialMaster(space);
+        potentialMaster = new PotentialMasterMonatomic(this, space);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.setTemperature(temperature);
 	    
