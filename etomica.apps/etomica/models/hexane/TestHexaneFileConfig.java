@@ -61,7 +61,6 @@ public class TestHexaneFileConfig extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     
-    public MCMoveVolume moveVolume;
     public MCMoveClusterWiggleMulti crank; 
 //    public MCMoveReptate snake;
     public MCMoveMolecule moveMolecule;
@@ -103,12 +102,7 @@ public class TestHexaneFileConfig extends Simulation {
         moveMolecule.setStepSize(0.024);        
         integrator.getMoveManager().addMCMove(moveMolecule);
         ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
-        
-        moveVolume = new MCMoveVolume(this, potentialMaster);
-//        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
-        moveVolume.setBox(box);
-        integrator.getMoveManager().addMCMove(moveVolume);
-        
+               
         crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6, space);
     
 //        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.4, 3.0, true);
@@ -167,27 +161,26 @@ public class TestHexaneFileConfig extends Simulation {
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {
                 species, species }  ));
-
+        
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         ConfigurationFile config = new ConfigurationFile("hexane");
         config.initializeCoordinates(box);
-        
+
         integrator.setBox(box);
-       
     }
 
     public static void main(String[] args) {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 1000;
+        long nSteps = 5000;
         // Monson reports data for 0.373773507616 and 0.389566754417
-        double density = 0.373773507616;
-        double den = 0.37;
-        boolean graphic = true;
+        double density = 0.349942899;
+        double den = 0.35;
+        boolean graphic = false;
   
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
@@ -254,7 +247,6 @@ public class TestHexaneFileConfig extends Simulation {
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
-            System.out.println("equilibration finished");
             sim.getController().reset();
             
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);

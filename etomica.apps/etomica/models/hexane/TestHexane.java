@@ -62,7 +62,6 @@ public class TestHexane extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     
-//    public MCMoveVolume moveVolume;
     public MCMoveClusterWiggleMulti crank; 
 //    public MCMoveReptate snake;
     public MCMoveMolecule moveMolecule;
