@@ -64,6 +64,12 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             }
             potentialArray.addPotential(potential, otherType);
         }
+        if(potential instanceof PotentialTruncated) {
+            Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(atomTypes); 
+            if(lrcPotential != null) {
+                lrcMaster().addPotential(lrcPotential, new AtomIterator0(),null);
+            }
+        }
     }
 
     public void removePotential(IPotential potential) {
@@ -159,6 +165,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
     public void releaseAgent(Object agent, IAtomType type) {
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomTypeAgentManager.AgentIterator potentialIterator;
     protected IPotential[] allPotentials = new IPotential[0];
     protected final AtomTypeAgentManager potentialAgentManager;
