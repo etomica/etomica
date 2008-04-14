@@ -5,7 +5,6 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -13,6 +12,7 @@ import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -39,7 +39,7 @@ public class ReverseOsmosis extends Simulation {
     
     public ReverseOsmosis(Space _space) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space); //List(this, 2.0);
         
         int N = 360;  //number of atoms, originally 768
         

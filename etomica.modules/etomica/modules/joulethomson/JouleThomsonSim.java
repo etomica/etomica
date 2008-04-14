@@ -20,6 +20,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -48,7 +49,7 @@ public class JouleThomsonSim extends Simulation {
     public JouleThomsonSim() {this(Space2D.getInstance());}
     public JouleThomsonSim(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         int nAtoms = (space.D() < 3) ? 50 : 64;
         double sigma = 3.0;
         

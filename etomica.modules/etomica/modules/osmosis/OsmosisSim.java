@@ -18,6 +18,7 @@ import etomica.math.geometry.Plane;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -51,7 +52,7 @@ public class OsmosisSim extends Simulation {
     public OsmosisSim(Space _space) {
 
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
 
         final double sigma = 1.0;
 

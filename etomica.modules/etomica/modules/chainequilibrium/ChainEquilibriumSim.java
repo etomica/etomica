@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardPeriodic;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
@@ -44,7 +44,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
     public ChainEquilibriumSim() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this, space);
         controller1 = getController();
 
         double diameter = 1.0;

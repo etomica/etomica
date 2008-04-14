@@ -18,6 +18,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
@@ -36,7 +37,7 @@ public class Multiharmonic extends Simulation {
 
     public Multiharmonic() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         double x0 = 1;
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

@@ -17,6 +17,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
@@ -44,7 +45,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
         controller1 = getController();
 
         double diameter = 1.0;
