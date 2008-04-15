@@ -36,7 +36,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
@@ -57,7 +57,7 @@ public class SimDimerMEAMGB extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
-    public final PotentialMasterList potentialMaster;
+    public final PotentialMaster potentialMaster;
     public final PotentialMasterListDimer potentialMasterD;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
@@ -84,7 +84,8 @@ public class SimDimerMEAMGB extends Simulation{
     public SimDimerMEAMGB(String file, int[] millerPlane) {
     	super(Space3D.getInstance(), true);
     	
-    	potentialMaster = new PotentialMasterList(this, space);
+    	potentialMaster = new PotentialMaster(space);
+    //	potentialMaster = new PotentialMasterList(this, space);
     	potentialMasterD = new PotentialMasterListDimer(this, space);
         
       //SIMULATION BOX
@@ -109,11 +110,11 @@ public class SimDimerMEAMGB extends Simulation{
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
-		potentialMaster.setRange(potential.getRange()*1.1);
-		potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
+        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
+	//	potentialMaster.setRange(potential.getRange()*1.1);
+	//	potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
-		this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
+		this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
 		potentialMasterD.setRange(potential.getRange()*1.1);
 		potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
@@ -206,7 +207,7 @@ public class SimDimerMEAMGB extends Simulation{
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
         gbtilt.setGBplane(millerPlane);
-        gbtilt.setBoxSize(box, new int[] {4,4,10});
+        gbtilt.setBoxSize(box, new int[] {4,4,8});
         gbtilt.initializeCoordinates(box);
     }
     
@@ -214,7 +215,7 @@ public class SimDimerMEAMGB extends Simulation{
         distance = distance*distance;
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList(fixed);
+        IAtomSet loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.squared() < distance){
@@ -222,10 +223,10 @@ public class SimDimerMEAMGB extends Simulation{
             } 
         }
         for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+           ((IAtomPositioned)box.addNewMolecule(dimer).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
            box.removeMolecule((IMolecule)movableList.getAtom(i));
         }
-        movableSet = box.getMoleculeList(movable);
+        movableSet = box.getMoleculeList(dimer);
     }
     
     public void initializeConfiguration(String fileName){
@@ -342,8 +343,8 @@ public class SimDimerMEAMGB extends Simulation{
         integratorMD.setBox(box);
         pcGB = new PotentialCalculationForcePressureSumGB(space, box);
         integratorMD.setForceSum(pcGB);
-        integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        //integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -351,9 +352,7 @@ public class SimDimerMEAMGB extends Simulation{
     
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
-        //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{dimer}, space);
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(orthoSearch, false);
         if(fine){
@@ -368,8 +367,8 @@ public class SimDimerMEAMGB extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        integratorDimer.addNonintervalListener(potentialMasterD.getNeighborManager(box));
-        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
+        //integratorDimer.addNonintervalListener(potentialMasterD.getNeighborManager(box));
+        //integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -387,7 +386,7 @@ public class SimDimerMEAMGB extends Simulation{
             ConfigurationFile configFile = new ConfigurationFile(fileName);
             configFile.initializeCoordinates(box);
         }
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{dimer}, fileName, normalDir, space);
         integratorDimerMin.setBox(box);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
@@ -395,11 +394,37 @@ public class SimDimerMEAMGB extends Simulation{
     }
     
     public static void main(String[] args){
-    	final String APP_NAME = "DimerMEAMadatomGB";
-    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("sngb", new int[] {1,1,1});
-    	
-    	sim.enableMolecularDynamics(150);
-    	sim.enableDimerSearch("testGB", 10, false, false);
+        String fileName = "gb111";//args[0];
+        int mdSteps = 10;//Integer.parseInt(args[1]);
+        //int h = Integer.parseInt(args[1]);
+        //int k = Integer.parseInt(args[2]);
+        //int l = Integer.parseInt(args[3]);
+        
+        final String APP_NAME = "SimDimerMEAMadatomCluster";
+        
+        final SimDimerMEAMGB sim = new SimDimerMEAMGB(fileName,new int[] {1,1,1});
+        
+        IVector dimerCenter = sim.getSpace().makeVector();
+        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(1));
+        dimerCenter.setX(1, 0.0);
+        dimerCenter.setX(2, 0.0);
+        
+        sim.initializeConfiguration("gb111");
+        sim.setMovableAtoms(12.0, dimerCenter);
+        sim.enableDimerSearch(fileName, 1000, false, false);
+        
+        XYZWriter xyzwriter = new XYZWriter(sim.box);
+        xyzwriter.setFileName(fileName+"-dimer.xyz");
+        xyzwriter.setIsAppend(true);
+        sim.integratorDimer.addIntervalAction(xyzwriter);
+        sim.integratorDimer.setActionInterval(xyzwriter, 1);
+        
+        
+        WriteConfiguration config = new WriteConfiguration(sim.getSpace());
+        config.setBox(sim.box);
+        config.setConfName(fileName);
+        sim.integratorDimer.addIntervalAction(config);
+        sim.integratorDimer.setActionInterval(config,mdSteps);
                 
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
