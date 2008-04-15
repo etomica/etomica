@@ -15,8 +15,8 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
@@ -68,7 +68,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     protected double collisionTimeStep;
     protected int collisionCount;
 
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
     protected final AtomTypeAgentManager nullPotentialManager;
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
@@ -102,7 +102,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             box.getEventManager().removeListener(this);
         }
         super.setBox(newBox);
-        agentManager = new AtomAgentManager(this,newBox);
+        agentManager = new AtomLeafAgentManager(this,newBox);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
@@ -576,7 +576,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         IntegratorHard.Agent aia;
         IAtom atom1;
         double collisionTimeStep;
-        private AtomAgentManager integratorAgentManager;
+        private AtomLeafAgentManager integratorAgentManager;
 
         /**
          * resets the "atom" held by this class, ensuring the method will
@@ -587,7 +587,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             atom1 = null;
         }
 
-        public void setAgentManager(AtomAgentManager newAgentManager) {
+        public void setAgentManager(AtomLeafAgentManager newAgentManager) {
             integratorAgentManager = newAgentManager;
         }
 
@@ -626,12 +626,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         private static final long serialVersionUID = 1L;
         double collisionTimeStep;
         final TreeList eventList;
-        private AtomAgentManager integratorAgentManager;
+        private AtomLeafAgentManager integratorAgentManager;
         CollisionHandlerDown(TreeList list) {
             eventList = list;
         }
 
-        public void setAgentManager(AtomAgentManager newAgentManager) {
+        public void setAgentManager(AtomLeafAgentManager newAgentManager) {
             integratorAgentManager = newAgentManager;
         }
 
@@ -667,13 +667,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     private static final class ReverseCollisionHandler implements PotentialCalculation, java.io.Serializable {
         private static final long serialVersionUID = 1L;
         final AtomArrayList listToUpdate;
-        private AtomAgentManager integratorAgentManager;
+        private AtomLeafAgentManager integratorAgentManager;
         
         ReverseCollisionHandler(AtomArrayList list) {
             listToUpdate = list;
         }
         
-        public void setAgentManager(AtomAgentManager newAgentManager) {
+        public void setAgentManager(AtomLeafAgentManager newAgentManager) {
             integratorAgentManager = newAgentManager;
         }
         
