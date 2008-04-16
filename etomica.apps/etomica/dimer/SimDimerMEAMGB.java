@@ -114,9 +114,9 @@ public class SimDimerMEAMGB extends Simulation{
 	//	potentialMaster.setRange(potential.getRange()*1.1);
 	//	potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
-		this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
-		potentialMasterD.setRange(potential.getRange()*1.1);
-		potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
+	//	this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
+	//	potentialMasterD.setRange(potential.getRange()*1.1);
+	//	potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
         //Ag
         /**
@@ -218,6 +218,7 @@ public class SimDimerMEAMGB extends Simulation{
         IAtomSet loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                movableList.add(loopSet.getAtom(i));
             } 
@@ -405,12 +406,12 @@ public class SimDimerMEAMGB extends Simulation{
         final SimDimerMEAMGB sim = new SimDimerMEAMGB(fileName,new int[] {1,1,1});
         
         IVector dimerCenter = sim.getSpace().makeVector();
-        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(1));
+        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
         dimerCenter.setX(1, 0.0);
         dimerCenter.setX(2, 0.0);
         
         sim.initializeConfiguration("gb111");
-        sim.setMovableAtoms(12.0, dimerCenter);
+        sim.setMovableAtoms(5.0, dimerCenter);
         sim.enableDimerSearch(fileName, 1000, false, false);
         
         XYZWriter xyzwriter = new XYZWriter(sim.box);
