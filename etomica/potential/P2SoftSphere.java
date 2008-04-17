@@ -46,18 +46,14 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      * The energy u.
      */
     public double u(double r2) {
-    	double r = Math.sqrt(r2);
+    	double sig_r = sigma/Math.sqrt(r2);
     	int expN = getExponent();
-    	double sig_rn = sigma/r;
+    	double sig_rn = 1;
     	
-    	if (expN ==0){
-    		sig_rn = 1;
-    	} else
-    		{
-    			for (int i=0; i<expN; i++){
-    				sig_rn *= sigma/r;
-    			}
-    		}
+    	for (int i=0; i<expN; i++){
+    			sig_rn *= sig_r;
+    	}
+    	
     	return epsilon*sig_rn;
     }
 
@@ -65,18 +61,14 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-    	double r = Math.sqrt(r2);
+    	double sig_r = sigma/Math.sqrt(r2);
     	int expN = getExponent();
-    	double sig_rn = sigma/r;
+    	double sig_rn = 1;
+    
+    	for (int i=0; i<expN; i++){
+    				sig_rn *= sig_r;
+    	}
     	
-    	if (expN ==0){
-    		sig_rn = 1;
-    	} else
-    		{
-    			for (int i=0; i<expN; i++){
-    				sig_rn *= sigma/r;
-    			}
-    		}
         return -n*epsilon*sig_rn;
     }
 
@@ -85,18 +77,13 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-    	double r = Math.sqrt(r2);
+    	double sig_r = sigma/Math.sqrt(r2);
     	int expN = getExponent();
-    	double sig_rn = sigma/r;
-    	
-    	if (expN ==0){
-    		sig_rn = 1;
-    	} else
-    		{
-    			for (int i=0; i<expN; i++){
-    				sig_rn *= sigma/r;
-    			}
-    		}
+    	double sig_rn = 1;
+    
+    	for (int i=0; i<expN; i++){
+    				sig_rn *= sig_r;
+    	}
         return n*(n+1)*epsilon*sig_rn;
     }
             
