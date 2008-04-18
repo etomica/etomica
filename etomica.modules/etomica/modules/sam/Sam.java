@@ -177,9 +177,9 @@ public class Sam extends Simulation {
         double epsilonCH2Sulfur = Math.sqrt(epsilonCH2*epsilonSulfur);
         // sulfur and CH3 will never be close
         //double epsilonCH3Sulfur = Math.sqrt(epsilonCH3*epsilonSulfur);
-        double rCut = box.getBoundary().getDimensions().x(0);
-        if (box.getBoundary().getDimensions().x(2) < rCut) {
-            rCut = box.getBoundary().getDimensions().x(2);
+        double rCut = box.getBoundary().getDimensions().x(0)*0.5;
+        if (0.5*box.getBoundary().getDimensions().x(2) < rCut) {
+            rCut = 0.5*box.getBoundary().getDimensions().x(2);
         }
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
         p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
@@ -213,7 +213,7 @@ public class Sam extends Simulation {
         p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);
 
-        apiTether = new ApiTether3(species);
+        apiTether = new ApiTether3(this, species);
         apiTether.setBox(box);
         findTetherBonds();
         P2Harmonic p2SurfaceBond = new P2Harmonic(space, 10000, 2);

@@ -6,18 +6,20 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
+import etomica.atom.MoleculeAgentManager;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
  * Returns first leaf atom of each polymer molecule and the atom its bonded to.
  */
-public class ApiTether implements AtomsetIteratorPDT, AtomAgentManager.AgentSource {
+public class ApiTether implements AtomsetIteratorPDT, MoleculeAgentManager.MoleculeAgentSource {
 
-    public ApiTether(ISpecies polymerSpecies) {
+    public ApiTether(ISimulation sim, ISpecies polymerSpecies) {
+        this.sim = sim;
         this.polymerSpecies = polymerSpecies;
         pair = new AtomPair();
     }
@@ -27,7 +29,7 @@ public class ApiTether implements AtomsetIteratorPDT, AtomAgentManager.AgentSour
             if (box != null) {
                 bondManager.dispose();
             }
-            bondManager = new AtomAgentManager(this, newBox);
+            bondManager = new MoleculeAgentManager(sim, newBox, this);
         }
         box = newBox;
         polymerList = box.getMoleculeList(polymerSpecies);
@@ -117,21 +119,22 @@ public class ApiTether implements AtomsetIteratorPDT, AtomAgentManager.AgentSour
         }
     }
 
-    public Class<IAtomLeaf> getAgentClass() {
+    public Class getMoleculeAgentClass() {
         return IAtomLeaf.class;
     }
 
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IMolecule a) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(Object agent, IMolecule atom) {
     }
 
+    protected final ISimulation sim;
     protected IBox box;
     protected final ISpecies polymerSpecies;
     protected IAtomSet polymerList;
-    protected AtomAgentManager bondManager;
+    protected MoleculeAgentManager bondManager;
     protected int cursor;
     protected IMolecule targetMolecule;
     protected final AtomPair pair;
