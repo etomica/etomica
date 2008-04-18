@@ -129,7 +129,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		// Write energy to file
         try{
-            fileWriter = new FileWriter(writer.getConfName()+"_path");
+            
             fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
         }catch(IOException e) {
           
@@ -221,14 +221,20 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
     	configFile.initializeCoordinates(boxMin);
     	writer = new WriteConfiguration(space);
     	writer.setConfName(file+"_A_minimum");
-    	
+    	    	
     	if(normalD==true){
     		// Read in coordinates for opposite boxMin atom locations
     		ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
         	configFile1.initializeCoordinates(boxMin);
         	writer.setConfName(file+"_B_minimum");
     	}
-    		
+    	
+    	try{
+    	    fileWriter = new FileWriter(writer.getConfName()+"_path");
+    	}catch(IOException e) {
+            
+        }
+    	    	
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
         listMin = new AtomArrayList();

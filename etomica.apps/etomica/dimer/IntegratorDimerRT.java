@@ -102,11 +102,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.movableSpecies = aspecies;
 		this.space = _space;
 				
-		deltaR = 10E-4;
-		dXl = 10E-4;
+		deltaR = 1E-3;
+		dXl = 1E-3;
 		deltaXl = 0;
 		deltaXmax = 0.05;
-		dTheta = 10E-4;
+		dTheta = 1E-3;
 		
 		deltaTheta = 0;
 		
@@ -121,7 +121,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	/**
 	 * Set's the Dimer search's orthogonality criteria.
-	 * @param orthoON (if true) Once the rotation scheme has converged to a small enough Frot value, the ortogonal search is started.
+	 * @param orthoON (if true) Once the rotation scheme has converged to a small enough Frot value, the orthogonal search is started.
 	 * @param o2 (if true) Launches another orthogonal path search after the primary orthogonal search.
 	 * 
 	 */
@@ -157,7 +157,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		counter++;
 	}
-			
+	
+	public void reset() throws ConfigurationOverlapException{
+	    super.reset();
+
+        dimerForces(F1, F2, F);
+	}
+	
 	/**
 	 * Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
 	 * (R2)-------[Rc]-------(R1) ===> N
@@ -256,8 +262,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box1);
 		sim.addBox(box2);
 		
-		//this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
-        //this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1));
+		if(potential instanceof PotentialMasterListDimer){
+		   this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
+		   this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1)); 
+		}
 		
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
@@ -305,8 +313,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
 		}
 				
-		// Calculate F's
-		dimerForces(F1, F2, F);
 	}
 		
 
@@ -330,7 +336,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    		double magN1 = 0;
 	    		for(int i=0; i<F1.length; i++){
 	    			magF1 += F1[i].dot(N1[i]);
-	    			magF2 += F2[i].dot(N1[i]);
+	    		     // Calculate F's
+	    	        dimerForces(F1, F2, F);	magF2 += F2[i].dot(N1[i]);
 	    			magN1 += N[i].dot(N1[i]);
 	    		}
 	    		for (int i=0; i<F1.length; i++){
@@ -482,7 +489,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;				
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-			//System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
 			// Check deltaTheta vs. dTheta and adjust step size
 			if (deltaTheta < 0){
@@ -523,7 +530,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 									    
 			rotCounter++;
 			
-			if(rotCounter>80){
+			if(rotCounter>100){
 				System.out.println(rotCounter+" rotations.");
 				break;
 			}
