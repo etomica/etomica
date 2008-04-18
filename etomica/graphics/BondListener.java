@@ -13,6 +13,7 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -50,7 +51,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     public BondListener(IBox box, BondManager bondManager, boolean isBackend) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
-        atomAgentManager = new AtomAgentManager(this, box, isBackend);
+        atomAgentManager = new AtomLeafAgentManager(this, box, isBackend);
         this.bondManager = bondManager;
         atomSetSinglet = new AtomSetSinglet();
     }
@@ -184,7 +185,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     
     private static final long serialVersionUID = 1L;
     protected final IBox box;
-    protected final AtomAgentManager atomAgentManager;
+    protected final AtomLeafAgentManager atomAgentManager;
     protected final HashMap<ISpecies,Model.PotentialAndIterator[]> bondIteratorsHash;
     protected BondManager bondManager;
     protected final AtomSetSinglet atomSetSinglet;
