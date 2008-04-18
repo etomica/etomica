@@ -2,9 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
@@ -38,8 +36,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     }
     
     public Data getData(IAtom atom) {
-        data.x = (species == null || (atom instanceof IMolecule && atom.getType() == species) ||
-                  ((IAtomTypeLeaf)atom.getType()).getSpecies() == species) ? 1 : 0;
+        data.x = (species == null || (atom.getType() == species)) ? 1 : 0;
         return data;
     }
     
