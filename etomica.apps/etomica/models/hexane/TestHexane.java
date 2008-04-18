@@ -193,9 +193,9 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 500;
+        long nSteps = 10;
         // Monson reports data for 0.373773507616 and 0.389566754417
-        double density = 0.373773507616;
+        double density = 0.349942899;
         double den = 0.37;
         boolean graphic = false;
   
@@ -218,7 +218,7 @@ public class TestHexane extends Simulation {
             //filename is element 0
             String filename = "nm_hex_";
                 
-            if(args.length >0){
+            if(args.length > 0){
                 filename = args[0];
             }
             if(args.length > 1){
@@ -248,15 +248,15 @@ public class TestHexane extends Simulation {
             double volume = sim.bdry.volume();
             System.out.println("volume =  "+ volume);
             
-            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
+//            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
+//            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
             // we need to set this up now even though we don't use it during equilibration so that
             // the meter can grab the lattice points
-            MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-            meterNormalMode.setBox(sim.box);
+//            MeterNormalMode meterNormalMode = new MeterNormalMode();
+//            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+//            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+//            meterNormalMode.setBox(sim.box);
 
             BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
@@ -276,9 +276,9 @@ public class TestHexane extends Simulation {
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
-            sim.integrator.addIntervalAction(meterNormalMode);
-            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
-            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
+//            sim.integrator.addIntervalAction(meterNormalMode);
+//            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
+//            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
             
 //            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
 //            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));

@@ -176,7 +176,7 @@ public class TestHexaneFileConfig extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 5000;
+        long nSteps = 10;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
         double den = 0.35;
@@ -196,7 +196,7 @@ public class TestHexaneFileConfig extends Simulation {
             //filename is element 0
             String filename = "nm_hex_";
                 
-            if(args.length >0){
+            if(args.length > 0){
                 filename = args[0];
             }
             if(args.length > 1){
