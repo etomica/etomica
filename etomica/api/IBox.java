@@ -45,14 +45,6 @@ public interface IBox {
 
 	public abstract int getMaxGlobalIndex();
 
-	/**
-	 * Notifies the SpeciesMaster that the given number of new Atoms will be
-	 * added to the system.  It's not required to call this method before
-	 * adding atoms, but if adding many Atoms, calling this will improve
-	 * performance.
-	 */
-	public abstract void notifyNewAtoms(int numNewAtoms, int numNewLeafAtoms);
-
 	public abstract void addAtomNotify(IAtom newAtom);
 
 	//updating of leaf atomList may not be efficient enough for repeated
