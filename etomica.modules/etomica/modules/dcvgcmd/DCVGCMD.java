@@ -264,10 +264,10 @@ public class DCVGCMD extends Simulation {
         profile2 = new MeterProfile(space);
         profile1.setDataSource(density1);
         profile1.setBox(box);
-        profile1.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
+        profile1.setProfileDim(2);
         profile2.setDataSource(density2);
         profile2.setBox(box);
-        profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
+        profile2.setProfileDim(2);
 
         accumulator1 = new AccumulatorAverageFixed();
         profile1pump = new DataPump(profile1, accumulator1);

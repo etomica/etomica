@@ -401,11 +401,9 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         meterProfileChlorine.setDataSource(densityChlorine);
         meterProfileSolvent.setBox(sim.box);
         meterProfileSolvent.setDataSource(densitySolvent);
-        IVector profVector = sim.getSpace().makeVector();
-        profVector.setX(0, 1);
-        meterProfileSodium.setProfileVector(profVector);
-        meterProfileChlorine.setProfileVector(profVector);
-        meterProfileSolvent.setProfileVector(profVector);
+        meterProfileSodium.setProfileDim(0);
+        meterProfileChlorine.setProfileDim(0);
+        meterProfileSolvent.setProfileDim(0);
         AccumulatorAverageFixed profSodiumAvg = new AccumulatorAverageFixed(10);
         profSodiumAvg.setPushInterval(10);
         DataPump profPumpSodium = new DataPump(meterProfileSodium, profSodiumAvg);
