@@ -343,7 +343,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			gnEi[i].E(0);
 			}
 		}
-
+		
+		//check to see if atoms is more than one atom
+		if(atoms.getAtomCount()==1){
+		    return 0;
+		}
+		
         calcSums(atoms);
         
         double rhoi0 = rhoi0(), rhoi1sq = rhoi1sq(), rhoi2sq = rhoi2sq(), 
