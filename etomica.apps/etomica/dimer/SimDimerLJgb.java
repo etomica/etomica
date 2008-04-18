@@ -25,6 +25,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
@@ -57,7 +58,7 @@ public class SimDimerLJgb extends Simulation{
     
     public SimDimerLJgb() {
     	super(Space3D.getInstance(), true);
-    	potentialMaster = new PotentialMaster(space);
+    	potentialMaster = new PotentialMasterMonatomic(this, space);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(random, 2, 5, space), space);

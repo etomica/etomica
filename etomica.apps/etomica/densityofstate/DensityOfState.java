@@ -1,11 +1,11 @@
 package etomica.densityofstate;
 
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.atom.AtomSourceRandomLeaf;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataLogger;
@@ -16,9 +16,9 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.box.Box;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -53,7 +53,7 @@ public class DensityOfState extends Simulation{
 		super(Space3D.getInstance(), false);
 		
 		
-		potentialMaster = new PotentialMaster(space);
+		potentialMaster = new PotentialMasterMonatomic(this, space);
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
