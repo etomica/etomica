@@ -177,7 +177,7 @@ public class TestHexane extends Simulation {
                 species, species }  ));
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
+        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
 //        WriteConfiguration writer = new WriteConfiguration();
 //        writer.setBox(box);

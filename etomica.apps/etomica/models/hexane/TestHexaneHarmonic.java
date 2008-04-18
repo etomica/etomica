@@ -193,7 +193,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
+        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setBox(box);

@@ -83,8 +83,8 @@ public class TestSetToUHexane extends Simulation {
         box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);
-        cdHex = new CoordinateDefinitionHexane(box, prim, species, space);
-        cdHex = new CoordinateDefinitionHexane(box, prim, species, space);
+        cdHex = new CoordinateDefinitionHexane(this, box, prim, species, space);
+        cdHex = new CoordinateDefinitionHexane(this, box, prim, species, space);
         cdHex.initializeCoordinates(nCells);
         oldUs = new double[cdHex.getCoordinateDim()];
         

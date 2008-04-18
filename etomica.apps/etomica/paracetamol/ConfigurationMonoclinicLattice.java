@@ -1,15 +1,11 @@
 package etomica.paracetamol;
 
+import etomica.action.AtomActionTranslateTo;
+import etomica.action.AtomGroupAction;
 import etomica.api.IAtomSet;
-import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateTo;
-import etomica.action.AtomGroupAction;
-import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.graphics.SimulationGraphic;
@@ -44,7 +40,7 @@ import etomica.space3d.Space3D;
  * lattice position for each molecule that is placed. This can be useful if it
  * is desired to associate each molecule with a lattice site.
  */
-public class ConfigurationMonoclinicLattice implements Configuration, AgentSource, java.io.Serializable {
+public class ConfigurationMonoclinicLattice implements Configuration, java.io.Serializable {
 
 	private final static String APP_NAME = "Configuration Monoclinic Lattice";
 	private final ISpace space;
@@ -74,23 +70,6 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
-    public Class getAgentClass() {
-		return IVector.class;
-	}
-
-	public Object makeAgent(IAtom a) {
-		return null;
-	}
-
-	public void releaseAgent(Object agent, IAtom atom) {
-		
-	}
-
-	public AtomAgentManager getCellManager(){
-		
-		return cellManager;
-	}
-    
     /**
      * Places the molecules in the given box on the positions of the
      * lattice.  
@@ -172,7 +151,6 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         indexIterator.reset();
 
     	ConformationParacetamolMonoclinic regConfig = new ConformationParacetamolMonoclinic(lattice.getSpace());
-    	cellManager = new AtomAgentManager(this, box);
     	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
 
@@ -220,7 +198,6 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
             //remember the coordinate of the cell
             //Loop 8 times over the basis and we can make the cell assignment here!!
             }
-            cellManager.setAgent(molecule, cellPosition);
         }
 
     }
@@ -276,7 +253,6 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected final AtomGroupAction atomGroupAction;
     protected MyLattice myLat;
-    private AtomAgentManager cellManager;
     private static final long serialVersionUID = 2L;
     
 

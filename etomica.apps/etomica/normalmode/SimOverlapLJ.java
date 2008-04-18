@@ -29,6 +29,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -51,7 +52,7 @@ public class SimOverlapLJ extends Simulation {
     public SimOverlapLJ(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(_space, true);
 
-        PotentialMaster potentialMasterTarget = new PotentialMaster(space);
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(this, space);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
@@ -90,7 +91,7 @@ public class SimOverlapLJ extends Simulation {
         }
         boxTarget.setBoundary(boundaryTarget);
 
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(this, boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
@@ -146,7 +147,7 @@ public class SimOverlapLJ extends Simulation {
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 
-        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(this, boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
         
         normalModes = new NormalModesFromFile(filename, space.D());

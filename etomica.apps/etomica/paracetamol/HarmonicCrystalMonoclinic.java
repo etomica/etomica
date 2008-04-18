@@ -160,7 +160,7 @@ public class HarmonicCrystalMonoclinic {
         MCParacetamolMonoclinicDLMULTI sim = new MCParacetamolMonoclinicDLMULTI(sp,32,temperature, 2, new int[] {2,2,2});
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
       
-        CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis, sp);
+        CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim, sim.box, sim.primitive, basis, sp);
         coordinateDefinition.setBasisMonoclinic();
         //coordinateDefinition.setConfiguration(configFile);
         

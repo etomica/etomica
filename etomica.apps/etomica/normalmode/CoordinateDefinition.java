@@ -4,16 +4,19 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -36,11 +39,12 @@ import etomica.space.ISpace;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
-        this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
+    public CoordinateDefinition(ISimulation sim, IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
+        this(sim, box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinition(ISimulation sim, IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
+        this.sim = sim;
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -49,8 +53,6 @@ public abstract class CoordinateDefinition {
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
-
-        
     }
     
     public void initializeCoordinates(int[] nCells) {
@@ -117,7 +119,8 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomAgentManager(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space));
+        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
 
     
@@ -214,9 +217,11 @@ public abstract class CoordinateDefinition {
         return cells;
     }
 
+    protected final ISimulation sim;
     protected final int coordinateDim;
     protected final IBox box;
-    protected AtomAgentManager siteManager;
+    protected AtomLeafAgentManager siteManager;
+    protected MoleculeAgentManager moleculeSiteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
     protected final Basis basis;
@@ -224,7 +229,28 @@ public abstract class CoordinateDefinition {
     protected BasisCell[] cells;
     protected final ISpace space;
     
-    protected static class SiteSource implements AgentSource, Serializable {
+    protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
+        
+        public MoleculeSiteSource(ISpace space) {
+            this.space = space;
+        }
+        public Class getMoleculeAgentClass() {
+            return IVector.class;
+        }
+        public Object makeAgent(IMolecule molecule) {
+            IVector vector = space.makeVector();
+            vector.E(molecule.getType().getPositionDefinition().position(molecule));
+            return vector;
+        }
+        public void releaseAgent(Object agent, IMolecule molecule) {
+            //nothing to do
+        }
+
+        private final ISpace space;
+        private static final long serialVersionUID = 1L;
+    }
+    
+    protected static class SiteSource implements AtomLeafAgentManager.AgentSource, Serializable {
         
         public SiteSource(ISpace space) {
             this.space = space;
@@ -234,7 +260,7 @@ public abstract class CoordinateDefinition {
         }
         public Object makeAgent(IAtom atom) {
             IVector vector = space.makeVector();
-            vector.E(atom.getType().getPositionDefinition().position(atom));
+            vector.E(((IAtomPositioned)atom).getPosition());
             return vector;
         }
         public void releaseAgent(Object agent, IAtom atom) {

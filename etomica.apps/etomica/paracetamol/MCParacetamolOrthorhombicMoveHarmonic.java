@@ -294,7 +294,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         bdry.setDimensions(space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(bdry);
 
-        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();
         coordDef.initializeCoordinates(new int []{2, 3, 4});
  

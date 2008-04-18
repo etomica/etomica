@@ -2,11 +2,11 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IAtomSet;
 import etomica.api.IAtom;
-
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -23,12 +23,12 @@ import etomica.space.ISpace;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, ISpace space) {
-        this(box, primitive, orientationDim, new BasisMonatomic(space), space);
+    public CoordinateDefinitionMolecule(ISimulation sim, IBox box, Primitive primitive, int orientationDim, ISpace space) {
+        this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMolecule(IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
-        super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
+    public CoordinateDefinitionMolecule(ISimulation sim, IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
+        super(sim, box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         work1 = space.makeVector();
         u = new double[coordinateDim];
     }

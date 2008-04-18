@@ -25,6 +25,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -74,7 +75,7 @@ public class SimHarmonic extends Simulation {
         }
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         if(D == 1) {
@@ -142,7 +143,7 @@ public class SimHarmonic extends Simulation {
         if (D == 1) {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
-        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim, sim.space) : new PotentialMaster(sim.getSpace()));
+        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim, sim.space) : new PotentialMasterMonatomic(sim, sim.getSpace()));
         potentialMaster.addPotential(p2, new IAtomTypeLeaf[]{sim.species.getLeafType(),sim.species.getLeafType()});
 
         if (potentialMaster instanceof PotentialMasterList) {

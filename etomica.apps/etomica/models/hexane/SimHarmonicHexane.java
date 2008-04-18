@@ -87,7 +87,7 @@ public class SimHarmonicHexane extends Simulation {
         MCMoveHarmonic harm = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(harm);
         
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, 
+        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, 
                 species, space);
         coordinateDefinition.initializeCoordinates(nCells);
         

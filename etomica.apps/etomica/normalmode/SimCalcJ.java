@@ -50,7 +50,7 @@ public class SimCalcJ extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
     }
 

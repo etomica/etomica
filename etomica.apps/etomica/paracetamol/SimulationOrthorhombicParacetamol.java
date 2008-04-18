@@ -211,7 +211,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
         boundary.setDimensions(space.makeVector(new double[] {2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordinateDefinition.setBasisOrthorhombic();
         coordinateDefinition.initializeCoordinates(new int []{2,3,4});
         

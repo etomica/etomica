@@ -9,12 +9,15 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.MoleculeAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
@@ -34,8 +37,8 @@ import etomica.space.Tensor;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(IBox box, Primitive primitive, Basis basis, ISpace _space) {
-    	super(box, primitive, 3, basis, _space);
+    public CoordinateDefinitionParacetamol(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    	super(sim, box, primitive, 3, basis, _space);
        
        	axes = new IVector3D [3];
         axes [0] = (IVector3D)space.makeVector();
@@ -164,8 +167,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         }
         
         initNominalU(cells[totalCells-1].molecules);
-        
-        siteManager = new AtomAgentManager(new SiteSource(space), box);
+
+        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space));
+        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     
     public void setConfiguration(Configuration configuration){

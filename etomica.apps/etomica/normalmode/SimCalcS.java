@@ -16,6 +16,7 @@ import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -31,7 +32,7 @@ public class SimCalcS extends Simulation {
 
     public SimCalcS(Space _space, int numAtoms, double density) {
         super(_space, true);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
@@ -72,7 +73,7 @@ public class SimCalcS extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
         
         integrator.setBox(box);

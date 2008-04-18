@@ -163,7 +163,7 @@ public class TestHexaneFileConfig extends Simulation {
                 species, species }  ));
         
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
+        coordinateDefinition = new CoordinateDefinitionHexane(this, box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         ConfigurationFile config = new ConfigurationFile("hexane");

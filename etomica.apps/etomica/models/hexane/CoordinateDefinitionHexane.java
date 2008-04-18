@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
-
 import etomica.atom.AtomLeaf;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
@@ -37,9 +37,9 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private IAtomSet childlist;
     
     
-    public CoordinateDefinitionHexane(IBox box, Primitive primitive, 
+    public CoordinateDefinitionHexane(ISimulation sim, IBox box, Primitive primitive, 
             SpeciesHexane species, ISpace space){
-        super(box, primitive, 6, space);
+        super(sim, box, primitive, 6, space);
         
         length = species.getBondLength();
         phi = species.getBondAngle();

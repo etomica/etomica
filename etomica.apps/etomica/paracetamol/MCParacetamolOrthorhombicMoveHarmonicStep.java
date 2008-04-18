@@ -19,7 +19,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
@@ -289,7 +288,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         bdry.setDimensions(space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(bdry);
 
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();
         coordDef.initializeCoordinates(new int []{2, 3, 4});
  

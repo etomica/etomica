@@ -106,7 +106,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         bdry.setDimensions(space.makeVector(new double []{cellDim[0]*17.248, cellDim[1]*12.086, cellDim[2]*7.382}));
         box.setBoundary(bdry);
 
-        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();
         
    

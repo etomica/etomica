@@ -6,6 +6,9 @@ import etomica.action.WriteConfiguration;
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
@@ -27,9 +30,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.units.Kelvin;
 
 /**
@@ -121,7 +121,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         bdry.setDimensions(space.makeVector(new double []{cellDim[0]*12.119, cellDim[1]*8.944, cellDim[2]*7.278}));
         box.setBoundary(bdry);
         
-        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisMonoclinic();
         
         if (simType == 0){

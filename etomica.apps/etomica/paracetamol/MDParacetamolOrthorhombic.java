@@ -36,7 +36,6 @@ import etomica.potential.P4TorsionDreiding;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -380,7 +379,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         box.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(box);
        	
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         integrator.setBox(box);
         
     } //end of constructor
