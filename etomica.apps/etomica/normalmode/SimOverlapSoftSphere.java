@@ -28,7 +28,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -51,7 +51,7 @@ public class SimOverlapSoftSphere extends Simulation {
     public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
 
-        PotentialMaster potentialMasterTarget = new PotentialMaster(space);
+        PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this, space);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
@@ -99,23 +99,6 @@ public class SimOverlapSoftSphere extends Simulation {
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
-        
-        if (potentialMasterTarget instanceof PotentialMasterList) {
-            double neighborRange = truncationRadius;
-            int cellRange = 7;
-            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
-            ((PotentialMasterList)potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
-            int potentialCells = ((PotentialMasterList)potentialMasterTarget).getNbrCellManager(boxTarget).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
-            }
-        }
-
 
         integratorTarget.setBox(boxTarget);
 
@@ -165,11 +148,6 @@ public class SimOverlapSoftSphere extends Simulation {
         move.setBox(boxHarmonic);
         
         integratorHarmonic.setBox(boxHarmonic);
-        
-        if (potentialMasterTarget instanceof PotentialMasterList) {
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
-        }
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(random, new IntegratorBox[]{integratorHarmonic, integratorTarget});
@@ -342,7 +320,7 @@ public class SimOverlapSoftSphere extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
-        double density = params.density;
+        double density = params.density/1000;
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
         int numMolecules = params.numMolecules;
@@ -362,7 +340,7 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, params.exponentN);
+        SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -454,13 +432,12 @@ public class SimOverlapSoftSphere extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules =500;
-        public double density = 2;
+        public double density = 2.5;
         public int exponentN = 12;
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
         public String filename = "FCC_SoftSphere_n12_D2000";
         public double temperature = 0.1;
-        public double softness = 0.08333;
     }
 }
