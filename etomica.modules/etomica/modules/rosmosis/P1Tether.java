@@ -1,14 +1,13 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
@@ -28,7 +27,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public P1Tether(IBox box, ISpecies species, ISpace _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomAgentManager(this, box);
+        agentManager = new AtomLeafAgentManager(this, box);
         work = _space.makeVector();
         gradient = new IVector[]{work};
     }
@@ -70,7 +69,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     }
 
     public Object makeAgent(IAtom a) {
-        if (a instanceof IAtomLeaf && ((IAtomTypeLeaf)a.getType()).getSpecies() == species) {
+        if (((IAtomTypeLeaf)a.getType()).getSpecies() == species) {
             IVector vec = space.makeVector();
             vec.E(((IAtomPositioned)a).getPosition());
             return vec;
@@ -83,7 +82,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final AtomAgentManager agentManager;
+    protected final AtomLeafAgentManager agentManager;
     protected final ISpecies species;
     protected final IVector work;
     protected final IVector[] gradient;
