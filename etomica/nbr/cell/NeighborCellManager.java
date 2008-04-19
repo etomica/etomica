@@ -3,17 +3,22 @@ package etomica.nbr.cell;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.BoxCellManager;
@@ -37,9 +42,10 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, AgentSource, BoxListener, java.io.Serializable {
+public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, MoleculeAgentSource, BoxListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
+    protected final ISimulation sim;
     protected final CellLattice lattice;
     protected final ISpace space;
     protected final AtomIteratorTreeBox atomIterator;
@@ -48,14 +54,15 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     protected int cellRange = 2;
     protected double range;
     protected final AtomAgentManager agentManager;
+    protected final MoleculeAgentManager moleculeAgentManager;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(IBox box, double potentialRange, ISpace _space) {
-        this(box, potentialRange, null, _space);
+    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, ISpace _space) {
+        this(sim, box, potentialRange, null, _space);
     }
     
     /**
@@ -65,9 +72,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace _space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
+        this.sim = sim;
         space = _space;
         atomIterator = new AtomIteratorTreeBox();
         atomIterator.setDoAllNodes(true);
@@ -76,6 +84,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         agentManager = new AtomAgentManager(this,box);
+        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
     }
 
     public CellLattice getLattice() {
@@ -175,9 +184,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
             ((Cell)allCells[i]).occupants().clear();
         }
         
-        atomIterator.reset();
-        for (IAtom atom = atomIterator.nextAtom(); atom != null;
-             atom = atomIterator.nextAtom()) {
+        IAtomSet leafList = box.getLeafList();
+        int count = leafList.getAtomCount();
+        for (int i=0; i<count; i++) {
+            IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(i);
             if (atom.getType().isInteracting()) {
                 assignCell(atom);
             }
@@ -186,6 +196,20 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
                 // the only way it will get purged.  This is probably as cheap
                 // or cheaper than checking first.
                 agentManager.setAgent(atom, null);
+            }
+        }
+
+        ISpecies[] species = sim.getSpeciesManager().getSpecies();
+        for (int i=0; i<species.length; i++) {
+            if (!species[i].isInteracting()) {
+                // should we try removing the molecules from cells
+                continue;
+            }
+            IAtomSet moleculeList = box.getMoleculeList(species[i]);
+            count = moleculeList.getAtomCount();
+            for (int j=0; j<count; j++) {
+                IMolecule atom = (IMolecule)moleculeList.getAtom(i);
+                assignCell(atom);
             }
         }
     }
@@ -199,7 +223,18 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * cell's atom list and the cell with be associated with the atom via
      * agentManager.
      */
-    public void assignCell(IAtom atom) {
+    public void assignCell(IAtomLeaf atom) {
+        Cell atomCell = (Cell)lattice.site(((IAtomPositioned)atom).getPosition());
+        atomCell.addAtom(atom);
+        agentManager.setAgent(atom, atomCell);
+    }
+    
+    /**
+     * Assigns the cell for the given atom.  The atom will be listed in the
+     * cell's atom list and the cell with be associated with the atom via
+     * agentManager.
+     */
+    public void assignCell(IMolecule atom) {
         IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.getType().getPositionDefinition().position(atom);
@@ -222,6 +257,34 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      */
     public Object makeAgent(IAtom atom) {
         if (atom.getType().isInteracting()) {
+            IVector position = ((IAtomPositioned)atom).getPosition();
+            Cell atomCell = (Cell)lattice.site(position);
+            atomCell.addAtom(atom);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
+                System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);
+            }
+            return atomCell;
+        }
+        return null;
+    }
+
+    /**
+     * Removes the given atom from the cell.
+     */
+    public void releaseAgent(Object cell, IAtom atom) {
+        ((Cell)cell).removeAtom(atom);
+    }
+    
+    public Class getMoleculeAgentClass() {
+        return Cell.class;
+    }
+
+    /**
+     * Returns the cell containing the given atom.  The atom is added to the
+     * cell's atom list.
+     */
+    public Object makeAgent(IMolecule atom) {
+        if (atom.getType().isInteracting()) {
             IVector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
                         atom.getType().getPositionDefinition().position(atom);
@@ -238,7 +301,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Object cell, IAtom atom) {
+    public void releaseAgent(Object cell, IMolecule atom) {
         ((Cell)cell).removeAtom(atom);
     }
     
@@ -296,11 +359,12 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
                         translator.setTranslationVector(shift);
                         moleculeTranslator.actionPerformed(atom);
                     }
+                    neighborCellManager.assignCell((IMolecule)atom);
                 }
                 else {
                     boundary.nearestImage(((IAtomPositioned)atom).getPosition());
+                    neighborCellManager.assignCell((IAtomLeaf)atom);
                 }
-                neighborCellManager.assignCell(atom);
             }
         }
         

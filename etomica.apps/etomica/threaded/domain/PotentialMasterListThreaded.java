@@ -41,7 +41,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			IAtomPositionDefinition positionDefinition, ISpace _space) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -55,7 +55,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 			BoxAgentSourceCellManager boxAgentSource,
 			BoxAgentManager agentManager, ISpace _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
-        agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(null, _space), sim, true);
+        agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(sim, null, _space), sim, true);
 	}
 	
     public NeighborCellManagerThreaded getNbrCellManagerThreaded(IBox box) {

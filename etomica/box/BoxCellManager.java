@@ -1,6 +1,5 @@
 package etomica.box;
 
-import etomica.api.IAtom;
 import etomica.lattice.CellLattice;
 
 /**
@@ -22,9 +21,4 @@ public interface BoxCellManager {
      * Assigns cells to all molecules in the box.
      */
     public void assignCellAll();
-
-    /**
-     * Assigns the cell for the given atom.
-     */
-    public void assignCell(IAtom atom);
 }

@@ -63,7 +63,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, ISpace _space) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
     }
     
     public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, ISpace _space) {
