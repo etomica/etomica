@@ -74,6 +74,7 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
+import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
 
 /**
@@ -369,7 +370,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(kePump, 10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux(space);
+        MeterFlux meterFlux = new MeterFlux(sim, space);
         double xLength = sim.box.getBoundary().getDimensions().x(0);
         meterFlux.setBoundaries(0, new double[]{-0.25*xLength, 0.25*xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
@@ -382,6 +383,20 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         // has to happen before PBC are applied
         sim.integrator.setIntervalActionPriority(fluxPump, 1);
         dataStreamPumps.add(fluxPump);
+
+        MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim.torqueSum, sim.box);
+        AccumulatorAverageCollapsing pressureAvg = new AccumulatorAverageCollapsing();
+        pressureAvg.setPushInterval(10);
+        DataFork pressureFork = new DataFork();
+        DataPump pressurePump = new DataPump(meterOsmoticPressure, pressureFork);
+        pressureFork.addDataSink(pressureAvg);
+        sim.integrator.addIntervalAction(pressurePump);
+        // has to happen before PBC are applied
+        sim.integrator.setIntervalActionPriority(pressurePump, 1);
+        dataStreamPumps.add(pressurePump);
+        AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        pressureFork.addDataSink(pressureHistory);
+        pressureHistory.setTimeDataSource(timeCounter);
 
         MeterNMolecules densitySodium = new MeterNMolecules();
         MeterNMolecules densityChlorine = new MeterNMolecules();
@@ -452,6 +467,11 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         profPlot.setXUnit(Angstrom.UNIT);
         profPlot.setUnit(dUnit);
 
+        final DisplayPlot pPlot = new DisplayPlot();
+        pressureHistory.setDataSink(pPlot.getDataSet().makeDataSink());
+        pPlot.setLabel("Osmotic Pressure");
+        pPlot.setUnit(Bar.UNIT);
+
 //        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
 //        pMeter.setIntegrator(sim.integrator);
 //        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
@@ -472,6 +492,11 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         fluxDisplay.setAccumulator(fluxAvg);
         fluxDisplay.setLabel("Flux (Atoms/ps/A^2)");
 
+        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
+        pressureDisplay.setAccumulator(pressureAvg);
+        pressureDisplay.setUnit(Bar.UNIT);
+        pressureDisplay.setLabel("Osmotic Pressure (bar)");
+        
 //        final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
 //        nSlider.setResetAction(new SimulationRestart(sim));
 //        nSlider.setSpecies(sim.species);
@@ -560,11 +585,13 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
     	add(ePlot);
         add(profPlot);
+        add(pPlot);
     	add(displayCycles);
     	add(tBox);
 //    	add(pDisplay);
     	add(peDisplay);
         add(fluxDisplay);
+        add(pressureDisplay);
     }
 
     protected static class ModifierAtomDiameter implements Modifier {

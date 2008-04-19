@@ -50,6 +50,7 @@ public class ReverseOsmosisWater extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public ConfigurationMembraneWater configMembrane;
     public P1Tether potentialTether;
+    public PotentialCalculationTorqueSumWallForce torqueSum;
     
     public ReverseOsmosisWater(Space space) {
         super(space);
@@ -136,7 +137,7 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedSwitched(potentialQNaNa, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{naType, naType});
-        
+
         potentialQClCl = new P2Electrostatic(space);
         potentialQClCl.setCharge1(chargeChlorine);
         potentialQClCl.setCharge2(chargeChlorine);
@@ -243,6 +244,9 @@ public class ReverseOsmosisWater extends Simulation {
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.addIntervalAction(pbc);
+        
+        torqueSum = new PotentialCalculationTorqueSumWallForce(potentialTether);
+        integrator.setTorqueSum(torqueSum);
     }
     
     public static void main(String[] args) {

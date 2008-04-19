@@ -332,7 +332,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(kePump, 10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux(space);
+        MeterFlux meterFlux = new MeterFlux(sim, space);
         double xLength = sim.box.getBoundary().getDimensions().x(0);
         meterFlux.setBoundaries(0, new double[]{-0.25*xLength, 0.25*xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);

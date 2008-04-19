@@ -1,14 +1,14 @@
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
+import etomica.api.IMolecule;
+import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -38,9 +38,10 @@ import etomica.units.Time;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements DataSource, AgentSource, IIntegratorNonintervalListener {
+public class MeterFlux implements DataSource, MoleculeAgentSource, IIntegratorNonintervalListener {
 
-    public MeterFlux(ISpace _space) {
+    public MeterFlux(ISimulation sim, ISpace _space) {
+        this.sim = sim;
     	this.space = _space;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
@@ -66,7 +67,7 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
     public void setSpecies(ISpecies[] newSpecies) {
         species = newSpecies;
         if (box != null) {
-            agentManager = new AtomAgentManager(this, box);
+            agentManager = new MoleculeAgentManager(sim, box, this);
         }
     }
     
@@ -88,7 +89,7 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
             }
         }
         if (species != null) {
-            agentManager = new AtomAgentManager(this, box);
+            agentManager = new MoleculeAgentManager(sim, box, this);
         }
     }
     
@@ -121,7 +122,7 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
         for (int i=0; i<species.length; i++) {
             IAtomSet molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
-                IAtom atom = molecules.getAtom(j);
+                IMolecule atom = (IMolecule)molecules.getAtom(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
                 IVector newPosition = atom.getType().getPositionDefinition().position(atom);
@@ -163,15 +164,11 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
         return tag;
     }
 
-    public Class getAgentClass() {
+    public Class getMoleculeAgentClass() {
         return IVector.class;
     }
 
-    public Object makeAgent(IAtom a) {
-        if (a instanceof IAtomLeaf) {
-            // oh, the irony
-            return null;
-        }
+    public Object makeAgent(IMolecule a) {
         ISpecies thisSpecies = (ISpecies)a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
@@ -184,18 +181,19 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(Object agent, IMolecule atom) {
         /* do nothing */
     }
 
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.RESET &&
                 agentManager != null) {
-            agentManager = new AtomAgentManager(this, box);
+            agentManager = new MoleculeAgentManager(sim, box, this);
         }
         oldTime = 0;
     }
 
+    protected final ISimulation sim;
     protected final DataDouble data;
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;
@@ -204,7 +202,7 @@ public class MeterFlux implements DataSource, AgentSource, IIntegratorNoninterva
     protected double[] boundaries;
     protected int[] boundaryCoefficients;
     protected int dim;
-    protected AtomAgentManager agentManager;
+    protected MoleculeAgentManager agentManager;
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;
