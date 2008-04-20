@@ -15,7 +15,6 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
@@ -47,9 +46,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
-        iterator = new AtomIteratorTreeBox();
-        iterator.setBox(box);
-        iterator.setDoAllNodes(true);
         neighborCheck = new NeighborCheck(this);
         setPriority(200);
         pbcEnforcer = new BoxImposePbc(space);
@@ -81,11 +77,12 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     }
     
     public void updateLists() {
-        iterator.reset();
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int j=0; j<nLeaf; j++) {
             int num2Body = 0;
             int num1Body = 0;
+            IAtom atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i].nBody() == 1) {
@@ -95,7 +92,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
                     num2Body++;
                 }
             }
-            
+
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(num2Body);
             ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(num1Body);
         }
@@ -156,7 +153,13 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
             criteriaArray[j].setBox(box);
         }
 
-        iterator.allAtoms(neighborCheck);
+        
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int j=0; j<nLeaf; j++) {
+            neighborCheck.actionPerformed(leafList.getAtom(j));
+        }
+        
         if (neighborCheck.needUpdate) {
             if (Debug.ON && Debug.DEBUG_NOW) {
                 System.out.println("Updating neighbors");
@@ -234,7 +237,11 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
      */
     protected void neighborSetup() {
 
-        iterator.allAtoms(neighborReset);
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int j=0; j<nLeaf; j++) {
+            neighborReset.actionPerformed(leafList.getAtom(j));
+        }
         
         NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
         cellManager.assignCellAll();
@@ -315,7 +322,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     private static final long serialVersionUID = 1L;
     private int updateInterval;
     private int iieCount;
-    private final AtomIteratorTreeBox iterator;
     private final NeighborCheck neighborCheck;
     private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
