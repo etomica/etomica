@@ -1,11 +1,10 @@
 package etomica.models.water;
 
 import etomica.api.IAtom;
-import etomica.api.IMolecule;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.EwaldSummation.MyCharge;
 
-public class ChargeAgentSourceTIP4PWater implements AgentSource {
+public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSource {
 	
 	public ChargeAgentSourceTIP4PWater(){
 		myCharge = new MyCharge[ConformationWaterTIP4P.Echarge.length];
@@ -22,10 +21,6 @@ public class ChargeAgentSourceTIP4PWater implements AgentSource {
 	}
 
 	public Object makeAgent(IAtom a) {
-		
-		if (a instanceof IMolecule){
-			return null;
-		}
 		
 		int index = a.getIndex();
 		

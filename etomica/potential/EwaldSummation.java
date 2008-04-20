@@ -8,7 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -75,7 +75,7 @@ public class EwaldSummation implements IPotential{
 		
 	}
 
-	public EwaldSummation(IBox box, AtomAgentManager atomAgentManager, int nVectorMax, Space _space){
+	public EwaldSummation(IBox box, AtomLeafAgentManager atomAgentManager, int nVectorMax, Space _space){
 		
 		this.box = box;
 		this.space = _space;
@@ -379,7 +379,7 @@ public class EwaldSummation implements IPotential{
 		
 	}
 	
-	protected final AtomAgentManager atomAgentManager;
+	protected final AtomLeafAgentManager atomAgentManager;
 	protected final IVector3D[] nVector;
 	protected final int nVectorMax;
 	protected final double alpha;

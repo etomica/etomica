@@ -9,7 +9,7 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -87,7 +87,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		//Ewald Summation
 		ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
-		AtomAgentManager atomAgentManager = new AtomAgentManager(agentSource, box);
+		AtomLeafAgentManager atomAgentManager = new AtomLeafAgentManager(agentSource, box);
 		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, 0, space);
 		ewaldSummation.setCriterion(criterionAll);
 		ewaldSummation.setBondedIterator(new ApiIntragroup());
