@@ -13,7 +13,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
@@ -53,7 +52,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected final IBox box;
     protected int cellRange = 2;
     protected double range;
-    protected final AtomAgentManager agentManager;
+    protected final AtomLeafAgentManager agentManager;
     protected final MoleculeAgentManager moleculeAgentManager;
     
     /**
@@ -83,7 +82,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
 
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
-        agentManager = new AtomAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager(this,box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
     }
 
@@ -240,7 +239,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                     atom.getType().getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
-        agentManager.setAgent(atom, atomCell);
+        moleculeAgentManager.setAgent(atom, atomCell);
     }
     
     public MCMoveListener makeMCMoveListener() {
