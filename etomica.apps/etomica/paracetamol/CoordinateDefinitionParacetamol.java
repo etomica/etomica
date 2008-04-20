@@ -3,7 +3,6 @@ package etomica.paracetamol;
 import java.io.Serializable;
 
 import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -13,12 +12,11 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.MoleculeAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -81,7 +79,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         t = lattice.getSpace().makeTensor();
         
-        orientationManager = new AtomAgentManager(new OrientationAgentSource(), box);
+        orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
@@ -716,21 +714,21 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     protected Configuration configuration;
     
     
-    protected AtomAgentManager orientationManager; 
+    protected MoleculeAgentManager orientationManager; 
     protected final AtomGroupAction atomGroupAction;
 	private Tensor t;
 
-    protected static class OrientationAgentSource implements AgentSource, Serializable {
+    protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
         
         public OrientationAgentSource() {
         }
-        public Class getAgentClass() {
+        public Class getMoleculeAgentClass() {
             return IVector [].class;
         }
-        public Object makeAgent(IAtom atom) {
+        public Object makeAgent(IMolecule atom) {
             return null;
         }
-        public void releaseAgent(Object agent, IAtom atom) {
+        public void releaseAgent(Object agent, IMolecule atom) {
             //nothing to do
         }
         
