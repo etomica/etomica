@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.api.IAtomSet;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.integrator.IntegratorBox;
 
 /**
@@ -13,10 +13,10 @@ import etomica.integrator.IntegratorBox;
 public class PotentialCalculationForceSum implements PotentialCalculation {
         
     private static final long serialVersionUID = 1L;
-    protected AtomAgentManager integratorAgentManager;
-    protected AtomAgentManager.AgentIterator agentIterator;
+    protected AtomLeafAgentManager integratorAgentManager;
+    protected AtomLeafAgentManager.AgentIterator agentIterator;
     
-    public void setAgentManager(AtomAgentManager agentManager) {
+    public void setAgentManager(AtomLeafAgentManager agentManager) {
         integratorAgentManager = agentManager;
         agentIterator = integratorAgentManager.makeIterator();
     }
