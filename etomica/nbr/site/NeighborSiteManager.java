@@ -4,6 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.BoxCellManager;
 import etomica.lattice.CellLattice;
@@ -51,7 +52,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         siteIterator.setLattice(lattice);
         siteIterator.reset();
 
-        agentManager = new AtomAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager(this,box);
     }
 
     /**
@@ -91,9 +92,6 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
     }
 
     public Object makeAgent(IAtom atom) {
-        if (atom instanceof IMolecule) {
-            return null;
-        }
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;
@@ -104,5 +102,5 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
     private final CellLattice lattice;
     private final ISpace space;
     private final RectangularLattice.Iterator siteIterator;
-    private final AtomAgentManager agentManager;
+    private final AtomLeafAgentManager agentManager;
 }
