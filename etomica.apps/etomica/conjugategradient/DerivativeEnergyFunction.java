@@ -1,17 +1,14 @@
 package etomica.conjugategradient;
 
+import etomica.action.Activity;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-
-import etomica.action.Activity;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-//import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.normalmode.CoordinateDefinition;
@@ -34,7 +31,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomAgentManager agentManager;
+	protected AtomLeafAgentManager agentManager;
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
@@ -49,7 +46,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		forceSum = new PotentialCalculationForceSum();
 		
 		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomAgentManager(source, box);
+		agentManager = new AtomLeafAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
 		moleculeForce = space.makeVector();
 		

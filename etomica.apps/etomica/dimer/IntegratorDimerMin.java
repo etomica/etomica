@@ -14,8 +14,8 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -44,7 +44,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 
 	public ISimulation sim;
 	public IBox boxMin;
-	public AtomAgentManager atomAgent0, atomAgentMin;
+	public AtomLeafAgentManager atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public IRandom random;
@@ -204,8 +204,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         energyBoxMin.setBox(boxMin);
          
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomAgentManager(this, box);
-		atomAgentMin = new AtomAgentManager(this, boxMin);
+		atomAgent0 = new AtomLeafAgentManager(this, box);
+		atomAgentMin = new AtomLeafAgentManager(this, boxMin);
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);

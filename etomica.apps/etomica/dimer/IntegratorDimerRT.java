@@ -14,8 +14,8 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -77,7 +77,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
 	public AtomArrayList list, list1, list2;
-	public AtomAgentManager atomAgent0, atomAgent1, atomAgent2;
+	public AtomLeafAgentManager atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
 	public ActivityIntegrate activityIntegrate;
@@ -270,9 +270,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
 		
-		atomAgent0 = new AtomAgentManager(this, box);
-		atomAgent1 = new AtomAgentManager(this, box1);
-		atomAgent2 = new AtomAgentManager(this, box2);
+		atomAgent0 = new AtomLeafAgentManager(this, box);
+		atomAgent1 = new AtomLeafAgentManager(this, box1);
+		atomAgent2 = new AtomLeafAgentManager(this, box2);
 		
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);

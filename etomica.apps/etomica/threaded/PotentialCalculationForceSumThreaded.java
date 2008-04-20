@@ -5,7 +5,6 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.integrator.IntegratorBox;
@@ -32,7 +31,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         }
     }
     
-	public void setAgentManager(AtomAgentManager agentManager) {
+	public void setAgentManager(AtomLeafAgentManager agentManager) {
         super.setAgentManager(agentManager);
         atomAgentManager = new AtomLeafAgentManager[pc.length];
         
