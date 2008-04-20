@@ -12,6 +12,7 @@ import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTreeBox;
@@ -56,8 +57,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, box);
-        agentManager2Body = new AtomAgentManager(this, box);
-        agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
+        agentManager2Body = new AtomLeafAgentManager(this, box);
+        agentManager1Body = new AtomLeafAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
         boxEvent = new BoxEventNeighborsUpdated(box);
     }
@@ -322,8 +323,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     private int priority;
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
-    private final AtomAgentManager agentManager2Body;
-    private final AtomAgentManager agentManager1Body;
+    private final AtomLeafAgentManager agentManager2Body;
+    private final AtomLeafAgentManager agentManager1Body;
     protected IBox box;
     private NeighborCriterion[] oldCriteria;
     protected final BoxEventNeighborsUpdated boxEvent;
