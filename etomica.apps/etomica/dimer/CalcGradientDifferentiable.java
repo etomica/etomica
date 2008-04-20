@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -34,7 +34,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     FiniteDifferenceDerivative finiteDifferenceDerivative;
     public IteratorDirective allAtoms;
     PotentialCalculationForceSum force;
-    AtomAgentManager atomAgent;
+    AtomLeafAgentManager atomAgent;
     int gradDcomponent, startAtom, stopAtom;
     IAtomSet movableSet;
     private final ISpace space;
@@ -49,7 +49,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         force = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
-        atomAgent = new AtomAgentManager(this, box);
+        atomAgent = new AtomLeafAgentManager(this, box);
         force.setAgentManager(atomAgent);
         
         finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);
