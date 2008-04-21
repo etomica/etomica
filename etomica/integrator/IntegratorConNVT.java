@@ -1,6 +1,6 @@
 package etomica.integrator;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -141,11 +141,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         return Agent.class;
     }
     
-    public final Object makeAgent(IAtom a) {
+    public final Object makeAgent(IAtomLeaf a) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;

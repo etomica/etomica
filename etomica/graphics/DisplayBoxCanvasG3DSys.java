@@ -9,7 +9,7 @@ import javax.vecmath.Point3f;
 
 import org.jmol.g3d.Graphics3D;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
@@ -573,7 +573,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return Figure.class;
 	}
 
-	public Object makeAgent(IAtom a) {
+	public Object makeAgent(IAtomLeaf a) {
 		if (!(a.getType() instanceof IAtomTypeSphere))
 			return null;
 		((IAtomPositioned) a).getPosition().assignTo(coords);
@@ -586,7 +586,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(Object agent, IAtomLeaf atom) {
 		gsys.removeFig((Figure) agent);
 	}
 

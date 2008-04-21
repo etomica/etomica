@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -102,7 +103,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
             // leaf index corresponds to the position in the leaf list
             Object agent = agents[i];
             if (agent != null) {
-                agentSource.releaseAgent(agent,leafList.getAtom(i));
+                agentSource.releaseAgent(agent, (IAtomLeaf)leafList.getAtom(i));
             }
         }
         agents = null;
@@ -122,7 +123,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
             // that up again.
-           addAgent(leafList.getAtom(i), i);
+           addAgent((IAtomLeaf)leafList.getAtom(i), i);
         }
     }
     
@@ -134,12 +135,12 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
                     // add all leaf atoms below this atom
                     IAtomSet childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        addAgent(childList.getAtom(iChild));
+                        addAgent((IAtomLeaf)childList.getAtom(iChild));
                     }
                 }
                 else {
                     // the atom itself is a leaf
-                    addAgent(a);
+                    addAgent((IAtomLeaf)a);
                 }
             }
             else if (evt instanceof BoxAtomRemovedEvent) {
@@ -147,7 +148,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
                     IAtomSet childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        IAtom childAtom = childList.getAtom(iChild);
+                        IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
                         int index = box.getLeafIndex(childAtom);
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
@@ -160,7 +161,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
                     int index = box.getLeafIndex(a);
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
-                        agentSource.releaseAgent(agents[index], a);
+                        agentSource.releaseAgent(agents[index], (IAtomLeaf)a);
                         agents[index] = null;
                     }
                 }
@@ -189,7 +190,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
     /**
      * Adds an agent for the given leaf atom to the agents array.
      */
-    protected void addAgent(IAtom a) {
+    protected void addAgent(IAtomLeaf a) {
         addAgent(a, box.getLeafIndex(a));
     }
     
@@ -197,7 +198,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
      * Adds an agent for the given leaf atom to the agents array at the given
      * index.
      */
-    protected void addAgent(IAtom a, int index) {
+    protected void addAgent(IAtomLeaf a, int index) {
         if (agents.length < index+1) {
             // no room in the array.  reallocate the array with an extra cushion.
             agents = Arrays.resizeArray(agents,index+1+reservoirSize);
@@ -219,13 +220,13 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
         /**
          * Returns an agent for the given Atom.
          */
-        public Object makeAgent(IAtom a);
+        public Object makeAgent(IAtomLeaf a);
         
         /**
          * This informs the agent source that the agent is going away and that 
          * the agent source should disconnect the agent from other elements
          */
-        public void releaseAgent(Object agent, IAtom atom);
+        public void releaseAgent(Object agent, IAtomLeaf atom);
     }
 
     private static final long serialVersionUID = 1L;

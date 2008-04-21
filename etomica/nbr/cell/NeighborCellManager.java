@@ -254,7 +254,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Object makeAgent(IAtom atom) {
+    public Object makeAgent(IAtomLeaf atom) {
         if (atom.getType().isInteracting()) {
             IVector position = ((IAtomPositioned)atom).getPosition();
             Cell atomCell = (Cell)lattice.site(position);
@@ -270,7 +270,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Object cell, IAtom atom) {
+    public void releaseAgent(Object cell, IAtomLeaf atom) {
         ((Cell)cell).removeAtom(atom);
     }
     

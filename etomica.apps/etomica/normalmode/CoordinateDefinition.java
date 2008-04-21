@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -258,12 +259,12 @@ public abstract class CoordinateDefinition {
         public Class getAgentClass() {
             return IVector.class;
         }
-        public Object makeAgent(IAtom atom) {
+        public Object makeAgent(IAtomLeaf atom) {
             IVector vector = space.makeVector();
             vector.E(((IAtomPositioned)atom).getPosition());
             return vector;
         }
-        public void releaseAgent(Object agent, IAtom atom) {
+        public void releaseAgent(Object agent, IAtomLeaf atom) {
             //nothing to do
         }
 

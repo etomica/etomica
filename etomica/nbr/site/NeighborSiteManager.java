@@ -1,9 +1,8 @@
 package etomica.nbr.site;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxCellManager;
@@ -91,13 +90,13 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         return AtomSite.class;
     }
 
-    public Object makeAgent(IAtom atom) {
+    public Object makeAgent(IAtomLeaf atom) {
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
     private final CellLattice lattice;
     private final ISpace space;

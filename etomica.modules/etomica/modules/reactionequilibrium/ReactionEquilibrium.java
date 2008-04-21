@@ -5,11 +5,11 @@ import javax.swing.JPanel;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -102,7 +102,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	}
     
     public Class getAgentClass() {
-        return IAtom.class;
+        return IAtomLeaf.class;
     }
 
     public AtomLeafAgentManager getAgentManager() {
@@ -116,11 +116,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
      * @param a  ignored
      * @return Object always null
      */
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
 
 }

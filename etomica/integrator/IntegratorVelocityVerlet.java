@@ -3,7 +3,7 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
@@ -164,11 +164,11 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return MyAgent.class;
     }
 
-    public final Object makeAgent(IAtom a) {
+    public final Object makeAgent(IAtomLeaf a) {
         return new MyAgent(potential.getSpace());
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

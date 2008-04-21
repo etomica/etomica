@@ -3,7 +3,7 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -202,11 +202,11 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         return Agent.class;
     }
     
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
             
     public static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;

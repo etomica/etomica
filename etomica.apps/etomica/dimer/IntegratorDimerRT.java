@@ -6,6 +6,7 @@ import java.io.IOException;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -823,11 +824,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		return IntegratorVelocityVerlet.MyAgent.class;
 	}
 
-	public Object makeAgent(IAtom a) {
+	public Object makeAgent(IAtomLeaf a) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(Object agent, IAtomLeaf atom) {
 		// TODO Auto-generated method stub	
 	}
 	

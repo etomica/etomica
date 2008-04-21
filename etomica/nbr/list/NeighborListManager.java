@@ -6,12 +6,12 @@ import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
 import etomica.api.IAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -423,7 +423,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         return AtomNeighborLists.class;
     }
     
-    public Object makeAgent(IAtom atom) {
+    public Object makeAgent(IAtomLeaf atom) {
         AtomNeighborLists lists = new AtomNeighborLists();
         int num2Body = 0;
         IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
@@ -436,7 +436,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         return lists;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(Object agent, IAtomLeaf atom) {
         ((AtomNeighborLists)agent).clearNbrs();
     }
     
@@ -451,8 +451,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         public Class getAgentClass() {
             return AtomPotentialList.class;
         }
-        public void releaseAgent(Object obj, IAtom atom) {}
-        public Object makeAgent(IAtom atom) {
+        public void releaseAgent(Object obj, IAtomLeaf atom) {}
+        public Object makeAgent(IAtomLeaf atom) {
             AtomPotentialList lists = new AtomPotentialList();
             int num1Body = 0;
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();

@@ -129,48 +129,45 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         return ArrayList.class;
     }
     
-    public Object makeAgent(IAtom newAtom) {
-        if (newAtom instanceof IAtomLeaf) {
-            // we got a leaf atom in a mult-atom molecule
-            ArrayList<Object> bondList = new ArrayList<Object>(); 
-            Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
-                    get(((IAtomTypeLeaf)newAtom.getType()).getSpecies());
+    public Object makeAgent(IAtomLeaf newAtom) {
+        // we got a leaf atom in a mult-atom molecule
+        ArrayList<Object> bondList = new ArrayList<Object>(); 
+        Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
+                get(((IAtomTypeLeaf)newAtom.getType()).getSpecies());
+        
+        if (bondIterators != null) {
+            IMolecule molecule = newAtom.getParentGroup();
             
-            if (bondIterators != null) {
-                IMolecule molecule = ((IAtomLeaf)newAtom).getParentGroup();
-                
-                for (int i=0; i<bondIterators.length; i++) {
-                    IPotential bondedPotential = bondIterators[i].getPotential();
-                    AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
-                    // We only want bonds where our atom of interest is the "up" atom.
-                    // We'll pick up bonds where this atom is the "down" atom when
-                    // makeAgent is called for that Atom.  We're dependent here on 
-                    // a molecule being added to the system only after it's 
-                    // completely formed.  Not depending on that would be "hard".
-                    if (iterator instanceof AtomsetIteratorDirectable) {
-                        // these should all be directable, but perhaps not
-                        ((AtomsetIteratorDirectable)iterator).setDirection(Direction.UP);
-                    }
-                    else {
-                        System.err.println("iterator wasn't directable, strange things may happen");
-                    }
-                    atomSetSinglet.atom = molecule;
-                    iterator.setBasis(atomSetSinglet);
-                    iterator.setTarget(newAtom);
-                    iterator.reset();
-                    for (IAtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
-                         bondedAtoms = iterator.next()) {
-                        Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
-                        bondList.add(bond);
-                    }
+            for (int i=0; i<bondIterators.length; i++) {
+                IPotential bondedPotential = bondIterators[i].getPotential();
+                AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
+                // We only want bonds where our atom of interest is the "up" atom.
+                // We'll pick up bonds where this atom is the "down" atom when
+                // makeAgent is called for that Atom.  We're dependent here on 
+                // a molecule being added to the system only after it's 
+                // completely formed.  Not depending on that would be "hard".
+                if (iterator instanceof AtomsetIteratorDirectable) {
+                    // these should all be directable, but perhaps not
+                    ((AtomsetIteratorDirectable)iterator).setDirection(Direction.UP);
+                }
+                else {
+                    System.err.println("iterator wasn't directable, strange things may happen");
+                }
+                atomSetSinglet.atom = molecule;
+                iterator.setBasis(atomSetSinglet);
+                iterator.setTarget(newAtom);
+                iterator.reset();
+                for (IAtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
+                     bondedAtoms = iterator.next()) {
+                    Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
+                    bondList.add(bond);
                 }
             }
-            return bondList;
         }
-        return null;
+        return bondList;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(Object agent, IAtomLeaf atom) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting

@@ -1,10 +1,10 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
@@ -62,7 +62,7 @@ public class P2SquareWellBonded extends P2SquareWell {
      * This will tell you what the lowest open space is in atom a
 	 */
 	protected int lowest(IAtom a){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == null) {
@@ -78,7 +78,7 @@ public class P2SquareWellBonded extends P2SquareWell {
      * need to first re-retrieve agents
 	 */
 	protected boolean areBonded(IAtom a, IAtom b){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == b){		
@@ -91,14 +91,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * this function will bond atoms a & b together
 	 */
-	protected void bond(IAtom a, IAtom b){
+	protected void bond(IAtomLeaf a, IAtomLeaf b){
 		if (areBonded(a,b)){			// Error Checking, what about double bonds?
 			return;
 		}
 		int i = lowest(a);		// (0 is the First Space) 
 		int j = lowest(b);
-        ((IAtom[])agentManager.getAgent(a))[i] = b;
-        ((IAtom[])agentManager.getAgent(b))[j] = a;
+        ((IAtomLeaf[])agentManager.getAgent(a))[i] = b;
+        ((IAtomLeaf[])agentManager.getAgent(b))[j] = a;
 	}
 	
 	/**
@@ -110,7 +110,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == b){	// double bonds???
@@ -123,7 +123,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
         success = false;
 		// Unbonding the Atom, Atom B's side
-        nbrs = (IAtom[])agentManager.getAgent(b);
+        nbrs = (IAtomLeaf[])agentManager.getAgent(b);
         j = nbrs.length;
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == a){	// double bonds???
@@ -172,13 +172,11 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 	public void bump(IAtomSet pair, double falseTime) {
 
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
-        IAtomKinetic coord0 = (IAtomKinetic)atom0;
-        IAtomKinetic coord1 = (IAtomKinetic)atom1;
-        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -218,22 +216,22 @@ public class P2SquareWellBonded extends P2SquareWell {
 				nudge = eps;
 			} else { //neither is taken; bond to each other
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
-				bond(atom0,atom1);
+				bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
 				nudge = -eps;
 			}
 		} 
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		coord0.getVelocity().PEa1Tv1(((IAtomTypeLeaf)atom0.getType()).rm(), dv);
-		coord1.getVelocity().PEa1Tv1(-((IAtomTypeLeaf)atom1.getType()).rm(), dv);
-		coord0.getPosition().PEa1Tv1(-falseTime * ((IAtomTypeLeaf)atom0.getType()).rm(), dv);
-		coord1.getPosition().PEa1Tv1(falseTime * ((IAtomTypeLeaf)atom1.getType()).rm(), dv);
+		atom0.getVelocity().PEa1Tv1(((IAtomTypeLeaf)atom0.getType()).rm(), dv);
+		atom1.getVelocity().PEa1Tv1(-((IAtomTypeLeaf)atom1.getType()).rm(), dv);
+		atom0.getPosition().PEa1Tv1(-falseTime * ((IAtomTypeLeaf)atom0.getType()).rm(), dv);
+		atom1.getPosition().PEa1Tv1(falseTime * ((IAtomTypeLeaf)atom1.getType()).rm(), dv);
 		
 		if (nudge != 0) 
 		{
-			coord0.getPosition().PEa1Tv1(-nudge, dr);
-			coord1.getPosition().PEa1Tv1(nudge, dr);
+			atom0.getPosition().PEa1Tv1(-nudge, dr);
+			atom1.getPosition().PEa1Tv1(nudge, dr);
 		}
 	}//end of bump
 }//end of class

@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -191,11 +192,11 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         return DoubleWrapper.class;
     }
     
-    public Object makeAgent(IAtom atom) {
+    public Object makeAgent(IAtomLeaf atom) {
         return atom instanceof IAtomPositioned ? new DoubleWrapper() : null;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
     protected static class DoubleWrapper implements java.io.Serializable {
         private static final long serialVersionUID = 1L;

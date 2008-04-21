@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
@@ -613,11 +613,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         return MyAgent.class;
     }
 
-    public final Object makeAgent(IAtom a) {
+    public final Object makeAgent(IAtomLeaf a) {
         return new MyAgent(potential.getSpace());
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

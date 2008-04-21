@@ -2,14 +2,15 @@ package etomica.graphics2;
 
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -224,7 +225,7 @@ public final class SceneManager {
             return SphereShapeWrapper.class;
         }
         
-        public Object makeAgent(IAtom a) {
+        public Object makeAgent(IAtomLeaf a) {
             if (!(a.getType() instanceof IAtomTypeSphere)) {
                 return null;
             }
@@ -241,7 +242,7 @@ public final class SceneManager {
             return wrapper;
         }
         
-        public void releaseAgent(Object agent, IAtom atom) {
+        public void releaseAgent(Object agent, IAtomLeaf atom) {
             ((SphereShapeWrapper)agent).shape.dispose();
         }
         

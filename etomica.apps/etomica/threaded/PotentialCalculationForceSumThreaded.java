@@ -1,6 +1,6 @@
 package etomica.threaded;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IPotential;
@@ -75,11 +75,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         return MyAgent.class;
     }
 
-    public final Object makeAgent(IAtom a) {
+    public final Object makeAgent(IAtomLeaf a) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(Object object, IAtom atom){
+    public void releaseAgent(Object object, IAtomLeaf atom){
         
     }
     

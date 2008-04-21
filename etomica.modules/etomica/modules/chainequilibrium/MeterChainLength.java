@@ -2,13 +2,11 @@ package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
@@ -60,12 +58,12 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return AtomTag.class;
     }
     
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         return new AtomTag();
     }
     
     // does nothing
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
@@ -77,14 +75,14 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         }
 
         // untag all the Atoms
-        iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
-            ((AtomTag)tagManager.getAgent(a)).tagged = false;
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        for (int i=0; i<nLeaf; i++) {
+            ((AtomTag)tagManager.getAgent(leafList.getAtom(i))).tagged = false;
         }
 
-        iterator.reset();
-
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
+        for (int i=0; i<nLeaf; i++) {
+            IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
             // if an Atom is tagged, it was already counted as part of 
             // another chain
             if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
@@ -118,10 +116,10 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return 1;
     }
 
-    protected int recursiveTag(IAtom a) {
+    protected int recursiveTag(IAtomLeaf a) {
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
 
         int ctr = 1;
         
@@ -151,8 +149,6 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
             tagManager.dispose();
         }
         tagManager = new AtomLeafAgentManager(this,box);
-        
-        iterator.setBox(box);
     }
 
     public IDataInfo getDataInfo() {
@@ -160,7 +156,6 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private IBox box;
     private AtomLeafAgentManager tagManager;
     private AtomLeafAgentManager agentManager;

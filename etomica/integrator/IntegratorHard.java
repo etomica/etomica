@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
@@ -720,7 +721,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * called by the agentManager, which allocates/deallocates 
      * agents as needed.
 	 */
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         Agent agent = new Agent(a, this);
         agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
         return agent;
@@ -728,7 +729,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
     public Class getTypeAgentClass() {
         return PotentialHard.class;

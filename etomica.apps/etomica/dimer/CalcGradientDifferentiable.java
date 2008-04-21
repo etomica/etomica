@@ -1,6 +1,6 @@
 package etomica.dimer;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -131,12 +131,12 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         return IntegratorVelocityVerlet.MyAgent.class;
     }
 
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
-        // TODO Auto-generated method stub  
+    public void releaseAgent(Object agent, IAtomLeaf atom) {
+        // do nothing  
     }
     
 }

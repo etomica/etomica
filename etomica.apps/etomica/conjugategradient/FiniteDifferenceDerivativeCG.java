@@ -1,7 +1,7 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -127,13 +127,13 @@ public class FiniteDifferenceDerivativeCG {
 		public MyAgentSource(ISpace space){
 			this.space = space;
 		}
-		public void releaseAgent(Object agent, IAtom atom){}
+		public void releaseAgent(Object agent, IAtomLeaf atom){}
 		
 		public Class getAgentClass(){
 			return IntegratorVelocityVerlet.MyAgent.class;
 		}
 		
-		public Object makeAgent(IAtom atom){
+		public Object makeAgent(IAtomLeaf atom){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
 		protected ISpace space;

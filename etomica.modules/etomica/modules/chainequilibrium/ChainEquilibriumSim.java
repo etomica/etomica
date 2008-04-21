@@ -3,11 +3,11 @@ package etomica.modules.chainequilibrium;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -101,19 +101,19 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	}
     
     public Class getAgentClass() {
-        return IAtom[].class;
+        return IAtomLeaf[].class;
     }
     
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(IAtom a) {
+	public Object makeAgent(IAtomLeaf a) {
 		
-		return new IAtom[2];
+		return new IAtomLeaf[2];
 	}
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Object agent, IAtomLeaf atom) {}
     
     public AtomLeafAgentManager getAgentManager() {
     	return agentManager;
