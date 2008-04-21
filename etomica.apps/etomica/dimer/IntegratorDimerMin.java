@@ -21,9 +21,11 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.dimer.IntegratorDimerRT.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
@@ -206,6 +208,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
 		atomAgent0 = new AtomLeafAgentManager(this, box);
 		atomAgentMin = new AtomLeafAgentManager(this, boxMin);
+		
+		if(potential instanceof PotentialMasterListDimer){
+			   this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(boxMin));
+			   this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(boxMin)); 
+		}
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);

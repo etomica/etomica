@@ -36,6 +36,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -57,7 +58,7 @@ public class SimDimerMEAMGB extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
-    public final PotentialMaster potentialMaster;
+    public final PotentialMasterList potentialMaster;
     public final PotentialMasterListDimer potentialMasterD;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
@@ -84,8 +85,8 @@ public class SimDimerMEAMGB extends Simulation{
     public SimDimerMEAMGB(String file, int[] millerPlane) {
     	super(Space3D.getInstance(), true);
     	
-    	potentialMaster = new PotentialMaster(space);
-    //	potentialMaster = new PotentialMasterList(this, space);
+    	
+    	potentialMaster = new PotentialMasterList(this, space);
     	potentialMasterD = new PotentialMasterListDimer(this, space);
         
       //SIMULATION BOX
@@ -111,8 +112,8 @@ public class SimDimerMEAMGB extends Simulation{
         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Sn);
         
         this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
-	//	potentialMaster.setRange(potential.getRange()*1.1);
-	//	potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
+		potentialMaster.setRange(potential.getRange()*1.1);
+		potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
         this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
 	    potentialMasterD.setSpecies(new ISpecies []{dimer, movable});
@@ -380,8 +381,8 @@ public class SimDimerMEAMGB extends Simulation{
         integratorMD.setBox(box);
         pcGB = new PotentialCalculationForcePressureSumGB(space, box);
         integratorMD.setForceSum(pcGB);
-        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        //integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -423,8 +424,10 @@ public class SimDimerMEAMGB extends Simulation{
             ConfigurationFile configFile = new ConfigurationFile(fileName);
             configFile.initializeCoordinates(box);
         }
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{dimer}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, fileName, normalDir, space);
         integratorDimerMin.setBox(box);
+        integratorDimerMin.addNonintervalListener(potentialMasterD.getNeighborManager(box));
+        integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box));  
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);
@@ -464,7 +467,7 @@ public class SimDimerMEAMGB extends Simulation{
         sim.integratorDimer.addIntervalAction(config);
         sim.integratorDimer.setActionInterval(config,mdSteps);
                 
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
         energyMeter.setBox(sim.box);
         
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());

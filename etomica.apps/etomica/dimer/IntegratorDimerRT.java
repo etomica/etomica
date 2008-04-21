@@ -143,7 +143,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	
 	public void doStepInternal(){
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
+		//System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
 		
 		rotateDimerNewton();
 		
@@ -271,9 +271,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
 		
+		System.out.println(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar()));
+		
 		atomAgent0 = new AtomLeafAgentManager(this, box);
 		atomAgent1 = new AtomLeafAgentManager(this, box1);
 		atomAgent2 = new AtomLeafAgentManager(this, box2);
+
 		
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);

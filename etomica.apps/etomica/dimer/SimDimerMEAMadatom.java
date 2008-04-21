@@ -255,8 +255,8 @@ public class SimDimerMEAMadatom extends Simulation{
             boolean fixedFlag = true;
             for(int j=0; j<movableSet.getAtomCount(); j++){
                 IVector dist = space.makeVector();
-                dist.Ev1Mv2(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)((IMolecule)movableSet.getAtom(j)).getChildList().getAtom(0)).getPosition());
-                if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
+                dist.Ev1Mv2(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition(),adAtomPos);
+                if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+5.0){
                     neighborList.add(loopSet.getAtom(i));
                     fixedFlag = false;
                     break;
@@ -437,8 +437,10 @@ public class SimDimerMEAMadatom extends Simulation{
         	ConfigurationFile configFile = new ConfigurationFile(fileName);
         	configFile.initializeCoordinates(box);
         }
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, fileName, normalDir, space);
         integratorDimerMin.setBox(box);
+        integratorDimerMin.addNonintervalListener(potentialMasterD.getNeighborManager(box));
+        integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box));  
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);
@@ -449,10 +451,11 @@ public class SimDimerMEAMadatom extends Simulation{
         final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
         
         sim.setMovableAtoms(5.0);
-        sim.enableMolecularDynamics(100);
-        sim.enableDimerSearch("test1", 100, false, false);
+        sim.setMovableAtomsList();
+        sim.enableMolecularDynamics(5000);
+        sim.enableDimerSearch("test1", 500, false, false);
         
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
         energyMeter.setBox(sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
