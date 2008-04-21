@@ -59,8 +59,7 @@ public class ReverseOsmosisWater extends Simulation {
         //controller and integrator
 	    integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), space);
 	    integrator.setIsothermal(true);
-        integrator.setThermostat(ThermostatType.VELOCITY_SCALING);
-        integrator.setThermostatInterval(10);
+        integrator.setThermostatInterval(100);
         integrator.setTimeStep(0.004);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
