@@ -183,6 +183,7 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
         if (event instanceof SimulationSpeciesEvent) {
             if (event instanceof SimulationSpeciesAddedEvent) {
                 agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
+                agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
             }
             else if (event instanceof SimulationSpeciesRemovedEvent) {
                 agents = (Object[][])Arrays.removeObject(agents, agents[((SimulationSpeciesEvent)event).getSpecies().getIndex()]);
