@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
+import etomica.api.IVector3D;
 import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
@@ -45,14 +46,14 @@ public class Cuboid extends Hexahedron implements Rectangular {
     }
 
     public void updateVertices() {
-        ((Vector3D)vertices[0]).E(na, nb, nc);
-        ((Vector3D)vertices[1]).E(na, nb, pc);
-        ((Vector3D)vertices[2]).E(na, pb, nc);
-        ((Vector3D)vertices[3]).E(na, pb, pc);
-        ((Vector3D)vertices[4]).E(pa, nb, nc);
-        ((Vector3D)vertices[5]).E(pa, nb, pc);
-        ((Vector3D)vertices[6]).E(pa, pb, nc);
-        ((Vector3D)vertices[7]).E(pa, pb, pc);
+        ((IVector3D)vertices[0]).E(na, nb, nc);
+        ((IVector3D)vertices[1]).E(na, nb, pc);
+        ((IVector3D)vertices[2]).E(na, pb, nc);
+        ((IVector3D)vertices[3]).E(na, pb, pc);
+        ((IVector3D)vertices[4]).E(pa, nb, nc);
+        ((IVector3D)vertices[5]).E(pa, nb, pc);
+        ((IVector3D)vertices[6]).E(pa, pb, nc);
+        ((IVector3D)vertices[7]).E(pa, pb, pc);
         applyTranslationRotation();
     }
 
@@ -101,7 +102,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
         updateVertices();
     }
 
-    private final Vector3D edgeLengths = new Vector3D();//used only to return edge lengths as a vector
+    private final IVector3D edgeLengths = new Vector3D();//used only to return edge lengths as a vector
     private double na, pa;//na = -a/2, p = +a/2
     private double nb, pb;//nb = -b/2, p = +a/2
     private double nc, pc;//nc = -c/2, p = +a/2
