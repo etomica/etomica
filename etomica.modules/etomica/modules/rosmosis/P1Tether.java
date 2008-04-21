@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;

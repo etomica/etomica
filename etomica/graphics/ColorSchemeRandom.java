@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 
 public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     

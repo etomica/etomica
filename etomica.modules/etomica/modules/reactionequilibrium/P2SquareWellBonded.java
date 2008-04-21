@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
@@ -33,7 +33,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
 	private double barrier;
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
 	// *** Below are different types of constructor functions that Make P2SqaredWells ***	
 
@@ -43,7 +43,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(ISpace space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
         agentManager = aam;
 	}

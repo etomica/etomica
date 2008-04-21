@@ -7,10 +7,10 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.atom.AtomAgentManager.AgentIterator;
+import etomica.atom.AtomLeafAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
@@ -100,7 +100,7 @@ public final class SceneManager {
         else if(!(newBox.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("Cannot use a box with a boundary that is not a subclass of etomica.space.Boundary.");
         }
-        agentManager = new AtomAgentManager(new SphereShapeSource(), newBox, false);
+        agentManager = new AtomLeafAgentManager(new SphereShapeSource(), newBox, false);
         agentIterator = agentManager.makeIterator();
     	box = newBox;
         if (box != null) {
@@ -187,7 +187,7 @@ public final class SceneManager {
     protected IAtom[] selectedAtoms = new IAtom[1];
     protected Renderable renderer;
     
-    private AtomAgentManager agentManager;
+    private AtomLeafAgentManager agentManager;
     private AgentIterator agentIterator;
 
 //  The groups of atoms
@@ -218,7 +218,7 @@ public final class SceneManager {
     
     private final ISpace space;
 
-    public class SphereShapeSource implements AtomAgentManager.AgentSource {
+    public class SphereShapeSource implements AtomLeafAgentManager.AgentSource {
 
         public Class getAgentClass() {
             return SphereShapeWrapper.class;

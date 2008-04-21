@@ -5,7 +5,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.integrator.IntegratorBox;
@@ -20,8 +20,8 @@ import etomica.potential.PotentialSoft;
 public class PotentialCalculationTorqueSumWallForce extends PotentialCalculationTorqueSum {
         
     private static final long serialVersionUID = 1L;
-    protected AtomAgentManager integratorAgentManager;
-    protected AtomAgentManager.AgentIterator agentIterator;
+    protected AtomLeafAgentManager integratorAgentManager;
+    protected AtomLeafAgentManager.AgentIterator agentIterator;
     
     public PotentialCalculationTorqueSumWallForce(IPotential potentialTether) {
         this.potentialTether = potentialTether;

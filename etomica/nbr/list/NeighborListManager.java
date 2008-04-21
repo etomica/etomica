@@ -11,10 +11,10 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
@@ -385,8 +385,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     private static class NeighborReset implements AtomAction, Serializable {
         private static final long serialVersionUID = 1L;
 
-        public NeighborReset(NeighborListManager manager, AtomAgentManager agentManager2Body,
-                AtomAgentManager agentManager1Body) {
+        public NeighborReset(NeighborListManager manager, AtomLeafAgentManager agentManager2Body,
+                AtomLeafAgentManager agentManager1Body) {
             neighborListManager = manager;
             this.agentManager2Body = agentManager2Body;
             this.agentManager1Body = agentManager1Body;
@@ -414,8 +414,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         }
         
         private NeighborListManager neighborListManager;
-        private AtomAgentManager agentManager2Body;
-        private AtomAgentManager agentManager1Body;
+        private AtomLeafAgentManager agentManager2Body;
+        private AtomLeafAgentManager agentManager1Body;
         protected final AtomSetSinglet atomSetSinglet;
     }
     
@@ -440,7 +440,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         ((AtomNeighborLists)agent).clearNbrs();
     }
     
-    public static class AtomPotential1ListSource implements AtomAgentManager.AgentSource, java.io.Serializable {
+    public static class AtomPotential1ListSource implements AtomLeafAgentManager.AgentSource, java.io.Serializable {
         private static final long serialVersionUID = 2L;
         protected final PotentialMasterList potentialMaster;
 

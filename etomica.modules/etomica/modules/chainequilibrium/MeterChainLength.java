@@ -5,9 +5,9 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -27,7 +27,7 @@ import etomica.units.Quantity;
  */
 public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
 
-    public MeterChainLength(AtomAgentManager aam) {
+    public MeterChainLength(AtomLeafAgentManager aam) {
         tag = new DataTag();
         setupData(40);
         agentManager = aam;
@@ -163,7 +163,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private IBox box;
     private AtomLeafAgentManager tagManager;
-    private AtomAgentManager agentManager;
+    private AtomLeafAgentManager agentManager;
     private DataFunction data;
     private DataDoubleArray xData;
     private DataInfoDoubleArray xDataInfo;

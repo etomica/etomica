@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
@@ -448,7 +448,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
             nSlider.setMaximum(40);
             nSlider.setPostAction(new IAction() {
                 public void actionPerformed() {
-                    AtomAgentManager agentManager = sim.getAgentManager();
+                    AtomLeafAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
                     iter.reset();
                     for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {

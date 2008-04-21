@@ -7,9 +7,9 @@ import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
 import etomica.space.ISpace;
@@ -96,7 +96,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
 	public void setBox(IBox box) {
         nearestImageTransformer = box.getBoundary();
-        agentManager = (AtomAgentManager)boxAgentManager.getAgent(box);
+        agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -142,6 +142,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private INearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private AtomAgentManager agentManager;
+    private AtomLeafAgentManager agentManager;
     private final BoxAgentManager boxAgentManager;
 }

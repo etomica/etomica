@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;

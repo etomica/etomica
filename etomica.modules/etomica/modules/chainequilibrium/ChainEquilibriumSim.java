@@ -7,9 +7,9 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
@@ -115,7 +115,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
     
     public void releaseAgent(Object agent, IAtom atom) {}
     
-    public AtomAgentManager getAgentManager() {
+    public AtomLeafAgentManager getAgentManager() {
     	return agentManager;
     }
 }

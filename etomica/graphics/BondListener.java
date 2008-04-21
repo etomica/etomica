@@ -12,7 +12,6 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIteratorMolecule;
@@ -30,7 +29,7 @@ import etomica.chem.models.Model;
  * 
  * @author Andrew Schultz
  */
-public class BondListener implements AtomAgentManager.AgentSource, Serializable {
+public class BondListener implements AtomLeafAgentManager.AgentSource, Serializable {
 
     /**
      * Creates a new BondListener for the given Box, using the given

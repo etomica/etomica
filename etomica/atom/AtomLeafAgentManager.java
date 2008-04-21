@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
@@ -12,26 +13,57 @@ import etomica.box.BoxAtomLeafIndexChangedEvent;
 import etomica.box.BoxAtomRemovedEvent;
 import etomica.box.BoxEvent;
 import etomica.box.BoxGlobalAtomLeafIndexEvent;
+import etomica.box.BoxListener;
 import etomica.util.Arrays;
 
 /**
- * AtomLeafAgentManager acts on behalf of client classes (an AgentSource) to
+ * AtomAgentManager acts on behalf of client classes (an AgentSource) to
  * manage agents for every leaf Atom in a box.  When leaf atoms are added or
  * removed from the box, the agents array (indexed by the atom's global
  * index) is updated.  The client can access and modify the agents via getAgent
  * and setAgent.
+ * 
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager extends AtomAgentManager {
+public class AtomLeafAgentManager implements BoxListener, Serializable {
 
     public AtomLeafAgentManager(AgentSource source, IBox box) {
         this(source, box, true);
     }
     
     public AtomLeafAgentManager(AgentSource source, IBox box, boolean isBackend) {
-        super(source, box, isBackend);
-        // we just want the leaf atoms
-    }        
+        agentSource = source;
+        this.isBackend = isBackend;
+        this.box = box;
+        setReservoirSize(30);
+        setupBox();
+    }
+    
+    /**
+     * Sets the size of the manager's "reservoir".  When an atom is removed,
+     * the agents array will only be trimmed if the number of holes in the
+     * array exceeds the reservoir size.  Also, when the array has no holes and
+     * another atom is added, the array will resized to be 
+     * numAtoms+reservoirSize to avoid reallocating a new array every time an
+     * atom is added.  reservoirSize=0 means the array will
+     * always be the same size as the number of atoms (no holes).
+     * 
+     * The default reservoir size is 30.
+     */
+    public void setReservoirSize(int newReservoirSize) {
+        reservoirSize = newReservoirSize;
+    }
+
+    public int getReservoirSize() {
+        return reservoirSize;
+    }
+
+    /**
+     * Returns an iterator that returns each non-null agent
+     */
+    public AgentIterator makeIterator() {
+        return new AgentIterator(this);
+    }
     
     /**
      * Returns the agent associated with the given IAtom.  The IAtom must be
@@ -43,10 +75,19 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     
     /**
      * Sets the agent associated with the given atom to be the given agent.
-     * The IAtom must be from the Box associated with this instance.
+     * The IAtom must be from the Box associated with this instance.  The
+     * IAtom's old agent is not released.  This should be done manually if
+     * needed.
      */
     public void setAgent(IAtom a, Object newAgent) {
         agents[box.getLeafIndex(a)] = newAgent;
+    }
+    
+    /**
+     * Convenience method to return the box the Manager is tracking.
+     */
+    public IBox getBox(){
+        return box;
     }
     
     /**
@@ -144,7 +185,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
             }
         }
     }
-
+    
     /**
      * Adds an agent for the given leaf atom to the agents array.
      */
@@ -164,6 +205,75 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         agents[index] = agentSource.makeAgent(a);
     }        
     
+    /**
+     * Interface for an object that wants an agent associated with each Atom in
+     * a Box.
+     */
+    public interface AgentSource {
+        /**
+         * Returns the Class of the agent.  This is used to create an array of 
+         * the appropriate Class.
+         */
+        public Class getAgentClass();
+
+        /**
+         * Returns an agent for the given Atom.
+         */
+        public Object makeAgent(IAtom a);
+        
+        /**
+         * This informs the agent source that the agent is going away and that 
+         * the agent source should disconnect the agent from other elements
+         */
+        public void releaseAgent(Object agent, IAtom atom);
+    }
+
     private static final long serialVersionUID = 1L;
+    protected final AgentSource agentSource;
+    protected Object[] agents;
+    protected final IBox box;
+    protected final boolean isBackend;
+    protected int reservoirSize;
+    
+    /**
+     * Iterator that loops over the agents, skipping null elements
+     */
+    public static class AgentIterator implements Serializable {
+
+        protected AgentIterator(AtomLeafAgentManager agentManager) {
+            this.agentManager = agentManager;
+        }
+        
+        public void reset() {
+            cursor = 0;
+            agents = agentManager.agents;
+        }
+        
+        public boolean hasNext() {
+            while (cursor < agents.length) {
+                if (agents[cursor] != null) {
+                    return true;
+                }
+                cursor++;
+            }
+            return false;
+        }
+        
+        public Object next() {
+            cursor++;
+            while (cursor-1 < agents.length) {
+                if (agents[cursor-1] != null) {
+                    return agents[cursor-1];
+                }
+                cursor++;
+            }
+            return null;
+        }
+        
+        private static final long serialVersionUID = 1L;
+        private final AtomLeafAgentManager agentManager;
+        private int cursor;
+        private Object[] agents;
+    }
     
 }

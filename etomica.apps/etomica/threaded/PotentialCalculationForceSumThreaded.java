@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculation;

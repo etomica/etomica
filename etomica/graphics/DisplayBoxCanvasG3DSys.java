@@ -19,7 +19,7 @@ import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;

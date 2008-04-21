@@ -12,7 +12,7 @@ import etomica.api.ISpecies;
 import etomica.api.IAction;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
@@ -97,7 +97,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
             
             IAction anotherAction = new IAction() {
                 public void actionPerformed() {
-                    AtomAgentManager agentManager = sim.getAgentManager();
+                    AtomLeafAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
                     iter.reset();
                     for (IAtom atom = iter.nextAtom(); atom != null;

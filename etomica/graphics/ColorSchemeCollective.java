@@ -5,7 +5,7 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 
 /**
  * Parent class for color schemes that are best implemented by attaching colors

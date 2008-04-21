@@ -9,9 +9,9 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
@@ -105,7 +105,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         return IAtom.class;
     }
 
-    public AtomAgentManager getAgentManager() {
+    public AtomLeafAgentManager getAgentManager() {
     	return agentManager;
     }
 

@@ -5,9 +5,9 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
 import etomica.units.Dimension;
@@ -152,7 +152,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 
 	public void setBox(IBox box) {
         boxSize = box.getBoundary().getDimensions().x(neighborDim);
-        agentManager = (AtomAgentManager)boxAgentManager.getAgent(box);
+        agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -210,6 +210,6 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     private double boxSize;
 	protected double safetyFactor;
 	protected double dr, rMaxSafe;
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
     private final BoxAgentManager boxAgentManager;
 }

@@ -6,7 +6,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -27,7 +27,7 @@ import etomica.units.Quantity;
 import etomica.units.Volume;
 
 public final class MeterDimerFraction implements DataSource {
-    public MeterDimerFraction(AtomAgentManager aam) {
+    public MeterDimerFraction(AtomLeafAgentManager aam) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
         dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
@@ -127,7 +127,7 @@ public final class MeterDimerFraction implements DataSource {
     private final DataInfoTable dataInfo;
     private int[] count = new int[5];
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    protected final AtomAgentManager agentManager;
+    protected final AtomLeafAgentManager agentManager;
     private final DataTag tag;
     private final DataGroup dataGroup;
     private final DataDouble dataDensity;

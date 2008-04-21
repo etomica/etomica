@@ -2,7 +2,7 @@ package etomica.box;
 
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 
 public class BoxAgentSourceAtomManager implements BoxAgentSource, java.io.Serializable {
