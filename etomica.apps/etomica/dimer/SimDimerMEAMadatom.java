@@ -106,10 +106,11 @@ public class SimDimerMEAMadatom extends Simulation{
 		potentialMaster.setRange(potential.getRange()*1.1);
 		potentialMaster.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
         
-		this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
-		potentialMasterD.setRange(potential.getRange()*1.1);
-		potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
-
+        this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType()});
+        potentialMasterD.setSpecies(new ISpecies []{movable});
+        potentialMasterD.setRange(potential.getRange()*1.1);
+        potentialMasterD.setCriterion(potential, new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1));
+  
 		
 		/**
         //Ag
@@ -230,6 +231,7 @@ public class SimDimerMEAMadatom extends Simulation{
         IAtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.getBoundary().nearestImage(rij);
             if(Math.abs(rij.x(0))<distance && Math.abs(rij.x(1))<distance && Math.abs(rij.x(2))<distance){
                movableList.add(loopSet.getAtom(i));
             } 
@@ -241,6 +243,41 @@ public class SimDimerMEAMadatom extends Simulation{
         movableSet = box.getMoleculeList(movable);
     }
     
+    public void setMovableAtomsList(){
+        AtomArrayList neighborList = new AtomArrayList();
+        AtomArrayList fixedList = new AtomArrayList();
+        IAtomSet loopSet = box.getMoleculeList();
+        IAtomSet movableSet = box.getMoleculeList(movable);
+        for(int i=0; i<loopSet.getAtomCount(); i++){
+            if(loopSet.getAtom(i).getType()==movable){
+                continue;
+            }
+            boolean fixedFlag = true;
+            for(int j=0; j<movableSet.getAtomCount(); j++){
+                IVector dist = space.makeVector();
+                dist.Ev1Mv2(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)((IMolecule)movableSet.getAtom(j)).getChildList().getAtom(0)).getPosition());
+                if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
+                    neighborList.add(loopSet.getAtom(i));
+                    fixedFlag = false;
+                    break;
+                }               
+            
+            }
+            if(fixedFlag){
+                fixedList.add(loopSet.getAtom(i));
+            }
+        }
+        for (int i=0; i<neighborList.getAtomCount(); i++){
+            ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)neighborList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule((IMolecule)neighborList.getAtom(i));
+         }
+        for (int i=0; i<fixedList.getAtomCount(); i++){
+            ((IAtomPositioned)box.addNewMolecule(fixed).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)fixedList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule((IMolecule)fixedList.getAtom(i));
+         }
+        
+    }
+        
     public void initializeConfiguration(String fileName){
     	ConfigurationFile config = new ConfigurationFile(fileName);
         config.initializeCoordinates(box);
