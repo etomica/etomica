@@ -204,7 +204,7 @@ public class SimDimerMEAMadatom extends Simulation{
         adAtomPos.setX(2, -0.1);
         IVector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
-        newBoxLength.setX(0, 2.0*adAtomPos.x(0)+1.0);
+        newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
         box.setDimensions(newBoxLength);
         
         /**
@@ -426,7 +426,6 @@ public class SimDimerMEAMadatom extends Simulation{
     }
         
 	public void enableMinimumSearch(String fileName, Boolean normalDir, Boolean onlyMin){
-		setMovableAtoms(5.0);
 		
         if(onlyMin){
             ConfigurationFile configFile = new ConfigurationFile(fileName);
@@ -452,8 +451,8 @@ public class SimDimerMEAMadatom extends Simulation{
         
         sim.setMovableAtoms(5.0);
         sim.setMovableAtomsList();
-        sim.enableMolecularDynamics(5000);
-        sim.enableDimerSearch("test1", 500, false, false);
+        sim.enableMolecularDynamics(2000);
+        sim.enableDimerSearch("run1", 1000, false, false);
         
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
         energyMeter.setBox(sim.box);
@@ -470,7 +469,6 @@ public class SimDimerMEAMadatom extends Simulation{
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
         
-        sim.integratorMD.addIntervalAction(energyPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
         sim.integratorDimer.addIntervalAction(energyPump);
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
