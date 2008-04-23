@@ -99,8 +99,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     public void setRotationBOTTOM(int axis, double aAngle){
         angle = aAngle;
         
-        RotationTensor rotT = latticeTOP.getSpace().makeRotationTensor();       
-        rotT.setAxial(axis, -angle);
+        RotationTensor rotT = latticeBOTTOM.getSpace().makeRotationTensor();       
+        rotT.setAxial(axis, angle);
         rotT.TE(eulerRotationL2BoxBOTTOM);
         eulerRotationL2BoxBOTTOM.E(rotT);
         eulerRotationB2LatticeBOTTOM.E(eulerRotationL2BoxBOTTOM);
@@ -133,15 +133,17 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	projection.setX(2, 0.0);
     	double theta = Math.acos(projection.dot(origin[1]) / Math.sqrt(projection.squared()));
     	setRotationTOP(2,theta);
-    	setRotationBOTTOM(2,-theta);
+    	setRotationBOTTOM(2,theta);
     	
     	//rotate Miller plane into Z axis, about X axis (through YZ plane).
     	projection.E(normal);
-    	//get YZ projection of normal
-    	projection.setX(0, 0.0);
+    	//get normal after rotation
+    	eulerRotationL2BoxTOP.transform(projection);
+    	
     	double phi = Math.acos(projection.dot(origin[2]) / Math.sqrt(projection.squared()));
+    	System.out.println(phi);
     	setRotationTOP(0,phi);
-    	setRotationBOTTOM(0,phi);
+    	setRotationBOTTOM(0,-phi);
     }
     
     /**
