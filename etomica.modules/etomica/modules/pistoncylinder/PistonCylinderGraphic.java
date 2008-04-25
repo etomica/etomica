@@ -184,6 +184,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * Initialize all the bits based on previously set doConfigButton and doRDF.
      */
     public void init() {
+        
+        final IAction dataResetAction = new IAction() {
+            public void actionPerformed() {
+                getController().getResetAveragesButton().press();
+            }
+        };
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType(simulation));
@@ -310,6 +316,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                     }
                     
                     displayBox.repaint();
+                    dataResetAction.actionPerformed();
                 }
             });
 
@@ -548,7 +555,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         };
         fixPistonButton.setController(pc.getController());
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
-        fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
+        fixPistonButton.setPostAction(new IAction() {
+            public void actionPerformed() {
+                new ActionPistonUpdate(pc.integrator).actionPerformed();
+                dataResetAction.actionPerformed();
+            }
+        });
         fixPistonButton.setState(pistonHeld);
 
         meterCycles = new DataSourceCountTime(pc.integrator);
@@ -562,7 +574,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pc.integrator.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
         tempSlider.setUnit(tUnit);
         tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
-        tempSlider.setSliderPostAction(new IntegratorReset(pc.integrator,true));
+        tempSlider.setSliderPostAction(new ActionGroupSeries(new IAction[]{
+                new IntegratorReset(pc.integrator,true), dataResetAction}));
 
         potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
         potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);
@@ -604,6 +617,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         epsBox.setController(pc.getController());
         lamBox.setController(pc.getController());
         massBox.setController(pc.getController());
+        sigBox.setPostAction(dataResetAction);
+        massBox.setPostAction(dataResetAction);
+        epsBox.setPostAction(dataResetAction);
+        lamBox.setPostAction(dataResetAction);
         
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure ("+pUnit.symbol()+")", TitledBorder.CENTER, TitledBorder.TOP));
@@ -611,7 +628,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         double p = pUnit.toSim(pressureSlider.getValue());
         pistonPotential.setPressure(D == 3 ? -p : p);
         pressureSlider.setModifier(new ModifierPistonPressure(pistonPotential,pDim));
-        pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
+        pressureSlider.setPostAction(new ActionGroupSeries(new IAction[]{new ActionPistonUpdate(pc.integrator), dataResetAction}));
         pressureSlider.setController(pc.getController());
         pressureSlider.getSlider().setEnabled(!pistonPotential.isStationary());
         pressureSlider.getTextField().setEnabled(!pistonPotential.isStationary());
@@ -636,7 +653,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             densityBox.setLabel("Set Density ("+dUnit.symbol()+")");
             densityBox.setUnit(dUnit);
             densityBox.setModifier(new ModifierPistonDensity());
-            densityBox.setPostAction(new ActionGroupSeries(new IAction[]{new IntegratorReset(pc.integrator,true), getPaintAction(pc.box)}));
+            densityBox.setPostAction(new ActionGroupSeries(new IAction[]{new IntegratorReset(pc.integrator,true),
+                    getPaintAction(pc.box), dataResetAction}));
         }
 
         //  data panel
@@ -861,6 +879,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pc.integrator.reset();
                     }
                 } catch(ConfigurationOverlapException e) {}
+                
+                getController().getResetAveragesButton().press();
             }
         });
     }
