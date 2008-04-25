@@ -37,13 +37,17 @@ public final class SimulationRestart extends SimulationActionAdapter {
             setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp));
         }
         ignoreOverlap = false;
-        accumulatorAction = new SimulationDataAction(new ResetAccumulators());
+        accumulatorAction = new SimulationDataAction(new ResetAccumulatorsAveraged());
     }
 
     public SimulationDataAction getDataResetAction() {
         return accumulatorAction;
     }
     
+    public void setDataResetAction(SimulationDataAction newResetAction) {
+        accumulatorAction = newResetAction;
+    }
+
     public void setIgnoreOverlap(boolean doIgnoreOverlap) {
         ignoreOverlap = doIgnoreOverlap;
     }
