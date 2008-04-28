@@ -78,19 +78,21 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                         else{
                             forceBottom.PE(f[i]);
                         }
-                } 
+                }
+                //Averages force over all atoms, and subtracts amount from each atom's force.
 		        forceTop.TE(2.0/box.getLeafList().getAtomCount());
 		        forceBottom.TE(2.0/box.getLeafList().getAtomCount());
-		        for (int i=0; i<atoms.getAtomCount(); i++){
-                    rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
+		        for (int i=0; i<box.getLeafList().getAtomCount(); i++){
+                    rij.E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
                     
                     if(rij.x(2)>0){
-                        f[i].E(forceTop);
+                        
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceTop);
                     }
                     else{
-                        f[i].E(forceBottom);
+                        
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceBottom);
                     }
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);    
                 }
 		}
 		

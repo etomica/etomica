@@ -2,6 +2,7 @@ package etomica.dimer;
 
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
+import etomica.api.IVector;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -22,36 +23,39 @@ public class SimDimerMEAMGBCluster extends Simulation{
 
 	public static void main(String[] args){
 	        
-        String fileName = "gb210"; //args[0];
-        int mdSteps = 10000;//Integer.parseInt(args[1]);
-        //int h = Integer.parseInt(args[2]);
-        //int k = Integer.parseInt(args[3]);
-        //int l = Integer.parseInt(args[4]);
+        String fileName = "sn201";//args[0];
+        //int mdSteps = Integer.parseInt(args[1]);
+        //int h = Integer.parseInt(args[1]);
+        //int k = Integer.parseInt(args[2]);
+        //int l = Integer.parseInt(args[3]);
         
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
     	
-    	final SimDimerMEAMGB sim = new SimDimerMEAMGB("fileName",new int[] {2,1,0});
+    	final SimDimerMEAMGB sim = new SimDimerMEAMGB(fileName,new int[] {2,0,1});
+    	
+        IVector dimerCenter = sim.getSpace().makeVector();
+        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
+        dimerCenter.setX(1, 1.0);
+        dimerCenter.setX(2, 0.0);
+    	    	
+    	sim.initializeConfiguration(fileName);
+    	sim.setMovableAtoms(5.0, dimerCenter);
+    	sim.setMovableAtomsList();
+    	sim.removeAtoms(2.0, dimerCenter);
+    	sim.enableDimerSearch(fileName, 1000, false, false);
     	
     	XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+".xyz");
+        xyzwriter.setFileName(fileName+"-dimer.xyz");
         xyzwriter.setIsAppend(true);
-        sim.integratorMD.addIntervalAction(xyzwriter);
-        sim.integratorMD.setActionInterval(xyzwriter, 10);
-        
-        //Load in MD minimized configuration
-        //ConfigurationFile configurationFile = new ConfigurationFile("filename");
-        //configurationFile.initializeCoordinates(sim.box);
-        
+        sim.integratorDimer.addIntervalAction(xyzwriter);
+        sim.integratorDimer.setActionInterval(xyzwriter, 1);
         
         WriteConfiguration config = new WriteConfiguration(sim.getSpace());
         config.setBox(sim.box);
-        config.setConfName(fileName);
-        sim.integratorMD.addIntervalAction(config);
-        sim.integratorMD.setActionInterval(config,mdSteps);
+        config.setConfName(fileName+"-dimer");
+        sim.integratorDimer.addIntervalAction(config);
+        sim.integratorDimer.setActionInterval(config,10);
         
-        
-    	sim.activityIntegrateMD.setMaxSteps(mdSteps);	
-    	sim.activityIntegrateDimer.setMaxSteps(0);
         sim.getController().actionPerformed();
 
     }

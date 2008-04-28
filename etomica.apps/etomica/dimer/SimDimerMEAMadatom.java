@@ -464,13 +464,14 @@ public class SimDimerMEAMadatom extends Simulation{
         plotPE.setLabel("PE Plot");
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
+        sim.integratorDimer.addIntervalAction(energyPump);
+        sim.integratorDimer.setActionInterval(energyPump,1);
         
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
         
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimer.addIntervalAction(energyPump);
         sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
