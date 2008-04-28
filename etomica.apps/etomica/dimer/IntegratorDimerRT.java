@@ -355,11 +355,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    	
 			// Calculate F|_
 			dimerForcePerp(N, F1, F2, Fperp);
-						
+			
+			/**
 			//CONJUGATE GRADIENT SEARCH FOR ROTATIONAL PLANE
 			// Find Gperp = Fperp + gammai*|Gperplast|*THETAstarstar
 			//gammaI = ( (Fperpi - Fperpi-1)[dot]Fperpi )/(Fperpi[dot]Fperpi)
-			/*
+			
 			double gt = 0.0;
 			double gb = 0.0;
 			for(int i=0; i<Fperp.length; i++){
@@ -394,7 +395,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			}
 			mag = 1.0 / Math.sqrt(mag);		
 			for(int i=0; i<THETA.length; i++){
-				THETA[i].E(Fperp[i]);
+			    //THETA[i].E(Gperp[i]);
+			    THETA[i].E(Fperp[i]);
 				THETA[i].TE(mag);
 			}
 			//Copy arrays to remember for next iteration
@@ -407,6 +409,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             // NEWTON'S LINE MINIMIZATION FOR ROTATIONAL FORCE	
 			Frot = 0;
             for(int i=0; i<Fperp.length; i++){
+                  //Frot += Gperp[i].dot(THETA[i]);
                   Frot += Fperp[i].dot(THETA[i]);
             }
             
@@ -485,7 +488,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				Fprimerot += Fstarperp[i].dot(THETAstar[i]);
 			}
 			for(int i=0; i<Fperp.length; i++){
-				Fprimerot -= Fperp[i].dot(THETA[i]);
+				//Fprimerot -= Gperp[i].dot(THETA[i]);
+			    Fprimerot -= Fperp[i].dot(THETA[i]);
 			}
 			Fprimerot = Fprimerot / dTheta;
 			
