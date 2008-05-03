@@ -1,13 +1,15 @@
 package etomica.modules.ljmd;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.api.IAction;
 import etomica.action.SimulationRestart;
+import etomica.api.IAction;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -135,9 +137,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
-        DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(mbPump);
-        sim.integrator.setActionInterval(mbPump, 100);
+        final DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
@@ -197,7 +197,11 @@ public class LjmdGraphic extends SimulationGraphic {
         keMeter.setBox(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
-        DataPump kePump = new DataPump(keMeter, keHistory);
+        DataFork keFork = new DataFork();
+        DataPump kePump = new DataPump(keMeter, keFork);
+        keFork.addDataSink(keHistory);
+        final AccumulatorAverage keAvg = new AccumulatorAverageCollapsing();
+        keFork.addDataSink(keAvg);
         sim.integrator.addIntervalAction(kePump);
         sim.integrator.setActionInterval(kePump, 60);
         keHistory.setPushInterval(5);
@@ -229,6 +233,23 @@ public class LjmdGraphic extends SimulationGraphic {
         pDisplay.setAccumulator(pAccumulator);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
+        
+        IAction mbAction = new IAction() {
+            public void actionPerformed() {
+                if (!sim.integrator.isIsothermal()) {
+                    // in adiabatic mode, we want the average kinetic temperature, which we'll
+                    // steal from our kinetic energy accumulator
+                    double temp = keAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+                    temp *= 2.0 / (sim.box.getLeafList().getAtomCount() * space.D());
+                    mbDistribution.setTemperature(temp);
+                    mbSource.update();
+                }
+                mbPump.actionPerformed();
+            }
+        };
+            
+        sim.integrator.addIntervalAction(mbAction);
+        sim.integrator.setActionInterval(mbAction, 100);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim, space));
@@ -274,14 +295,25 @@ public class LjmdGraphic extends SimulationGraphic {
 
 	    ChangeListener temperatureListener = new ChangeListener() {
 		    public void stateChanged(ChangeEvent event) {
-
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
 		        mbSource.update();
 		        vPlot.doUpdate();
 		        vPlot.repaint();
 		    }
 		};
+		ActionListener isothermalListener = new ActionListener() {
+		    public void actionPerformed(ActionEvent event) {
+		        // we can't tell if we're isothermal here...  :(
+		        // if we're adiabatic, we'll re-set the temperature elsewhere
+		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
+		        mbSource.update();
+		        vPlot.doUpdate();
+		        vPlot.repaint();
+		    }
+		};
+
 		temperatureSelect.addTemperatureSliderListener(temperatureListener);
+        temperatureSelect.addRadioGroupActionListener(isothermalListener);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
