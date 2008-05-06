@@ -316,7 +316,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
 		}
-				
+		
+		WriteConfiguration writey = new WriteConfiguration(space);
+		writey.setBox(box1);
+		writey.setConfName("minA");
+		writey.actionPerformed();
+		
 	}
 		
 
@@ -839,6 +844,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		// TODO Auto-generated method stub	
 	}
 	
+	/*
 	public static class PotentialMasterListDimer extends PotentialMasterList{
 
 		public PotentialMasterListDimer(ISimulation sim, ISpace space) {
@@ -881,5 +887,5 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		public ISpecies [] species;
 	}
-	
+	*/
 }

@@ -21,7 +21,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.dimer.IntegratorDimerRT.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -105,8 +104,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.space = _space;
 		
 		stepLength = 0.05;
-		deltaR = 10E-4;
-		dTheta = 10E-4;
+		deltaR = 1E-3;
+		dTheta = 1E-3;
 		dFrot = 0.1;
 		rotCounter = 0;
 		counter = 1;
@@ -126,12 +125,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	}
 	public void doStepInternal(){
 		
+	    dimerForces(Fmin, F0, Fmin2);
+	    
 		// Orient half-dimer on minimum energy path
 		rotateDimerNewton();
 		
 		// Write energy to file
         try{
-            
             fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
         }catch(IOException e) {
           
@@ -198,7 +198,12 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	        
 		boxMin = new Box(box.getBoundary(), space);
         sim.addBox(boxMin);
-         
+        
+        if(potential instanceof PotentialMasterListDimer){
+            this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(boxMin));
+            this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(boxMin)); 
+         }
+        
         energyBox0 = new MeterPotentialEnergy(this.potential);
         energyBoxMin = new MeterPotentialEnergy(this.potential);
          
@@ -209,10 +214,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		atomAgent0 = new AtomLeafAgentManager(this, box);
 		atomAgentMin = new AtomLeafAgentManager(this, boxMin);
 		
-		if(potential instanceof PotentialMasterListDimer){
-			   this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(boxMin));
-			   this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(boxMin)); 
-		}
+
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
