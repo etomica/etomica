@@ -3,6 +3,8 @@ package etomica.modules.pistoncylinder;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -576,6 +578,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         tempSlider.setSliderPostAction(new ActionGroupSeries(new IAction[]{
                 new IntegratorReset(pc.integrator,true), dataResetAction}));
+        tempSlider.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                dataResetAction.actionPerformed();
+            }
+        });
 
         potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
         potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);
