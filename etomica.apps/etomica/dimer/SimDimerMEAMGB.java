@@ -425,7 +425,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{dimer}, space);
         integratorDimer.setBox(box);
-        integratorDimer.setOrtho(orthoSearch, true);
+        integratorDimer.setOrtho(orthoSearch, false);
         if(fine){
             ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
             configFile.initializeCoordinates(box);
