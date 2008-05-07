@@ -1,6 +1,8 @@
 package etomica.modules.chainequilibrium;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -8,6 +10,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.ActionGroupSeries;
+import etomica.action.IntegratorReset;
+import etomica.action.SimulationRestart;
+import etomica.api.IAction;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -57,17 +63,25 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         // **** Stuff that Modifies the Simulation
 
+        final IAction resetAction = getController().getSimRestart().getDataResetAction();
+        
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(sim, eMin, eMax, "RR epsilon", sim.AAbonded);
         final DeviceSlider ABSlider = sliders(sim, eMin, eMax, "RB epsilon", sim.ABbonded);
         final DeviceSlider BBSlider = sliders(sim, eMin, eMax, "BB epsilon", sim.BBbonded);
+        AASlider.setPostAction(resetAction);
+        ABSlider.setPostAction(resetAction);
+        BBSlider.setPostAction(resetAction);
         
         // Sliders on Core size page
         DeviceSlider AAWellSlider = sliders(sim, 5, 95, "RR core", majorSpacing, minorSpacing, sim.AAbonded);
         DeviceSlider ABWellSlider = sliders(sim, 5, 95, "RB core", majorSpacing, minorSpacing, sim.ABbonded);
         DeviceSlider BBWellSlider = sliders(sim, 5, 95, "BB core", majorSpacing, minorSpacing, sim.BBbonded);
+        AAWellSlider.setPostAction(resetAction);
+        ABWellSlider.setPostAction(resetAction);
+        BBWellSlider.setPostAction(resetAction);
 
         // The Species Editors
         MySpeciesEditor AEditor = new MySpeciesEditor(this, sim.box, sim.speciesA, "Red", space);
@@ -119,6 +133,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         temperatureSelect.setTemperature(150);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
+        temperatureSelect.setSliderPostAction(resetAction);
+        temperatureSelect.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                resetAction.actionPerformed();
+            }
+        });
         
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
@@ -139,6 +159,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         sizeSlider.setValue(3.0);
         sizeSlider.setShowValues(true);
         sizeSlider.setEditValues(true);
+        sizeSlider.setPostAction(resetAction);
         sizeModifier.setDisplay(getDisplayBox(sim.box));
 
         tBox.setUnit(Kelvin.UNIT);

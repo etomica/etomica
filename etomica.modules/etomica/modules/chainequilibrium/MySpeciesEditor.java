@@ -51,6 +51,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 		nSlider.setMinimum(0);
 		nSlider.setMaximum(100);
         nSlider.getSlider().setLabelTable(nSlider.getSlider().createStandardLabels(majorSpacing));
+        nSlider.setPostAction(simGraphic.getController().getSimRestart().getDataResetAction());
         
 		//listener for changes to mass textbox
 		java.awt.event.ActionListener myListener = new java.awt.event.ActionListener() {
