@@ -2,6 +2,8 @@ package etomica.modules.dcvgcmd;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -48,6 +50,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
         getController().getDataStreamPumps().add(sim.profile1pump);
         getController().getDataStreamPumps().add(sim.profile2pump);
+        
+        final IAction resetAction = getController().getSimRestart().getDataResetAction();
 
 	    Color[] speciesColors = new Color [] {Color.BLUE, Color.GREEN};
 
@@ -89,6 +93,11 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		temperatureSlider.setMaximum(500);
 		temperatureSlider.setIntegrator(sim.integratorDCV);
 	    temperatureSlider.setTemperature(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
+        temperatureSlider.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                resetAction.actionPerformed();
+            }
+        });
 
 	    //Mu Slider Stuff
 		Modifier mu1Mod = sim.integratorDCV.new Mu1Modulator(); 
@@ -98,11 +107,13 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		mu1Slider.setMaximum(2500);
 		mu1Slider.setShowValues(true);
 		mu1Slider.setNMajor(2);
+		mu1Slider.setPostAction(resetAction);
 		DeviceSlider mu2Slider = new DeviceSlider(sim.getController(),mu2Mod);
 		mu2Slider.setMinimum(-2500);
 		mu2Slider.setMaximum(2500);
 		mu2Slider.setShowValues(true);
 		mu2Slider.setNMajor(2);
+        mu2Slider.setPostAction(resetAction);
 
 	    //	TubePanel Slider stuff
 		//Modifier tubePanelMod = sim.integratorDCV.new tubePanelModifier(); 
@@ -120,6 +131,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		temperatureSlider.setSliderPostAction(new IAction() {
 			public void actionPerformed() {
 				tpump.actionPerformed();
+				resetAction.actionPerformed();
 			}
 		});
 
