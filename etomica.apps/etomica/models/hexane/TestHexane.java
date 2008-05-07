@@ -10,6 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -29,6 +30,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
+import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -193,7 +195,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 10;
+        long nSteps = 100;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
         double den = 0.37;
@@ -248,15 +250,15 @@ public class TestHexane extends Simulation {
             double volume = sim.bdry.volume();
             System.out.println("volume =  "+ volume);
             
-//            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
+            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-//            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
+            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
             // we need to set this up now even though we don't use it during equilibration so that
             // the meter can grab the lattice points
-//            MeterNormalMode meterNormalMode = new MeterNormalMode();
-//            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-//            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-//            meterNormalMode.setBox(sim.box);
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+            meterNormalMode.setBox(sim.box);
 
             BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
@@ -269,6 +271,7 @@ public class TestHexane extends Simulation {
 //            sim.integrator.setActionInterval(pressureManager, 10);
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
+//            sim.activityIntegrate.setMaxSteps(30000);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
             sim.getController().reset();
@@ -276,27 +279,28 @@ public class TestHexane extends Simulation {
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
-//            sim.integrator.addIntervalAction(meterNormalMode);
-//            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
-//            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
+            sim.integrator.addIntervalAction(meterNormalMode);
+            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
+            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
             
-//            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
 //            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-//            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
-//            
-//            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-//            double[] coefficients = waveVectorFactory.getCoefficients();
-//            
-//            WriteS sWriter = new WriteS(sim.space);
-//            sWriter.setFilename(filename);
-//            sWriter.setOverwrite(true);
-//            sWriter.setMeter(meterNormalMode);
-//            sWriter.setWaveVectorFactory(waveVectorFactory);
-//            sWriter.setTemperature(sim.integrator.getTemperature());
-//        
-//            sim.integrator.addIntervalAction(sWriter);
-//            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-//            sim.integrator.setIntervalActionPriority(sWriter, 150);
+            normalModeData.TE(1.0/sim.box.getMoleculeList().getAtomCount());
+            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
+            
+            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+            double[] coefficients = waveVectorFactory.getCoefficients();
+            
+            WriteS sWriter = new WriteS(sim.space);
+            sWriter.setFilename(filename);
+            sWriter.setOverwrite(true);
+            sWriter.setMeter(meterNormalMode);
+            sWriter.setWaveVectorFactory(waveVectorFactory);
+            sWriter.setTemperature(sim.integrator.getTemperature());
+        
+            sim.integrator.addIntervalAction(sWriter);
+            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
+            sim.integrator.setIntervalActionPriority(sWriter, 150);
             
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
