@@ -1,31 +1,14 @@
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.api.IIntegratorNonintervalListener;
-import etomica.api.IMolecule;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.space.ISpace;
-import etomica.units.CompoundDimension;
-import etomica.units.Dimension;
-import etomica.units.Length;
 import etomica.units.Pressure;
-import etomica.units.Quantity;
-import etomica.units.Time;
 
 /**
  * Meter to measure flux across a boundary or boundaries.  If an atom is on one
@@ -42,7 +25,7 @@ import etomica.units.Time;
  */
 public class MeterOsmoticPressure implements DataSource {
 
-    public MeterOsmoticPressure(PotentialCalculationTorqueSumWallForce pc, IBox box) {
+    public MeterOsmoticPressure(IPotentialCalculationWallForce pc, IBox box) {
         this.pc = pc;
         this.box = box;
         data = new DataDouble();
@@ -64,7 +47,7 @@ public class MeterOsmoticPressure implements DataSource {
         return tag;
     }
 
-    protected final PotentialCalculationTorqueSumWallForce pc;
+    protected final IPotentialCalculationWallForce pc;
     protected final IBox box;
     protected DataDouble data;
     protected DataInfoDouble dataInfo;

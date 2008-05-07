@@ -6,7 +6,6 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.IPotentialTorque;
@@ -17,12 +16,8 @@ import etomica.potential.PotentialSoft;
  * Sums the force and torque on each iterated atom or molecule and adds it to
  * the agent associated with the atom.
  */
-public class PotentialCalculationTorqueSumWallForce extends PotentialCalculationTorqueSum {
+public class PotentialCalculationTorqueSumWallForce extends PotentialCalculationTorqueSum implements IPotentialCalculationWallForce {
         
-    private static final long serialVersionUID = 1L;
-    protected AtomLeafAgentManager integratorAgentManager;
-    protected AtomLeafAgentManager.AgentIterator agentIterator;
-    
     public PotentialCalculationTorqueSumWallForce(IPotential potentialTether) {
         this.potentialTether = potentialTether;
     }
@@ -189,6 +184,7 @@ public class PotentialCalculationTorqueSumWallForce extends PotentialCalculation
         }
     }
 
+    private static final long serialVersionUID = 1L;
 	protected final IPotential potentialTether;
 	protected double wallForce;
 }

@@ -36,6 +36,7 @@ public class ReverseOsmosis extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public ConfigurationMembrane configMembrane;
     public P1Tether potentialTether;
+    public PotentialCalculationForceSumWallForce forceSum;
     
     public ReverseOsmosis(Space _space) {
         super(_space);
@@ -49,6 +50,7 @@ public class ReverseOsmosis extends Simulation {
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.02);
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
@@ -136,6 +138,8 @@ public class ReverseOsmosis extends Simulation {
 //        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 //        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(new BoxImposePbc(box, space));
+        forceSum = new PotentialCalculationForceSumWallForce(potentialTether);
+        integrator.setForceSum(forceSum);
     }
     
     public static void main(String[] args) {
