@@ -1,6 +1,8 @@
 package etomica.modules.reactionequilibrium;
 	
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -17,6 +19,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -48,7 +51,6 @@ import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
 
 /**
@@ -67,11 +69,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     protected DataPump dimerPump;
     protected DisplayTextBoxesCAE densityDisplay;
     private DeviceThermoSlider temperatureSelect;
+    protected final IAction resetAction;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, ISpace space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space);
         this.sim = simulation;
+
+        resetAction = getController().getSimRestart().getDataResetAction();
 
         sim.integratorHard1.setTimeStep(0.01);
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -88,6 +93,12 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
         temperatureSelect.setIsothermal();
+        temperatureSelect.setSliderPostAction(resetAction);
+        temperatureSelect.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                resetAction.actionPerformed();
+            }
+        });
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
 
@@ -117,6 +128,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		AASlider.setMaximum(eMax);
 		AASlider.setNMajor(5);
 		AASlider.getSlider().setSnapToTicks(true);
+        AASlider.setPostAction(resetAction);
 		//    final DeviceSlider ABSlider = new DeviceSlider(ABbonded, "epsilon");
 		final DeviceSlider ABSlider = new DeviceSlider(sim.getController(), new WellDepthModifier(
 				sim.ABbonded));
@@ -127,6 +139,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		ABSlider.setMaximum(eMax);
 		ABSlider.setNMajor(5);
 		ABSlider.getSlider().setSnapToTicks(true);
+        ABSlider.setPostAction(resetAction);
 		//    final DeviceSlider BBSlider = new DeviceSlider(BBbonded, "epsilon");
 		final DeviceSlider BBSlider = new DeviceSlider(sim.getController(), new WellDepthModifier(
 				sim.BBbonded));
@@ -137,6 +150,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		BBSlider.setMaximum(eMax);
 		BBSlider.setNMajor(5);
 		BBSlider.getSlider().setSnapToTicks(true);
+		BBSlider.setPostAction(resetAction);
 
 		DiameterModifier sizeModifier = new DiameterModifier(sim.AAbonded,
 				sim.ABbonded, sim.BBbonded, sim.speciesA, sim.speciesB);
@@ -152,6 +166,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		sizeSlider.setValue(3.0);
 		sizeSlider.setShowValues(true);
 		sizeSlider.setEditValues(true);
+		sizeSlider.setPostAction(resetAction);
 
 		//sliders to adjust widths of wells
 		eMin = 5;
@@ -187,16 +202,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		BBWellSlider.getSlider().setMinorTickSpacing(minorSpacing);
 		AAWellSlider.getSlider().setLabelTable(
 				AAWellSlider.getSlider().createStandardLabels(majorSpacing));
-		AAWellSlider.getSlider().setLabelTable(
-				AAWellSlider.getSlider().createStandardLabels(majorSpacing));
-		ABWellSlider.getSlider().setLabelTable(
-				ABWellSlider.getSlider().createStandardLabels(majorSpacing));
 		ABWellSlider.getSlider().setLabelTable(
 				ABWellSlider.getSlider().createStandardLabels(majorSpacing));
 		BBWellSlider.getSlider().setLabelTable(
 				BBWellSlider.getSlider().createStandardLabels(majorSpacing));
-		BBWellSlider.getSlider().setLabelTable(
-				BBWellSlider.getSlider().createStandardLabels(majorSpacing));
+		AAWellSlider.setPostAction(resetAction);
+        ABWellSlider.setPostAction(resetAction);
+        BBWellSlider.setPostAction(resetAction);
 
 		//so that display is updated when slider changes atom sizes
 		sizeModifier.setDisplay(getDisplayBox(sim.box));
@@ -209,7 +221,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 //		tBox.setLabel("Measured Temperature");
 //		tBox.setLabelPosition(CompassDirection.NORTH);
 
-        final AccumulatorAverageFixed tempAccum = new AccumulatorAverageFixed();
+        final AccumulatorAverageCollapsing tempAccum = new AccumulatorAverageCollapsing();
         final DataPump tPump = new DataPump (sim.thermometer, tempAccum);
         sim.integratorHard1.addIntervalAction(tPump);
         sim.integratorHard1.setActionInterval(tPump, 10);
@@ -239,7 +251,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         DataGroupFilter filter1 = new DataGroupFilter(0);
         dimerFork.addDataSink(filter1);
 
-        AccumulatorAverage dimerFractionAccum = new AccumulatorAverageFixed();
+        AccumulatorAverageFixed dimerFractionAccum = new AccumulatorAverageFixed();
         dimerFractionAccum.setPushInterval(10);
         filter1.setDataSink(dimerFractionAccum);
 
@@ -279,7 +291,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         
         DataGroupFilter filter3 = new DataGroupFilter(1);
         dimerFork.addDataSink(filter3);
-        densityAccum = new AccumulatorAverageFixed();
+        densityAccum = new AccumulatorAverageCollapsing();
         densityAccum.setPushInterval(10);
         filter3.setDataSink(densityAccum);
 
@@ -430,9 +442,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                     	sim.integratorHard1.reset();
                     } catch(ConfigurationOverlapException e) {}
                     getDisplayBox(sim.box).repaint();
-                    
+
+                    resetAction.actionPerformed();
                     //yay for a push data model
-                    densityAccum.reset();
                     dimerPump.actionPerformed();
                     densityDisplay.putData(densityAccum.getData());
                 }
