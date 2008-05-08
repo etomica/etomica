@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -39,6 +39,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -49,6 +50,8 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -107,6 +110,13 @@ public class LjmdGraphic extends SimulationGraphic {
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
         rdfPlot.setLabel("RDF");
+        
+        final IAction resetDataAction = new IAction(){
+            public void actionPerformed() {
+                getController().getSimRestart().getDataResetAction();
+                rdfMeter.reset();
+            }
+        };
 
 		//velocity distribution
         double vMin = 0;
@@ -252,7 +262,6 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(mbAction, 100);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim, space));
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
@@ -263,8 +272,8 @@ public class LjmdGraphic extends SimulationGraphic {
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
-        nSlider.getSlider().addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
+        nSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
                 int n = (int)nSlider.getValue();
                 if(n == 0) {
                 	sim.integrator.setThermostatInterval(400);
@@ -272,9 +281,23 @@ public class LjmdGraphic extends SimulationGraphic {
                 else {
                   sim.integrator.setThermostatInterval(400/n);
                 }
-
+                
+                if (oldN < n) {
+                    config.initializeCoordinates(sim.box);
+                }
+                oldN = n;
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    throw new RuntimeException(e);
+                }
+                resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
+            
+            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space);
+            int oldN = sim.box.getMoleculeList().getAtomCount();
         });
 
         //************* Lay out components ****************//
@@ -295,6 +318,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
 	    ChangeListener temperatureListener = new ChangeListener() {
 		    public void stateChanged(ChangeEvent event) {
+                resetDataAction.actionPerformed();
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
 		        mbSource.update();
 		        vPlot.doUpdate();
@@ -303,6 +327,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		};
 		ActionListener isothermalListener = new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
+		        resetDataAction.actionPerformed();
 		        // we can't tell if we're isothermal here...  :(
 		        // if we're adiabatic, we'll re-set the temperature elsewhere
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
