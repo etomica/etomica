@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -103,6 +105,7 @@ public class Osmosis extends SimulationGraphic {
         config.initializeCoordinates(sim.box);
 
         SimulationRestart simRestart = getController().getSimRestart();
+        final IAction resetAction = simRestart.getDataResetAction();
         
         simRestart.setConfiguration(config);
         getController().setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
@@ -142,6 +145,12 @@ public class Osmosis extends SimulationGraphic {
 	    temperatureSelect.setMaximum(1000);
 	    temperatureSelect.setTemperature(300);
 	    temperatureSelect.setIsothermal();
+	    temperatureSelect.setSliderPostAction(resetAction);
+	    temperatureSelect.addRadioGroupActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            resetAction.actionPerformed();
+	        }
+	    });
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
