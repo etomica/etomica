@@ -336,35 +336,6 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				sliderPanel.validate();
 			}
 		});
-		sliderPanel.addKeyListener(new java.awt.event.KeyListener() {
-			public void keyPressed(java.awt.event.KeyEvent e) {
-			}
-
-			public void keyTyped(java.awt.event.KeyEvent e) {
-				etomica.units.Prefix prefix = etomica.units.Prefix.keySelect(e.getKeyChar());
-				if (prefix == null || prefix.value() > 1000.0
-						|| prefix.value() < 1.0)
-					return;
-				etomica.units.Unit unit = new PrefixedUnit (prefix, etomica.units.Kelvin.UNIT);
-				AASlider.setUnit(unit);
-				ABSlider.setUnit(unit);
-				BBSlider.setUnit(unit);
-				sliderPanel.setTitleAt(0, "Well depth (" + unit.symbol() + ")");
-				AASlider.setLabel("RR epsilon");
-				ABSlider.setLabel("RB epsilon");
-				BBSlider.setLabel("BB epsilon");
-				AASlider.getModifier().setValue(
-						unit.toSim(AASlider.getSlider().getValue()));
-				ABSlider.getModifier().setValue(
-						unit.toSim(ABSlider.getSlider().getValue()));
-				BBSlider.getModifier().setValue(
-						unit.toSim(BBSlider.getSlider().getValue()));
-				sliderPanel.repaint();
-			}
-
-			public void keyReleased(java.awt.event.KeyEvent e) {
-			}
-		});
 
 		//top panel for control, temperature, potential adjustment
 		add(temperatureSelect);
