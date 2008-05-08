@@ -2,10 +2,13 @@ package etomica.modules.sam;
 
 import java.awt.Color;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
@@ -51,6 +54,8 @@ public class SamGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
         getDisplayBox(sim.box).setShowBoundary(false);
         
+        final IAction resetAction = getController().getSimRestart().getDataResetAction();
+        
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(sim.wallPotential));
         
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(200, 200, 200));
@@ -66,6 +71,7 @@ public class SamGraphic extends SimulationGraphic {
         thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
+        thermoSlider.setSliderPostAction(resetAction);
         add(thermoSlider);
         
         DisplayTimer timer = new DisplayTimer(sim.integrator);
@@ -85,7 +91,7 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setMinimum(15);
         wallPositionSlider.setMaximum(30);
         wallPositionSlider.setShowValues(true);
-        wallPositionSlider.setPostAction(getPaintAction(sim.box));
+        wallPositionSlider.setPostAction(new ActionGroupSeries(new IAction[]{getPaintAction(sim.box),resetAction}));
         add(wallPositionSlider);
         
         JTabbedPane conformationTabs = new JTabbedPane();
@@ -110,6 +116,7 @@ public class SamGraphic extends SimulationGraphic {
                 }
                 catch (ConfigurationOverlapException e) {}
                 getPaintAction(sim.box).actionPerformed();
+                resetAction.actionPerformed();
             }
         };
         thetaSlider.setPostAction(reinitAction);
