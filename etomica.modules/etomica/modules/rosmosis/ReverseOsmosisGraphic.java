@@ -3,6 +3,8 @@ package etomica.modules.rosmosis;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -100,6 +102,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
 
+        final IAction resetDataAction = getController().getSimRestart().getDataResetAction();
+
     	this.sim = simulation;
 
         Unit tUnit = Kelvin.UNIT;
@@ -164,6 +168,12 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
+        tempSlider.setSliderPostAction(resetDataAction);
+        tempSlider.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                resetDataAction.actionPerformed();
+            }
+        });
         
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
         solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
@@ -244,11 +254,14 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         sigBox.doUpdate();
         epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
+        epsBox.setPostAction(resetDataAction);
         massBox.setModifier(massModifier);
         massBox.setUnit(Dalton.UNIT);
+        massBox.setPostAction(resetDataAction);
         tetherBox.setUnit(eUnit);
         tetherBox.setModifier(tetherModifier);
         tetherBox.setLabel("Tether Constant ("+eUnit.symbol()+")");
+        tetherBox.setPostAction(resetDataAction);
         sigBox.setController(sim.getController());
         epsBox.setController(sim.getController());
         massBox.setController(sim.getController());
@@ -261,6 +274,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         
         IAction neighborRangeReset = new IAction() {
             public void actionPerformed() {
+                resetDataAction.actionPerformed();
 //                ((PotentialMasterList)sim.integrator.getPotential()).reset();
 //                double nbrRange = ((PotentialMasterList)sim.integrator.getPotential()).getMaxPotentialRange();
 //                nbrRange *= 1.2;
@@ -287,7 +301,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         //add meter and display for current kinetic temperature
 
 		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
-        DataFork temperatureFork = new DataFork();
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
         sim.integrator.addIntervalAction(temperaturePump);
@@ -516,6 +529,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         this.getController().getResetAveragesButton().setPostAction(resetAction);
         IAction reconfigAction = new IAction() {
             public void actionPerformed() {
+                resetDataAction.actionPerformed();
                 sim.configMembrane.initializeCoordinates(sim.box);
                 resetAction.actionPerformed();
             }
