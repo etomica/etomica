@@ -3,6 +3,8 @@ package etomica.modules.rosmosis;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -13,7 +15,6 @@ import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -103,6 +104,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
+        final IAction resetDataAction = getController().getSimRestart().getDataResetAction();
+
     	this.sim = simulation;
     	sim.integrator.printInterval = 1000;
 
@@ -163,6 +166,12 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
+        tempSlider.setSliderPostAction(resetDataAction);
+        tempSlider.addRadioGroupActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                resetDataAction.actionPerformed();
+            }
+        });
         
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
         solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
@@ -251,11 +260,14 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         sigBox.doUpdate();
         epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
+        epsBox.setPostAction(resetDataAction);
         massBox.setModifier(massModifier);
         massBox.setUnit(Dalton.UNIT);
+        massBox.setPostAction(resetDataAction);
         tetherBox.setUnit(eUnit);
         tetherBox.setModifier(tetherModifier);
         tetherBox.setLabel("Tether Constant ("+eUnit.symbol()+")");
+        tetherBox.setPostAction(resetDataAction);
         sigBox.setController(sim.getController());
         epsBox.setController(sim.getController());
         massBox.setController(sim.getController());
@@ -280,10 +292,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         soluteChargeSlider.setMaximum(2);
         soluteChargeSlider.setUnit(Electron.UNIT);
         soluteChargeSlider.setModifier(soluteChargeModifier);
+        soluteChargeSlider.setPostAction(resetDataAction);
 
         JPanel solutePanel = new JPanel(new GridBagLayout());
         solutePanel.add(soluteChargeSlider.graphic(), vertGBC);
-
 
         //
         // Tabbed pane for state, potential, controls pages
@@ -301,6 +313,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 //                nbrRange *= 1.2;
 //                ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
 //                ((PotentialMasterList)sim.integrator.getPotential()).reset();
+
+                resetDataAction.actionPerformed();
                 try {
                     sim.integrator.reset();
                 }
@@ -569,6 +583,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         IAction reconfigAction = new IAction() {
             public void actionPerformed() {
                 sim.configMembrane.initializeCoordinates(sim.box);
+                resetDataAction.actionPerformed();
                 resetAction.actionPerformed();
             }
         };
