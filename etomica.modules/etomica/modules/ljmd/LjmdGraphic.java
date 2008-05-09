@@ -316,8 +316,8 @@ public class LjmdGraphic extends SimulationGraphic {
 	    temperatureSelect.setAdiabatic();
 	    temperatureSelect.setIntegrator(sim.integrator);
 
-	    ChangeListener temperatureListener = new ChangeListener() {
-		    public void stateChanged(ChangeEvent event) {
+        final IAction temperatureAction = new IAction() {
+            public void actionPerformed() {
                 resetDataAction.actionPerformed();
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
 		        mbSource.update();
@@ -327,17 +327,13 @@ public class LjmdGraphic extends SimulationGraphic {
 		};
 		ActionListener isothermalListener = new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
-		        resetDataAction.actionPerformed();
 		        // we can't tell if we're isothermal here...  :(
 		        // if we're adiabatic, we'll re-set the temperature elsewhere
-		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
-		        mbSource.update();
-		        vPlot.doUpdate();
-		        vPlot.repaint();
+		        temperatureAction.actionPerformed();
 		    }
 		};
 
-		temperatureSelect.addTemperatureSliderListener(temperatureListener);
+		temperatureSelect.setSliderPostAction(temperatureAction);
         temperatureSelect.addRadioGroupActionListener(isothermalListener);
 
         // show config button
