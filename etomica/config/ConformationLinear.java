@@ -56,9 +56,10 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
                 setOrientation(new etomica.space2d.Vector2D(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
             case 3:
-                setOrientation(new etomica.space3d.Vector3D(Math.sin(angle[1])*Math.cos(angle[0]),
-                                                  Math.sin(angle[1])*Math.sin(angle[0]),
-                                                  Math.cos(angle[1])));
+            	double[] ang = { Math.sin(angle[1])*Math.cos(angle[0]),
+   			                     Math.sin(angle[1])*Math.sin(angle[0]),
+   			                     Math.cos(angle[1]) };
+                setOrientation(space.makeVector(ang));
                 return;
         }
     }
