@@ -198,7 +198,7 @@ public class TestHexane extends Simulation {
         long nSteps = 100;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
-        double den = 0.37;
+        double den = 0.35;
         boolean graphic = false;
   
         //spaces are now singletons; we can only have one instance, so we call
@@ -305,6 +305,9 @@ public class TestHexane extends Simulation {
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
 
+            //Calls the harmonic calculator to be sure that no data is lost
+            sWriter.actionPerformed();
+            
             //Write out the final configurations for further use.
             PDBWriter pdbWriter = new PDBWriter(sim.box);
             pdbWriter.setFileName("calcHex.pdb");
