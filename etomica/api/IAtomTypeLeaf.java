@@ -23,11 +23,6 @@ public interface IAtomTypeLeaf extends IAtomType {
      */
     public double rm();
 
-    /**
-     * Returns Dimension.MASS, indicating that "mass" has dimensions of mass.
-     */
-    public Dimension getMassDimension();
-
     public Element getElement();
 
 }
