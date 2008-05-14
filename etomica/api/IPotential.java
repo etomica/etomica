@@ -11,11 +11,6 @@ public interface IPotential {
     public double getRange();
 
     /**
-     * The Dimension for range (Length)
-     */
-    public Dimension getRangeDimension();
-
-    /**
      * Informs the potential of the box on which it acts so that it can
      * properly consider the boundaries.
      */

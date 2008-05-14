@@ -36,10 +36,6 @@ public abstract class Potential implements java.io.Serializable, IPotential {
 
     public abstract double getRange();
     
-    public Dimension getRangeDimension() {
-        return Length.DIMENSION;
-    }
-    
     /**
      * Returns the interaction energy between the given atoms.  There might be
      * 0, 1, 2 or more atoms in the AtomSet.

@@ -55,11 +55,6 @@ public class EwaldSummation implements IPotential{
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public Dimension getRangeDimension() {
-		// TODO Auto-generated method stub
-		return Length.DIMENSION;
-	}
-
 	public ISpace getSpace() {
 		// TODO Auto-generated method stub
 		return space;

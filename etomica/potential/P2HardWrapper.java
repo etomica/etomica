@@ -22,10 +22,6 @@ import etomica.units.Dimension;
         return wrappedPotential.energy(atoms);
     }
 
-    public Dimension getRangeDimension() {
-        return wrappedPotential.getRangeDimension();
-    }
-
     public int nBody() {
         return wrappedPotential.nBody();
     }
