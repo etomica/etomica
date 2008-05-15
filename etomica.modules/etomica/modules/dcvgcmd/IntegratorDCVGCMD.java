@@ -11,7 +11,6 @@ import etomica.api.IAtomSet;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
@@ -19,6 +18,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Null;
 
@@ -39,11 +39,15 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	private ISpecies speciesA, speciesB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
+	private ISpace space;
     
-	public IntegratorDCVGCMD(IPotentialMaster parent, double temperature, ISpecies species1, ISpecies species2) {
+	public IntegratorDCVGCMD(IPotentialMaster parent, double temperature,
+			                 ISpace _space,
+			                 ISpecies species1, ISpecies species2) {
 		super(parent, temperature);
 		this.speciesA = species1;
 		this.speciesB = species2;
+		this.space = _space;
 		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
                         ? (PotentialMasterHybrid)parent : null;
         setMDStepRepetitions(50);
@@ -145,15 +149,15 @@ public class IntegratorDCVGCMD extends IntegratorBox {
         integratormd.setTemperature(temperature);
 		integratormd.setBox(box);
 		integratormc.setBox(box);
-		mcMove1 = new MyMCMove(this, random, -zFraction);
-		mcMove2 = new MyMCMove(this, random, +zFraction);
+		mcMove1 = new MyMCMove(this, random, space, -zFraction);
+		mcMove2 = new MyMCMove(this, random, space, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove (mcMove1);
 		moveManager.addMCMove (mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
-		mcMove3 = new MyMCMove(this, random, -zFraction);
-		mcMove4 = new MyMCMove(this, random, +zFraction);
+		mcMove3 = new MyMCMove(this, random, space, -zFraction);
+		mcMove4 = new MyMCMove(this, random, space, +zFraction);
 		moveManager.addMCMove (mcMove3);
 		moveManager.addMCMove (mcMove4);
 		mcMove3.setSpecies(speciesB);

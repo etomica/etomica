@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.IOrientation;
+import etomica.space.ISpace;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -30,11 +31,12 @@ public class MCMoveRotate extends MCMoveBoxStep {
     
     protected final IRandom random;
 
-    public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random,
+    		            ISpace _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        oldOrientation = potentialMaster.getSpace().makeOrientation();
+        oldOrientation = _space.makeOrientation();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);

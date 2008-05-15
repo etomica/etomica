@@ -42,7 +42,7 @@ public class SimCalcSLJ extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom());
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
@@ -68,7 +68,7 @@ public class SimCalcSLJ extends Simulation {
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getDimensions().x(0) * 0.5;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
         move.setPotential(pTruncated);

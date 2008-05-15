@@ -198,7 +198,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
-            ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(pistonPotential));
+            ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(space, pistonPotential));
         }
         
 
@@ -634,7 +634,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         Dimension pDim = Pressure.dimension(D);
         double p = pUnit.toSim(pressureSlider.getValue());
         pistonPotential.setPressure(D == 3 ? -p : p);
-        pressureSlider.setModifier(new ModifierPistonPressure(pistonPotential,pDim));
+        pressureSlider.setModifier(new ModifierPistonPressure(space, pistonPotential,pDim));
         pressureSlider.setPostAction(new ActionGroupSeries(new IAction[]{new ActionPistonUpdate(pc.integrator), dataResetAction}));
         pressureSlider.setController(pc.getController());
         pressureSlider.getSlider().setEnabled(!pistonPotential.isStationary());

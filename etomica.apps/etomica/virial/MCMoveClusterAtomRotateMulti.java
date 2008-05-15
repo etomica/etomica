@@ -2,12 +2,12 @@ package etomica.virial;
 
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.PotentialMaster;
 import etomica.space.IOrientation;
+import etomica.space.ISpace;
 
 /**
  * Extension of MCMoveAtom that does trial in which several atom orientations are
@@ -15,12 +15,13 @@ import etomica.space.IOrientation;
  */
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, PotentialMaster potentialMaster, int nAtoms) {
-        super(potentialMaster, random, 1.0, Math.PI, false);
+    public MCMoveClusterAtomRotateMulti(IRandom random, IPotentialMaster potentialMaster,
+    		                            ISpace _space, int nAtoms) {
+        super(potentialMaster, random, _space, 1.0, Math.PI, false);
         selectedAtoms = new IAtomOriented[nAtoms];
         oldOrientations = new IOrientation[nAtoms];
         for (int i=0; i<nAtoms; i++) {
-            oldOrientations[i] = potential.getSpace().makeOrientation();
+            oldOrientations[i] = _space.makeOrientation();
         }
         weightMeter = new MeterClusterWeight(potential);
         setStepSize(1.2);

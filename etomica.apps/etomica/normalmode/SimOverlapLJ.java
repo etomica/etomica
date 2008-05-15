@@ -68,7 +68,7 @@ public class SimOverlapLJ extends Simulation {
         boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
-        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom());
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
@@ -96,7 +96,7 @@ public class SimOverlapLJ extends Simulation {
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);

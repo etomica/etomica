@@ -89,7 +89,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (potentialCC, truncationRadiusCC); 
+            P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (space, potentialCC, truncationRadiusCC); 
             potentialMaster.addPotential(interpotentialCC, new IAtomTypeLeaf[]{species.getCType(), species.getCType()} );
             
             // CA-HY
@@ -97,7 +97,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialCHy = new P2SoftSphericalTruncated (potentialCHy, truncationRadiusCHy); 
+            P2SoftSphericalTruncated interpotentialCHy = new P2SoftSphericalTruncated (space, potentialCHy, truncationRadiusCHy); 
             potentialMaster.addPotential(interpotentialCHy, new IAtomTypeLeaf[]{species.getCType(), species.getHyType()} );
             
             // HY-HY
@@ -105,7 +105,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHyHy = new P2SoftSphericalTruncated (potentialHyHy, truncationRadiusHyHy); 
+            P2SoftSphericalTruncated interpotentialHyHy = new P2SoftSphericalTruncated (space, potentialHyHy, truncationRadiusHyHy); 
             potentialMaster.addPotential(interpotentialHyHy, new IAtomTypeLeaf[]{species.getHyType(), species.getHyType()} );
                    
             // CA-NI
@@ -113,7 +113,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (potentialCN, truncationRadiusCN); 
+            P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (space, potentialCN, truncationRadiusCN); 
             potentialMaster.addPotential(interpotentialCN, new IAtomTypeLeaf[]{species.getCType(), species.getNType()} );
             
             // NI-OX
@@ -121,7 +121,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialNO = new P2SoftSphericalTruncated (potentialNO, truncationRadiusNO); 
+            P2SoftSphericalTruncated interpotentialNO = new P2SoftSphericalTruncated (space, potentialNO, truncationRadiusNO); 
             potentialMaster.addPotential(interpotentialNO, new IAtomTypeLeaf[]{species.getNType(), species.getOType()} );
             
             //NI-NI
@@ -129,7 +129,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (potentialNN, truncationRadiusNN); 
+            P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (space, potentialNN, truncationRadiusNN); 
             potentialMaster.addPotential(interpotentialNN, new IAtomTypeLeaf[]{species.getNType(), species.getNType()} );
             
             // HY-NI
@@ -137,7 +137,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHyN = new P2SoftSphericalTruncated (potentialHyN, truncationRadiusHyN); 
+            P2SoftSphericalTruncated interpotentialHyN = new P2SoftSphericalTruncated (space, potentialHyN, truncationRadiusHyN); 
             potentialMaster.addPotential(interpotentialHyN, new IAtomTypeLeaf[]{species.getHyType(), species.getNType()} );
             
             // HY-OX
@@ -145,7 +145,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHyO = new P2SoftSphericalTruncated (potentialHyO, truncationRadiusHyO); 
+            P2SoftSphericalTruncated interpotentialHyO = new P2SoftSphericalTruncated (space, potentialHyO, truncationRadiusHyO); 
             potentialMaster.addPotential(interpotentialHyO, new IAtomTypeLeaf[]{species.getHyType(), species.getOType()} );
                  
             // OX-OX
@@ -153,7 +153,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (potentialOO, truncationRadiusOO); 
+            P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (space, potentialOO, truncationRadiusOO); 
             potentialMaster.addPotential(interpotentialOO, new IAtomTypeLeaf[]{species.getOType(), species.getOType()} );
             
             // CA-OX
@@ -161,7 +161,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (potentialCO, truncationRadiusCO); 
+            P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (space, potentialCO, truncationRadiusCO); 
             potentialMaster.addPotential(interpotentialCO, new IAtomTypeLeaf[]{species.getCType(), species.getOType()} );
             
             // HP-HP
@@ -169,7 +169,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHpHp = new P2SoftSphericalTruncated (potentialHpHp, truncationRadiusHpHp); 
+            P2SoftSphericalTruncated interpotentialHpHp = new P2SoftSphericalTruncated (space, potentialHpHp, truncationRadiusHpHp); 
             potentialMaster.addPotential(interpotentialHpHp, new IAtomTypeLeaf[]{species.getHpType(), species.getHpType()} );
             
             // CA-HP
@@ -177,7 +177,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialCHp = new P2SoftSphericalTruncated (potentialCHp, truncationRadiusCHp); 
+            P2SoftSphericalTruncated interpotentialCHp = new P2SoftSphericalTruncated (space, potentialCHp, truncationRadiusCHp); 
             potentialMaster.addPotential(interpotentialCHp, new IAtomTypeLeaf[]{species.getCType(), species.getHpType()} );
                    
             // HP-NI
@@ -185,7 +185,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHpN = new P2SoftSphericalTruncated (potentialHpN, truncationRadiusHpN); 
+            P2SoftSphericalTruncated interpotentialHpN = new P2SoftSphericalTruncated (space, potentialHpN, truncationRadiusHpN); 
             potentialMaster.addPotential(interpotentialHpN, new IAtomTypeLeaf[]{species.getHpType(), species.getNType()} );
             
             // OX-HP
@@ -193,7 +193,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large. " +
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialOHp = new P2SoftSphericalTruncated (potentialOHp, truncationRadiusOHp); 
+            P2SoftSphericalTruncated interpotentialOHp = new P2SoftSphericalTruncated (space, potentialOHp, truncationRadiusOHp); 
             potentialMaster.addPotential(interpotentialOHp, new IAtomTypeLeaf[]{species.getOType(), species.getHpType()} );
             
             // HY-HP
@@ -201,7 +201,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 throw new RuntimeException("Truncation radius too large.  " +
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
-            P2SoftSphericalTruncated interpotentialHyHp = new P2SoftSphericalTruncated (potentialHyHp, truncationRadiusHyHp); 
+            P2SoftSphericalTruncated interpotentialHyHp = new P2SoftSphericalTruncated (space, potentialHyHp, truncationRadiusHyHp); 
             potentialMaster.addPotential(interpotentialHyHp, new IAtomTypeLeaf[]{species.getHyType(), species.getHpType()} );
       
             potentialMaster.lrcMaster().setEnabled(false);

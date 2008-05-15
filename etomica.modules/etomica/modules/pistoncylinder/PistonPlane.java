@@ -3,6 +3,7 @@ package etomica.modules.pistoncylinder;
 import etomica.api.IVector;
 import etomica.math.geometry.Plane;
 import etomica.potential.P1HardMovingBoundary;
+import etomica.space.ISpace;
 
 /**
  * Wrap a P1HardMovingBoundary and make it look like a Plane.  A boatload of
@@ -13,8 +14,8 @@ import etomica.potential.P1HardMovingBoundary;
  * @author Andrew Schultz
  */
 public class PistonPlane extends Plane {
-    public PistonPlane(P1HardMovingBoundary pistonPotential) {
-        super(pistonPotential.getSpace());
+    public PistonPlane(ISpace space, P1HardMovingBoundary pistonPotential) {
+        super(space);
         this.pistonPotential = pistonPotential;
     }
     

@@ -116,11 +116,6 @@ public interface IPotentialMaster {
 	public abstract boolean isEnabled(IPotential potential);
 
 	/**
-	 * @return Returns the space.
-	 */
-	public ISpace getSpace();
-
-	/**
 	 * Returns an array containing all molecular Potentials.
 	 */
 	public IPotential[] getPotentials();

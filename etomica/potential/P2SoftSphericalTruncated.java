@@ -17,8 +17,8 @@ import etomica.space.Tensor;
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical
                implements PotentialTruncated {
     
-    public P2SoftSphericalTruncated(Potential2SoftSpherical potential, double truncationRadius) {
-        super(potential.getSpace());
+    public P2SoftSphericalTruncated(ISpace _space, Potential2SoftSpherical potential, double truncationRadius) {
+        super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
     }

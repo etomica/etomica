@@ -50,16 +50,17 @@ public class MCMoveMoleculeExchange extends MCMove {
     
 
     public MCMoveMoleculeExchange(IPotentialMaster potentialMaster, IRandom random,
-            IntegratorBox integrator1, IntegratorBox integrator2) {
+    		                      ISpace _space,
+                                  IntegratorBox integrator1,
+                                  IntegratorBox integrator2) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
-        ISpace space = potentialMaster.getSpace();
-        moleculeReplacer = new AtomGroupAction(new AtomActionTranslateBy(space));
-        moleculeTranslator = new AtomActionTranslateTo(space);
+        moleculeReplacer = new AtomGroupAction(new AtomActionTranslateBy(_space));
+        moleculeTranslator = new AtomActionTranslateTo(_space);
         translationVector = moleculeTranslator.getTranslationVector();
-        setAtomPositionDefinition(new AtomPositionCOM(space));
+        setAtomPositionDefinition(new AtomPositionCOM(_space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         box1 = integrator1.getBox();

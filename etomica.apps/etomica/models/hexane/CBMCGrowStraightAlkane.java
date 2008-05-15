@@ -1,14 +1,14 @@
 package etomica.models.hexane;
 
-import etomica.api.IBox;
-
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorMC;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 
@@ -37,8 +37,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     public CBMCGrowStraightAlkane(IPotentialMaster potentialMaster,
             IRandom random, IntegratorMC integrator, IBox p, ISpecies species,
-            int n, int NTrials) {
-        super(potentialMaster, random, integrator, p, n, NTrials);
+            ISpace _space, int n, int NTrials) {
+        super(potentialMaster, random, _space, integrator, p, n, NTrials);
 
         setChainlength(n);
         sumW = 0.0;
@@ -46,17 +46,17 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         ISpecies[] sp = new ISpecies[1];
         sp[0] = species;
 
-        vex = (IVectorRandom) potentialMaster.getSpace().makeVector();
-        temp = potentialMaster.getSpace().makeVector();
+        vex = (IVectorRandom) _space.makeVector();
+        temp = _space.makeVector();
         a = new double[numTrial];
         b = new double[chainlength]; // used to store old rosenbluth factors
         storePos = new IVector[numTrial];
         // angleSet = new double[numTrial];
         for (int k = 0; k < numTrial; k++) {
-            storePos[k] = potentialMaster.getSpace().makeVector();
+            storePos[k] = _space.makeVector();
         }
-        tempCloser = potentialMaster.getSpace().makeVector();
-        tempFarther = potentialMaster.getSpace().makeVector();
+        tempCloser = _space.makeVector();
+        tempFarther = _space.makeVector();
 
     }
 

@@ -22,10 +22,9 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensor implements DataSource, java.io.Serializable {
     
-    public MeterPressureTensor(IPotentialMaster potentialMaster) {
+    public MeterPressureTensor(IPotentialMaster potentialMaster, ISpace space) {
     	super();
         this.potentialMaster = potentialMaster;
-        ISpace space = potentialMaster.getSpace();
         data = new DataTensor(space);
         tag = new DataTag();
         dataInfo = new DataTensor.DataInfoTensor("Pressure",Pressure.dimension(space.D()), space);

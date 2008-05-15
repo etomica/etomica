@@ -81,7 +81,7 @@ public class LJMD3DThreaded extends Simulation {
         potential = new P2SoftSphericalTruncated[numThreads];
 
         for(int i=0; i<numThreads; i++){
-            potential[i] = new P2SoftSphericalTruncated(new P2LennardJones(space), truncationRadius);
+            potential[i] = new P2SoftSphericalTruncated(space, new P2LennardJones(space), truncationRadius);
         }
         
         potentialThreaded = new PotentialThreaded(space, potential);

@@ -284,13 +284,6 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         }
         return false;
     }
-        
-    /* (non-Javadoc)
-	 * @see etomica.potential.IPotentialMaster#getSpace()
-	 */
-    public ISpace getSpace() {
-        return space;
-    }
     
     /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#getPotentials()

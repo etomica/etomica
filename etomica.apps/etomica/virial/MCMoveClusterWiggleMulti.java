@@ -47,7 +47,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      */
     public MCMoveClusterWiggleMulti(IPotentialMaster potentialMaster, 
             IRandom random, double stepSize, int nAtoms, ISpace _space) {
-        super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
+        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY,false);
         this.space = _space;
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);

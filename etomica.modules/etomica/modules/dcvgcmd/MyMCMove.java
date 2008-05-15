@@ -1,17 +1,17 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IAtomSet;
+import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-
-import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
+import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
 /**
@@ -26,9 +26,10 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * Constructor for MyMCMove.
 	 * @param parent
 	 */
-	public MyMCMove(IntegratorBox integrator, IRandom random, double zFraction) {
-		super(integrator.getPotential(), random);
-		position =  (Vector3D)integrator.getPotential().getSpace().makeVector();
+	public MyMCMove(IntegratorBox integrator, IRandom random,
+			        ISpace space, double zFraction) {
+		super(integrator.getPotential(), random, space);
+		position =  (Vector3D)space.makeVector();
 		setZFraction(zFraction);
         this.integrator = integrator;
         randomizer = new AtomActionRandomizeVelocity(0, random);

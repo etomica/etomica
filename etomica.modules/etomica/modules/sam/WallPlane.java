@@ -2,6 +2,7 @@ package etomica.modules.sam;
 
 import etomica.api.IVector;
 import etomica.math.geometry.Plane;
+import etomica.space.ISpace;
 
 /**
  * Wrap a P1WCAWall and make it look like a Plane.  A boatload of
@@ -12,8 +13,8 @@ import etomica.math.geometry.Plane;
  * @author Andrew Schultz
  */
 public class WallPlane extends Plane {
-    public WallPlane(P1WCAWall wallPotential) {
-        super(wallPotential.getSpace());
+    public WallPlane(ISpace space, P1WCAWall wallPotential) {
+        super(space);
         this.wallPotential = wallPotential;
     }
     

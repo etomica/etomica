@@ -82,27 +82,27 @@ public class ReverseOsmosis extends Simulation {
         
         //instantiate several potentials for selection in combo-box
 	    potential11 = new P2LennardJones(space, sigSolute, epsSolute);
-	    P2SoftSphericalTruncatedShifted pTrunc = new P2SoftSphericalTruncatedShifted(potential11, rCut);
+	    P2SoftSphericalTruncatedShifted pTrunc = new P2SoftSphericalTruncatedShifted(space, potential11, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesSolute.getLeafType(),speciesSolute.getLeafType()});
 	    
         potential22 = new P2LennardJones(space, sigSolvent, epsSolvent);
-        pTrunc = new P2SoftSphericalTruncatedShifted(potential22, rCut);
+        pTrunc = new P2SoftSphericalTruncatedShifted(space, potential22, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesSolvent.getLeafType(),speciesSolvent.getLeafType()});
         
         potential12 = new P2LennardJones(space, 0.5*(sigSolvent+sigSolute), Math.sqrt(epsSolvent*epsSolute));
-        pTrunc = new P2SoftSphericalTruncatedShifted(potential12, rCut);
+        pTrunc = new P2SoftSphericalTruncatedShifted(space, potential12, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesSolvent.getLeafType(),speciesSolute.getLeafType()});
         
         potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
-        pTrunc = new P2SoftSphericalTruncatedShifted(potentialMM, rCut);
+        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialMM, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesMembrane.getLeafType(),speciesMembrane.getLeafType()});
         
         potentialM1 = new P2LennardJones(space, 0.5*(sigMembrane+sigSolute), Math.sqrt(epsMembrane*epsSolute));
-        pTrunc = new P2SoftSphericalTruncatedShifted(potentialM1, rCut);
+        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM1, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesMembrane.getLeafType(),speciesSolute.getLeafType()});
         
         potentialM2 = new P2LennardJones(space, 0.5*(sigMembrane+sigSolvent), Math.sqrt(epsMembrane*epsSolvent));
-        pTrunc = new P2SoftSphericalTruncatedShifted(potentialM2, rCut);
+        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM2, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomTypeLeaf[]{speciesMembrane.getLeafType(),speciesSolvent.getLeafType()});
 
 

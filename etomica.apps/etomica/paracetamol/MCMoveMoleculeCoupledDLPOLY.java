@@ -2,20 +2,21 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialGroup;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
 
@@ -41,7 +42,8 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
     protected final AtomPair pair;
     protected PotentialGroup potential;
     
-    public MCMoveMoleculeCoupledDLPOLY(IPotentialMaster potentialMaster, IRandom nRandom){
+    public MCMoveMoleculeCoupledDLPOLY(IPotentialMaster potentialMaster, IRandom nRandom,
+    		                           ISpace _space){
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new AtomSourceRandomMolecule();
@@ -51,7 +53,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
         affectedMoleculeList = new AtomArrayList(2);
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
-        singleAction = new AtomActionTranslateBy(potentialMaster.getSpace());
+        singleAction = new AtomActionTranslateBy(_space);
         groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
         
         moveMoleculeAction = new AtomGroupAction(singleAction);

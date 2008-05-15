@@ -112,12 +112,12 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
    
         if (simType == 0){
         	coordDef.initializeCoordinates(cellDim);
-            mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
+            mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);
             mcMoveMolecule.setStepSize(0.2077);  //Step size to input
             ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
             ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
             
-            mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
+            mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
             mcMoveRotateMolecule.setStepSize(0.0922);
             ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
          
@@ -159,11 +159,11 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         	        //	coordDef.setToU(cell[i].molecules, u);
         	        //}
         			
-        	        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
+        	        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
         	        mcMoveRotateMolecule.setStepSize(0.0922);
         	        ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
         	      
-        	        mcMoveMoleculeCoupledDLPOLY = new MCMoveMoleculeCoupledDLPOLY(potentialMaster, getRandom());
+        	        mcMoveMoleculeCoupledDLPOLY = new MCMoveMoleculeCoupledDLPOLY(potentialMaster, getRandom(), space);
         	        
         	        //integrator.getMoveManager().addMCMove(mcMoveMolecule);
         	        integrator.getMoveManager().addMCMove(mcMoveMoleculeCoupledDLPOLY);

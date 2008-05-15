@@ -57,10 +57,10 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
         if (((IMolecule)box.getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 1) {
-            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster);
+            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, space);
         }
         else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {

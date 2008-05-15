@@ -50,7 +50,7 @@ public class SoftSphere3d extends Simulation {
 	    integrator.setTemperature(temperature);
 	    
 	    
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
+	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
@@ -66,7 +66,7 @@ public class SoftSphere3d extends Simulation {
        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 	    potential = new P2SoftSphere(space,1,1,exponent);
-	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(potential,box.getBoundary().getDimensions().x(0)/2);
+	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 	    
 	    IAtomTypeLeaf type1 = species.getLeafType();

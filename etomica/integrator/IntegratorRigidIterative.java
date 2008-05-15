@@ -15,6 +15,7 @@ import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -93,11 +94,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected AtomLeafAgentManager leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(ISimulation sim, PotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorRigidIterative(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, 0.05, 1.0, _space);
     }
     
-    public IntegratorRigidIterative(ISimulation sim, PotentialMaster potentialMaster,
+    public IntegratorRigidIterative(ISimulation sim, IPotentialMaster potentialMaster,
             double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
         this.sim = sim;
@@ -109,20 +110,20 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
         allAtoms.setIncludeLrc(true);
-        pressureTensor = potentialMaster.getSpace().makeTensor();
-        workTensor = potentialMaster.getSpace().makeTensor();
-        rotationTensor = (RotationTensor3D)potentialMaster.getSpace().makeRotationTensor();
-        tempRotationTensor = (RotationTensor3D)potentialMaster.getSpace().makeRotationTensor();
-        xWork = (IVector3D)potentialMaster.getSpace().makeVector();
+        pressureTensor = space.makeTensor();
+        workTensor = space.makeTensor();
+        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
+        tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
+        xWork = (IVector3D)space.makeVector();
         typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
-        tempAngularVelocity = potentialMaster.getSpace().makeVector();
-        tempOrientation = new OrientationFull3D(potentialMaster.getSpace());
-        atomPositionCOM = new AtomPositionCOM(potentialMaster.getSpace());
-        translateBy = new AtomActionTranslateBy(potentialMaster.getSpace());
+        tempAngularVelocity = space.makeVector();
+        tempOrientation = new OrientationFull3D(space);
+        atomPositionCOM = new AtomPositionCOM(space);
+        translateBy = new AtomActionTranslateBy(space);
         translator = new AtomGroupAction(translateBy);
         maxIterations = 20;
         omegaTolerance = 1.e-25;
-        meterKE = new MeterKineticEnergyRigid(potentialMaster.getSpace(), sim);
+        meterKE = new MeterKineticEnergyRigid(space, sim);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -604,7 +605,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     }
 
     public final Object makeAgent(IMolecule a) {
-        return new MoleculeAgent(potential.getSpace());
+        return new MoleculeAgent(space);
     }
 
     public void releaseAgent(Object agent, IMolecule atom) {}
@@ -614,7 +615,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     }
 
     public final Object makeAgent(IAtomLeaf a) {
-        return new MyAgent(potential.getSpace());
+        return new MyAgent(space);
     }
 
     public void releaseAgent(Object agent, IAtomLeaf atom) {}

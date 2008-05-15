@@ -41,20 +41,21 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private transient double hOld, v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(IPotentialMaster potentialMaster, IRandom random,
-            IntegratorBox integrator1, IntegratorBox integrator2) {
+    		                    ISpace _space,
+                                IntegratorBox integrator1,
+                                IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        ISpace space = potentialMaster.getSpace();
-        ROOT = 1.0/space.D();
+        ROOT = 1.0/_space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.1);
         box1AtomIterator = new AtomIteratorAllMolecules();
         box2AtomIterator = new AtomIteratorAllMolecules();
         energyMeter.setIncludeLrc(true);
-        inflate1 = new BoxInflate(space);
-        inflate2 = new BoxInflate(space);
+        inflate1 = new BoxInflate(_space);
+        inflate2 = new BoxInflate(_space);
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         firstBox = integrator1.getBox();

@@ -11,9 +11,10 @@ import etomica.space.ISpace;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(ISpace space, P1HardMovingBoundary pistonPotential) {
-        super(space);
+    public DataSourceWallPressure(ISpace _space, P1HardMovingBoundary pistonPotential) {
+        super(_space);
         wallPotential = pistonPotential;
+        space = _space;
     }
     
     /**
@@ -22,7 +23,7 @@ public class DataSourceWallPressure extends MeterPressureHard {
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential == wallPotential) {
-            if (wallPotential.getSpace().D() == 2) {
+            if (space.D() == 2) {
                 virialSum += wallPotential.lastWallVirial();
             }
             else {
@@ -41,4 +42,5 @@ public class DataSourceWallPressure extends MeterPressureHard {
     
     private static final long serialVersionUID = 1L;
     protected final P1HardMovingBoundary wallPotential;
+    private ISpace space;
 }

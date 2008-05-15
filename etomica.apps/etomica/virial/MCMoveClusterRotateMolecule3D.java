@@ -1,20 +1,21 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.action.AtomAction;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.action.AtomAction;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.space.ISpace;
 
 
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
     public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
-            IRandom random) {
-        super(potentialMaster, random);
+            IRandom random, ISpace _space) {
+        super(potentialMaster, random, _space);
         weightMeter = new MeterClusterWeight(potential);
     }
     

@@ -49,7 +49,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
-		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
+		mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
 		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);
@@ -67,7 +67,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
 		}
 		
-		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange());
 		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});

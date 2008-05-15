@@ -6,6 +6,7 @@ import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 
@@ -16,8 +17,9 @@ import etomica.space3d.Space3D;
  */
 public class P2SoftSphericalTruncatedSwitched extends Potential2 implements PotentialSoft {
     
-    public P2SoftSphericalTruncatedSwitched(Potential2SoftSpherical potential, double truncationRadius) {
-        super(potential.getSpace());
+    public P2SoftSphericalTruncatedSwitched(ISpace _space, Potential2SoftSpherical potential,
+    		                                double truncationRadius) {
+        super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
         zeroGradientAndTorque = new IVector[2];
@@ -119,7 +121,8 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
     
     public static void main(String[] args) {
-        P2SoftSphericalTruncatedSwitched p = new P2SoftSphericalTruncatedSwitched(new P2LennardJones(Space3D.getInstance()), 2);
+    	ISpace sp = Space3D.getInstance();
+        P2SoftSphericalTruncatedSwitched p = new P2SoftSphericalTruncatedSwitched(sp, new P2LennardJones(sp), 2);
         for (double x = 1.900001; x<1.999999; x+=0.001) {
             System.out.println(x+" "+p.getF(x)+" "+p.getdFdr(x));
         }

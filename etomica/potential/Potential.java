@@ -30,10 +30,6 @@ public abstract class Potential implements java.io.Serializable, IPotential {
         this.space = space;
     }
 
-    public ISpace getSpace() {
-        return space;
-    }
-
     public abstract double getRange();
     
     /**

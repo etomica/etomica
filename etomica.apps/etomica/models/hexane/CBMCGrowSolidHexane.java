@@ -1,13 +1,14 @@
 package etomica.models.hexane;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.api.IRandom;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.integrator.IntegratorMC;
+import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 
@@ -24,10 +25,11 @@ import etomica.space.Tensor;
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     public CBMCGrowSolidHexane(IPotentialMaster p, IRandom random,
+    		ISpace _space, 
             IntegratorMC integrator, IBox phs, ISpecies species, int NTrials) {
-        super(p, random, integrator, phs, species, 6, NTrials);
+        super(p, random, integrator, phs, species, _space, 6, NTrials);
 
-        if (p.getSpace().D() != 3) {
+        if (_space.D() != 3) {
             throw new IllegalArgumentException("Torsional bond is only "
                     + "used in 3D simulations");
         }
@@ -45,8 +47,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 //        upperTorsLimit = 251.3080797 / 360.0 * 2.0 * Math.PI;
         limit = (upperTorsLimit - lowerTorsLimit) / 2;
 
-        rotor = p.getSpace().makeTensor();
-        temp2 = p.getSpace().makeVector();
+        rotor = _space.makeTensor();
+        temp2 = _space.makeVector();
     }
 
     protected int calcStartIndex() {

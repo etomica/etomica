@@ -39,7 +39,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
-        momentum = potentialMaster.getSpace().makeVector();
+        momentum = space.makeVector();
     }
 
     /**

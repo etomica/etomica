@@ -18,8 +18,8 @@ import etomica.space.Tensor;
 public class P2SoftSphericalTruncatedBox extends Potential2SoftSpherical
                implements PotentialTruncated {
     
-    public P2SoftSphericalTruncatedBox(Potential2SoftSpherical potential) {
-        super(potential.getSpace());
+    public P2SoftSphericalTruncatedBox(ISpace _space, Potential2SoftSpherical potential) {
+        super(_space);
         this.potential = potential;
         setTruncationFactor(0.49);
     }

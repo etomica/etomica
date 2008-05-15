@@ -2,17 +2,18 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.api.IRandom;
+import etomica.space.ISpace;
 
 
 /**
@@ -34,12 +35,14 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected AtomPositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;
+    private ISpace space;
     
     public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
-            IRandom nRandom){
+            IRandom nRandom, ISpace _space){
         super(pm);
         this.cbmcMove = mv;
         this.random = nRandom;
+        this.space = _space;
         
         moleculeSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
@@ -47,19 +50,19 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         
         affectedAtomIterator = new AtomIteratorSinglet();
         
-        AtomActionTranslateBy translator = new AtomActionTranslateBy(pm.getSpace());
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         transVect = translator.getTranslationVector();
         moveAction = new AtomGroupAction(translator);
-        centerer = new AtomPositionGeometricCenter(pm.getSpace());
+        centerer = new AtomPositionGeometricCenter(space);
         
-        oldGeo = pm.getSpace().makeVector();
-        newGeo = pm.getSpace().makeVector();
-        temp = pm.getSpace().makeVector();
+        oldGeo = space.makeVector();
+        newGeo = space.makeVector();
+        temp = space.makeVector();
     }
     
     public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv, 
-            IRandom nRandom, IBox ph){
-        this(pm, mv, nRandom);
+            IRandom nRandom, IBox ph, ISpace _space){
+        this(pm, mv, nRandom, _space);
         setBox(ph);
     }
     

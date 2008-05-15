@@ -54,8 +54,8 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        work1 = potentialMaster.getSpace().makeVector();
-        work2 = potentialMaster.getSpace().makeVector();
+        work1 = space.makeVector();
+        work2 = space.makeVector();
 
         setTimeStep(timeStep);
     }

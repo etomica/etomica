@@ -108,12 +108,12 @@ public class SimulationVirialOverlap extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
                 mcMoveTranslate[iBox].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species instanceof SpeciesSpheresRotating) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, nMolecules-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, nMolecules-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -121,7 +121,7 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
-                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
+                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
                     if (species.getNumLeafAtoms() > 2) {

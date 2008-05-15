@@ -108,7 +108,7 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
      * potential.
      */
     public IPotential makeP0() {
-        return new P0ReactionField(this);
+        return new P0ReactionField(this.space, this);
     }
 
     private static final long serialVersionUID = 1L;
@@ -131,8 +131,8 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
      */
     public static class P0ReactionField extends Potential0Lrc {
 
-        public P0ReactionField(P2ReactionFieldDipole p) {
-            super(p.getSpace(), new IAtomType[2], p);
+        public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
+            super(space, new IAtomType[2], p);
             this.potential = p;
             gradient = new IVector[0];
         }

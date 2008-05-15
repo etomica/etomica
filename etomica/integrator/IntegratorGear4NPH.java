@@ -63,10 +63,10 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         super(potentialMaster, random, timeStep, temperature, _space);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
-        D = potentialMaster.getSpace().D();
+        D = space.D();
         setIsothermal(true);
-        forceSumNPH = new ForceSumNPH(potentialMaster.getSpace());
-        inflate = new BoxInflate(potentialMaster.getSpace());
+        forceSumNPH = new ForceSumNPH(space);
+        inflate = new BoxInflate(space);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

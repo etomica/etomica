@@ -13,6 +13,7 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.space.ISpace;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
@@ -43,7 +44,8 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient double uNew = Double.NaN;
     private transient int iInsert, iDelete;
 
-    public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random,
+    		               ISpace _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -52,8 +54,8 @@ public class MCMoveSemigrand extends MCMoveBox {
         affectedAtomIterator.setList(affectedAtomList);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
-        moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
-        setAtomPositionDefinition(new AtomPositionCOM(potentialMaster.getSpace()));
+        moleculeTranslator = new AtomActionTranslateTo(_space);
+        setAtomPositionDefinition(new AtomPositionCOM(_space));
     }
     
     /**

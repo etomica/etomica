@@ -177,8 +177,8 @@ public class DCVGCMD extends Simulation {
         box.setNMolecules(speciesTube, 1);
         
         double temperature = Kelvin.UNIT.toSim(500.);
-        integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species1,
-                species2);
+        integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, space,
+        		                              species1, species2);
         final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
         final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
         integratorDCV.setBox(box);

@@ -55,9 +55,9 @@ public class TestEwaldTIP4PWater extends Simulation {
 		integrator = new IntegratorMC(this, potentialMaster);
 		integrator.setTemperature(Kelvin.UNIT.toSim(298));
 		
-		MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
-		MCMoveRotateMolecule3D mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
-		MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, random, Bar.UNIT.toSim(1.0132501));
+		MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);
+		MCMoveRotateMolecule3D mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+		MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, Bar.UNIT.toSim(1.0132501));
 		
 		((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
 		

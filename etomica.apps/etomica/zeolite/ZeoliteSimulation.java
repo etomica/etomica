@@ -152,8 +152,8 @@ public class ZeoliteSimulation extends Simulation {
         P2WCA potentialMS = new P2WCA(space,atomicSize[1],potentialMO.getEpsilon());
         
         //Wrap LJ potentials to truncate
-        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(potentialMM,2.5*potentialMM.getSigma());
-        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(potentialMO,2.5*potentialMO.getSigma());
+        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM,2.5*potentialMM.getSigma());
+        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO,2.5*potentialMO.getSigma());
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
         
         

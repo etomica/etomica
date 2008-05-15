@@ -11,6 +11,7 @@ import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 
 
@@ -32,12 +33,13 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     public boolean flag = false;
     public boolean flag1 = false;
     
-    public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
+    		                      ISpace _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        rotationTensor = potentialMaster.getSpace().makeRotationTensor();
-        r0 = potentialMaster.getSpace().makeVector();
+        rotationTensor = _space.makeRotationTensor();
+        r0 = _space.makeVector();
        
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);

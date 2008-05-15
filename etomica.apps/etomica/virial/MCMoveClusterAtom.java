@@ -1,12 +1,12 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
-
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.PotentialMaster;
+import etomica.space.ISpace;
 
 
 /**
@@ -14,8 +14,9 @@ import etomica.potential.PotentialMaster;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(ISimulation sim, PotentialMaster potentialMaster) {
-        super(sim, potentialMaster);
+    public MCMoveClusterAtom(ISimulation sim, IPotentialMaster potentialMaster,
+    		                 ISpace _space) {
+        super(sim, potentialMaster, _space);
         weightMeter = new MeterClusterWeight(potentialMaster);
 	}
 	

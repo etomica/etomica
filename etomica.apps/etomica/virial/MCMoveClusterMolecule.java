@@ -1,10 +1,11 @@
 package etomica.virial;
 
-import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
 import etomica.api.IRandom;
+import etomica.api.ISimulation;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.ISpace;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.
@@ -14,12 +15,14 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMolecule(ISimulation sim, IPotentialMaster potentialMaster) {
-    	this(potentialMaster,sim.getRandom(), 1.0);
+    public MCMoveClusterMolecule(ISimulation sim, IPotentialMaster potentialMaster,
+    		                     ISpace _space) {
+    	this(potentialMaster,sim.getRandom(), _space, 1.0);
     }
     
-    public MCMoveClusterMolecule(IPotentialMaster potentialMaster, IRandom random, double stepSize) {
-        super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
+    public MCMoveClusterMolecule(IPotentialMaster potentialMaster, IRandom random,
+    		                     ISpace _space, double stepSize) {
+        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY,false);
         weightMeter = new MeterClusterWeight(potential);
     }
     

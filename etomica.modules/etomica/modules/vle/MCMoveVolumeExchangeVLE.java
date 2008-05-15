@@ -2,17 +2,18 @@ package etomica.modules.vle;
 
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.potential.PotentialMaster;
+import etomica.space.ISpace;
 
 public class MCMoveVolumeExchangeVLE extends MCMoveVolumeExchange {
 
-    public MCMoveVolumeExchangeVLE(IPotentialMaster potentialMaster, IRandom random, IntegratorBox integrator1, IntegratorBox integrator2) {
-        super(potentialMaster, random, integrator1, integrator2);
-        meterDensity = new MeterDensity(potentialMaster.getSpace());
+    public MCMoveVolumeExchangeVLE(IPotentialMaster potentialMaster, IRandom random,
+    		                       ISpace space,
+    		                       IntegratorBox integrator1, IntegratorBox integrator2) {
+        super(potentialMaster, random, space, integrator1, integrator2);
+        meterDensity = new MeterDensity(space);
     }
     
     public boolean doTrial() {

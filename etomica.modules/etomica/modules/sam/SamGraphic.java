@@ -56,7 +56,7 @@ public class SamGraphic extends SimulationGraphic {
         
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(sim.wallPotential));
+        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(space, sim.wallPotential));
         
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(200, 200, 200));
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH3Type(), new Color(220, 220, 220));

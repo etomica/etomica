@@ -55,11 +55,6 @@ public class EwaldSummation implements IPotential{
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public ISpace getSpace() {
-		// TODO Auto-generated method stub
-		return space;
-	}
-
 	public int nBody() {
 		// TODO Auto-generated method stub
 		return 0;

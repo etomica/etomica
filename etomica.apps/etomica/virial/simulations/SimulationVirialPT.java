@@ -90,12 +90,12 @@ public class SimulationVirialPT extends Simulation {
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
             if (((IMolecule)box[iTemp].getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 0) {
-                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster);
+                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
+                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
                     moveManager.addMCMove(mcMoveMulti[iTemp]);
                     mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
                     moveManager.addMCMove(mcMoveRotate[iTemp]);

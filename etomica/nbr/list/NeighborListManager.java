@@ -52,7 +52,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;
-        cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, box);
+        cellNbrIterator = new ApiAACell(space.D(), range, box);
         agentManager2Body = new AtomLeafAgentManager(this, box);
         agentManager1Body = new AtomLeafAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);

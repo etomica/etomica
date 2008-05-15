@@ -69,7 +69,7 @@ public class TestHexaneCBMCOnly extends Simulation {
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
 
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
-                getRandom(), integrator, box, species, 20);
+                getRandom(), space, integrator, box, species, 20);
         growMolecule.setBox(box);
         integrator.getMoveManager().addMCMove(growMolecule);
 

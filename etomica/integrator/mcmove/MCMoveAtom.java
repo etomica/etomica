@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
 /**
@@ -31,19 +32,22 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
+    protected ISpace space;
 
-    public MCMoveAtom(ISimulation sim, IPotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
+    public MCMoveAtom(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
     }
     
-    public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random, double stepSize, double stepSizeMax,
+    public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
+    		          ISpace _space, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
+        this.space = _space;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)potentialMaster.getSpace().makeVector();
+        translationVector = (IVectorRandom)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

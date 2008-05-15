@@ -55,7 +55,7 @@ public class DensityOfState extends Simulation{
 		
 		potentialMaster = new PotentialMasterMonatomic(this, space);
 		integrator = new IntegratorMC(this, potentialMaster);
-		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
+		mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
 		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -71,7 +71,7 @@ public class DensityOfState extends Simulation{
 		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
 		}
-		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		((PotentialMasterCell)potentialMaster).setCellRange(3);
 		((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
 		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});

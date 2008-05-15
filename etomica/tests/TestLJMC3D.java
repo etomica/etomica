@@ -46,7 +46,7 @@ public class TestLJMC3D extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
 	    integrator = new IntegratorMC(this, potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
+	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2*sigma);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -65,7 +65,7 @@ public class TestLJMC3D extends Simulation {
         if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
         }
-        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
         IAtomTypeLeaf leafType = species.getLeafType();

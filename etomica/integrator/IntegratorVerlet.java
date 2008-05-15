@@ -40,15 +40,15 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
-        forceSum = new PotentialCalculationForcePressureSum(potentialMaster.getSpace());
+        forceSum = new PotentialCalculationForcePressureSum(space);
         allAtoms = new IteratorDirective();
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
         allAtoms.setIncludeLrc(true);
-        work = potentialMaster.getSpace().makeVector();
+        work = space.makeVector();
         
-        pressureTensor = potentialMaster.getSpace().makeTensor();
-        workTensor = potentialMaster.getSpace().makeTensor();
+        pressureTensor = space.makeTensor();
+        workTensor = space.makeTensor();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -154,7 +154,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
 
     public final Object makeAgent(IAtomLeaf a) {
-        return new Agent(potential.getSpace());
+        return new Agent(space);
     }
     
     public void releaseAgent(Object agent, IAtomLeaf atom) {}

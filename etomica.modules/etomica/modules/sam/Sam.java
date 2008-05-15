@@ -186,11 +186,11 @@ public class Sam extends Simulation {
         p2S = new P2LennardJones(space, sigmaSulfur, epsilonSulfur);
         p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
         p2SCH2 = new P2LennardJones(space, 0.5*(sigmaSulfur+sigmaCH2), epsilonCH2Sulfur);
-        p2CH2t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
-        p2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
-        p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(p2CH2, rCut);
-        p2St = new P2SoftSphericalTruncatedSwitched(p2S, rCut);
-        p2SCH2t = new P2SoftSphericalTruncatedSwitched(p2SCH2, rCut);
+        p2CH2t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
+        p2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
+        p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
+        p2St = new P2SoftSphericalTruncatedSwitched(space, p2S, rCut);
+        p2SCH2t = new P2SoftSphericalTruncatedSwitched(space, p2SCH2, rCut);
         
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
         pGroup.addPotential(p2CH2t, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));

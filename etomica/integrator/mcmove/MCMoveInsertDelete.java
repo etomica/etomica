@@ -13,6 +13,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.space.ISpace;
 import etomica.util.Debug;
 
 /**
@@ -40,12 +41,13 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected IAtomSet moleculeList;
     protected IRandom random;
 
-    public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
+    		                  ISpace _space) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
         energyMeter.setIncludeLrc(true);
-        atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
+        atomTranslator = new AtomActionTranslateTo(_space);
         reservoir = new AtomArrayList();
         this.random = random;
     }

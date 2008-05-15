@@ -6,6 +6,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
 /**
@@ -19,14 +20,16 @@ public class MCMoveMolecule extends MCMoveAtom {
     protected final AtomGroupAction moveMoleculeAction;
     protected final IVectorRandom groupTranslationVector;
 
-    public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
+    public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster,
+    		              ISpace _space) {
+        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
     }
     
-    public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random, double stepSize,
-            double stepSizeMax, boolean ignoreOverlap) {
-        super(potentialMaster, random,stepSize,stepSizeMax,ignoreOverlap);
-        AtomActionTranslateBy translator = new AtomActionTranslateBy(potentialMaster.getSpace());
+    public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random,
+    		              ISpace _space, double stepSize,
+                          double stepSizeMax, boolean ignoreOverlap) {
+        super(potentialMaster, random, _space, stepSize,stepSizeMax,ignoreOverlap);
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
         groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
         moveMoleculeAction = new AtomGroupAction(translator);
         

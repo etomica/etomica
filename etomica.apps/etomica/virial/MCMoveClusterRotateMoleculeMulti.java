@@ -25,7 +25,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      */
     public MCMoveClusterRotateMoleculeMulti(IPotentialMaster potentialMaster,
             IRandom random, ISpace _space) {
-        super(potentialMaster, random);
+        super(potentialMaster, random, _space);
         this.space = _space;
         weightMeter = new MeterClusterWeight(potential);
     }

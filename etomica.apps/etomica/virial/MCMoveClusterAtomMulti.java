@@ -1,11 +1,12 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.PotentialMaster;
+import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
 /**
@@ -16,8 +17,9 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomMulti(ISimulation sim, PotentialMaster potentialMaster) {
-        super(sim, potentialMaster);
+    public MCMoveClusterAtomMulti(ISimulation sim, IPotentialMaster potentialMaster,
+    		                      ISpace _space) {
+        super(sim, potentialMaster, _space);
         weightMeter = new MeterClusterWeight(potential);
         setStepSize(1.2);
 	}
@@ -27,7 +29,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         weightMeter.setBox(p);
         translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
         for (int i=0; i<box.getMoleculeList().getAtomCount()-1; i++) {
-            translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
+            translationVectors[i] = (IVectorRandom)space.makeVector();
         }
     }
     

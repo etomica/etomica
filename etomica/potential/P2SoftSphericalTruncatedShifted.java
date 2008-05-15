@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomType;
+import etomica.space.ISpace;
 
 /**
  * Wraps a soft-spherical potential to apply a truncation to it.  Energy and
@@ -11,8 +12,9 @@ import etomica.api.IAtomType;
  */
 public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     
-    public P2SoftSphericalTruncatedShifted(Potential2SoftSpherical potential, double truncationRadius) {
-        super(potential, truncationRadius);
+    public P2SoftSphericalTruncatedShifted(ISpace _space, Potential2SoftSpherical potential,
+    		                               double truncationRadius) {
+        super(_space, potential, truncationRadius);
     }
     
     /**

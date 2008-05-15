@@ -8,6 +8,7 @@ import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 
@@ -28,19 +29,21 @@ public class MCMoveVolume extends MCMoveBoxStep {
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
-    public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 1.0);
+    public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
+    		            ISpace _space) {
+        this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random, double pressure) {
+    public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random,
+    		            ISpace _space, double pressure) {
         super(potentialMaster);
         this.random = random;
-        this.D = potentialMaster.getSpace().D();
-        inflate = new BoxInflate(potentialMaster.getSpace());
+        this.D = _space.D();
+        inflate = new BoxInflate(_space);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);

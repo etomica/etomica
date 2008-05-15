@@ -83,17 +83,17 @@ public class VLESim extends Simulation {
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);
-        MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, 0.5, 5.0, true);
+        MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
-        MCMoveRotate rotateMove = new MCMoveRotate(potentialMaster, random);
+        MCMoveRotate rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorLiquid.getMoveManager().addMCMove(rotateMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
         
         integratorVapor = new IntegratorMC(potentialMaster, random, temperature);
         integratorVapor.setBox(boxVapor);
-        atomMove = new MCMoveAtom(potentialMaster, random, 0.5, 5.0, true);
+        atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
         integratorVapor.getMoveManager().addMCMove(atomMove);
-        rotateMove = new MCMoveRotate(potentialMaster, random);
+        rotateMove = new MCMoveRotate(potentialMaster, random, space);
         integratorVapor.getMoveManager().addMCMove(rotateMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
@@ -111,11 +111,11 @@ public class VLESim extends Simulation {
         integratorGEMC.addIntegrator(integratorLiquid);
         integratorGEMC.addIntegrator(integratorVapor);
         MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(
-                potentialMaster, random, integratorLiquid,integratorVapor);
+                potentialMaster, random, space, integratorLiquid,integratorVapor);
         volumeExchange.setStepSize(0.05);
 //        ((MCMoveStepTracker)volumeExchange.getTracker()).setNoisyAdjustment(true);
         MCMoveMoleculeExchangeVLE moleculeExchange = new MCMoveMoleculeExchangeVLE(
-                potentialMaster, random, integratorLiquid,integratorVapor);
+                potentialMaster, random, space, integratorLiquid,integratorVapor);
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);

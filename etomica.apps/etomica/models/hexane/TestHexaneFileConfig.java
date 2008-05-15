@@ -97,7 +97,7 @@ public class TestHexaneFileConfig extends Simulation {
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
-                0.1, 1, false);
+                space, 0.1, 1, false);
         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
         moveMolecule.setStepSize(0.024);        
         integrator.getMoveManager().addMCMove(moveMolecule);
@@ -109,21 +109,21 @@ public class TestHexaneFileConfig extends Simulation {
 //        snake.setBox(box);
 //        integrator.getMoveManager().addMCMove(snake);
         
-        rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
+        rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rot.setBox(box);
         rot.setStepSize(0.042);
         integrator.getMoveManager().addMCMove(rot);
         ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
-                getRandom(), integrator, box, species, 20);
+                getRandom(), space, integrator, box, species, 20);
         growMolecule.setBox(box);
         integrator.getMoveManager().addMCMove(growMolecule);
 
-        coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
+        coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         integrator.getMoveManager().addMCMove(coupledMove);
         
-        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
+        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom(), space);
         cctMove.setBox(box);
         integrator.getMoveManager().addMCMove(cctMove);
         
