@@ -187,7 +187,6 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
                 if(!(a.getType() instanceof IAtomTypeSphere)) continue;
                 OverflowShift overflow = new OverflowShift(space);
-                System.out.println("Drawing shifts");
                 float[][] shifts = overflow.getShifts(boundary, a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = atomOrigin[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
