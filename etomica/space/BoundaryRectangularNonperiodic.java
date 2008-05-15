@@ -37,13 +37,6 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Returns a zero-length vector.
      */
-    public float[][] getOverflowShifts(IVector r, double distance) {
-        return shift0;
-    }
-
-    /**
-     * Returns a zero-length vector.
-     */
     public double[][] imageOrigins(int nShells) {
         return origins;
     }

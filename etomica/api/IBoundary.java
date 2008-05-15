@@ -47,21 +47,6 @@ public interface IBoundary extends INearestImageTransformer {
 	public abstract IVector randomPosition();
 
 	/**
-	 * Provides information needed so that drawing can be done of portions of
-	 * the periodic images of an atom that overflow into the volume (because the
-	 * periodic image is just outside the volume).
-	 * 
-	 * @param r
-	 *            position of the atom in the central image
-	 * @param distance
-	 *            size of the atom, indicating how far its image extends
-	 * @return all displacements needed to draw all overflow images; first index
-	 *         indicates each displacement, second index is the xyz translation
-	 *         needed to the overflow image
-	 */
-	public abstract float[][] getOverflowShifts(IVector r, double distance);
-
-	/**
 	 * Returns the length of the sides of a rectangular box oriented in the lab
 	 * frame and in which the boundary is inscribed.  Each element of the returned
 	 * vector gives in that coordinate direction the maximum distance from one point 

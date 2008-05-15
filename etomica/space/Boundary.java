@@ -74,11 +74,6 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
 	 */
     public abstract IndexIteratorSizable getIndexIterator();
     
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#getOverflowShifts(etomica.api.IVector, double)
-	 */
-    public abstract float[][] getOverflowShifts(IVector r, double distance);
-
 	/**
 	 * Set of vectors describing the displacements needed to translate the
 	 * central image to all of the periodic images. The first index specifies

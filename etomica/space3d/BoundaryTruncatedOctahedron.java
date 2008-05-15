@@ -48,7 +48,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         dimensionsHalf = space.makeVector();
         dimensionsHalfCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
-        needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
     }
 
@@ -229,55 +228,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return origins;
     }
 
-    public float[][] getOverflowShifts(IVector rr, double distance) {
-        int D = space.D();
-        int numVectors = 1;
-        for (int i = 1; i < D; i++) {
-            if ((rr.x(i) - distance < 0.0)
-                    || (rr.x(i) + distance > dimensions.x(i))) {
-                //each previous vector will need an additional copy in this
-                // dimension
-                numVectors *= 2;
-                //remember that
-                needShift[i] = true;
-            } else {
-                needShift[i] = false;
-            }
-        }
-
-        if (numVectors == 1)
-            return shift0;
-
-        float[][] shifts = new float[numVectors][D];
-        double[] rrArray = new double[3];
-        rr.assignTo(rrArray);
-        for (int i = 0; i < D; i++) {
-            shifts[0][i] = (float) rrArray[i];
-        }
-        int iVector = 1;
-
-        for (int i = 0; iVector < numVectors; i++) {
-            if (!needShift[i]) {
-                //no shift needed for this dimension
-                continue;
-            }
-            double delta = -dimensions.x(i);
-            if (rr.x(i) - distance < 0.0) {
-                delta = -delta;
-            }
-            //copy all previous vectors and apply a shift of delta to the
-            // copies
-            for (int jVector = 0; jVector < iVector; jVector++) {
-                for (int j = 0; j < D; j++) {
-                    shifts[jVector + iVector][j] = shifts[jVector][j];
-                }
-                shifts[jVector + iVector][i] += delta;
-            }
-            iVector *= 2;
-        }
-        return shifts;
-    }
-
     public void nearestImage(IVector dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
@@ -347,7 +297,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected final IVector dimensionsHalf;
     protected final IVector dimensionsHalfCopy;
     private final IndexIteratorRectangular indexIterator;
-    private final boolean[] needShift;
     protected final boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;

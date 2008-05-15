@@ -14,6 +14,7 @@ import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
+import etomica.space.ISpace;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -28,9 +29,11 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
+    private final ISpace space;
     
-    public DisplayBoxCanvas1D(DisplayBox _box) {
+    public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box) {
         displayBox = _box;
+        space = _space;
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
@@ -100,7 +103,8 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(IAtomPositioned a, IBoundary b) {
         if(a.getType() instanceof IAtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
+            OverflowShift overflow = new OverflowShift(space);
+            float[][] shifts = overflow.getShifts(b, a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayBox.getOrigin()[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayBox.getOrigin()[1] + (int)(displayBox.getToPixels()*shifts[i][1]);

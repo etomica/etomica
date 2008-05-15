@@ -328,7 +328,7 @@ public class DisplayBox extends Display {
             case 1:
             default:
                 boxY = drawingHeight;
-                canvas = new DisplayBoxCanvas1D(this);
+                canvas = new DisplayBoxCanvas1D(space, this);
                 setSize(boxX, boxY);
                 break;
         }

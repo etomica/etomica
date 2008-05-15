@@ -16,7 +16,6 @@ import etomica.math.geometry.Polytope;
  * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 2D or 3D spaces.
  */
 
-//nan needs a cleanup of getOverflowShifts.
 public class BoundaryDeformablePeriodic extends Boundary {
 
     /**
@@ -443,52 +442,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
         return origins;
     }//end of imageOrigins
-
-	public float[][] getOverflowShifts(IVector rr, double distance) {
-		throw new RuntimeException(
-				"BoundaryDeformablePeriodic.getOverflowShifts not implmented");
-		/*
-		 * shiftX = 0; shiftY = 0; shiftZ = 0; r = (Vector)rr;
-		 * 
-		 * if(r.x-distance < 0.0) {shiftX = +1;} else if(r.x+distance >
-		 * dimensions.x) {shiftX = -1;}
-		 * 
-		 * if(r.y-distance < 0.0) {shiftY = +1;} else if(r.y+distance >
-		 * dimensions.y) {shiftY = -1;}
-		 * 
-		 * if(r.z-distance < 0.0) {shiftZ = +1;} else if(r.z+distance >
-		 * dimensions.z) {shiftZ = -1;}
-		 * 
-		 * if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) { shift = shift0; }
-		 * else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) { shift =
-		 * new float[1][D]; shift[0][0] = (float)(shiftX*dimensions.x); } else
-		 * if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) { shift = new
-		 * float[1][D]; shift[0][1] = (float)(shiftY*dimensions.y); } else
-		 * if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) { shift = new
-		 * float[1][D]; shift[0][2] = (float)(shiftZ*dimensions.z); } else
-		 * if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) { shift = new
-		 * float[3][D]; shift[0][0] = (float)(shiftX*dimensions.x); shift[1][1] =
-		 * (float)(shiftY*dimensions.y); shift[2][0] = shift[0][0]; shift[2][1] =
-		 * shift[1][1]; } else if((shiftX != 0) && (shiftY == 0) && (shiftZ !=
-		 * 0)) { shift = new float[3][D]; shift[0][0] =
-		 * (float)(shiftX*dimensions.x); shift[1][2] =
-		 * (float)(shiftZ*dimensions.z); shift[2][0] = shift[0][0]; shift[2][2] =
-		 * shift[1][2]; } else if((shiftX == 0) && (shiftY != 0) && (shiftZ !=
-		 * 0)) { shift = new float[3][D]; shift[0][1] =
-		 * (float)(shiftY*dimensions.y); shift[1][2] =
-		 * (float)(shiftZ*dimensions.z); shift[2][1] = shift[0][1]; shift[2][2] =
-		 * shift[1][2]; } else if((shiftX != 0) && (shiftY != 0) && (shiftZ !=
-		 * 0)) { shift = new float[7][D]; shift[0][0] =
-		 * (float)(shiftX*dimensions.x); shift[1][1] =
-		 * (float)(shiftY*dimensions.y); shift[2][2] =
-		 * (float)(shiftZ*dimensions.z); shift[3][0] = shift[0][0]; shift[3][1] =
-		 * shift[1][1]; shift[4][1] = shift[1][1]; shift[4][2] = shift[2][2];
-		 * shift[5][0] = shift[0][0]; shift[5][2] = shift[2][2]; shift[6][0] =
-		 * shift[0][0]; shift[6][1] = shift[1][1]; shift[6][2] = shift[2][2]; }
-		 * 
-		 * return(shift);
-		 */
-	}//end of getOverflowShifts
 
     int shiftX, shiftY, shiftZ;
     private double volume;
