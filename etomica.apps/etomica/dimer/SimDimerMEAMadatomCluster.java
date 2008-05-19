@@ -22,7 +22,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 
 	public static void main(String[] args){
 	        
-        //String fileName = args[0];
+        String fileName = args[0];
         //int mdSteps = Integer.parseInt(args[1]);
         //boolean ortho = Boolean.parseBoolean(args[2]);
         
@@ -32,19 +32,23 @@ public class SimDimerMEAMadatomCluster extends Simulation{
     	IVector vect = sim.getSpace().makeVector();
         vect.setX(0, 10.0);
         vect.setX(1, 0.1);
-        vect.setX(2, -0.1);
+        vect.setX(2, -1.0);
         
-        sim.setMovableAtoms(60.0, vect);
+        sim.setMovableAtoms(50.0, vect);
         
         sim.setPotentialListAtoms();
         
-        sim.enableMolecularDynamics(10000);
+        sim.initializeConfiguration("snSurface-md");
         
-        WriteConfiguration writer = new WriteConfiguration(sim.getSpace());
-        writer.setBox(sim.box);
-        writer.setConfName("snSurface16-md");
-        sim.integratorMD.addIntervalAction(writer);
-        sim.integratorMD.setActionInterval(writer, 100);
+        sim.enableMolecularDynamics(1000);
+        
+        sim.enableDimerSearch(fileName, 1000, true, false);
+        
+        XYZWriter xyzwriter = new XYZWriter(sim.box);
+        xyzwriter.setFileName(fileName+".xyz");
+        xyzwriter.setIsAppend(true);
+        sim.integratorDimer.addIntervalAction(xyzwriter);
+        sim.integratorDimer.setActionInterval(xyzwriter, 10);
         
     	sim.getController().actionPerformed();
 
