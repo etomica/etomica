@@ -10,7 +10,7 @@ import etomica.space.Space;
 
 
 /** 
- * Reads in lots of 1D arryas from a file.  Returns a 2D array with each row of
+ * Reads in lots of 1D arrays from a file.  Returns a 2D array with each row of
  * of the file corresponding to one (top-level) element.  When called via 
  * getVectorsFromFile, it returns a 1D array of Vectors with each row in the 
  * file corresponding to a Vector.
