@@ -74,7 +74,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public double Frot, dFrot;
 	public double Fprimerot;
 	public double sinDtheta, cosDtheta;
-	public double e0prev;
+	public double e0prev, e0;
 	public int rotCounter, counter;
 	public boolean rotate, normalD;
 	public String file;
@@ -103,7 +103,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.normalD = normalDir;
 		this.space = _space;
 		
-		stepLength = 0.05;
+		stepLength = 0.005;
 		deltaR = 1E-3;
 		dTheta = 1E-3;
 		dFrot = 0.1;
@@ -124,41 +124,27 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    file = fileName;
 	}
 	public void doStepInternal(){
-		
-	    dimerForces(Fmin, F0, Fmin2);
-	    
-		// Orient half-dimer on minimum energy path
-		rotateDimerNewton();
-		
-		// Write energy to file
+	    // Orient half-dimer on minimum energy path
+        rotateDimerNewton();
+        e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());     
+        // Write energy to file
         try{
-            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
+            fileWriter.write(e0+"\n");
         }catch(IOException e) {
-          
-        }
-		
-        // Check and see if we're at the minimum energy
-        if(counter>100){
-        energyDimer();
-        }
-        
-		// Step half-dimer toward the local energy minimum
-		walkDimer();
-		
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));       
+       
+        } 
+        // Step half-dimer toward the local energy minimum
+        walkDimer(); 
 		counter++;
 	}
 	
 	
 	protected void setup() throws ConfigurationOverlapException{
-		super.setup();
-			       
+		super.setup();     
 	        movableAtoms = 0;
-	        
 	        for(int i=0; i<movableSpecies.length; i++){
 	            movableAtoms += box.getMoleculeList(movableSpecies[i]).getAtomCount();
 	        }
-	        
 	        N = new IVectorRandom [movableAtoms];
 	        F0 = new IVector [movableAtoms];
 	        Fmin = new IVector [movableAtoms];
@@ -174,7 +160,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	        Fmin2star = new IVector [movableAtoms];
 	        Fstarperp = new IVector [movableAtoms];
 	        Fpara = new IVector [movableAtoms];
-	        
 	        for (int i=0; i<movableAtoms; i++){
 	            N[i] = (IVectorRandom)space.makeVector();
 	            Nstar[i] = (IVectorRandom)space.makeVector();
@@ -213,8 +198,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
 		atomAgent0 = new AtomLeafAgentManager(this, box);
 		atomAgentMin = new AtomLeafAgentManager(this, boxMin);
-		
-
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
@@ -261,12 +244,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
         // Write out initial configuration
         System.out.println(file+" ***Dimer Minima Search***");
-        System.out.println(N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       
-        System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
-        
-		// Calculate F's
-		dimerForces(Fmin, F0, Fmin2);
-		
+        System.out.println("Normal "+N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       	
 	}
 	
 	/**
@@ -277,10 +255,22 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 * to lowest curvature mode before stepping the dimer.
 	 */
 	public void rotateDimerNewton(){
-        
-	    dTheta = 10E-5;
+	    dimerNormal();
+	    dimerForces(Fmin, F0, Fmin2);
+	    
+	    dTheta = 1E-7;
 	    deltaTheta = 1.0;
 	    Frot = 1.0;
+	    
+	    //Check slope of energy after step
+	    double slope=0;
+        for(int i=0; i<F0.length; i++){
+            slope += F0[i].dot(N[i]);
+        }
+        if(slope<0){
+            quitSearch();
+        }
+	       
 	    
 		while(true){
 			
@@ -328,7 +318,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                 workVector1.PEa1Tv1(deltaR, Nstar[i]);
                 ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector1);
             }
-			
+
 			// Calculate F*'s
 			dimerForcesStar(Fminstar, Fmin2star, F0);
 			
@@ -354,7 +344,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
-			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			//System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){
@@ -375,7 +365,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                 workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
                 N[i].E(workVectorN2);
             }
-            
+                        
             // Use new N to offset(rotate) replica
             IVector workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
@@ -402,7 +392,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 *  Moves the half-dimer stepLength*N towards the energy minimum.
 	 */
 	public void walkDimer(){
-		
+	    System.out.println(e0);
 		IVector workvector;
 		workvector = space.makeVector();
 		
@@ -412,49 +402,27 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)listMin.getAtom(i)).getPosition().PE(workvector);
 		}
 		
-		dimerForces(Fmin, F0, Fmin2);
-		
-		dimerNormal();
 	}
 	
 	/**
-	 * Calculates the energy at each end of the dimer (total energy of each simulation box).
-	 * Compares the two values to determine if the dimer has reached the minimum in an
-	 * energy basin.
+	 * Called after criteria is met in the rotateDimer method.  If F0dotN is 
+	 * negative, the dimer has reached the minimum in an energy basin.
 	 * 
 	 */
-	public void energyDimer(){
-		
-		double eMin, e0;
-		e0 = energyBox0.getDataAsScalar();
-		
-		
-    	try { 
-            fileWriter.write(ElectronVolt.UNIT.fromSim(e0)+"\n");
+	public void quitSearch(){
+	    double eMin;
+	    eMin = ElectronVolt.UNIT.fromSim(energyBoxMin.getDataAsScalar());
+	    System.out.println(file+" +++Dimer Minimum Found+++");
+		System.out.println("Box0   = "+e0+" eV");
+		System.out.println("BoxMin = "+eMin+" eV");
+		try { 
+            fileWriter.close();
             }catch(IOException e) {
                 System.err.println("Cannot open file, caught IOException: " + e.getMessage());
             }
-		
-		
-		System.out.println(ElectronVolt.UNIT.fromSim(e0));
-		
-		if(e0>e0prev){ 
-		    System.out.println(file+" +++Dimer Minimum Found+++");
-			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0)+"eV");
-			eMin = energyBoxMin.getDataAsScalar();
-			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin)+"eV");
-			
-			try { 
-	            fileWriter.close();
-	            }catch(IOException e) {
-	                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-	            }
-	            
-            writer.setBox(box);
-            writer.actionPerformed();
-            activityIntegrate.setMaxSteps(0);
-		}
-		e0prev = e0;
+        writer.setBox(box);
+        writer.actionPerformed();
+        activityIntegrate.setMaxSteps(0);
 	}
 	
 	/**
