@@ -108,7 +108,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		dTheta = 1E-3;
 		dFrot = 0.1;
 		rotCounter = 0;
-		counter = 1;
+		counter = 0;
 		Frot = 1;
 		rotate = true;		
 		e0prev = 0;
@@ -262,15 +262,16 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    deltaTheta = 1.0;
 	    Frot = 1.0;
 	    
-	    //Check slope of energy after step
-	    double slope=0;
-        for(int i=0; i<F0.length; i++){
-            slope += F0[i].dot(N[i]);
-        }
-        if(slope<0){
-            quitSearch();
-        }
-	       
+	    if(counter>0){
+            //Check slope of energy after step
+            double slope=0;
+            for(int i=0; i<F0.length; i++){
+                slope += F0[i].dot(N[i]);
+            }
+            if(slope<0){
+                quitSearch();
+            }
+	    }
 	    
 		while(true){
 			
