@@ -3,7 +3,6 @@
  */
 package etomica.models.hexane;
 
-import etomica.action.BoxInflateDeformable;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
@@ -13,11 +12,6 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPressureByVolumeChange;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -39,6 +33,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.util.RandomNumberGenerator;
 import etomica.virial.MCMoveClusterWiggleMulti;
 /**
  * @author nancycribbin
@@ -79,6 +74,7 @@ public class TestHexane extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space, false);
+
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         //One molecule per cell
@@ -195,7 +191,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 100;
+        long nSteps = 10;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
         double den = 0.35;
@@ -247,6 +243,7 @@ public class TestHexane extends Simulation {
             System.out.println("Number of cells/molecules in the Y direction = " + yLng);
             System.out.println("Number of cells/molecules in the Z direction = " + zLng);
             System.out.println("Total number of molecules = " + xLng*yLng*zLng);
+            System.out.println("Random seed = " + sim.getRandom());
             double volume = sim.bdry.volume();
             System.out.println("volume =  "+ volume);
             
@@ -260,20 +257,20 @@ public class TestHexane extends Simulation {
             meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
             meterNormalMode.setBox(sim.box);
 
-            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
-            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
-            meterPressure.setIntegrator(sim.integrator);
-            meterPressure.setX(-0.001, 0.001, 20);
-            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
-            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-            pressureAccumulator.setBlockSize(50);
-            sim.integrator.addIntervalAction(pressureManager);
+//            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
+//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
+//            meterPressure.setIntegrator(sim.integrator);
+//            meterPressure.setX(-0.001, 0.001, 20);
+//            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
+//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+//            pressureAccumulator.setBlockSize(50);
+//            sim.integrator.addIntervalAction(pressureManager);
 //            sim.integrator.setActionInterval(pressureManager, 10);
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
 //            sim.activityIntegrate.setMaxSteps(30000);
             sim.getController().actionPerformed();
-            System.out.println("equilibration finished");
+            System.out.println("equilibration finished: " + sim.activityIntegrate.getMaxSteps() +"  steps");
             sim.getController().reset();
             
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
@@ -320,45 +317,47 @@ public class TestHexane extends Simulation {
             writer.actionPerformed();
             time1 = System.currentTimeMillis();   
             
-            double avgPressure = 0.0;  
-            int leng = 20;
-            double[] pressies = new double[leng];
-            double[] lnXs = new double[leng];
-            double[] scalingFactors = new double[leng];
-            double[] volumes = new double[leng];
-
-            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
-            
-            for(int i = 0; i < leng; i++){
-                scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
-                lnXs[i] = Math.log(lnXs[i]);
-                volumes[i] = volume*scalingFactors[i];
-                pressies[i] = lnXs[i]/volumes[i];
-            }
-            
-            System.out.println("volume =  "+ volume);
-            System.out.println("lnXs");
-            for(int i = 0; i < leng; i++){
-                System.out.println(lnXs[i]);
-            }
-            System.out.println("volumes");
-            for(int i = 0; i < leng; i++){
-                System.out.println(volumes[i]);
-            } 
-            System.out.println("scaling factors");
-            for (int i = 0; i < leng; i++){
-                System.out.println(scalingFactors[i]);
-            }
-            
-            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
-            System.out.println("Avg Pres = "+ avgPressure);
-            time2 = System.currentTimeMillis();
-            
-            System.out.println("start  " + time);
-            System.out.println("simulation  " + time1);
-            System.out.println("data collection  " + time2);
+//            double avgPressure = 0.0;  
+//            int leng = 20;
+//            double[] pressies = new double[leng];
+//            double[] lnXs = new double[leng];
+//            double[] scalingFactors = new double[leng];
+//            double[] volumes = new double[leng];
+//
+//            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
+//            
+//            for(int i = 0; i < leng; i++){
+//                scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
+//                lnXs[i] = Math.log(lnXs[i]);
+//                volumes[i] = volume*scalingFactors[i];
+//                pressies[i] = lnXs[i]/volumes[i];
+//            }
+//            
+//            System.out.println("volume =  "+ volume);
+//            System.out.println("lnXs");
+//            for(int i = 0; i < leng; i++){
+//                System.out.println(lnXs[i]);
+//            }
+//            System.out.println("volumes");
+//            for(int i = 0; i < leng; i++){
+//                System.out.println(volumes[i]);
+//            } 
+//            System.out.println("scaling factors");
+//            for (int i = 0; i < leng; i++){
+//                System.out.println(scalingFactors[i]);
+//            }
+//            
+//            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
+//            System.out.println("Avg Pres = "+ avgPressure);
+//            time2 = System.currentTimeMillis();
+//            
+//            System.out.println("start  " + time);
+//            System.out.println("simulation  " + time1);
+//            System.out.println("data collection  " + time2);
             
 //            System.out.println(sim.integrator.meterPE.getDataAsScalar());
+            
+            System.out.println("Fini.");
         }
     }
 }
