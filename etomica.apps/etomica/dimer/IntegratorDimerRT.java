@@ -536,7 +536,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             }        
             
             // Calculate F*'s
-            dimerForcesStar(F1star, F2star, F);
+            dimerForcesStar(F1, F2, F);
 			
 			// Calculate new Normal
 			dimerNormal();
