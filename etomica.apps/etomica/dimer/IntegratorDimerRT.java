@@ -535,8 +535,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                 ((IAtomPositioned)list2.getAtom(i)).getPosition().E(workVector2);
             }        
             
-			// Calculate new F's
-			dimerForces(F1, F2, F);
+            // Calculate F*'s
+            dimerForcesStar(F1star, F2star, F);
 			
 			// Calculate new Normal
 			dimerNormal();

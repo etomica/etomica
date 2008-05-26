@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
@@ -45,7 +46,10 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;
         this.space = _space;
-       
+        
+        if(potentialMaster instanceof PotentialMasterList){
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+         }
         
         force = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();

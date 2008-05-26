@@ -123,18 +123,47 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public void setFileName(String fileName){
 	    file = fileName;
 	}
+	
 	public void doStepInternal(){
+	    // Step half-dimer toward the local energy minimum
+	    walkDimer();
 	    // Orient half-dimer on minimum energy path
         rotateDimerNewton();
-        e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());     
+	    	    
+	    e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());     
         // Write energy to file
         try{
             fileWriter.write(e0+"\n");
         }catch(IOException e) {
        
-        } 
-        // Step half-dimer toward the local energy minimum
-        walkDimer(); 
+        }
+        
+        /*
+        dimerForces(Fmin, F0, Fmin2);
+        
+        if(counter>10){
+            //Check slope of energy after step
+            double slope=0;
+            for(int i=0; i<F0.length; i++){
+                slope += F0[i].dot(N[i]);
+            }
+            if(slope<0){
+                quitSearch();
+            }
+        }
+        
+        //Find unit vector of avg. force
+        double magAvg = 0;
+        for(int i=0; i<N.length; i++){
+            N[i].Ev1Pv2(F0[i], Fmin[i]);
+            N[i].TE(0.5);
+            magAvg+=N[i].squared();
+        }
+        magAvg=1.0/Math.sqrt(magAvg);
+        for(int i=0; i<N.length; i++){
+            N[i].TE(magAvg);
+        }
+        */
 		counter++;
 	}
 	
@@ -345,7 +374,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
-			//System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){
@@ -376,16 +405,16 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }     
 			
 			// Calculate new F's
-			dimerForces(Fmin, F0, Fmin2);
+			dimerForces2(Fmin);
 			
 			// Calculate new Normal
 			dimerNormal();
 			
 			rotCounter++;
 			
-			//if(rotCounter>15){
-	        //        break;
-			//}
+			if(rotCounter>100){
+	                break;
+			}
 		}
 	}
 	
@@ -475,6 +504,16 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			aF2[i].ME(aF1[i]);
 			
 		}
+	}
+	
+	protected void dimerForces2(IVector []aF1){
+        forceMin.reset();
+        potential.calculate(boxMin, allatoms, forceMin);
+        
+        // Copy forces of dimer ends (R1, R2) to local array
+        for(int i=0; i<aF1.length; i++){
+            aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent(listMin.getAtom(i))).force());           
+        }
 	}
 	
 	/**
