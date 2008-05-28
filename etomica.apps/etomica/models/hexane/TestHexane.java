@@ -6,6 +6,7 @@ package etomica.models.hexane;
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
@@ -33,7 +34,6 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.util.RandomNumberGenerator;
 import etomica.virial.MCMoveClusterWiggleMulti;
 /**
  * @author nancycribbin
@@ -191,7 +191,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 10;
+        long nSteps = 1000000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
         double den = 0.35;
@@ -267,11 +267,18 @@ public class TestHexane extends Simulation {
 //            sim.integrator.addIntervalAction(pressureManager);
 //            sim.integrator.setActionInterval(pressureManager, 10);
          
-            sim.activityIntegrate.setMaxSteps(nSteps/10);
-//            sim.activityIntegrate.setMaxSteps(30000);
+//            sim.activityIntegrate.setMaxSteps(nSteps/10);
+            sim.activityIntegrate.setMaxSteps(30000);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished: " + sim.activityIntegrate.getMaxSteps() +"  steps");
             sim.getController().reset();
+            
+//            IAction progressReport = new IAction() {
+//                public void actionPerformed() {
+//                    System.out.print(sim.integrator.getStepCount()+" steps: ");
+//                }
+//            };
+            
             
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
