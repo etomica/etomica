@@ -19,7 +19,7 @@ import etomica.species.Species;
  */
 public class SpeciesMethanol extends Species {
 
-    public SpeciesMethanol(ISpace space) {
+    public SpeciesMethanol(ISpace space, boolean pointCharges) {
     	
         super(new AtomPositionGeometricCenter(space));
         
@@ -36,8 +36,9 @@ public class SpeciesMethanol extends Species {
         addChildType(ahType);
         addChildType(hType);
         addChildType(xType);
-
-        setConformation(new ConformationMethanol(space)); 
+        
+        // The satellite site, X, is closer to the oxygen atom in the model with point charges.
+        setConformation(new ConformationMethanol(space, pointCharges)); 
      }
 
      public IMolecule makeMolecule() {

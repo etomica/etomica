@@ -6,7 +6,7 @@ import etomica.api.IConformation;
 import etomica.space.ISpace;
 
 /**
- * Conformation for methanol H3C-OH and published in Rowley et al (2006)
+ * Conformation for methanol as published in Rowley et al (2006)
  * 
  * OpenOffice Spreadsheet file, Methanol coordinates, used to calculate coordinates from bond lengths and angles: 
  * 
@@ -14,8 +14,9 @@ import etomica.space.ISpace;
  */
 public class ConformationMethanol implements IConformation {
 
-    public ConformationMethanol(ISpace space) {
+    public ConformationMethanol(ISpace space, boolean pointCharges) {
         this.space = space;
+        this.pointCharges = pointCharges;
     }
     
     public void initializePositions(IAtomSet list){
@@ -42,14 +43,31 @@ public class ConformationMethanol implements IConformation {
         IAtomPositioned hydrogen_2b = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexH2b);
         hydrogen_2b.getPosition().E(new double[] {-0.8920, 0.4850, -0.4101});
         
-        // satellite site to model location of high electron density for oxygen
-        IAtomPositioned x = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexX);
-        x.getPosition().E(new double[] {0.0, -0.7774, 1.9845});
+        // The satellite site, X, is closer to the oxygen atom in the model with point charges.
+        if(pointCharges) {
+        	
+        	// Methanol model with point charges at O, aC, aH
+        	
+        	// satellite site to model location of high electron density for oxygen
+        	IAtomPositioned x = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexX);
+        	x.getPosition().E(new double[] {0.0, -0.0753, 1.4749});	
+        }
+        else {
+
+        	// Methanol model without point charges
+        	
+        	// satellite site to model location of high electron density for oxygen
+        	IAtomPositioned x = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexX);
+        	x.getPosition().E(new double[] {0.0, -0.7774, 1.9845});
+        }
+       
         
         
     }
     
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
+    protected boolean pointCharges;
+
 }
 
