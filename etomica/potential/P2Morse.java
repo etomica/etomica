@@ -5,33 +5,33 @@ import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
 
-/**
- * Morse Potential interatomic potential
+/*
+ * Same Morse potential as in original P2Morse.java, but with different formulation
  * 
  *  The functional form of potential is :
  *  
- *  	u(r) = epsilon * {1- exp[-alpha * (r - re)]}^2			
+ *  	u(r) = -epsilon * { 1 - ( 1 - exp[-A * (r - re)] )^2 }			
  *   
- * where epsilon: describes the strength of the pair interaction
- *                (the well depth) 
- *         re   : is the equilibrium pair separation
- *        alpha : is a dimensionaless range parameter 
- *                (parameter controlling the width of the potential well)          
+ * where epsilon: describes the strength of the pair interaction - the well depth (energy) 
+ *         re   : is the equilibrium pair separation - the position of the well bottom (distance)
+ *         A    : is a parameter controlling the width of the potential well (inverse distance)          
  *  
  *
- * @author Tai Boon Tan
+ * adapted from Tai Boon Tan's original P2Morse.java by K.R. Schadel (2008)
  */
+
+
 public final class P2Morse extends Potential2SoftSpherical {
 
     public P2Morse(ISpace space) {
         this(space, 1.0, 1.0, 1.0);
     }
     
-    public P2Morse(ISpace space, double epsilon, double re, double alpha) {
+    public P2Morse(ISpace space, double epsilon, double re, double a) {
         super(space);
         setEpsilon(epsilon);
         setRe(re);
-        setAlpha(alpha);
+        setA(a);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -44,7 +44,7 @@ public final class P2Morse extends Potential2SoftSpherical {
      */
     public double u(double r2) {
     	double r = Math.sqrt(r2);
-    	double expTerm1 = Math.exp(alpha*(1-(r/re)));
+    	double expTerm1 = Math.exp(a*(re-r));
     	
     	return epsilon*(expTerm1-1)*(expTerm1-1)-epsilon;
     }
@@ -53,6 +53,7 @@ public final class P2Morse extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
+    	double alpha = a*re;
     	double r = Math.sqrt(r2);
     	double expTerm = Math.exp(-alpha*(-1+(r/re)));
     	
@@ -64,6 +65,7 @@ public final class P2Morse extends Potential2SoftSpherical {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
+    	double alpha = a*re;
     	double r = Math.sqrt(r2);
     	double expTerm = Math.exp(-alpha*(-1+(r/re)));
     	
@@ -74,6 +76,7 @@ public final class P2Morse extends Potential2SoftSpherical {
      *  Integral used for corrections to potential truncation.
      */
     public double uInt(double rC) {
+    	double alpha = a*re;
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         double rC2 = rC*rC;
         double re2 = re*re;
@@ -105,14 +108,14 @@ public final class P2Morse extends Potential2SoftSpherical {
     
     
     
-    public double getAlpha() {return alpha;}
+    public double getA() {return a;}
 
-    public final void setAlpha(double a) {
-        alpha = a;
+    public final void setA(double dummy) {
+        a = dummy;
     }
     
     private static final long serialVersionUID = 1L;
     private double re;
     private double epsilon;
-    private double alpha;
+    private double a;
 }
