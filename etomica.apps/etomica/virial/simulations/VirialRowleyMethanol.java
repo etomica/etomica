@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 import etomica.api.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.IAtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
@@ -170,7 +169,7 @@ public class VirialRowleyMethanol {
         double CXX = 0.71468;
         double rOX = 0.96092; // just used to draw X site
         
-        // "alpha" hydrogen and fudge site (aH-X)
+        // "alpha" hydrogen and fudge site (aH-X)// The satellite site, X, is closer to the oxygen atom in the model with point charges.
         double epsilon_aH_X = eunit.toSim(0.86651);
         double A_aH_X = 0.53543;
         double re_aH_X = 1.63407;
@@ -234,8 +233,9 @@ public class VirialRowleyMethanol {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-         
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryMethanol(),
+        
+        boolean pointCharges = false; // This is model does not include point charges on atoms.
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryMethanol(pointCharges),
                            temperature,refCluster,targetCluster); //use first constructor; no need for intramolecular movement MC trial
          
 //         sim.integratorOS.setAdjustStepFreq(false);
