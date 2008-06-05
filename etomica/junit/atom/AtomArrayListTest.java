@@ -34,7 +34,7 @@ public class AtomArrayListTest extends TestCase {
 	}
 
 	/*
-	 * testSetSetTrimThreshold()
+	 * testSetGetTrimThreshold()
 	 */
 	public void testSetGetTrimThreshold() {
 		float trimThreshold = 0.43f;
@@ -160,7 +160,7 @@ public class AtomArrayListTest extends TestCase {
 
 		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
 		
-		assertNull(arrayList.toArray());
+		assertEquals(0, arrayList.toArray().length);
 
 		IAtom[] atomList = new IAtom[numElems];
         for(int i = 0; i < numElems; i++) {
@@ -202,6 +202,30 @@ public class AtomArrayListTest extends TestCase {
         	atomList[i] = new AtomLeaf(space);
         	arrayList.add(atomList[i]);
         }
+
+        // Replace first element in list
+		try {
+			resultAtom = arrayList.set(0, newElem);
+			IAtom a = arrayList.getAtom(0);
+			assertSame(a, newElem);
+		}
+		catch (IndexOutOfBoundsException e) {
+			// Just need an assertion that will fail.
+			// The generation of the exception indicates test failure.
+			assertNotNull(null);
+		}
+
+        // Replace last element in list
+		try {
+			resultAtom = arrayList.set(4, newElem);
+			IAtom a = arrayList.getAtom(4);
+			assertSame(a, newElem);
+		}
+		catch (IndexOutOfBoundsException e) {
+			// Just need an assertion that will fail.
+			// The generation of the exception indicates test failure.
+			assertNotNull(null);
+		}
 
 		try {
 			resultAtom = arrayList.set(10, newElem);
@@ -293,11 +317,32 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 
-		 IAtom preRemove = arrayList.remove(2);
-		 IAtom postRemove = arrayList.getAtom(2);
+		IAtom preRemove = null;
+		try {
+            preRemove = arrayList.remove(2);
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.out.println(e);
+			// Exception thrown which indicates failure.
+			// Fail test with any assertion that will fail.
+			assertNotNull(null);
+		}
 
-		 assertNotSame(preRemove, postRemove);
-		 assertNull(arrayList.getAtom(size-1));
+        IAtom postRemove = arrayList.getAtom(2);
+
+    	assertNotSame(preRemove, postRemove);
+
+    	try {
+    		arrayList.getAtom(size-1);
+    		// If an exception is not thrown, then the test
+    		// has failed.  Fail test with an assertion that
+    		// will fail.
+            assertNotNull(null);
+		}
+    	catch (IndexOutOfBoundsException e) {
+			System.out.println(e);
+		}
+
 	}
 
 	/*
@@ -314,23 +359,38 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 
-		 IAtom removeAtom = arrayList.removeAndReplace(2);
-		 assertSame(atomList[2], removeAtom);
-		 assertSame(atomList[size-1], arrayList.getAtom(2));
-		 assertNull(arrayList.getAtom(size-1));
+        IAtom removeAtom = arrayList.removeAndReplace(2);
+		assertSame(atomList[2], removeAtom);
+		assertSame(atomList[size-1], arrayList.getAtom(2));
 
-		 // Now, there are 4 items in the list.
-		 // from atomList, as ordered in the list :  0, 1, 4, 3 
-		 // So, removing the last item (index 3), should return
-		 // atomList[3].  Then, attempting to call getAtom(3) should
-		 // NOT return an atom.
-		 
-		 removeAtom = arrayList.removeAndReplace(3);
-		 assertSame(atomList[3], removeAtom);
-		 
-		 IAtom atom = arrayList.getAtom(3);
-		 assertNull(atom);
+		try {
+		    arrayList.getAtom(size-1);
+			// Exception not thrown which indicates failure.
+			// Fail test with any assertion that will fail.
+			assertNotNull(null);
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.out.println(e);
+		}
 
+		// Now, there are 4 items in the list.
+		// from atomList, as ordered in the list :  0, 1, 4, 3 
+		// So, removing the last item (index 3), should return
+		// atomList[3].  Then, attempting to call getAtom(3) should
+        // NOT return an atom.
+		 
+		removeAtom = arrayList.removeAndReplace(3);
+		assertSame(atomList[3], removeAtom);
+
+		try {
+			IAtom atom = arrayList.getAtom(3);
+			// Exception not thrown which indicates failure.
+			// Fail test with any assertion that will fail.
+			assertNotNull(null);
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.out.println(e);
+		}
 	}
 
 	/*
@@ -351,7 +411,16 @@ public class AtomArrayListTest extends TestCase {
 		arrayList.clear();
 		assertEquals(size, arrayList.sizeOfArray());
 		assertTrue(arrayList.isEmpty());
-		assertNull(arrayList.getAtom(0));
+		try {
+			IAtom atom = arrayList.getAtom(0);
+    		// If an exception is not thrown, then the test
+    		// has failed.  Fail test with an assertion that
+    		// will fail.
+            assertNotNull(null);
+		}
+    	catch (IndexOutOfBoundsException e) {
+			System.out.println(e);
+		}
 	}
 
 }
