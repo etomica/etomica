@@ -165,8 +165,9 @@ public class AtomArrayListTemp implements IAtomSet {
 	}
 
 	public void clear() {
-		int size = atomList.length;
-		atomList = new IAtom[size];
+		for(int i = 0; i < itemsInList; i++) {
+			atomList[i] = null;
+		}
 		itemsInList = 0;
 	}
 
