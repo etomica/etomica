@@ -81,7 +81,7 @@ import etomica.util.Constants.CompassDirection;
  */
 public class ReverseOsmosisGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = "Reverse Osmosis";
+    private final static String APP_NAME = "Osmosis";
     private final static int REPAINT_INTERVAL = 2;
     protected DeviceThermoSlider tempSlider;
     protected DeviceSlider solventChamberDensitySlider, soluteChamberDensitySlider;
