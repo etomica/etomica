@@ -56,7 +56,7 @@ import etomica.util.Constants.CompassDirection;
 public class InterfacialGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Interfacial Tension";
-    private final static int REPAINT_INTERVAL = 200;
+    private final static int REPAINT_INTERVAL = 20;
     private DeviceThermoSlider temperatureSelect;
     protected Interfacial sim;
     protected final DeviceNSelector nSlider;
