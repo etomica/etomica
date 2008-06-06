@@ -36,6 +36,10 @@ public class DeviceButton extends Device {
         setAction(action);
     }
     
+    public JButton getButton() {
+        return button;
+    }
+
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Button that causes an elementary action to be performed");
