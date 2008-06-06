@@ -478,7 +478,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
-  
+
             tempAngularVelocity.Ea1Tv1(temperature, moment);
             tempAngularVelocity.map(new Function.Sqrt());
             tempAngularVelocity.TE(angularVelocity);
