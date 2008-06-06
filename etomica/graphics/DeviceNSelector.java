@@ -24,6 +24,11 @@ public class DeviceNSelector extends DeviceSlider {
         super(controller);
     }
 
+    public void setEnabled(boolean newIsEnabled) {
+        slider.setEnabled(newIsEnabled);
+        textField.setEnabled(newIsEnabled);
+    }
+
     public void setResetAction(IAction newResetAction) {
         resetAction = newResetAction;
         if (modifyAction != null) {
