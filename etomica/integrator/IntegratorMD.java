@@ -21,12 +21,12 @@ import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
 import etomica.util.EnumeratedType;
+
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
  * set the time step.
  */
-
 public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
 
     public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
@@ -57,11 +57,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             box.getEventManager().removeListener(this);
         }
         super.setBox(p);
-        meterTemperature = new MeterTemperature(p, space.D());
-        meterTemperature.setKineticEnergyMeter(meterKE);
         if (meterKE instanceof MeterKineticEnergy) {
             ((MeterKineticEnergy)meterKE).setBox(p);
         }
+        meterTemperature = new MeterTemperature(p, space.D());
+        meterTemperature.setKineticEnergyMeter(meterKE);
         box.getEventManager().addListener(this);
     }
 
@@ -238,7 +238,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      * Scales momenta of all atoms by a constant factor so that 
      * box adheres to setpoint temperature.  The state of the 
      * integrator may need to be updated after calling this method.
-     * @return the factor velocities were scaled by 
      */
     protected void scaleMomenta() {
         momentum.E(0);
