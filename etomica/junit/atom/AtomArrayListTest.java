@@ -270,8 +270,18 @@ public class AtomArrayListTest extends TestCase {
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.getAtom(size));
-		assertEquals(13, arrayList.sizeOfArray());
-		
+		assertEquals((int)((float)size * (1.0f + AtomArrayListTemp.SIZE_INCREASE_RATIO) + 1),
+				      arrayList.sizeOfArray());
+
+		try {
+		    arrayList = new AtomArrayListTemp(0);
+		    addResult = arrayList.add(overTheTop);
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			// Just need an assertion that will fail.
+			// The generation of the exception indicates test failure.
+			assertNotNull(null);
+		}
 	}
 
 	/*

@@ -8,7 +8,7 @@ public class AtomArrayListTemp implements IAtomSet {
 	private float trimThreshold = 0.8f;
 	private IAtom[] atomList;
 	private static int DEFAULT_INIT_SIZE = 20;
-	private static float SIZE_INCREASE_RATIO = 0.3f;
+	public static float SIZE_INCREASE_RATIO = 0.3f; // public for test purposes
 	int itemsInList = 0;
 
 	public AtomArrayListTemp() {
@@ -94,7 +94,7 @@ public class AtomArrayListTemp implements IAtomSet {
 	public boolean add(IAtom atom) {
 
 		if(itemsInList == atomList.length) {
-			IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO))];
+			IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
 
 			for(int i = 0; i < atomList.length; i++) {
 				tempList[i] = atomList[i];
