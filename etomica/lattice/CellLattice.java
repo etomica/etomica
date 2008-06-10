@@ -110,7 +110,11 @@ public class CellLattice extends RectangularLattice {
                 if (boundaryLength == 0) {
                     return ;
                 }
-                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/boundaryLength);
+                idx[i] = (int)(lattice.getSize()[i]*neighborDistance/boundaryLength);
+                if (idx[i] < (lattice.getSize()[i]*neighborDistance/boundaryLength)) {
+                    // if we rounded down, increment by 1 so we round up.
+                    idx[i]++;
+                }
                 if (idx[i]*2 + 1 > lattice.getSize()[i]) {
                     // this can happen if the box is big enough for the potential cutoff,
                     // but not big enough to hold a lattice of cells of size
