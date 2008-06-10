@@ -49,7 +49,14 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
             x[i] = i+1;
         }
 
-        data = new DataFunction(new int[]{maxChainLength});
+        DataFunction newData = new DataFunction(new int[]{maxChainLength});
+        if (data != null) {
+            double[] y = newData.getData();
+            for (int i=0; i<data.getLength() && i<y.length; i++) {
+                y[i] = data.getValue(i);
+            }
+        }
+        data = newData;
         dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, this);
         dataInfo.addTag(tag);
     }
@@ -89,12 +96,11 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
             int chainLength = recursiveTag(a);
             
-            if (chainLength-1 < histogram.length) {
-                histogram[chainLength-1] += chainLength;
+            if (chainLength > histogram.length) {
+                setupData(chainLength);
+                histogram = data.getData();
             }
-            else {
-                histogram[histogram.length-1] += chainLength;
-            }
+            histogram[chainLength-1] += chainLength;
         }
 
         for (int i=0; i<histogram.length; i++) {
@@ -102,6 +108,12 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         }
         
         return data;
+    }
+    
+    public void reset() {
+        if (data.getLength() != 40) {
+            setupData(40);
+        }
     }
     
     public DataInfoDoubleArray getIndependentDataInfo(int i) {

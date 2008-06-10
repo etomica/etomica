@@ -87,13 +87,13 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
 		return false; 	
 	}
-
+    
 	/**
      * this function will bond atoms a & b together
 	 */
 	protected void bond(IAtomLeaf a, IAtomLeaf b){
 		if (areBonded(a,b)){			// Error Checking, what about double bonds?
-			return;
+			throw new RuntimeException(a+" and "+b+" are already bonded");
 		}
 		int i = lowest(a);		// (0 is the First Space) 
 		int j = lowest(b);
@@ -106,7 +106,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 */
 	protected void unbond(IAtom a, IAtom b){
 		if (!areBonded(a,b)){		// Error Checking
-			return;
+            throw new RuntimeException(a+" and "+b+" are not bonded");
 		}
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
