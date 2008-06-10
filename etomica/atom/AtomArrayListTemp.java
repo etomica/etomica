@@ -8,9 +8,8 @@ public class AtomArrayListTemp implements IAtomSet {
 	private float trimThreshold = 0.8f;
 	private IAtom[] atomList;
 	private static int DEFAULT_INIT_SIZE = 20;
-	private static float SIZE_INCREASE_RATIO = 0.5f;
+	private static float SIZE_INCREASE_RATIO = 0.3f;
 	int itemsInList = 0;
-	int initializeSize = DEFAULT_INIT_SIZE;
 
 	public AtomArrayListTemp() {
 		atomList = new IAtom[DEFAULT_INIT_SIZE];
@@ -18,7 +17,6 @@ public class AtomArrayListTemp implements IAtomSet {
 
 	public AtomArrayListTemp(int initialSize) {
 		atomList = new IAtom[initialSize];
-		this.initializeSize = initialSize;
 	}
 
 	public void trimToSize() {
@@ -96,8 +94,8 @@ public class AtomArrayListTemp implements IAtomSet {
 	public boolean add(IAtom atom) {
 
 		if(itemsInList == atomList.length) {
-			IAtom[] tempList = new IAtom[atomList.length+
-			        (int)((float)initializeSize * SIZE_INCREASE_RATIO)];
+			IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO))];
+
 			for(int i = 0; i < atomList.length; i++) {
 				tempList[i] = atomList[i];
 			}
@@ -111,11 +109,11 @@ public class AtomArrayListTemp implements IAtomSet {
 
 	public void addAll(IAtomSet atoms) {
 		if((itemsInList + atoms.getAtomCount()) > atomList.length) {
-			IAtom[] tempList = new IAtom[itemsInList + atoms.getAtomCount()];
+			IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
+			                             atoms.getAtomCount()];
 			for(int i = 0; i < atomList.length; i++) {
 				tempList[i] = atomList[i];
 			}
-			atomList = null;
 			atomList = tempList;
 		}
 		for(int i = 0; i < atoms.getAtomCount(); i++) {

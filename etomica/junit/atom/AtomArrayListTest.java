@@ -250,7 +250,7 @@ public class AtomArrayListTest extends TestCase {
 	 */
 	public void testAdd() {
 		ISpace space = Space.getInstance(3);
-		int size = 5;
+		int size = 10;
         boolean addResult;
         IAtom[] atomList = new IAtom[size];
 
@@ -265,11 +265,12 @@ public class AtomArrayListTest extends TestCase {
 			assertSame(atomList[i], arrayList.getAtom(i));
 		}
 
-		// Storage array is now full (5).  Add another atom
+		// Storage array is now full (10).  Add another atom
 		IAtom overTheTop = new AtomLeaf(space);
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.getAtom(size));
+		assertEquals(13, arrayList.sizeOfArray());
 		
 	}
 
@@ -278,7 +279,7 @@ public class AtomArrayListTest extends TestCase {
 	 */
 	public void testAddAll() {
 		ISpace space = Space.getInstance(3);
-		int size = 5;
+		int size = 10;
         IAtom[] atomList = new IAtom[size];
         IAtom[] atomsetList = new IAtom[size];
 
@@ -301,6 +302,7 @@ public class AtomArrayListTest extends TestCase {
 		for(int i = 0; i < size; i++) {
 			assertSame(atomsetList[i], arrayList.getAtom(size+i));
 		}
+		assertEquals(23, arrayList.sizeOfArray());
 	}
 
 	/*
