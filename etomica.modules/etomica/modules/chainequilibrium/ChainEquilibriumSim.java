@@ -26,7 +26,7 @@ import etomica.species.SpeciesSpheresMono;
 public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 	public IController controller1;
-	public IntegratorHard integratorHard1;
+	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public IBox box;
 	public MeterTemperature thermometer;
@@ -44,16 +44,17 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         controller1 = getController();
 
         double diameter = 1.0;
+        double lambda = 2.0;
 
-        integratorHard1 = new IntegratorHard(this, potentialMaster, space);
-        integratorHard1.setIsothermal(true);
-        integratorHard1.setThermostat(ThermostatType.ANDERSEN);
-        integratorHard1.setThermostatInterval(100);
+        integratorHard = new IntegratorHard(this, potentialMaster, space);
+        integratorHard.setIsothermal(true);
+        integratorHard.setThermostat(ThermostatType.ANDERSEN);
+        integratorHard.setThermostatInterval(100);
 
         box = new Box(this, space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
-        integratorHard1.setBox(box);	
+        box.setBoundary(new BoundaryRectangularPeriodic(space, random, 50));
+        integratorHard.setBox(box);	
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesC = new SpeciesSpheresMono(this, space);
@@ -63,8 +64,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
         ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         ((IAtomTypeSphere)speciesC.getLeafType()).setDiameter(diameter);
-        box.setNMolecules(speciesA, 10);
-        box.setNMolecules(speciesB, 40);
+        box.setNMolecules(speciesA, 50);
+        box.setNMolecules(speciesB, 100);
         box.setNMolecules(speciesC, 0);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 
@@ -72,9 +73,9 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 		//potentials
         p2AA = new P2HardSphere(space, diameter, true);
-		ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
+		ABbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
         p2BB = new P2HardSphere(space, diameter, true);
-        ACbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
+        ACbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
         p2BC = new P2HardSphere(space, diameter, true);
         p2CC = new P2HardSphere(space, diameter, true);
 
@@ -97,12 +98,13 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		
 		thermometer = new MeterTemperature(box, space.D());
 		
-		integratorHard1.setNullPotential(new P1HardPeriodic(space, 3), speciesA.getLeafType());
-        integratorHard1.setNullPotential(new P1HardPeriodic(space, 3), speciesB.getLeafType());
+		integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesA.getLeafType());
+        integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesB.getLeafType());
+        integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesC.getLeafType());
         
-		activityIntegrate = new ActivityIntegrate(integratorHard1, 1, true);
+		activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
 		getController().addAction(activityIntegrate);
-		integratorHard1.addIntervalAction(new BoxImposePbc(box, space));
+		integratorHard.addIntervalAction(new BoxImposePbc(box, space));
 
 	}
     

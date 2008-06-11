@@ -19,6 +19,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
+import etomica.data.DataTag;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
@@ -65,7 +66,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         // ********* Data Declaration Section *******	
-        int eMin = 0, eMax = 1000;
+        int eMin = 0, eMax = 4000;
 
         // **** Stuff that Modifies the Simulation
 
@@ -96,8 +97,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DataPump pump = new DataPump(molecularCount,mwFork);
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(pump);
-        sim.integratorHard1.addIntervalAction(pump);
-        sim.integratorHard1.setActionInterval(pump, 10);
+        sim.integratorHard.addIntervalAction(pump);
+        sim.integratorHard.setActionInterval(pump, 10);
         
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
@@ -113,10 +114,17 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         MonomerConversion monomerConversion = new MonomerConversion();
         mwFork.addDataSink(monomerConversion);
-        AccumulatorHistory conversionHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        monomerConversion.setDataSink(conversionHistory);
+        AccumulatorHistory monomerConversionHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        monomerConversion.setDataSink(monomerConversionHistory);
 
-        sim.integratorHard1.setTimeStep(0.01);
+        MeterConversion reactionConversion = new MeterConversion(sim.agentManager);
+        AccumulatorHistory conversionHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        DataPump conversionPump = new DataPump(reactionConversion, conversionHistory);
+        sim.integratorHard.addIntervalAction(conversionPump);
+        sim.integratorHard.setActionInterval(conversionPump, 10);
+        dataStreamPumps.add(conversionPump);
+
+        sim.integratorHard.setTimeStep(0.01);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -130,8 +138,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         compositionPlot.setDoLegend(false);
 
         DisplayPlot conversionPlot = new DisplayPlot();
+        monomerConversionHistory.addDataSink(conversionPlot.getDataSet().makeDataSink());
+        conversionPlot.setLegend(new DataTag[]{monomerConversion.getTag()}, "monomer conversion");    
         conversionHistory.addDataSink(conversionPlot.getDataSet().makeDataSink());
-        conversionPlot.setDoLegend(false);
+        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");    
 
         DisplayTextBoxesCAE mwBox = new DisplayTextBoxesCAE();
         mwBox.setAccumulator(mwAvg);
@@ -152,13 +162,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         });
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
-        sim.integratorHard1.addIntervalAction(tPump);
+        sim.integratorHard.addIntervalAction(tPump);
         // Setting up how often it operates. 
-        sim.integratorHard1.setActionInterval(tPump, 10);
+        sim.integratorHard.setActionInterval(tPump, 10);
 
         DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1);
         temperatureSelect.setUnit(Kelvin.UNIT);
-        temperatureSelect.setIntegrator(sim.integratorHard1);
+        temperatureSelect.setIntegrator(sim.integratorHard);
         temperatureSelect.setTemperature(150);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
@@ -174,12 +184,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
         colorScheme.setColor(sim.speciesC.getLeafType(), java.awt.Color.GREEN);
 
-//        int ms = 20;
         DeviceNSelector nSliderA = new DeviceNSelector(sim.getController());
         nSliderA.setSpecies(sim.speciesA);
         nSliderA.setBox(sim.box);
         nSliderA.setShowBorder(true);
         nSliderA.setLabel("Diol");
+        nSliderA.setNMajor(4);
         IAction reset = new IAction() {
             public void actionPerformed() {
                 getController().getSimRestart().actionPerformed();
@@ -196,6 +206,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderB.setShowBorder(true);
         nSliderB.setLabel("Carboxylic Acid");
         nSliderB.setResetAction(reset);
+        nSliderB.setNMajor(4);
         nSliderB.setMaximum(400);
         DeviceNSelector nSliderC = new DeviceNSelector(sim.getController());
         nSliderC.setSpecies(sim.speciesC);
@@ -203,6 +214,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderC.setShowBorder(true);
         nSliderC.setLabel("Crosslinker");
         nSliderC.setResetAction(reset);
+        nSliderC.setNMajor(4);
         nSliderC.setMaximum(20);
 
         tBox.setUnit(Kelvin.UNIT);
@@ -267,7 +279,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AASlider.setMinimum(eMin);
         AASlider.setMaximum(eMax);
         AASlider.setNMajor(4);
-        AASlider.getSlider().setSnapToTicks(true);
+//        AASlider.getSlider().setSnapToTicks(true);
 
         return AASlider;
     }
