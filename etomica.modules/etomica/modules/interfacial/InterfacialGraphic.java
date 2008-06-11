@@ -73,20 +73,14 @@ public class InterfacialGraphic extends SimulationGraphic {
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
         sim.activityIntegrate.setSleepPeriod(1);
+        final double expansionFac = 4;
         
         final DeviceButton expandButton = new DeviceButton(sim.getController());
         IAction expandAction = new IAction() {
             public void actionPerformed() {
                 IVector dim = sim.box.getBoundary().getDimensions();
-                double height = dim.x(1);
-                double fac = 3;
-                dim.setX(0, height*fac);
+                dim.setX(0, expansionFac * dim.x(0));
                 sim.box.getBoundary().setDimensions(dim);
-                IAtomSet atoms = sim.box.getLeafList();
-                for (int i=0; i<atoms.getAtomCount(); i++) {
-                    IVector pos = ((IAtomPositioned)atoms.getAtom(i)).getPosition();
-                    pos.setX(0, pos.x(0)+(height*(fac-1))*0.5);
-                }
                 ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
                 nSlider.setEnabled(false);
                 expandButton.getButton().setEnabled(false);
@@ -100,12 +94,49 @@ public class InterfacialGraphic extends SimulationGraphic {
         getController().getReinitButton().setPreAction(new IAction() {
             public void actionPerformed() {
                 IVector dim = sim.box.getBoundary().getDimensions();
-                dim.setX(0, dim.x(1));
+                dim.setX(0, dim.x(0) / expansionFac);
                 sim.box.getBoundary().setDimensions(dim);
                 nSlider.setEnabled(true);
                 expandButton.getButton().setEnabled(true);
             }
         });
+        
+        IAction recenterAction = new IAction() {
+            public void actionPerformed() {
+                double dx = 0.5;
+                int leftN1 = 0, leftP1 = 0;
+                IAtomSet leafAtoms = sim.box.getLeafList();
+                int nTot = leafAtoms.getAtomCount();
+                for (int i=0; i<nTot; i++) {
+                    IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
+                    if (pos.x(0) < -dx) {
+                        leftN1++;
+                        leftP1++;
+                    }
+                    else if (pos.x(0) < dx) {
+                        leftP1++;
+                    }
+                }
+                double target = 0.5 * nTot; 
+                // interpolate to find median
+                double median = -dx + (target - leftN1) * (2*dx) / (leftP1 - leftN1);
+                // make sure we didn't extrapolate
+                if (median < -dx) {
+                    median = -dx;
+                }
+                else if (median > dx) {
+                    median = dx;
+                }
+                System.out.println(leftN1+" "+leftP1+" "+(-median));
+                for (int i=0; i<nTot; i++) {
+                    IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
+                    pos.setX(0, pos.x(0) - median);
+                }
+                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+            }
+        };
+        sim.integrator.addIntervalAction(recenterAction);
+        sim.integrator.setActionInterval(recenterAction, 1000);
 
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
@@ -205,6 +236,7 @@ public class InterfacialGraphic extends SimulationGraphic {
             pDisplay[i].setAccumulator(pAccumulator[i]);
         }
         sim.integrator.addIntervalAction(pPump);
+        sim.integrator.setActionInterval(pPump, 60);
         dataStreamPumps.add(pPump);
 
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
@@ -225,10 +257,10 @@ public class InterfacialGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 int n = (int)nSlider.getValue();
                 if(n == 0) {
-                	sim.integrator.setThermostatInterval(200);
+                	sim.integrator.setThermostatInterval(400);
                 }
                 else {
-                  sim.integrator.setThermostatInterval((200+(n-1))/n);
+                    sim.integrator.setThermostatInterval((400+(n-1))/n);
                 }
                 
                 if (oldN < n) {
@@ -326,7 +358,7 @@ public class InterfacialGraphic extends SimulationGraphic {
 
         Interfacial sim = new Interfacial(sp);
         InterfacialGraphic ljmdGraphic = new InterfacialGraphic(sim, sp);
-        ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+        ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(9));
 		SimulationGraphic.makeAndDisplayFrame
 		        (ljmdGraphic.getPanel(), APP_NAME);
     }
@@ -337,7 +369,9 @@ public class InterfacialGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space2D.getInstance();
-            InterfacialGraphic ljmdGraphic = new InterfacialGraphic(new Interfacial(sp), sp);
+	        Interfacial sim = new Interfacial(sp);
+            InterfacialGraphic ljmdGraphic = new InterfacialGraphic(sim, sp);
+            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }

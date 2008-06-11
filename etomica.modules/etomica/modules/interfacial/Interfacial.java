@@ -35,7 +35,7 @@ public class Interfacial extends Simulation {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 5, space);
 
-        int N = 250;  //number of atoms
+        int N = 300;  //number of atoms
 
         //controller and integrator
 	    integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
@@ -47,19 +47,24 @@ public class Interfacial extends Simulation {
         integrator.setTimeStep(0.01);
 
 	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
+	    species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,4.5);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,4);
 	    potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
 	    box = new Box(this, space);
         addBox(box);
         IVector dim = space.makeVector();
-        dim.E(20);
+        if (space.D() == 2) {
+            dim.E(new double[]{30,15});
+        }
+        else {
+            dim.E(new double[]{20,10,10});
+        }
         box.setDimensions(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
