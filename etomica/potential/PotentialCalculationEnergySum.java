@@ -12,7 +12,7 @@ import etomica.api.IPotential;
  *
  * @author David Kofke
  */
-public final class PotentialCalculationEnergySum implements PotentialCalculation, java.io.Serializable {
+public class PotentialCalculationEnergySum implements PotentialCalculation, java.io.Serializable {
 
     /**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
