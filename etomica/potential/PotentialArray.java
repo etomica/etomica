@@ -97,7 +97,7 @@ public class PotentialArray implements java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private IPotential[] potentials = new Potential[0];
+    private IPotential[] potentials = new IPotential[0];
     private NeighborCriterion[] criteria = new NeighborCriterion[0];
     private int mostRecentIndex = -1;
 
