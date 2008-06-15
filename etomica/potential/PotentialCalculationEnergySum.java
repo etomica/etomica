@@ -24,12 +24,9 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, java
 	
 	/**
 	 * Sets the energy sum to zero, typically to begin a new energy-sum calculation.
-	 * @return this instance, so the method can be called in-line as the instance is
-	 * passed to the PotentialMaster.
 	 */
-	public PotentialCalculationEnergySum zeroSum() {
+	public void zeroSum() {
 		sum = 0.0;
-		return this;
 	}
 
 	/**
