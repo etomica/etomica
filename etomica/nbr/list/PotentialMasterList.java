@@ -19,6 +19,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.CriterionAdapter;
+import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionType;
@@ -179,9 +180,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
-        CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
         NeighborCriterion criterion;
         if (atomType.length == 2) {
+            CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
             if ((atomType[0] instanceof IAtomTypeLeaf) &&
                     (atomType[1] instanceof IAtomTypeLeaf)) {
@@ -193,10 +194,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
         }
         else if (atomType.length == 1) {
-            criterion = new CriterionType(rangedCriterion, atomType[0]);
+            criterion = new CriterionType(new CriterionAll(), atomType[0]);
         }
         else {
-            criterion = new CriterionTypesMulti(rangedCriterion, atomType);
+            criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
         }
 
         // add the criterion to all existing NeighborListManagers
