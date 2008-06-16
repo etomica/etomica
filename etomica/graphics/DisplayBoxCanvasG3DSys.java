@@ -78,7 +78,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		panel = new Panel();
 		this.setLayout(new java.awt.GridLayout());
 		panel.setLayout(new java.awt.GridLayout());
-		panel.setSize(800, 800);
+		panel.setSize(1600, 1600);
 		this.add(panel);
 		coords = new double[3];
 		gsys = new G3DSys(panel);
@@ -190,9 +190,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			Ball ball = (Ball) aam.getAgent(a);
 			if (ball == null) {
 				continue;
-			} else {
-				gsys.removeFig(ball);
 			}
+			gsys.removeFig(ball);
 		}
 	}
 
