@@ -8,20 +8,23 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.Data;
 import etomica.data.DataFork;
+import etomica.data.DataGroupSplitter;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
+import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
@@ -33,6 +36,7 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicFcc;
@@ -63,7 +67,7 @@ public class InterfacialGraphic extends SimulationGraphic {
     
     public InterfacialGraphic(final Interfacial simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
 
@@ -127,7 +131,7 @@ public class InterfacialGraphic extends SimulationGraphic {
                 else if (median > dx) {
                     median = dx;
                 }
-                System.out.println(leftN1+" "+leftP1+" "+(-median));
+
                 for (int i=0; i<nTot; i++) {
                     IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
                     pos.setX(0, pos.x(0) - median);
@@ -145,6 +149,8 @@ public class InterfacialGraphic extends SimulationGraphic {
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
+        DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
+        add(displayTimer);
 
         //add meter and display for current kinetic temperature
 
@@ -195,7 +201,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         DataPump pePump = new DataPump(peMeter, peFork);
         sim.integrator.addIntervalAction(pePump);
         sim.integrator.setActionInterval(pePump, 60);
-        peHistory.setPushInterval(5);
+        peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
 		
         DisplayPlot ePlot = new DisplayPlot();
@@ -205,39 +211,80 @@ public class InterfacialGraphic extends SimulationGraphic {
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
 		
-        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterVirialTensorFromForceSum pMeter = new MeterVirialTensorFromForceSum(space, sim.forceSum);
         DataProcessorTensorSplitter tensorSplitter = new DataProcessorTensorSplitter();
         final DataPump pPump = new DataPump(pMeter, tensorSplitter);
+        DataFork virialFork = new DataFork();
+        tensorSplitter.setDataSink(virialFork);
         final DataSplitter splitter = new DataSplitter();
-        tensorSplitter.setDataSink(splitter);
+        virialFork.addDataSink(splitter);
         final AccumulatorAverageCollapsing[] pAccumulator = new AccumulatorAverageCollapsing[space.D()];
         final DisplayTextBoxesCAE[] pDisplay = new DisplayTextBoxesCAE[space.D()];
+        String[] comp = new String[]{"x", "y", "z"};
         for (int i=0; i<pAccumulator.length; i++) {
             pAccumulator[i] = new AccumulatorAverageCollapsing();
             splitter.setDataSink(i, pAccumulator[i]);
             pAccumulator[i].setPushInterval(10);
             pDisplay[i] = new DisplayTextBoxesCAE();
-            String comp = "";
-            switch (i) {
-                case 0:
-                    comp = "x";
-                    break;
-                case 1:
-                    comp = "y";
-                    break;
-                case 2:
-                    comp= "z";
-                    break;
-                default:
-                    throw new RuntimeException("oops");
-            }
-            pDisplay[i].setLabel(comp+" Virial");
+            pDisplay[i].setLabel(comp[i]+" Virial");
             pDisplay[i].setAccumulator(pAccumulator[i]);
         }
         sim.integrator.addIntervalAction(pPump);
-        sim.integrator.setActionInterval(pPump, 60);
+        sim.integrator.setActionInterval(pPump, 20);
         dataStreamPumps.add(pPump);
+        
+        DataProcessorInterfacialTension interfacialTension = new DataProcessorInterfacialTension(space);
+        interfacialTension.setBox(sim.box);
+        virialFork.addDataSink(interfacialTension);
+        final AccumulatorAverageCollapsing tensionAvg = new AccumulatorAverageCollapsing();
+        interfacialTension.setDataSink(tensionAvg);
+        tensionAvg.setPushInterval(10);
+        DisplayTextBoxesCAE tensionDisplay = new DisplayTextBoxesCAE();
+        tensionDisplay.setAccumulator(tensionAvg);
+
+        MeterVirialProfileFromForceSum virialProfileMeter = new MeterVirialProfileFromForceSum(sim.forceSum);
+        DataFork virialProfileFork = new DataFork();
+        DataPump virialProfilePump = new DataPump(virialProfileMeter, virialProfileFork);
+        DataGroupSplitter virialSplitter = new DataGroupSplitter();
+        virialProfileFork.addDataSink(virialSplitter);
+        sim.integrator.addIntervalAction(virialProfilePump);
+        sim.integrator.setActionInterval(virialProfilePump, 20);
+        AccumulatorAverageFixed[] virialProfileAvg = new AccumulatorAverageFixed[space.D()];
+        DisplayPlot virialPlot = new DisplayPlot();
+        for (int i=0; i<space.D(); i++) {
+            virialProfileAvg[i] = new AccumulatorAverageFixed(100);
+            virialProfileAvg[i].setPushInterval(10);
+            virialSplitter.setDataSink(i, virialProfileAvg[i]);
+            virialProfileAvg[i].addDataSink(virialPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+            virialPlot.setLegend(new DataTag[]{virialProfileAvg[i].getTag()}, comp[i]+" Virial");
+        }
+        virialPlot.setLabel("Virial Profile");
+        add(virialPlot);
+        dataStreamPumps.add(virialProfilePump);
+        
+        DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(space);
+        interfacialTensionProfile.setBox(sim.box);
+        virialProfileFork.addDataSink(interfacialTensionProfile);
+        AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(100);
+        interfacialTensionProfile.setDataSink(tensionProfileAvg);
+        tensionProfileAvg.setPushInterval(10);
+        DisplayPlot tensionPlot = new DisplayPlot();
+        tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        tensionPlot.setLabel("Tension Profile");
+        add(tensionPlot);
+        
+        MeterDensityProfileFromForceSum densityProfileMeter = new MeterDensityProfileFromForceSum(sim.forceSum);
+        AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed();
+        densityProfileAvg.setPushInterval(10);
+        DataPump profilePump = new DataPump(densityProfileMeter, densityProfileAvg);
+        sim.integrator.addIntervalAction(profilePump);
+        sim.integrator.setActionInterval(profilePump, 10);
+        dataStreamPumps.add(profilePump);
+
+        DisplayPlot profilePlot = new DisplayPlot();
+        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        profilePlot.setLabel("Density");
+        add(profilePlot);
 
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
@@ -246,7 +293,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
-        nSlider.setMaximum(500);
+        nSlider.setMaximum(space.D() == 3 ? 2048 : 500);
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
@@ -291,7 +338,14 @@ public class InterfacialGraphic extends SimulationGraphic {
         temperatureSelect = new DeviceThermoSlider(sim.getController());
         temperatureSelect.setPrecision(2);
         temperatureSelect.setMinimum(0.0);
-        temperatureSelect.setMaximum(1.5);
+        if (space.D() == 3) {
+            // Tc = 1.312
+            temperatureSelect.setMaximum(1.5);
+        }
+        else {
+            // Tc = 0.515
+            temperatureSelect.setMaximum(0.6);
+        }
         temperatureSelect.setSliderMajorValues(3);
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setIntegrator(sim.integrator);
@@ -336,6 +390,7 @@ public class InterfacialGraphic extends SimulationGraphic {
     	    add(pDisplay[i]);
     	}
     	add(peDisplay);
+        add(tensionDisplay);
 
     }
 
@@ -353,7 +408,7 @@ public class InterfacialGraphic extends SimulationGraphic {
             } catch(NumberFormatException e) {}
         }
         else {
-        	sp = Space2D.getInstance();
+        	sp = Space3D.getInstance();
         }
 
         Interfacial sim = new Interfacial(sp);
@@ -390,7 +445,6 @@ public class InterfacialGraphic extends SimulationGraphic {
         }
         
         protected Data processData(Data inputData) {
-            // take the trace and divide by the dimensionality
             double[] x = data.getData();
             for (int i=0; i<x.length; i++) {
                 x[i] = ((DataTensor)inputData).x.component(i,i);
