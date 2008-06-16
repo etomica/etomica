@@ -140,9 +140,9 @@ public class DisplayPlot extends Display implements DataSetListener {
      * Redraws the plot.
      */
     public void doUpdate() {
-        if(!plot.isShowing()) return;
         int nSource = dataSet.getDataCount();
-        plot.clear(false);
+        // if not showing, do a full clear so that adding points doesn't cause it to actually draw
+        plot.clear(!plot.isShowing());
         for(int k=0; k<nSource; k++) {
         	double[] xValues = null;
             double[] data = null;
@@ -157,7 +157,11 @@ public class DisplayPlot extends Display implements DataSetListener {
                 }
         	}
         }
-        plot.repaint();
+        if (plot.isShowing()) {
+            // now force a repaint if it's showing
+            // if it's not showing, repaint will get called when does get shown
+            plot.repaint();
+        }
     }
 
     /**
