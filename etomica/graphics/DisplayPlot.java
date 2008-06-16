@@ -1,6 +1,14 @@
 package etomica.graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.LinkedList;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import ptolemy.plot.Plot;
 import etomica.EtomicaInfo;
@@ -50,10 +58,22 @@ public class DisplayPlot extends Display implements DataSetListener {
         }
         dataSet.addDataListener(this);
         plot = new Plot();
+        panel = new JPanel();
         panel.add(plot);
         units = new Unit[0];
-        labelList = new LinkedList();
-        unitList = new LinkedList();
+        labelList = new LinkedList<DataTagBag>();
+        unitList = new LinkedList<DataTagBag>();
+        
+        final JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem menuItem = new JMenuItem("reset");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                plot.clear(true);
+                doUpdate();
+            }
+        });
+        popupMenu.add(menuItem);
+        plot.addMouseListener(new PopupListener(popupMenu));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -81,7 +101,8 @@ public class DisplayPlot extends Display implements DataSetListener {
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void dataCountChanged(DataSet dataSet) {
+    public void dataCountChanged(DataSet changedDataSet) {
+        // changedDataSet is our dataSet.  or at least, it better be.
         int oldColumnCount = units.length;
         int newDataCount = dataSet.getDataCount();
         if(newDataCount > oldColumnCount) {
@@ -142,6 +163,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     public void doUpdate() {
         int nSource = dataSet.getDataCount();
         // if not showing, do a full clear so that adding points doesn't cause it to actually draw
+        // if the user zoomed in/out, this will clobber it if the plot isn't shown.  "oops".  this is ptolemy's fault.
         plot.clear(!plot.isShowing());
         for(int k=0; k<nSource; k++) {
         	double[] xValues = null;
@@ -273,15 +295,15 @@ public class DisplayPlot extends Display implements DataSetListener {
         panel.setSize(width, height);
     }
     
-    private final DataSet dataSet;
-    private Plot plot;
-    private javax.swing.JPanel panel = new javax.swing.JPanel();
+    protected final DataSet dataSet;
+    protected final Plot plot;
+    protected final LinkedList<DataTagBag> labelList;
+    protected final LinkedList<DataTagBag> unitList;
+    protected final javax.swing.JPanel panel;
     private boolean doLegend = true;
     private Unit xUnit = Null.UNIT;
     private Unit[] units;
     private Unit defaultUnit;
-    private LinkedList labelList;
-    private LinkedList unitList;
     
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
@@ -299,7 +321,30 @@ public class DisplayPlot extends Display implements DataSetListener {
             }
             throw new RuntimeException("DisplayPlot can only handle DataFunctions");
         }
-
     }
+
+    public static class PopupListener extends MouseAdapter {
+        
+        public PopupListener(JPopupMenu popupMenu) {
+            this.popupMenu = popupMenu;
+        }
+        
+        public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+
+        public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+
+        private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                popupMenu.show(e.getComponent(),
+                           e.getX(), e.getY());
+            }
+        }
+        
+        protected final JPopupMenu popupMenu;
+    };
 
 }
