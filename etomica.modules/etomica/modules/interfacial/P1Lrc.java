@@ -84,11 +84,12 @@ public class P1Lrc implements PotentialSoft {
         double[] densityProfile = forceSum.densityProfile;
         IVector dim = box.getBoundary().getDimensions();
         double L = dim.x(0);
+        int nBins = densityProfile.length;
+        if (Math.abs(L - binSize * nBins) > 1) return 0;
         IAtomPositioned a = (IAtomPositioned)atoms.getAtom(0);
         double x = a.getPosition().x(0);
         x -= Math.round(x/L) * L;
         int iBin = (int) ((x + 0.5 * L) / binSize);
-        int nBins = densityProfile.length;
         int halfNBins = nBins/2;
         double u = 0;
         for (int i=0; i<nBins; i++) {
