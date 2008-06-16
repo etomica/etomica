@@ -262,7 +262,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         add(virialPlot);
         dataStreamPumps.add(virialProfilePump);
         
-        DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(space);
+        DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(sim.forceSum);
         interfacialTensionProfile.setBox(sim.box);
         virialProfileFork.addDataSink(interfacialTensionProfile);
         AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(100);
@@ -286,9 +286,10 @@ public class InterfacialGraphic extends SimulationGraphic {
         profilePlot.setLabel("Density");
         add(profilePlot);
 
+
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
-        
+
         nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
@@ -467,7 +468,6 @@ public class InterfacialGraphic extends SimulationGraphic {
         private static final long serialVersionUID = 1L;
         protected final DataDoubleArray data;
     }
-
 }
 
 

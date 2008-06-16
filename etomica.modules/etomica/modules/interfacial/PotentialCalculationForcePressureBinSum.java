@@ -21,8 +21,8 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
 
     public PotentialCalculationForcePressureBinSum(ISpace space) {
         this.space = space;
-        pressureTensor = space.makeTensor();
-        pressureTensorTot = space.makeTensor();
+        virialTensor = space.makeTensor();
+        virialTensorTot = space.makeTensor();
         dataCountDown = 10;
     }
     
@@ -41,13 +41,13 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
             nBins = (int)(l/binSize);
             binSize = l / nBins;
             densityProfile = new double[nBins];
-            pressureTensorProfile = new Tensor[nBins];
+            virialTensorProfile = new Tensor[nBins];
             uLrc = new double[(nBins+1)/2];
             fLrc = new double[(nBins+1)/2];
             xVirialLrc = new double[(nBins+1)/2];
             yzVirialLrc = new double[(nBins+1)/2];
             for (int i=0; i<nBins; i++) {
-                pressureTensorProfile[i] = space.makeTensor();
+                virialTensorProfile[i] = space.makeTensor();
             }
         }
     }
@@ -63,9 +63,9 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
             fLrc = new double[(nBins+1)/2];
             xVirialLrc = new double[(nBins+1)/2];
             yzVirialLrc = new double[(nBins+1)/2];
-            pressureTensorProfile = new Tensor[nBins];
+            virialTensorProfile = new Tensor[nBins];
             for (int i=0; i<nBins; i++) {
-                pressureTensorProfile[i] = space.makeTensor();
+                virialTensorProfile[i] = space.makeTensor();
             }
         }
     }
@@ -77,7 +77,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
      */
     public void reset() {
         super.reset();
-        pressureTensorTot.E(0);
+        virialTensorTot.E(0);
         if (dataCountDown == 0) {
             dataCountDown = 10;
         }
@@ -93,9 +93,9 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
             if (nBins != densityProfile.length || uLrc[0] == 0) {
                 binSize = L / nBins;
                 densityProfile = new double[nBins];
-                pressureTensorProfile = new Tensor[nBins];
+                virialTensorProfile = new Tensor[nBins];
                 for (int i=0; i<nBins; i++) {
-                    pressureTensorProfile[i] = space.makeTensor();
+                    virialTensorProfile[i] = space.makeTensor();
                 }
                 uLrc = new double[(nBins+1)/2];
                 fLrc = new double[(nBins+1)/2];
@@ -125,7 +125,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
             else {
                 for (int i=0; i<nBins; i++) {
                     densityProfile[i] = 0;
-                    pressureTensorProfile[i].E(0);
+                    virialTensorProfile[i].E(0);
                 }
             }
             IAtomSet leafAtoms = box.getLeafList();
@@ -156,9 +156,10 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
 	public void doCalculation(IAtomSet atoms, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
-		pressureTensor.E(0);
-		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
-		pressureTensorTot.PE(pressureTensor);
+		virialTensor.E(0);
+		IVector[] f = potentialSoft.gradient(atoms, virialTensor);
+		virialTensorTot.PE(virialTensor);
+		virialTensor.TE(1.0/binSize);
 		boolean takeData = dataCountDown == 0;
 		switch(nBody) {
 		    case 0:
@@ -171,7 +172,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                     // wrap around PBC
                     x0 -= Math.round(x0*Li) * L;
                     int iBin0 = (int) ((x0 + halfL) / binSize);
-                    pressureTensorProfile[iBin0].PE(pressureTensor);
+                    virialTensorProfile[iBin0].PE(virialTensor);
                 }
 			    break;
 			case 2:
@@ -187,7 +188,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                     x1 -= Math.round(x1*Li) * L;
                     int iBin1 = (int) ((x1 + halfL) / binSize);
                     if (iBin0 == iBin1) {
-                        pressureTensorProfile[iBin0].PE(pressureTensor);
+                        virialTensorProfile[iBin0].PE(virialTensor);
                     }
                     else if (Math.abs(iBin1-iBin0) > nBins/2) {
                         if (iBin0 > nBins/2) {
@@ -197,12 +198,12 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                             iBin1 = foo;
                         }
                         int nBetween = (nBins-1)-iBin1+1 + iBin0+1;
-                        pressureTensor.TE(1.0/nBetween);
+                        virialTensor.TE(1.0/nBetween);
                         for (int i=iBin1; i<nBins; i++) {
-                            pressureTensorProfile[i].PE(pressureTensor);
+                            virialTensorProfile[i].PE(virialTensor);
                         }
                         for (int i=0; i<iBin0+1; i++) {
-                            pressureTensorProfile[i].PE(pressureTensor);
+                            virialTensorProfile[i].PE(virialTensor);
                         }
                     }
                     else {
@@ -213,9 +214,9 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                             iBin1 = foo;
                         }
                         int nBetween = iBin1 - iBin0 + 1;
-                        pressureTensor.TE(1.0/nBetween);
+                        virialTensor.TE(1.0/nBetween);
                         for (int i=iBin0; i<iBin1+1; i++) {
-                            pressureTensorProfile[i].PE(pressureTensor);
+                            virialTensorProfile[i].PE(virialTensor);
                         }
                     }
                 }
@@ -232,17 +233,17 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
      * been normalized by the system volume.
      */
     public Tensor getPressureTensor() {
-        return pressureTensor;
+        return virialTensorTot;
     }
     
     public Tensor[] getPressureTensorProfile() {
-        return pressureTensorProfile;
+        return virialTensorProfile;
     }
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final Tensor pressureTensor, pressureTensorTot;
-    protected Tensor[] pressureTensorProfile;
+    protected final Tensor virialTensor, virialTensorTot;
+    protected Tensor[] virialTensorProfile;
     protected double binSize;
     protected IBox box;
     protected double[] densityProfile;
