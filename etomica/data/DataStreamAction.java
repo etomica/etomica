@@ -30,6 +30,12 @@ public abstract class DataStreamAction implements IAction, java.io.Serializable 
                 actionPerformed(((DataSplitter)obj).getDataSink(i));
             }
         }
+        else if (obj instanceof DataGroupSplitter) {
+            int n = ((DataGroupSplitter)obj).getNumDataSinks();
+            for (int i=0; i<n; i++) {
+                actionPerformed(((DataGroupSplitter)obj).getDataSink(i));
+            }
+        }
         else if (obj instanceof DataProcessor) {
             actionPerformed(((DataProcessor)obj).getDataSink());
         }
