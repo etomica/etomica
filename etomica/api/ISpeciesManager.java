@@ -22,9 +22,14 @@ public interface ISpeciesManager {
 	public abstract boolean removeSpecies(ISpecies removedSpecies);
 
 	/**
-	 * Returns an array of the Species in the Simulation.
+	 * Returns the number of Species in the Simulation.
 	 */
-	public abstract ISpecies[] getSpecies();
+	public abstract int getSpeciesCount();
+
+	/**
+	 * Returns the Species in the Simulation for the specified index.
+	 */
+	public abstract ISpecies getSpecie(int index);
 
 	/**
 	 * This method notifies the SpeciesManager that the give atomType was added

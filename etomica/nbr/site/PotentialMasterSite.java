@@ -169,14 +169,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            ISpecies[] species = simulation.getSpeciesManager().getSpecies();
-            for (int j=0; j<species.length; j++) {
+            for (int j=0; j<simulation.getSpeciesManager().getSpeciesCount(); j++) {
                 IAtomSet list = box.getMoleculeList();
                 int size = list.getAtomCount();
-                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(species[j]);
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(simulation.getSpeciesManager().getSpecie(j));
                 IPotential[] potentials = potentialArray.getPotentials();
                 NeighborCriterion[] criteria = potentialArray.getCriteria();
-                PotentialArray intraPotentialArray = getIntraPotentials(species[j]);
+                PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpeciesManager().getSpecie(j));
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
                 for (int i=0; i<size; i++) {
                     IMolecule molecule = (IMolecule)list.getAtom(i);

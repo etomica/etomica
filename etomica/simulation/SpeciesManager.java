@@ -128,11 +128,15 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         return true;
     }
 
+    public int getSpeciesCount() {
+    	return speciesList.length;
+    }
+
     /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#getSpecies()
+	 * @see etomica.simulation.ISpeciesManager#getSpecie()
 	 */
-    public ISpecies[] getSpecies() {
-        return speciesList;
+    public ISpecies getSpecie(int index) {
+        return speciesList[index];
     }
 
     /* (non-Javadoc)

@@ -198,13 +198,12 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             }
         }
 
-        ISpecies[] species = sim.getSpeciesManager().getSpecies();
-        for (int i=0; i<species.length; i++) {
-            if (!species[i].isInteracting()) {
+        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
+            if (!sim.getSpeciesManager().getSpecie(i).isInteracting()) {
                 // should we try removing the molecules from cells
                 continue;
             }
-            IAtomSet moleculeList = box.getMoleculeList(species[i]);
+            IAtomSet moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecie(i));
             count = moleculeList.getAtomCount();
             for (int j=0; j<count; j++) {
                 IMolecule atom = (IMolecule)moleculeList.getAtom(i);

@@ -53,9 +53,8 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         double ke = 0.0;
-        ISpecies[] species = sim.getSpeciesManager().getSpecies();
-        for (int i=0; i<species.length; i++) {
-            IAtomSet moleculeList = box.getMoleculeList(species[i]);
+        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
+            IAtomSet moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecie(i));
             if (moleculeList.getAtomCount() == 0) {
                 continue;
             }

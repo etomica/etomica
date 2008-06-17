@@ -141,7 +141,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         BoundaryDeformablePeriodicTest test = new BoundaryDeformablePeriodicTest();
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
-        IAtomSet list = test.sim.getBox(0).getMoleculeList(test.sim.getSpeciesManager().getSpecies()[0]);
+        IAtomSet list = test.sim.getBox(0).getMoleculeList(test.sim.getSpeciesManager().getSpecie(0));
         test.atom0 = (AtomLeaf)list.getAtom(0);
         test.atom1 = (AtomLeaf)list.getAtom(1);
         test.atom2 = (AtomLeaf)list.getAtom(2);

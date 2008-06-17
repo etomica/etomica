@@ -74,10 +74,10 @@ public class VirialGCPMGraphic {
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space);
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecies()[0]).getChildType(0), Color.WHITE);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecies()[0]).getChildType(0), Color.WHITE);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecies()[0]).getChildType(1), Color.RED);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecies()[0]).getChildType(1), Color.RED);
+        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecie(0)).getChildType(0), Color.WHITE);
+        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecie(0)).getChildType(0), Color.WHITE);
+        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecie(0)).getChildType(1), Color.RED);
+        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecie(0)).getChildType(1), Color.RED);
         simGraphic.makeAndDisplayFrame();
 
         sim.integratorOS.setNumSubSteps(numSubSteps);

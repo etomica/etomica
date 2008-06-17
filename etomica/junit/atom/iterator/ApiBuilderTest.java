@@ -86,8 +86,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //iterator must loop over pairs formed from molecules of each species
         sim = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
-        ISpecies species0 = sim.getSpeciesManager().getSpecies()[0];
-        ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
+        ISpecies species0 = sim.getSpeciesManager().getSpecie(0);
+        ISpecies species1 = sim.getSpeciesManager().getSpecie(1);
         IAtomType[] types = new IAtomType[2];
         AtomPair basisPair = new AtomPair();
 
@@ -252,7 +252,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
         IBox box = sim.getBox(1);
-        ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
+        ISpecies species1 = sim.getSpeciesManager().getSpecie(1);
         parent = box.getMoleculeList(species1).getAtom(0);//box1, species1, molecule0
         target = ((IMolecule)parent).getChildList().getAtom(0);
         targetFirst = target;
@@ -266,7 +266,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
-        IAtomSet moleculeList = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
+        IAtomSet moleculeList = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecie(1));
         parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5
         targetFirst = moleculeList.getAtom(0);//atom0 
@@ -289,7 +289,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
-        parent = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(2);
+        parent = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecie(0)).getAtom(2);
         IAtomSet childList = ((IMolecule)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);

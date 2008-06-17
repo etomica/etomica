@@ -27,12 +27,15 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         int[] n1 = new int[] {5, 1, 6};
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
-        ISpecies[] species = sim.getSpeciesManager().getSpecies();
-
+        ISpecies[] species = new ISpecies[sim.getSpeciesManager().getSpeciesCount()];
+        for(int i = 0; i < sim.getSpeciesManager().getSpeciesCount(); i++) {
+        	species[i] = sim.getSpeciesManager().getSpecie(i);
+        }
         boxTest(sim.getBox(0), species);
         boxTest(sim.getBox(1), species);
         
-        ApiInterspeciesAA api = new ApiInterspeciesAA(new ISpecies[] {species[0], species[1]});
+        ApiInterspeciesAA api = new ApiInterspeciesAA(new ISpecies[]
+                 {species[0], species[1]});
         
         //test new iterator gives no iterates
         testNoIterates(api);
