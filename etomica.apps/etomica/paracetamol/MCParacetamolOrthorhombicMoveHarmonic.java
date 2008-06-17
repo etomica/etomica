@@ -336,12 +336,11 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.
         		displayList().getFirst()).getColorScheme());
-        IAtomTypeLeaf[] leafTypes = sim.species.getChildTypes();
-        colorScheme.setColor(leafTypes[0], java.awt.Color.red);
-        colorScheme.setColor(leafTypes[1], java.awt.Color.gray);
-        colorScheme.setColor(leafTypes[2], java.awt.Color.blue);
-        colorScheme.setColor(leafTypes[3], java.awt.Color.white);
-        colorScheme.setColor(leafTypes[4], java.awt.Color.white);
+        colorScheme.setColor(sim.species.getChildType(0), java.awt.Color.red);
+        colorScheme.setColor(sim.species.getChildType(1), java.awt.Color.gray);
+        colorScheme.setColor(sim.species.getChildType(2), java.awt.Color.blue);
+        colorScheme.setColor(sim.species.getChildType(3), java.awt.Color.white);
+        colorScheme.setColor(sim.species.getChildType(4), java.awt.Color.white);
         
         simGraphic.getDisplayBox(sim.box).repaint();
         

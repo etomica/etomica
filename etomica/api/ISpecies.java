@@ -48,9 +48,14 @@ public interface ISpecies extends IAtomType {
     public int getNumLeafAtoms();
 
     /**
-     * Returns the array of child types of this group.
+     * Returns the number of child types of this group.
      */
-    public IAtomTypeLeaf[] getChildTypes();
+    public int getChildTypeCount();
+
+    /**
+     * Returns the child types of this group for the specified index.
+     */
+    public IAtomTypeLeaf getChildType(int index);
 
     /**
      * Add the given leaf type as a child of this ISpecies.  Where possible,

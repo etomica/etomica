@@ -65,11 +65,12 @@ public abstract class Species extends AtomType implements ISpecies {
         return this;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomTypeMolecule#getChildTypes()
-     */
-    public IAtomTypeLeaf[] getChildTypes() {
-        return childTypes;
+    public IAtomTypeLeaf getChildType(int index) {
+    	return childTypes[index];
+    }
+
+    public int getChildTypeCount() {
+    	return childTypes.length;
     }
 
     /* (non-Javadoc)

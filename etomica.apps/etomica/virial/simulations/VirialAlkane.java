@@ -98,8 +98,8 @@ public class VirialAlkane {
 //        sim.integratorOS.setStepFreq0(1);
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
-        IAtomTypeLeaf typeCH3 = species.getChildTypes()[0];
-        IAtomTypeLeaf typeCH2 = species.getChildTypes()[1];
+        IAtomTypeLeaf typeCH3 = species.getChildType(0);
+        IAtomTypeLeaf typeCH2 = species.getChildType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
         pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
         pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));

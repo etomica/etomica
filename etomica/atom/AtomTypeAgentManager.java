@@ -74,9 +74,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         agents[parentType.getIndex()] = null;
 
         if (parentType instanceof ISpecies) {
-            IAtomType[] children = ((ISpecies)parentType).getChildTypes();
-            for (int i=0; i<children.length; i++) {
-                releaseAgents(children[i]);
+            for (int i=0; i<((ISpecies)parentType).getChildTypeCount(); i++) {
+                releaseAgents(((ISpecies)parentType).getChildType(i));
             }
         }
     }
@@ -85,11 +84,10 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Creates the agents associated with the children of the given AtomType.
      */
     private void makeChildAgents(ISpecies parentType) {
-        IAtomType[] children = parentType.getChildTypes();
-        for (int i=0; i<children.length; i++) {
-            addAgent(children[i]);
-            if (children[i] instanceof ISpecies) {
-                makeChildAgents((ISpecies)children[i]);
+        for (int i=0; i<parentType.getChildTypeCount(); i++) {
+            addAgent(parentType.getChildType(i));
+            if (parentType.getChildType(i) instanceof ISpecies) {
+                makeChildAgents((ISpecies)parentType.getChildType(i));
             }
         }
     }
@@ -125,13 +123,12 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     private static int getMaxIndexOfChildren(ISpecies parentType) {
         int max = 0;
-        IAtomType[] children = parentType.getChildTypes();
-        for (int i=0; i<children.length; i++) {
-            if (children[i].getIndex() > max) {
-                max = children[i].getIndex();
+        for (int i=0; i<parentType.getChildTypeCount(); i++) {
+            if (parentType.getChildType(i).getIndex() > max) {
+                max = parentType.getChildType(i).getIndex();
             }
-            if (children[i] instanceof ISpecies) {
-                int childMax = getMaxIndexOfChildren((ISpecies)children[i]);
+            if (parentType.getChildType(i) instanceof ISpecies) {
+                int childMax = getMaxIndexOfChildren((ISpecies)parentType.getChildType(i));
                 if (childMax > max) {
                     max = childMax;
                 }
