@@ -254,12 +254,16 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         typeIndexReservoir = null;
         typeReservoirCount = -1;
     }
-    
+
+    public int getMoleculeTypeCount() {
+    	return moleculeTypes.length;
+    }
+
     /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#getMoleculeTypes()
+	 * @see etomica.simulation.ISpeciesManager#getMoleculeType()
 	 */
-    public ISpecies[] getMoleculeTypes() {
-        return moleculeTypes;
+    public ISpecies getMoleculeType(int index) {
+        return moleculeTypes[index];
     }
 
     /**
