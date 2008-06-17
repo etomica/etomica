@@ -131,10 +131,10 @@ public class UnitTestUtil {
     
     public static void main(String[] arg) {
         ISimulation sim = makeStandardSpeciesTree();
-        IBox[] boxs = sim.getBoxs();
-        for (int i=0; i<boxs.length; i++) {
+        int boxCount = sim.getBoxCount();
+        for (int i=0; i<boxCount; i++) {
             AtomIteratorTreeBox iterator = new AtomIteratorTreeBox();
-            iterator.setBox(boxs[i]);
+            iterator.setBox(sim.getBox(i));
             iterator.setDoAllNodes(true);
             iterator.reset();
             for (IAtomSet atom = iterator.next(); atom != null;

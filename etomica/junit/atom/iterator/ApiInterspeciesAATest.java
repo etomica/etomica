@@ -29,8 +29,8 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         
         ISpecies[] species = sim.getSpeciesManager().getSpecies();
 
-        boxTest(sim.getBoxs()[0], species);
-        boxTest(sim.getBoxs()[1], species);
+        boxTest(sim.getBox(0), species);
+        boxTest(sim.getBox(1), species);
         
         ApiInterspeciesAA api = new ApiInterspeciesAA(new ISpecies[] {species[0], species[1]});
         

@@ -69,9 +69,9 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         // this just fires an event for listeners to receive
         atomTypeAddedNotify(species);
 
-        IBox[] boxList = sim.getBoxs();
-        for (int i=0; i<boxList.length; i++) {
-            boxList[i].addSpeciesNotify(species);
+        int boxCount = sim.getBoxCount();
+        for (int i=0; i<boxCount; i++) {
+            sim.getBox(i).addSpeciesNotify(species);
         }
 
         sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
@@ -108,9 +108,9 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
             speciesList[i].setIndex(i);
         }
 
-        IBox[] boxList = sim.getBoxs();
-        for (int i=0; i<boxList.length; i++) {
-            boxList[i].removeSpeciesNotify(removedSpecies);
+        int boxCount = sim.getBoxCount();
+        for (int i=0; i<boxCount; i++) {
+            sim.getBox(i).removeSpeciesNotify(removedSpecies);
         }
 
         for (int i=0; i<moleculeTypes.length; i++) {

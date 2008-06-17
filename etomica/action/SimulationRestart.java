@@ -60,10 +60,10 @@ public final class SimulationRestart extends SimulationActionAdapter {
      * Resets boxs, integrators, and accumulators.
      */
     public void actionPerformed() {
-        IBox[] boxs = simulation.getBoxs();
-        for(int i=0; i<boxs.length; i++) {
+        int boxCount = simulation.getBoxCount();
+        for(int i=0; i<boxCount; i++) {
             if (configuration != null) {
-                configuration.initializeCoordinates(boxs[i]);
+                configuration.initializeCoordinates(simulation.getBox(i));
             }
         }
         

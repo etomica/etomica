@@ -15,9 +15,14 @@ public interface ISimulation {
     public void removeBox(IBox oldBox);
 
     /**
-     * Returns an array of Boxs contained in the Simulation
+     * Returns number of boxes contained in the Simulation
      */
-    public IBox[] getBoxs();
+    public int getBoxCount();
+
+    /**
+     * Returns Box specified by index contained in the Simulation
+     */
+    public IBox getBox(int index);
 
     /**
      * Returns the Controller used to run the simulation's Actions and 

@@ -88,9 +88,9 @@ public class Box implements java.io.Serializable, IBox {
             index = 0;
             return;
         }
-        IBox[] boxs = sim.getBoxs();
-        for (int i=0; i<boxs.length; i++) {
-            if (boxs[i] == this) {
+        int boxCount = sim.getBoxCount();
+        for (int i=0; i<boxCount; i++) {
+            if (sim.getBox(i) == this) {
                 index = i;
                 return;
             }

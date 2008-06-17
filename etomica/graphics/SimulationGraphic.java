@@ -383,12 +383,12 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         Space space = Space.getInstance(3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY, space);
-		IAction repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
+		IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim, space));
         nSelector.setSpecies(sim.getSpeciesManager().getSpecies()[0]);
-        nSelector.setBox(sim.getBoxs()[0]);
+        nSelector.setBox(sim.getBox(0));
         nSelector.setPostAction(repaintAction);
         simGraphic.add(nSelector);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);

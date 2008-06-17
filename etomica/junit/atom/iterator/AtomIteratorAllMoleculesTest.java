@@ -28,7 +28,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         ISpecies[] species = sim.getSpeciesManager().getSpecies();
 
         for(int i=0; i<n0.length; i++) {
-            boxTest(sim.getBoxs()[i], species);
+            boxTest(sim.getBox(i), species);
         }
 
     }

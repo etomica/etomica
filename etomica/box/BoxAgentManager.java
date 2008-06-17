@@ -60,10 +60,10 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
 
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        IBox[] boxs = sim.getBoxs();
-        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),boxs.length);
-        for (int i=0; i<boxs.length; i++) {
-            addAgent(boxs[i]);
+        int boxCount = sim.getBoxCount();
+        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),boxCount);
+        for (int i=0; i<boxCount; i++) {
+            addAgent(sim.getBox(i));
         }
     }
     

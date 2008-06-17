@@ -30,9 +30,9 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         
         ISpecies[] species = sim.getSpeciesManager().getSpecies();
 
-        boxTest(sim.getBoxs()[0], species);
-        boxTest(sim.getBoxs()[1], species);
-        boxTest(sim.getBoxs()[2], species);
+        boxTest(sim.getBox(0), species);
+        boxTest(sim.getBox(1), species);
+        boxTest(sim.getBox(2), species);
         
         
         //test new iterator gives no iterates

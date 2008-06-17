@@ -25,11 +25,10 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         
         //test new iterator gives no iterates
         testNoIterates(api);
-        
-        IBox[] box = sim.getBoxs();
-        
-        for(int i=0; i<box.length; i++) {
-            api.setBox(box[i]);
+
+        int boxCount = sim.getBoxCount();
+        for(int i=0; i<boxCount; i++) {
+            api.setBox(sim.getBox(i));
             int count = nA0*n0[i] + n1[i];
             count = count*(count-1)/2;
             countTest(api, count);

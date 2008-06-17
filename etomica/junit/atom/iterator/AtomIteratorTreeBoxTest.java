@@ -19,7 +19,7 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         n1a = 10;
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a },
                 nAtoms, new int[] { n1a });
-        box = sim.getBoxs()[0];
+        box = sim.getBox(0);
 
         treeIterator = new AtomIteratorTreeBox();
         treeIterator.setBox(box);

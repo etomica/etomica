@@ -77,8 +77,12 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     /**
      * Returns an array of Boxs contained in the Simulation
      */
-    public final IBox[] getBoxs() {
-        return boxList;
+    public final IBox getBox(int index) {
+        return boxList[index];
+    }
+
+    public int getBoxCount() {
+    	return boxList.length;
     }
 
     /**

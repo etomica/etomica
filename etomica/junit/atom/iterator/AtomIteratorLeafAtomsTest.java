@@ -27,10 +27,10 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
 
         //test new iterator gives no iterates
         testNoIterates(iterator);
-        
-        IBox[] box = sim.getBoxs();
+
+        int boxCount = sim.getBoxCount();
         int[][] moleculeCount = new int[3][];
-        for(int i=0; i<box.length; i++) {
+        for(int i=0; i<boxCount; i++) {
             moleculeCount[i] = new int[] {n0[i], n1[i]};
         }
 
@@ -39,11 +39,12 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
          * and for each species check count.  Check that full list is given again
          * when species is set to null
          */
-        for (int i = 0; i < box.length; i++) {
-            iterator.setBox(box[i]);
+        for (int i = 0; i < boxCount; i++) {
+        	IBox box = sim.getBox(i);
+            iterator.setBox(box);
             int count = nA0 * n0[i] + n1[i];
-            LinkedList list = testIterates(iterator, ((AtomArrayList)box[i].getLeafList()).toArray());
-            assertEquals(list.size(), box[i].getLeafList().getAtomCount());
+            LinkedList list = testIterates(iterator, ((AtomArrayList)box.getLeafList()).toArray());
+            assertEquals(list.size(), box.getLeafList().getAtomCount());
             assertEquals(list.size(), count);
         }
 
