@@ -31,12 +31,14 @@ import etomica.space.ISpace;
 public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
-    private AtomLeafAgentManager agentManager;
-    private IBox box;
+    protected final AtomLeafAgentManager agentManager;
+    protected IBox box;
+    protected double solventThermoFrac;
 
 	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
+        setSolventThermoFrac(1);
 	}
 
     public void setBox(IBox newBox){
@@ -142,11 +144,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 */
 	public double collisionTime(IAtomSet atoms, double falseTime) {
 	
-// ************ This gets run all the time!! More than Bump Method
-		//System.out.println("P2SquaredWell: ran Collision Time");	
 		if (ignoreOverlap) {
 			
-            // ** Makes 2 things, and atomPair pair, 
             IAtomKinetic atom0 = (IAtomKinetic)atoms.getAtom(0);
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
             dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -202,7 +201,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 					nudge = -eps;
 				} 
 				else{ 	
-				    lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
+				    lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon*solventThermoFrac));
 					unbond(atom1,atom0);
 					nudge = eps;
 				}
@@ -215,7 +214,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 				lastCollisionVirial = reduced_m * bij;
 				nudge = eps;
 			} else { //neither is taken; bond to each other
-                lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
+                lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon*solventThermoFrac/ reduced_m));
 				bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
 				nudge = -eps;
 			}
@@ -233,6 +232,27 @@ public class P2SquareWellBonded extends P2SquareWell {
 			atom0.getPosition().PEa1Tv1(-nudge, dr);
 			atom1.getPosition().PEa1Tv1(nudge, dr);
 		}
-	}//end of bump
-}//end of class
+	}
+
+    /**
+     * Returns the fraction of well energy that is gained or lost by an atom
+     * pair when they hop in or leave their well.
+     */
+    public double getSolventThermoFrac() {
+        return solventThermoFrac;
+    }
+
+    /**
+     * Sets the fraction of well energy that is gained by an atom pair when
+     * they hop in their well.  This is also the fraction of energy they give
+     * up when they leave the well.  The pair does still need to have
+     * sufficient energy to escape the well at its full strength.
+     */
+    public void setSolventThermoFrac(double newSolventThermoFrac) {
+        if (newSolventThermoFrac < 0 || newSolventThermoFrac > 1) {
+            throw new IllegalArgumentException("0 <= value <= 1");
+        }
+        solventThermoFrac = newSolventThermoFrac;
+    }
+}
 
