@@ -52,7 +52,7 @@ public class DataGroupSplitter implements DataSink {
     }
 
     public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        if (!(incomingDataInfo instanceof DataGroup)) {
+        if (!(incomingDataInfo instanceof DataInfoGroup)) {
             throw new RuntimeException("I want to take a DataGroup");
         }
         return null;
