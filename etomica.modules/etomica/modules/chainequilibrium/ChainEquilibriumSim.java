@@ -26,7 +26,7 @@ import etomica.species.SpeciesSpheresMono;
 public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 	public IController controller1;
-	public IntegratorHard integratorHard;
+	public IntegratorHardThermoFrac integratorHard;
 	public java.awt.Component display;
 	public IBox box;
 	public MeterTemperature thermometer;
@@ -46,10 +46,11 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHard(this, potentialMaster, space);
+        integratorHard = new IntegratorHardThermoFrac(this, potentialMaster, space);
         integratorHard.setIsothermal(true);
-        integratorHard.setThermostat(ThermostatType.ANDERSEN);
-        integratorHard.setThermostatInterval(100);
+        integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(1);
+        integratorHard.setThermostatFrac(0.05);
 
         box = new Box(this, space);
         addBox(box);
