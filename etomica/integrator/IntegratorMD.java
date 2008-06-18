@@ -364,11 +364,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     protected double timeStep;
     protected double currentKineticEnergy;
     protected ThermostatType thermostat;
-    private int thermostatCount, thermostatInterval;
+    protected int thermostatCount, thermostatInterval;
     protected DataSourceScalar meterKE;
-    private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
-    private MeterTemperature meterTemperature;
-    private final IVector momentum;
+    protected AtomActionRandomizeVelocity atomActionRandomizeVelocity;
+    protected MeterTemperature meterTemperature;
+    protected final IVector momentum;
     protected double currentTime;
     protected final ISpace space;
 }
