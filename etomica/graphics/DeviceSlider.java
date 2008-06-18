@@ -62,7 +62,7 @@ public class DeviceSlider extends Device {
      * boolean showValues for showing values on textfield
      * boolean editvalus for editing the values in textfield, which change slider tip
      */
-    private boolean showValues, editValues;
+    private boolean showValues, editValues, showSlider;
     /*
      * To show slider with value in one 
      */
@@ -139,8 +139,9 @@ public class DeviceSlider extends Device {
 
         gbConst.gridx = 0; gbConst.gridy = 0;
         gbLayout.setConstraints(slider, gbConst);
-        panel.add(slider);        
+        panel.add(slider);
 
+        showSlider = true;
         setShowValues(false); // default is false to show values of slider
         setEditValues(false); // default is false to edit values of slider thru textField
     }
@@ -249,10 +250,22 @@ public class DeviceSlider extends Device {
         slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(spacing/minorTick));
     }
 
+    public boolean getShowSlider() { return showSlider; }
+    public void setShowSlider(boolean b) {
+        if (showSlider == b) return;
+        showSlider = b;
+        if (!showSlider) {
+            panel.remove(slider);
+        }
+        else if (showValues) {
+            setSliderValueShape("VERTICAL");
+        }
+    }
+
     public boolean getShowValues(){ return showValues;}
     public void setShowValues(boolean b){
         showValues = b;
-        if(showValues){ 
+        if(showValues){
             setSliderValueShape("VERTICAL");
             textField.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e){
@@ -312,14 +325,19 @@ public class DeviceSlider extends Device {
     public void setSliderValueShape(String s){
         panel.removeAll();
         textField.setColumns(column);                                                                  
+        if (!showSlider) {
+            panel.add(textField);
+            return;
+        }
         gbConst.gridx = 0; gbConst.gridy = 0;
         gbLayout.setConstraints(slider, gbConst);
-        panel.add(slider);        
+        panel.add(slider);
         if(s=="HORIZONTAL") {
             gbConst.gridx = 1; gbConst.gridy = 0; 
             gbLayout.setConstraints(textField, gbConst);
-            panel.add(textField);}
-        if(s=="VERTICAL") { 
+            panel.add(textField);
+        }
+        else if(s=="VERTICAL") { 
             gbConst.fill = GridBagConstraints.HORIZONTAL;
             gbConst.gridx = 0; gbConst.gridy = 1; 
             gbLayout.setConstraints(textField, gbConst);
