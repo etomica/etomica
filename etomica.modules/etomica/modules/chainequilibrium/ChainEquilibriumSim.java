@@ -50,7 +50,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         integratorHard.setIsothermal(true);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
-        integratorHard.setThermostatFrac(0.05);
+        integratorHard.setThermostatFrac(0.01);
 
         box = new Box(this, space);
         addBox(box);
