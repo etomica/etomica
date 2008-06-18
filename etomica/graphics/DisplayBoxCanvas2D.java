@@ -1,8 +1,11 @@
 package etomica.graphics;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.TextField;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.api.IAtomPositioned;
@@ -17,6 +20,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
+import etomica.units.Pixel;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayBoxCanvas2D extends DisplayCanvas {
@@ -39,6 +43,28 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         displayBox = _box;
         atomOrigin = new int[space.D()];
         boundingBox = space.makeVector();
+        
+        addComponentListener(new ComponentListener() {
+            public void componentHidden(ComponentEvent e) {}
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e) {}
+            public void componentResized(ComponentEvent e) { refreshSize(); }});
+    }
+    
+    protected void refreshSize() {
+        Dimension dim = getSize();
+        IVector boxDim = displayBox.getBox().getBoundary().getBoundingBox();
+        double px = (dim.width - 1)/boxDim.x(0);
+        double py = (dim.height - 1)/boxDim.x(1);
+        if (px > py) {
+            // take the smaller of the two toPixel
+            px = py;
+        }
+        if (pixel.toPixels() == px) {
+            return;
+        }
+        setPixelUnit(new Pixel(px));
+        displayBox.computeImageParameters();
     }
     
     /**
