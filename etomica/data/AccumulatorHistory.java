@@ -105,6 +105,9 @@ public class AccumulatorHistory extends DataAccumulator {
                     inputDataInfo.getDimension(), xDataSources);
         dataInfo.addTags(inputDataInfo.getTags());
         dataInfo.addTag(getTag());
+        if (dataSink != null) {
+            dataSink.putDataInfo(dataInfo);
+        }
     }
     
     public History getHistory() {
