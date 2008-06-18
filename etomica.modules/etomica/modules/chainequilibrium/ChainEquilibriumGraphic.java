@@ -1,6 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -19,8 +20,12 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
+import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
+import etomica.graphics.ActionHistoryWindow;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
@@ -31,10 +36,18 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
+import etomica.units.Dimension;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
+import etomica.units.Mole;
 import etomica.units.Pixel;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
+import etomica.units.Quantity;
+import etomica.units.UnitRatio;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
 
@@ -59,14 +72,14 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
         this.sim = simulation;
         
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         // ********* Data Declaration Section *******	
-        int eMin = 0, eMax = 4000;
+        int eMin = 0, eMax = 40;
 
         // **** Stuff that Modifies the Simulation
 
@@ -80,25 +93,43 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         ABSlider.setPostAction(resetAction);
         ACSlider.setPostAction(resetAction);
         
+        DeviceBox solventThermoFrac = new DeviceBox();
+        solventThermoFrac.setController(sim.getController());
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded, sim.ACbonded}, "Solvent Thermality"));        
         DisplayTextBox tBox = new DisplayTextBox();
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
 
-        DataPump tPump = new DataPump (sim.thermometer, tBox);
+        DataSourceCountTime timer = new DataSourceCountTime(sim.integratorHard);
+
+        DataFork tFork = new DataFork();
+        final DataPump tPump = new DataPump (sim.thermometer, tFork);
+        tFork.addDataSink(tBox);
         add(tBox);
         dataStreamPumps.add(tPump);
+        AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        tHistory.setTimeDataSource(timer);
+        tFork.addDataSink(tHistory);
+        DisplayPlot tPlot = new DisplayPlot();
+        tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
+        tPlot.setUnit(Kelvin.UNIT);
+        tPlot.setLabel("Temperature");
+        add(tPlot);
+        sim.integratorHard.addIntervalAction(tPump);
+        sim.integratorHard.setActionInterval(tPump, 10);
 
+        
         final MeterChainLength molecularCount = new MeterChainLength(sim.agentManager);
         molecularCount.setBox(sim.box);
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(10);
         accumulator.setPushInterval(10);
         DataFork mwFork = new DataFork();
-        DataPump pump = new DataPump(molecularCount,mwFork);
+        final DataPump mwPump = new DataPump(molecularCount,mwFork);
         mwFork.addDataSink(accumulator);
-        dataStreamPumps.add(pump);
-        sim.integratorHard.addIntervalAction(pump);
-        sim.integratorHard.setActionInterval(pump, 10);
+        dataStreamPumps.add(mwPump);
+        sim.integratorHard.addIntervalAction(mwPump);
+        sim.integratorHard.setActionInterval(mwPump, 10);
         
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
@@ -114,15 +145,27 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         MonomerConversion monomerConversion = new MonomerConversion();
         mwFork.addDataSink(monomerConversion);
-        AccumulatorHistory monomerConversionHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        monomerConversion.setDataSink(monomerConversionHistory);
+        final HistoryCollapsingAverage monomerConversionHistory = new HistoryCollapsingAverage();
+        AccumulatorHistory monomerConversionHistoryAcc = new AccumulatorHistory(monomerConversionHistory);
+        monomerConversion.setDataSink(monomerConversionHistoryAcc);
+        monomerConversionHistoryAcc.setTimeDataSource(timer);
 
         MeterConversion reactionConversion = new MeterConversion(sim.agentManager);
-        AccumulatorHistory conversionHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        DataPump conversionPump = new DataPump(reactionConversion, conversionHistory);
+        final HistoryCollapsingAverage conversionHistory = new HistoryCollapsingAverage();
+        AccumulatorHistory conversionHistoryAcc = new AccumulatorHistory(conversionHistory);
+        conversionHistoryAcc.setTimeDataSource(timer);
+        final DataPump conversionPump = new DataPump(reactionConversion, conversionHistoryAcc);
         sim.integratorHard.addIntervalAction(conversionPump);
         sim.integratorHard.setActionInterval(conversionPump, 10);
         dataStreamPumps.add(conversionPump);
+        
+        getController().getResetAveragesButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                conversionPump.actionPerformed();
+                mwPump.actionPerformed();
+                tPump.actionPerformed();
+            }
+        });
 
         sim.integratorHard.setTimeStep(0.01);
 
@@ -138,10 +181,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         compositionPlot.setDoLegend(false);
 
         DisplayPlot conversionPlot = new DisplayPlot();
-        monomerConversionHistory.addDataSink(conversionPlot.getDataSet().makeDataSink());
+        monomerConversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
         conversionPlot.setLegend(new DataTag[]{monomerConversion.getTag()}, "monomer conversion");    
-        conversionHistory.addDataSink(conversionPlot.getDataSet().makeDataSink());
-        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");    
+        conversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
+        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");
 
         DisplayTextBoxesCAE mwBox = new DisplayTextBoxesCAE();
         mwBox.setAccumulator(mwAvg);
@@ -160,11 +203,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
                 molecularCount.reset();
             }
         });
-
-        // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
-        sim.integratorHard.addIntervalAction(tPump);
-        // Setting up how often it operates. 
-        sim.integratorHard.setActionInterval(tPump, 10);
 
         DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1);
         temperatureSelect.setUnit(Kelvin.UNIT);
@@ -200,6 +238,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         };
         nSliderA.setResetAction(reset);
         nSliderA.setMaximum(400);
+        nSliderA.setShowValues(true);
+        nSliderA.setShowSlider(false);
+        nSliderA.setEditValues(true);
         DeviceNSelector nSliderB = new DeviceNSelector(sim.getController());
         nSliderB.setSpecies(sim.speciesB);
         nSliderB.setBox(sim.box);
@@ -208,6 +249,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderB.setResetAction(reset);
         nSliderB.setNMajor(4);
         nSliderB.setMaximum(400);
+        nSliderB.setShowValues(true);
+        nSliderB.setShowSlider(false);
+        nSliderB.setEditValues(true);
         DeviceNSelector nSliderC = new DeviceNSelector(sim.getController());
         nSliderC.setSpecies(sim.speciesC);
         nSliderC.setBox(sim.box);
@@ -216,6 +260,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderC.setResetAction(reset);
         nSliderC.setNMajor(4);
         nSliderC.setMaximum(20);
+        nSliderC.setShowValues(true);
+        nSliderC.setShowSlider(false);
+        nSliderC.setEditValues(true);
 
         tBox.setUnit(Kelvin.UNIT);
         tBox.setLabel("Measured Temperature");
@@ -225,7 +272,39 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         conversionPlot.setLabel("Conversion");
 
         getPanel().tabbedPane.add(compositionPlot.getLabel(), compositionPlot.graphic());
-        getPanel().tabbedPane.add(conversionPlot.getLabel(), conversionPlot.graphic());
+        JPanel conversionPanel = new JPanel(new GridBagLayout());
+        conversionPanel.add(conversionPlot.graphic(), vertGBC);
+        
+        DeviceBox conversionHistoryLength = new DeviceBox();
+        conversionHistoryLength.setInteger(true);
+        conversionHistoryLength.setController(sim.getController());
+        conversionHistoryLength.setModifier(new Modifier() {
+
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "history length";
+            }
+
+            public double getValue() {
+                return conversionHistory.getHistoryLength();
+            }
+
+            public void setValue(double newValue) {
+                conversionHistory.setHistoryLength((int)newValue);
+                monomerConversionHistory.setHistoryLength((int)newValue);
+            }
+        });
+        conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
+        
+        DeviceButton conversionHistoryButton = new DeviceButton(null);
+        conversionHistoryButton.setLabel("Conversion History Data");
+        conversionHistoryButton.setController(sim.getController());
+        conversionHistoryButton.setAction(new ActionHistoryWindow(conversionHistoryAcc));
+        conversionPanel.add(conversionHistoryButton.graphic(),vertGBC);
+        getPanel().tabbedPane.add(conversionPlot.getLabel(), conversionPanel);
         getPanel().tabbedPane.add("Averages", THING.graphic());
 
 
@@ -235,13 +314,14 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         epsilonSliders.add(ABSlider.graphic(null));
         epsilonSliders.add(ACSlider.graphic(null));
+        epsilonSliders.add(solventThermoFrac.graphic());
 
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
-        sliderPanel.add(epsilonSliders, "Well depth (K)");
+        sliderPanel.add(epsilonSliders, "Well depth (kJ/mol)");
         sliderPanel.add(speciesEditors, "Number of Molecules");
 
         //set the number of significant figures displayed on the table.
@@ -273,7 +353,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
     public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
-        AASlider.setUnit((Kelvin.UNIT));
+        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
         AASlider.setShowBorder(true);
         AASlider.setLabel(s);
         AASlider.setMinimum(eMin);
