@@ -58,20 +58,6 @@ public interface ISpecies extends IAtomType {
     public IAtomTypeLeaf getChildType(int index);
 
     /**
-     * Add the given leaf type as a child of this ISpecies.  Where possible,
-     * you should only call this method before the ISpecies has been added to
-     * the ISimulation
-     */
-    public void addChildType(IAtomTypeLeaf newChildType);
-
-    /**
-     * Removes the given leaf type as a child of this ISpecies.  Where
-     * possible, you should only call this method before the ISpecies has been
-     * added to the ISimulation
-     */
-    public void removeChildType(IAtomTypeLeaf removedType);
-
-    /**
      * Returns the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
