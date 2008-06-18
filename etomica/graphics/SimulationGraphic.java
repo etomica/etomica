@@ -130,7 +130,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        IBox box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
-	        final DisplayBox display = new DisplayBox(simulation, box, space, new Pixel(30));
+	        final DisplayBox display = new DisplayBox(simulation, box, space);
 	        add(display);
 	         
 	        /* For G3DSys: panel is invisible until set visible here.

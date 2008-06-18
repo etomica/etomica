@@ -76,8 +76,6 @@ public class DisplayBox extends Display {
      */
     private final int[] originShift = new int[D];
 
-    private double toPixels;
-        
     /**
      * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
      * into the central cell.  When the box is drawn, these "overflow portions" are not normally
@@ -87,10 +85,6 @@ public class DisplayBox extends Display {
      */
     private boolean drawOverflow = false;
   
-    public DisplayBox(ISimulation sim, IBox box, ISpace space) {
-        this(sim, box,space,new Pixel());
-    }
-    
     /**
      * Warning: after instantiation, clients using G3DSys may need to toggle
      * display.canvas.setVisible false and then true to fix the 'sometimes
@@ -102,18 +96,17 @@ public class DisplayBox extends Display {
      * ((JComponent)display.canvas).setVisible(true);
      * }
      * @param box
-     * @param pixel
      */
-    public DisplayBox(ISimulation sim, IBox box, ISpace space, Pixel pixel) {
+    public DisplayBox(ISimulation sim, IBox box, ISpace space) {
         super();
         this.space = space;
         colorScheme = new ColorSchemeByType(sim);
-        setPixelUnit(pixel);
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;
 
         setBox(box);
+        setPixelUnit(new Pixel(10));
     }
 
     /**
@@ -230,7 +223,7 @@ public class DisplayBox extends Display {
      *  
      *  @return double 
      */
-    public double getToPixels() {return(toPixels);}
+    public double getToPixels() {return(canvas.getPixelUnit().toPixels());}
 
     /**
      *  
@@ -295,12 +288,13 @@ public class DisplayBox extends Display {
             return;
         }
 
-        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels() + 1);
+    	double toPixels = (canvas != null ? canvas.getPixelUnit().toPixels() : 10) * scale;
+        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * toPixels + 1);
         int boxY = 1;
 
         switch(space.D()) {
             case 3:
-                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * toPixels);
                 if (boxX > boxY) {
                     boxY = boxX;
                 }
@@ -321,7 +315,7 @@ public class DisplayBox extends Display {
                 }
                 break;
             case 2:
-                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels() + 1);
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * toPixels + 1);
                 canvas = new DisplayBoxCanvas2D(this, space);
                 setSize(boxX, boxY);
                 break;
@@ -332,8 +326,6 @@ public class DisplayBox extends Display {
                 setSize(boxX, boxY);
                 break;
         }
-        
-        canvas.setPixelUnit(pixel);
 
         if (graphicResizable == true) {
              setSize(boxX, boxY);
@@ -366,12 +358,13 @@ public class DisplayBox extends Display {
         if (boxCanvas == null) return;
         if (box == null) throw new IllegalStateException("Cannot set canvas before setting box");
         
-        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
+        Pixel pixel = canvas.getPixelUnit();
+        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels() * scale + 1);
         int boxY = 1;
 
         switch(space.D()) {
             case 3:
-                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels() * scale + 1);
                 if (boxX > boxY) {
                     boxY = boxX;
                 }
@@ -382,7 +375,7 @@ public class DisplayBox extends Display {
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels() * scale + 1);
                 break;
             case 1:
             default:
@@ -504,7 +497,7 @@ public class DisplayBox extends Display {
      */
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
-        toPixels = scale*pixel.toPixels();
+        double toPixels = scale*canvas.getPixelUnit().toPixels();
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getBox().getBoundary().getBoundingBox().x(0));
         drawSize[1] = (space.D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getBoundingBox().x(1));
@@ -538,7 +531,7 @@ public class DisplayBox extends Display {
      * @return Pixel : unit for conversion between simulation units and display pixels.
      */
     public Pixel getPixelUnit() {
-        return pixel;
+        return canvas.getPixelUnit();
     }
 
     /**
@@ -547,38 +540,38 @@ public class DisplayBox extends Display {
      * @return void
      */
     public void setPixelUnit(Pixel pixel) {
-        this.pixel = pixel;
-        if(canvas != null) {
-            canvas.setPixelUnit(pixel);
-
-            int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
-            int boxY = 1;
-
-            switch(space.D()) {
-                case 3:
-                    boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
-                    if (boxX > boxY) {
-                        boxY = boxX;
-                    }
-                    else {
-                        boxX = boxY;
-                    }
-                    boxX *=1.4;
-                    boxY *=1.4;
-                    break;
-                case 2:
-                    boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
-                    break;
-                case 1:
-                default:
-                    boxY = drawingHeight;
-                    break;
-            }
-            
-            setSize(boxX, boxY);
-
-            computeImageParameters();
+        if(canvas == null) {
+            throw new RuntimeException("You gotta at least give me a canvas before you start messing with pixels!");
         }
+        canvas.setPixelUnit(pixel);
+
+        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
+        int boxY = 1;
+
+        switch(space.D()) {
+            case 3:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                if (boxX > boxY) {
+                    boxY = boxX;
+                }
+                else {
+                    boxX = boxY;
+                }
+                boxX *=1.4;
+                boxY *=1.4;
+                break;
+            case 2:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                break;
+            case 1:
+            default:
+                boxY = drawingHeight;
+                break;
+        }
+        
+        setSize(boxX, boxY);
+
+        computeImageParameters();
     }
     
     /**
@@ -642,9 +635,7 @@ public class DisplayBox extends Display {
      private int imageShells = 0;
      
      private int drawingHeight = 10;
-      
-     private Pixel pixel;
-    
+
     /**
      * Class to listen for and interpret mouse and key events on the configuration display.
      * Holding the "a" key down while performing a mouse button action causes selection of the nearest
@@ -728,6 +719,7 @@ public class DisplayBox extends Display {
         public void mouseMoved(MouseEvent evt) {}
         
         private void mouseAction(MouseEvent evt) {
+            double toPixels = scale * canvas.getPixelUnit().toPixels();
             double x = (evt.getX() - centralOrigin[0])/toPixels;
             double y = (evt.getY() - centralOrigin[1])/toPixels;
             point.setX(0, x);
