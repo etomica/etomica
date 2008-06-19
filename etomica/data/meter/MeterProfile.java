@@ -39,6 +39,8 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         position = space.makeVector();
         tag = new DataTag();
+        xDataSource.setTypeMax(LimitType.HALF_STEP);
+        xDataSource.setTypeMin(LimitType.HALF_STEP);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -66,11 +68,8 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         if (!(m.getDataInfo() instanceof DataInfoDouble)) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
-        data = new DataFunction(new int[] {xDataSource.getNValues()});
-        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), this);
         meter = m;
-        dataInfo.addTag(meter.getTag());
-        dataInfo.addTag(tag);
+        reset();
     }
     
     /**
@@ -86,11 +85,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      */
     public void setProfileDim(int dim) {
         profileDim = dim;
-        double halfBox = 0.5*box.getBoundary().getDimensions().x(dim);
-        xDataSource.setXMin(-halfBox);
-        xDataSource.setXMax(halfBox);
-        xDataSource.setTypeMax(LimitType.HALF_STEP);
-        xDataSource.setTypeMin(LimitType.HALF_STEP);
+        reset();
     }
     
     /**
@@ -142,9 +137,21 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      */
     public void setBox(IBox box) {
         this.box = box;
+    }
+    
+    public void reset() {
+        if (box == null) return;
+        
         double halfBox = 0.5*box.getBoundary().getDimensions().x(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
+        
+        if (meter != null) {
+            data = new DataFunction(new int[] {xDataSource.getNValues()});
+            dataInfo = new DataInfoFunction(meter.getDataInfo().getLabel()+" Profile", meter.getDataInfo().getDimension(), this);
+            dataInfo.addTag(meter.getTag());
+            dataInfo.addTag(tag);
+        }
     }
 
     public String getName() {
