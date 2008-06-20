@@ -5,6 +5,8 @@ import etomica.api.IVector;
 
 /**
  * Interface for a class that specifies an orientation in space.
+ * 
+ * @author Andrew Schultz
  */
 public interface IOrientation {
     

@@ -3,7 +3,7 @@ package etomica.space2d;
 import etomica.space.IOrientation;
 
 /**
- * Interface for a class that specifies an orientation in space.
+ * Interface for a class that specifies an orientation in a 2D space.
  */
 public interface IOrientation2D extends IOrientation {
     

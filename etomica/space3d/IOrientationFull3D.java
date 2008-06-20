@@ -2,6 +2,13 @@ package etomica.space3d;
 
 import etomica.api.IVector;
 
+/**
+ * Interface representing an orientation in 3D.  The orientation defined by two
+ * unit vectors that are orthogonal to one another.  They define two axes of
+ * the orientation, with the third given by their cross product.
+ * 
+ * @author Andrew Schultz
+ */
 public interface IOrientationFull3D extends IOrientation3D {
 
     /**
