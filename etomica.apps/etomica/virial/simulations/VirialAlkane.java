@@ -1,7 +1,9 @@
 package etomica.virial.simulations;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import etomica.api.IAction;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
@@ -11,19 +13,36 @@ import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IDataInfo;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.CompoundDimension;
+import etomica.units.CompoundUnit;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
 import etomica.units.Kelvin;
+import etomica.units.Liter;
+import etomica.units.Mole;
+import etomica.units.Pixel;
+import etomica.units.Quantity;
+import etomica.units.Unit;
+import etomica.units.UnitRatio;
+import etomica.units.Volume;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
@@ -53,7 +72,7 @@ public class VirialAlkane {
         long steps = params.numSteps;
         double sigmaCH2 = 3.95;
         double sigmaCH3 = 3.75;
-        double sigmaHSRef = sigmaCH3 + nSpheres;
+        double sigmaHSRef = sigmaCH3 + 0.5*nSpheres;
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -76,7 +95,7 @@ public class VirialAlkane {
         PotentialGroup pTargetGroup = new PotentialGroup(2, space);
         System.out.println("Siepman "+nSpheres+"-mer chains B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
-        double epsilonCH2 = Kelvin.UNIT.toSim(46);
+        double epsilonCH2 = Kelvin.UNIT.toSim(46.0);
         double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
         P2LennardJones p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
@@ -100,13 +119,16 @@ public class VirialAlkane {
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
         IAtomTypeLeaf typeCH3 = species.getChildType(0);
         IAtomTypeLeaf typeCH2 = species.getChildType(1);
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
-        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
+        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2, typeCH2}));
+        // CH2 on molecule1 to CH3 on molecule2
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH2}));
+        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
-        
+
+        // create the intramolecular potential here, add to it and add it to
+        // the potential master if needed
         PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
         if (nSpheres > 2) {
             P3BondAngle p3 = new P3BondAngle(space);
@@ -119,8 +141,13 @@ public class VirialAlkane {
                 triplets[i][2] = i+2;
             }
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
+            // integrators share a common potentialMaster.  so just add to one
             sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
+            
+            sim.mcMoveWiggle[0].setBondLength(1.54);
+            sim.mcMoveWiggle[1].setBondLength(1.54);
         }
+        MCMoveClusterTorsionMulti[] torsionMoves = null;
         if (nSpheres > 3) {
             P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
             int[][] quads = new int[nSpheres-3][4];
@@ -131,6 +158,13 @@ public class VirialAlkane {
                 quads[i][3] = i+3;
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
+            torsionMoves = new MCMoveClusterTorsionMulti[2];
+            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves[0].setTemperature(temperature);
+            sim.integrators[0].getMoveManager().addMCMove(torsionMoves[0]);
+            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves[1].setTemperature(temperature);
+            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }
         if (nSpheres > 4) {
             pIntra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres-1}}));
@@ -143,7 +177,7 @@ public class VirialAlkane {
                 pairs[2*i+1][0] = nSpheres-1;
                 pairs[2*i+1][1] = i+1;
             }
-            pIntra.addPotential(p2CH3,new ApiIndexList(pairs));
+            pIntra.addPotential(p2CH2CH3,new ApiIndexList(pairs));
         }
         if (nSpheres > 6) {
             int[][] pairs = new int[(nSpheres-6)*(nSpheres-5)/2][2];
@@ -157,11 +191,14 @@ public class VirialAlkane {
             }
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
-        
+
         if (false) {
-            sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
+            double size = (nSpheres+5)*1.5;
+            sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
+            sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space);
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
@@ -177,8 +214,8 @@ public class VirialAlkane {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
+                    sim.initRefPref(null, 10);
+                    sim.equilibrate(null, 20);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
             });
@@ -186,7 +223,40 @@ public class VirialAlkane {
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
+            
+            final DisplayTextBox averageBox = new DisplayTextBox("Average", Quantity.SIM_UNIT);
+            final DisplayTextBox errorBox = new DisplayTextBox("Error", Quantity.SIM_UNIT);
+            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
+            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
+            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
+            
+            IAction pushAnswer = new IAction() {
+                public void actionPerformed() {
+                    double ratio = sim.dsvo.getDataAsScalar() * HSB[nPoints];
+                    double error = sim.dsvo.getError() * HSB[nPoints];
+                    data.x = ratio;
+                    averageBox.putData(data);
+                    data.x = error;
+                    errorBox.putData(data);
+                }
+                
+                DataDouble data = new DataDouble();
+            };
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
+            averageBox.putDataInfo(dataInfo);
+            averageBox.setLabel("average");
+            averageBox.setUnit(unit);
+            errorBox.putDataInfo(dataInfo);
+            errorBox.setLabel("error");
+            errorBox.setPrecision(2);
+            errorBox.setUnit(unit);
+            sim.integratorOS.addIntervalAction(pushAnswer);
+            sim.integratorOS.setActionInterval(pushAnswer, 1);
+            
             return;
         }
         
@@ -207,6 +277,10 @@ public class VirialAlkane {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
+        if (nSpheres > 3) {
+            System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
+                    torsionMoves[0].getTracker().acceptanceRatio());
+        }
         
         IAction progressReport = new IAction() {
             public void actionPerformed() {
@@ -216,14 +290,15 @@ public class VirialAlkane {
                 System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+//        sim.integratorOS.addIntervalAction(progressReport);
+//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
