@@ -285,7 +285,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 //		ISpecies [] species = sim.getSpeciesManager().getSpecies();
 		
 		for(int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++){
-			ISpecies species = sim.getSpeciesManager().getSpecie(i);
+			ISpecies species = sim.getSpeciesManager().getSpecies(i);
 			box1.setNMolecules(species, box.getNMolecules(species));
 			box2.setNMolecules(species, box.getNMolecules(species));
 		}

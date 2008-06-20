@@ -234,8 +234,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 //		ISpecies [] species = sim.getSpeciesManager().getSpecies();
 		
 		for(int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++){
-			boxMin.setNMolecules(sim.getSpeciesManager().getSpecie(i),
-					box.getNMolecules(sim.getSpeciesManager().getSpecie(i)));
+			boxMin.setNMolecules(sim.getSpeciesManager().getSpecies(i),
+					box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
 		}
 		
 		// Read in coordinates for boxMin atom locations

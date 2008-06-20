@@ -135,7 +135,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     /* (non-Javadoc)
 	 * @see etomica.simulation.ISpeciesManager#getSpecie()
 	 */
-    public ISpecies getSpecie(int index) {
+    public ISpecies getSpecies(int index) {
         return speciesList[index];
     }
 

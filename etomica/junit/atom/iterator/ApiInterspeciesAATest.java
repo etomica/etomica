@@ -29,7 +29,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         
         ISpecies[] species = new ISpecies[sim.getSpeciesManager().getSpeciesCount()];
         for(int i = 0; i < sim.getSpeciesManager().getSpeciesCount(); i++) {
-        	species[i] = sim.getSpeciesManager().getSpecie(i);
+        	species[i] = sim.getSpeciesManager().getSpecies(i);
         }
         boxTest(sim.getBox(0), species);
         boxTest(sim.getBox(1), species);
