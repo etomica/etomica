@@ -36,7 +36,7 @@ public class VirialLJMultiOverlap {
         }
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
-        long numSubSteps = params.numSubSteps;
+        long numSteps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         int mixID = params.mixID;
         int[] nTypes = params.nTypes;
@@ -97,6 +97,10 @@ public class VirialLJMultiOverlap {
             epsilon12 = 0.773;
             epsilon22 = 0.597;
         }
+        else if (mixID == 4) {
+            epsilon12 = Math.sqrt(0.5);
+            epsilon22 = 0.5;
+        }
         else if (mixID != 0) {
             throw new RuntimeException("Don't know how to do mix "+mixID);
         }
@@ -115,7 +119,7 @@ public class VirialLJMultiOverlap {
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
-        System.out.println((numSubSteps*1000)+" steps ("+numSubSteps+" blocks of 1000)");
+        System.out.println((numSteps*1000)+" steps ("+numSteps+" blocks of 1000)");
 		
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
@@ -123,10 +127,10 @@ public class VirialLJMultiOverlap {
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
 //        sim.setRefPref(1.0082398078547523);
-        sim.initRefPref(refFileName, numSubSteps/100);
+        sim.initRefPref(refFileName, numSteps/100);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, numSubSteps/40);
+        sim.equilibrate(refFileName, numSteps/40);
         
         System.out.println("equilibration finished");
 
@@ -139,10 +143,10 @@ public class VirialLJMultiOverlap {
             }
         };
         sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(numSubSteps/10));
+        sim.integratorOS.setActionInterval(progressReport, (int)(numSteps/10));
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSubSteps);
+        sim.ai.setMaxSteps(numSteps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
@@ -179,9 +183,9 @@ public class VirialLJMultiOverlap {
      * Inner class for parameters
      */
     public static class VirialMixParam extends ParameterBase {
-        public int nPoints = 3;
+        public int nPoints = 6;
         public double temperature = 1.0;
-        public long numSubSteps = 1000000;
+        public long numSteps = 50;
         public double sigmaHSRef = 1.5;
         public int mixID = 0;
         public int[] nTypes = new int[]{nPoints,0};
