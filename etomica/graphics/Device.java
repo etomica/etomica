@@ -56,6 +56,14 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     }
     
     /**
+     * Returns the action to be performed before the primary action executed
+     * by the device.
+     */
+    public IAction getPreAction() {
+        return actionSet.preAction;
+    }
+
+    /**
      * Sets an action to be performed after the primary action executed
      * by the device.  This is useful for modifying the behavior of concrete
      * subclasses of the device without accessing their primary action.
@@ -63,7 +71,11 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     public void setPostAction(IAction action) {
         actionSet.postAction = action;
     }
-    
+
+    public IAction getPostAction() {
+        return actionSet.postAction;
+    }
+
     /**
      * @return Returns the controller.
      */
