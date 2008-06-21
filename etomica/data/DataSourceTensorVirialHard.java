@@ -2,10 +2,9 @@ package etomica.data;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.api.IBox;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.units.Null;
+import etomica.units.Energy;
 
 /**
  * A MeterTensor that returns the virial component of the pressure tensor for a hard potential.  
@@ -13,31 +12,29 @@ import etomica.units.Null;
  *
  * @author Rob Riggleman
  */
-
 public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
-    
+
     public DataSourceTensorVirialHard(ISpace space) {
-    	dim = space.D();
         data = new DataTensor(space);
-        dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
+        dataInfo = new DataInfoTensor("Virial", Energy.DIMENSION, space);
         work = space.makeTensor();
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
-    
+
     public DataSourceTensorVirialHard(ISpace space, IntegratorHard integrator) {
         this(space);
         setIntegrator(integrator);
     }
-    
+
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-    
+
     public DataTag getTag() {
         return tag;
     }
-    
+
     /**
      * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
      * If elapsed-time interval is zero, returns the value reported at the last call to the method.
@@ -45,25 +42,25 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
     public Data getData() {
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
+        lastTime = currentTime;
         if(elapsedTime == 0.0) {
             data.E(Double.NaN);
             return data;
         }
-        IBox box = integratorHard.getBox();
 
-        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*dim*box.getLeafList().getAtomCount()));
+        work.TE(-1./elapsedTime);
         data.x.E(work);
-        //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
+        work.E(0);
         return data;
     }
-    
+
     /**
      * Sums contribution to virial for each collision.
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         work.PE(agent.collisionPotential.lastCollisionVirialTensor());
     }
-    
+
     /**
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
@@ -72,7 +69,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
         data.x.TE(1/(double)integratorHard.getBox().getLeafList().getAtomCount());
         return data.x;
     }
-                
+
     /**
      * Informs meter of the integrator for its box, and zeros elapsed-time counter
      */
@@ -87,7 +84,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
             lastTime = newIntegrator.getCurrentTime();
         }
     }
-    
+
     public IntegratorHard getIntegrator() {
         return integratorHard;
     }
@@ -99,5 +96,4 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
     protected final Tensor work;
     protected final DataInfoTensor dataInfo;
     protected final DataTag tag;
-    private final int dim;
 }
