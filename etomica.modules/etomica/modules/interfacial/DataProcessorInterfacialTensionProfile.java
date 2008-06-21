@@ -19,9 +19,8 @@ import etomica.units.Length;
 
 public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
-    public DataProcessorInterfacialTensionProfile(PotentialCalculationForcePressureBinSum forceSum) {
-        this.forceSum = forceSum;
-        virialData = new double[forceSum.space.D()][0];
+    public DataProcessorInterfacialTensionProfile(ISpace space) {
+        virialData = new double[space.D()][0];
     }
     
     public void setBox(IBox newBox) {
@@ -41,7 +40,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         int nBins = data.getArrayShape(0);
         double[] tension = data.getData();
         for (int i=0; i<nBins; i++) {
-            tension[i] += (D-1)*virialData[0][i];
+            tension[i] = (D-1)*virialData[0][i];
         }
         for (int j=1; j<D; j++) {
             for (int i=0; i<nBins; i++) {
@@ -54,7 +53,8 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         for (int i=1; i<dim.getD(); i++) {
             area *= dim.x(i);
         }
-        double fac = 0.25/area/forceSum.binSize;
+        double binSize = dim.x(0) / virialData[0].length;
+        double fac = 0.25/area/binSize;
         for (int i=0; i<nBins; i++) {
             tension[i] *= fac;
         }
@@ -77,5 +77,4 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
     protected DataFunction data;
     protected final double[][] virialData;
     protected IBox box;
-    protected final PotentialCalculationForcePressureBinSum forceSum;
 }

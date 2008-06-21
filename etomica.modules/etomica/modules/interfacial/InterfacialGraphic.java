@@ -64,7 +64,7 @@ public class InterfacialGraphic extends SimulationGraphic {
     private DeviceThermoSlider temperatureSelect;
     protected Interfacial sim;
     protected final DeviceNSelector nSlider;
-    
+
     public InterfacialGraphic(final Interfacial simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space);
@@ -76,8 +76,8 @@ public class InterfacialGraphic extends SimulationGraphic {
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
-        sim.activityIntegrate.setSleepPeriod(1);
-        final double expansionFac = 4;
+        sim.activityIntegrate.setSleepPeriod(0);
+        final double expansionFac = 3;
         
         final DeviceButton expandButton = new DeviceButton(sim.getController());
         IAction expandAction = new IAction() {
@@ -252,7 +252,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         AccumulatorAverageFixed[] virialProfileAvg = new AccumulatorAverageFixed[space.D()];
         DisplayPlot virialPlot = new DisplayPlot();
         for (int i=0; i<space.D(); i++) {
-            virialProfileAvg[i] = new AccumulatorAverageFixed(100);
+            virialProfileAvg[i] = new AccumulatorAverageFixed(10);
             virialProfileAvg[i].setPushInterval(10);
             virialSplitter.setDataSink(i, virialProfileAvg[i]);
             virialProfileAvg[i].addDataSink(virialPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -262,10 +262,10 @@ public class InterfacialGraphic extends SimulationGraphic {
         add(virialPlot);
         dataStreamPumps.add(virialProfilePump);
         
-        DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(sim.forceSum);
+        DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(space);
         interfacialTensionProfile.setBox(sim.box);
         virialProfileFork.addDataSink(interfacialTensionProfile);
-        AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(100);
+        AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(10);
         interfacialTensionProfile.setDataSink(tensionProfileAvg);
         tensionProfileAvg.setPushInterval(10);
         DisplayPlot tensionPlot = new DisplayPlot();
@@ -285,7 +285,6 @@ public class InterfacialGraphic extends SimulationGraphic {
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         profilePlot.setLabel("Density");
         add(profilePlot);
-
 
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
@@ -424,7 +423,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space2D.getInstance();
+	        Space sp = Space3D.getInstance();
 	        Interfacial sim = new Interfacial(sp);
             InterfacialGraphic ljmdGraphic = new InterfacialGraphic(sim, sp);
             ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
