@@ -1,4 +1,6 @@
 package etomica.graphics;
+import java.awt.Color;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -6,9 +8,13 @@ import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import ptolemy.plot.Plot;
 import etomica.EtomicaInfo;
@@ -49,7 +55,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     /**
      * Creates a plot using data from the given table.
      */
-    public DisplayPlot(DataSet dataSet) {
+    public DisplayPlot(final DataSet dataSet) {
         super();
         this.dataSet = dataSet;
         if (!(dataSet.getDataCasterJudge() instanceof DataCasterJudgeFunction)) {
@@ -65,14 +71,39 @@ public class DisplayPlot extends Display implements DataSetListener {
         unitList = new LinkedList<DataTagBag>();
         
         final JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem menuItem = new JMenuItem("reset");
-        menuItem.addActionListener(new ActionListener() {
+        JMenuItem resetMenuItem = new JMenuItem("reset");
+        resetMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 plot.clear(true);
                 doUpdate();
             }
         });
-        popupMenu.add(menuItem);
+        popupMenu.add(resetMenuItem);
+        final JMenu rawMenu = new JMenu("raw data");
+        popupMenu.add(rawMenu);
+        PopupMenuListener popupMenuListener = new PopupMenuListener(){
+            public void popupMenuCanceled(PopupMenuEvent e) {}
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                rawMenu.removeAll();
+                int nSource = dataSet.getDataCount();
+                // populate the submenu with one element for each data set.
+                for(int k=0; k<nSource; k++) {
+                    String dataLabel = dataSet.getDataInfo(k).getLabel();
+                    DataTagBag tagLabel = DataTagBag.getDataTagBag(labelList, dataSet.getDataInfo(k).getTags());
+                    if (tagLabel != null) {
+                        dataLabel = (String)tagLabel.object;
+                    }
+                    JMenuItem rawDataMenuItem = new JMenuItem(dataLabel);
+                    final int kk = k;
+                    rawDataMenuItem.addActionListener(new RawDataWindowOpener(kk, DisplayPlot.this));
+                    rawMenu.add(rawDataMenuItem);
+                }
+            }
+        };
+        popupMenu.addPopupMenuListener(popupMenuListener);
         plot.addMouseListener(new PopupListener(popupMenu));
     }
     
@@ -304,7 +335,46 @@ public class DisplayPlot extends Display implements DataSetListener {
     private Unit xUnit = Null.UNIT;
     private Unit[] units;
     private Unit defaultUnit;
-    
+
+    /**
+     * Opens a window with the raw data from a plot.  The data is re-retrieved
+     * from the DataSet, so it won't necessarily be consistent with the plot.
+     *
+     * @author Andrew Schultz
+     */
+    public static final class RawDataWindowOpener implements ActionListener {
+        private final int kk;
+        private final DisplayPlot displayPlot;
+
+        public RawDataWindowOpener(int kk, DisplayPlot displayPlot) {
+            this.kk = kk;
+            this.displayPlot = displayPlot;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            JFrame f = new JFrame();
+            TextArea textArea = new TextArea();
+            textArea.setEditable(false);
+            textArea.setBackground(Color.white);
+            textArea.setForeground(Color.black);
+            DataSet dataSet = displayPlot.getDataSet();
+            if(dataSet.getDataInfo(kk) instanceof DataInfoFunction) {
+                double[] xValues = ((DataInfoFunction)dataSet.getDataInfo(kk)).getXDataSource().getIndependentData(0).getData();
+                double[] data = ((DataFunction)dataSet.getData(kk)).getData();
+                for(int i=0; i<data.length; i++) {
+                    double y = displayPlot.units[kk].fromSim(data[i]);
+                    if (!Double.isNaN(y)) {
+                        textArea.append(displayPlot.xUnit.fromSim(xValues[i])+"\t"+y+"\n");
+                    }
+                }
+            }
+            f.add(textArea);
+            f.pack();
+            f.setSize(400,600);
+            f.setVisible(true);
+        }
+    }
+
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
         public DataProcessor getDataCaster(IDataInfo dataInfo) {
