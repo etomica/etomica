@@ -28,7 +28,10 @@ public class DataTagBag {
     public static DataTagBag getDataTagBag(LinkedList dataTagBags, DataTag[] desiredTags) {
         Iterator iterator = dataTagBags.iterator();
         // match the first set of tags that has no non-matching tags
+        DataTagBag bestBag = null;
+        int bestNumMatches = 0;
         while (iterator.hasNext()) {
+            int thisNumMatches = 0;
             DataTagBag tagUnit = (DataTagBag)iterator.next();
             DataTag[] tags = tagUnit.tags;
             boolean found = true;
@@ -37,6 +40,7 @@ public class DataTagBag {
                 for (int k=0; k<desiredTags.length; k++) {
                     if (desiredTags[k] == tags[j]) {
                         found = true;
+                        thisNumMatches++;
                         break;
                     }
                 }
@@ -45,11 +49,14 @@ public class DataTagBag {
                 }
             }
             if (found) {
-                return tagUnit;
+                if (thisNumMatches > bestNumMatches) {
+                    bestBag = tagUnit;
+                    bestNumMatches = thisNumMatches;
+                }
             }
         }
         
-        return null;
+        return bestBag;
     }
     
 }
