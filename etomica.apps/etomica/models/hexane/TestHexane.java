@@ -226,6 +226,7 @@ public class TestHexane extends Simulation {
                 den = Double.parseDouble(args[2]);
                 if(den == 0.37) {density = 0.373773507616;}
                 if(den == 0.40) {density = 0.389566754417;}
+                if(den == 0.35) {density = 0.349942899;}
             }
             if(args.length > 5){
                 xLng = Integer.parseInt(args[3]);
@@ -243,7 +244,6 @@ public class TestHexane extends Simulation {
             System.out.println("Number of cells/molecules in the Y direction = " + yLng);
             System.out.println("Number of cells/molecules in the Z direction = " + zLng);
             System.out.println("Total number of molecules = " + xLng*yLng*zLng);
-            System.out.println("Random seed = " + sim.getRandom());
             double volume = sim.bdry.volume();
             System.out.println("volume =  "+ volume);
             
@@ -284,7 +284,8 @@ public class TestHexane extends Simulation {
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
             sim.integrator.addIntervalAction(meterNormalMode);
-            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
+//            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
+            sim.integrator.setActionInterval(meterNormalMode, 10000);
             sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
