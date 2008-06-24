@@ -1,11 +1,7 @@
-package etomica.modules.interfacial;
+package etomica.data;
 
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.ISpace;
