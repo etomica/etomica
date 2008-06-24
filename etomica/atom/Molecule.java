@@ -21,7 +21,7 @@ public class Molecule extends Atom implements IMolecule {
      * from only the ordinal.
      */
     public String signature() {
-        return Integer.toString(index);
+        return type.getIndex()+" "+index;
     }
 
     /**
@@ -29,8 +29,7 @@ public class Molecule extends Atom implements IMolecule {
      * to a string that identifies it as a molecule.
      */
     public final String toString() {
-//        return Integer.toBinaryString(node.index());
-        return "Molecule(" + index + ")";
+        return "Molecule(" + getType().getIndex()+" "+index + ")";
     }
 
     /**
