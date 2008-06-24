@@ -68,10 +68,11 @@ public class Simulation implements java.io.Serializable, ISimulation  {
             boxList[i].resetIndex(this);
         }
         
-        // notify oldBox that we no longer have it.
-        oldBox.resetIndex(null);
-        
         eventManager.fireEvent(new SimulationBoxRemovedEvent(oldBox));
+
+        // notify oldBox that we no longer have it.  this will reset its index
+        // to 0, so we need to do this after firing notification
+        oldBox.resetIndex(null);
     }
     
     /**
