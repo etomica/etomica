@@ -21,6 +21,7 @@ import etomica.data.DataFork;
 import etomica.data.DataGroupSplitter;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
+import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
@@ -30,7 +31,7 @@ import etomica.data.IDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterProfile;
+import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -78,7 +79,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected InterfacialSW sim;
     protected final DeviceNSelector nSlider;
     protected final DeviceSlider xSlider, yzSlider;
-    protected final MeterProfile densityProfileMeter;
+    protected final MeterProfileByVolume densityProfileMeter;
     protected boolean isExpanded;
     
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
@@ -317,7 +318,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         tensionPlot.setLabel("Tension Profile");
         add(tensionPlot);
 
-        densityProfileMeter = new MeterProfile(space);
+        densityProfileMeter = new MeterProfileByVolume(space);
         densityProfileMeter.setBox(sim.box);
         densityProfileMeter.setDataSource(new MeterNMolecules());
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
