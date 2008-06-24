@@ -38,7 +38,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
-        setSolventThermoFrac(1);
+        setSolventThermoFrac(0);
 	}
 
     public void setBox(IBox newBox){
@@ -239,7 +239,7 @@ public class P2SquareWellBonded extends P2SquareWell {
      * pair when they hop in or leave their well.
      */
     public double getSolventThermoFrac() {
-        return solventThermoFrac;
+        return 1 - solventThermoFrac;
     }
 
     /**
@@ -252,7 +252,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         if (newSolventThermoFrac < 0 || newSolventThermoFrac > 1) {
             throw new IllegalArgumentException("0 <= value <= 1");
         }
-        solventThermoFrac = newSolventThermoFrac;
+        solventThermoFrac = 1 - newSolventThermoFrac;
     }
 }
 
