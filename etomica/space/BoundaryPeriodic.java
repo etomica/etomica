@@ -1,10 +1,12 @@
 package etomica.space;
 
+import etomica.api.IBoundary;
+
 /**
  * Interface for a boundary class that can be set to be periodic in
  * different directions.
  */
-public interface BoundaryPeriodic {
+public interface BoundaryPeriodic extends IBoundary {
 
     /**
      * Returns a boolean array that indicates whether the boundary is periodic
