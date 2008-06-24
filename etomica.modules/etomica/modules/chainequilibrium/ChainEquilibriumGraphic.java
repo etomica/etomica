@@ -95,7 +95,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded, sim.ACbonded}, "Solvent Thermality"));        
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded, sim.ACbonded}, "solventThermoFrac"));
+        solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
@@ -321,7 +322,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
-        sliderPanel.add(epsilonSliders, "Well depth (kJ/mol)");
+        sliderPanel.add(epsilonSliders, "Reaction Energy (kJ/mol)");
         sliderPanel.add(speciesEditors, "Number of Molecules");
 
         //set the number of significant figures displayed on the table.
