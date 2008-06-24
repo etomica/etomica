@@ -1,15 +1,19 @@
 package etomica.data.meter;
+import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.data.Data;
 import etomica.data.DataSource;
+import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceIndependent;
-import etomica.data.DataSourcePositioned;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.DataSourceUniform.LimitType;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -21,19 +25,24 @@ import etomica.units.Length;
 /**
  * Meter that takes a (scalar) Meter and records its property as a
  * 1-dimensional function of position in the simulation volume. The measured
- * property must be a quantity that can be associated with a position in the
- * box. The position coordinate lies along one dimension (x,y,z).
+ * property must be a quantity that can be associated with a single molecule.
+ * The position coordinate lies along one dimension (x,y,z).
+ *
+ * Data is averaged as
+ * sum(values)/dV
+ * 
+ * where dV is the volume of the bin.  As such, this meter is measuring the
+ * "density" of the quantity returned by the atomic meter.
  * 
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfile implements DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfileByVolume implements DataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
-     * Default constructor sets profile along the x-axis, with 100 points in
-     * the profile.
+     * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfile(ISpace space) {
+    public MeterProfileByVolume(ISpace space) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         position = space.makeVector();
         tag = new DataTag();
@@ -52,19 +61,16 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * The meter that defines the profiled quantity
      */
-    public DataSourcePositioned getDataSource() {return meter;}
+    public DataSourceAtomic getDataSource() {return meter;}
     
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setDataSource(DataSourcePositioned m) {
-        if (!(m.getPositionDataInfo() instanceof DataInfoDouble)) {
+    public void setDataSource(DataSourceAtomic m) {
+        if (!(m.getAtomDataInfo() instanceof DataInfoDouble)) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
         meter = m;
-        if (box != null) {
-            meter.setBox(box);
-        }
         reset();
     }
     
@@ -91,14 +97,25 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         IBoundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        Data xData = xDataSource.getData();
-        
-        for (int i=0; i<y.length; i++) {
-            double x = xData.getValue(i);
-            IVector pos = boundary.randomPosition();
-            pos.setX(profileDim, x);
-            y[i] += meter.getData(pos).getValue(0);
+        IAtomSet moleculeList = box.getMoleculeList();
+        if (species != null) {
+            moleculeList = box.getMoleculeList(species);
         }
+        int nMolecules = moleculeList.getAtomCount();
+        for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
+            IMolecule a = (IMolecule)moleculeList.getAtom(iMolecule);
+            double value = ((DataDouble)meter.getData(a)).x;
+            position.E(a.getType().getPositionDefinition().position(a));
+            position.PE(boundary.centralImage(position));
+            int i = xDataSource.getIndex(position.x(profileDim));
+            y[i] += value;
+        }
+        double dV = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
+        for (int i=0; i<boundary.getDimensions().getD(); i++) {
+            if (i==profileDim) continue;
+            dV *= boundary.getDimensions().x(i);
+        }
+        data.TE(1.0/dV);
         return data;
     }
 
@@ -125,11 +142,16 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      */
     public void setBox(IBox box) {
         this.box = box;
-        if (meter != null) {
-            meter.setBox(box);
-        }
     }
     
+    public ISpecies getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
+    }
+
     public void reset() {
         if (box == null) return;
         
@@ -139,10 +161,14 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         
         if (meter != null) {
             data = new DataFunction(new int[] {xDataSource.getNValues()});
-            dataInfo = new DataInfoFunction(meter.getPositionDataInfo().getLabel()+" Profile", meter.getPositionDataInfo().getDimension(), this);
+            dataInfo = new DataInfoFunction(meter.getAtomDataInfo().getLabel()+" Profile", meter.getAtomDataInfo().getDimension(), this);
             dataInfo.addTag(meter.getTag());
             dataInfo.addTag(tag);
         }
+    }
+
+    public DataSourceUniform getXDataSource() {
+        return xDataSource;
     }
 
     private static final long serialVersionUID = 1L;
@@ -159,6 +185,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * Meter that defines the property being profiled.
      */
-    protected DataSourcePositioned meter;
+    protected DataSourceAtomic meter;
     protected final DataTag tag;
+    protected ISpecies species;
 }
