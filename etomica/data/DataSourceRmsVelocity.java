@@ -25,7 +25,7 @@ import etomica.util.HistogramCollapsing;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndependent, Serializable {
+public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
 
     public DataSourceRmsVelocity() {
         this(new HistogramCollapsing());
