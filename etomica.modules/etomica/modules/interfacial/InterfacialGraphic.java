@@ -17,6 +17,7 @@ import etomica.data.DataFork;
 import etomica.data.DataGroupSplitter;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
+import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
