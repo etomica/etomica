@@ -154,5 +154,4 @@ public interface IVector {
      * Applies the given function to each element of the vector.
      */
     public void map(IFunction f);
-
 }
