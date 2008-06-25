@@ -247,7 +247,7 @@ public class DataLogger implements DataPipe, ControllerListener, java.io.Seriali
     private boolean appending = true; //whether to overwrite to the existing data 
                                         //or attach the data. Default is not overwriting.
     protected transient FileWriter fileWriter; //this is a handle that subclass can use to write data.
-    protected String fileNameSuffix = ".txt"; //Default suffix is text file, subclass can change this.
+    protected String fileNameSuffix = ".dat"; //Default suffix is text file, subclass can change this.
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private transient boolean fileIsOpen = false; //at the beginning, it is false.
