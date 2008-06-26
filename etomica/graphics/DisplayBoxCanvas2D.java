@@ -60,7 +60,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             // take the smaller of the two toPixel
             px = py;
         }
-        if (pixel.toPixels() == px) {
+        if (pixel != null && pixel.toPixels() == px) {
             return;
         }
         setPixelUnit(new Pixel(px));
