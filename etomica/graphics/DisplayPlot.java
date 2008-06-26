@@ -63,7 +63,7 @@ public class DisplayPlot extends Display implements DataSetListener {
             throw new IllegalArgumentException("DisplayPlot a DataSet with a DataCasterJudgeFunction");
         }
         dataSet.addDataListener(this);
-        plot = new Plot();
+        plot = new EtomicaPlot(this);
         panel = new JPanel();
         panel.add(plot);
         units = new Unit[0];
@@ -74,7 +74,7 @@ public class DisplayPlot extends Display implements DataSetListener {
         JMenuItem resetMenuItem = new JMenuItem("reset");
         resetMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                plot.clear(true);
+                plot.resetAxes();
                 doUpdate();
             }
         });
@@ -193,28 +193,32 @@ public class DisplayPlot extends Display implements DataSetListener {
      */
     public void doUpdate() {
         int nSource = dataSet.getDataCount();
-        // if not showing, do a full clear so that adding points doesn't cause it to actually draw
-        // if the user zoomed in/out, this will clobber it if the plot isn't shown.  "oops".  this is ptolemy's fault.
-        plot.clear(!plot.isShowing());
+        if (!plot.isShowing()) {
+            // notify the plot we have updated data
+            plot.notifyNeedUpdate();
+            return;
+        }
+        plot.clear(false);
         for(int k=0; k<nSource; k++) {
         	double[] xValues = null;
             double[] data = null;
         	if(dataSet.getDataInfo(k) instanceof DataInfoFunction) {
                 xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
                 data = ((DataFunction)dataSet.getData(k)).getData();
+                boolean drawLine = false;
                 for(int i=0; i<data.length; i++) {
                     double y = units[k].fromSim(data[i]);
                     if (!Double.isNaN(y)) {
-                        plot.addPoint(k, xUnit.fromSim(xValues[i]), y, true);
+                        plot.addPoint(k, xUnit.fromSim(xValues[i]), y, drawLine);
+                        drawLine = true;
+                    }
+                    else {
+                        drawLine = false;
                     }
                 }
         	}
         }
-        if (plot.isShowing()) {
-            // now force a repaint if it's showing
-            // if it's not showing, repaint will get called when does get shown
-            plot.repaint();
-        }
+        plot.repaint();
     }
 
     /**
@@ -327,7 +331,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     }
     
     protected final DataSet dataSet;
-    protected final Plot plot;
+    protected final EtomicaPlot plot;
     protected final LinkedList<DataTagBag> labelList;
     protected final LinkedList<DataTagBag> unitList;
     protected final javax.swing.JPanel panel;
