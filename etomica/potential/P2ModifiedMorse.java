@@ -26,16 +26,17 @@ import etomica.util.Constants;
 public final class P2ModifiedMorse extends Potential2SoftSpherical {
 
     public P2ModifiedMorse(ISpace space) {
-        this(space, 1.0, 1.0, 1.0, 1.0, 1.0);
+        this(space, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
     
-    public P2ModifiedMorse(ISpace space, double epsilon, double re, double a, double z1, double z2) {
+    public P2ModifiedMorse(ISpace space, double epsilon, double re, double a, double z1, double z2, double coulombicCutoff) {
         super(space);
         setEpsilon(epsilon);
         setRe(re);
         setA(a);
         setZ1(z1);
         setZ2(z2);
+        this.coulombicCutoff = coulombicCutoff;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -49,8 +50,19 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
     public double u(double r2) {
     	double r = Math.sqrt(r2);
     	
+    	/* The O-aC and O-aH Coulombic interactions are highly attractive for small r.
+    	 * As r goes to zero, the Coulombic interaction energy goes to negative infinity.
+    	 * This causes some overlapped configurations to have aphysical attractive interaction energies.
+    	 */
+    	
+    	
     	double expTerm = Math.exp(a*(re-r));
     	double morseTerm = epsilon*(expTerm-1)*(expTerm-1)-epsilon;
+    	
+    	if (r < coulombicCutoff) {
+    		// return morseTerm;
+            return Double.POSITIVE_INFINITY;
+        }
     	
     	// Note: e is the unit of charge in simulation units (rather than Coulombs)
     	double chargeTerm = z1*z2/(4*Math.PI*Constants.EPSILON_0*r);
@@ -145,4 +157,5 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
     private double a;
     private double z1;
     private double z2;
+    private double coulombicCutoff;
 }
