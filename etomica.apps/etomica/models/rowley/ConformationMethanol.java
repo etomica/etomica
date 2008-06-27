@@ -6,7 +6,7 @@ import etomica.api.IConformation;
 import etomica.space.ISpace;
 
 /**
- * Conformation for methanol as published in Rowley et al (2006)
+ * Conformation for methanol in standard orientation as published in Rowley et al (2006) 
  * 
  * OpenOffice Spreadsheet file, Methanol coordinates, used to calculate coordinates from bond lengths and angles: 
  * 
@@ -23,7 +23,7 @@ public class ConformationMethanol implements IConformation {
         
     	// hydrogen attached to oxygen
         IAtomPositioned alpha_hydrogen = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexaH);
-        alpha_hydrogen.getPosition().E(new double[] {0.0, 0.9114, 1.7172});
+        alpha_hydrogen.getPosition().E(new double[] {0.9114, 0.0, 1.7172});
         
         IAtomPositioned oxygen = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexO);
         oxygen.getPosition().E(new double[] {0.0, 0.0, 1.4202});
@@ -33,15 +33,15 @@ public class ConformationMethanol implements IConformation {
         
         // hydrogen on opposite of molecule from alpha hydrogen
         IAtomPositioned hydrogen_1 = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexH1);
-        hydrogen_1.getPosition().E(new double[] {0.0, -1.0393, -0.3115});
+        hydrogen_1.getPosition().E(new double[] {-1.0393, 0.0, -0.3115});
         
         // hydrogen closer to alpha hydrogen
         IAtomPositioned hydrogen_2a = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexH2a);
-        hydrogen_2a.getPosition().E(new double[] { 0.8920, 0.4850, -0.4101});
+        hydrogen_2a.getPosition().E(new double[] {0.4850, -0.8920, -0.4101});
         
         // hydrogen closer to alpha hydrogen
         IAtomPositioned hydrogen_2b = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexH2b);
-        hydrogen_2b.getPosition().E(new double[] {-0.8920, 0.4850, -0.4101});
+        hydrogen_2b.getPosition().E(new double[] {0.4850,  0.8920, -0.4101});
         
         // The satellite site, X, is closer to the oxygen atom in the model with point charges.
         if(pointCharges) {
@@ -50,15 +50,14 @@ public class ConformationMethanol implements IConformation {
         	
         	// satellite site to model location of high electron density for oxygen
         	IAtomPositioned x = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexX);
-        	x.getPosition().E(new double[] {0.0, -0.0753, 1.4749});	
-        }
-        else {
+        	x.getPosition().E(new double[] {-0.0753, 0.0, 1.4749});	
+        } else {
 
         	// Methanol model without point charges
         	
         	// satellite site to model location of high electron density for oxygen
         	IAtomPositioned x = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexX);
-        	x.getPosition().E(new double[] {0.0, -0.7774, 1.9845});
+        	x.getPosition().E(new double[] {-0.7774, 0.0, 1.9845});
         }
        
         

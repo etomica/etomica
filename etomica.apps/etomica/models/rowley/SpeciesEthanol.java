@@ -15,11 +15,11 @@ import etomica.space.ISpace;
 import etomica.species.Species;
 
 /**
- * Species for methanol with satellite site (Rowley et al 2006).
+ * Species for ethanol with satellite site (Rowley et al 2006).
  */
-public class SpeciesMethanol extends Species {
+public class SpeciesEthanol extends Species {
 
-    public SpeciesMethanol(ISpace space, boolean pointCharges) {
+    public SpeciesEthanol(ISpace space, boolean pointCharges) {
     	
         super(new AtomPositionGeometricCenter(space));
         
@@ -27,33 +27,38 @@ public class SpeciesMethanol extends Species {
         
         oType = new AtomTypeSphere(Oxygen.INSTANCE, 2.0); // diameter NOT taken to be O-O equilibrium distance
         acType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
+        cType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
         ahType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be aH-aH equilibrium distance
         hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be H-H equilibrium distance
         xType = new AtomTypeSphere(new ElementSimple("X", 1.0), 2.0); // diameter NOT taken to be X-X equilibrium distance
         
         addChildType(oType);
         addChildType(acType);
+        addChildType(cType);
         addChildType(ahType);
         addChildType(hType);
         addChildType(xType);
         
         // The satellite site, X, is closer to the oxygen atom in the model with point charges.
-        setConformation(new ConformationMethanol(space, pointCharges)); 
+        setConformation(new ConformationEthanol(space, pointCharges)); 
      }
 
      public IMolecule makeMolecule() {
-         Molecule methanol = new Molecule(this);
+         Molecule ethanol = new Molecule(this);
          
-         // The order in which the child atoms are added is important; it must match the site indices.
-         methanol.addChildAtom(new AtomLeaf(space, oType));
-         methanol.addChildAtom(new AtomLeaf(space, acType));
-         methanol.addChildAtom(new AtomLeaf(space, ahType));
-         methanol.addChildAtom(new AtomLeaf(space, hType));
-         methanol.addChildAtom(new AtomLeaf(space, hType));
-         methanol.addChildAtom(new AtomLeaf(space, hType));
-         methanol.addChildAtom(new AtomLeaf(space, xType));
-         conformation.initializePositions(methanol.getChildList());
-         return methanol;
+         // The order in which the child atoms are added is important; it must match the order of site indices below.
+         ethanol.addChildAtom(new AtomLeaf(space, oType));
+         ethanol.addChildAtom(new AtomLeaf(space, acType));
+         ethanol.addChildAtom(new AtomLeaf(space, cType));
+         ethanol.addChildAtom(new AtomLeaf(space, ahType));
+         ethanol.addChildAtom(new AtomLeaf(space, hType));
+         ethanol.addChildAtom(new AtomLeaf(space, hType));
+         ethanol.addChildAtom(new AtomLeaf(space, hType));
+         ethanol.addChildAtom(new AtomLeaf(space, hType));
+         ethanol.addChildAtom(new AtomLeaf(space, hType));
+         ethanol.addChildAtom(new AtomLeaf(space, xType));
+         conformation.initializePositions(ethanol.getChildList());
+         return ethanol;
      }
      
      public IAtomTypeSphere getOxygenType() {
@@ -62,6 +67,10 @@ public class SpeciesMethanol extends Species {
      
      public IAtomTypeSphere getAlphaCarbonType() {
          return acType;
+     }
+     
+     public IAtomTypeSphere getCarbonType() {
+         return cType;
      }
 
      public IAtomTypeSphere getAlphaHydrogenType() {
@@ -77,18 +86,21 @@ public class SpeciesMethanol extends Species {
      }
 
      public int getNumLeafAtoms() {
-         return 7;
+         return 10;
      }
     
     public final static int indexO   = 0;
     public final static int indexaC  = 1;
-    public final static int indexaH  = 2; // ahType
-    public final static int indexH1  = 3; // hType
-    public final static int indexH2a = 4; // hType
-    public final static int indexH2b = 5; // hType
-    public final static int indexX   = 6;
+    public final static int indexC   = 2;
+    public final static int indexaH  = 3; // ahType
+    public final static int indexH1a = 4; // hType
+    public final static int indexH1b = 5; // hType
+    public final static int indexH2a = 6; // hType
+    public final static int indexH2b = 7; // hType
+    public final static int indexH2c = 8; // hType
+    public final static int indexX   = 9;
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final AtomTypeSphere oType, acType, ahType, hType, xType;
+    protected final AtomTypeSphere oType, acType, cType, ahType, hType, xType;
 }
