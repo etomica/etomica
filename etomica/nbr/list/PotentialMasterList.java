@@ -248,7 +248,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * displacement.  Our nominal neighbor range is used for the criterion
      * with the longest potential range.
      */
-    protected void recomputeCriteriaRanges() {
+    public void recomputeCriteriaRanges() {
         double maxDisplacement = (getRange() - maxPotentialRange) * safetyFactor;
         if (maxDisplacement < 0) {
             // someone probably added a long ranged potential and hasn't updated the PotentialMaster's range
