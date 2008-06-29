@@ -11,7 +11,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -147,6 +146,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                 // get any advantage from using cells in this direction.  ideally
                 // we would make the neighbor iterator non-wrapping in this direction
                 // and use 1 cell.
+                if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+nCells[i]+" to "+(cellRange*2+1));
                 nCells[i] = cellRange*2+1;
                 if (range > dimensions.x(i)/2) {
                     // box was too small for the potentials too.  doh.
@@ -154,7 +154,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                     // of multiple changes which will (in the end) be happy.
                     System.err.println("range is greater than half the box length in direction "+i);
                 }
-                if (Debug.ON) System.err.println("capping number of cells in direction "+i+" at "+nCells[i]);
             }
         }
         //only update the lattice (expensive) if the number of cells changed
