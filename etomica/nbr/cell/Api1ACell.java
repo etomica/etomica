@@ -159,6 +159,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         }
         inCentralCell = true;
         upListNow = (direction != IteratorDirective.Direction.DOWN);
+        doGoDown = (direction != IteratorDirective.Direction.UP);
         neighborIterator.checkDimensions();
         Cell centralCell = cellManager.getCell(targetAtom);
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
@@ -189,7 +190,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
      */
     public void setDirection(Direction direction) {
         this.direction = direction;
-        doGoDown = (direction != IteratorDirective.Direction.UP);
         neighborIterator.setDirection(direction);
         nbrCellListIteratorInner.setDirection(direction);
     }
