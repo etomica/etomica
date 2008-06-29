@@ -14,6 +14,7 @@ import etomica.lattice.CellLattice;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.Cell;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialArray;
@@ -31,28 +32,24 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
 		this(sim, 0, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range, ISpace _space) {
         this(sim, range, (IAtomPositionDefinition)null, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			IAtomPositionDefinition positionDefinition, ISpace _space) {
-        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
-		// TODO Auto-generated constructor stub
+        this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManager boxAgentSource, ISpace _space) {
+			BoxAgentSourceCellManagerList boxAgentSource, ISpace _space) {
 		this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManager boxAgentSource,
+			BoxAgentSourceCellManagerList boxAgentSource,
 			BoxAgentManager agentManager, ISpace _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
         agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(sim, null, _space), sim, true);

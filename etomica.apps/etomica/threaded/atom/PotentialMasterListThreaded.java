@@ -13,6 +13,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialArray;
@@ -31,31 +32,26 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
 		super(sim, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range) {
 		super(sim, range, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
 			IAtomPositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManager boxAgentSource) {
+			BoxAgentSourceCellManagerList boxAgentSource) {
 		super(sim, range, boxAgentSource, _space);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManager boxAgentSource,
+			BoxAgentSourceCellManagerList boxAgentSource,
 			BoxAgentManager agentManager) {
 		super(sim, range, boxAgentSource, agentManager, _space);
-		// TODO Auto-generated constructor stub
 	}
 	
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
