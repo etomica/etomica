@@ -23,7 +23,7 @@ public class Pixel extends SimpleUnit {
 			);
         this.toPixels = toPixels;
 	}
-    
+
     public double toPixels() {
         return toPixels;
     }
