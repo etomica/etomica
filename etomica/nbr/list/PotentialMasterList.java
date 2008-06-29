@@ -28,7 +28,6 @@ import etomica.nbr.CriterionTypesMulti;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -64,19 +63,19 @@ public class PotentialMasterList extends PotentialMasterNbr {
      *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, ISpace _space) {
-        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, _space), _space);
     }
-    
-    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, ISpace _space) {
+
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, ISpace _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
     }
-    
-    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, ISpace _space){
+
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager agentManager, ISpace _space){
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
     }
-            
+
     public PotentialMasterList(ISimulation sim, double range,
-    		BoxAgentSourceCellManager boxAgentSource,
+    		BoxAgentSourceCellManagerList boxAgentSource,
     		BoxAgentManager agentManager,
     		NeighborListAgentSource neighborListAgentSource, ISpace _space) {
         super(sim, boxAgentSource, agentManager, _space);
@@ -90,7 +89,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
         allCriteria = new NeighborCriterion[0];
 
         neighborListAgentManager.setSimulation(sim);
-        
+
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborCellManagerList cellManager = (NeighborCellManagerList)iterator.next();
+            cellManager.setPotentialMaster(this);
+        }
+
+        boxAgentSource.setPotentialMaster(this);
+
         // setRange last.  that should always be OK since anyone can call
         // setRange later. if we call it early, member fields won't exist,
         // if we just set range, our stuff associated with existing boxes
@@ -107,7 +115,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             throw new IllegalArgumentException("Range must be greater than 0");
         }
         range = newRange;
-        ((BoxAgentSourceCellManager)boxAgentSource).setRange(range);
+        ((BoxAgentSourceCellManagerList)boxAgentSource).setRange(range);
         recomputeCriteriaRanges();
         
         BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();

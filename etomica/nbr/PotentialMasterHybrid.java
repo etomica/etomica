@@ -8,9 +8,9 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
-import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
@@ -41,14 +41,14 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterHybrid(ISimulation sim, IAtomPositionDefinition positionDefinition, double range, ISpace space) {
-        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, space), space);
+        this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, space), space);
     }
     
-    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, ISpace space) {
+    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, ISpace space) {
         this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), space);
     }
     
-    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
+    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
             BoxAgentManager agentManager, ISpace _space) {
         super(sim, boxAgentSource, agentManager, _space);
         potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, space);
