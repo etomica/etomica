@@ -1,0 +1,90 @@
+package etomica.data;
+
+import etomica.action.AtomActionTranslateTo;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.integrator.IntegratorBox;
+import etomica.space.ISpace;
+import etomica.units.Null;
+
+/**
+ * Calculates the Boltzmann factor at a position within a box a molecule of a
+ * particular species would have if it existed at that point.  Only works for
+ * monatomic molecules (no rotation is attempted).
+ * 
+ * @author Andrew Schultz
+ */
+public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned {
+
+    public DataSourcePositionedBoltzmannFactor(ISpace space) {
+        data = new DataDouble();
+        dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
+        tag = new DataTag();
+        atomTranslator = new AtomActionTranslateTo(space);
+    }
+
+    /**
+     * Sets the integrator.  The integrator is used to obtain the
+     * IPotentialMaster, IBox and temperature.
+     */
+    public void setIntegrator(IntegratorBox newIntegrator) {
+        integrator = newIntegrator;
+        energyMeter = new MeterPotentialEnergy(integrator.getPotential());
+        energyMeter.setBox(integrator.getBox());
+    }
+
+    /**
+     * Sets the ISpecies for which the chemical potential is to be measured.
+     */
+    public void setSpecies(ISpecies newSpecies) {
+        testMolecule = newSpecies.makeMolecule();
+    }
+
+    /**
+     * Returns the ISpecies for which the chemical potential is to be measured.
+     */
+    public ISpecies getSpecies() {
+        return (ISpecies)testMolecule.getType();
+    }
+
+    public Data getData(IVector a) {
+        atomTranslator.setDestination(a);
+        atomTranslator.actionPerformed(testMolecule);
+        IBox box = integrator.getBox();
+        box.addMolecule(testMolecule);
+        energyMeter.setTarget(testMolecule);
+        double temp = integrator.getTemperature();
+        data.x = Math.exp(-energyMeter.getDataAsScalar()/temp);
+
+        box.removeMolecule(testMolecule);
+
+        return data;
+    }
+
+    public void setBox(IBox newBox) {
+        if (integrator != null && newBox != integrator.getBox()) {
+            throw new RuntimeException("You should really figure out which IBox is for me!");
+        }
+    }
+
+    public IDataInfo getPositionDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
+    }
+
+    protected IMolecule testMolecule;// prototype insertion molecule
+    protected AtomActionTranslateTo atomTranslator;
+    protected MeterPotentialEnergy energyMeter;
+    protected final DataInfoDouble dataInfo;
+    protected final DataDouble data;
+    protected IntegratorBox integrator;
+    protected final DataTag tag;
+}
