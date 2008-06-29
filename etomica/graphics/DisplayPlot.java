@@ -363,6 +363,12 @@ public class DisplayPlot extends Display implements DataSetListener {
             textArea.setForeground(Color.black);
             DataSet dataSet = displayPlot.getDataSet();
             if(dataSet.getDataInfo(kk) instanceof DataInfoFunction) {
+                String dataLabel = dataSet.getDataInfo(kk).getLabel();
+                DataTagBag tagLabel = DataTagBag.getDataTagBag(displayPlot.labelList, dataSet.getDataInfo(kk).getTags());
+                if (tagLabel != null) {
+                    dataLabel = (String)tagLabel.object;
+                }
+                textArea.append(displayPlot.getPlot().getXLabel()+"\t"+dataLabel+"\n");
                 double[] xValues = ((DataInfoFunction)dataSet.getDataInfo(kk)).getXDataSource().getIndependentData(0).getData();
                 double[] data = ((DataFunction)dataSet.getData(kk)).getData();
                 for(int i=0; i<data.length; i++) {
