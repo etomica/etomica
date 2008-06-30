@@ -83,6 +83,7 @@ public class SimHarmonic extends Simulation {
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
+        normalModes.setTemperature(1.0);
         normalModes.setHarmonicFudge(harmonicFudge);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
@@ -92,6 +93,7 @@ public class SimHarmonic extends Simulation {
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinition);
+        move.setTemperature(1.0);
         
         move.setBox(box);
         
@@ -104,10 +106,10 @@ public class SimHarmonic extends Simulation {
     public static void main(String[] args) {
         
         //set up simulation parameters
-        int D = 3;
+        int D = 1;
         int nA = 27;
         double density = 1.3;
-        double harmonicFudge = 1;
+        double harmonicFudge = 1.0;
         long steps = 800000;
         if (D == 1) {
             nA = 3;
