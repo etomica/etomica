@@ -1,12 +1,12 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
+import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -15,18 +15,18 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardPeriodic;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Kelvin;
 
 public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 	public IController controller1;
-	public IntegratorHardThermoFrac integratorHard;
+	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public IBox box;
 	public MeterTemperature thermometer;
@@ -37,25 +37,33 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	public P2SquareWellBonded ABbonded, ACbonded;
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager agentManager = null;
+    public final IPotentialMaster potentialMaster;
 
     public ChainEquilibriumSim() {
         super(Space2D.getInstance());
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this, space);
+        potentialMaster = new PotentialMasterList(this, 3, space);
+        ((PotentialMasterList)potentialMaster).setCellRange(1);
+//        potentialMaster = new PotentialMasterMonatomic(this, space);
+
         controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHardThermoFrac(this, potentialMaster, space);
+        integratorHard = new IntegratorHard(this, potentialMaster, space);
         integratorHard.setIsothermal(true);
+        integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
+        integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
-        integratorHard.setThermostatFrac(0.01);
+//        integratorHard.setThermostatFrac(0.005);
 
-        box = new Box(this, space);
+        box = new Box(new BoundaryRectangularPeriodic(space, random, 60), space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, random, 50));
-        integratorHard.setBox(box);	
+        integratorHard.setBox(box);
+        integratorHard.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integratorHard.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesC = new SpeciesSpheresMono(this, space);
@@ -98,15 +106,9 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		// **** Setting Up the thermometer Meter *****
 		
 		thermometer = new MeterTemperature(box, space.D());
-		
-		integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesA.getLeafType());
-        integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesB.getLeafType());
-        integratorHard.setNullPotential(new P1HardPeriodic(space, 1), speciesC.getLeafType());
-        
+
 		activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
 		getController().addAction(activityIntegrate);
-		integratorHard.addIntervalAction(new BoxImposePbc(box, space));
-
 	}
     
     public Class getAgentClass() {
