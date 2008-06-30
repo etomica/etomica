@@ -27,7 +27,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
     public MeterChainLength(AtomLeafAgentManager aam) {
         tag = new DataTag();
-        setupData(40);
+        setupData(1);
         agentManager = aam;
     }
     
@@ -109,11 +109,9 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         
         return data;
     }
-    
+
     public void reset() {
-        if (data.getLength() != 40) {
-            setupData(40);
-        }
+        setupData(1);
     }
     
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
