@@ -39,6 +39,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
         setSolventThermoFrac(0);
+        ringResult = new RingResult();
 	}
 
     public void setBox(IBox newBox){
@@ -103,6 +104,61 @@ public class P2SquareWellBonded extends P2SquareWell {
         ((IAtomLeaf[])agentManager.getAgent(b))[j] = a;
 	}
 	
+    /**
+     * this function will bond atoms a & b together
+     */
+    protected void checkRing(IAtom a, IAtom b, int maxBondCount){
+        IAtomLeaf[] aNbrs = ((IAtomLeaf[])agentManager.getAgent(a));
+        IAtomLeaf next = aNbrs[0];
+        if (next == null) {
+            next = aNbrs[1];
+        }
+        if (next == null) {
+            // a is unbonded
+            ringResult.linker = null;
+            ringResult.foundRing = false;
+            return;
+        }
+        int bondCount = 1;
+        IAtom prev = a;
+        while (true) {
+            IAtomLeaf[] nextNbrs = ((IAtomLeaf[])agentManager.getAgent(next));
+            if (nextNbrs.length == 3) {
+                // encountered a cross-linker.  rings are OK.
+                ringResult.linker = next;
+                ringResult.bondCount = bondCount;
+                return;
+            }
+            IAtomLeaf nextNext = nextNbrs[0];
+            if (nextNext == prev) {
+                // we want |next|'s bonded partner's bonded partner that isn't |next|
+                nextNext = nextNbrs[1];
+            }
+            if (nextNext == null) {
+                // termination.  no ring
+                ringResult.linker = null;
+                ringResult.foundRing = false;
+                return;
+            }
+            bondCount++;
+            if (bondCount > maxBondCount) {
+                // might be a ring, but if it is, it's large enough to be OK
+                ringResult.linker = null;
+                ringResult.foundRing = false;
+                return;
+            }
+            prev = next;
+            next = nextNext;
+            if (next == b) {
+                // found a ring
+                ringResult.linker = null;
+                ringResult.foundRing = true;
+                ringResult.bondCount = bondCount;
+                return;
+            }
+        }
+    }
+    
 	/**
      * this function unbonds two atoms
 	 */
@@ -113,9 +169,8 @@ public class P2SquareWellBonded extends P2SquareWell {
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
         IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
-		int j = nbrs.length;	//check INDEXING
-		for(int i=0; i != j; ++i){
-			if (nbrs[i] == b){	// double bonds???
+		for(int i=0; i < nbrs.length; ++i){
+			if (nbrs[i] == b){
 				nbrs[i] = null;
                 success = true;
 			}
@@ -126,9 +181,8 @@ public class P2SquareWellBonded extends P2SquareWell {
         success = false;
 		// Unbonding the Atom, Atom B's side
         nbrs = (IAtomLeaf[])agentManager.getAgent(b);
-        j = nbrs.length;
-		for(int i=0; i != j; ++i){
-			if (nbrs[i] == a){	// double bonds???
+		for(int i=0; i < nbrs.length; ++i){
+			if (nbrs[i] == a){
 				nbrs[i] = null;
                 success = true;
 			}
@@ -210,10 +264,40 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
 		else { 	//not bonded to each other
 			//well collision; decide whether to bond or have hard repulsion
-			if (full(atom0) || full(atom1)) { 
+		    boolean canBond = !full(atom0) && !full(atom1);
+		    if (canBond) {
+                int maxRingBonds = 20;
+		        IAtomLeaf[] aNbrs = ((IAtomLeaf[])agentManager.getAgent(atom0));
+		        if (aNbrs.length == 3) {
+		            // cross linker
+                    checkRing(atom1, atom0, maxRingBonds);
+                    canBond = ringResult.linker == atom0 || (ringResult.linker != null && ringResult.foundRing);
+		        }
+		        else {
+    		        checkRing(atom0, atom1, maxRingBonds);
+//    		        System.out.println("checkRing "+atom0+" "+atom1+" linker0 "+ringResult.linker);
+    //                System.out.println(atom0+" "+atom1+" "+ringBonds);
+    		        if (ringResult.linker != null) {
+    		            IAtom linker0 = ringResult.linker;
+    		            int ringBonds0 = ringResult.bondCount;
+    		            checkRing(atom1, atom0, maxRingBonds - ringBonds0);
+//    	                System.out.println("checkRing "+atom0+" "+atom1+" linker1 "+ringResult.linker);
+    		            if (ringResult.linker == linker0) {
+    		                // ring contains only one linker and is too small
+    		                canBond = false;
+    		            }
+    		        }
+    		        else {
+    		            canBond = !ringResult.foundRing;
+    		        }
+		        }
+		    }
+			if (!canBond) { 
 				lastCollisionVirial = reduced_m * bij;
 				nudge = eps;
-			} else { //neither is taken; bond to each other
+			}
+			else {
+			    //neither is taken; bond to each other
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon*solventThermoFrac/ reduced_m));
 				bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
 				nudge = -eps;
@@ -253,6 +337,14 @@ public class P2SquareWellBonded extends P2SquareWell {
             throw new IllegalArgumentException("0 <= value <= 1");
         }
         solventThermoFrac = 1 - newSolventThermoFrac;
+    }
+
+    protected final RingResult ringResult;
+    
+    protected static class RingResult {
+        public IAtom linker;
+        public int bondCount;
+        public boolean foundRing;
     }
 }
 
