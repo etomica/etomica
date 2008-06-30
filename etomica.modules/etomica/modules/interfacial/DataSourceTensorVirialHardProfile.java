@@ -22,12 +22,12 @@ import etomica.units.Energy;
 import etomica.units.Length;
 
 /**
- * A MeterTensor that returns the virial component of the pressure tensor for a hard potential.  
- * This is the counterpart to MeterVelocityTensor, also called by the surface tension meter.
- *
- * @author Rob Riggleman
+ * A DataSource that collects the average virial tensor as a function of
+ * position for one dimension.  The profile data is exposed via an inner class
+ * that fronts that data (since this class extends DataSourceTensorVirialHard).
+ * 
+ * @author Andrew Schultz
  */
-
 public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHard implements DataSourceIndependent {
     
     public DataSourceTensorVirialHardProfile(ISpace space) {
@@ -50,12 +50,14 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         
         IVector boxDim = integratorHard.getBox().getBoundary().getDimensions();
         if (L != boxDim.x(0)) {
+            // the data we collected is bogus.  reset and return NaN.
             setupProfileData();
             profileData.E(Double.NaN);
             return profileData;
         }
         
         if(elapsedTime == 0.0) {
+            // oops
             profileData.E(Double.NaN);
             return profileData;
         }
@@ -76,6 +78,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
      * Sums contribution to virial for each collision.
      */
     public void collisionAction(IntegratorHard.Agent agent) {
+        // superclass collects total virial
         super.collisionAction(agent);
 
         Tensor virialTensor = agent.collisionPotential.lastCollisionVirialTensor();
@@ -89,15 +92,19 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         x1 -= Math.round(x1*Li) * L;
         int iBin1 = (int) ((x1 + halfL) / binSize);
         if (iBin0 == iBin1) {
+            // both in 1 bin
             addTensor(iBin0, virialTensor);
         }
         else if (Math.abs(iBin1-iBin0) > nBins/2) {
+            // wrapped around the box
             if (iBin0 > nBins/2) {
                 //swap so iBin1 is on the right side, iBin0 on the left
                 int foo = iBin0;
                 iBin0 = iBin1;
                 iBin1 = foo;
             }
+            // bins on the right: (nBins-1)-iBin1+1
+            // bins on the left:  iBin0+1
             int nBetween = (nBins-1)-iBin1+1 + iBin0+1;
             virialTensor.TE(1.0/nBetween);
             for (int i=iBin1; i<nBins; i++) {
@@ -121,7 +128,10 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
             }
         }
     }
-    
+
+    /**
+     * Adds the given contribution to the virial sum for bin iBin.
+     */
     protected void addTensor(int iBin, Tensor virialTensor) {
         for (int i=0; i<virialTensor.D(); i++) {
             virialProfileWork[i][iBin] += virialTensor.component(i,i);
