@@ -1,5 +1,6 @@
 package etomica.modules.interfacial;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
@@ -9,21 +10,28 @@ import javax.swing.JPanel;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.atom.IAtomKinetic;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.Data;
+import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataGroupSplitter;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
+import etomica.data.DataProcessorChemicalPotential;
 import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
+import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
@@ -31,6 +39,8 @@ import etomica.data.IDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterProfile;
+import etomica.data.meter.MeterProfileByAtoms;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
@@ -78,9 +88,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     private DeviceThermoSlider temperatureSelect;
     protected InterfacialSW sim;
     protected final DeviceNSelector nSlider;
+    protected final DeviceSlider nSurfactantSlider;
     protected final DeviceSlider xSlider, yzSlider;
-    protected final MeterProfileByVolume densityProfileMeter;
+    protected final MeterProfileByVolume densityProfileMeter, surfactantProfileMeter;
+    protected final MeterProfileByAtoms orientationProfileMeter;
+    protected final MeterProfile muProfileMeter;
     protected boolean isExpanded;
+    protected final DataPump surfactantProfilePump, orientationProfilePump;
+    protected final DisplayPlot profilePlot, orientationPlot;
     
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
 
@@ -92,6 +107,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
+        
+        ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
+        colorScheme.setColor(sim.leafType, Color.RED);
+        colorScheme.setColor(sim.headType, new Color(190, 0, 190));
+        colorScheme.setColor(sim.tailType, Color.BLUE);
 
         final double expansionFac = 3;
         isExpanded = false;
@@ -99,9 +119,33 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final DeviceButton expandButton = new DeviceButton(sim.getController());
         IAction expandAction = new IAction() {
             public void actionPerformed() {
-                IVector dim = sim.box.getBoundary().getDimensions();
+                dim.E(sim.box.getBoundary().getDimensions());
                 dim.setX(0, expansionFac * dim.x(0));
                 sim.box.getBoundary().setDimensions(dim);
+                
+                int numSurfactants = (int)nSurfactantSlider.getValue();
+                Box pretendBox = new Box(sim, space);
+                dim.setX(0, dim.x(0)/expansionFac);
+                pretendBox.setDimensions(dim);
+                sim.addBox(pretendBox);
+                pretendBox.setNMolecules(sim.surfactant, numSurfactants);
+                configLattice.initializeCoordinates(pretendBox);
+                IAtomSet surfactants = pretendBox.getMoleculeList(sim.surfactant);
+                for (int i=0; i<numSurfactants; i++) {
+                    IMolecule surfactant = (IMolecule)surfactants.getAtom(0);
+                    pretendBox.removeMolecule(surfactant);
+                    double deltaX = 0.55 * dim.x(0);
+                    if (((IAtomPositioned)surfactant.getChildList().getAtom(0)).getPosition().x(0) < 0) {
+                        deltaX = -deltaX;
+                    }
+                    for (int j=0; j<2; j++) {
+                        IVector pos = ((IAtomPositioned)surfactant.getChildList().getAtom(j)).getPosition();
+                        pos.setX(0, pos.x(0) + deltaX);
+                    }
+                    sim.box.addMolecule(surfactant);
+                }
+                sim.removeBox(pretendBox);
+                
                 ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
@@ -109,12 +153,29 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 catch (ConfigurationOverlapException e) {
                     throw new RuntimeException(e);
                 }
+
+                if (numSurfactants > 0) {
+                    sim.integrator.addIntervalAction(surfactantProfilePump);
+                    sim.integrator.setActionInterval(surfactantProfilePump, 10);
+                    sim.integrator.addIntervalAction(orientationProfilePump);
+                    sim.integrator.setActionInterval(orientationProfilePump, 10);
+                }
+
                 nSlider.setEnabled(false);
+                nSurfactantSlider.getSlider().setEnabled(false);
                 expandButton.getButton().setEnabled(false);
+                xSlider.getSlider().setEnabled(false);
+                yzSlider.getSlider().setEnabled(false);
                 getDisplayBox(sim.box).repaint();
                 densityProfileMeter.reset();
+                surfactantProfileMeter.reset();
+                orientationProfileMeter.reset();
+                muProfileMeter.reset();
+                
                 isExpanded = true;
             }
+            IVector dim = space.makeVector();
+            ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
         };
         expandButton.setAction(expandAction);
         expandButton.setLabel("Expand");
@@ -130,8 +191,28 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 dim.setX(0, dim.x(0) / expansionFac);
                 sim.box.getBoundary().setDimensions(dim);
                 nSlider.setEnabled(true);
+                nSurfactantSlider.getSlider().setEnabled(true);
                 expandButton.getButton().setEnabled(true);
+                xSlider.getSlider().setEnabled(true);
+                yzSlider.getSlider().setEnabled(true);
                 isExpanded = false;
+                sim.box.setNMolecules(sim.surfactant, 0);
+
+                densityProfileMeter.reset();
+                surfactantProfileMeter.reset();
+                orientationProfileMeter.reset();
+                muProfileMeter.reset();
+                
+                if ((int)nSurfactantSlider.getValue() > 0) {
+                    sim.integrator.removeIntervalAction(surfactantProfilePump);
+                    sim.integrator.removeIntervalAction(orientationProfilePump);
+                    profilePlot.getDataSet().reset();
+                    profilePlot.setDoLegend(false);
+                    profilePlot.setDoLegend(true);
+                    profilePlot.doUpdate();
+                    orientationPlot.getDataSet().reset();
+                    orientationPlot.doUpdate();
+                }
             }
         });
         
@@ -180,18 +261,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
+                    //throw new RuntimeException(e);
                 }
             }
         };
         sim.integrator.addIntervalAction(recenterAction);
-        sim.integrator.setActionInterval(recenterAction, 1000);
-
-	    //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
-//        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
+        sim.integrator.setActionInterval(recenterAction, 100);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
@@ -251,8 +326,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DisplayPlot ePlot = new DisplayPlot();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 
-        ePlot.getPlot().setTitle("Energy History");
-		ePlot.setDoLegend(true);
+        ePlot.getPlot().setTitle("Potential Energy History");
+		ePlot.setDoLegend(false);
 		ePlot.setLabel("Energy");
 		
         DataSourceTensorVirialHardProfile pMeter = new DataSourceTensorVirialHardProfile(space);
@@ -277,7 +352,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(pPump);
         sim.integrator.setActionInterval(pPump, 20);
         dataStreamPumps.add(pPump);
-        
+
+        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
+        peDisplay.setAccumulator(peAccumulator);
+
         DataProcessorInterfacialTension interfacialTension = new DataProcessorInterfacialTension(space);
         interfacialTension.setBox(sim.box);
         virialFork.addDataSink(interfacialTension);
@@ -314,27 +392,58 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         interfacialTensionProfile.setDataSink(tensionProfileAvg);
         tensionProfileAvg.setPushInterval(10);
         DisplayPlot tensionPlot = new DisplayPlot();
+        tensionPlot.setDoLegend(false);
         tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         tensionPlot.setLabel("Tension Profile");
         add(tensionPlot);
 
         densityProfileMeter = new MeterProfileByVolume(space);
         densityProfileMeter.setBox(sim.box);
-        densityProfileMeter.setDataSource(new MeterNMolecules());
+        MeterNMolecules meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.species);
+        densityProfileMeter.setDataSource(meterNMolecules);
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
         densityProfileAvg.setPushInterval(10);
         DataPump profilePump = new DataPump(densityProfileMeter, densityProfileAvg);
+        DataDump profileDump = new DataDump();
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         sim.integrator.addIntervalAction(profilePump);
         sim.integrator.setActionInterval(profilePump, 10);
         dataStreamPumps.add(profilePump);
+
+        surfactantProfileMeter = new MeterProfileByVolume(space);
+        surfactantProfileMeter.setBox(sim.box);
+        meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.surfactant);
+        surfactantProfileMeter.setDataSource(meterNMolecules);
+        AccumulatorAverageFixed surfactantProfileAvg = new AccumulatorAverageFixed(10);
+        surfactantProfileAvg.setPushInterval(10);
+        surfactantProfilePump = new DataPump(surfactantProfileMeter, surfactantProfileAvg);
+        dataStreamPumps.add(surfactantProfilePump);
+        
+        orientationProfileMeter = new MeterProfileByAtoms(space);
+        orientationProfileMeter.setBox(sim.box);
+        orientationProfileMeter.setSpecies(sim.surfactant);
+        MeterOrientation meterOrientation = new MeterOrientation(space);
+        meterOrientation.setBox(sim.box);
+        orientationProfileMeter.setDataSource(meterOrientation);
+        orientationPlot = new DisplayPlot();
+        orientationPlot.setDoLegend(false);
+        orientationPlot.setLabel("Orientation");
+        orientationPlot.getPlot().setTitle("Surfactant Orientation");
+        add(orientationPlot);
+        orientationProfilePump = new DataPump(orientationProfileMeter, orientationPlot.getDataSet().makeDataSink());
+        dataStreamPumps.add(orientationProfilePump);
         
         final FitTanh fitTanh = new FitTanh();
         densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
 
-        DisplayPlot profilePlot = new DisplayPlot();
+        profilePlot = new DisplayPlot();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        surfactantProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "density");
+        profilePlot.setLegend(new DataTag[]{surfactantProfileAvg.getTag()}, "surfactant");
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag(), fitTanh.getTag()}, "fit");
         profilePlot.setDoLegend(true);
         profilePlot.setLabel("Density");
@@ -343,7 +452,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         getPanel().tabbedPane.add("Density", profilePanel);
         profilePanel.add(profilePlot.graphic(), vertGBC);
         final DisplayTextBox vaporDensityBox = new DisplayTextBox("Vapor density", Null.UNIT);
-        final DisplayTextBox liquidDensityBox = new DisplayTextBox("Vapor density", Null.UNIT);
+        final DisplayTextBox liquidDensityBox = new DisplayTextBox("Liquid density", Null.UNIT);
         final DisplayTextBox interfaceWidthBox = new DisplayTextBox("Interface width", Null.UNIT);
         final DisplayTextBox interfaceLocationBox = new DisplayTextBox("Interface location", Null.UNIT);
         JPanel fitParamsPanel = new JPanel();
@@ -368,9 +477,43 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         };
         sim.integrator.addIntervalAction(pullParams);
         sim.integrator.setActionInterval(pullParams, 10);
-
-        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-        peDisplay.setAccumulator(peAccumulator);
+        
+        DisplayPlot muPlot = new DisplayPlot();
+        muProfileMeter = new MeterProfile(space);
+        muProfileMeter.setBox(sim.box);
+        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
+        meterChemicalPotential.setIntegrator(sim.integrator);
+        meterChemicalPotential.setSpecies(sim.species);
+        muProfileMeter.setDataSource(meterChemicalPotential);
+        AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
+        chemicalPotentialAverage.setPushInterval(10);
+        DataPump muProfilePump = new DataPump(muProfileMeter, chemicalPotentialAverage);
+        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+        dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
+        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
+        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
+        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");
+//        dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+//        dataProcessorChemicalPotential.doE = false;
+//        dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
+//        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
+//        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+//        dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
+//        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "muD");
+//        dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+//        dataProcessorChemicalPotential.doD = false;
+//        dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
+//        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
+//        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+//        dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
+//        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "muE");
+        muPlot.setLabel("Chemical Potential");
+        muPlot.setDoLegend(false);
+        add(muPlot);
+        sim.integrator.addIntervalAction(muProfilePump);
+        sim.integrator.setActionInterval(muProfilePump, 50);
+        dataStreamPumps.add(muProfilePump);
 
         nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
@@ -386,31 +529,115 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space);
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
-                int n = (int)nSlider.getValue();
+                int n = sim.box.getNMolecules(sim.species);
                 if(n == 0) {
-                	sim.integrator.setThermostatInterval(400);
+                	sim.integrator.setThermostatInterval(800);
                 }
                 else {
-                    sim.integrator.setThermostatInterval((400+(n-1))/n);
+                    sim.integrator.setThermostatInterval((800+(n-1))/n);
                 }
                 
-                if (oldN < n) {
-                    config.initializeCoordinates(sim.box);
-                }
-                oldN = n;
+                config.initializeCoordinates(sim.box);
                 ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
+                    if (n == oldN) {
+                        throw new RuntimeException(e);
+                    }
+                    nSlider.setValue(oldN);
+                    return;
                 }
+                oldN = n;
+
                 getController().getSimRestart().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
             
             int oldN = sim.box.getMoleculeList().getAtomCount();
         });
+
+        nSurfactantSlider = new DeviceSlider(null);
+        nSurfactantSlider.setMinimum(0);
+        nSurfactantSlider.setMaximum(50);
+        nSurfactantSlider.setValue(0);
+        nSurfactantSlider.setLabel("Number of Surfactants");
+        nSurfactantSlider.setShowBorder(true);
+        nSurfactantSlider.setShowValues(true);
+
+        DeviceSlider surfactantEpsilon = new DeviceSlider(sim.getController());
+        surfactantEpsilon.setModifier(new Modifier() {
+
+            public Dimension getDimension() {
+                return Energy.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Surfactant well depth";
+            }
+
+            public double getValue() {
+                return sim.p2HeadHead.getEpsilon();
+            }
+
+            public void setValue(double newValue) {
+                if (newValue < 0 || newValue > 10) {
+                    throw new RuntimeException("Illegal well depth");
+                }
+                sim.p2HeadHead.setEpsilon(newValue);
+                sim.p2Head.setEpsilon(Math.sqrt(newValue));
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        surfactantEpsilon.setMaximum(5);
+        
+        DeviceSlider surfactantSigma = new DeviceSlider(sim.getController());
+        surfactantSigma.setModifier(new Modifier() {
+
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Surfactant tail diameter";
+            }
+
+            public double getValue() {
+                return sim.p2TailTail.getCollisionDiameter();
+            }
+
+            public void setValue(double newValue) {
+                if (newValue < 0 || newValue > 10) {
+                    throw new RuntimeException("Illegal well depth");
+                }
+                sim.p2TailTail.setCollisionDiameter(newValue);
+                sim.p2Tail.setCollisionDiameter(0.5+0.5*newValue);
+                sim.p2HeadTail.setCollisionDiameter(0.5+0.5*newValue);
+                sim.p2Bond.setBondLength(0.5+0.5*newValue-0.2);
+                ((PotentialMasterList)sim.integrator.getPotential()).recomputeCriteriaRanges();
+                // reset won't trigger recomputcriteriaranges because max range didn't change...
+                // perhaps it should
+                ((PotentialMasterList)sim.integrator.getPotential()).reset();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    // ignore... if the diameter is too large we can get overlap.  they'll fix themselves over time
+                }
+                ((IAtomTypeSphere)sim.tailType).setDiameter(newValue);
+            }
+        });
+        surfactantSigma.setPrecision(1);
+        surfactantSigma.setMinimum(1);
+        surfactantSigma.setMaximum(1.6);
+        surfactantSigma.setNMajor(3);
+        
         IAction reconfig = new IAction() {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
@@ -424,12 +651,17 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 getController().getSimRestart().actionPerformed();
                 getDisplayBox(sim.box).repaint();
                 densityProfileMeter.reset();
+                surfactantProfileMeter.reset();
+                orientationProfileMeter.reset();
+                muProfileMeter.reset();
             }
         };
         xSlider = new DeviceSlider(sim.getController());
+        xSlider.setMinimum(6);
         xSlider.setMaximum(30);
         xSlider.setModifier(new ModifierBoxSize(sim.box, 0, reconfig));
         yzSlider = new DeviceSlider(sim.getController());
+        yzSlider.setMinimum(6);
         yzSlider.setMaximum(15);
         yzSlider.setModifier(new ModifierBoxSize(sim.box, 1, reconfig));
         add(xSlider);
@@ -480,6 +712,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
+        		
+        		orientationProfileMeter.reset();
         	}
         };
 
@@ -488,6 +722,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         add(nSlider);
+        add(nSurfactantSlider);
+        add(surfactantEpsilon);
+        add(surfactantSigma);
 
     	add(ePlot);
     	add(densityBox);
@@ -497,7 +734,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     	}
     	add(peDisplay);
         add(tensionDisplay);
-
     }
 
     public static void main(String[] args) {
@@ -597,6 +833,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             if (newValue <= 0) {
                 throw new IllegalArgumentException("Gotta be positive");
             }
+            //newValue+=0.01;
             IVector sizeNow = box.getBoundary().getDimensions();
             double oldValue = sizeNow.x(dim);
             sizeNow.setX(dim, newValue);
