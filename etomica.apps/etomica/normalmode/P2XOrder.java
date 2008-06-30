@@ -7,7 +7,6 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
@@ -50,8 +49,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
         dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
-//        int dI = atom1.getIndex() - atom0.getIndex();
-        int dI= ((IAtomLeaf)atom1).getParentGroup().getIndex() - ((IAtomLeaf)atom0).getParentGroup().getIndex();
+        int dI = ((IAtomLeaf)atom1).getParentGroup().getIndex() - ((IAtomLeaf)atom0).getParentGroup().getIndex();
         // assume 1 species
         if (Math.abs(dI) == box.getMoleculeList().getAtomCount()-1) {
             dr.PEa1Tv1(dI > 0 ? -1 : 1, box.getBoundary().getDimensions());
