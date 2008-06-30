@@ -32,14 +32,18 @@ public class NeighborCellManagerList extends NeighborCellManager {
 
     public Object makeAgent(IAtomLeaf atom) {
         Object cell = super.makeAgent(atom);
-        // oh, the humanity
-        // we've made the cell and added the atom to it.  but the agent manager
-        // won't actually have the cell until we return.  so explicitly set the
-        // agent now.
-        agentManager.setAgent(atom, cell);
-        // now notify the NeighborListManager that the atom was added and has a
-        // cell.  NeighborListManager wants to construct neighbor lists now.
-        potentialMaster.getNeighborManager(box).addAtomNotify(atom);
+        // if agentManager is null, we're in the constructor, which means we're
+        // just starting up.  And we don't need to do this craziness.
+        if (agentManager != null) {
+            // oh, the humanity
+            // we've made the cell and added the atom to it.  but the agent manager
+            // won't actually have the cell until we return.  so explicitly set the
+            // agent now.
+            agentManager.setAgent(atom, cell);
+            // now notify the NeighborListManager that the atom was added and has a
+            // cell.  NeighborListManager wants to construct neighbor lists now.
+            potentialMaster.getNeighborManager(box).addAtomNotify(atom);
+        }
         return cell;
     }
 

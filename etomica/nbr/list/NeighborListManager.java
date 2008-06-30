@@ -473,11 +473,13 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     }
     
     public Object makeAgent(IAtomLeaf atom) {
-        Object oldAgent = agentManager2Body.getAgent(atom);
-        if (oldAgent != null) {
-            // NeighborCellManager got notified first and we already made the
-            // agent (and found the neighbors!).  Return that now.
-            return oldAgent;
+        if (initialized) {
+            Object oldAgent = agentManager2Body.getAgent(atom);
+            if (oldAgent != null) {
+                // NeighborCellManager got notified first and we already made the
+                // agent (and found the neighbors!).  Return that now.
+                return oldAgent;
+            }
         }
         AtomNeighborLists lists = new AtomNeighborLists();
         int num2Body = 0;
