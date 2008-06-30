@@ -31,6 +31,14 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         return box;
     }
 
+    public void setProfileDim(int newProfileDim) {
+        profileDim = newProfileDim;
+    }
+
+    public int getProfileDim() {
+        return profileDim;
+    }
+
     protected Data processData(Data inputData) {
         DataGroup dataGroup = (DataGroup)inputData;
         int D = virialData.length;
@@ -40,9 +48,10 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         int nBins = data.getArrayShape(0);
         double[] tension = data.getData();
         for (int i=0; i<nBins; i++) {
-            tension[i] = (D-1)*virialData[0][i];
+            tension[i] = (D-1)*virialData[profileDim][i];
         }
-        for (int j=1; j<D; j++) {
+        for (int j=0; j<D; j++) {
+            if (j == profileDim) continue;
             for (int i=0; i<nBins; i++) {
                 tension[i] -= virialData[j][i];
             }
@@ -50,11 +59,12 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
         double area = 1;
         IVector dim = box.getBoundary().getDimensions();
-        for (int i=1; i<dim.getD(); i++) {
+        for (int i=0; i<dim.getD(); i++) {
+            if (i == profileDim) continue;
             area *= dim.x(i);
         }
-        double binSize = dim.x(0) / virialData[0].length;
-        double fac = 0.25/area/binSize;
+        double binSize = dim.x(0) / virialData[profileDim].length;
+        double fac = 0.5/area/binSize/(D-1);
         for (int i=0; i<nBins; i++) {
             tension[i] *= fac;
         }
@@ -77,4 +87,5 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
     protected DataFunction data;
     protected final double[][] virialData;
     protected IBox box;
+    protected int profileDim;
 }
