@@ -22,10 +22,8 @@ import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
-import etomica.graphics.ActionHistoryWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
@@ -34,6 +32,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
@@ -63,7 +62,7 @@ import etomica.util.Constants.CompassDirection;
 public class ChainEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Chain Reaction Equilibrium";
-	private static final int REPAINT_INTERVAL = 1;
+	private static final int REPAINT_INTERVAL = 2;
 
     protected ChainEquilibriumSim sim;
 
@@ -71,6 +70,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
         this.sim = simulation;
+        
+        int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());
         
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
@@ -102,6 +103,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
 
+        DisplayTimer displayTimer = new DisplayTimer(sim.integratorHard);
+        add(displayTimer);
+        
         DataSourceCountTime timer = new DataSourceCountTime(sim.integratorHard);
 
         DataFork tFork = new DataFork();
@@ -116,11 +120,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setUnit(Kelvin.UNIT);
         tPlot.setLabel("Temperature");
+        tPlot.getPlot().setYLabel("Temperature (K)");
+        tPlot.setDoLegend(false);
         add(tPlot);
         sim.integratorHard.addIntervalAction(tPump);
-        sim.integratorHard.setActionInterval(tPump, 10);
+        sim.integratorHard.setActionInterval(tPump, dataInterval);
 
-        
         final MeterChainLength molecularCount = new MeterChainLength(sim.agentManager);
         molecularCount.setBox(sim.box);
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(10);
@@ -130,19 +135,29 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(mwPump);
         sim.integratorHard.addIntervalAction(mwPump);
-        sim.integratorHard.setActionInterval(mwPump, 10);
+        sim.integratorHard.setActionInterval(mwPump, dataInterval);
         
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
+        DataFork mwAvgFork = new DataFork();
+        molecularWeightAvg.setDataSink(mwAvgFork);
         AccumulatorAverageCollapsing mwAvg = new AccumulatorAverageCollapsing();
         mwAvg.setPushInterval(1);
-        molecularWeightAvg.setDataSink(mwAvg);
+        mwAvgFork.addDataSink(mwAvg);
+        final AccumulatorHistory mwHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        mwHistory.setTimeDataSource(timer);
+        mwAvgFork.addDataSink(mwHistory);
 
         MolecularWeightAvg2 molecularWeightAvg2 = new MolecularWeightAvg2();
         mwFork.addDataSink(molecularWeightAvg2);
+        DataFork mwAvg2Fork = new DataFork();
+        molecularWeightAvg2.setDataSink(mwAvg2Fork);
         AccumulatorAverageCollapsing mwAvg2 = new AccumulatorAverageCollapsing();
         mwAvg2.setPushInterval(1);
-        molecularWeightAvg2.setDataSink(mwAvg2);
+        mwAvg2Fork.addDataSink(mwAvg2);
+        final AccumulatorHistory mw2History = new AccumulatorHistory(new HistoryCollapsingAverage());
+        mw2History.setTimeDataSource(timer);
+        mwAvg2Fork.addDataSink(mw2History);
 
         MonomerConversion monomerConversion = new MonomerConversion();
         mwFork.addDataSink(monomerConversion);
@@ -157,18 +172,17 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         conversionHistoryAcc.setTimeDataSource(timer);
         final DataPump conversionPump = new DataPump(reactionConversion, conversionHistoryAcc);
         sim.integratorHard.addIntervalAction(conversionPump);
-        sim.integratorHard.setActionInterval(conversionPump, 10);
+        sim.integratorHard.setActionInterval(conversionPump, dataInterval);
         dataStreamPumps.add(conversionPump);
         
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
+                molecularCount.reset();
                 conversionPump.actionPerformed();
                 mwPump.actionPerformed();
                 tPump.actionPerformed();
             }
         });
-
-        sim.integratorHard.setTimeStep(0.01);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -180,6 +194,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DisplayPlot compositionPlot = new DisplayPlot();
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
+
+        DisplayPlot mwPlot = new DisplayPlot();
+        mwPlot.setLabel("Molecular Weight");
+        mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
+        mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
+        mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
+        mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
         DisplayPlot conversionPlot = new DisplayPlot();
         monomerConversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
@@ -208,7 +229,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setIntegrator(sim.integratorHard);
-        temperatureSelect.setTemperature(150);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
@@ -227,7 +247,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderA.setSpecies(sim.speciesA);
         nSliderA.setBox(sim.box);
         nSliderA.setShowBorder(true);
-        nSliderA.setLabel("Diol");
+        nSliderA.setLabel("Di-ols (red)");
         nSliderA.setNMajor(4);
         IAction reset = new IAction() {
             public void actionPerformed() {
@@ -238,7 +258,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         };
         nSliderA.setResetAction(reset);
-        nSliderA.setMaximum(400);
+        nSliderA.setMaximum(1000);
         nSliderA.setShowValues(true);
         nSliderA.setShowSlider(false);
         nSliderA.setEditValues(true);
@@ -246,10 +266,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderB.setSpecies(sim.speciesB);
         nSliderB.setBox(sim.box);
         nSliderB.setShowBorder(true);
-        nSliderB.setLabel("Carboxylic Acid");
+        nSliderB.setLabel("Di-acid (black)");
         nSliderB.setResetAction(reset);
         nSliderB.setNMajor(4);
-        nSliderB.setMaximum(400);
+        nSliderB.setMaximum(1000);
         nSliderB.setShowValues(true);
         nSliderB.setShowSlider(false);
         nSliderB.setEditValues(true);
@@ -257,10 +277,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nSliderC.setSpecies(sim.speciesC);
         nSliderC.setBox(sim.box);
         nSliderC.setShowBorder(true);
-        nSliderC.setLabel("Crosslinker");
+        nSliderC.setLabel("Crosslinker (green)");
         nSliderC.setResetAction(reset);
         nSliderC.setNMajor(4);
-        nSliderC.setMaximum(20);
+        nSliderC.setMaximum(50);
         nSliderC.setShowValues(true);
         nSliderC.setShowSlider(false);
         nSliderC.setEditValues(true);
@@ -272,7 +292,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         compositionPlot.setLabel("Composition");
         conversionPlot.setLabel("Conversion");
 
-        getPanel().tabbedPane.add(compositionPlot.getLabel(), compositionPlot.graphic());
+        add(compositionPlot);
+        add(mwPlot);
         JPanel conversionPanel = new JPanel(new GridBagLayout());
         conversionPanel.add(conversionPlot.graphic(), vertGBC);
         
@@ -300,14 +321,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
         
-        DeviceButton conversionHistoryButton = new DeviceButton(null);
-        conversionHistoryButton.setLabel("Conversion History Data");
-        conversionHistoryButton.setController(sim.getController());
-        conversionHistoryButton.setAction(new ActionHistoryWindow(conversionHistoryAcc));
-        conversionPanel.add(conversionHistoryButton.graphic(),vertGBC);
-        getPanel().tabbedPane.add(conversionPlot.getLabel(), conversionPanel);
-        getPanel().tabbedPane.add("Averages", THING.graphic());
-
+        getPanel().tabbedPane.add("Conversion" , conversionPanel);
 
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
@@ -355,6 +369,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
         AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
+        AASlider.doUpdate();
         AASlider.setShowBorder(true);
         AASlider.setLabel(s);
         AASlider.setMinimum(eMin);
