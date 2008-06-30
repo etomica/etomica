@@ -40,6 +40,8 @@ public class DataSet implements Serializable {
             psuedoSinks[i].index = -1;
         }
         psuedoSinks = new DataSetSink[0];
+        backwardDataMap = new int[0];
+        forwardDataMap = new int[0];
     }
     
     /**
