@@ -6,13 +6,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
+import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
+import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -100,9 +103,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
-        JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
-        JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
-
         DisplayTimer displayTimer = new DisplayTimer(sim.integratorHard);
         add(displayTimer);
         
@@ -159,30 +159,39 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         mw2History.setTimeDataSource(timer);
         mwAvg2Fork.addDataSink(mw2History);
 
-        MonomerConversion monomerConversion = new MonomerConversion();
-        mwFork.addDataSink(monomerConversion);
-        final HistoryCollapsingAverage monomerConversionHistory = new HistoryCollapsingAverage();
-        AccumulatorHistory monomerConversionHistoryAcc = new AccumulatorHistory(monomerConversionHistory);
-        monomerConversion.setDataSink(monomerConversionHistoryAcc);
-        monomerConversionHistoryAcc.setTimeDataSource(timer);
+        MeterConversion reactionConversionDiol = new MeterConversion(sim.box, sim.agentManager);
+        reactionConversionDiol.setSpecies(new ISpecies[]{sim.speciesA});
+        final HistoryCollapsingAverage conversionHistoryDiol = new HistoryCollapsingAverage();
+        AccumulatorHistory conversionHistoryAccDiol = new AccumulatorHistory(conversionHistoryDiol);
+        conversionHistoryAccDiol.setTimeDataSource(timer);
+        final DataPump conversionPumpDiol = new DataPump(reactionConversionDiol, conversionHistoryAccDiol);
+        sim.integratorHard.addIntervalAction(conversionPumpDiol);
+        sim.integratorHard.setActionInterval(conversionPumpDiol, dataInterval);
+        dataStreamPumps.add(conversionPumpDiol);
 
-        MeterConversion reactionConversion = new MeterConversion(sim.agentManager);
-        final HistoryCollapsingAverage conversionHistory = new HistoryCollapsingAverage();
-        AccumulatorHistory conversionHistoryAcc = new AccumulatorHistory(conversionHistory);
-        conversionHistoryAcc.setTimeDataSource(timer);
-        final DataPump conversionPump = new DataPump(reactionConversion, conversionHistoryAcc);
-        sim.integratorHard.addIntervalAction(conversionPump);
-        sim.integratorHard.setActionInterval(conversionPump, dataInterval);
-        dataStreamPumps.add(conversionPump);
-        
-        getController().getResetAveragesButton().setPostAction(new IAction() {
+        MeterConversion reactionConversionAcid = new MeterConversion(sim.box, sim.agentManager);
+        reactionConversionAcid.setSpecies(new ISpecies[]{sim.speciesB, sim.speciesC});
+        final HistoryCollapsingAverage conversionHistoryAcid = new HistoryCollapsingAverage();
+        AccumulatorHistory conversionHistoryAccAcid = new AccumulatorHistory(conversionHistoryAcid);
+        conversionHistoryAccAcid.setTimeDataSource(timer);
+        final DataPump conversionPumpAcid = new DataPump(reactionConversionAcid, conversionHistoryAccAcid);
+        sim.integratorHard.addIntervalAction(conversionPumpAcid);
+        sim.integratorHard.setActionInterval(conversionPumpAcid, dataInterval);
+        dataStreamPumps.add(conversionPumpAcid);
+
+        final IAction resetData = new IAction() {
             public void actionPerformed() {
+                sim.integratorHard.resetTime();
                 molecularCount.reset();
-                conversionPump.actionPerformed();
+                conversionPumpDiol.actionPerformed();
+                conversionPumpAcid.actionPerformed();
                 mwPump.actionPerformed();
                 tPump.actionPerformed();
             }
-        });
+        };
+
+        getController().getResetAveragesButton().setLabel("Reset");
+        getController().getResetAveragesButton().setPostAction(resetData);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -203,10 +212,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
         DisplayPlot conversionPlot = new DisplayPlot();
-        monomerConversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
-        conversionPlot.setLegend(new DataTag[]{monomerConversion.getTag()}, "monomer conversion");    
-        conversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
-        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");
+        conversionHistoryAccDiol.addDataSink(conversionPlot.getDataSet().makeDataSink());
+        conversionPlot.setLegend(new DataTag[]{reactionConversionDiol.getTag()}, "diol conversion");
+        conversionHistoryAccAcid.addDataSink(conversionPlot.getDataSet().makeDataSink());
+        conversionPlot.setLegend(new DataTag[]{reactionConversionAcid.getTag()}, "acid conversion");
 
         DisplayTextBoxesCAE mwBox = new DisplayTextBoxesCAE();
         mwBox.setAccumulator(mwAvg);
@@ -218,11 +227,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         mw2Box.setLabel("Weight Avg Molecular Weight");
         add(mw2Box);
 
+        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 resetBonds();
                 getDisplayBox(sim.box).repaint();
-                molecularCount.reset();
+                resetData.actionPerformed();
             }
         });
 
@@ -254,7 +264,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
                 getController().getSimRestart().actionPerformed();
                 resetBonds();
                 getDisplayBox(sim.box).repaint();
-                molecularCount.reset();
+                resetData.actionPerformed();
             }
         };
         nSliderA.setResetAction(reset);
@@ -311,25 +321,28 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
 
             public double getValue() {
-                return conversionHistory.getHistoryLength();
+                return conversionHistoryDiol.getHistoryLength();
             }
 
             public void setValue(double newValue) {
-                conversionHistory.setHistoryLength((int)newValue);
-                monomerConversionHistory.setHistoryLength((int)newValue);
+                conversionHistoryDiol.setHistoryLength((int)newValue);
+                conversionHistoryAcid.setHistoryLength((int)newValue);
             }
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
         
         getPanel().tabbedPane.add("Conversion" , conversionPanel);
 
+        JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
+        JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
+
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
         speciesEditors.add(nSliderC.graphic());
 
-        epsilonSliders.add(ABSlider.graphic(null));
-        epsilonSliders.add(ACSlider.graphic(null));
-        epsilonSliders.add(solventThermoFrac.graphic());
+        epsilonSliders.add(ABSlider.graphic(null), vertGBC);
+        epsilonSliders.add(ACSlider.graphic(null), vertGBC);
+        epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
 
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
