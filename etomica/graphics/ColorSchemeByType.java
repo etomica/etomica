@@ -14,7 +14,7 @@ import etomica.atom.AtomTypeAgentManager.AgentSource;
  *
  * @author David Kofke
  */
-public final class ColorSchemeByType extends ColorScheme implements AgentSource {
+public class ColorSchemeByType extends ColorScheme implements AgentSource {
     
     public ColorSchemeByType(ISimulation sim) {
     	super(sim);
