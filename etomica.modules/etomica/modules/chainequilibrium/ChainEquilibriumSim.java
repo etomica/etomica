@@ -10,7 +10,6 @@ import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
-import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -38,12 +37,12 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager agentManager = null;
     public final IPotentialMaster potentialMaster;
+    public final ConfigurationLatticeRandom config;
 
     public ChainEquilibriumSim() {
         super(Space2D.getInstance());
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList)potentialMaster).setCellRange(1);
-//        potentialMaster = new PotentialMasterMonatomic(this, space);
 
         controller1 = getController();
 
@@ -56,7 +55,6 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
-//        integratorHard.setThermostatFrac(0.005);
 
         box = new Box(new BoundaryRectangularPeriodic(space, random, 60), space);
         addBox(box);
@@ -76,7 +74,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
         box.setNMolecules(speciesC, 0);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+        config = new ConfigurationLatticeRandom(new LatticeOrthorhombicHexagonal(), space, random);
+        config.initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager(this,box);
 
