@@ -109,6 +109,11 @@ public class P2SquareWellBonded extends P2SquareWell {
      */
     protected void checkRing(IAtom a, IAtom b, int maxBondCount){
         IAtomLeaf[] aNbrs = ((IAtomLeaf[])agentManager.getAgent(a));
+        if (aNbrs.length < 2) {
+            ringResult.linker = null;
+            ringResult.foundRing = false;
+            return;
+        }
         IAtomLeaf next = aNbrs[0];
         if (next == null) {
             next = aNbrs[1];
