@@ -134,6 +134,12 @@ public class P2SquareWellBonded extends P2SquareWell {
                 ringResult.bondCount = bondCount;
                 return;
             }
+            else if (nextNbrs.length == 1) {
+                // encountered a monofunctional (terminal) group.  so, no ring.
+                ringResult.linker = null;
+                ringResult.foundRing = false;
+                return;
+            }
             IAtomLeaf nextNext = nextNbrs[0];
             if (nextNext == prev) {
                 // we want |next|'s bonded partner's bonded partner that isn't |next|
