@@ -75,10 +75,15 @@ public class MeterTemperature extends DataSourceScalar {
 	                    }
 	                    if (children.getAtom(0).getType() instanceof AtomTypeOrientedSphere) {
 	                        // oriented sphere at this point corresponds to cylindrical symmetry
-	                        totalD += 5*nMolecules*children.getAtomCount();
+	                        if (dim == 3) {
+	                            totalD += 5*nMolecules*children.getAtomCount();
+	                        }
+	                        else { // dim = 2
+	                            totalD += 3*nMolecules*children.getAtomCount();
+	                        }
 	                    }
 	                    else {
-	                        totalD += 3*nMolecules*children.getAtomCount();
+	                        totalD += dim*nMolecules*children.getAtomCount();
 	                    }
 	                }
 	            }
