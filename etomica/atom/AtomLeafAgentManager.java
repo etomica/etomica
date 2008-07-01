@@ -71,7 +71,11 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
      * from the Box associated with this instance.
      */
     public Object getAgent(IAtom a) {
-        return agents[box.getLeafIndex(a)];
+        int idx = box.getLeafIndex(a);
+        if (idx < agents.length) {
+            return agents[idx];
+        }
+        return null;
     }
     
     /**
@@ -81,6 +85,11 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
      * needed.
      */
     public void setAgent(IAtom a, Object newAgent) {
+        int idx = box.getLeafIndex(a);
+        if (idx >= agents.length) {
+            // no room in the array.  reallocate the array with an extra cushion.
+            agents = Arrays.resizeArray(agents,idx+1+reservoirSize);
+        }
         agents[box.getLeafIndex(a)] = newAgent;
     }
     
