@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -90,6 +91,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
         for (int i=0; i<nLeaf; i++) {
             IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
+            if (a.getType() == ignoredAtomType) continue;
             // if an Atom is tagged, it was already counted as part of 
             // another chain
             if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
@@ -127,6 +129,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     }
 
     protected int recursiveTag(IAtomLeaf a) {
+        if (a.getType() == ignoredAtomType) return 0;
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
         IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
@@ -165,15 +168,24 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return dataInfo;
     }
 
+    public IAtomTypeLeaf getIgnoredAtomType() {
+        return ignoredAtomType;
+    }
+
+    public void setIgnoredAtomType(IAtomTypeLeaf ignoredAtomType) {
+        this.ignoredAtomType = ignoredAtomType;
+    }
+
     private static final long serialVersionUID = 1L;
-    private IBox box;
-    private AtomLeafAgentManager tagManager;
-    private AtomLeafAgentManager agentManager;
-    private DataFunction data;
-    private DataDoubleArray xData;
-    private DataInfoDoubleArray xDataInfo;
-    private DataInfoFunction dataInfo;
-    private final DataTag tag;
+    protected IBox box;
+    protected AtomLeafAgentManager tagManager;
+    protected AtomLeafAgentManager agentManager;
+    protected DataFunction data;
+    protected DataDoubleArray xData;
+    protected DataInfoDoubleArray xDataInfo;
+    protected DataInfoFunction dataInfo;
+    protected final DataTag tag;
+    protected IAtomTypeLeaf ignoredAtomType;
     
     public static class AtomTag {
         public boolean tagged;
