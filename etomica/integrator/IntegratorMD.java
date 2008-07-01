@@ -74,7 +74,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         thermostatCount = 1;
         doThermostat();
     }
-    
+
+    public void resetTime() {
+        currentTime = 0;
+    }
+
     /**
      * reset the integrator's kinetic energy tracker
      */
