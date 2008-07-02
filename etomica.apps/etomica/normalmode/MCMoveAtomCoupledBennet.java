@@ -21,6 +21,8 @@ import etomica.space.IVectorRandom;
 /**
  * Standard Monte Carlo atom-displacement trial move.  Two atoms are moved at a
  * time in such a way that the geometric center of the system is not changed.
+ * 
+ * for sampling the Bennet's Overlap
  *
  * @author Andrew Schultz & Tai Boon Tan
  */
