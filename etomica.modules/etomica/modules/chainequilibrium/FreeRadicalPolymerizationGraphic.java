@@ -90,10 +90,10 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
 
         // Sliders on Well depth page
-        final DeviceSlider ABSlider = sliders(eMin, eMax, "initiator-initiatior", sim.p2AA);
-//        final DeviceSlider ACSlider = sliders(eMin, eMax, "Diol-Crosslinker", sim.);
-        ABSlider.setPostAction(resetAction);
-//        ACSlider.setPostAction(resetAction);
+        final DeviceSlider AASlider = sliders(eMin, eMax/2, "initiator-initiatior", sim.p2AA);
+        final DeviceSlider BSlider = sliders(eMin, eMax, "radical reaction", new P2SquareWellRadical[]{sim.p2AB,sim.p2BB});
+        AASlider.setPostAction(resetAction);
+        BSlider.setPostAction(resetAction);
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
@@ -256,7 +256,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         nSliderA.setSpecies(sim.speciesA);
         nSliderA.setBox(sim.box);
         nSliderA.setShowBorder(true);
-        nSliderA.setLabel("Initiator (purple)");
+        nSliderA.setLabel("Initiator (blue)");
         nSliderA.setNMajor(4);
         IAction reset = new IAction() {
             public void actionPerformed() {
@@ -326,7 +326,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
 
-        epsilonSliders.add(ABSlider.graphic(null), vertGBC);
+        epsilonSliders.add(AASlider.graphic(null), vertGBC);
+        epsilonSliders.add(BSlider.graphic(null), vertGBC);
 //        epsilonSliders.add(combinationProbabilitySlider.graphic(null));
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
 
@@ -358,6 +359,21 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
     public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
+        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
+        AASlider.doUpdate();
+        AASlider.setShowBorder(true);
+        AASlider.setLabel(s);
+        AASlider.setMinimum(eMin);
+        AASlider.setMaximum(eMax);
+        AASlider.setNMajor(4);
+        AASlider.getSlider().setSnapToTicks(true);
+
+        return AASlider;
+    }
+
+    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellRadical[] potentials){
+
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(potentials, "epsilon"));
         AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
         AASlider.doUpdate();
         AASlider.setShowBorder(true);
