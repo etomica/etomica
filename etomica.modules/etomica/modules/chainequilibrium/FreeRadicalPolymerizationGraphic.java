@@ -38,6 +38,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.modifier.ModifierNMolecule;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Joule;
@@ -192,7 +193,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         compositionPlot.setDoLegend(false);
 
         DisplayPlot mwPlot = new DisplayPlot();
-        mwPlot.setLabel("Molecular Weight");
+        mwPlot.setLabel("Degree of polymerization");
         mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
         mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
@@ -205,12 +206,12 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
         DisplayTextBoxesCAE mwBox = new DisplayTextBoxesCAE();
         mwBox.setAccumulator(mwAvg);
-        mwBox.setLabel("Number Avg Molecular Weight");
+        mwBox.setLabel("Number avg degree of polymerization");
         add(mwBox);
 
         DisplayTextBoxesCAE mw2Box = new DisplayTextBoxesCAE();
         mw2Box.setAccumulator(mwAvg2);
-        mw2Box.setLabel("Weight Avg Molecular Weight");
+        mw2Box.setLabel("Weight avg degree of polymerization");
         add(mw2Box);
 
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
@@ -255,6 +256,15 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         DeviceNSelector nSliderA = new DeviceNSelector(sim.getController());
         nSliderA.setSpecies(sim.speciesA);
         nSliderA.setBox(sim.box);
+        nSliderA.setPrecision(1);
+        nSliderA.setModifier(new ModifierNMolecule(sim.box, sim.speciesA) {
+            public void setValue(double newValue) {
+                super.setValue(newValue*2);
+            }
+            public double getValue() {
+                return 0.5*super.getValue();
+            }
+        });
         nSliderA.setShowBorder(true);
         nSliderA.setLabel("Initiator (blue)");
         nSliderA.setNMajor(4);
