@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
@@ -14,7 +15,6 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -31,8 +31,8 @@ import etomica.data.DataProcessorChemicalPotential;
 import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
-import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
@@ -89,7 +89,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected InterfacialSW sim;
     protected final DeviceNSelector nSlider;
     protected final DeviceSlider nSurfactantSlider;
-    protected final DeviceSlider xSlider, yzSlider;
+    protected final DeviceSlider xSlider;
     protected final MeterProfileByVolume densityProfileMeter, surfactantProfileMeter;
     protected final MeterProfileByAtoms orientationProfileMeter;
     protected final MeterProfile muProfileMeter;
@@ -165,7 +165,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 nSurfactantSlider.getSlider().setEnabled(false);
                 expandButton.getButton().setEnabled(false);
                 xSlider.getSlider().setEnabled(false);
-                yzSlider.getSlider().setEnabled(false);
                 getDisplayBox(sim.box).repaint();
                 densityProfileMeter.reset();
                 surfactantProfileMeter.reset();
@@ -194,7 +193,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 nSurfactantSlider.getSlider().setEnabled(true);
                 expandButton.getButton().setEnabled(true);
                 xSlider.getSlider().setEnabled(true);
-                yzSlider.getSlider().setEnabled(true);
                 isExpanded = false;
                 sim.box.setNMolecules(sim.surfactant, 0);
 
@@ -567,6 +565,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         nSurfactantSlider.setShowValues(true);
 
         DeviceSlider surfactantEpsilon = new DeviceSlider(sim.getController());
+        surfactantEpsilon.setShowBorder(true);
         surfactantEpsilon.setModifier(new Modifier() {
 
             public Dimension getDimension() {
@@ -596,8 +595,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
         });
         surfactantEpsilon.setMaximum(5);
+        surfactantEpsilon.setShowValues(true);
+        surfactantEpsilon.setLabel("head epsilon");
         
         DeviceSlider surfactantSigma = new DeviceSlider(sim.getController());
+        surfactantSigma.setShowBorder(true);
         surfactantSigma.setModifier(new Modifier() {
 
             public Dimension getDimension() {
@@ -633,10 +635,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 ((IAtomTypeSphere)sim.tailType).setDiameter(newValue);
             }
         });
+        surfactantSigma.setLabel("tail diameter");
         surfactantSigma.setPrecision(1);
         surfactantSigma.setMinimum(1);
         surfactantSigma.setMaximum(1.6);
         surfactantSigma.setNMajor(3);
+        surfactantSigma.setShowValues(true);
         
         IAction reconfig = new IAction() {
             public void actionPerformed() {
@@ -657,15 +661,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
         };
         xSlider = new DeviceSlider(sim.getController());
+        xSlider.setShowValues(true);
+        xSlider.setLabel("Box length");
+        xSlider.setShowBorder(true);
         xSlider.setMinimum(6);
         xSlider.setMaximum(30);
         xSlider.setModifier(new ModifierBoxSize(sim.box, 0, reconfig));
-        yzSlider = new DeviceSlider(sim.getController());
-        yzSlider.setMinimum(6);
-        yzSlider.setMaximum(15);
-        yzSlider.setModifier(new ModifierBoxSize(sim.box, 1, reconfig));
-        add(xSlider);
-        add(yzSlider);
+        JPanel systemPanel = new JPanel(new GridBagLayout());
+        systemPanel.add(xSlider.graphic(), vertGBC);
         
         //************* Lay out components ****************//
 
@@ -720,11 +723,18 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
-        add(nSlider);
-        add(nSurfactantSlider);
-        add(surfactantEpsilon);
-        add(surfactantSigma);
+        systemPanel.add(temperatureSelect.graphic(), vertGBC);
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.add("System", systemPanel);
+        getPanel().controlPanel.add(tabbedPane, vertGBC);
+        JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
+        numMoleculesPanel.add(nSlider.graphic(), vertGBC);
+        numMoleculesPanel.add(nSurfactantSlider.graphic(), vertGBC);
+        tabbedPane.add("# of molecules", numMoleculesPanel);
+        JPanel potentialPanel = new JPanel(new GridBagLayout());
+        potentialPanel.add(surfactantEpsilon.graphic(), vertGBC);
+        potentialPanel.add(surfactantSigma.graphic(), vertGBC);
+        tabbedPane.add("Surfactant potential", potentialPanel);
 
     	add(ePlot);
     	add(densityBox);
