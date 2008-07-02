@@ -39,7 +39,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         IAtomSet moleculeList = box.getMoleculeList();
         IAtomSet initiatorList = box.getMoleculeList(speciesInitiator);
         IAtomSet monomerList = box.getMoleculeList(speciesMonomer);
-        int sumOfMolecules = initiatorList.getAtomCount() / 2 + monomerList.getAtomCount();
+        int sumOfMolecules = (initiatorList.getAtomCount()+1) / 2 + monomerList.getAtomCount();
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
@@ -122,7 +122,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            if (i < initiatorList.getAtomCount()/2) {
+            if (i < (initiatorList.getAtomCount()+1)/2) {
                 i *= 2;
             }
             else {
@@ -152,7 +152,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 dest.setX(0, dest.x(0)-0.4);
             }
             atomActionTranslateTo.actionPerformed(a);
-            if (a.getType() == speciesInitiator) {
+            if (a.getType() == speciesInitiator && i<initiatorList.getAtomCount()-1) {
                 i++;
                 a = (IMolecule)moleculeList.getAtom(i);
                 IVector dest = atomActionTranslateTo.getDestination();

@@ -99,11 +99,16 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         for (int i=0; i<initiators.getAtomCount(); i++) {
             IAtomLeaf initiator0 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
             IAtomLeaf[] bonds0 = (IAtomLeaf[])agentManager.getAgent(initiator0);
-            i++;
-            IAtomLeaf initiator1 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
-            IAtomLeaf[] bonds1 = (IAtomLeaf[])agentManager.getAgent(initiator1);
-            bonds0[0] = initiator1;
-            bonds1[0] = initiator0;
+            if (i<initiators.getAtomCount()-1) {
+                i++;
+                IAtomLeaf initiator1 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
+                IAtomLeaf[] bonds1 = (IAtomLeaf[])agentManager.getAgent(initiator1);
+                bonds0[0] = initiator1;
+                bonds1[0] = initiator0;
+            }
+            else {
+                bonds0[0] = null;
+            }
         }
         
         IAtomSet monomers = box.getMoleculeList(speciesB);
