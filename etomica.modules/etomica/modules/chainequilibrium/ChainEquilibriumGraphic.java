@@ -245,11 +245,11 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         });
         
         ColorSchemeStepWise colorScheme = new ColorSchemeStepWise(sim, sim.agentManager);
-        colorScheme.setColor(sim.speciesA.getLeafType(), 1, new Color(255, 90, 90));
-        colorScheme.setColor(sim.speciesB.getLeafType(), 1, new Color(90, 90, 255));
+        colorScheme.setColor(sim.speciesA.getLeafType(), 1, new Color(255, 120, 120));
+        colorScheme.setColor(sim.speciesB.getLeafType(), 1, new Color(120, 120, 255));
         colorScheme.setColor(sim.speciesA.getLeafType(), 2, new Color(200, 0, 0));
         colorScheme.setColor(sim.speciesB.getLeafType(), 2, new Color(0, 0, 200));
-        colorScheme.setColor(sim.speciesB.getLeafType(), 3, new Color(0, 0, 80));
+        colorScheme.setColor(sim.speciesB.getLeafType(), 3, Color.GREEN);
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 
         IAction reconfig = new IAction() {
@@ -307,7 +307,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nCrossLinkerBox = new DeviceBox();
         nCrossLinkerBox.setInteger(true);
         nCrossLinkerBox.setController(sim.getController());
-        nCrossLinkerBox.setLabel("Crosslinker (dark blue)");
+        nCrossLinkerBox.setLabel("Crosslinker (green)");
         nCrossLinkerBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
