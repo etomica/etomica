@@ -24,7 +24,6 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -94,7 +93,7 @@ public class SimOverlapSoftSphere extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
@@ -327,9 +326,10 @@ public class SimOverlapSoftSphere extends Simulation {
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
         int D = params.D;
-        String filename = "FCC_SoftSphere_n"+exponentN+"_D"+ (int)Math.round(density*1000);
+        String filename = params.filename;
         if (filename.length() == 0) {
-            filename = "FCC_SoftSphere_n"+exponentN+"_D"+ (int)Math.round(density*1000);
+        	System.err.println("Need input files!!!");
+            filename = "FCC_SoftSphere_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
         }
         String refFileName = args.length > 0 ? filename+"_ref" : null;
 
@@ -365,7 +365,8 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        sim.integratorOverlap.setAdjustStepFreq(false);
+//        sim.integratorOverlap.setAdjustStepFreq(false);
+//
         sim.integratorOverlap.setStepFreq0(0);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
@@ -431,13 +432,13 @@ public class SimOverlapSoftSphere extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =500;
-        public double density = 2.5;
+        public int numMolecules =32;
+        public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 1000000;
+        public long numSteps = 100000;
         public double harmonicFudge = 1;
-        public String filename = "FCC_SoftSphere_n12_D2000";
+        public String filename = "FCC_SoftSphere_n12_T01";
         public double temperature = 0.1;
     }
 }
