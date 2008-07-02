@@ -1,5 +1,6 @@
 package etomica.modules.chainequilibrium;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -22,7 +23,6 @@ import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
-import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
@@ -245,11 +245,11 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         });
         
         ColorSchemeStepWise colorScheme = new ColorSchemeStepWise(sim, sim.agentManager);
-        colorScheme.setColor(sim.speciesA.getLeafType(), 1, java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesB.getLeafType(), 1, java.awt.Color.ORANGE);
-        colorScheme.setColor(sim.speciesA.getLeafType(), 2, java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesB.getLeafType(), 2, java.awt.Color.BLACK);
-        colorScheme.setColor(sim.speciesB.getLeafType(), 3, java.awt.Color.GREEN);
+        colorScheme.setColor(sim.speciesA.getLeafType(), 1, new Color(255, 90, 90));
+        colorScheme.setColor(sim.speciesB.getLeafType(), 1, new Color(90, 90, 255));
+        colorScheme.setColor(sim.speciesA.getLeafType(), 2, new Color(200, 0, 0));
+        colorScheme.setColor(sim.speciesB.getLeafType(), 2, new Color(0, 0, 200));
+        colorScheme.setColor(sim.speciesB.getLeafType(), 3, new Color(0, 0, 80));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 
         IAction reconfig = new IAction() {
@@ -263,7 +263,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nMonoOlBox = new DeviceBox();
         nMonoOlBox.setInteger(true);
         nMonoOlBox.setController(sim.getController());
-        nMonoOlBox.setLabel("Mono-ol");
+        nMonoOlBox.setLabel("Mono-ol (light red)");
         nMonoOlBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
@@ -274,7 +274,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nMonoAcidBox = new DeviceBox();
         nMonoAcidBox.setInteger(true);
         nMonoAcidBox.setController(sim.getController());
-        nMonoAcidBox.setLabel("Mono-acid");
+        nMonoAcidBox.setLabel("Mono-acid (light blue)");
         nMonoAcidBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
@@ -285,7 +285,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nDiolBox = new DeviceBox();
         nDiolBox.setInteger(true);
         nDiolBox.setController(sim.getController());
-        nDiolBox.setLabel("Di-ol");
+        nDiolBox.setLabel("Di-ol (red)");
         nDiolBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
@@ -296,7 +296,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nDiAcidBox = new DeviceBox();
         nDiAcidBox.setInteger(true);
         nDiAcidBox.setController(sim.getController());
-        nDiAcidBox.setLabel("Di-acid");
+        nDiAcidBox.setLabel("Di-acid (blue)");
         nDiAcidBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
@@ -307,7 +307,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceBox nCrossLinkerBox = new DeviceBox();
         nCrossLinkerBox.setInteger(true);
         nCrossLinkerBox.setController(sim.getController());
-        nCrossLinkerBox.setLabel("Crosslinker");
+        nCrossLinkerBox.setLabel("Crosslinker (dark blue)");
         nCrossLinkerBox.setModifier(new Modifier() {
             public Dimension getDimension() {return Quantity.DIMENSION;}
             public String getLabel() {return "n";}
