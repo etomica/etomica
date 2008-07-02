@@ -6,15 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
-import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -28,7 +25,6 @@ import etomica.data.DataTag;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
@@ -93,13 +89,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         // Sliders on Well depth page
         final DeviceSlider ABSlider = sliders(eMin, eMax, "Diol-Carboxylic Acid", sim.ABbonded);
-        final DeviceSlider ACSlider = sliders(eMin, eMax, "Diol-Crosslinker", sim.ACbonded);
+//        final DeviceSlider ACSlider = sliders(eMin, eMax, "Diol-Crosslinker", sim.ACbonded);
         ABSlider.setPostAction(resetAction);
-        ACSlider.setPostAction(resetAction);
+//        ACSlider.setPostAction(resetAction);
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded, sim.ACbonded}, "solventThermoFrac"));
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWellBonded[]{sim.ABbonded}, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
@@ -170,7 +166,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         dataStreamPumps.add(conversionPumpDiol);
 
         MeterConversion reactionConversionAcid = new MeterConversion(sim.box, sim.agentManager);
-        reactionConversionAcid.setSpecies(new ISpecies[]{sim.speciesB, sim.speciesC});
+        reactionConversionAcid.setSpecies(new ISpecies[]{sim.speciesB});
         final HistoryCollapsingAverage conversionHistoryAcid = new HistoryCollapsingAverage();
         AccumulatorHistory conversionHistoryAccAcid = new AccumulatorHistory(conversionHistoryAcid);
         conversionHistoryAccAcid.setTimeDataSource(timer);
@@ -230,7 +226,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
-                resetBonds();
+                sim.resetBonds();
                 getDisplayBox(sim.box).repaint();
                 resetData.actionPerformed();
             }
@@ -248,52 +244,77 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         
-        ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
-        colorScheme.setColor(sim.speciesC.getLeafType(), java.awt.Color.GREEN);
+        ColorSchemeStepWise colorScheme = new ColorSchemeStepWise(sim, sim.agentManager);
+        colorScheme.setColor(sim.speciesA.getLeafType(), 1, java.awt.Color.BLUE);
+        colorScheme.setColor(sim.speciesB.getLeafType(), 1, java.awt.Color.ORANGE);
+        colorScheme.setColor(sim.speciesA.getLeafType(), 2, java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesB.getLeafType(), 2, java.awt.Color.BLACK);
+        colorScheme.setColor(sim.speciesB.getLeafType(), 3, java.awt.Color.GREEN);
+        getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-        DeviceNSelector nSliderA = new DeviceNSelector(sim.getController());
-        nSliderA.setSpecies(sim.speciesA);
-        nSliderA.setBox(sim.box);
-        nSliderA.setShowBorder(true);
-        nSliderA.setLabel("Di-ols (red)");
-        nSliderA.setNMajor(4);
-        IAction reset = new IAction() {
+        IAction reconfig = new IAction() {
             public void actionPerformed() {
                 getController().getSimRestart().actionPerformed();
-                resetBonds();
+                sim.resetBonds();
                 getDisplayBox(sim.box).repaint();
                 resetData.actionPerformed();
             }
         };
-        nSliderA.setResetAction(reset);
-        nSliderA.setMaximum(1000);
-        nSliderA.setShowValues(true);
-        nSliderA.setShowSlider(false);
-        nSliderA.setEditValues(true);
-        DeviceNSelector nSliderB = new DeviceNSelector(sim.getController());
-        nSliderB.setSpecies(sim.speciesB);
-        nSliderB.setBox(sim.box);
-        nSliderB.setShowBorder(true);
-        nSliderB.setLabel("Di-acid (black)");
-        nSliderB.setResetAction(reset);
-        nSliderB.setNMajor(4);
-        nSliderB.setMaximum(1000);
-        nSliderB.setShowValues(true);
-        nSliderB.setShowSlider(false);
-        nSliderB.setEditValues(true);
-        DeviceNSelector nSliderC = new DeviceNSelector(sim.getController());
-        nSliderC.setSpecies(sim.speciesC);
-        nSliderC.setBox(sim.box);
-        nSliderC.setShowBorder(true);
-        nSliderC.setLabel("Crosslinker (green)");
-        nSliderC.setResetAction(reset);
-        nSliderC.setNMajor(4);
-        nSliderC.setMaximum(50);
-        nSliderC.setShowValues(true);
-        nSliderC.setShowSlider(false);
-        nSliderC.setEditValues(true);
+        DeviceBox nMonoOlBox = new DeviceBox();
+        nMonoOlBox.setInteger(true);
+        nMonoOlBox.setController(sim.getController());
+        nMonoOlBox.setLabel("Mono-ol");
+        nMonoOlBox.setModifier(new Modifier() {
+            public Dimension getDimension() {return Quantity.DIMENSION;}
+            public String getLabel() {return "n";}
+            public double getValue() {return sim.getNMonoOl();}
+            public void setValue(double newValue) {sim.setNMonoOl((int)newValue);}
+        });
+        nMonoOlBox.setPostAction(reconfig);
+        DeviceBox nMonoAcidBox = new DeviceBox();
+        nMonoAcidBox.setInteger(true);
+        nMonoAcidBox.setController(sim.getController());
+        nMonoAcidBox.setLabel("Mono-acid");
+        nMonoAcidBox.setModifier(new Modifier() {
+            public Dimension getDimension() {return Quantity.DIMENSION;}
+            public String getLabel() {return "n";}
+            public double getValue() {return sim.getNMonoAcid();}
+            public void setValue(double newValue) {sim.setNMonoAcid((int)newValue);}
+        });
+        nMonoAcidBox.setPostAction(reconfig);
+        DeviceBox nDiolBox = new DeviceBox();
+        nDiolBox.setInteger(true);
+        nDiolBox.setController(sim.getController());
+        nDiolBox.setLabel("Di-ol");
+        nDiolBox.setModifier(new Modifier() {
+            public Dimension getDimension() {return Quantity.DIMENSION;}
+            public String getLabel() {return "n";}
+            public double getValue() {return sim.getNDiol();}
+            public void setValue(double newValue) {sim.setNDiol((int)newValue);}
+        });
+        nDiolBox.setPostAction(reconfig);
+        DeviceBox nDiAcidBox = new DeviceBox();
+        nDiAcidBox.setInteger(true);
+        nDiAcidBox.setController(sim.getController());
+        nDiAcidBox.setLabel("Di-acid");
+        nDiAcidBox.setModifier(new Modifier() {
+            public Dimension getDimension() {return Quantity.DIMENSION;}
+            public String getLabel() {return "n";}
+            public double getValue() {return sim.getNDiAcid();}
+            public void setValue(double newValue) {sim.setNDiAcid((int)newValue);}
+        });
+        nDiAcidBox.setPostAction(reconfig);
+        DeviceBox nCrossLinkerBox = new DeviceBox();
+        nCrossLinkerBox.setInteger(true);
+        nCrossLinkerBox.setController(sim.getController());
+        nCrossLinkerBox.setLabel("Crosslinker");
+        nCrossLinkerBox.setModifier(new Modifier() {
+            public Dimension getDimension() {return Quantity.DIMENSION;}
+            public String getLabel() {return "n";}
+            public double getValue() {return sim.getNCrossLinkersAcid();}
+            public void setValue(double newValue) {sim.setNCrossLinkersAcid((int)newValue);}
+        });
+        nCrossLinkerBox.setPostAction(reconfig);
 
         tBox.setUnit(Kelvin.UNIT);
         tBox.setLabel("Measured Temperature");
@@ -336,12 +357,14 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
 
-        speciesEditors.add(nSliderA.graphic());
-        speciesEditors.add(nSliderB.graphic());
-        speciesEditors.add(nSliderC.graphic());
+        speciesEditors.add(nMonoOlBox.graphic());
+        speciesEditors.add(nMonoAcidBox.graphic());
+        speciesEditors.add(nDiolBox.graphic());
+        speciesEditors.add(nDiAcidBox.graphic());
+        speciesEditors.add(nCrossLinkerBox.graphic());
 
         epsilonSliders.add(ABSlider.graphic(null), vertGBC);
-        epsilonSliders.add(ACSlider.graphic(null), vertGBC);
+//        epsilonSliders.add(ACSlider.graphic(null), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
 
         final JTabbedPane sliderPanel = new JTabbedPane();
@@ -368,16 +391,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
     
-    public void resetBonds() {
-        IAtomSet atoms = sim.box.getLeafList();
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomLeaf[] bonds = (IAtomLeaf[])sim.agentManager.getAgent(atoms.getAtom(i));
-            for (int j=0; j<bonds.length; j++) {
-                bonds[j] = null;
-            }
-        }
-    }
-
     public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
