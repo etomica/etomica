@@ -172,7 +172,7 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
                 // needs to be, shrink it.
                 // ... or we've been notified that atoms are about to get added to the 
                 // system.  Make room for them
-                agents[speciesIndex] = Arrays.resizeArray(agents,newMaxIndex+reservoirSize);
+                agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
             }
         }
     }
