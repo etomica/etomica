@@ -18,7 +18,7 @@ import etomica.nbr.list.PotentialMasterList;
 public abstract class ColorScheme implements java.io.Serializable {
 
     protected Color defaultColor;
-    private ISimulation simulation;
+    protected final ISimulation simulation;
     
     public ColorScheme(ISimulation sim) {
         this(sim, DEFAULT_ATOM_COLOR);
