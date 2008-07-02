@@ -32,12 +32,13 @@ import etomica.util.FunctionGeneral;
 public class HarmonicCrystalSoftSphereFCC {
 
     public HarmonicCrystalSoftSphereFCC(int[] nCells, Primitive primitive,
-    		    Basis basis, Potential2SoftSpherical potential, ISpace _space) {
+    		    Basis basis, Potential2SoftSpherical potential, ISpace _space, String file_Name) {
         this.potential = potential;
         this.nCells = (int[])nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotential(nCells, primitive, basis, potential, space);
+        setFileName(file_Name);
         setMaxLatticeShell(49);
     }
     
@@ -93,9 +94,11 @@ public class HarmonicCrystalSoftSphereFCC {
         System.out.println("moleculeCount: "+moleculeCount);
         double jacobian = 0.5*D*(basisDim*(cellCount - differ)*Math.log(2.0) - Math.log(cellCount));
         System.out.println("differ, jacobian: " + differ + "\t" + jacobian);
-
+        
+        normalModes.setFileName(getFileName());
         double[][] omega2 = normalModes.getOmegaSquared(null);//need to change signature of this method
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
+        
         System.out.println("coeffs: "+Arrays.toString(coeffs));
         double sumA = 0.0;
         double normalModeSum = 0.0;
@@ -141,11 +144,21 @@ public class HarmonicCrystalSoftSphereFCC {
         normalModes.setMaxLatticeShell(maxLatticeShell);
     }
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String filename) {
+		this.fileName = filename;
+	}
+    
     public static void main(String[] args) {
-        double rho = 1.25;
+        double rho = 1.256;
         int exponent = 12;
         int maxLatticeShell = 49;
         int nC =2;
+        double temperature = 0.1;
+        String fileName = "DB_FCC_n12_T01";
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
         
@@ -158,6 +171,12 @@ public class HarmonicCrystalSoftSphereFCC {
         if (args.length > 2) {
             nC = Integer.parseInt(args[2]);
         }
+        if (args.length > 3) {
+            temperature = Double.parseDouble(args[3]);
+        }
+        if (args.length > 4) {
+        	fileName = args[4];
+        }
         
         Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
         Basis basis = new BasisCubicFcc();
@@ -166,25 +185,30 @@ public class HarmonicCrystalSoftSphereFCC {
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
 
         int[] nCells = new int[] {nC, nC, nC};
-        double temperature =0.1;
         
         System.out.println("Running lattice-dynamics derivatives-based FCC soft-sphere simulation");
         System.out.println("Temperature: " + temperature);
         System.out.println("Density: " + rho);
         System.out.println("Exponent: " + exponent +"\n");
         
-        HarmonicCrystalSoftSphereFCC harmonicCrystal = new HarmonicCrystalSoftSphereFCC(nCells, primitive, basis, potential, sp);
+        
+        
+        HarmonicCrystalSoftSphereFCC harmonicCrystal = new HarmonicCrystalSoftSphereFCC(nCells, primitive, basis, potential, sp, fileName);
+       
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
-      
-        
+
         double u = harmonicCrystal.getLatticeEnergy();
         double a = harmonicCrystal.getHelmholtzFreeEnergy(temperature);
         
-
-        System.out.println("Helmholtz Free Energy at T"+temperature+ " is: "+a);
         System.out.println("\nLattice Energy: " + u);
-
+        System.out.println("Helmholtz Free Energy at T"+temperature+ " is: "+a);
+        System.out.println("Harmonic-reference free energy: "+ (a-u));
+      
+        System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
+        CalcHarmonicA calcHarmonicA = new CalcHarmonicA();
+        calcHarmonicA.doit(fileName, 3, 1.0, temperature, basis.getScaledCoordinates().length, nC*nC*nC);
+        
         
 //        double latticeConstant = 1.0;
 //        primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
@@ -196,12 +220,14 @@ public class HarmonicCrystalSoftSphereFCC {
 //        System.out.println("Lattice energy (HCP): "+u);
     }
     
+    
     private NormalModesPotential normalModes;
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
     private final ISpace space;
+    private String fileName;
     private static final long serialVersionUID = 1L;
     
 }
