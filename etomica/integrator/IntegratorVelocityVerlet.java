@@ -28,7 +28,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
-    private final IteratorDirective allAtoms;
+    protected final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     
