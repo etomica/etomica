@@ -44,6 +44,39 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         transpose();
     }
 
+    public void setQuaternions(double[] q) {
+        double q0 = q[0];
+        double q1 = q[1];
+        double q2 = q[2];
+        double q3 = q[3];
+        
+        // A&T bogus
+        xx = q0*q0 + q1*q1 - q2*q2 - q3*q3;
+        xy = 2*(q1*q2 + q0*q3);
+        xz = 2*(q1*q3 - q0*q2);
+        
+        yx = 2*(q1*q2 - q0*q3);
+        yy = q0*q0 - q1*q1 + q2*q2 - q3*q3;
+        yz = 2*(q2*q3 + q0*q1);
+        
+        zx = 2*(q1*q3 + q0*q2);
+        zy = 2*(q2*q3 - q0*q1);
+        zz = q0*q0 - q1*q1 - q2*q2 + q3*q3;
+
+        // A&T smoke crack.  this is their matrix, transposed, and xy,yx,yz and zy are negatives of what is in the book.
+//        xx = q0*q0 + q1*q1 - q2*q2 - q3*q3;
+//        yx = -2*(q1*q2 + q0*q3);
+//        zx = 2*(q1*q3 - q0*q2);
+//        
+//        xy = -2*(q1*q2 - q0*q3);
+//        yy = q0*q0 - q1*q1 + q2*q2 - q3*q3;
+//        zy = -2*(q2*q3 + q0*q1);
+//        
+//        xz = 2*(q1*q3 + q0*q2);
+//        yz = -2*(q2*q3 - q0*q1);
+//        zz = q0*q0 - q1*q1 - q2*q2 + q3*q3;
+    }
+
     public void setOrientation(IOrientationFull3D orientation3D) {
         IVector3D direction = (IVector3D)orientation3D.getDirection();
         IVector3D secondaryDirection = (IVector3D)orientation3D.getSecondaryDirection();
