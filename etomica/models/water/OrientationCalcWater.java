@@ -8,13 +8,15 @@ import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
+import etomica.atom.OrientationCalcQuaternion;
+import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 
 public class OrientationCalcWater extends ConformationWater3P implements 
-                                             OrientationCalc, java.io.Serializable {
+                                             OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
 
     public OrientationCalcWater(ISpace space) {
         super(space);
@@ -233,6 +235,10 @@ public class OrientationCalcWater extends ConformationWater3P implements
         quat[3] = cosHTheta*(sinPhicosPsi + cosPhisinPsi); 
 //        System.out.println("q3 "+quat[3]+" "+Math.cos(0.5*theta)*Math.sin(0.5*(phi+psi)));
 //        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
+    }
+
+    public void setOrientation(IMolecule molecule, double[] quaternions) {
+        throw new MethodNotImplementedException("oops");
     }
 
     public void initializePositions(IAtomSet childList) {
