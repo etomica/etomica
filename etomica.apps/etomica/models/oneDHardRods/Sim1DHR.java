@@ -11,6 +11,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
 
 public class Sim1DHR extends Simulation {
 
@@ -47,8 +49,19 @@ public class Sim1DHR extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+       
 
         
         
@@ -61,39 +74,41 @@ public class Sim1DHR extends Simulation {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-        //set up simulation parameters
-        int D = 1;
-        int numMolecules = 10;
-        double density = 0.5;
-        double harmonicFudge = 1.0;
-        double simTime = 1000;
-        double temperature = 1;
-
-        String filename = "normal_modes_1DHR_"+density+"_"+simTime+"_"+numMolecules+"_"+harmonicFudge;
-        if (args.length > 0) {
-            filename = args[0];
+ 
+		/*
+		 * This whole setup defines a set of default parameters
+		 * in the inner class Sim1DHRParams.  These parameters can be changed
+		 * individually in an appropriately named file, without affecting
+		 * the values of the other parameters.  The order of definition in the
+		 * file is irrelevant.
+		 * 
+		 */
+		Sim1DHRParams params = new Sim1DHRParams();
+		String inputFilename = null;
+		if(args.length > 0){
+			inputFilename = args[0];
+		}
+        if(inputFilename != null){
+        	ReadParameters readParameters = new ReadParameters(inputFilename, params);
+        	readParameters.readParameters();
         }
-        if (args.length > 1) {
-            density = Double.parseDouble(args[1]);
+        double density = params.density;
+        double numSteps = params.numSteps;
+        int numMolecules = params.numMolecules;
+        double harmonicFudge = params.harmonicFudge;
+        double temperature = params.temperature;
+        int D = params.D;
+        String filename = params.filename;
+        if(filename.length() ==0){
+        	filename = "normal_modes_1DHR _" + numMolecules;
         }
-        if (args.length > 2) {
-            simTime = Double.parseDouble(args[2]);
-        }
-        if (args.length > 3) {
-            numMolecules = Integer.parseInt(args[3]);
-        }
-        if (args.length > 4) {
-            harmonicFudge = Double.parseDouble(args[4]);
-        }
+        String refFileName = args.length>0 ? filename+"_ref" : null;
         
         System.out.println("Running 1D hard rod simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
-        System.out.println(simTime+" time units");
+        System.out.println((numSteps/1000)+ " total steps of 1000");
         System.out.println("output data to "+filename);
-
-        
-        
         
         
         
@@ -110,4 +125,17 @@ public class Sim1DHR extends Simulation {
         System.out.println("Fini.");
 	}
 
+	
+    /**
+     * Inner class for parameters understood by the Sim1DHR constructor
+     */
+    public static class Sim1DHRParams extends ParameterBase {
+        public int numMolecules = 32;
+        public double density = 0.5;
+        public int D = 1;
+        public long numSteps = 100000;
+        public double harmonicFudge = 1.0;
+        public String filename = "HR1D_";
+        public double temperature = 1.0;
+    }
 }
