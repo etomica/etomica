@@ -3,7 +3,14 @@ package etomica.models.oneDHardRods;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.DataPump;
+import etomica.data.DataSource;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorHard;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.SimTarget;
@@ -13,47 +20,65 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
+import etomica.virial.overlap.DataSourceVirialOverlap;
 
 public class Sim1DHR extends Simulation {
 
-	int nA;
-	double density;
-	double temperature;
-	String filename;
-	double harmonicFudge;
+    private static final long serialVersionUID = 1L;
+    public DataSourceVirialOverlap dsvo;
+    public Boundary boundaryTarget, boundaryOriginal;
+    public double refPref;
+    public AccumulatorVirialOverlapSingleAverage[] accumulators;
+    public DataPump[] accumulatorPumps;
+    public DataSource[] meters;
 	
-	Integrator integrator;
+	
+//	int nA;
+//	double density;
+//	double temperature;
+//	String filename;
+//	double harmonicFudge;
+	
+    
+	Integrator integratorOverlap;
+	IntegratorBox[] integrators;
 	ActivityIntegrate activityIntegrate;
-	IBox box;
+	IBox boxTarget, boxOriginal;
 	Boundary boundary;
 	CoordinateDefinition coordinateDefinition;
+	Primitive primitive;
+	Basis basis;
+	int[] nCells;
 	SpeciesSpheresMono species;
-	
-	
 	NormalModes1DHR nm;
+	
 	private static final String APP_NAME = "Sim 1DHR";
 
-	public Sim1DHR(Space _space, int numAtoms, double den, double tem, String file, double hF){
+	public Sim1DHR(Space _space, int numAtoms, double density, double 
+			temperature, String filename, double harmonicFudge){
         super(_space, true);
+     
+        integrators = new IntegratorBox[2];
+        accumulatorPumps = new DataPump[2];
+        meters = new DataSource[2];
+        accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
-        nA = numAtoms;
-        density = den;
-        temperature = tem;
-        filename = file;
-        harmonicFudge = hF; 
-        
-        species = new SpeciesSpheresMono(this, space);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-
-        box = new Box(this, space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
-
+        
+        //TARGET - system with a normal mode turned on
+        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
+        boxTarget = new Box(this, space);
+        boxTarget.setNMolecules(species, numAtoms);
+        
+        IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
         
         
+        //ORIGINAL - 1DHR system
         
         
-        
+         
         
         
         
