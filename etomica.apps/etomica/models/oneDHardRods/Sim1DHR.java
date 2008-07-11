@@ -34,6 +34,11 @@ import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 
+/**
+ * Simulation that changes one normal mode to a Gaussian defined position
+ * 
+ * @author cribbin
+ */
 public class Sim1DHR extends Simulation {
 
     private static final long serialVersionUID = 1L;
@@ -43,15 +48,7 @@ public class Sim1DHR extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public DataSource[] meters;
-	
-	
-//	int nA;
-//	double density;
-//	double temperature;
-//	String filename;
-//	double harmonicFudge;
-	
-    
+	   
 	Integrator integratorOverlap;
 	IntegratorBox[] integrators;
 	ActivityIntegrate activityIntegrate;
@@ -122,7 +119,7 @@ public class Sim1DHR extends Simulation {
         IntegratorMC integratorOriginal = new IntegratorMC(null, random, temperature);
         integratorOriginal.setBox(boxOriginal);
         
-        MCMoveConvertMode convert = new MCMoveConvertMode(getRandom());
+        MCMoveConvertMode convert = new MCMoveConvertMode(potentialMasterTarget);
         integratorOriginal.getMoveManager().addMCMove(convert);
         integrators[0] = integratorOriginal;
         
@@ -139,8 +136,8 @@ public class Sim1DHR extends Simulation {
         //nan WAVE VECTOR FACTORY STUFF GOES HERE
         
         convert.setCoordinateDefinition(coordinateDefinitionOriginal);
-        convert.setTemperature(temperature);
-        convert.setBox(boxOriginal);
+//        convert.setTemperature(temperature);
+        convert.setBox((IBox)boxOriginal);
         
         integratorOriginal.setBox(boxOriginal);
         potentialMasterTarget.getNeighborManager(boxOriginal).reset();

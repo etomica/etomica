@@ -4,9 +4,15 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMove;
+import etomica.normalmode.CoordinateDefinition;
 
 public class MCMoveConvertMode extends MCMove {
 
+	CoordinateDefinition cd;
+	double temperature;
+	IBox box;
+	
+	
 	public MCMoveConvertMode(IPotentialMaster potentialMaster) {
 		super(potentialMaster);
 	}
@@ -53,4 +59,11 @@ public class MCMoveConvertMode extends MCMove {
 		
 	}
 
+	void setCoordinateDefinition(CoordinateDefinition cd){
+		this.cd = cd;
+	}
+	
+	void setBox(IBox box){
+		this.box = box;
+	}
 }
