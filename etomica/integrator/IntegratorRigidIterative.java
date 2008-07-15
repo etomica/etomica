@@ -62,7 +62,6 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpeciesOriented;
 import etomica.units.Electron;
-import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
@@ -230,22 +229,26 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             // save angular velocity to see if we've converged
             xWork.E(tempAngularVelocity);
 //            System.out.println("initial guess half-timestep angular velocity "+angularVelocity);
+            angularMomentum.PEa1Tv1(0.5*timeStep, agent.torque);
 
             double dtheta = Math.sqrt(tempAngularVelocity.squared());
-            tempAngularVelocity.TE(1/dtheta);
-            angularMomentum.PEa1Tv1(0.5*timeStep, agent.torque);
+            if (dtheta > 0) {
+                tempAngularVelocity.TE(1/dtheta);
+            }
 
             numRigid++;
             for (int i = 0; i<maxIterations; i++) {
                 iterationsTotal++;
                 tempOrientation.E(orientation);
-                // estimate orientation at half timestep, we need this to get the moment of inertia at half timestep
-                tempOrientation.rotateBy(0.5*dtheta*timeStep, tempAngularVelocity);
+                if (dtheta > 0) {
+                    // estimate orientation at half timestep, we need this to get the moment of inertia at half timestep
+                    tempOrientation.rotateBy(0.5*dtheta*timeStep, tempAngularVelocity);
+                }
 
                 tempAngularVelocity.E(angularMomentum);
 
                 rotationTensor.setOrientation(tempOrientation);
-                
+
                 //find body-fixed angular momentum
                 rotationTensor.transform(tempAngularVelocity);
                 //now divide out moment of inertia to get body-fixed angular velocity
@@ -259,7 +262,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 double omegaError = xWork.squared();
                 xWork.E(tempAngularVelocity);
                 dtheta = Math.sqrt(tempAngularVelocity.squared());
-                tempAngularVelocity.TE(1.0/dtheta);
+                if (dtheta > 0) {
+                    tempAngularVelocity.TE(1.0/dtheta);
+                }
 
                 if (omegaError < omegaTolerance) {
                     break;
@@ -270,7 +275,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 }
             }
 
-            orientation.rotateBy(timeStep*dtheta, tempAngularVelocity);
+            if (dtheta > 0) {
+                orientation.rotateBy(timeStep*dtheta, tempAngularVelocity);
+            }
                 
 //            System.out.println("o "+orientation.getDirection()+" "+orientation.getSecondaryDirection());
             calcer.setOrientation(molecule, orientation);
@@ -368,7 +375,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
             int moleculeCount = box.getMoleculeList().getAtomCount();
-            double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
+            double fac = 1.0/moleculeCount; //Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
@@ -419,10 +426,14 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             tempAngularVelocity.TE(tempAngularVelocity);
             tempAngularVelocity.TE(moment);
             KE += tempAngularVelocity.x(0) + tempAngularVelocity.x(1)+ tempAngularVelocity.x(2);
-            D += 6;
+            D += 6; //3;
+        }
+        if (temperature == 0 && KE == 0) {
+            return;
         }
         double scale = Math.sqrt(temperature*D/KE);
-        currentKineticEnergy *= scale*scale;
+        currentKineticEnergy = 0.5*KE*scale*scale;
+        System.out.println("initial KE "+currentKineticEnergy);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             IAtomSet children = molecule.getChildList();
