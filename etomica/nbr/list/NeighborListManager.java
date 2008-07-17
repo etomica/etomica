@@ -86,21 +86,11 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
-            int num2Body = 0;
-            int num1Body = 0;
             IAtom atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
-            for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].nBody() == 1) {
-                    num1Body++;
-                }
-                else {
-                    num2Body++;
-                }
-            }
 
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(num2Body);
-            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(num1Body);
+            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(potentials.length);
+            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(potentials.length);
         }
     }
 
@@ -482,14 +472,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
             }
         }
         AtomNeighborLists lists = new AtomNeighborLists();
-        int num2Body = 0;
         IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
-        for (int i=0; i<potentials.length; i++) {
-            if (potentials[i].nBody() > 1) {
-                num2Body++;
-            }
-        }
-        lists.setCapacity(num2Body);
+        lists.setCapacity(potentials.length);
         return lists;
     }
     
@@ -543,15 +527,9 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         public void releaseAgent(Object obj, IAtomLeaf atom) {}
         public Object makeAgent(IAtomLeaf atom) {
             AtomPotentialList lists = new AtomPotentialList();
-            int num1Body = 0;
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
-            for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].nBody() == 1) {
-                    num1Body++;
-                }
-            }
             
-            lists.setCapacity(num1Body);
+            lists.setCapacity(potentials.length);
             return lists;
         }
     }
