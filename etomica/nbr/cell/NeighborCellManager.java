@@ -53,6 +53,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected double range;
     protected final AtomLeafAgentManager agentManager;
     protected final MoleculeAgentManager moleculeAgentManager;
+    protected boolean doApplyPBC;
+    protected final IVector v;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
@@ -83,6 +85,16 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         setPotentialRange(potentialRange);
         agentManager = new AtomLeafAgentManager(this,box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+        v = space.makeVector();
+        doApplyPBC = false;
+    }
+    
+    public void setDoApplyPBC(boolean newDoApplyPBC) {
+        doApplyPBC = newDoApplyPBC;
+    }
+    
+    public boolean getDoApplyPBC() {
+        return doApplyPBC;
     }
 
     public CellLattice getLattice() {
@@ -221,7 +233,15 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * agentManager.
      */
     public void assignCell(IAtomLeaf atom) {
-        Cell atomCell = (Cell)lattice.site(((IAtomPositioned)atom).getPosition());
+        Cell atomCell;
+        if (doApplyPBC) {
+            v.E(((IAtomPositioned)atom).getPosition());
+            v.PE(box.getBoundary().centralImage(v));
+            atomCell = (Cell)lattice.site(v);
+        }
+        else {
+            atomCell = (Cell)lattice.site(((IAtomPositioned)atom).getPosition());
+        }
         atomCell.addAtom(atom);
         agentManager.setAgent(atom, atomCell);
     }
@@ -235,7 +255,15 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.getType().getPositionDefinition().position(atom);
-        Cell atomCell = (Cell)lattice.site(position);
+        Cell atomCell;
+        if (doApplyPBC) {
+            v.E(position);
+            v.PE(box.getBoundary().centralImage(position));
+            atomCell = (Cell)lattice.site(v);
+        }
+        else {
+            atomCell = (Cell)lattice.site(position);
+        }
         atomCell.addAtom(atom);
         moleculeAgentManager.setAgent(atom, atomCell);
     }
@@ -255,7 +283,11 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     public Object makeAgent(IAtomLeaf atom) {
         if (atom.getType().isInteracting()) {
             IVector position = ((IAtomPositioned)atom).getPosition();
-            Cell atomCell = (Cell)lattice.site(position);
+            v.E(position);
+            if (true) {
+                v.PE(box.getBoundary().centralImage(position));
+            }
+            Cell atomCell = (Cell)lattice.site(v);
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
                 System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);

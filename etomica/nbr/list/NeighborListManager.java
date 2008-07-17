@@ -63,8 +63,17 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
         boxEvent = new BoxEventNeighborsUpdated(box);
         initialized = false;
+        doApplyPBC = true;
     }
-    
+
+    public void setDoApplyPBC(boolean newDoApplyPBC) {
+        doApplyPBC = newDoApplyPBC;
+    }
+
+    public boolean getDoApplyPBC() {
+        return doApplyPBC;
+    }
+
     /**
      * Reacts to an integrator INITIALIZE event, preparing the
      * neighbor-list facility. Performs the following actions:
@@ -125,7 +134,9 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         for (int j = 0; j < criteriaArray.length; j++) {
             criteriaArray[j].setBox(box);
         }
-        pbcEnforcer.actionPerformed();
+        if (doApplyPBC) {
+            pbcEnforcer.actionPerformed();
+        }
         neighborSetup();
         iieCount = updateInterval;
     }
@@ -164,7 +175,9 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
                 System.err
                         .println("Atoms exceeded the safe neighbor limit");
             }
-            pbcEnforcer.actionPerformed();
+            if (doApplyPBC) {
+                pbcEnforcer.actionPerformed();
+            }
             neighborSetup();
             box.getEventManager().fireEvent(boxEvent);
         }
@@ -240,6 +253,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         }
         
         NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
+        cellManager.setDoApplyPBC(!doApplyPBC);
         cellManager.assignCellAll();
 
         cellNbrIterator.reset();
@@ -373,6 +387,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     private NeighborCriterion[] oldCriteria;
     protected final BoxEventNeighborsUpdated boxEvent;
     protected boolean initialized;
+    protected boolean doApplyPBC;
 
     /**
      * Atom action class that checks if any criteria indicate that the given
