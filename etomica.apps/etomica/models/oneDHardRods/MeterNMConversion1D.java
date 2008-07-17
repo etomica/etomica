@@ -2,11 +2,13 @@ package etomica.models.oneDHardRods;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
+import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.space.ISpace;
+import etomica.units.Null;
 
-public class MeterNMConversion implements DataSource {
+public class MeterNMConversion1D extends DataSourceScalar {
 
 	
 	Data data;
@@ -15,8 +17,9 @@ public class MeterNMConversion implements DataSource {
 	int nTests;		//the number of tests made
 	
 	
-	public MeterNMConversion(){
-		
+	public MeterNMConversion1D(ISpace space){
+		super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
+		nTests = 100;
 		
 		
 	}
@@ -33,8 +36,8 @@ public class MeterNMConversion implements DataSource {
 	}
 	
 	
-	public Data getData(){
-		
+	public double getDataAsScalar(){
+		double uTest = 0.0;
 
 		//bits that choose insertion or removal of a mode
 		//probably some sort of degrees of freedom check here
@@ -43,8 +46,7 @@ public class MeterNMConversion implements DataSource {
 		// inside the if statement for loop to repeatedly test?
 		
 		
-		
-		return data;
+		return uTest;
 	}
 	
 	public void setModes(int[] m){
