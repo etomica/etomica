@@ -119,7 +119,7 @@ public class Sim1DHR extends Simulation {
         IntegratorMC integratorOriginal = new IntegratorMC(null, random, temperature);
         integratorOriginal.setBox(boxOriginal);
         
-        MCMoveConvertMode convert = new MCMoveConvertMode(potentialMasterTarget);
+        MCMoveChangeMode convert = new MCMoveChangeMode(potentialMasterTarget);
         integratorOriginal.getMoveManager().addMCMove(convert);
         integrators[0] = integratorOriginal;
         
