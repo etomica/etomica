@@ -13,7 +13,7 @@ import etomica.api.IRandom;
  * MCMove that performs random displacements in the harmonic coordinates for
  * the k=0 wave vector.  The acceptance criteria is the change in target energy
  * for the move.  The class moves molecules in all cells together.  If they
- * are different before the move trial, the trial will homogenize the sytsem.
+ * are different before the move trial, the trial will homogenize the system.
  *
  * @author Andrew Schultz
  */
