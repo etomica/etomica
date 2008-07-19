@@ -62,6 +62,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpeciesOriented;
 import etomica.units.Electron;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
@@ -121,7 +122,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         translateBy = new AtomActionTranslateBy(space);
         translator = new AtomGroupAction(translateBy);
         maxIterations = 20;
-        omegaTolerance = 1.e-25;
+        omegaTolerance = 1.e-30;
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
     
@@ -259,7 +260,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 //                System.out.println("iteration "+i+" half-timestep angular velocity "+angularVelocity);
                 
                 xWork.ME(tempAngularVelocity);
-                double omegaError = xWork.squared();
+                double omegaError = xWork.squared() / tempAngularVelocity.squared();
                 xWork.E(tempAngularVelocity);
                 dtheta = Math.sqrt(tempAngularVelocity.squared());
                 if (dtheta > 0) {
@@ -270,7 +271,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                     break;
                 }
                 if (i == maxIterations-1) {
-                    System.out.println("omegaError still "+omegaError+" after "+maxIterations+" iterations");
+                    System.err.println("omegaError still "+omegaError+" after "+maxIterations+" iterations");
 //                    throw new RuntimeException("omegaError still "+omegaError+" after "+maxIterations+" iterations");
                 }
             }
@@ -366,8 +367,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 
             currentKineticEnergy += mass * orientedMolecule.getVelocity().squared();
             xWork.TE(xWork);
-            xWork.TE(moment);
-            currentKineticEnergy += xWork.x(0) + xWork.x(1)+ xWork.x(2);
+            currentKineticEnergy += xWork.dot(moment);
         }
         pressureTensor.TE(1/box.getBoundary().volume());
 
@@ -375,7 +375,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
             int moleculeCount = box.getMoleculeList().getAtomCount();
-            double fac = 1.0/moleculeCount; //Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
+            double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
@@ -398,6 +398,26 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         IAtomSet moleculeList = box.getMoleculeList();
         int nMolecules = moleculeList.getAtomCount();
         int D = 0;
+        momentum.E(0);
+        double totalMass = 0;
+        for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            IAtomSet children = molecule.getChildList();
+            if (typeAgentManager.getAgent(molecule.getType()) == null) {
+                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                    double mass = ((IAtomTypeLeaf)a.getType()).getMass();
+                    momentum.PEa1Tv1(mass, a.getVelocity());
+                    totalMass += mass;
+                }
+                continue;
+            }
+            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            double mass = ((ISpeciesOriented)orientedMolecule.getType()).getMass();
+            momentum.PEa1Tv1(mass, orientedMolecule.getVelocity());
+            totalMass += mass;
+        }
+        momentum.TE(1.0/totalMass);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             IAtomSet children = molecule.getChildList();
@@ -408,12 +428,14 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     IVector velocity = a.getVelocity();
+                    velocity.ME(momentum);
                     KE += velocity.squared() * ((IAtomTypeLeaf)a.getType()).getMass();
                     D += 3;
                 }
                 continue;
             }
             IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            orientedMolecule.getVelocity().ME(momentum);
             KE += orientedMolecule.getVelocity().squared() * ((ISpeciesOriented)molecule.getType()).getMass();
 
             IVector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
@@ -433,7 +455,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
         double scale = Math.sqrt(temperature*D/KE);
         currentKineticEnergy = 0.5*KE*scale*scale;
-        System.out.println("initial KE "+currentKineticEnergy);
+//        System.out.println("initial KE "+currentKineticEnergy);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
             IAtomSet children = molecule.getChildList();
