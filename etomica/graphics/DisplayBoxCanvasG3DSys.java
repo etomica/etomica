@@ -270,7 +270,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * drawable flag. This makes it possible to filter bonds in
 			 * wireframe mode as well.
 			 */
-			boolean drawable = atomFilter.accept(a);
+			boolean drawable = atomFilter == null ? true : atomFilter.accept(a);
 			ball.setDrawable(drawable);
 			if (!drawable) {
 				continue;

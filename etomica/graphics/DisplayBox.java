@@ -15,7 +15,6 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterStatic;
 import etomica.space.ISpace;
 import etomica.units.Pixel;
 
@@ -39,7 +38,7 @@ public class DisplayBox extends Display {
     //Explicit to 2D because drawing to 2D image
     private final int D = 2;
     protected ColorScheme colorScheme;
-    protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
+    protected AtomFilter atomFilter = null;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private IBox box;
@@ -420,17 +419,17 @@ public class DisplayBox extends Display {
     /**
      * Mutator method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.
-     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * Default is null, meaning all atoms are displayed.
      * @return void
      */
     public void setAtomFilter(AtomFilter filter) {
-        atomFilter = (filter == null) ? AtomFilterStatic.ACCEPT_ALL : filter;
+        atomFilter = filter;
     }
 
     /**
      * Accessor method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.
-     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * Default is null, meaning all atoms are displayed.
      * @return Atomfilter
      */
     public AtomFilter getAtomFilter() {return atomFilter;}

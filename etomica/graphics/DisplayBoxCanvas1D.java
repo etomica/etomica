@@ -2,8 +2,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
@@ -12,6 +10,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
+import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
@@ -64,7 +63,8 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
-        if(!displayBox.getAtomFilter().accept(a)) return;
+        AtomFilter atomFilter = displayBox.getAtomFilter();
+        if(atomFilter != null && atomFilter.accept(a)) return;
         
         IVector r = a.getPosition();
         boolean drawWell = false;

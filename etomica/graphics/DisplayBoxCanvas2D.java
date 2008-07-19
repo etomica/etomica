@@ -13,6 +13,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
+import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
@@ -91,7 +92,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     }
        
     protected void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
-        if(!displayBox.getAtomFilter().accept(a)) return;
+        AtomFilter atomFilter = displayBox.getAtomFilter();
+        if(atomFilter != null && atomFilter.accept(a)) return;
         IVector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
