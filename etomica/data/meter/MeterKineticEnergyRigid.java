@@ -72,10 +72,10 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
                     rotationTensor.transform(angularVelocity);
-                    angularVelocity.DE(moment);
+                    angularVelocity.TE(moment);
         
                     angularVelocity.TE(angularVelocity);
-                    angularVelocity.TE(moment);
+                    angularVelocity.DE(moment);
                     ke += angularVelocity.x(0) + angularVelocity.x(1)+ angularVelocity.x(2);
                 }
             }
