@@ -20,7 +20,7 @@ import etomica.units.Kelvin;
 import etomica.util.RandomNumberGenerator;
 
 /**
- * Two-centered Lennard Jones molecule with a quadrupole.
+ * Lennard Jones molecule with a quadrupole.
  *
  * @author Jayant K. Singh
  */
