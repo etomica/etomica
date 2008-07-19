@@ -11,6 +11,7 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
@@ -63,8 +64,6 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if(atomFilter != null && atomFilter.accept(a)) return;
         
         IVector r = a.getPosition();
         boolean drawWell = false;
@@ -153,8 +152,14 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
         IAtomSet leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
+        AtomFilter atomFilter = displayBox.getAtomFilter();
+        if (atomFilter instanceof AtomFilterCollective) {
+            ((AtomFilterCollective)atomFilter).resetFilter();
+        }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            drawAtom(g, displayBox.getOrigin(), (IAtomPositioned)leafList.getAtom(iLeaf));
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            if(atomFilter != null && atomFilter.accept(a)) continue;
+            drawAtom(g, displayBox.getOrigin(), a);
         }
             
         //Draw overflow images if so indicated

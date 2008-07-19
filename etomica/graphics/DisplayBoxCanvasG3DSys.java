@@ -18,6 +18,7 @@ import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
@@ -232,8 +233,11 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
 */
 
-		ColorScheme colorScheme = displayBox.getColorScheme();
 		AtomFilter atomFilter = displayBox.getAtomFilter();
+        if (atomFilter instanceof AtomFilterCollective) {
+            ((AtomFilterCollective)atomFilter).resetFilter();
+        }
+        ColorScheme colorScheme = displayBox.getColorScheme();
 		if (colorScheme instanceof ColorSchemeCollective) {
 			((ColorSchemeCollective) colorScheme).colorAllAtoms();
 		}

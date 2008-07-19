@@ -14,6 +14,7 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomOriented;
@@ -92,8 +93,6 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     }
        
     protected void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if(atomFilter != null && atomFilter.accept(a)) return;
         IVector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
@@ -201,12 +200,18 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
         IAtomSet leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
+        AtomFilter atomFilter = displayBox.getAtomFilter();
+        if (atomFilter instanceof AtomFilterCollective) {
+            ((AtomFilterCollective)atomFilter).resetFilter();
+        }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            if(atomFilter != null && atomFilter.accept(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
-            	drawAtom(g, origin, (IAtomPositioned)leafList.getAtom(iLeaf));
+            	drawAtom(g, origin, a);
             }
             else {
-                drawAtom(g, atomOrigin, (IAtomPositioned)leafList.getAtom(iLeaf));
+                drawAtom(g, atomOrigin, a);
             }
         }
             
