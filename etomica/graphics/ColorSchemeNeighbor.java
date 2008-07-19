@@ -10,7 +10,7 @@ import etomica.api.ISimulation;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.list.PotentialMasterList;
 
-public class ColorSchemeNeighbor extends ColorSchemeCollective {
+public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     
     public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box, int dim) {
         super(sim, box);
