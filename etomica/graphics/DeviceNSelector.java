@@ -6,6 +6,7 @@ import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IController;
 import etomica.api.ISpecies;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -66,6 +67,13 @@ public class DeviceNSelector extends DeviceSlider {
         return species;
     }
     
+    public void setModifier(Modifier newModifier) {
+        super.setModifier(newModifier);
+        if (resetAction != null) {
+            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
+        }
+    }
+    
     protected void init() {
         setMinimum(0);
         int max = 60;
@@ -76,9 +84,6 @@ public class DeviceNSelector extends DeviceSlider {
         slider.setMajorTickSpacing(10);
         graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(box, species));
-        if (resetAction != null) {
-            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
-        }
 
         setLabel("Number of molecules");
     }
