@@ -43,7 +43,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.DipoleSourceWater;
-import etomica.models.water.OrientationCalcWater;
+import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
@@ -708,7 +708,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         integrator.setBox(box);
-        OrientationCalcWater calcer = new OrientationCalcWater(sim.getSpace());
+        OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
         ActivityIntegrate ai = new ActivityIntegrate(integrator);

@@ -16,21 +16,20 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     
     public void initializePositions(IAtomSet list){
         
-        double x = 0.0;
-        double y = 0.0;
-        
         IAtomPositioned o = (IAtomPositioned)list.getAtom(SpeciesWater4P.indexO);
-        o.getPosition().E(new double[] {x, y, 0.0});
-               
+        o.getPosition().E(new double[] {0, 0, 0.0});
+
+        double x = bondLengthOH*Math.sin(0.5*angleHOH);
+        double y = bondLengthOH*Math.cos(0.5*angleHOH);
+        
         IAtomPositioned h1 = (IAtomPositioned)list.getAtom(SpeciesWater4P.indexH1);
-        h1.getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
+        h1.getPosition().E(new double[] {-x, y, 0.0});
                 
         IAtomPositioned h2 = (IAtomPositioned)list.getAtom(SpeciesWater4P.indexH2);
-        h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
+        h2.getPosition().E(new double[] {+x, y, 0.0});
         
         IAtomPositioned m = (IAtomPositioned)list.getAtom(SpeciesWater4P.indexM);
-        m.getPosition().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
-
+        m.getPosition().E(new double[] {0, rOM, 0.0});
     }
     
     public final static double [] Echarge = new double [4];
@@ -43,7 +42,7 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    private double bondLengthOH = 0.9572;
-    private double angleHOH = 104.52*Math.PI/180.;
-    private double rOM=0.15;
+    protected double bondLengthOH = 0.9572;
+    protected double angleHOH = 104.52*Math.PI/180.;
+    protected double rOM=0.15;
 }
