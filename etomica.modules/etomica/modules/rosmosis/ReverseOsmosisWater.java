@@ -11,7 +11,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sodium;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.integrator.IntegratorMD.ThermostatType;
-import etomica.models.water.OrientationCalcWater;
+import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
 import etomica.potential.P2Electrostatic;
@@ -74,7 +74,7 @@ public class ReverseOsmosisWater extends Simulation {
         //solvent (2)
         speciesSolvent = new SpeciesWater3POriented(space, true);
         getSpeciesManager().addSpecies(speciesSolvent);
-        integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater(space));
+        integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
