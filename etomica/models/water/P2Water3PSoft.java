@@ -55,7 +55,6 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
         du += -epsilon48*s6*(s6 - 0.5);
 	
         gradient[0].Ea1Tv1(du/r2,work);
-        gradient[1].Ea1Tv1(-1, gradient[0]);
 
         IVector com1 = water1.getPosition();
         IVector com2 = water2.getPosition();
