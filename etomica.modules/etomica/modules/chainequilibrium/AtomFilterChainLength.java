@@ -4,12 +4,12 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 
 /**
  */
-public class AtomFilterChainLength implements AtomFilter, AtomLeafAgentManager.AgentSource {
+public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgentManager.AgentSource {
 
     public AtomFilterChainLength(AtomLeafAgentManager aam) {
         agentManager = aam;
@@ -25,7 +25,7 @@ public class AtomFilterChainLength implements AtomFilter, AtomLeafAgentManager.A
 
     public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
-    protected void tagAll() {
+    public void resetFilter() {
         maxChainLength = 0;
         // untag all the Atoms
         IAtomSet leafList = box.getLeafList();
@@ -84,9 +84,6 @@ public class AtomFilterChainLength implements AtomFilter, AtomLeafAgentManager.A
     }
 
     public boolean accept(IAtom a) {
-        if (box.getLeafIndex(a) == 0) {
-            tagAll();
-        }
         return ((LengthAgent)chainLengthManager.getAgent(a)).chainLength == maxChainLength;
     }
 
