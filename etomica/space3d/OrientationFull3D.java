@@ -19,6 +19,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         direction = (IVector3D)space.makeVector();
         direction.setX(0, 1);
         secondaryDirection = (IVector3D)space.makeVector();
+        secondaryDirection.setX(1, 1);
         v2 = (IVector3D)space.makeVector();
         v3 = (IVector3D)space.makeVector();
         rotationTensor = (Tensor3D)space.makeTensor();
@@ -75,13 +76,15 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         double cosdt = Math.cos(dt);
         double oneminuscosdt = 1 - cosdt;
         if (Math.abs(dt) < 0.1) {
+            // this is a better approximation for small angles (when 1-cos is
+            // close to 0)
             oneminuscosdt = sindt*sindt / (1+cosdt);
         }
         // v1 = v1overAxis * axis
         double v1overAxis = axis.dot(direction);
         v3.E(axis);
         v3.XE(direction);
-        // now temp2 = v3
+
         direction.TE(cosdt);
         direction.PEa1Tv1(oneminuscosdt*v1overAxis, axis);
         direction.PEa1Tv1(sindt, v3);
@@ -116,13 +119,36 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         } while (tempSq < 0.001);
 
         v2.TE(1/Math.sqrt(tempSq));
+        // we're rotating about the vector perpendicular to both direction and v2
+        // (we'll need the axis for secondaryDirection) direction and v2 are both unit vectors
+        v3.E(direction);
+        v3.XE(v2);
+        
         double dt = tStep * random.nextDouble();
         
         // new direction is in the plane of the old direction and temp
         // with components equal to cos(dt) and sin(dt).
         // dt=0 ==> cos(dt)=1 ==> old direction
-        direction.TE(Math.cos(dt));
-        direction.PEa1Tv1(Math.sin(dt), v2);
+        double sindt = Math.sin(dt);
+        double cosdt = Math.cos(dt);
+        direction.TE(cosdt);
+        direction.PEa1Tv1(sindt, v2);
+
+        double oneminuscosdt = 1 - cosdt;
+        if (Math.abs(dt) < 0.1) {
+            oneminuscosdt = sindt*sindt / (1+cosdt);
+        }
+
+        v2.E(v3);
+        // now v2 is the axis of rotation
+
+        double v1overAxis = v2.dot(secondaryDirection);
+        v3.E(v2);
+        v3.XE(secondaryDirection);
+        // now temp2 = v3
+        secondaryDirection.TE(cosdt);
+        secondaryDirection.PEa1Tv1(oneminuscosdt*v1overAxis, v2);
+        secondaryDirection.PEa1Tv1(sindt, v3);
     }
 
     private static final long serialVersionUID = 1L;
