@@ -43,6 +43,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
     protected double shakeTol;
     protected int maxIterations;
     protected boolean[][] moved;
+    protected IVector[] drOld;
+    protected final IVector temp;
 
     public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -212,8 +214,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                             System.out.println("drDotDrOld "+drDotDrOld);
                             throw new RuntimeException("oops");
                         }
-                        double gab = diffSq / (2.0 * rMass * dr.dot(drOld[j]));
-                        atom2.getPosition().PEa1Tv1(gab/mass2, drOld[j]);
+                        double gab = diffSq / (2.0 * rMass * drDotDrOld);
+                        atom2.getPosition().PEa1Tv1( gab/mass2, drOld[j]);
                         atom1.getPosition().PEa1Tv1(-gab/mass1, drOld[j]);
                         
                         moved[1][iAtom1] = true;
@@ -305,7 +307,4 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
             this.bondLengths = bondLengths;
         }
     }
-
-    protected IVector[] drOld;
-    protected final IVector temp;
 }
