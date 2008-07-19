@@ -12,6 +12,12 @@ import etomica.atom.AtomTypeAgentManager.AgentSource;
 import etomica.graphics.ColorScheme;
 import etomica.util.Arrays;
 
+/**
+ * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid)
+ * and the number of bonds the atom can form.
+ * 
+ * @author Andrew Schultz
+ */
 public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
 
     public ColorSchemeStepWise(ISimulation sim, AtomLeafAgentManager bondingAgentManager) {
@@ -22,9 +28,16 @@ public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
     
     public Color getAtomColor(IAtom atom) {
         IAtom[] nbrs = (IAtom[])bondingAgentManager.getAgent(atom);
-        return (Color)colorMaps[nbrs.length].getAgent(atom.getType());
+        if (colorMaps.length > nbrs.length) {
+            return (Color)colorMaps[nbrs.length].getAgent(atom.getType());
+        }
+        // we weren't told how to deal with any atom type with this many bonds.
+        return ColorScheme.DEFAULT_ATOM_COLOR;
     }
 
+    /**
+     * Sets atoms of the given type and number of bonds to be the given color.
+     */
     public void setColor(IAtomTypeLeaf type, int nBonds, Color color) {
         if (nBonds >= colorMaps.length) {
             int oldLength = colorMaps.length;
@@ -41,7 +54,7 @@ public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
     }
 
     public Object makeAgent(IAtomType type) {
-        return Color.BLACK;
+        return ColorScheme.DEFAULT_ATOM_COLOR;
     }
 
     public void releaseAgent(Object agent, IAtomType type) {}
