@@ -157,7 +157,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         forceSum.reset();
         potential.calculate(box, allAtoms, forceSum);
     }
-              
+
 //--------------------------------------------------------------
     
     public Class getAgentClass() {
