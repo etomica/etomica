@@ -165,7 +165,7 @@ public class DeviceSlider extends Device {
     	borderAlignment = align;
     }
 
-    public final void setModifier(Modifier m) {
+    public void setModifier(Modifier m) {
         if(m == null) throw new NullPointerException();
         modifyAction = null;
         if(unit == null) {
