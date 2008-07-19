@@ -14,10 +14,12 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.ISpace;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -38,7 +40,11 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public final ConfigurationLatticeFreeRadical config;
 
     public FreeRadicalPolymerizationSim() {
-        super(Space2D.getInstance());
+        this(Space2D.getInstance());
+    }
+    
+    public FreeRadicalPolymerizationSim(ISpace space) {
+        super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList)potentialMaster).setCellRange(1);
 
@@ -54,7 +60,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, random, 60), space);
+        box = new Box(new BoundaryRectangularPeriodic(space, random, space.D() == 2 ? 60 : 20), space);
         addBox(box);
         integratorHard.setBox(box);
         integratorHard.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
@@ -68,7 +74,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
-        config = new ConfigurationLatticeFreeRadical(new LatticeOrthorhombicHexagonal(), space, random);
+        config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space, random);
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 

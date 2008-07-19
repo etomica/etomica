@@ -25,10 +25,12 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
@@ -40,6 +42,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -236,22 +239,48 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         });
         
         ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.agentManager);
+        colorScheme.setBox(sim.box);
         colorScheme.setFreeRadicalColor(sim.speciesA.getLeafType(), Color.GREEN);
 //        colorScheme.setColor(sim.speciesA.getLeafType(), Color.BLUE);
-        colorScheme.setColor(sim.speciesB.getLeafType(), Color.BLACK);
+        colorScheme.setColor(sim.speciesB.getLeafType(), space.D() == 2 ? Color.BLACK : Color.WHITE);
         colorScheme.setFreeRadicalColor(sim.speciesB.getLeafType(), Color.RED);
         colorScheme.setFullColor(sim.speciesA.getLeafType(), Color.BLUE);
-        colorScheme.setFullColor(sim.speciesB.getLeafType(), Color.GRAY);
+        if (space.D() == 2) {
+            colorScheme.setFullColor(sim.speciesB.getLeafType(), Color.GRAY);
+        }
         getDisplayBox(sim.box).setColorScheme(colorScheme);
         
-        DeviceSlider combinationProbabilitySlider = new DeviceSlider(sim.getController());
-        combinationProbabilitySlider.setLabel("combination probability");
-        combinationProbabilitySlider.setShowBorder(true);
-        combinationProbabilitySlider.setModifier(new ModifierGeneral(new Object[]{sim.p2BB, sim.p2AB}, "combinationProbability"));
-        combinationProbabilitySlider.setNMajor(5);
-        combinationProbabilitySlider.setPrecision(1);
-        combinationProbabilitySlider.setMinimum(0);
-        combinationProbabilitySlider.setMaximum(1);
+        final DeviceButton atomFilterButton;
+        if (space.D() == 3) {
+            final AtomFilterChainLength atomFilter = new AtomFilterChainLength(sim.agentManager);
+            atomFilter.setBox(sim.box);
+            atomFilterButton = new DeviceButton(sim.getController());
+            atomFilterButton.setAction(new IAction() {
+                public void actionPerformed() {
+                    DisplayBox displayBox = getDisplayBox(sim.box);
+                    if (displayBox.getAtomFilter() == null) {
+                        displayBox.setAtomFilter(atomFilter);
+                        atomFilterButton.setLabel("Show all");
+                    }
+                    else {
+                        displayBox.setAtomFilter(null);
+                        atomFilterButton.setLabel("Show only longest chain");
+                    }
+                    displayBox.repaint();
+                }
+            });
+            atomFilterButton.setLabel("Show only longest chain");
+        }
+        else {
+            atomFilterButton = null;
+        }
+
+        
+        DeviceBox combinationProbabilityBox = new DeviceBox();
+        combinationProbabilityBox.setController(sim.getController());
+        combinationProbabilityBox.setLabel("combination probability");
+        combinationProbabilityBox.setModifier(new ModifierGeneral(new Object[]{sim.p2BB, sim.p2AB}, "combinationProbability"));
+        combinationProbabilityBox.setPrecision(1);
 
         DeviceNSelector nSliderA = new DeviceNSelector(sim.getController());
         nSliderA.setSpecies(sim.speciesA);
@@ -285,7 +314,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         nSliderB.setSpecies(sim.speciesB);
         nSliderB.setBox(sim.box);
         nSliderB.setShowBorder(true);
-        nSliderB.setLabel("Monomers (black)");
+        nSliderB.setLabel("Monomers "+(space.D() == 2 ? "(black)" : "(white)"));
         nSliderB.setResetAction(reset);
         nSliderB.setNMajor(4);
         nSliderB.setMaximum(1000);
@@ -332,23 +361,28 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
+        JPanel controls = new JPanel(new java.awt.GridBagLayout());
 
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
 
         epsilonSliders.add(AASlider.graphic(null), vertGBC);
         epsilonSliders.add(BSlider.graphic(null), vertGBC);
-//        epsilonSliders.add(combinationProbabilitySlider.graphic(null));
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
+        epsilonSliders.add(combinationProbabilityBox.graphic(), vertGBC);
 
+        controls.add(delaySlider.graphic(), vertGBC);
+        if (space.D() == 3) {
+            controls.add(atomFilterButton.graphic(), vertGBC);
+        }
+        
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
-        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
+        sliderPanel.add(controls, "Controls");
         sliderPanel.add(epsilonSliders, "Reaction Energy (kJ/mol)");
         sliderPanel.add(speciesEditors, "Number of Molecules");
-        getPanel().controlPanel.add(combinationProbabilitySlider.graphic(), vertGBC);
 
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
@@ -397,7 +431,14 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim();
+        int D = 2;
+        for (int i=0; i<args.length; i++) {
+            if (args[i].equals("-dim") && i+1<args.length) {
+                i++;
+                D = Integer.parseInt(args[i]);
+            }
+        }
+        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim(Space.getInstance(D));
         FreeRadicalPolymerizationGraphic graphic = new FreeRadicalPolymerizationGraphic(sim, sim.getSpace());
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
@@ -405,8 +446,13 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
+            int D = 2;
+            String dimStr = getParameter("dim");
+            if (dimStr != null) {
+                D = Integer.parseInt(dimStr);
+            }
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-	        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim();
+	        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim(Space.getInstance(D));
 			getContentPane().add(new FreeRadicalPolymerizationGraphic(sim, sim.getSpace()).getPanel());
         }
     }
