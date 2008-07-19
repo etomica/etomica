@@ -24,11 +24,6 @@ public class P2LennardJones extends Potential2SoftSpherical {
         setSigma(sigma);
         setEpsilon(epsilon);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple Lennard-Jones potential");
-        return info;
-    }
 
     /**
      * The energy u.
