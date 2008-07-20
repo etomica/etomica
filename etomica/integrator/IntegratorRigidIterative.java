@@ -443,10 +443,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             tempAngularVelocity.E(orientedMolecule.getAngularVelocity());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             rotationTensor.transform(tempAngularVelocity);
-            tempAngularVelocity.DE(moment);
+            tempAngularVelocity.TE(moment);
 
             tempAngularVelocity.TE(tempAngularVelocity);
-            tempAngularVelocity.TE(moment);
+            tempAngularVelocity.DE(moment);
             KE += tempAngularVelocity.x(0) + tempAngularVelocity.x(1)+ tempAngularVelocity.x(2);
             D += 6; //3;
         }
