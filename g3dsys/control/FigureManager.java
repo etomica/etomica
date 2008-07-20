@@ -136,12 +136,16 @@ class FigureManager {
      * compromise. Note that if an atom radius causes it to extend well
      * outside the box there may still be clipping.
      */
+    float d = min.distance(max);
+    if (d == 0) {
+        d = 1;
+    }
     if(imagesOn) {
       //return a different radius to account for image shell
       //getLayers*2 for symmetry, +1 for original center image
-      return (min.distance(max)/1.5f)*(2*images.getLayers()+1);
+      return (d/1.5f)*(2*images.getLayers()+1);
     }
-    else return min.distance(max)/1.5f;
+    else return d/1.5f;
   }
 
   public Point3f getBoundingBoxCenter() {
