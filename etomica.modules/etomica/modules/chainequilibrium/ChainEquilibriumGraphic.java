@@ -24,9 +24,11 @@ import etomica.data.DataSinkTable;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
@@ -37,6 +39,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -351,11 +354,37 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
-        
+
+        final DeviceButton atomFilterButton;
+        if (space.D() == 3) {
+            final AtomFilterChainLength atomFilter = new AtomFilterChainLength(sim.agentManager);
+            atomFilter.setBox(sim.box);
+            atomFilterButton = new DeviceButton(sim.getController());
+            atomFilterButton.setAction(new IAction() {
+                public void actionPerformed() {
+                    DisplayBox displayBox = getDisplayBox(sim.box);
+                    if (displayBox.getAtomFilter() == null) {
+                        displayBox.setAtomFilter(atomFilter);
+                        atomFilterButton.setLabel("Show all");
+                    }
+                    else {
+                        displayBox.setAtomFilter(null);
+                        atomFilterButton.setLabel("Show only longest chain");
+                    }
+                    displayBox.repaint();
+                }
+            });
+            atomFilterButton.setLabel("Show only longest chain");
+        }
+        else {
+            atomFilterButton = null;
+        }
+
         getPanel().tabbedPane.add("Conversion" , conversionPanel);
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
+        JPanel controls = new JPanel(new java.awt.GridBagLayout());
 
         speciesEditors.add(nMonoOlBox.graphic());
         speciesEditors.add(nMonoAcidBox.graphic());
@@ -369,11 +398,15 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
-        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
+        sliderPanel.add(controls, "Controls");
         sliderPanel.add(epsilonSliders, "Reaction Energy (kJ/mol)");
         sliderPanel.add(speciesEditors, "Number of Molecules");
+        controls.add(delaySlider.graphic(), vertGBC);
+        if (space.D() == 3) {
+            controls.add(atomFilterButton.graphic(), vertGBC);
+        }
 
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
@@ -407,7 +440,14 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ChainEquilibriumSim sim = new ChainEquilibriumSim();
+        int D = 2;
+        for (int i=0; i<args.length; i++) {
+            if (args[i].equals("-dim") && i+1<args.length) {
+                i++;
+                D = Integer.parseInt(args[i]);
+            }
+        }
+        ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
         ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim, sim.getSpace());
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
@@ -416,7 +456,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         public void init() {
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-	        ChainEquilibriumSim sim = new ChainEquilibriumSim();
+            int D = 2;
+            String dimStr = getParameter("dim");
+            if (dimStr != null) {
+                D = Integer.parseInt(dimStr);
+            }
+	        ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
 			getContentPane().add(new ChainEquilibriumGraphic(sim, sim.getSpace()).getPanel());
         }
     }

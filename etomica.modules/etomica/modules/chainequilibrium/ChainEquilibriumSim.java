@@ -15,12 +15,13 @@ import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space2d.Space2D;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -89,8 +90,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         box.setNMolecules(speciesB, nMonoAcid+nDiAcid+nCrossLinkersAcid);
     }
 
-    public ChainEquilibriumSim() {
-        super(Space2D.getInstance());
+    public ChainEquilibriumSim(ISpace space) {
+        super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList)potentialMaster).setCellRange(1);
 
@@ -106,7 +107,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, random, 60), space);
+        box = new Box(new BoundaryRectangularPeriodic(space, random, space.D() == 2 ? 60 : 20), space);
         addBox(box);
         integratorHard.setBox(box);
         integratorHard.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
@@ -114,19 +115,16 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
-//        speciesC = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
-//        getSpeciesManager().addSpecies(speciesC);
         ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
         ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
-//        ((IAtomTypeSphere)speciesC.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);
         nDiol = 50;
         box.setNMolecules(speciesB, 100);
         nDiAcid = 100;
-//        box.setNMolecules(speciesC, 0);
-        config = new ConfigurationLatticeRandom(new LatticeOrthorhombicHexagonal(), space, random);
+
+        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space, random);
         config.initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager(this,box);
@@ -135,24 +133,14 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         p2AA = new P2HardSphere(space, diameter, true);
 		ABbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
         p2BB = new P2HardSphere(space, diameter, true);
-//        ACbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
-//        p2BC = new P2HardSphere(space, diameter, true);
-//        p2CC = new P2HardSphere(space, diameter, true);
 
 		potentialMaster.addPotential(p2AA,
 		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesA.getLeafType() });
 		potentialMaster.addPotential(ABbonded,
 		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesB.getLeafType() });
-//        potentialMaster.addPotential(ACbonded,
-//                new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesC.getLeafType() });
 		
 		potentialMaster.addPotential(p2BB,
 		        new IAtomTypeLeaf[] { speciesB.getLeafType(), speciesB.getLeafType() });
-//        potentialMaster.addPotential(p2BC,
-//                new IAtomTypeLeaf[] { speciesB.getLeafType(), speciesC.getLeafType() });
-//
-//        potentialMaster.addPotential(p2CC,
-//                new IAtomTypeLeaf[] { speciesC.getLeafType(), speciesC.getLeafType() });
 
 		// **** Setting Up the thermometer Meter *****
 		
