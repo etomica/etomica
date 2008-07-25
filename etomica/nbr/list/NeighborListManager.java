@@ -325,6 +325,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
      * used to generate candidate neighbors for neighbor listing.
      */
     public void setRange(double d) {
+        cell1ANbrIterator.getNbrCellIterator().setNeighborDistance(d);
         cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
     }
     
