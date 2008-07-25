@@ -45,6 +45,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
     protected boolean[][] moved;
     protected IVector[] drOld;
     protected final IVector temp;
+    public int printInterval = 100;
 
     public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -65,7 +66,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
         
         dr = _space.makeVector();
         shakeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
-        setShakeTolerance(1e-6);
+        setShakeTolerance(1e-14);
         setMaxIterations(20);
         moved = new boolean[2][0];
         drOld = new IVector[0];
@@ -198,7 +199,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                     IAtomPositioned atom2 = (IAtomPositioned)childList.getAtom(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
-//                    if (i==1) System.out.println(iter+" old dr "+Math.sqrt(dr.squared())+" vs "+bondLengths[j]);
+//                    if (i==0) System.out.println(iter+" old dr "+Math.sqrt(dr.squared())+" vs "+bondLengths[j]);
                     double dr2 = dr.squared();
                     double bl2 = bondLengths[j]*bondLengths[j];
                     double diffSq = bl2 - dr2;
@@ -258,7 +259,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
         if(isothermal) {
             doThermostat();
         }
-        if (stepCount%100 == 0) {
+        if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
             int moleculeCount = box.getMoleculeList().getAtomCount();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;

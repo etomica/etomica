@@ -129,7 +129,6 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     double bl2 = bondLengths[j]*bondLengths[j];
 //                    System.out.println(Math.sqrt(dr2)+" "+Math.sqrt(bl2));
                     double diffSq = bl2 - dr2;
-                    System.out.println(iter+" "+diffSq/bl2);
                     if (Math.abs(diffSq/bl2) > shakeTol) {
                         double mass1 = ((IAtomTypeLeaf)atom1.getType()).getMass();
                         double mass2 = ((IAtomTypeLeaf)atom2.getType()).getMass();
@@ -252,7 +251,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             doThermostat();
         }
 
-        if (stepCount%100 == 0) {
+        if (printInterval > 0 && stepCount%printInterval == 0) {
             meterPE.setBox(box);
             double PE = meterPE.getDataAsScalar();
             double KE = meterKE.getDataAsScalar();
