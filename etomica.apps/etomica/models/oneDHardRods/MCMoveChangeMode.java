@@ -1,30 +1,157 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.normalmode.MCMoveHarmonicStep;
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 
-public class MCMoveChangeMode extends MCMoveHarmonicStep{
+/**
+ * A Monte Carlo move which selects a wave vector, and an eigenvector allowed 
+ * by that wave vector.
+ * 
+ * @author cribbin
+ *
+ */
+public class MCMoveChangeMode extends MCMoveBoxStep{
 
-	IVector[] wavevectors;
+    private static final long serialVersionUID = 1L;
+    protected CoordinateDefinition coordinateDefinition;
+    private final AtomIteratorAllMolecules iterator;
+    protected double[] uOld, u;
+    protected final IRandom random;
+    protected double energyOld, energyNew /*, latticeEnergy*/;
+    protected final MeterPotentialEnergy energyMeter;
+    private double[][][] eigenVectors;
+    private IVector[] waveVectors;
+	
+	
 	
 	public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
-		super(potentialMaster, random);
-		 
-	
-	
-	}
+		super(potentialMaster);
+        
+        this.random = random;
+        iterator = new AtomIteratorAllMolecules();
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+    }
 
-	
-	public boolean doTrial() {
-		//Pick which wavevector will be changed
-		
-		
-		super.doTrial();
-		
-		return true;
-	}
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
+        u = new double[coordinateDefinition.getCoordinateDim()];
+        uOld = new double[coordinateDefinition.getCoordinateDim()];
+    }
+    
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
+    }
 
+    /**
+     * Set the wave vectors used by the move.
+     * 
+     * @param wv
+     */
+    public void setWaveVectors(IVector[] wv){
+    	waveVectors = new IVector[wv.length];
+    	waveVectors = wv;
+    }
+    /**
+     * Informs the move of the eigenvectors for the selected wave vector.  The
+     * actual eigenvectors used will be those specified via setModes
+     */
+    public void setEigenVectors(double[][][] newEigenVectors) {
+        eigenVectors = newEigenVectors;
+    }
+    
+    public void setBox(IBox newBox) {
+        super.setBox(newBox);
+        iterator.setBox(newBox);
+        energyMeter.setBox(newBox);
+    }
+
+    public AtomIterator affectedAtoms() {
+        return iterator;
+    }
+
+    public boolean doTrial() {
+        energyOld = energyMeter.getDataAsScalar();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        BasisCell[] cells = coordinateDefinition.getBasisCells();
+
+        //nan These lines make it a single atom-per-molecule class, and
+        // assumes that the first cell is the same as every other cell.
+        BasisCell cell = cells[0];
+        double sqrtCells = Math.sqrt(cells.length);
+        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
+        
+        //store old positions.
+        for (int i=0; i<coordinateDim; i++) {
+            uOld[i] = calcedU[i];
+            u[i] = calcedU[i];
+        }
+
+        // Select the wave vector whose eigenvectors will be changed.
+        int changedWV = random.nextInt(waveVectors.length);
+        // Select the eigenvector that will be changed.
+        int changedEV = random.nextInt(eigenVectors[changedWV].length);
+        
+        //calculate the new positions of the atoms.
+        //loop over cells
+        for(int iCell = 0; iCell < cells.length; iCell++){
+        	
+        	
+        	
+        	
+        	
+        	
+        	
+        	
+        }
+        
+        
+        
+        
+//        for (int i=0; i<modes.length; i++) {
+//            double delta = (2*random.nextDouble()-1) * stepSize;
+//            for (int j=0; j<coordinateDim; j++) {
+//                u[j] += delta * eigenVectors[changedWV][modes[i]][j] / sqrtCells;
+//            }
+//        }
+
+        // Set all the atoms to the new values of u
+        for (int iCell = 0; iCell<cells.length; iCell++) {
+            coordinateDefinition.setToU(cells[iCell].molecules, u);
+        }
+        
+        energyNew = energyMeter.getDataAsScalar();
+        return true;
+    }
+    
+    public double getA() {
+        return 1;
+    }
+
+    public double getB() {
+        return -(energyNew - energyOld);
+    }
+    
+    public void acceptNotify() {
+    }
+
+    public double energyChange() {
+        return energyNew - energyOld;
+    }
+
+    public void rejectNotify() {
+        // Set all the atoms back to the old values of u
+        BasisCell[] cells = coordinateDefinition.getBasisCells();
+        for (int iCell = 0; iCell<cells.length; iCell++) {
+            coordinateDefinition.setToU(cells[iCell].molecules, uOld);
+        }
+    }
 
 }
