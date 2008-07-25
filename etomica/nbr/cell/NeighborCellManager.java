@@ -284,7 +284,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         if (atom.getType().isInteracting()) {
             IVector position = ((IAtomPositioned)atom).getPosition();
             v.E(position);
-            if (true) {
+            if (doApplyPBC) {
                 v.PE(box.getBoundary().centralImage(position));
             }
             Cell atomCell = (Cell)lattice.site(v);
