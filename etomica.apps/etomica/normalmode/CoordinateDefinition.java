@@ -142,7 +142,7 @@ public abstract class CoordinateDefinition {
      * @param molecule
      *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    protected abstract double[] calcU(IAtomSet molecules);
+    public abstract double[] calcU(IAtomSet molecules);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
