@@ -42,7 +42,7 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected double bondLengthOH = 0.9572;
-    protected double angleHOH = 104.52*Math.PI/180.;
-    protected double rOM=0.15;
+    public static final double bondLengthOH = 0.9572;
+    public static final double angleHOH = 104.52*Math.PI/180.;
+    public static final double rOM=0.15;
 }
