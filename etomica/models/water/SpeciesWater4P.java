@@ -3,6 +3,7 @@ package etomica.models.water;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
@@ -18,8 +19,13 @@ import etomica.species.Species;
 public class SpeciesWater4P extends Species {
 
     public SpeciesWater4P(ISpace space) {
+        this(space, false);
+    }
+    
+    public SpeciesWater4P(ISpace space, boolean isDynamic) {
         super(new AtomPositionGeometricCenter(space));
         this.space = space;
+        this.isDynamic = isDynamic;
         hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
         mType = new AtomTypeSphere(new ElementSimple("M", 1.0), 2.0);
@@ -32,10 +38,10 @@ public class SpeciesWater4P extends Species {
 
      public IMolecule makeMolecule() {
          Molecule water = new Molecule(this);
-         water.addChildAtom(new AtomLeaf(space, hType));
-         water.addChildAtom(new AtomLeaf(space, hType));
-         water.addChildAtom(new AtomLeaf(space, oType));
-         water.addChildAtom(new AtomLeaf(space, mType));
+         water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new AtomLeaf(space, hType));
+         water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new AtomLeaf(space, hType));
+         water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new AtomLeaf(space, oType));
+         water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, mType) : new AtomLeaf(space, mType));
          conformation.initializePositions(water.getChildList());
          return water;
      }
@@ -63,5 +69,6 @@ public class SpeciesWater4P extends Species {
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
+    protected final boolean isDynamic;
     protected final AtomTypeSphere oType, hType, mType;
 }
