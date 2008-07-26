@@ -143,9 +143,6 @@ public class VirialAlkane {
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
             sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
-            
-            sim.mcMoveWiggle[0].setBondLength(1.54);
-            sim.mcMoveWiggle[1].setBondLength(1.54);
         }
         MCMoveClusterTorsionMulti[] torsionMoves = null;
         if (nSpheres > 3) {
