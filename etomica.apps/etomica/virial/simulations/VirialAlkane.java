@@ -276,7 +276,7 @@ public class VirialAlkane {
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
         if (nSpheres > 3) {
             System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
-                    torsionMoves[0].getTracker().acceptanceRatio());
+                    torsionMoves[1].getTracker().acceptanceRatio());
         }
         
         IAction progressReport = new IAction() {
