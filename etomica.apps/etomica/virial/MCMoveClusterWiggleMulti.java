@@ -29,13 +29,8 @@ import etomica.api.IRandom;
  */
 public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
-    private static final long serialVersionUID = 1L;
-    private final MeterClusterWeight weightMeter;
-    private final MeterPotentialEnergy energyMeter;
-
     public MCMoveClusterWiggleMulti(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
-        setBondLength(1.0);
     }
     
     /**
@@ -83,7 +78,11 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             IVector position = selectedAtoms[i].getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
+            double oldBondLength1 = 0, oldBondLength2 = 0;
+                
             if (j == 0 || j == numChildren-1) {
+                // this puts atom j in a random orientation without changing
+                // the bond length
 //                System.out.println("end"+j+" move");
 
                 //work1 is the current vector from the bonded atom to atom j
@@ -95,6 +94,10 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 else {
                     work1.ME(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
                     position.E(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
+                }
+                double bondLength = Math.sqrt(work1.squared());
+                if (Debug.ON && Debug.DEBUG_NOW) {
+                    oldBondLength1 = bondLength;
                 }
                 //work2 is a vector perpendicular to work1.  it can be any 
                 //perpendicular vector, but that just makes it harder!
@@ -124,17 +127,31 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 work2.PEa1Tv1(Math.sin(phi),work3);
             }
             else {
+                // crankshaft move.  atom j is rotated around the j-1 - j+1 bond.
+                // j-1 - j and j - j+1 bond lengths are unaltered.
+
 //                System.out.println("middle move "+j);
                 IVector position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
                 IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
+                work1.Ev1Mv2(position0, position);
+                work2.Ev1Mv2(position2, position);
+                if (Debug.ON && Debug.DEBUG_NOW) {
+                    oldBondLength1 = Math.sqrt(work1.squared());
+                    oldBondLength2 = Math.sqrt(work2.squared());
+                }
+                double cosTheta = work1.dot(work2)/(Math.sqrt(work1.squared()*work2.squared()));
+                if (cosTheta < -0.999) {
+                    // current bond angle is almost 180degrees, making crankshaft
+                    // difficult to do precisely, so skip it.  we'll explore this
+                    // degree of freedom some other time when the bond angle is
+                    // different
+                    translationVectors[i].E(0);
+                    continue;
+                }
                 work2.Ev1Pv2(position0, position2);
                 work2.TE(0.5);
                 //work1 is vector between the 0-2 midpoint and 1
                 work1.Ev1Mv2(position,work2);
-                if (work1.squared() < bondLength*0.05) {
-                    translationVectors[i].E(0);
-                    continue;
-                }
                 position.E(work2);
                 work2.ME(position0);
                 work2.TE(-1);
@@ -155,16 +172,19 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 ((IAtomPositioned)childList.getAtom(k)).getPosition().ME(work1);
             }
             if (Debug.ON && Debug.DEBUG_NOW) {
-                for (int k=0; k<numChildren; k++) {
-//                    System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
-                    if (k > 0) {
-                        work2.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
-                        work2.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
-                        double d = Math.sqrt(work2.squared());
-//                        System.out.println("distance "+d);
-                        if (Math.abs(d - bondLength)/bondLength > 0.000001) {
-                            throw new IllegalStateException("wiggle "+i+" "+k+" bond length should be close to "+bondLength+" ("+d+")");
-                        }
+                if (j > 0) {
+                    work1.Ev1Mv2(position, ((IAtomPositioned)childList.getAtom(j-1)).getPosition());
+                    double bondLength = Math.sqrt(work1.squared());
+                    if (Math.abs(bondLength - oldBondLength1)/oldBondLength1 > 0.000001) {
+                        throw new IllegalStateException("wiggle "+i+" "+j+" bond length should be close to "+oldBondLength1+" ("+bondLength+")");
+                    }
+                }
+                if (j < numChildren-1) {
+                    work1.Ev1Mv2(position, ((IAtomPositioned)childList.getAtom(j+1)).getPosition());
+                    double bondLength = Math.sqrt(work1.squared());
+                    double oldBondLength = oldBondLength2 == 0 ? oldBondLength1 : oldBondLength2;
+                    if (Math.abs(bondLength - oldBondLength)/oldBondLength > 0.000001) {
+                        throw new IllegalStateException("wiggle "+i+" "+j+" bond length should be close to "+oldBondLength+" ("+bondLength+")");
                     }
                 }
             }
@@ -175,10 +195,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         return true;
     }
     
-    public void setBondLength(double b) {
-        bondLength = b;
-    }
-	
     public void rejectNotify() {
         IAtomSet moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
@@ -201,10 +217,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         return wNew/wOld;
     }
 	
-    private IAtomPositioned[] selectedAtoms;
-    protected double bondLength;
+    private static final long serialVersionUID = 1L;
+    protected final MeterClusterWeight weightMeter;
+    protected final MeterPotentialEnergy energyMeter;
+    protected IAtomPositioned[] selectedAtoms;
     protected final IVector3D work1, work2, work3;
-    private IVector3D[] translationVectors;
-    private double wOld, wNew;
-    private final ISpace space;
+    protected IVector3D[] translationVectors;
+    protected double wOld, wNew;
+    protected final ISpace space;
 }
