@@ -88,7 +88,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
         }
         else if (evt instanceof SimulationBoxRemovedEvent) {
             IBox box = ((SimulationBoxEvent)evt).getBox();
-            // The given Box got removed.  The remaining boxs got shifted
+            // The given Box got removed.  The remaining boxes got shifted
             // down.
             int index = box.getIndex();
             agentSource.releaseAgent(agents[index]);
