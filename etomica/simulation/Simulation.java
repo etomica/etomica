@@ -45,7 +45,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
             }
         }
         boxList = (IBox[])Arrays.addObject(boxList, newBox);
-        newBox.resetIndex(this);
+        newBox.setIndex(boxList.length-1);
         speciesManager.boxAddedNotify(newBox);
         eventManager.fireEvent(new SimulationBoxAddedEvent(newBox));
     }
@@ -65,14 +65,14 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         boxList = (IBox[])Arrays.removeObject(boxList, oldBox);
 
         for (int i = oldBox.getIndex(); i<boxList.length; i++) {
-            boxList[i].resetIndex(this);
+            boxList[i].setIndex(i);
         }
         
         eventManager.fireEvent(new SimulationBoxRemovedEvent(oldBox));
 
         // notify oldBox that we no longer have it.  this will reset its index
         // to 0, so we need to do this after firing notification
-        oldBox.resetIndex(null);
+        oldBox.setIndex(0);
     }
     
     /**

@@ -82,21 +82,8 @@ public class Box implements java.io.Serializable, IBox {
     /* (non-Javadoc)
 	 * @see etomica.box.IBox#resetIndex(etomica.api.ISimulation)
 	 */
-    public void resetIndex(ISimulation sim) {
-        if (sim == null) {
-            // sim is notifying us that we got removed.
-            index = 0;
-            return;
-        }
-        int boxCount = sim.getBoxCount();
-        for (int i=0; i<boxCount; i++) {
-            if (sim.getBox(i) == this) {
-                index = i;
-                return;
-            }
-        }
-        // you really shouldn't be calling resetIndex unless you're a simulation!
-        throw new IllegalArgumentException(sim+" does not contain me");
+    public void setIndex(int newIndex) {
+        index = newIndex;
     }
 
     /* (non-Javadoc)

@@ -2,55 +2,66 @@ package etomica.api;
 
 public interface IBox {
 
+    /**
+     * Informs the IBox what its index is.  This should only be called by the
+     * ISimulation.
+     */
+	public void setIndex(int newIndex);
 
-	public abstract void resetIndex(ISimulation sim);
+	/**
+	 * Returns the IBox's index.
+	 */
+	public int getIndex();
 
-	public abstract int getIndex();
+	/**
+	 * Adds a new molecule of the 
+	 * @param species
+	 * @return
+	 */
+	public IMolecule addNewMolecule(ISpecies species);
 
-	public abstract IMolecule addNewMolecule(ISpecies species);
+	public void addMolecule(IMolecule molecule);
 
-	public abstract void addMolecule(IMolecule molecule);
+	public void removeMolecule(IMolecule molecule);
 
-	public abstract void removeMolecule(IMolecule molecule);
+	public void setNMolecules(ISpecies species, int n);
 
-	public abstract void setNMolecules(ISpecies species, int n);
+	public int getNMolecules(ISpecies species);
 
-	public abstract int getNMolecules(ISpecies species);
+	public IAtomSet getMoleculeList(ISpecies species);
 
-	public abstract IAtomSet getMoleculeList(ISpecies species);
+	public IAtomSet getMoleculeList();
 
-	public abstract IAtomSet getMoleculeList();
+	public void setBoundary(IBoundary b);
 
-	public abstract void setBoundary(IBoundary b);
+	public IBoundary getBoundary();
 
-	public abstract IBoundary getBoundary();
+	public void setDimensions(IVector d);
 
-	public abstract void setDimensions(IVector d);
+	public void setDensity(double rho);
 
-	public abstract void setDensity(double rho);
+	public IBoxEventManager getEventManager();
 
-	public abstract IBoxEventManager getEventManager();
-
-	public abstract void addSpeciesNotify(ISpecies species);
+	public void addSpeciesNotify(ISpecies species);
 
 	/**
 	 * Notifies the SpeciesMaster that a Species has been removed.  This method
 	 * should only be called by the SpeciesManager.
 	 */
-	public abstract void removeSpeciesNotify(ISpecies species);
+	public void removeSpeciesNotify(ISpecies species);
 
-	public abstract IAtomSet getLeafList();
+	public IAtomSet getLeafList();
 
-	public abstract int requestGlobalIndex();
+	public int requestGlobalIndex();
 
-	public abstract int getMaxGlobalIndex();
+	public int getMaxGlobalIndex();
 
-	public abstract void addAtomNotify(IAtom newAtom);
+	public void addAtomNotify(IAtom newAtom);
 
 	//updating of leaf atomList may not be efficient enough for repeated
 	// use, but is probably ok
-	public abstract void removeAtomNotify(IAtom oldAtom);
+	public void removeAtomNotify(IAtom oldAtom);
 
-	public abstract int getLeafIndex(IAtom atomLeaf);
+	public int getLeafIndex(IAtom atomLeaf);
 
 }
