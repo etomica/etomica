@@ -224,8 +224,10 @@ public class SimDimerMEAMadatom extends Simulation{
             } 
         }
         for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
-           box.removeMolecule((IMolecule)movableList.getAtom(i));
+            IMolecule newMolecule = movable.makeMolecule();
+            box.addMolecule(newMolecule);
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule((IMolecule)movableList.getAtom(i));
         }
         movableSet = box.getMoleculeList(movable);
     }
@@ -256,11 +258,15 @@ public class SimDimerMEAMadatom extends Simulation{
             }
         }
         for (int i=0; i<neighborList.getAtomCount(); i++){
-            ((IAtomPositioned)box.addNewMolecule(potentialSpecies).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)neighborList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            IMolecule newMolecule = potentialSpecies.makeMolecule();
+            box.addMolecule(newMolecule);
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)neighborList.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.removeMolecule((IMolecule)neighborList.getAtom(i));
          }
         for (int i=0; i<fixedList.getAtomCount(); i++){
-            ((IAtomPositioned)box.addNewMolecule(fixed).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)fixedList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            IMolecule newMolecule = fixed.makeMolecule();
+            box.addMolecule(newMolecule);
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)fixedList.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.removeMolecule((IMolecule)fixedList.getAtom(i));
          }
         

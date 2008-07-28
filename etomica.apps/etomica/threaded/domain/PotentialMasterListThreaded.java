@@ -12,7 +12,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.nbr.PotentialGroupNbr;
-import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;

@@ -13,13 +13,6 @@ public interface IBox {
 	 */
 	public int getIndex();
 
-	/**
-	 * Adds a new molecule of the 
-	 * @param species
-	 * @return
-	 */
-	public IMolecule addNewMolecule(ISpecies species);
-
 	public void addMolecule(IMolecule molecule);
 
 	public void removeMolecule(IMolecule molecule);

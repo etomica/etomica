@@ -175,8 +175,10 @@ public class SimDimerLJadatom extends Simulation{
             } 
         }
        	for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
-           box.removeMolecule((IMolecule)movableList.getAtom(i));
+            IMolecule newMolecule = movable.makeMolecule();
+            box.addMolecule(newMolecule);
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule((IMolecule)movableList.getAtom(i));
        	}
        	movableSet = box.getMoleculeList(movable);
 

@@ -178,7 +178,7 @@ public class Box implements java.io.Serializable, IBox {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
         for(int i=currentNMolecules; i<n; i++) {
-            addNewMolecule(species);
+            addMolecule(species.makeMolecule());
         }
         for (int i=currentNMolecules; i>n; i--) {
             removeMolecule((IMolecule)moleculeList.getAtom(i-1));

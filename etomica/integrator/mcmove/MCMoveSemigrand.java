@@ -143,7 +143,8 @@ public class MCMoveSemigrand extends MCMoveBox {
             box.addMolecule(insertMolecule);
         }
         else {
-            insertMolecule = (IMolecule)box.addNewMolecule(speciesSet[iInsert]);
+            insertMolecule = speciesSet[iInsert].makeMolecule();
+            box.addMolecule(insertMolecule);
         }
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);
