@@ -1,0 +1,95 @@
+package etomica.modules.sam;
+
+import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.IVector;
+import etomica.potential.PotentialSoft;
+import etomica.space.ISpace;
+import etomica.space.Tensor;
+
+public class P1Sinusoidal implements IPotential, PotentialSoft {
+
+    public P1Sinusoidal(ISpace space) {
+        this.space = space;
+        setB(1);
+        this.offset = space.makeVector();
+        r = space.makeVector();
+        waveVectors = new IVector[3];
+        setCellSize(1,1);
+        gradient = new IVector[1];
+        gradient[0] = space.makeVector();
+    }
+    
+    public void setOffset(IVector newOffset) {
+        offset.E(newOffset);
+    }
+    
+    public IVector getOffset() {
+        return offset;
+    }
+    
+    public void setB(double newB) {
+        b45 = newB/4.5;
+    }
+    
+    public double getB() {
+        return 4.5*b45;
+    }
+    
+    public void setCellSize(double xSize, double zSize) {
+        waveVectors[0] = space.makeVector(new double[]{ 1/xSize, 0, -1/zSize});
+        waveVectors[1] = space.makeVector(new double[]{-1/xSize, 0, -1/zSize});
+        waveVectors[2] = space.makeVector(new double[]{0, 0, 2.0/zSize});
+        waveVectors[0].TE(2.0*Math.PI);
+        waveVectors[1].TE(2.0*Math.PI);
+        waveVectors[2].TE(2.0*Math.PI);
+    }
+    
+    public double energy(IAtomSet atoms) {
+        IAtomPositioned a = (IAtomPositioned)atoms.getAtom(0);
+        r.Ev1Mv2(a.getPosition(), offset);
+        double sum = 0;
+        for (int i=0; i<3; i++) {
+            sum += Math.cos(r.dot(waveVectors[i]));
+        }
+        return b45 * (3.0 - sum);
+    }
+
+    public IVector[] gradient(IAtomSet atoms) {
+        IAtomPositioned a = (IAtomPositioned)atoms.getAtom(0);
+        r.Ev1Mv2(a.getPosition(), offset);
+        gradient[0].E(0);
+        for (int i=0; i<3; i++) {
+            gradient[0].PEa1Tv1(Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
+        }
+        gradient[0].TE(b45);
+        return gradient;
+    }
+
+    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+        return gradient(atoms);
+    }
+
+    public double virial(IAtomSet atoms) {
+        return 0;
+    }
+
+    public double getRange() {
+        return 0;
+    }
+
+    public int nBody() {
+        return 1;
+    }
+
+    public void setBox(IBox box) {}
+
+    protected final ISpace space;
+    protected double b45;
+    protected final IVector offset;
+    protected final IVector r;
+    protected final IVector[] waveVectors;
+    protected final IVector[] gradient;
+}

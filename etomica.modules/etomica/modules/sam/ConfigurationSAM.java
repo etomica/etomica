@@ -5,7 +5,6 @@ import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -13,29 +12,34 @@ import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
+import etomica.config.ConformationChainZigZag;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 
 public class ConfigurationSAM implements Configuration {
 
     public ConfigurationSAM(ISimulation sim, ISpace space,
-            ISpecies speciesMolecules, ISpecies speciesSurface) {
+            ISpecies speciesMolecules, ISpecies speciesSurface,
+            PotentialMasterList potentialMaster) {
         this.sim = sim;
         this.space = space;
         this.speciesMolecules = speciesMolecules;
         this.speciesSurface = speciesSurface;
         moleculeOffset = space.makeVector();
+        this.potentialMaster = potentialMaster;
+        conformation = new ConformationChainZigZag[4];
     }
     
-    public void setSecondaryConformation(IConformation newSecondaryConformation) {
-        secondaryConformation = newSecondaryConformation;
+    public ConformationChainZigZag getConformation(int iChain) {
+        return conformation[iChain];
     }
     
-    public IConformation getSecondaryConformation() {
-        return secondaryConformation;
+    public void setConformation(int iChain, ConformationChainZigZag newConformation) {
+        conformation[iChain] = newConformation;
     }
     
     public void setMoleculeOffset(IVector newMoleculeOffset) {
@@ -49,6 +53,8 @@ public class ConfigurationSAM implements Configuration {
     public void initializeCoordinates(IBox box) {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
+        potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);
+        potentialMaster.getNeighborManager(pretendBox).setDoApplyPBC(false);
         box.setNMolecules(speciesMolecules, 0);
         box.setNMolecules(speciesSurface, 0);
         int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
@@ -69,22 +75,40 @@ public class ConfigurationSAM implements Configuration {
         translator.getTranslationVector().E(moleculeOffset);
         AtomGroupAction groupTranslator = new AtomGroupAction(translator);
         
-        IVector secondaryOffset = space.makeVector();
+        IVector offset = space.makeVector();
 
         IAtomSet molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(0);
             pretendBox.removeMolecule(molecule);
-            box.addMolecule(molecule);
             groupTranslator.actionPerformed(molecule);
-            if (i % 2 == 0 && secondaryConformation != null) {
-                secondaryOffset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
-                secondaryConformation.initializePositions(molecule.getChildList());
-                secondaryOffset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
-                translator.getTranslationVector().E(secondaryOffset);
+            box.addMolecule(molecule);
+            if (i % 2 == 0 && conformation[1] != null) {
+                if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[3] != null) {
+                    offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    conformation[3].initializePositions(molecule.getChildList());
+                    offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    translator.getTranslationVector().E(offset);
+                    groupTranslator.actionPerformed(molecule);
+                    translator.getTranslationVector().E(moleculeOffset);        
+                }
+                else {
+                    offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    conformation[1].initializePositions(molecule.getChildList());
+                    offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    translator.getTranslationVector().E(offset);
+                    groupTranslator.actionPerformed(molecule);
+                    translator.getTranslationVector().E(moleculeOffset);
+                }
+            }
+            else if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[2] != null) {
+                offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                conformation[2].initializePositions(molecule.getChildList());
+                offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                translator.getTranslationVector().E(offset);
                 groupTranslator.actionPerformed(molecule);
-                translator.getTranslationVector().E(moleculeOffset);        
+                translator.getTranslationVector().E(moleculeOffset);
             }
         }
 
@@ -103,6 +127,7 @@ public class ConfigurationSAM implements Configuration {
             IVector pos = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
             pos.setX(1, y0-yOffset);
         }
+        sim.removeBox(pretendBox);
     }
 
     public double getSurfaceYOffset() {
@@ -182,5 +207,6 @@ public class ConfigurationSAM implements Configuration {
     protected Basis basisSurface;
     protected double yOffset;
     protected final IVector moleculeOffset;
-    protected IConformation secondaryConformation;
+    protected ConformationChainZigZag[] conformation;
+    protected PotentialMasterList potentialMaster;
 }

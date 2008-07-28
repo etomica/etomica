@@ -2,8 +2,6 @@ package etomica.modules.sam;
 
 import java.awt.Color;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -27,6 +25,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -38,12 +37,16 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.potential.P2LennardJones;
+import etomica.units.Angle;
 import etomica.units.Bar;
 import etomica.units.Degree;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Length;
+import etomica.units.Null;
 import etomica.units.Pixel;
+import etomica.units.Radian;
 import etomica.util.HistoryCollapsingAverage;
 
 public class SamGraphic extends SimulationGraphic {
@@ -58,8 +61,8 @@ public class SamGraphic extends SimulationGraphic {
         
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(space, sim.wallPotential));
         
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(200, 200, 200));
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH3Type(), new Color(220, 220, 220));
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
 
@@ -97,8 +100,8 @@ public class SamGraphic extends SimulationGraphic {
         JTabbedPane conformationTabs = new JTabbedPane();
         getPanel().controlPanel.add(conformationTabs, SimulationPanel.getVertGBC());
 
-        JPanel chain1 = new JPanel(new GridBagLayout());
-        conformationTabs.add(chain1, "chain 1");
+        JPanel chainThetaPsi = new JPanel(new GridBagLayout());
+        conformationTabs.add(chainThetaPsi, "theta, psi");
         ModifierGeneral thetaModifier = new ModifierGeneral(sim, "chainTheta");
         DeviceSlider thetaSlider = new DeviceSlider(sim.getController(), thetaModifier);
         thetaSlider.setShowBorder(true);
@@ -112,7 +115,7 @@ public class SamGraphic extends SimulationGraphic {
                 sim.config.initializeCoordinates(sim.box);
                 sim.findTetherBonds();
                 try {
-                    sim.integrator.reset();
+                    sim.integrator.initialize();
                 }
                 catch (ConfigurationOverlapException e) {}
                 getPaintAction(sim.box).actionPerformed();
@@ -120,7 +123,7 @@ public class SamGraphic extends SimulationGraphic {
             }
         };
         thetaSlider.setPostAction(reinitAction);
-        chain1.add(thetaSlider.graphic(), SimulationPanel.getVertGBC());
+        chainThetaPsi.add(thetaSlider.graphic(), SimulationPanel.getVertGBC());
 
         ModifierGeneral psiModifier = new ModifierGeneral(sim, "chainPsi");
         DeviceSlider psiSlider = new DeviceSlider(sim.getController(), psiModifier);
@@ -131,53 +134,40 @@ public class SamGraphic extends SimulationGraphic {
         psiSlider.setMaximum(360);
         psiSlider.setShowValues(true);
         psiSlider.setPostAction(reinitAction);
-        chain1.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
+        chainThetaPsi.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
 
-        ModifierGeneral phiModifier = new ModifierGeneral(sim, "chainPhi");
-        DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
-        phiSlider.setShowBorder(true);
-        phiSlider.setUnit(Degree.UNIT);
-        phiSlider.setLabel("Phi");
-        phiSlider.setMinimum(0);
-        phiSlider.setMaximum(360);
-        phiSlider.setShowValues(true);
-        phiSlider.setPostAction(reinitAction);
-        chain1.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
+        JPanel chainPhi = new JPanel(new GridBagLayout());
+        conformationTabs.add(chainPhi, "phi");
 
-        JPanel chain2 = new JPanel(new GridBagLayout());
-        conformationTabs.add(chain2, "chain 2");
-        ModifierGeneral secondaryThetaModifier = new ModifierGeneral(sim, "secondaryChainTheta");
-        DeviceSlider secondaryThetaSlider = new DeviceSlider(sim.getController(), secondaryThetaModifier);
-        secondaryThetaSlider.setShowBorder(true);
-        secondaryThetaSlider.setUnit(Degree.UNIT);
-        secondaryThetaSlider.setLabel("Theta");
-        secondaryThetaSlider.setMinimum(0);
-        secondaryThetaSlider.setMaximum(50);
-        secondaryThetaSlider.setShowValues(true);
-        secondaryThetaSlider.setPostAction(reinitAction);
-        chain2.add(secondaryThetaSlider.graphic(), SimulationPanel.getVertGBC());
+        for (int i=0; i<4; i++) {
+            final int iChain = i;
+            Modifier phiModifier = new Modifier() {
+                public Dimension getDimension() {
+                    return Angle.DIMENSION;
+                }
 
-        ModifierGeneral secondaryPsiModifier = new ModifierGeneral(sim, "secondaryChainPsi");
-        DeviceSlider secondaryPsiSlider = new DeviceSlider(sim.getController(), secondaryPsiModifier);
-        secondaryPsiSlider.setShowBorder(true);
-        secondaryPsiSlider.setUnit(Degree.UNIT);
-        secondaryPsiSlider.setLabel("Psi");
-        secondaryPsiSlider.setMinimum(0);
-        secondaryPsiSlider.setMaximum(360);
-        secondaryPsiSlider.setShowValues(true);
-        secondaryPsiSlider.setPostAction(reinitAction);
-        chain2.add(secondaryPsiSlider.graphic(), SimulationPanel.getVertGBC());
+                public String getLabel() {
+                    return "Phi "+iChain;
+                }
 
-        ModifierGeneral secondaryPhiModifier = new ModifierGeneral(sim, "secondaryChainPhi");
-        DeviceSlider secondaryPhiSlider = new DeviceSlider(sim.getController(), secondaryPhiModifier);
-        secondaryPhiSlider.setShowBorder(true);
-        secondaryPhiSlider.setUnit(Degree.UNIT);
-        secondaryPhiSlider.setLabel("Phi");
-        secondaryPhiSlider.setMinimum(0);
-        secondaryPhiSlider.setMaximum(360);
-        secondaryPhiSlider.setShowValues(true);
-        secondaryPhiSlider.setPostAction(reinitAction);
-        chain2.add(secondaryPhiSlider.graphic(), SimulationPanel.getVertGBC());
+                public double getValue() {
+                    return sim.getChainPhi(iChain);
+                }
+
+                public void setValue(double newValue) {
+                    sim.setChainPhi(iChain, newValue);
+                }
+            };
+            DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
+            phiSlider.setShowBorder(true);
+            phiSlider.setUnit(Degree.UNIT);
+            phiSlider.setLabel("Phi "+(i+1));
+            phiSlider.setMinimum(0);
+            phiSlider.setMaximum(360);
+            phiSlider.setShowValues(true);
+            phiSlider.setPostAction(reinitAction);
+            chainPhi.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
+        }
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
@@ -204,9 +194,41 @@ public class SamGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 10);
 
-        PotentialCalculationForceSumWall forceSum = new PotentialCalculationForceSumWall(sim.wallPotential);
-        sim.integrator.setForceSum(forceSum);
-        MeterWallPressure wallPressure = new MeterWallPressure(forceSum);
+        Modifier nCellsModifier = new Modifier() {
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "num cells";
+            }
+
+            public double getValue() {
+                return sim.getNumXCells()/2;
+            }
+
+            public void setValue(double newValue) {
+                if (newValue > 2 && newValue < 4) return;
+                sim.setNumXCells(2*(int)newValue);
+                sim.setNumZCells((int)newValue);
+            }
+        };
+        DeviceSlider numCellsSlider = new DeviceSlider(sim.getController(), nCellsModifier);
+        numCellsSlider.setShowBorder(true);
+        numCellsSlider.setLabel("# of cells");
+        numCellsSlider.setMinimum(1);
+        numCellsSlider.setMaximum(4);
+        numCellsSlider.doUpdate();
+        numCellsSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
+                getPaintAction(sim.box).actionPerformed();
+                resetAction.actionPerformed();
+            }
+        });
+
+        getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
+        
+        MeterWallPressure wallPressure = new MeterWallPressure(sim.forceSum);
         wallPressure.setBox(sim.box);
         DataFork fork = new DataFork();
         pump = new DataPump(wallPressure, fork);
@@ -276,6 +298,32 @@ public class SamGraphic extends SimulationGraphic {
         historyE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterEnergy.getTag()}, "E");
         plot.setLabel("Energy");
+        
+        final DeviceButton corrugationButton = new DeviceButton(sim.getController());
+        IAction corrugationAction = new IAction() {
+            public void actionPerformed() {
+                sinusoidalEnabled = !sinusoidalEnabled;
+                sim.p1SurfaceBond.setB(sinusoidalEnabled ? sim.sinusoidalB : 0);
+                ((P2LennardJones)sim.p2SulfurSurfaceLJ.getWrappedPotential()).setEpsilon(sinusoidalEnabled ? 0 : 
+                    ((P2LennardJones)sim.p2CH2Surface.getWrappedPotential()).getEpsilon());
+                sim.p2SurfaceBond.setSpringConstant(sinusoidalEnabled ? 0 : sim.harmonicStrength);
+                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getSulfurType() : null);
+
+                sim.config.initializeCoordinates(sim.box);
+                sim.findTetherBonds();
+                try {
+                    sim.integrator.initialize();
+                }
+                catch (ConfigurationOverlapException e) {}
+                getPaintAction(sim.box).actionPerformed();
+                resetAction.actionPerformed();
+                corrugationButton.setLabel(sinusoidalEnabled ? "Harmonic corrugation" : "Sinusoidal corrugation");
+            }
+            boolean sinusoidalEnabled = false;
+        };
+        corrugationButton.setAction(corrugationAction);
+        add(corrugationButton);
+        corrugationButton.setLabel("Sinusoidal corrugation");
 
         add(plot);
     }
