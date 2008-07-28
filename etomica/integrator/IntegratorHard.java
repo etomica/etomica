@@ -25,7 +25,6 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxEvent;
-import etomica.box.BoxListener;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.list.BoxEventNeighborsUpdated;
 import etomica.potential.PotentialCalculation;
@@ -45,7 +44,7 @@ import etomica.util.TreeList;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource, BoxListener {
+public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource {
 
     private static final long serialVersionUID = 1L;
     //handle to the integrator agent holding information about the next collision
@@ -425,6 +424,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     }
 
     public void actionPerformed(BoxEvent boxEvent) {
+        super.actionPerformed(boxEvent);
         if (boxEvent instanceof BoxEventNeighborsUpdated) {
             resetCollisionTimes();
         }
