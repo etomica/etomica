@@ -98,8 +98,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
             IAtom atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
 
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(potentials.length);
-            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(potentials.length);
+            ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).setCapacity(potentials.length);
+            ((AtomPotentialList)agentManager1Body.getAgent((IAtomLeaf)atom)).setCapacity(potentials.length);
         }
     }
 
@@ -271,8 +271,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                    ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom0)).addUpNbr(atom1,i);
+                    ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom1)).addDownNbr(atom0,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -312,8 +312,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                    ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom0)).addUpNbr(atom1,i);
+                    ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom1)).addDownNbr(atom0,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -355,15 +355,15 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     }
     
     public IAtomSet[] getUpList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
+        return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getUpList();
     }
 
     public IAtomSet[] getDownList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
+        return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getDownList();
     }
 
     public AtomPotentialList getPotential1BodyList(IAtom atom) {
-        return (AtomPotentialList)agentManager1Body.getAgent(atom);
+        return (AtomPotentialList)agentManager1Body.getAgent((IAtomLeaf)atom);
     }
     
     public void dispose() {
@@ -450,7 +450,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         
         public void actionPerformed(IAtom atom) {
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
+            ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
@@ -464,7 +464,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
                     continue;
                 }
                 atomSetSinglet.atom = atom;
-                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+                ((AtomPotentialList)agentManager1Body.getAgent((IAtomLeaf)atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
             }
         }
         

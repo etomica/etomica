@@ -185,7 +185,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		IAtomSet leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
+			IAtomLeaf a = (IAtomLeaf)leafList.getAtom(iLeaf);
 			if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -252,7 +252,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		        a = (IAtomPositioned) leafList.getAtom(iLeaf);
 	            if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 	                continue;
-	            ball = (Ball) aam.getAgent(a);
+	            ball = (Ball) aam.getAgent((IAtomLeaf)a);
 		    }
 		    catch (ArrayIndexOutOfBoundsException e) {
 		        System.out.println("oops, array index out of bounds");
@@ -541,8 +541,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		 */
 		// bondType is a potential right now
 		// best to ignore it for now; all bonds are equal
-		Ball ball0 = (Ball) aam.getAgent(pair.getAtom(0));
-		Ball ball1 = (Ball) aam.getAgent(pair.getAtom(1));
+		Ball ball0 = (Ball) aam.getAgent((IAtomLeaf)pair.getAtom(0));
+		Ball ball1 = (Ball) aam.getAgent((IAtomLeaf)pair.getAtom(1));
 		if (ball0 == null || ball1 == null) {
 			System.out.println("NULL!!!");
 			pendingBonds.add(new Object[] { ball0, ball1, bondType });

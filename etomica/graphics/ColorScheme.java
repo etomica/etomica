@@ -4,6 +4,7 @@ import java.awt.Color;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
@@ -69,7 +70,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(sim, 0,5);
       final ColorSchemeColliders ccld = new ColorSchemeColliders(sim, sim.integrator);
       final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box, sp.D());
-      nghb.setAtom(sim.box.getLeafList().getAtom(0));
+      nghb.setAtom((IAtomLeaf)sim.box.getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim, sim.box, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell(sim, (PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);
       cell.setLattice(((PotentialMasterList)sim.potentialMaster).getNbrCellManager(sim.box).getLattice());

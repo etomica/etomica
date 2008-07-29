@@ -92,7 +92,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
             workTensor.TE(((IAtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
             
-            Agent agent = (Agent)agentManager.getAgent(a);
+            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
             IVector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
@@ -121,7 +121,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent(a);
+            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
             agent.rMrLast.Ea1Tv1(timeStep,a.getVelocity());//06/13/03 removed minus sign before timeStep
         }
     }
@@ -143,7 +143,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        Agent agent = (Agent)agentManager.getAgent(atom);
+        Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)atom);
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     

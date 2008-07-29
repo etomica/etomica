@@ -189,7 +189,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             if (calcer == null) {
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    MyAgent agent = (MyAgent)leafAgentManager.getAgent(a);
+                    MyAgent agent = (MyAgent)leafAgentManager.getAgent((IAtomLeaf)a);
                     IVector r = a.getPosition();
                     IVector v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -314,9 +314,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                     workTensor.TE(((IAtomTypeLeaf)a.getType()).getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)leafAgentManager.getAgent(a)).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)leafAgentManager.getAgent((IAtomLeaf)a)).force);
                     }
-                    velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)leafAgentManager.getAgent(a)).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)leafAgentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
                     currentKineticEnergy += velocity.squared()*((IAtomTypeLeaf)a.getType()).getMass();
                 }
                 // skip the rotational stuff
@@ -328,7 +328,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D atomForce = (IVector3D)((MyAgent)leafAgentManager.getAgent(atom)).force;
+                IVector3D atomForce = (IVector3D)((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -617,7 +617,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IAtomSet children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D force = (IVector3D)((MyAgent)leafAgentManager.getAgent(atom)).force;
+                IVector3D force = (IVector3D)((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (force.isZero()) {
                     continue;
                 }

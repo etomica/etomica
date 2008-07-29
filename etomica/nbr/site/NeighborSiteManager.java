@@ -82,7 +82,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
                 "Cell assignments are made automagically.  This method isn't here.  Really.");
     }
     
-    public AtomSite getSite(IAtom atom) {
+    public AtomSite getSite(IAtomLeaf atom) {
         return (AtomSite)agentManager.getAgent(atom);
     }
     

@@ -3,7 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -25,7 +25,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
 		//color all atoms according to their type
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {
@@ -35,7 +35,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
         nbrIterator.reset();
         for (IAtomSet pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
-            IAtom atom = pair.getAtom(1);
+            IAtomLeaf atom = (IAtomLeaf)pair.getAtom(1);
             if(atom.getType() == referenceAtom.getType()) {
                 agentManager.setAgent(atom, Color.blue);
             } else {
@@ -46,17 +46,17 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
         agentManager.setAgent(referenceAtom, Color.green);
     }
     
-    public void setAtom(IAtom a) {
+    public void setAtom(IAtomLeaf a) {
         referenceAtom = a;
         nbrIterator.setTarget(a);
     }
 
-    public IAtom getAtom() {
+    public IAtomLeaf getAtom() {
         return referenceAtom;
     }
     
     private static final long serialVersionUID = 1L;
-    private IAtom referenceAtom;
+    private IAtomLeaf referenceAtom;
     private final Api1ACell nbrIterator;
     private final IAtomSet leafList;
     private final ColorSchemeByType typeColorScheme;

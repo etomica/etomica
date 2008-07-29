@@ -223,8 +223,12 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         }
     }
     
-    public Cell getCell(IAtom atom) {
+    public Cell getCell(IAtomLeaf atom) {
         return (Cell)agentManager.getAgent(atom);
+    }
+
+    public Cell getCell(IMolecule molecule) {
+        return (Cell)moleculeAgentManager.getAgent(molecule);
     }
 
     /**
@@ -377,12 +381,13 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         private void updateCell(IAtom atom) {
             if (atom.getType().isInteracting()) {
                 IBoundary boundary = box.getBoundary();
-                Cell cell = neighborCellManager.getCell(atom);
-                // we only need to remove the atom from the cell's list and
-                // not de-associate the atom from the cell.  assignCell below
-                // will do that.
-                cell.removeAtom(atom);
                 if (atom instanceof IMolecule) {
+                    // we only need to remove the atom from the cell's list and
+                    // not de-associate the atom from the cell.  assignCell below
+                    // will do that.
+                    Cell cell = neighborCellManager.getCell((IMolecule)atom);
+                    cell.removeAtom(atom);
+
                     IVector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);
@@ -391,6 +396,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                     neighborCellManager.assignCell((IMolecule)atom);
                 }
                 else {
+                    Cell cell = neighborCellManager.getCell((IAtomLeaf)atom);
+                    cell.removeAtom(atom);
                     boundary.nearestImage(((IAtomPositioned)atom).getPosition());
                     neighborCellManager.assignCell((IAtomLeaf)atom);
                 }

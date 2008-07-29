@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -15,10 +15,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.units.Dimension;
-import etomica.units.Length;
 
 public class EwaldSummation implements IPotential{
 	
@@ -183,7 +180,7 @@ public class EwaldSummation implements IPotential{
 				int numSites = moleculei.getChildList().getAtomCount();
 					
 				for (int a=0; a<numSites; a++){
-					IAtom sitea = moleculei.getChildList().getAtom(a);
+					IAtomLeaf sitea = (IAtomLeaf)moleculei.getChildList().getAtom(a);
 					IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
 					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 					atomPair.atom0 = sitea;
@@ -192,7 +189,7 @@ public class EwaldSummation implements IPotential{
 						IMolecule moleculej = (IMolecule)moleculeList.getAtom(j);
 						
 						for (int b=0; b<numSites; b++){
-							IAtom siteb = moleculej.getChildList().getAtom(b);
+							IAtomLeaf siteb = (IAtomLeaf)moleculej.getChildList().getAtom(b);
 							IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
 							double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
 							atomPair.atom1 = siteb;
@@ -267,7 +264,7 @@ public class EwaldSummation implements IPotential{
 			double imagMagnitude = 0.0;
 			
 			for (int i=0; i<numAtom; i++){
-				IAtom atomi = atomList.getAtom(i);
+				IAtomLeaf atomi = (IAtomLeaf)atomList.getAtom(i);
 				IVector posAtomi = ((IAtomPositioned)atomi).getPosition();
 				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
 				
@@ -321,7 +318,7 @@ public class EwaldSummation implements IPotential{
 		
 			// cancel-Term
 			for (int a=0; a<numSites; a++){
-				IAtom sitea = molecule.getChildList().getAtom(a);
+				IAtomLeaf sitea = (IAtomLeaf)molecule.getChildList().getAtom(a);
 				
 				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 				cancelTerm += prefcancel*chargea*chargea;
@@ -333,8 +330,8 @@ public class EwaldSummation implements IPotential{
 			iterator.reset();
 			
 			for (IAtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
-				IAtom sitea = pair.getAtom(0);
-				IAtom siteb = pair.getAtom(1);
+				IAtomLeaf sitea = (IAtomLeaf)pair.getAtom(0);
+				IAtomLeaf siteb = (IAtomLeaf)pair.getAtom(1);
 				
 				IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
 				IVector posAtomb = ((IAtomPositioned)siteb).getPosition();

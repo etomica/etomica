@@ -3,6 +3,7 @@ package etomica.nbr.cell;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
@@ -76,7 +77,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         if(pair.atom0 == null) return;
         aiOuter.setAtom(targetAtom);
         neighborIterator.checkDimensions();
-        Cell centralCell = cellManager.getCell(targetAtom);
+        Cell centralCell = cellManager.getCell((IAtomLeaf)targetAtom);
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
@@ -161,7 +162,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         upListNow = (direction != IteratorDirective.Direction.DOWN);
         doGoDown = (direction != IteratorDirective.Direction.UP);
         neighborIterator.checkDimensions();
-        Cell centralCell = cellManager.getCell(targetAtom);
+        Cell centralCell = cellManager.getCell((IAtomLeaf)targetAtom);
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
         neighborIterator.setDirection(upListNow ? IteratorDirective.Direction.UP : IteratorDirective.Direction.DOWN);

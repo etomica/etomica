@@ -184,12 +184,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 if (Debug.LEVEL > 1) {
                     IAtom a = debugPair.atom0;
                     if (a != null) {
-                        Agent agent = (Agent)agentManager.getAgent(a);
+                        Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
                         System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
                     }
                     a = debugPair.atom1;
                     if (a != null) {
-                        Agent agent = (Agent)agentManager.getAgent(a);
+                        Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
                         System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
                     }
                 }
@@ -235,7 +235,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
             collisionCount++;
             if (atoms.getAtomCount() == 1) {
-                updateAtom(atoms.getAtom(0));
+                updateAtom((IAtomLeaf)atoms.getAtom(0));
             }
             else {
                 updateAtoms((AtomPair)atoms);
@@ -301,7 +301,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         listToUpdate.remove(listToUpdate.indexOf(colliders.atom0));
         processReverseList();
 
-        Agent agent = ((Agent)agentManager.getAgent(colliders.atom0));
+        Agent agent = ((Agent)agentManager.getAgent((IAtomLeaf)colliders.atom0));
         if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
@@ -317,7 +317,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(box, downList, collisionHandlerDown);
 
-        agent = ((Agent)agentManager.getAgent(colliders.atom1));
+        agent = ((Agent)agentManager.getAgent((IAtomLeaf)colliders.atom1));
         if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
@@ -338,7 +338,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * updates collision time for a single atom (and any atom that might a 
      * collision with the atom)
      */
-    protected void updateAtom(IAtom a) {
+    protected void updateAtom(IAtomLeaf a) {
 
         listToUpdate.clear();
 
@@ -371,7 +371,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         int size = listToUpdate.getAtomCount();
         for (int i=0; i<size; i++) {
             IAtom reverseAtom = listToUpdate.getAtom(i);
-            Agent agent = (Agent)agentManager.getAgent(reverseAtom);
+            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)reverseAtom);
             if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
             }
@@ -399,7 +399,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
+            ((Agent)agentManager.getAgent((IAtomLeaf)a)).decrementCollisionTime(tStep);
 			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
 		}
 	}
@@ -439,7 +439,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
+            ((Agent)agentManager.getAgent((IAtomLeaf)atom)).resetCollisionFull();
         }
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
@@ -448,7 +448,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent(atom);
+            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)atom);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
@@ -482,7 +482,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        updateAtom(atom);
+        updateAtom((IAtomLeaf)atom);
     }
 
     /**
@@ -548,7 +548,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtom atom = leafList.getAtom(iLeaf);
                     if (atom.getType() == type) {
-                        ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
+                        ((Agent)agentManager.getAgent((IAtomLeaf)atom)).setNullPotential(nullPotential);
                     }
                 }
             }
@@ -557,7 +557,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 int nMolecules = moleculeList.getAtomCount();
                 for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
                     IAtom atom = moleculeList.getAtom(iMolecule);
-                    ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
+                    ((Agent)agentManager.getAgent((IAtomLeaf)atom)).setNullPotential(nullPotential);
                 }
             }
         }
@@ -597,7 +597,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
          */
         public void setAtom(IAtom a) {
             atom1 = a;
-            aia = (Agent)integratorAgentManager.getAgent(a);
+            aia = (Agent)integratorAgentManager.getAgent((IAtomLeaf)a);
             minCollisionTime = aia.collisionTime();
         }//end of setAtom
 
@@ -645,7 +645,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 System.out.println("collision down time "+collisionTime+" for atoms "+atoms+" "+pHard.getClass());
             }
 			if(collisionTime < Double.POSITIVE_INFINITY) {
-				Agent aia = (Agent)integratorAgentManager.getAgent(atoms.getAtom(0));
+				Agent aia = (Agent)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0));
 				if(collisionTime < aia.collisionTime()) {
 					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
 						System.out.println("setting down time "+collisionTime+" for atoms "+atoms);
@@ -681,7 +681,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         public void doCalculation(IAtomSet pair, IPotential p) {
             if (pair.getAtomCount() != 2) return;
             // look for pairs in which pair[0] is the collision partner of pair[1]
-            IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.getAtom(0))).collisionPartner();
+            IAtom aPartner = ((Agent)integratorAgentManager.getAgent((IAtomLeaf)pair.getAtom(0))).collisionPartner();
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                 System.out.println(pair.getAtom(0)+" thought it would collide with "+aPartner);
             }

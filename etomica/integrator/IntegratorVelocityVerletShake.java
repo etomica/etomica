@@ -157,7 +157,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = (MyAgent)agentManager.getAgent(a);
+                MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
                 IVector r = a.getPosition();
                 IVector v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -251,7 +251,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
             // v(t+dt) = (r(t+dt) - r(t))/dt + 0.5 * f(t+dt) / m
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
             currentKineticEnergy += ((IAtomTypeLeaf)a.getType()).getMass() * velocity.squared();
         }
         currentKineticEnergy *= 0.5;

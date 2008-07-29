@@ -3,6 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
@@ -10,18 +11,6 @@ import etomica.nbr.site.NeighborSiteManager;
 import etomica.space.ISpace;
 
 
-/**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
- */
-
-/*
- * History
- * Created on May 23, 2005 by kofke
- */
 public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
 
     /**
@@ -35,7 +24,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     }
     
     protected void drawAtom(Graphics g, int origin[], IAtomPositioned atom) {
-        AtomSite site = neighborSiteManager.getSite(atom);
+        AtomSite site = neighborSiteManager.getSite((IAtomLeaf)atom);
         if (site == null) return;
         RectangularLattice lattice = neighborSiteManager.getLattice();
         lattice.latticeIndex(site.getLatticeArrayIndex(),latticeIndex);

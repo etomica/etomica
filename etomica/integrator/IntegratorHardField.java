@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -73,7 +74,7 @@ public final class IntegratorHardField extends IntegratorHard {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
+            HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)a);
             agent.decrementCollisionTime(tStep);
             a.getPosition().PEa1Tv1(tStep,a.getVelocity());
             if(!agent.forceFree) {
@@ -101,7 +102,7 @@ public final class IntegratorHardField extends IntegratorHard {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
-            ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
+            ((HardFieldAgent)agentManager.getAgent((IAtomLeaf)atom)).forceFree = true;
         }
         //zero forces on all atoms
         forceSum.reset();
@@ -120,24 +121,24 @@ public final class IntegratorHardField extends IntegratorHard {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             a.getVelocity().TE(s); //scale momentum
-            ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
+            ((Agent)agentManager.getAgent((IAtomLeaf)a)).eventLinker.sortKey *= rs;
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
-            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);
-            if(!iagent.forceFree) updateAtom(a);//update because not force free
+            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)a);
+            if(!iagent.forceFree) updateAtom((IAtomLeaf)a);//update because not force free
             IAtom partner = iagent.collisionPartner();
             if(partner == null) continue;
-            HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent(partner);
+            HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)partner);
             if(!iagent.forceFree) {
-                updateAtom(partner);//update because partner not force free
+                updateAtom((IAtomLeaf)partner);//update because partner not force free
                 continue;
             }
             if(!jagent.forceFree) {
-                updateAtom(partner);
-                updateAtom(a);
+                updateAtom((IAtomLeaf)partner);
+                updateAtom((IAtomLeaf)a);
             }
         }
         findNextCollider();
@@ -180,7 +181,7 @@ public final class IntegratorHardField extends IntegratorHard {
 
 		public void doCalculation(IAtomSet atoms, IPotential potential) {
 			super.doCalculation(atoms,potential);
-			((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
+			((HardFieldAgent)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).forceFree = false;
 		}
     }
 }

@@ -3,6 +3,7 @@
 package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
@@ -313,8 +314,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             rvx += hv * dr.dot(dv)/r2;
             IVector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
-            ((Agent)integratorAgentManager.getAgent(atom0)).force().ME(f[0]);
-            ((Agent)integratorAgentManager.getAgent(atom1)).force().ME(f[1]);
+            ((Agent)integratorAgentManager.getAgent((IAtomLeaf)atom0)).force().ME(f[0]);
+            ((Agent)integratorAgentManager.getAgent((IAtomLeaf)atom1)).force().ME(f[1]);
         }
     }
 }

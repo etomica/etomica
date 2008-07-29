@@ -31,7 +31,7 @@ public abstract class ColorSchemeCollectiveAgent extends ColorScheme implements 
     public abstract void colorAllAtoms();
     
     public Color getAtomColor(IAtom a) {
-        return (Color)agentManager.getAgent(a);
+        return (Color)agentManager.getAgent((IAtomLeaf)a);
     }
    
     public Class getAgentClass() {

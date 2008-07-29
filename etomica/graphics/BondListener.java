@@ -95,7 +95,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 
-                    ((ArrayList<Object>)atomAgentManager.getAgent(bondedPair.getAtom(0))).add(bond);
+                    ((ArrayList<Object>)atomAgentManager.getAgent((IAtomLeaf)bondedPair.getAtom(0))).add(bond);
                 }
             }
         }
@@ -114,7 +114,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
              molecule = moleculeIterator.nextAtom()) {
             IAtomSet childList = ((IMolecule)molecule).getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent(childList.getAtom(iChild));
+                ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent((IAtomLeaf)childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
                 }

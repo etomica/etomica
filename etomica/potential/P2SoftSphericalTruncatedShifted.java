@@ -16,7 +16,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     		                               double truncationRadius) {
         super(_space, potential, truncationRadius);
     }
-    
+
     /**
      * Returns the wrapped potential.
      */

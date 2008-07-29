@@ -70,7 +70,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
      * Returns the agent associated with the given IAtom.  The IAtom must be
      * from the Box associated with this instance.
      */
-    public Object getAgent(IAtom a) {
+    public Object getAgent(IAtomLeaf a) {
         int idx = box.getLeafIndex(a);
         if (idx < agents.length) {
             return agents[idx];
@@ -84,7 +84,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
      * IAtom's old agent is not released.  This should be done manually if
      * needed.
      */
-    public void setAgent(IAtom a, Object newAgent) {
+    public void setAgent(IAtomLeaf a, Object newAgent) {
         int idx = box.getLeafIndex(a);
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
@@ -167,7 +167,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
                     }
                 }
                 else {
-                    int index = box.getLeafIndex(a);
+                    int index = box.getLeafIndex((IAtomLeaf)a);
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
                         agentSource.releaseAgent(agents[index], (IAtomLeaf)a);
@@ -178,7 +178,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
             else if (evt instanceof BoxAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
                 int oldIndex = ((BoxAtomLeafIndexChangedEvent)evt).getOldIndex();
-                agents[box.getLeafIndex(a)] = agents[oldIndex];
+                agents[box.getLeafIndex((IAtomLeaf)a)] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }

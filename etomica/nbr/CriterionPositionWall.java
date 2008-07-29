@@ -138,13 +138,13 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
 
 	public boolean needUpdate(IAtom atom) {
-        dr = Math.abs(((IAtomPositioned)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
+        dr = Math.abs(((IAtomPositioned)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent((IAtomLeaf)atom)).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+dr+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
-			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
+			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent((IAtomLeaf)atom)).x);
 			System.out.println("new position "+((IAtomPositioned)atom).getPosition().x(neighborDim));
             System.err.println("stop that");
 		}
@@ -185,7 +185,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 	
 	public void reset(IAtom atom) {
-		((DoubleWrapper)agentManager.getAgent(atom)).x = ((IAtomPositioned)atom).getPosition().x(neighborDim);
+		((DoubleWrapper)agentManager.getAgent((IAtomLeaf)atom)).x = ((IAtomPositioned)atom).getPosition().x(neighborDim);
 	}
 
     public Class getAgentClass() {

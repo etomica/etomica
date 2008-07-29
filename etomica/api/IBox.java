@@ -58,6 +58,12 @@ public interface IBox {
     public IAtomSet getLeafList();
 
     /**
+     * Returns the leaf index of the given atom, which corresponds to its
+     * position within the IAtomSet returned by getLeafList
+     */
+    public int getLeafIndex(IAtomLeaf atomLeaf);
+
+    /**
      * Sets the box's boundary to the given IBoundary.
      */
     public void setBoundary(IBoundary newBoundary);
@@ -89,6 +95,4 @@ public interface IBox {
      * molecules of the given species from this box.
      */
     public void removeSpeciesNotify(ISpecies species);
-
-    public int getLeafIndex(IAtom atomLeaf);
 }
