@@ -1,5 +1,6 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IPotential;
@@ -50,18 +51,18 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
                             wallForce -= gradient[0].x(0);
                         }
                     }
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(gradient[0]);
                     break;
                 case 2:
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(gradient[1]);
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(gradient[0]);
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(1))).force().ME(gradient[1]);
                     break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(gradient[i]);
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(i))).force().ME(gradient[i]);
                     }
             }
         }

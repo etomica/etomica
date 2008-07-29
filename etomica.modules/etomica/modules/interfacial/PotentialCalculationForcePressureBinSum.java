@@ -1,5 +1,6 @@
 package etomica.modules.interfacial;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -166,7 +167,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
 		        break;
 			case 1:
 			    // this is our LRC potential
-			    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+			    ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
                 if (takeData) {
                     double x0 = ((IAtomPositioned)atoms.getAtom(0)).getPosition().x(0);
                     // wrap around PBC
@@ -176,8 +177,8 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                 }
 			    break;
 			case 2:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(1))).force().ME(f[1]);
                 if (takeData) {
                     double x0 = ((IAtomPositioned)atoms.getAtom(0)).getPosition().x(0);
                     // wrap around PBC

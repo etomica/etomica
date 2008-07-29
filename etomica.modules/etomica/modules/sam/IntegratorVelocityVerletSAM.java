@@ -1,5 +1,6 @@
 package etomica.modules.sam;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
@@ -44,7 +45,7 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -75,9 +76,9 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
             workTensor.TE(((IAtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent(a)).force);
+                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
             if (a.getType() == sulfurType) {
                 velocity.setX(1, 0);
             }

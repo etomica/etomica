@@ -1,5 +1,6 @@
 package etomica.dimer;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -58,11 +59,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		IVector rij = space.makeVector();
 		switch(nBody) {
 			case 1:
-				((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+				((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
 				break;
 			case 2:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
+                ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(1))).force().ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
@@ -87,11 +88,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                     
                     if(rij.x(2)>0){
                         
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceTop);
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)box.getLeafList().getAtom(i))).force().ME(forceTop);
                     }
                     else{
                         
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceBottom);
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)box.getLeafList().getAtom(i))).force().ME(forceBottom);
                     }
                 }
 		}

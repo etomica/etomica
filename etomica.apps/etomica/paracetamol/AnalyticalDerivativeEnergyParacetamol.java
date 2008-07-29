@@ -2,6 +2,7 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -189,7 +190,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						deltaV.normalize();
 						}
 						
-						moleculeForce.E(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getAtom(q)))
+						moleculeForce.E(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent((IAtomLeaf)molecule.getAtom(q)))
 									   .force);
 						
 						double scalarF = 0;

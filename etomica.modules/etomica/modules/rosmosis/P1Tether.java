@@ -43,14 +43,14 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public double energy(IAtomSet atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVector)agentManager.getAgent(atom));
+        work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
         return 0.5 * epsilon * work.squared();
     }
 
     public IVector[] gradient(IAtomSet atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVector)agentManager.getAgent(atom));
+        work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
         work.TE(epsilon);
         return gradient;
     }

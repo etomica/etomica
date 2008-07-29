@@ -57,7 +57,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * This function return true if the given atom is a radical (meaning that
      * it has only one unreacted site).
      */
-    protected boolean isRadical(IAtom a) {
+    protected boolean isRadical(IAtomLeaf a) {
         IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
         for(int i=0; i < nbrs.length-1; ++i){
             if (nbrs[i] == null) {
@@ -67,14 +67,14 @@ public class P2SquareWellRadical extends P2SquareWell {
         return nbrs[nbrs.length-1] == null;
     }
 
-    protected boolean isEmpty(IAtom a) {
+    protected boolean isEmpty(IAtomLeaf a) {
         return ((IAtom[])agentManager.getAgent(a))[0] == null;
     }
 
     /**
      * This will tell you what the lowest open space is in atom a
      */
-    protected int lowest(IAtom a){
+    protected int lowest(IAtomLeaf a){
         IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
@@ -88,7 +88,7 @@ public class P2SquareWellRadical extends P2SquareWell {
     /**
      * This function tells you if two atoms are bonded
      */
-    protected boolean areBonded(IAtom a, IAtom b){
+    protected boolean areBonded(IAtomLeaf a, IAtomLeaf b){
         IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
@@ -113,7 +113,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * this function will makes a and b unreactive by setting both to be bonded
      * to themselves (a-a, b-b).
      */
-    protected void disproportionate(IAtom a, IAtom b){
+    protected void disproportionate(IAtomLeaf a, IAtomLeaf b){
         int i = lowest(a);
         int j = lowest(b);
         ((IAtom[])agentManager.getAgent(a))[i] = a;
@@ -138,7 +138,7 @@ public class P2SquareWellRadical extends P2SquareWell {
 
             double r2 = dr.squared();
             if (r2 < wellDiameterSquared) {
-                boolean areBonded = areBonded(atom0, atom1);
+                boolean areBonded = areBonded((IAtomLeaf)atom0, (IAtomLeaf)atom1);
                 if (!areBonded) {
                     //inside well but not mutually bonded; collide now if approaching
                     return (dr.dot(dv) < 0) ? falseTime : Double.POSITIVE_INFINITY;
@@ -166,7 +166,9 @@ public class P2SquareWellRadical extends P2SquareWell {
 
         double reduced_m = 2.0 / (((IAtomTypeLeaf)atom0.getType()).rm() + ((IAtomTypeLeaf)atom1.getType()).rm());
 
-        if (areBonded(atom0,atom1)) {		//atoms are bonded to each other
+        IAtomLeaf atomLeaf0 = (IAtomLeaf)atom0;
+        IAtomLeaf atomLeaf1 = (IAtomLeaf)atom1;
+        if (areBonded(atomLeaf0,atomLeaf1)) {		//atoms are bonded to each other
             lastCollisionVirial = reduced_m * bij;
             if (2 * r2 > (coreDiameterSquared + wellDiameterSquared)) {															
                 // there is no escape (Mu Ha Ha Ha!), nudge back inside
@@ -176,10 +178,10 @@ public class P2SquareWellRadical extends P2SquareWell {
         else { 	//not bonded to each other
             //well collision; decide whether to a) bond b) hard core repulsion
             // c) disproportionate
-            boolean radical0 = isRadical(atom0);
-            boolean radical1 = isRadical(atom1);
-            boolean empty0 = isEmpty(atom0);
-            boolean empty1 = isEmpty(atom1);
+            boolean radical0 = isRadical(atomLeaf0);
+            boolean radical1 = isRadical(atomLeaf1);
+            boolean empty0 = isEmpty(atomLeaf0);
+            boolean empty1 = isEmpty(atomLeaf1);
             if (!radical0 && !radical1) {
                 lastCollisionVirial = reduced_m * bij;
                 nudge = eps;
@@ -191,20 +193,20 @@ public class P2SquareWellRadical extends P2SquareWell {
                 if ((!empty0 || !empty1) && random.nextDouble() < combinationProbability) {
                     // react (bond)
                     lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 *2* epsilon/ reduced_m));
-                    bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
+                    bond(atomLeaf0, atomLeaf1);
                     nudge = -eps;
 			    }
                 else {
                     // disproportionate
                     lastCollisionVirial = reduced_m * bij;
-                    disproportionate(atom0, atom1);
+                    disproportionate(atomLeaf0, atomLeaf1);
                     nudge = eps;
                 }
             }
             else if ((radical0 && empty1) || (radical1 && empty0)) {
                 //one is a radical, the other is a monomer.
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
-                bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
+                bond(atomLeaf0, atomLeaf1);
                 nudge = -eps;
             }
             else {

@@ -42,7 +42,7 @@ public class MeterConversion extends DataSourceScalar {
     
     protected void calcConversion(IAtomSet monomerList) {
         for (int i=0; i<monomerList.getAtomCount(); i++) {
-            IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent(((IMolecule)monomerList.getAtom(i)).getChildList().getAtom(0));
+            IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent((IAtomLeaf)((IMolecule)monomerList.getAtom(i)).getChildList().getAtom(0));
             total += bonds.length;
             for (int j=0; j<bonds.length; j++) {
                 if (bonds[j] != null) {

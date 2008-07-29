@@ -211,7 +211,9 @@ public abstract class CoordinateDefinition {
     }
 
     public IVector getLatticePosition(IAtom atom) {
-        return (IVector)siteManager.getAgent(atom);
+        // this impl only handles leaf atoms.  subclasses might override this
+        // method and handle IMolecules.
+        return (IVector)siteManager.getAgent((IAtomLeaf)atom);
     }
     
     public BasisCell[] getBasisCells() {

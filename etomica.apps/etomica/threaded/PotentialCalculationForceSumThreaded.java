@@ -60,10 +60,10 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         IAtomSet atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVector force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
+            IVector force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atomArrayList.getAtom(j))).force();
       
             for(int i=0; i<pc.length; i++){
-                force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
+                force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent((IAtomLeaf)atomArrayList.getAtom(j))).force());
                
                 
             }

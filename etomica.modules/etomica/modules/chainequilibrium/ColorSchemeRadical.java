@@ -30,7 +30,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     }
 
     public Color getAtomColor(IAtom atom) {
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(atom);
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent((IAtomLeaf)atom);
         if (nbrs == null) {
             return ColorScheme.DEFAULT_ATOM_COLOR;
         }
@@ -44,7 +44,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
             if (color != null) {
                 return color;
             }
-            int chainNumber = ((LengthAgent)chainLengthManager.getAgent(atom)).chainNumber % greys.length;
+            int chainNumber = ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)atom)).chainNumber % greys.length;
             return greys[chainNumber];
         }
         return (Color)radicalColorMap.getAgent(atom.getType());
@@ -73,7 +73,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((LengthAgent)chainLengthManager.getAgent(leafList.getAtom(i))).chainNumber = -1;
+            ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainNumber = -1;
         }
 
         int chainNumber = 0;

@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -436,7 +437,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                     iter.reset();
                     for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
-                        agentManager.setAgent(a, null);
+                        agentManager.setAgent((IAtomLeaf)a, null);
                     }
                     try {
                     	sim.integratorHard1.reset();

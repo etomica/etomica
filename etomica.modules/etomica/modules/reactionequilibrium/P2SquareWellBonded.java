@@ -1,9 +1,9 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
-
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
@@ -73,7 +73,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
-            IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
+            IAtom a0Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom0);
             if (a0Partner != atom1) {
 
                 dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -124,8 +124,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
-		IAtom a1Partner = (IAtom)agentManager.getAgent(atom1);
+		IAtom a0Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom0);
+		IAtom a1Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom1);
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);
@@ -159,8 +159,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 					if(a0Partner == atom1)
 					{	
-					    agentManager.setAgent(atom0, null);
-                        agentManager.setAgent(atom1, null);
+					    agentManager.setAgent((IAtomLeaf)atom0, null);
+                        agentManager.setAgent((IAtomLeaf)atom1, null);
 					}
 
 					nudge = eps;
@@ -182,8 +182,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
                 lastEnergyChange = -epsilon;
-                agentManager.setAgent(atom0, atom1);
-                agentManager.setAgent(atom1, atom0);
+                agentManager.setAgent((IAtomLeaf)atom0, (IAtomLeaf)atom1);
+                agentManager.setAgent((IAtomLeaf)atom1, (IAtomLeaf)atom0);
 				nudge = -eps;
 				//System.out.println("bonded");
 			}

@@ -31,7 +31,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((LengthAgent)chainLengthManager.getAgent(leafList.getAtom(i))).chainLength = 0;
+            ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainLength = 0;
         }
 
         for (int i=0; i<nLeaf; i++) {
@@ -84,7 +84,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
     }
 
     public boolean accept(IAtom a) {
-        return ((LengthAgent)chainLengthManager.getAgent(a)).chainLength == maxChainLength;
+        return ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)a)).chainLength == maxChainLength;
     }
 
     private static final long serialVersionUID = 1L;

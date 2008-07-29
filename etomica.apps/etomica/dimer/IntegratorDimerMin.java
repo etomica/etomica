@@ -499,8 +499,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent(list.getAtom(i))).force());
-			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent(listMin.getAtom(i))).force());
+			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent((IAtomLeaf)list.getAtom(i))).force());
+			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -513,7 +513,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
         // Copy forces of dimer ends (R1, R2) to local array
         for(int i=0; i<aF1.length; i++){
-            aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent(listMin.getAtom(i))).force());           
+            aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());           
         }
 	}
 	
@@ -532,7 +532,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent(listMin.getAtom(i))).force());
+            aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }

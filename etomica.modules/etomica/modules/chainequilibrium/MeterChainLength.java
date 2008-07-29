@@ -86,7 +86,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((AtomTag)tagManager.getAgent(leafList.getAtom(i))).tagged = false;
+            ((AtomTag)tagManager.getAgent((IAtomLeaf)leafList.getAtom(i))).tagged = false;
         }
 
         for (int i=0; i<nLeaf; i++) {
