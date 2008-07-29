@@ -23,14 +23,13 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final AtomIteratorAllMolecules iterator;
-    protected double[] uOld, u;
+    protected double[][] uOld;
+    protected double[] u;
     protected final IRandom random;
     protected double energyOld, energyNew /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
-	
-	
 	
 	public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
 		super(potentialMaster);
@@ -43,7 +42,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
         u = new double[coordinateDefinition.getCoordinateDim()];
-        uOld = new double[coordinateDefinition.getCoordinateDim()];
+        uOld = null;         //
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -87,13 +86,8 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         BasisCell cell = cells[0];
         double sqrtCells = Math.sqrt(cells.length);
         double[] calcedU = coordinateDefinition.calcU(cell.molecules);
+        uOld = new double[cells.length][coordinateDim];
         
-        //store old positions.
-        for (int i=0; i<coordinateDim; i++) {
-            uOld[i] = calcedU[i];
-            u[i] = calcedU[i];
-        }
-
         // Select the wave vector whose eigenvectors will be changed.
         int changedWV = random.nextInt(waveVectors.length);
         // Select the eigenvector that will be changed.
@@ -102,18 +96,20 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         //calculate the new positions of the atoms.
         //loop over cells
         for(int iCell = 0; iCell < cells.length; iCell++){
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
+            //store old positions.
+            double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            
+            
+            for(int i = 0; i< coordinateDim; i++){
+            	u[i] = 0;
+            }
+            
+        
+        
+        
+        
         }
-        
-        
-        
         
 //        for (int i=0; i<modes.length; i++) {
 //            double delta = (2*random.nextDouble()-1) * stepSize;
@@ -150,7 +146,8 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
-            coordinateDefinition.setToU(cells[iCell].molecules, uOld);
+        	BasisCell cell = cells[iCell];
+            coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
     }
 
