@@ -4,11 +4,10 @@ package etomica.api;
 public interface IAtom {
 
     /**
-     * Informs the IAtom that it should ask the SpeciesMaster for a global
-     * index (with the Box).  This method should only be called by the
-     * SpeciesMaster.
+     * Sets the atom's global index to the give value.  This method should only
+     * be called by the IBox.
      */
-    public void setGlobalIndex(IBox box);
+    public void setGlobalIndex(int newGlobalIndex);
 
     /**
      * Returns the global index (within the Box) of this Atom.  The global

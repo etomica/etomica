@@ -289,13 +289,7 @@ public class Box implements java.io.Serializable, IBox {
         return leafList;
     }
     
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#requestGlobalIndex()
-	 */
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#requestGlobalIndex()
-	 */
-    public int requestGlobalIndex() {
+    protected int requestGlobalIndex() {
         if (reservoirCount == 0) {
             return ++maxIndex;
         }
@@ -311,16 +305,6 @@ public class Box implements java.io.Serializable, IBox {
             // reservoir is full
             collapseGlobalIndices();
         }
-    }
-    
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#getMaxGlobalIndex()
-	 */
-    /* (non-Javadoc)
-	 * @see etomica.box.IBox#getMaxGlobalIndex()
-	 */
-    public int getMaxGlobalIndex() {
-        return maxIndex;
     }
     
     /**
@@ -391,7 +375,7 @@ public class Box implements java.io.Serializable, IBox {
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("reassigning global index for "+a);
                 }
-                a.setGlobalIndex(this);
+                a.setGlobalIndex(requestGlobalIndex());
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("reassigned global index for "+a+" from "+oldGlobalIndex+" to "+a.getGlobalIndex());
                 }
@@ -491,7 +475,7 @@ public class Box implements java.io.Serializable, IBox {
 	 * @see etomica.box.IBox#addAtomNotify(etomica.api.IAtom)
 	 */
     public void addAtomNotify(IAtom newAtom) {
-        newAtom.setGlobalIndex(this);
+        newAtom.setGlobalIndex(requestGlobalIndex());
         if (newAtom instanceof IAtomLeaf) {
             int globalIndex = newAtom.getGlobalIndex();
             if (globalIndex > leafIndices.length-1) {
@@ -503,7 +487,7 @@ public class Box implements java.io.Serializable, IBox {
             IAtomSet childList = ((IMolecule)newAtom).getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
-                childAtom.setGlobalIndex(this);
+                childAtom.setGlobalIndex(requestGlobalIndex());
                 int globalIndex = childAtom.getGlobalIndex();
                 if (globalIndex > leafIndices.length-1) {
                     leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);

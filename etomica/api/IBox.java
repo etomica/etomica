@@ -6,55 +6,89 @@ public interface IBox {
      * Informs the IBox what its index is.  This should only be called by the
      * ISimulation.
      */
-	public void setIndex(int newIndex);
+    public void setIndex(int newIndex);
 
-	/**
-	 * Returns the IBox's index.
-	 */
-	public int getIndex();
+    /**
+     * Returns the IBox's index.  The index corresponds to the box's position
+     * in the simulation's list of IBoxes.  The index of the first IBox is 0.
+     * The index of the last IBox is n-1, where n is the number of IBoxes.
+     */
+    public int getIndex();
 
-	public void addMolecule(IMolecule molecule);
+    /**
+     * Adds the given molecule to the this box.  The molecule should not
+     * already be in this box and should not be in another IBox.  The molecule
+     * should be a member of an ISpecies which has been added to the
+     * ISimulation.
+     */
+    public void addMolecule(IMolecule molecule);
 
-	public void removeMolecule(IMolecule molecule);
+    /**
+     * Removes the given molecule from this box.  The molecule must be held
+     * by the box before this method is called.
+     */
+    public void removeMolecule(IMolecule molecule);
 
-	public void setNMolecules(ISpecies species, int n);
+    /**
+     * Sets the number of molecules in this box of the given ISpecies to n.
+     * Molecules are added to or removed from the box to achieve the desired
+     * number.
+     */
+    public void setNMolecules(ISpecies species, int n);
 
-	public int getNMolecules(ISpecies species);
+    /**
+     * Returns the number of molecules in this box of the given ISpecies.
+     */
+    public int getNMolecules(ISpecies species);
 
-	public IAtomSet getMoleculeList(ISpecies species);
+    /**
+     * Returns the list of molecules of the given species as an IAtomSet that
+     * are in this box.
+     */
+    public IAtomSet getMoleculeList(ISpecies species);
 
-	public IAtomSet getMoleculeList();
+    /**
+     * Returns a list of all molecules in this box as an IAtomSet.
+     */
+    public IAtomSet getMoleculeList();
 
-	public void setBoundary(IBoundary b);
+    /**
+     * Returns the list of atoms contained in this box.
+     */
+    public IAtomSet getLeafList();
 
-	public IBoundary getBoundary();
+    /**
+     * Sets the box's boundary to the given IBoundary.
+     */
+    public void setBoundary(IBoundary newBoundary);
 
-	public void setDimensions(IVector d);
+    /**
+     * Returns the box's boundary.
+     */
+    public IBoundary getBoundary();
 
-	public void setDensity(double rho);
+    public void setDimensions(IVector d);
 
-	public IBoxEventManager getEventManager();
+    public void setDensity(double rho);
 
-	public void addSpeciesNotify(ISpecies species);
+    /**
+     * Returns the event manager for this box.  
+     * @return
+     */
+    public IBoxEventManager getEventManager();
 
-	/**
-	 * Notifies the SpeciesMaster that a Species has been removed.  This method
-	 * should only be called by the SpeciesManager.
-	 */
-	public void removeSpeciesNotify(ISpecies species);
+    /**
+     * Notifies the IBox that the given species has been added to the
+     * simulation.  This method should only be called by the simulation.
+     */
+    public void addSpeciesNotify(ISpecies species);
 
-	public IAtomSet getLeafList();
+    /**
+     * Notifies the IBox that a Species has been removed.  This method should
+     * only be called by the simulation.  This triggers the removal of all
+     * molecules of the given species from this box.
+     */
+    public void removeSpeciesNotify(ISpecies species);
 
-	public int requestGlobalIndex();
-
-	public int getMaxGlobalIndex();
-
-	public void addAtomNotify(IAtom newAtom);
-
-	//updating of leaf atomList may not be efficient enough for repeated
-	// use, but is probably ok
-	public void removeAtomNotify(IAtom oldAtom);
-
-	public int getLeafIndex(IAtom atomLeaf);
-
+    public int getLeafIndex(IAtom atomLeaf);
 }

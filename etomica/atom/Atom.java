@@ -41,8 +41,8 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     
     public abstract String signature();
     
-    public void setGlobalIndex(IBox box) {
-        globalIndex = box.requestGlobalIndex();
+    public void setGlobalIndex(int newGlobalIndex) {
+        globalIndex = newGlobalIndex;
     }
 
     public final int getGlobalIndex() {
