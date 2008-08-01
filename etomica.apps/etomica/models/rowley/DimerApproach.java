@@ -12,6 +12,8 @@ import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataSourceAtomDistance;
+import etomica.data.DataTableWriter;
+import etomica.data.DataLogger.DataWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
@@ -45,6 +47,35 @@ import etomica.units.UnitRatio;
 
 public class DimerApproach extends Simulation {
 	
+	// True to consider ethanol, false to consider methanol
+    static boolean ethanol = false;
+    
+    // True to use model with point charges, false to use model without point charges
+    public final static boolean pointCharges = true;
+    
+    // ID of approach route (see Rowley et al (2006) for table)
+    static int route = 18;
+	
+	public final static long serialVersionUID = 1L;
+	public ISpecies species;
+	public static SpeciesEthanol speciesEthanol;
+	public static SpeciesMethanol speciesMethanol;
+	public Box box;
+	public PotentialMaster potentialMaster;
+	public IntegratorDimerApproach dimerApproach;
+	public static MeterPotentialEnergy meterPE;
+
+	static IAtomPositioned atom_O_A;
+    static IAtomPositioned atom_aC_A;
+    static IAtomPositioned atom_aH_A;
+    static IAtomPositioned atom_H1_A; 
+    
+    static IAtomPositioned atom_O_B;
+    static IAtomPositioned atom_aC_B;
+    static IAtomPositioned atom_aH_B;
+    
+    
+
 	public DimerApproach() {
 		
 	
@@ -66,7 +97,9 @@ public class DimerApproach extends Simulation {
 		} else {
 			species = new SpeciesMethanol(space, pointCharges);
 			speciesMethanol = (SpeciesMethanol) species;
-			MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges);
+			double sigmaOC = 0.00001;
+			double sigmaOH = 0.05;
+			MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
 		}
 		getSpeciesManager().addSpecies(species);
 		box.setNMolecules(species, 2); // 2 molecules in box...
@@ -111,7 +144,7 @@ public class DimerApproach extends Simulation {
 		dimerApproach.initializeCoordinates();
 		
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);	
-		activityIntegrate.setMaxSteps(50);
+		activityIntegrate.setMaxSteps(75);
 		activityIntegrate.setSleepPeriod(100);
 	
 		getController().addAction(activityIntegrate);	
@@ -145,6 +178,8 @@ public class DimerApproach extends Simulation {
 		sim.dimerApproach.addIntervalAction(dataPumpPE); // measure data at each step
 		
 		dataLoggerPE.setFileName("Potential energy");
+		DataWriter dataWriterR = new DataTableWriter();
+        dataLoggerPE.setDataSink(dataWriterR);
 
 		/*
 	     ****************************************************************************
@@ -154,11 +189,17 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 	   
-        DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(sim.space);
-        DataSourceAtomDistance  dataDistance2 = new DataSourceAtomDistance(sim.space);
-        DataSourceAtomDistance  dataDistance3 = new DataSourceAtomDistance(sim.space);
-        DataSourceAtomDistance  dataDistance4 = new DataSourceAtomDistance(sim.space);
-        DataSourceAtomDistance  dataDistanceGrr = new DataSourceAtomDistance(sim.space);
+		String label1 = "Distance between alpha carbons (Angstroms) ";
+		String label2 = "Distance between oxygen (monomer B) and alpha hydrogen (monomer A) (Angstroms) ";
+		String label3 = "Distance between oxygen (monomer A) and alpha hydrogen (monomer B) (Angstroms) (Angstroms) ";
+		String label4 = "Distance between oxygens (Angstroms) ";
+		String labelGrr = "Distance between oxygen (monomer B) and hydrogen1 (monomer A) (Angstroms) ";
+		
+        DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(label1, sim.space);
+        DataSourceAtomDistance  dataDistance2 = new DataSourceAtomDistance(label2, sim.space);
+        DataSourceAtomDistance  dataDistance3 = new DataSourceAtomDistance(label3, sim.space);
+        DataSourceAtomDistance  dataDistance4 = new DataSourceAtomDistance(label4, sim.space);
+        DataSourceAtomDistance  dataDistanceGrr = new DataSourceAtomDistance(labelGrr, sim.space);
         
         
 		dataDistance1.setAtoms(atom_aC_A, atom_aC_B);
@@ -166,7 +207,9 @@ public class DimerApproach extends Simulation {
 		dataDistance3.setAtoms(atom_O_A,  atom_aH_B);
 		dataDistance4.setAtoms(atom_O_A,  atom_O_B);
 		dataDistanceGrr.setAtoms(atom_O_B,  atom_H1_A);
-	
+		
+		
+	/*
 		DataLogger dataLoggerDistance1 = new DataLogger();
 		DataLogger dataLoggerDistance2 = new DataLogger();
 		DataLogger dataLoggerDistance3 = new DataLogger();
@@ -179,11 +222,11 @@ public class DimerApproach extends Simulation {
 		sim.dimerApproach.addIntervalAction(dataPumpDistance2); 
 		sim.dimerApproach.addIntervalAction(dataPumpDistance3); 
 
-	
-		dataLoggerDistance1.setFileName("Distance between alpha carbons");
+	*/
+		/*dataLoggerDistance1.setFileName("Distance between alpha carbons");
 		dataLoggerDistance2.setFileName("Distance between oxygen (monomer B) and alpha hydrogen (monomer A)");
 		dataLoggerDistance3.setFileName("Distance between oxygen (monomer A) and alpha hydrogen (monomer B)");
-		
+		*/
 		
 		/*
 	     ****************************************************************************
@@ -228,6 +271,7 @@ public class DimerApproach extends Simulation {
             // The default Paint Interval is too infrequent
             simGraphic.setPaintInterval(sim.box, 1);
             //simGraphic.getDisplayBox(sim.box).setShowBoundary(false);
+            //simGraphic.getDisplayBox(sim.box).setLabel("ARGGGG");
   
             
             // Create instances of ColorSchemeByType for reference and target simulations
@@ -301,11 +345,26 @@ public class DimerApproach extends Simulation {
             
             energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
             
-    		ePlot.setDoLegend(true);
+    		//ePlot.setDoLegend(true);
     		
-    		ePlot.getPlot().setXRange(0.0, 14.0);
+    		ePlot.getPlot().setXRange(-2.0, 50.0);
     		
-    		ePlot.getPlot().setYRange(-6, 2);
+    		if (ethanol) {
+    			if (route == 15 || route == 16) {
+    				ePlot.getPlot().setYRange(-6.0, 2.0);
+    			} else {
+    				ePlot.getPlot().setYRange(-2.5, 2.0);
+    			}
+    		} else {
+    			if (route >= 11 && route <= 17) {
+    				ePlot.getPlot().setYRange(-6, 2.0);
+    			} else {
+    				ePlot.getPlot().setYRange(-2.0, 2.0);
+    			}
+    		}
+    		
+    		ePlot.getPlot().setXLabel("Distance between alpha carbons (Angstroms)");
+    		ePlot.getPlot().setYLabel("Potential energy (kcal/mol)");
     		
     		simGraphic.add(ePlot);
     		
@@ -319,7 +378,7 @@ public class DimerApproach extends Simulation {
     	     */
             
         
-            AccumulatorHistory energyHistoryGrr = new AccumulatorHistory();
+           /* AccumulatorHistory energyHistoryGrr = new AccumulatorHistory();
             
             // To use distance between alpha carbons as independent variable for plot, rather than the step number
             energyHistoryGrr.setTimeDataSource(dataDistanceGrr);
@@ -334,7 +393,7 @@ public class DimerApproach extends Simulation {
             
     		ePlotGrr.setDoLegend(true);
     		
-    		simGraphic.add(ePlotGrr);
+    		simGraphic.add(ePlotGrr);*/
             
             simGraphic.makeAndDisplayFrame(appName);
             
@@ -348,32 +407,5 @@ public class DimerApproach extends Simulation {
 	}
 	
 	
-	public final static long serialVersionUID = 1L;
-	public ISpecies species;
-	public static SpeciesEthanol speciesEthanol;
-	public static SpeciesMethanol speciesMethanol;
-	public Box box;
-	public PotentialMaster potentialMaster;
-	public IntegratorDimerApproach dimerApproach;
-	public static MeterPotentialEnergy meterPE;
 	
-	
-	static IAtomPositioned atom_O_A;
-    static IAtomPositioned atom_aC_A;
-    static IAtomPositioned atom_aH_A;
-    static IAtomPositioned atom_H1_A; 
-    
-    static IAtomPositioned atom_O_B;
-    static IAtomPositioned atom_aC_B;
-    static IAtomPositioned atom_aH_B;
-    
-    // True to consider ethanol, false to consider methanol
-    static boolean ethanol = false;
-    
-    // True to use model with point charges, false to use model without point charges
-    public final static boolean pointCharges = false;
-    
-    // ID of approach route (see Rowley et al (2006) for table)
-    static int route = 15;
-
 }

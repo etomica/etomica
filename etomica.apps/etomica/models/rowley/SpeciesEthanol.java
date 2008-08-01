@@ -27,15 +27,15 @@ public class SpeciesEthanol extends Species {
         
         oType = new AtomTypeSphere(Oxygen.INSTANCE, 2.0); // diameter NOT taken to be O-O equilibrium distance
         acType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
-        cType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
         ahType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be aH-aH equilibrium distance
+        cType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
         hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be H-H equilibrium distance
         xType = new AtomTypeSphere(new ElementSimple("X", 1.0), 2.0); // diameter NOT taken to be X-X equilibrium distance
         
         addChildType(oType);
         addChildType(acType);
-        addChildType(cType);
         addChildType(ahType);
+        addChildType(cType);
         addChildType(hType);
         addChildType(xType);
         
@@ -49,8 +49,8 @@ public class SpeciesEthanol extends Species {
          // The order in which the child atoms are added is important; it must match the order of site indices below.
          ethanol.addChildAtom(new AtomLeaf(space, oType));
          ethanol.addChildAtom(new AtomLeaf(space, acType));
-         ethanol.addChildAtom(new AtomLeaf(space, cType));
          ethanol.addChildAtom(new AtomLeaf(space, ahType));
+         ethanol.addChildAtom(new AtomLeaf(space, cType));
          ethanol.addChildAtom(new AtomLeaf(space, hType));
          ethanol.addChildAtom(new AtomLeaf(space, hType));
          ethanol.addChildAtom(new AtomLeaf(space, hType));
@@ -69,12 +69,12 @@ public class SpeciesEthanol extends Species {
          return acType;
      }
      
-     public IAtomTypeSphere getCarbonType() {
-         return cType;
-     }
-
      public IAtomTypeSphere getAlphaHydrogenType() {
          return ahType;
+     }
+     
+     public IAtomTypeSphere getCarbonType() {
+         return cType;
      }
 
      public IAtomTypeSphere getHydrogenType() {
@@ -91,8 +91,8 @@ public class SpeciesEthanol extends Species {
     
     public final static int indexO   = 0;
     public final static int indexaC  = 1;
-    public final static int indexC   = 2;
-    public final static int indexaH  = 3; // ahType
+    public final static int indexaH  = 2; // ahType
+    public final static int indexC   = 3;
     public final static int indexH1a = 4; // hType
     public final static int indexH1b = 5; // hType
     public final static int indexH2a = 6; // hType
@@ -102,5 +102,5 @@ public class SpeciesEthanol extends Species {
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final AtomTypeSphere oType, acType, cType, ahType, hType, xType;
+    protected final AtomTypeSphere oType, acType, ahType, cType, hType, xType;
 }

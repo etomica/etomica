@@ -1,9 +1,9 @@
-package etomica.virial;
+package etomica.models.rowley;
 
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.models.rowley.SpeciesEthanol;
 import etomica.space.ISpace;
+import etomica.virial.SpeciesFactory;
 
 /**
  * SpeciesFactory that makes ethanol.

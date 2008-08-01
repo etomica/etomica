@@ -18,7 +18,7 @@ import etomica.units.UnitRatio;
 public class MethanolPotentialHelper {
 	
 	
-	public static void initPotential(ISpace space, SpeciesMethanol species, PotentialGroup U_a_b, boolean pointCharges) {
+	public static void initPotential(ISpace space, SpeciesMethanol species, PotentialGroup U_a_b, boolean pointCharges, double sigmaOC, double sigmaOH) {
 		
 		IPotential u_O_O;
 		IPotential u_O_aC;
@@ -120,7 +120,7 @@ public class MethanolPotentialHelper {
 	        
 	        // Point charges
 	        double z_O = -0.6423;
-	        double z_aC = 0.2551;
+	        double z_aC = 0.2550; // adapted from published value of 0.0001 s.t. molecule is neutral
 	        double z_aH = 0.3873;
 	        
 	        /* 
@@ -138,15 +138,6 @@ public class MethanolPotentialHelper {
 	         *    effectively becomes a hard-core potential at very small distances.
 	         */
 	        
-	        double cc_O_O  = 0;
-	        double cc_O_aC = 1e-4;
-	        double cc_O_aH = 0.5;
-	        	
-	    	double cc_aC_aC = 0;
-	    	double cc_aC_aH = 0;
-	        	
-	    	double cc_aH_aH = 0;
-	        
 	        
 	        /*
 	        ****************************************************************************
@@ -156,16 +147,16 @@ public class MethanolPotentialHelper {
 	        ****************************************************************************
 	        */
 	        
-	        u_O_O   = new P2ModifiedMorse(space, epsilon_O_O,   re_O_O,   A_O_O,   z_O,  z_O , cc_O_O   );
-	        u_O_aC  = new P2ModifiedMorse(space, epsilon_O_aC,  re_O_aC,  A_O_aC,  z_O,  z_aC, cc_O_aC  );
-	        u_O_aH  = new P2ModifiedMorse(space, epsilon_O_aH,  re_O_aH,  A_O_aH,  z_O,  z_aH, cc_O_aH  );
+	        u_O_O   = new P2ModifiedMorse(space, epsilon_O_O,   re_O_O,   A_O_O,   z_O,  z_O , 0   );
+	        u_O_aC  = new P2ModifiedMorse(space, epsilon_O_aC,  re_O_aC,  A_O_aC,  z_O,  z_aC, sigmaOC  );
+	        u_O_aH  = new P2ModifiedMorse(space, epsilon_O_aH,  re_O_aH,  A_O_aH,  z_O,  z_aH, sigmaOH  );
 	        u_O_H   = new         P2Morse(space, epsilon_O_H,   re_O_H,   A_O_H   );
 	        
-	        u_aC_aC = new P2ModifiedMorse(space, epsilon_aC_aC, re_aC_aC, A_aC_aC, z_aC, z_aC, cc_aC_aC );
-	        u_aC_aH = new P2ModifiedMorse(space, epsilon_aC_aH, re_aC_aH, A_aC_aH, z_aC, z_aH, cc_aC_aH );
+	        u_aC_aC = new P2ModifiedMorse(space, epsilon_aC_aC, re_aC_aC, A_aC_aC, z_aC, z_aC, 0 );
+	        u_aC_aH = new P2ModifiedMorse(space, epsilon_aC_aH, re_aC_aH, A_aC_aH, z_aC, z_aH, 0 );
 	        u_aC_H  = new         P2Morse(space, epsilon_aC_H,  re_aC_H,  A_aC_H  );
 	        
-	        u_aH_aH = new P2ModifiedMorse(space, epsilon_aH_aH, re_aH_aH, A_aH_aH, z_aH, z_aH, cc_aH_aH );
+	        u_aH_aH = new P2ModifiedMorse(space, epsilon_aH_aH, re_aH_aH, A_aH_aH, z_aH, z_aH, 0 );
 	        u_aH_H  = new         P2Morse(space, epsilon_aH_H,  re_aH_H,  A_aH_H  );
 	        u_aH_X  = new         P2Morse(space, epsilon_aH_X,  re_aH_X,  A_aH_X  );
 	        
@@ -316,5 +307,6 @@ public class MethanolPotentialHelper {
 		U_a_b.addPotential(u_X_X,    ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{type_X,   type_X }));
 		
 	}
+	
 
 }
