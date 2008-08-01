@@ -59,15 +59,33 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
     	double expTerm = Math.exp(a*(re-r));
     	double morseTerm = epsilon*(expTerm-1)*(expTerm-1)-epsilon;
     	
-    	if (r < coulombicCutoff) {
-    		// return morseTerm;
-            return Double.POSITIVE_INFINITY;
-        }
     	
-    	// Note: e is the unit of charge in simulation units (rather than Coulombs)
+    	
+    	// Note: e is the unit of charge in simulation units (electron charge rather than Coulombs)
     	double chargeTerm = z1*z2/(4*Math.PI*Constants.EPSILON_0*r);
     	
-    	return morseTerm + chargeTerm;
+    	if (r <= coulombicCutoff) {
+    		
+    		return Double.POSITIVE_INFINITY;
+    		
+    		/*if (a == 5.42872) {
+        		if (r > 1000) {
+        			System.out.println("aC-aC distance = " + r + "Angstroms");
+        		}
+        	}*/
+    	/*} else 	if (r < 100) {
+    			return morseTerm + chargeTerm;
+    	} else {
+    		return morseTerm;
+    		
+        } 
+    	*/
+    		
+	    } else {
+	    	return morseTerm + chargeTerm;
+	    }
+    	
+    	
     }
 
     /**

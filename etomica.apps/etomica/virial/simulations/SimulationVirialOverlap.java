@@ -56,7 +56,10 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimulationVirialOverlap extends Simulation {
 
-
+	/* If this constructor is used to instantiate the simulation, then doWiggle is set to false, and 
+	 * ClusterAbstract[] is set to {refCluster,targetCluster}
+	 */
+	
     public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
             double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         this(aSpace,speciesFactory,temperature,refCluster, targetCluster, false);
@@ -303,7 +306,7 @@ public class SimulationVirialOverlap extends Simulation {
     }
     
     private static final long serialVersionUID = 1L;
-	protected DisplayPlot plot;
+//	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     protected DataPump[] accumulatorPumps;
@@ -320,7 +323,7 @@ public class SimulationVirialOverlap extends Simulation {
     public double refPref;
     protected int blockSize;
 
-    public static void main(String[] args) {
+  /*  public static void main(String[] args) {
 
         int nPoints = 4;
         double temperature = 1.3; //temperature governing sampling of configurations
@@ -375,5 +378,5 @@ public class SimulationVirialOverlap extends Simulation {
         System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-    }
+    }*/
 }

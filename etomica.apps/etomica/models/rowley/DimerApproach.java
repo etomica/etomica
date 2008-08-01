@@ -195,11 +195,11 @@ public class DimerApproach extends Simulation {
 		String label4 = "Distance between oxygens (Angstroms) ";
 		String labelGrr = "Distance between oxygen (monomer B) and hydrogen1 (monomer A) (Angstroms) ";
 		
-        DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(label1, sim.space);
-        DataSourceAtomDistance  dataDistance2 = new DataSourceAtomDistance(label2, sim.space);
-        DataSourceAtomDistance  dataDistance3 = new DataSourceAtomDistance(label3, sim.space);
-        DataSourceAtomDistance  dataDistance4 = new DataSourceAtomDistance(label4, sim.space);
-        DataSourceAtomDistance  dataDistanceGrr = new DataSourceAtomDistance(labelGrr, sim.space);
+        DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(sim.space);
+        DataSourceAtomDistance  dataDistance2 = new DataSourceAtomDistance(sim.space);
+        DataSourceAtomDistance  dataDistance3 = new DataSourceAtomDistance(sim.space);
+        DataSourceAtomDistance  dataDistance4 = new DataSourceAtomDistance(sim.space);
+        DataSourceAtomDistance  dataDistanceGrr = new DataSourceAtomDistance(sim.space);
         
         
 		dataDistance1.setAtoms(atom_aC_A, atom_aC_B);

@@ -272,7 +272,7 @@ public class VirialRowleyAlcohol {
             
             String label1 = "Distance between alpha carbons (Angstroms) ";
     		
-    		DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(label1, space);
+    		DataSourceAtomDistance  dataDistance1 = new DataSourceAtomDistance(space);
     		DataFork dataForkDistance = new DataFork();
     		DataPump dataPumpDistance = new DataPump(dataDistance1, dataForkDistance);
              

@@ -46,6 +46,8 @@ public final class P2Morse extends Potential2SoftSpherical {
     	double r = Math.sqrt(r2);
     	double expTerm1 = Math.exp(a*(re-r));
     	
+    	
+    	
     	return epsilon*(expTerm1-1)*(expTerm1-1)-epsilon;
     }
 
