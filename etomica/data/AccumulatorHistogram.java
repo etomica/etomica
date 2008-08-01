@@ -6,6 +6,7 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Null;
 import etomica.util.Histogram;
 import etomica.util.HistogramCollapsing;
+import etomica.util.HistogramNotSoSimple;
 
 /**
  * Accumulator that keeps histogram of data.
@@ -42,7 +43,9 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Adds each value in the given Data to its own histogram.
      */
     protected void addData(Data inputData) {
-        histogram.addValue(inputData.getValue(0));
+    	if (histogram instanceof HistogramNotSoSimple) {
+    		((HistogramNotSoSimple)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
+    	} else  histogram.addValue(inputData.getValue(0));
     }
 
     /**
@@ -66,7 +69,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        if (inputDataInfo.getLength() != 1) {
+        if (inputDataInfo.getLength() != 1 && inputDataInfo.getLength() != 2) {
             throw new IllegalArgumentException("AccumulatorHistogram can only handle single data");
         }
         setupData();
