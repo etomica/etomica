@@ -20,7 +20,6 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.SimulationContainer;
 import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.units.Pixel;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -176,8 +175,9 @@ public class SimulationGraphic implements SimulationContainer {
 	        if (controllerActions[i] instanceof ActivityIntegrate) {
 
 	        	IIntegrator integrator = ((ActivityIntegrate)controllerActions[i]).getIntegrator();
-
-	            if(box == ((IntegratorBox)integrator).getBox()) {
+	        	
+	     
+	            if(integrator instanceof IntegratorBox && box == ((IntegratorBox)integrator).getBox()) {
 
                     IAction[] boxActions = integrator.getIntervalActions();
 
@@ -186,6 +186,23 @@ public class SimulationGraphic implements SimulationContainer {
                             integrator.setActionInterval(boxActions[j], interval);
                         }
                     }
+		        } else if (integrator instanceof IntegratorManagerMC) {
+
+		        	IIntegrator[] integrators = ((IntegratorManagerMC) integrator).getIntegrators();
+		        	
+		        	for (int k = 0; k < integrators.length; k++) {
+		        		
+		        		if(integrators[k] instanceof IntegratorBox && box == ((IntegratorBox)integrators[k]).getBox()) {
+
+		                    IAction[] boxActions = integrators[k].getIntervalActions();
+
+		            	    for (int j = 0;  j < boxActions.length;  j++) {
+		                        if(boxActions[j] == repaintAction) {
+		                            integrators[k].setActionInterval(boxActions[j], interval);
+		                        }
+		                    }
+		        		}
+		        	}
 		        }
 	        }
 	    }
