@@ -245,7 +245,7 @@ public class VirialRowleyAlcohol {
         
         if (args.length == 4 ) {
         	long seed = Integer.parseInt(args[3]);
-        	((RandomNumberGenerator) sim.random).getWrappedRandom().setSeed(seed);
+        	//((RandomNumberGenerator) sim.random).getWrappedRandom().setSeed(seed);
         	System.out.println();
         	System.out.println("Trying seed = "+ seed);
         	System.out.println();
