@@ -152,6 +152,8 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
+        System.out.println("Accpet.");
+
     }
 
     public double energyChange() {
@@ -165,6 +167,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         	BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
+        System.out.println("Reject");
     }
 
 }

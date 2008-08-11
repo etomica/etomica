@@ -1,5 +1,8 @@
 package etomica.models.oneDHardRods;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomTypeLeaf;
@@ -38,7 +41,8 @@ public class TestMCMove extends Simulation {
     int[] nCells;
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
-
+    double[] locations;
+    
     private static final String APP_NAME = "TestMCMove";
     
 
@@ -50,6 +54,7 @@ public class TestMCMove extends Simulation {
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         box = new Box(this, space);
+        addBox(box);
         box.setNMolecules(species, numAtoms);
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
@@ -75,6 +80,8 @@ public class TestMCMove extends Simulation {
         
         integrator = new IntegratorMC(null, random, temperature);
         integrator.setBox(box);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
         
         nm = new NormalModes1DHR(space.D());
         nm.setHarmonicFudge(harmonicFudge);
@@ -96,7 +103,13 @@ public class TestMCMove extends Simulation {
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
-    }
+        
+        locations = new double[numAtoms];
+//        for(int i = 0; i < numAtoms; i++){
+//        	locations[i] = 
+//        }
+//        
+//    }
     
     /**
      * @param args
@@ -126,7 +139,7 @@ public class TestMCMove extends Simulation {
         double temperature = params.temperature;
         int D = params.D;
         String filename = params.filename;
-        if(filename.length() ==0){
+        if(filename.length() == 0){
         	filename = "normal_modes_1DHR _" + numAtoms;
         }
         String refFileName = args.length>0 ? filename+"_ref" : null;
@@ -141,8 +154,25 @@ public class TestMCMove extends Simulation {
         TestMCMove sim = new TestMCMove(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         ((Controller)sim.getController()).actionPerformed();
         
-        
-        
+//        //print out final positions:
+//        try {
+//            // write averages of exp(-u/kT) for each normal mode
+//            FileWriter fileWriterE = new FileWriter(filename+".e");
+//            for (int i = 0; i<harmonicModesAvg.getArrayShape(0); i++) {
+//                idx[0] = i;
+//                idx[1] = 0;
+//                fileWriterE.write(Double.toString(harmonicModesAvg.getValue(idx)));
+//                for (int j=1; j<harmonicModesAvg.getArrayShape(1); j++) {
+//                    idx[1] = j;
+//                    fileWriterE.write(" "+harmonicModesAvg.getValue(idx));
+//                }
+//                fileWriterE.write("\n");
+//            }
+//            fileWriterE.close();
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException("Oops, failed to write data "+e);
+//        }
         
         
         
