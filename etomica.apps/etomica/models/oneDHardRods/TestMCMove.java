@@ -109,7 +109,7 @@ public class TestMCMove extends Simulation {
 //        	locations[i] = 
 //        }
 //        
-//    }
+    }
     
     /**
      * @param args
