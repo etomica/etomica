@@ -130,7 +130,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 // crankshaft move.  atom j is rotated around the j-1 - j+1 bond.
                 // j-1 - j and j - j+1 bond lengths are unaltered.
 
-//                System.out.println("middle move "+j);
+//                System.out.println("middle move "+j+" "+position);
                 IVector position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
                 IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
                 work1.Ev1Mv2(position0, position);
@@ -148,17 +148,20 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                     translationVectors[i].E(0);
                     continue;
                 }
-                work2.Ev1Pv2(position0, position2);
-                work2.TE(0.5);
-                //work1 is vector between the 0-2 midpoint and 1
-                work1.Ev1Mv2(position,work2);
-                position.E(work2);
-                work2.ME(position0);
-                work2.TE(-1);
+                work1.TE(-1);
+                work2.Ev1Mv2(position2, position0);
+                work2.TE(work1.dot(work2)/work2.squared());
+                // work2 is now the projection of r01 onto r02
+                
+                // place atom1... well, here
+                position.Ev1Pv2(position0, work2);
+                
+                work1.ME(work2);
                 work2.XE(work1);
-                //work2 is vector between the 0-2 midpoint and 0, normalized to
-                //to be the same length as work1
                 work2.TE(Math.sqrt(work1.squared()/work2.squared()));
+                // work1 is perpendicular to r02 and goes from the line
+                // connecting 0 and 2 to 1.  work2 is perpendicular to r02 and
+                // work1 and has the same length as work1.
             }
             
             double theta = (random.nextDouble()-0.5)*stepSize;
