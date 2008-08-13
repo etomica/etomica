@@ -83,7 +83,6 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
 //    }
 //    
     public boolean doTrial() {
-    	System.out.println("dotrial called");
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -152,8 +151,6 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("Accpet.");
-
     }
 
     public double energyChange() {
@@ -167,7 +164,6 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         	BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
-        System.out.println("Reject");
     }
 
 }

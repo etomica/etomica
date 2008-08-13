@@ -5,8 +5,10 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -90,9 +92,6 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        //nan WAVE VECTOR FACTORY STUFF GOES HERE
-        
-        
         MCMoveChangeMode convert = new MCMoveChangeMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -105,10 +104,13 @@ public class TestMCMove extends Simulation {
         potentialMaster.getNeighborManager(box).reset();
         
         locations = new double[numAtoms];
-//        for(int i = 0; i < numAtoms; i++){
-//        	locations[i] = 
-//        }
-//        
+        IAtomSet leaflist = box.getLeafList();
+        for(int i = 0; i < numAtoms; i++){
+        	//one d is assumed here.
+        	locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+        }
+        
+        
     }
     
     /**
@@ -133,7 +135,7 @@ public class TestMCMove extends Simulation {
         	readParameters.readParameters();
         }
         double density = params.density;
-        double numSteps = params.numSteps;
+        long numSteps = params.numSteps;
         int numAtoms = params.numAtoms;
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
@@ -152,27 +154,30 @@ public class TestMCMove extends Simulation {
         
         //instantiate simulation
         TestMCMove sim = new TestMCMove(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        sim.activityIntegrate.setMaxSteps(numSteps);
         ((Controller)sim.getController()).actionPerformed();
         
-//        //print out final positions:
-//        try {
-//            // write averages of exp(-u/kT) for each normal mode
-//            FileWriter fileWriterE = new FileWriter(filename+".e");
-//            for (int i = 0; i<harmonicModesAvg.getArrayShape(0); i++) {
-//                idx[0] = i;
-//                idx[1] = 0;
-//                fileWriterE.write(Double.toString(harmonicModesAvg.getValue(idx)));
-//                for (int j=1; j<harmonicModesAvg.getArrayShape(1); j++) {
-//                    idx[1] = j;
-//                    fileWriterE.write(" "+harmonicModesAvg.getValue(idx));
-//                }
-//                fileWriterE.write("\n");
-//            }
-//            fileWriterE.close();
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException("Oops, failed to write data "+e);
-//        }
+        //calculate the differences in position:
+        IAtomSet leaflist = sim.box.getLeafList();
+        for(int i = 0; i < numAtoms; i++){
+        	//one d is assumed here.
+        	sim.locations[i] -= ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+        }
+        
+        
+        
+        //print out final positions:
+        try {
+            FileWriter fileWriterE = new FileWriter(filename+".e");
+            for (int i = 0; i<numAtoms; i++) {
+                fileWriterE.write(Double.toString(sim.locations[i]));
+            }
+            fileWriterE.write("\n");
+            fileWriterE.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Oops, failed to write data "+e);
+        }
         
         
         
@@ -187,7 +192,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
