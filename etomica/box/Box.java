@@ -96,8 +96,12 @@ public class Box implements java.io.Serializable, IBox {
     
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
-        if (moleculeLists[speciesIndex].contains(molecule)) {
-            throw new RuntimeException("you bastard!");
+        if (Debug.ON) {
+            for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
+                if (moleculeLists[speciesIndex].getAtom(i) == molecule) {
+                    throw new RuntimeException("you bastard!");
+                }
+            }
         }
         molecule.setIndex(moleculeLists[speciesIndex].getAtomCount());
         moleculeLists[speciesIndex].add(molecule);
@@ -138,11 +142,17 @@ public class Box implements java.io.Serializable, IBox {
         if(n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
-        for(int i=currentNMolecules; i<n; i++) {
-            addMolecule(species.makeMolecule());
+        if (n > currentNMolecules) {
+            moleculeLists[species.getIndex()].ensureCapacity(n);
+            leafList.ensureCapacity(leafList.getAtomCount()+(n-currentNMolecules)*species.getNumLeafAtoms());
+            for(int i=currentNMolecules; i<n; i++) {
+                addMolecule(species.makeMolecule());
+            }
         }
-        for (int i=currentNMolecules; i>n; i--) {
-            removeMolecule((IMolecule)moleculeList.getAtom(i-1));
+        else {
+            for (int i=currentNMolecules; i>n; i--) {
+                removeMolecule((IMolecule)moleculeList.getAtom(i-1));
+            }
         }
     }
     
