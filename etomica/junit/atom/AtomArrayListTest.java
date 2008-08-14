@@ -7,6 +7,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.util.Debug;
 
 public class AtomArrayListTest extends TestCase {
 	
@@ -343,16 +344,19 @@ public class AtomArrayListTest extends TestCase {
 
     	assertNotSame(preRemove, postRemove);
 
-    	try {
-    		arrayList.getAtom(size-1);
-    		// If an exception is not thrown, then the test
-    		// has failed.  Fail test with an assertion that
-    		// will fail.
-            assertNotNull(null);
-		}
-    	catch (IndexOutOfBoundsException e) {
-			System.out.println(e);
-		}
+    	if (Debug.ON) {
+    	    // AtomArrayList.getAtom only does a range check if Debug is ON
+        	try {
+        		arrayList.getAtom(size-1);
+        		// If an exception is not thrown, then the test
+        		// has failed.  Fail test with an assertion that
+        		// will fail.
+                assertNotNull(null);
+    		}
+        	catch (IndexOutOfBoundsException e) {
+    			System.out.println(e);
+    		}
+    	}
 
 	}
 
@@ -374,15 +378,19 @@ public class AtomArrayListTest extends TestCase {
 		assertSame(atomList[2], removeAtom);
 		assertSame(atomList[size-1], arrayList.getAtom(2));
 
-		try {
-		    arrayList.getAtom(size-1);
-			// Exception not thrown which indicates failure.
-			// Fail test with any assertion that will fail.
-			assertNotNull(null);
-		}
-		catch (IndexOutOfBoundsException e) {
-			System.out.println(e);
-		}
+        if (Debug.ON) {
+            // AtomArrayList.getAtom only does a range check if Debug is ON
+            try {
+                arrayList.getAtom(size-1);
+                // If an exception is not thrown, then the test
+                // has failed.  Fail test with an assertion that
+                // will fail.
+                assertNotNull(null);
+            }
+            catch (IndexOutOfBoundsException e) {
+                System.out.println(e);
+            }
+        }
 
 		// Now, there are 4 items in the list.
 		// from atomList, as ordered in the list :  0, 1, 4, 3 
@@ -393,15 +401,18 @@ public class AtomArrayListTest extends TestCase {
 		removeAtom = arrayList.removeAndReplace(3);
 		assertSame(atomList[3], removeAtom);
 
-		try {
-			IAtom atom = arrayList.getAtom(3);
-			// Exception not thrown which indicates failure.
-			// Fail test with any assertion that will fail.
-			assertNotNull(null);
-		}
-		catch (IndexOutOfBoundsException e) {
-			System.out.println(e);
-		}
+        if (Debug.ON) {
+            // AtomArrayList.getAtom only does a range check if Debug is ON
+    		try {
+    			IAtom atom = arrayList.getAtom(3);
+    			// Exception not thrown which indicates failure.
+    			// Fail test with any assertion that will fail.
+    			assertNotNull(null);
+    		}
+    		catch (IndexOutOfBoundsException e) {
+    			System.out.println(e);
+    		}
+        }
 	}
 
 	/*
@@ -422,15 +433,18 @@ public class AtomArrayListTest extends TestCase {
 		arrayList.clear();
 		assertEquals(size, arrayList.sizeOfArray());
 		assertTrue(arrayList.isEmpty());
-		try {
-			IAtom atom = arrayList.getAtom(0);
-    		// If an exception is not thrown, then the test
-    		// has failed.  Fail test with an assertion that
-    		// will fail.
-            assertNotNull(null);
-		}
-    	catch (IndexOutOfBoundsException e) {
-			System.out.println(e);
+		if (Debug.ON) {
+            // AtomArrayList.getAtom only does a range check if Debug is ON
+    		try {
+    			IAtom atom = arrayList.getAtom(0);
+        		// If an exception is not thrown, then the test
+        		// has failed.  Fail test with an assertion that
+        		// will fail.
+                assertNotNull(null);
+    		}
+        	catch (IndexOutOfBoundsException e) {
+    			System.out.println(e);
+    		}
 		}
 	}
 
