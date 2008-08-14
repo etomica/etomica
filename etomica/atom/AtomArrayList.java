@@ -20,6 +20,10 @@ public class AtomArrayList implements IAtomSet {
         atomList = new IAtom[initialSize];
     }
 
+    public static float getSizeIncreaseRatio() {
+        return SIZE_INCREASE_RATIO;
+    }
+
     public void trimToSize() {
         if(itemsInList < atomList.length) {
             IAtom[] tempList = toArray();
