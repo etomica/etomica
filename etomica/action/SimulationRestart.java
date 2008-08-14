@@ -2,7 +2,6 @@ package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IBox;
 import etomica.api.IIntegrator;
 import etomica.api.ISimulation;
 import etomica.config.Configuration;
@@ -11,6 +10,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
 
@@ -67,22 +67,24 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
         
-        IAction[] currentActions = simulation.getController().getCurrentActions();
-        if (currentActions.length == 1) {
-            IAction currentAction = currentActions[0];
-            if (currentAction instanceof ActivityIntegrate) {
-                IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
-                if(integrator.isInitialized()) {
-                    try {
-                        integrator.initialize();
-                    }
-                    catch (ConfigurationOverlapException e) {
-                        if (!ignoreOverlap) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
+        if(simulation instanceof Simulation) {
+	        IAction[] currentActions = ((Simulation)simulation).getController().getCurrentActions();
+	        if (currentActions.length == 1) {
+	            IAction currentAction = currentActions[0];
+	            if (currentAction instanceof ActivityIntegrate) {
+	                IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
+	                if(integrator.isInitialized()) {
+	                    try {
+	                        integrator.initialize();
+	                    }
+	                    catch (ConfigurationOverlapException e) {
+	                        if (!ignoreOverlap) {
+	                            throw new RuntimeException(e);
+	                        }
+	                    }
+	                }
+	            }
+	        }
         }
         accumulatorAction.actionPerformed();
     }

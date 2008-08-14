@@ -17,6 +17,7 @@ import etomica.api.IIntegrator;
 import etomica.api.ISimulation;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
+import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -50,27 +51,27 @@ public class SimulationGraphic implements SimulationContainer {
     protected final ISpace space;
 
 
-    public SimulationGraphic(ISimulation simulation, ISpace space) {
+    public SimulationGraphic(Simulation simulation, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, ISpace space) {
+    public SimulationGraphic(Simulation simulation, int graphicType, ISpace space) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName, ISpace space) {
+    public SimulationGraphic(Simulation simulation, String appName, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, ISpace space) {
+    public SimulationGraphic(Simulation simulation, int graphicType, String appName, ISpace space) {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval, ISpace space) {
+    public SimulationGraphic(Simulation simulation, String appName, int updateInterval, ISpace space) {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName,
+    public SimulationGraphic(Simulation simulation, int graphicType, String appName,
     		                 int updateInterval, ISpace space) {
         this.simulation = simulation;
         this.space = space;
@@ -107,7 +108,7 @@ public class SimulationGraphic implements SimulationContainer {
 	}
      
 	private void setupDisplayBox() {
-	    IController controller = simulation.getController();
+	    IController controller = ((Simulation)simulation).getController();
 	    IAction[] activities = controller.getPendingActions();
 	    LinkedList boxList = new LinkedList();
 	    for (int i=0; i<activities.length; i++) {
@@ -169,7 +170,7 @@ public class SimulationGraphic implements SimulationContainer {
     public void setPaintInterval(IBox box, int interval) {
 
     	IAction repaintAction = (IAction)repaintActions.get(box);
-	    IAction[] controllerActions = simulation.getController().getAllActions();
+	    IAction[] controllerActions = ((Simulation)simulation).getController().getAllActions();
 
 	    for (int i = 0;  i < controllerActions.length;  i++) {
 	        if (controllerActions[i] instanceof ActivityIntegrate) {

@@ -25,12 +25,6 @@ public interface ISimulation {
     public IBox getBox(int index);
 
     /**
-     * Returns the Controller used to run the simulation's Actions and 
-     * Activities.
-     */
-    public IController getController();
-
-    /**
      * Returns the Simulation's random number generator.
      */
     public IRandom getRandom();

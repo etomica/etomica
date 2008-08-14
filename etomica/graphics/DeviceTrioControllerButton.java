@@ -11,6 +11,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.ISimulation;
 import etomica.data.DataPump;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.ISpace;
 
@@ -37,7 +38,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(ISimulation simulation, ISpace space) {
+    public DeviceTrioControllerButton(Simulation simulation, ISpace space) {
         this();
         setSimulation(simulation, space);
     }
@@ -68,7 +69,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    protected void setSimulation(ISimulation sim, ISpace space) {
+    protected void setSimulation(Simulation sim, ISpace space) {
         simulation = sim;
         simRestart = new SimulationRestart(sim, space);
         final Controller c = (Controller)sim.getController();

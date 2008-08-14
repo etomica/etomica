@@ -10,6 +10,7 @@ import etomica.api.IController;
 import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
@@ -28,46 +29,45 @@ public class DeviceThermoSelector extends Device {
     /**
      * Constructor that specifies Kelvin as temperature units.
      */
-     public DeviceThermoSelector(ISimulation sim, final IntegratorBox integrator) {
+    public DeviceThermoSelector(Simulation sim, final IntegratorBox integrator) {
         this(sim.getController(), Kelvin.UNIT, false);
         setController(controller);
         setIntegrator(integrator);
-     }
+    }
      
-     public DeviceThermoSelector(IController controller, Unit tempUnit, boolean fixOverlap) {
-        super(controller);
-        selector = new javax.swing.JComboBox(new Object[] {new Object()});
-        setTemperatures(new double[] {200.0, 400.0, 600.0});
-        selector.setEditable(false);
-        label = new javax.swing.JLabel("");
-        if (!tempUnit.dimension().equals(Temperature.DIMENSION)) {
-            throw new IllegalArgumentException("temperature unit must have dimensions of temperature");
-        }
-        setUnit(tempUnit);
-        this.fixOverlap = fixOverlap;
+    public DeviceThermoSelector(IController controller, Unit tempUnit, boolean fixOverlap) {
+         super(controller);
+         selector = new javax.swing.JComboBox(new Object[] {new Object()});
+         setTemperatures(new double[] {200.0, 400.0, 600.0});
+         selector.setEditable(false);
+         label = new javax.swing.JLabel("");
+         if (!tempUnit.dimension().equals(Temperature.DIMENSION)) {
+             throw new IllegalArgumentException("temperature unit must have dimensions of temperature");
+         }
+         setUnit(tempUnit);
+         this.fixOverlap = fixOverlap;
 
-        panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
-        panel.add(label, java.awt.BorderLayout.NORTH);
-        panel.add(selector, java.awt.BorderLayout.SOUTH);
-        panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
+         panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
+         panel.add(label, java.awt.BorderLayout.NORTH);
+         panel.add(selector, java.awt.BorderLayout.SOUTH);
+         panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
 
-        
-        //listener to combo box gets value and initiates action
-        selector.addItemListener( new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                Object item = event.getItem();
-                if(item==adiabaticString) {
-                    isothermal = false;
-                } else {
-                    isothermal = true;
-                    temperature = unit.toSim(((Double)item).doubleValue());
-                }
-                doAction(targetAction);
-            }
-        });
-       
+         
+         //listener to combo box gets value and initiates action
+         selector.addItemListener( new ItemListener() {
+             public void itemStateChanged(ItemEvent event) {
+                 Object item = event.getItem();
+                 if(item==adiabaticString) {
+                     isothermal = false;
+                 } else {
+                     isothermal = true;
+                     temperature = unit.toSim(((Double)item).doubleValue());
+                 }
+                 doAction(targetAction);
+             }
+         });
     }//end of constructor
-    
+
     /**
      * set the integrator's temperature to the selected value
      */

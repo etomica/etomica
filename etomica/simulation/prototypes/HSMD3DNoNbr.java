@@ -93,13 +93,13 @@ public class HSMD3DNoNbr extends Simulation {
     	}
     	
     	// Serialize back
-    	ISimulation simulation = null;
+    	Simulation simulation = null;
     	try
     	{
     	    FileInputStream fis = null;
     	    fis = new FileInputStream(filename);
     	    ObjectInputStream in = new ObjectInputStream(fis);
-    	    simulation = (ISimulation) in.readObject();
+    	    simulation = (Simulation) in.readObject();
     	    in.close();
     	    fis.close();
     	    
@@ -112,8 +112,9 @@ public class HSMD3DNoNbr extends Simulation {
     	}
 		
 	    // go daddy
-	    simulation.getController().actionPerformed();
+	    ((Simulation)simulation).getController().actionPerformed();
 	    System.out.println( "Simulation run ok");
+
 		
     }
 }//end of class
