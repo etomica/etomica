@@ -111,7 +111,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             }
             
             //loop over the wavevectors, and sum contribution of each to the
-            //generalized coordinates.  Change the selected wavevector's eigen
+            //generalized coordinates.  Change the selected wavevector's eigen-
             //vectors at the same time!
             for(int iVector = 0; iVector < waveVectors.length; iVector++){
             	double kR = waveVectors[iVector].dot(cell.cellPosition);
@@ -119,12 +119,17 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             	double sinkR = Math.sin(kR);
             	for(int i = 0; i < coordinateDim; i++){
             		for(int j = 0; j < coordinateDim; j++){
-            			if(iVector == changedWV && i == changedEV){
-            	            double delta = (2*random.nextDouble()-1) * stepSize;
-            	            u[j] += delta *eigenVectors[iVector][i][j] / sqrtCells;
-            			} else {
-            				u[j] += eigenVectors[iVector][i][j];
-            			}
+//            			if(iVector == changedWV && i == changedEV){
+//            	            double delta = (2*random.nextDouble()-1) * stepSize;
+//            	            u[j] += delta *eigenVectors[iVector][i][j] / sqrtCells;
+//            			} else {
+//            				u[j] += eigenVectors[iVector][i][j];
+//            			}
+                        
+                        
+            			
+            			
+            			
             			
             		}
             	}

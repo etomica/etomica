@@ -17,6 +17,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
@@ -61,6 +62,7 @@ public class TestMCMove extends Simulation {
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
+        p2.setBox(box);
         potentialMaster.addPotential(p2, new IAtomTypeLeaf[]
                 {species.getLeafType(), species.getLeafType()});
         
@@ -80,7 +82,7 @@ public class TestMCMove extends Simulation {
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
         
-        integrator = new IntegratorMC(null, random, temperature);
+        integrator = new IntegratorMC(potentialMaster, random, temperature);
         integrator.setBox(box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -108,6 +110,7 @@ public class TestMCMove extends Simulation {
         for(int i = 0; i < numAtoms; i++){
         	//one d is assumed here.
         	locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+        	System.out.println(locations[i]);
         }
         
         
@@ -168,9 +171,10 @@ public class TestMCMove extends Simulation {
         
         //print out final positions:
         try {
-            FileWriter fileWriterE = new FileWriter(filename+".e");
+            FileWriter fileWriterE = new FileWriter(filename+".txt");
             for (int i = 0; i<numAtoms; i++) {
                 fileWriterE.write(Double.toString(sim.locations[i]));
+                fileWriterE.write("\n");
             }
             fileWriterE.write("\n");
             fileWriterE.close();
@@ -192,7 +196,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000000;
+        public long numSteps = 100;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
