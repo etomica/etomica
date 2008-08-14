@@ -2,8 +2,7 @@ package etomica.junit.atom;
 
 import junit.framework.TestCase;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
-import etomica.atom.AtomArrayListTemp;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.space.ISpace;
@@ -17,7 +16,7 @@ public class AtomArrayListTest extends TestCase {
 	public void testTrimToSize() {
 		ISpace space = Space.getInstance(3);
 		final int size = 40;
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size + 10);
+		AtomArrayList arrayList = new AtomArrayList(size + 10);
 		IAtom[] listOfAtoms = new AtomLeaf[size];
 		for(int i = 0; i < size; i++) {
 			listOfAtoms[i] = new AtomLeaf(space);
@@ -38,7 +37,7 @@ public class AtomArrayListTest extends TestCase {
 	 */
 	public void testSetGetTrimThreshold() {
 		float trimThreshold = 0.43f;
-		AtomArrayListTemp arrayList = new AtomArrayListTemp();
+		AtomArrayList arrayList = new AtomArrayList();
 		arrayList.setTrimThreshold(trimThreshold);
 		float tT = arrayList.getTrimThreshold();
 		assertEquals(trimThreshold, tT, .006);
@@ -54,7 +53,7 @@ public class AtomArrayListTest extends TestCase {
 		int size = 100;
 
 		// test case at trim Threshold (should not be trimmed)
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		arrayList.setTrimThreshold(trimThreshold);
 		for(int i = 0; i < size/2; i++) {
 			arrayList.add(new AtomLeaf(space));
@@ -65,7 +64,7 @@ public class AtomArrayListTest extends TestCase {
         arrayList = null;
 
 		// test case just under trim threshold (should be trimmed)
-		arrayList = new AtomArrayListTemp(size);
+		arrayList = new AtomArrayList(size);
 		arrayList.setTrimThreshold(trimThreshold);
 		for(int i = 0; i < size/2-1; i++) {
 			arrayList.add(new AtomLeaf(space));
@@ -84,7 +83,7 @@ public class AtomArrayListTest extends TestCase {
 
 		// test case where capacity is already large enough.
 		// Verify atoms in list are not changed.
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		IAtom[] atomList = new IAtom[5];
 		for(int i = 0; i < 5; i++) {
 			atomList[i] = new AtomLeaf(space);
@@ -100,7 +99,7 @@ public class AtomArrayListTest extends TestCase {
 
 		// test case where capacity needs to be increased.
 		// Verify atoms in list are not changed.
-		arrayList = new AtomArrayListTemp(size);
+		arrayList = new AtomArrayList(size);
 		atomList = new IAtom[5];
 		for(int i = 0; i < 5; i++) {
 			atomList[i] = new AtomLeaf(space);
@@ -121,7 +120,7 @@ public class AtomArrayListTest extends TestCase {
 		ISpace space = Space.getInstance(3);
 		int size = 20;
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);	
+		AtomArrayList arrayList = new AtomArrayList(size);	
 		assertTrue(arrayList.isEmpty());
 
 		arrayList.add(new AtomLeaf(space));
@@ -138,7 +137,7 @@ public class AtomArrayListTest extends TestCase {
 		ISpace space = Space.getInstance(3);
 		int size = 20;
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		IAtom notInList = new AtomLeaf(space);
 		assertEquals(-1, arrayList.indexOf(notInList));
 		
@@ -158,7 +157,7 @@ public class AtomArrayListTest extends TestCase {
 		int size = 20;
 		int numElems = 5;
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		
 		assertEquals(0, arrayList.toArray().length);
 
@@ -184,7 +183,7 @@ public class AtomArrayListTest extends TestCase {
 		int numElems = 5;
         IAtom newElem = new AtomLeaf(space);
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
         IAtom resultAtom = null;
 
 		try {
@@ -254,7 +253,7 @@ public class AtomArrayListTest extends TestCase {
         boolean addResult;
         IAtom[] atomList = new IAtom[size];
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new AtomLeaf(space);
 			addResult = arrayList.add(atomList[i]);
@@ -270,11 +269,11 @@ public class AtomArrayListTest extends TestCase {
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.getAtom(size));
-		assertEquals((int)((float)size * (1.0f + AtomArrayListTemp.SIZE_INCREASE_RATIO) + 1),
+		assertEquals((int)((float)size * (1.0f + AtomArrayList.getSizeIncreaseRatio()) + 1),
 				      arrayList.sizeOfArray());
 
 		try {
-		    arrayList = new AtomArrayListTemp(0);
+		    arrayList = new AtomArrayList(0);
 		    addResult = arrayList.add(overTheTop);
 		}
 		catch(ArrayIndexOutOfBoundsException e) {
@@ -293,7 +292,7 @@ public class AtomArrayListTest extends TestCase {
         IAtom[] atomList = new IAtom[size];
         IAtom[] atomsetList = new IAtom[size];
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
@@ -323,7 +322,7 @@ public class AtomArrayListTest extends TestCase {
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
@@ -365,7 +364,7 @@ public class AtomArrayListTest extends TestCase {
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
@@ -413,7 +412,7 @@ public class AtomArrayListTest extends TestCase {
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 
-		AtomArrayListTemp arrayList = new AtomArrayListTemp(size);
+		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
