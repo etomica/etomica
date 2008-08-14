@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
+import etomica.util.Debug;
 
 public class AtomArrayList implements IAtomSet {
 
@@ -172,7 +173,7 @@ public class AtomArrayList implements IAtomSet {
     }
 	
     public IAtom getAtom(int index) {
-        if(index < 0 || index >= itemsInList) {
+        if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("AtomArrayList.remove invalid index");
         }
         return atomList[index];
