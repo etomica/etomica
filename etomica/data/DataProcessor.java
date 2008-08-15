@@ -89,7 +89,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
         }
     }
 
-    private void insertTransformerIfNeeded() {
+    protected void insertTransformerIfNeeded() {
         if (trueDataSink == null || dataInfo == null)
             return;
         //remove transformer if one was previously inserted
