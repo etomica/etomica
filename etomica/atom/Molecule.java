@@ -3,14 +3,14 @@ package etomica.atom;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 
 public class Molecule extends Atom implements IMolecule {
 
-    public Molecule(IAtomType type) {
-        super(type);
-        childList = new AtomArrayList();
+    public Molecule(ISpecies species) {
+        super(species);
+        childList = new AtomArrayList(species.getNumLeafAtoms());
         assignChildOrdinals();
     }
     

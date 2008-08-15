@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomType;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -13,8 +13,8 @@ import etomica.space.ISpace;
  */
 public class MoleculeOrientedDynamic extends MoleculeOriented implements IAtomOrientedKinetic {
 
-    public MoleculeOrientedDynamic(ISpace space, IAtomType type) {
-        super(space, type);
+    public MoleculeOrientedDynamic(ISpace space, ISpecies species) {
+        super(space, species);
         angularMomentum = space.makeVector();
         velocity = space.makeVector();
     }
