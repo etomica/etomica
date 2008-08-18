@@ -43,7 +43,7 @@ public class Virial2CLJQ {
         double epsilon = params.epsilon;
         double sigmaHSRef = params.sigmaHSRef;
         double moment = params.moment;
-        double bondL = params.moment;
+        double bondL = params.bondL;
         boolean isCO2 = params.isCO2;
             
         final double[] HSB = new double[9];
@@ -173,6 +173,7 @@ public class Virial2CLJQ {
         sim.getController().actionPerformed();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
