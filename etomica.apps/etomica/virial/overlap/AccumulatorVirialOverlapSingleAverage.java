@@ -34,21 +34,18 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 	
 	/**
 	 * sets the range of parameter values used for Bennets method.
-	 * Default is a span of 5 centered about 1 (exp(-5) to (exp(5)).  The
-     * center for the reference and target cluster should be inverses.
-	 * @param aCenter geometric mean of all values (measuring prefernce for 
-	 * this cluster compared to the "other" one) 
-	 * @param aSpan natural log of ratio of max or min values to aCenter
+	 * Default is a span of 5 centered about 1 (exp(-5) to (exp(5)).
+	 * @param aCenter geometric mean of all values
+	 * @param aSpan natural log of ratio of max value to aCenter
 	 */
 	public void setBennetParam(double aCenter, double aSpan) {
+        if (aSpan < 0.0 || (aSpan == 0 && nBennetPoints > 1) || aCenter <= 0.0 ) throw new IllegalArgumentException("span and center must be positive");
 		if (nBennetPoints==1) {
 			expX[0] = aCenter;
 			return;
 		}
-		if (aSpan <= 0.0) throw new IllegalArgumentException("aSpan must be positive");
 		for (int i=0; i<nBennetPoints; i++) {
 			expX[i] = Math.exp(2.0*aSpan*(i-(nBennetPoints-1)/2)/(nBennetPoints-1))*aCenter;
-//            System.out.println("bennet param "+i+" "+expX[i]);
 		}
 	}
 
