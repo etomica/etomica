@@ -180,11 +180,10 @@ public class SimulationGraphic implements SimulationContainer {
 	     
 	            if(integrator instanceof IntegratorBox && box == ((IntegratorBox)integrator).getBox()) {
 
-                    IAction[] boxActions = integrator.getIntervalActions();
-
-            	    for (int j = 0;  j < boxActions.length;  j++) {
-                        if(boxActions[j] == repaintAction) {
-                            integrator.setActionInterval(boxActions[j], interval);
+            	    for (int j = 0;  j < integrator.getIntervalActionCount();  j++) {
+            	    	IAction boxAction = integrator.getIntervalAction(j);
+                        if(boxAction == repaintAction) {
+                            integrator.setActionInterval(boxAction, interval);
                         }
                     }
 		        } else if (integrator instanceof IntegratorManagerMC) {
@@ -195,11 +194,10 @@ public class SimulationGraphic implements SimulationContainer {
 		        		
 		        		if(integrators[k] instanceof IntegratorBox && box == ((IntegratorBox)integrators[k]).getBox()) {
 
-		                    IAction[] boxActions = integrators[k].getIntervalActions();
-
-		            	    for (int j = 0;  j < boxActions.length;  j++) {
-		                        if(boxActions[j] == repaintAction) {
-		                            integrators[k].setActionInterval(boxActions[j], interval);
+		            	    for (int j = 0;  j < integrators[k].getIntervalActionCount();  j++) {
+		            	    	IAction boxAction = integrators[k].getIntervalAction(j);
+		                        if(boxAction == repaintAction) {
+		                            integrators[k].setActionInterval(boxAction, interval);
 		                        }
 		                    }
 		        		}

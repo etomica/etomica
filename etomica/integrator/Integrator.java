@@ -253,22 +253,20 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
         listeners.remove(iil);
     }
 
-    public synchronized IAction[] getIntervalActions() {
-        IAction[] intervalListenerArray = new IAction[listenerWrapperArray.length];
-        for (int i=0; i<intervalListenerArray.length; i++) {
-            intervalListenerArray[i] = listenerWrapperArray[i].intervalAction;
-        }
-        return intervalListenerArray;
+    public synchronized int getIntervalActionCount() {
+    	return listenerWrapperArray.length;
     }
 
-    public synchronized IIntegratorNonintervalListener[] getNonintervalListeners() {
-        IIntegratorNonintervalListener[] listenerArray = new IIntegratorNonintervalListener[listeners.size()];
-        Iterator iter = listeners.iterator();
-        int i=0;
-        while(iter.hasNext()) {
-            listenerArray[i++] = (IIntegratorNonintervalListener)iter.next();
-        }
-        return listenerArray;
+    public synchronized IAction getIntervalAction(int index) {
+        return listenerWrapperArray[index].intervalAction;
+    }
+
+    public synchronized int getNonintervalListenerCount() {
+    	return listeners.size();
+    }
+
+    public synchronized IIntegratorNonintervalListener getNonintervalListener(int index) {
+	    return (IIntegratorNonintervalListener)listeners.get(index);
     }
 
     /**

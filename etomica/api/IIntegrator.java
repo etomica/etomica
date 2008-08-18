@@ -80,13 +80,23 @@ public interface IIntegrator {
     public void removeNonintervalListener(IIntegratorNonintervalListener iil);
 
     /**
-     * Returns all of the interval actions as an array.
+     * Returns the number of interval actions held by the integrator.
      */
-    public IAction[] getIntervalActions();
+    public int getIntervalActionCount();
 
     /**
-     * Returns all of the non-interval listeners as an array.
+     * Returns the requested interval action.
      */
-    public IIntegratorNonintervalListener[] getNonintervalListeners();
+    public IAction getIntervalAction(int index);
+
+    /**
+     * Returns the number of non-interval actions held by the integrator.
+     */
+    public int getNonintervalListenerCount();
+
+    /**
+     * Returns the requested non-interval listener.
+     */
+    public IIntegratorNonintervalListener getNonintervalListener(int index);
 
 }
