@@ -52,7 +52,7 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayCanvasInterface;
+import etomica.graphics.DisplayCanvas;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -529,7 +529,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getDimensions().x(1)));
         }
         displayBox.setAlign(1,DisplayBox.BOTTOM);
-        displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
+        displayBox.canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
         displayBox.getDrawables().clear();
         if (pc.getSpace().D() == 2) {
             // doesn't actually work for 3D
