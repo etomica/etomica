@@ -46,7 +46,7 @@ public class DisplayBox extends Display {
     private final ISpace space;
             
     //do not instantiate here; instead must be in graphic method
-    public DisplayCanvasInterface canvas = null;
+    public DisplayCanvas canvas = null;
 
     public final int[] align = new int[D];
     

@@ -12,7 +12,13 @@ import etomica.units.Pixel;
  * 
  * @see DisplayBox.Canvas
  */
-public abstract class DisplayCanvas extends javax.swing.JPanel implements DisplayCanvasInterface {
+public abstract class DisplayCanvas extends javax.swing.JPanel {
+
+    static final int DRAW_BOUNDARY_NONE = 0;
+    static final int DRAW_BOUNDARY_OUTLINE = 1;
+    static final int DRAW_BOUNDARY_SHELL = 2;
+    static final int DRAW_BOUNDARY_ALL = 3;
+    static final int DRAW_BOUNDARY_MAX = 4;
 
     protected Image offScreen;
     protected Graphics osg;

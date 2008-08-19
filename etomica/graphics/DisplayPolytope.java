@@ -41,7 +41,7 @@ public class DisplayPolytope extends Display implements IAction {
     private int drawingHeight = 10;
     private Pixel pixel = new Pixel();
             
-    public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
+    public DisplayCanvas canvas;  //do not instantiate here; instead must be in graphic method
 
     //Explicit to 2D because drawing to 2D image
     public final int[] align = new int[D];
