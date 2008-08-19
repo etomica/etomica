@@ -71,8 +71,8 @@ public class AtomNeighborLists implements java.io.Serializable {
         upList = new AtomArrayList[newCapacity];
         downList = new AtomArrayList[newCapacity];
         for (int i=0; i<newCapacity; i++) {
-            upList[i] = new AtomArrayList();
-            downList[i] = new AtomArrayList();
+            upList[i] = new AtomArrayList(1);
+            downList[i] = new AtomArrayList(1);
         }
     }
 	
