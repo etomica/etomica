@@ -93,9 +93,9 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
 
     private void makeAllAgents() {
-        for (int i=0; i<speciesManager.getMoleculeTypeCount(); i++) {
-            addAgent(speciesManager.getMoleculeType(i));
-            makeChildAgents(speciesManager.getMoleculeType(i));
+        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
+            addAgent(speciesManager.getSpecies(i));
+            makeChildAgents(speciesManager.getSpecies(i));
         }
     }
     
@@ -104,11 +104,11 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     private int getGlobalMaxIndex() {
         int max = 0;
-        for (int i=0; i<speciesManager.getMoleculeTypeCount(); i++) {
-            if (speciesManager.getMoleculeType(i).getIndex() > max) {
-                max = speciesManager.getMoleculeType(i).getIndex();
+        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
+            if (speciesManager.getSpecies(i).getIndex() > max) {
+                max = speciesManager.getSpecies(i).getIndex();
             }
-            int childMax = getMaxIndexOfChildren(speciesManager.getMoleculeType(i));
+            int childMax = getMaxIndexOfChildren(speciesManager.getSpecies(i));
             if (childMax > max) {
                 max = childMax;
             }
@@ -142,8 +142,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public void dispose() {
         // remove ourselves as a listener to the old box
         simEventManager.removeListener(this);
-        for (int i=0; i<speciesManager.getMoleculeTypeCount(); i++) {
-            releaseAgents(speciesManager.getMoleculeType(i));
+        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
+            releaseAgents(speciesManager.getSpecies(i));
         }
         agents = null;
     }

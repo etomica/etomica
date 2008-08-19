@@ -43,7 +43,4 @@ public interface ISpeciesManager {
 
     public void atomTypeRemovedNotify(IAtomType removedType);
 
-    public int getMoleculeTypeCount();
-
-    public ISpecies getMoleculeType(int index);
 }

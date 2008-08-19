@@ -214,7 +214,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     public int requestTypeIndex() {
         if (typeIndexReservoir == null) {
             // if no reservoir, just return the next index
-            return ++numAtomTypes;
+            return numAtomTypes++;
         }
         // if we have a reservoir, it's because we're in the middle of a
         // recycling pass
@@ -253,17 +253,6 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         }
         typeIndexReservoir = null;
         typeReservoirCount = -1;
-    }
-
-    public int getMoleculeTypeCount() {
-    	return moleculeTypes.length;
-    }
-
-    /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#getMoleculeType()
-	 */
-    public ISpecies getMoleculeType(int index) {
-        return moleculeTypes[index];
     }
 
     /**
