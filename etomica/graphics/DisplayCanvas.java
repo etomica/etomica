@@ -2,6 +2,7 @@ package etomica.graphics;
 import java.awt.Graphics;
 import java.awt.Image;
 
+import etomica.action.activity.Controller;
 import etomica.units.Pixel;
 
 /**
@@ -14,11 +15,11 @@ import etomica.units.Pixel;
  */
 public abstract class DisplayCanvas extends javax.swing.JPanel {
 
-    static final int DRAW_BOUNDARY_NONE = 0;
-    static final int DRAW_BOUNDARY_OUTLINE = 1;
-    static final int DRAW_BOUNDARY_SHELL = 2;
-    static final int DRAW_BOUNDARY_ALL = 3;
-    static final int DRAW_BOUNDARY_MAX = 4;
+    public static final int DRAW_BOUNDARY_NONE = 0;
+    public static final int DRAW_BOUNDARY_OUTLINE = 1;
+    public static final int DRAW_BOUNDARY_SHELL = 2;
+    public static final int DRAW_BOUNDARY_ALL = 3;
+    public static final int DRAW_BOUNDARY_MAX = 4;
 
     protected Image offScreen;
     protected Graphics osg;
@@ -46,8 +47,15 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     boolean writeScale = false;
     
     protected Pixel pixel;
+    
+    protected final Controller controller;
 
     public DisplayCanvas() {
+        this(null);
+    }
+    
+    public DisplayCanvas(Controller controller) {
+        this.controller = controller;
         setBackground(java.awt.Color.white);
     }
     public void createOffScreen () {
@@ -65,8 +73,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     
     public abstract void doPaint(Graphics g);
     
-    public void update(Graphics g) {paint(g);}
-        
     public void paint(Graphics g) {
         createOffScreen();
         doPaint(osg);
