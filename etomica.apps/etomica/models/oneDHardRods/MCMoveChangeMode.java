@@ -125,6 +125,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
 //            			} else {
 //            				u[j] += eigenVectors[iVector][i][j];
 //            			}
+                        u[j] += eigenVectors[iVector][i][j]*2.0*(random.nextDouble()*coskR - random.nextDouble()*sinkR);
                         
                         
             			
