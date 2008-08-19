@@ -18,6 +18,21 @@ public class PrimitiveGeneral extends Primitive {
         for (int i=0; i<latticeVectors.length; i++) {
             latticeVectors[i].E(primitiveVectors[i]);
         }
+        double[] mySize = new double[primitiveVectors.length];
+        for (int i=0; i<mySize.length; i++) {
+            mySize[i] = Math.sqrt(primitiveVectors[i].squared());
+        }
+        setSize(mySize);
+        double[] myAngles = new double[primitiveVectors.length == 2 ? 1 : 3];
+        myAngles[0] = Math.acos(latticeVectors[0].dot(latticeVectors[1])/
+                Math.sqrt(latticeVectors[0].squared()*latticeVectors[1].squared()));
+        if (myAngles.length == 3) {
+            myAngles[1] = Math.acos(latticeVectors[1].dot(latticeVectors[2])/
+                    Math.sqrt(latticeVectors[1].squared()*latticeVectors[2].squared()));
+            myAngles[2] = Math.acos(latticeVectors[2].dot(latticeVectors[0])/
+                    Math.sqrt(latticeVectors[2].squared()*latticeVectors[0].squared()));
+        }
+        setAngles(myAngles);
     }
 
     public Primitive copy() {
