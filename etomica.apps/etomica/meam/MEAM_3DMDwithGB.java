@@ -224,7 +224,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         PrimitiveTetragonal primitiveB = new PrimitiveTetragonal(space, aB, cB);
         BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisBetaSnA5());
         
-        box.setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
+        box.getBoundary().setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
         
         
         //FCC Cu

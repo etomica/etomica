@@ -1,4 +1,5 @@
 package etomica.threaded.atom;
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
@@ -59,7 +60,9 @@ public class LJMD3DThreaded extends Simulation {
         box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.setDensity(0.65);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(0.65);
+        inflater.actionPerformed();
         
         
        

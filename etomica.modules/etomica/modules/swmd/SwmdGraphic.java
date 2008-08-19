@@ -3,6 +3,8 @@ package etomica.modules.swmd;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -13,10 +15,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.api.IAction;
-import etomica.api.IAtomTypeSphere;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
+import etomica.api.IAction;
+import etomica.api.IAtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -115,6 +117,12 @@ public class SwmdGraphic extends SimulationGraphic {
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
+
+        final IAction resetDataAction = new IAction() {
+            public void actionPerformed() {
+                getController().getResetAveragesButton().press();
+            }
+        };
 
     	this.sim = simulation;
 
@@ -262,6 +270,11 @@ public class SwmdGraphic extends SimulationGraphic {
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(rdfPump);
         sim.integrator.setActionInterval(rdfPump, 10);
+        getController().getResetAveragesButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                rdfMeter.reset();
+            }
+        });
         
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -435,16 +448,24 @@ public class SwmdGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-	    ChangeListener temperatureListener = new ChangeListener() {
-		    public void stateChanged(ChangeEvent event) {
-
+	    final IAction temperatureAction = new IAction() {
+		    public void actionPerformed() {
+		        resetDataAction.actionPerformed();
 		        mbDistribution.setTemperature(Kelvin.UNIT.toSim(tempSlider.getTemperature()));
 		        mbSource.update();
 		        vPlot.doUpdate();
 		        vPlot.repaint();
 		    }
 		};
-		tempSlider.addTemperatureSliderListener(temperatureListener);
+	    ActionListener isothermalListener = new ActionListener() {
+	        public void actionPerformed(ActionEvent event) {
+                // we can't tell if we're isothermal here...  :(
+                // if we're adiabatic, we'll re-set the temperature elsewhere
+                temperatureAction.actionPerformed();
+            }
+        };
+		tempSlider.setSliderPostAction(temperatureAction);
+        tempSlider.addRadioGroupActionListener(isothermalListener);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());

@@ -1,8 +1,11 @@
 package etomica.space;
 
 import etomica.api.IBoundary;
+import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
+import etomica.box.BoxEvent;
+import etomica.box.BoxInflateEvent;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
 
@@ -24,6 +27,28 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
     public Boundary(ISpace space, Polytope shape) {
         this.space = space;
         this.shape = shape;
+    }
+
+    /**
+     * Sets the boundary's box to be the given box.  The box may be null to
+     * indicate that the boundary is not associated with a box.
+     */
+    public void setBox(IBox newBox) {
+        box = newBox;
+        if (box == null) {
+            inflateEvent = null;
+        }
+        else {
+            inflateEvent = new BoxInflateEvent(box);
+        }
+    }
+
+    /**
+     * Returns the boundary's box.  May be null if the boundary is not
+     * associated with a box.
+     */
+    public IBox getBox() {
+        return box;
     }
 
     /* (non-Javadoc)
@@ -93,5 +118,6 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
 //    protected final Space space;
     protected final Polytope shape;
     protected final ISpace space;
-
+    protected IBox box;
+    protected BoxEvent inflateEvent;
 }

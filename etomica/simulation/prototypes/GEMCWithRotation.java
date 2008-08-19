@@ -1,5 +1,6 @@
 package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
@@ -89,7 +90,9 @@ public class GEMCWithRotation extends Simulation {
         integratorMC1.addIntervalAction(new BoxImposePbc(box1, space));
         integratorMC2.addIntervalAction(new BoxImposePbc(box2, space));
 
-	    box2.setDensity(0.1);
+        BoxInflate inflater = new BoxInflate(box2, space);
+        inflater.setTargetDensity(0.1);
+        inflater.actionPerformed();
     }
     
     public IBox box1, box2;

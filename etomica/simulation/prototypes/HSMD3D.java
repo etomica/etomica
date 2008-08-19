@@ -1,6 +1,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
@@ -100,7 +101,9 @@ public class HSMD3D extends Simulation {
         box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.setDensity(params.eta * 6 / Math.PI);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(params.eta * 6 / Math.PI);
+        inflater.actionPerformed();
         new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         //deformed
 //        box.setBoundary(

@@ -44,7 +44,7 @@ public class HexaneVolumeFraction extends Simulation {
         bdry = new BoundaryRectangularPeriodic(getRandom(), _space);
         box = new Box(bdry, _space);
         addBox(box);        
-        box.setDimensions(space.makeVector(new double[] {3.8, 3.8, 3.8}));
+        box.getBoundary().setDimensions(space.makeVector(new double[] {3.8, 3.8, 3.8}));
         box.setNMolecules(species, 1);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);

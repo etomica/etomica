@@ -1,5 +1,6 @@
 package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomTypeLeaf;
@@ -62,7 +63,9 @@ public class SoftSphere3d extends Simulation {
         box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 108);
-        box.setDensity(density);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(density);
+        inflater.actionPerformed();
        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 	    potential = new P2SoftSphere(space,1,1,exponent);

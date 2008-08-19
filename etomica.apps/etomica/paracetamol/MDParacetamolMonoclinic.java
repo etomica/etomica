@@ -123,7 +123,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         
         box = new Box(this, space);
         addBox(box);
-        box.setDimensions(space.makeVector(new double[] {25,25,25}));
+        box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this, space);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 96);

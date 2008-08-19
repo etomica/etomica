@@ -147,7 +147,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
         //FCC Ag
         
-	    box.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
+	    box.getBoundary().setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
 	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 	    

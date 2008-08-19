@@ -153,7 +153,7 @@ outer:              for (int i=0; i<3; i++){
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sim, sp);
         sim.addBox(box);
-        box.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
+        box.getBoundary().setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);

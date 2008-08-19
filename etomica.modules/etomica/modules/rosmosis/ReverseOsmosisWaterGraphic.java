@@ -390,12 +390,11 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         meterFlux.setIntegrator(sim.integrator);
         meterFlux.setBox(sim.box);
         meterFlux.setSpecies(new ISpecies[]{sim.speciesSodium, sim.speciesChlorine, sim.speciesSolvent});
-        AccumulatorAverageCollapsing fluxAvg = new AccumulatorAverageCollapsing();
-        fluxAvg.setPushInterval(10);
-        DataPump fluxPump = new DataPump(meterFlux, fluxAvg);
+        AccumulatorHistory fluxHistory = new AccumulatorHistory(new HistoryCollapsingAverage(20));
+        DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
         sim.integrator.addIntervalAction(fluxPump);
         // has to happen before PBC are applied
-        sim.integrator.setIntervalActionPriority(fluxPump, 1);
+        sim.integrator.setIntervalActionPriority(fluxPump, 10);
         dataStreamPumps.add(fluxPump);
 
         MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim.torqueSum, sim.box);
@@ -486,6 +485,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         pPlot.setLabel("Osmotic Pressure");
         pPlot.setUnit(Bar.UNIT);
 
+        final DisplayPlot fluxPlot = new DisplayPlot();
+        fluxHistory.setDataSink(fluxPlot.getDataSet().makeDataSink());
+        fluxPlot.setLabel("Flux");
+
 //        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
 //        pMeter.setIntegrator(sim.integrator);
 //        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
@@ -501,10 +504,6 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
         peDisplay.setLabel("Potential Energy (J/mol)");
-
-        DisplayTextBoxesCAE fluxDisplay = new DisplayTextBoxesCAE();
-        fluxDisplay.setAccumulator(fluxAvg);
-        fluxDisplay.setLabel("Flux (Atoms/ps/A^2)");
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(pressureAvg);
@@ -601,11 +600,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     	add(ePlot);
         add(profPlot);
         add(pPlot);
+        add(fluxPlot);
     	add(displayCycles);
     	add(tBox);
-//    	add(pDisplay);
     	add(peDisplay);
-        add(fluxDisplay);
         add(pressureDisplay);
     }
 

@@ -124,7 +124,7 @@ public class EnergyMapMEAMadatom extends Simulation{
     	
         // Sn box
      
-        box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+        box.getBoundary().setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         

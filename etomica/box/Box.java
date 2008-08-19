@@ -171,14 +171,10 @@ public class Box implements java.io.Serializable, IBox {
   
     public void setBoundary(IBoundary b) {
         boundary = b;
+        boundary.setBox(this);
      }
      
     public final IBoundary getBoundary() {return boundary;}
-    
-    public final void setDimensions(IVector d) {
-        boundary.setDimensions(d);
-        eventManager.fireEvent(inflateEvent);
-    }
     
     public void setDensity(double rho) {
         double vNew = getMoleculeList().getAtomCount()/rho;

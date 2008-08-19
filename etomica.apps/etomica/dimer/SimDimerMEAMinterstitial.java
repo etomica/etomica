@@ -186,7 +186,7 @@ public class SimDimerMEAMinterstitial extends Simulation{
     	BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         */
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        box.getBoundary().setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
         /**

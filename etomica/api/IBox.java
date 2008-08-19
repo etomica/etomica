@@ -73,10 +73,6 @@ public interface IBox {
      */
     public IBoundary getBoundary();
 
-    public void setDimensions(IVector d);
-
-    public void setDensity(double rho);
-
     /**
      * Returns the event manager for this box.  
      * @return

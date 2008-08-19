@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 27, 2004 by kofke
- */
 package etomica.action;
 
 import etomica.api.IAtom;
@@ -12,9 +8,9 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.space.ISpace;
 
 /**
- * Performs actions that cause volume of system to expand, with molecule
- * positions scaled to keep them in the same relative positions. Inflation can
- * be isotropically or anisotropically.
+ * Performs actions that cause volume of system to expand or contract, with
+ * molecule positions scaled to keep them in the same relative positions.
+ * Inflation can be isotropically or anisotropically.
  */
 public class BoxInflate extends BoxActionAdapter implements Undoable {
 
@@ -89,13 +85,31 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     }
 
     /**
-     * Performs isotropic inflation.
+     * Sets the action to change the box dimensions isotropically to achieve
+     * the given density.
+     */
+    public void setTargetDensity(double newTargetDensity) {
+        double vNew = box.getMoleculeList().getAtomCount()/newTargetDensity;
+        double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/scaleVector.getD());
+        setScale(scale);
+    }
+    
+    /**
+     * Returns the target density of the action.
+     */
+    public double getTargetDensity() {
+        double rho = box.getMoleculeList().getAtomCount()/box.getBoundary().volume();
+        for (int i=0; i<scaleVector.getD(); i++) {
+            rho *= scaleVector.x(i);
+        }
+        return rho;
+    }
+
+    /**
+     * Performs boundary dimension change
      */
     public void actionPerformed() {
         if(box == null) return;
-        IVector dimensions = box.getBoundary().getDimensions();
-        dimensions.TE(scaleVector);
-        box.getBoundary().setDimensions(dimensions);
         moleculeIterator.reset();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
@@ -111,12 +125,14 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         
         // undo previous subtraction
         scaleVector.PE(1);
-        
-        //XXX pretend we're just setting the dimensions now.  the only effect
-        // here is to fire an event that notifies things (NeighborCellManager)
-        // that the box changed and it should (perhaps) resize the lattice and
-        // reassign atoms to cells
-        box.setDimensions(dimensions);
+
+        // actually change the boundary.  With cell/neighbor listing, this
+        // triggers cell reassignment, which would fail if we shrink before
+        // shifting atoms.  If we grow first, cell assignment would succeed,
+        // but we'd need to reassign again after scaling the atom positions.
+        IVector dimensions = box.getBoundary().getDimensions();
+        dimensions.TE(scaleVector);
+        box.getBoundary().setDimensions(dimensions);
     }
 
     /**

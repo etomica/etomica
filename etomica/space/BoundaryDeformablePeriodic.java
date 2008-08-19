@@ -408,6 +408,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
         for(int i=0; i<edgeTripletTransforms.length; i++) {
             edgeTripletTransforms[i].update();
         }
+
+        // we get called when the boundary changes, so fire inflate event now
+        if (box != null) {
+            box.getEventManager().fireEvent(inflateEvent);
+        }
     }
 
     public IVector[] getPeriodicVectors() {

@@ -30,7 +30,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
 
         box = new Box(this, space);
         addBox(box);
-        box.setDimensions(space.makeVector(new double[] {25,25,25}));
+        box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numAtoms);
         
             /*

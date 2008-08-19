@@ -30,7 +30,7 @@ public class ModifierDimensions implements Modifier {
         }
         IVector dim = box.getBoundary().getDimensions();
         dim.setX(0, newValue);
-        box.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
     }
 
     private final IBox box;

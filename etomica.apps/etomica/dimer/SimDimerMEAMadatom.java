@@ -119,7 +119,7 @@ public class SimDimerMEAMadatom extends Simulation{
               
         double a = 5.92; 
         double c = 3.23;
-        box.setDimensions(new Vector3D(a*3, a*5, c*7));
+        box.getBoundary().setDimensions(new Vector3D(a*3, a*5, c*7));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
@@ -191,7 +191,7 @@ public class SimDimerMEAMadatom extends Simulation{
         IVector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
         newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
-        box.setDimensions(newBoxLength);
+        box.getBoundary().setDimensions(newBoxLength);
         
         /**
         //Ag

@@ -35,7 +35,7 @@ public class MeterOsmoticPressure implements DataSource {
     
     public Data getData() {
         IVector dimensions = box.getBoundary().getDimensions();
-        data.x = pc.getWallForce() / (dimensions.x(1) * dimensions.x(2));
+        data.x = -pc.getWallForce() / (dimensions.x(1) * dimensions.x(2));
         return data;
     }
 

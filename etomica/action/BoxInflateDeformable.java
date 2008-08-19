@@ -66,7 +66,7 @@ public class BoxInflateDeformable extends BoxInflate{
 //      Then scale the boundary
         IVector dimensions = box.getBoundary().getDimensions();
         dimensions.TE(scaleVector);
-        box.setDimensions(dimensions);
+        box.getBoundary().setDimensions(dimensions);
     }
 
     protected Tensor tempTens;

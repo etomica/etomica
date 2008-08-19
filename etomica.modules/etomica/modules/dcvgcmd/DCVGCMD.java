@@ -170,7 +170,7 @@ public class DCVGCMD extends Simulation {
 
         box = new Box(this, space);
         box.setBoundary(new BoundaryRectangularSlit(this, 2, space));
-        box.setDimensions(new Vector3D(40, 40, 80));
+        box.getBoundary().setDimensions(new Vector3D(40, 40, 80));
         addBox(box);
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);

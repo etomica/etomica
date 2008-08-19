@@ -63,7 +63,7 @@ public class PistonCylinder extends Simulation {
             newDim = new Vector3D(30,80,30);
         }
         config.setBoundaryPadding(sigma);
-        box.setDimensions(newDim);
+        box.getBoundary().setDimensions(newDim);
         config.initializeCoordinates(box);
         
         P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);

@@ -215,7 +215,7 @@ public class SimDimerMEAMGB extends Simulation{
         newBoxLength.setX(2,newBoxLength.x(2)+1.0);
         newBoxLength.setX(1,newBoxLength.x(1)+0.003);
        newBoxLength.setX(0,newBoxLength.x(0)+0.003);
-       box.setDimensions(newBoxLength);
+       box.getBoundary().setDimensions(newBoxLength);
         
         
     }

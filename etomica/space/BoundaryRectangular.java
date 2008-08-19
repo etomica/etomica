@@ -103,6 +103,10 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     public void setDimensions(IVector v) {
         dimensions.E(v);
         updateDimensions();
+
+        if (box != null) {
+            box.getEventManager().fireEvent(inflateEvent);
+        }
     }
 
     /**

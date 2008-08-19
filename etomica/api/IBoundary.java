@@ -1,8 +1,30 @@
 package etomica.api;
 
 
+/**
+ * Interface for boundary objects that describe the size and periodic nature
+ * of the box boundaries. Each Box has its own instance of this class. It
+ * may be referenced by a coordinate pair when computing distances between
+ * atoms, or by a cell iterator when generating neighbor lists. It is also used
+ * by objects that enforce periodic images.
+ * 
+ * The boundary is responsible for firing inflate events when the boundary
+ * dimensions change.
+ */
 public interface IBoundary extends INearestImageTransformer {
 
+    /**
+     * Sets the box that holds the IBoundary.  If no box holds the boundary,
+     * the box should be set to null.
+     */
+    public void setBox(IBox newBox);
+    
+    /**
+     * Returns the boundary's IBox.  Might be null if the boundary is not
+     * associated with a box.
+     */
+    public IBox getBox();
+    
 	/**
 	 * @return the volume enclosed by the boundary
 	 */

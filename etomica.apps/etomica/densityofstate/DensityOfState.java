@@ -1,5 +1,6 @@
 package etomica.densityofstate;
 
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
@@ -65,7 +66,9 @@ public class DensityOfState extends Simulation{
 		species = new SpeciesSpheresMono(this, space);
 		box.setNMolecules(species, numAtoms);
 		box = new Box(this, space);
-		box.setDensity(0.65);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(0.65);
+        inflater.actionPerformed();
 		potential = new P2Yukawa(space);
 		double truncationRadius = 3.0*potential.getKappa();
 		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){

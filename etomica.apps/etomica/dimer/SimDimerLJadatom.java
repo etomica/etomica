@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
@@ -105,7 +106,9 @@ public class SimDimerLJadatom extends Simulation{
         // Must be in same order as the respective species is added to SpeciesManager
         box.setNMolecules(fixed, 256);    	
     	
-    	box.setDensity(1);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(1);
+        inflater.actionPerformed();
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
 		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), fixed.getLeafType()});

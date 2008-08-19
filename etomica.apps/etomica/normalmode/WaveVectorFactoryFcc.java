@@ -159,7 +159,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sim, sp);
         sim.addBox(box);
-        box.setDimensions(new Vector3D(nCells, nCells, nCells));
+        box.getBoundary().setDimensions(new Vector3D(nCells, nCells, nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 4*nCells*nCells*nCells);

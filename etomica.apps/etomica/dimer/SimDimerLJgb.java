@@ -98,7 +98,7 @@ public class SimDimerLJgb extends Simulation{
         
     	
 	 //CRYSTAL
-    	box.setDimensions(new Vector3D(Math.sqrt(5)*4,Math.pow(4, 1.0/3.0)*4,Math.pow(4, 1.0/3.0)*8));
+    	box.getBoundary().setDimensions(new Vector3D(Math.sqrt(5)*4,Math.pow(4, 1.0/3.0)*4,Math.pow(4, 1.0/3.0)*8));
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(new PrimitiveCubic(space, Math.pow(4, 1.0/3.0)),new BasisCubicFcc());
         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 2.5, space);
         //gbtilt.setRotation(2, 45*Math.PI/180);

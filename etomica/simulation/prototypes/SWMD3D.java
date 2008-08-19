@@ -3,6 +3,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
@@ -113,7 +114,9 @@ public class SWMD3D extends Simulation {
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(box0));
 //	nControl.setMaximum(108);
-	box.setDensity(0.0405);
+    BoxInflate inflater = new BoxInflate(box, space);
+    inflater.setTargetDensity(0.0405);
+    inflater.actionPerformed();
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(), space);
     configuration.initializeCoordinates(box);
   }

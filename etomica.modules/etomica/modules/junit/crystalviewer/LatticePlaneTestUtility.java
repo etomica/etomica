@@ -128,7 +128,7 @@ public class LatticePlaneTestUtility {
 	    IVector dimensions = box.getBoundary().getDimensions();
 	    dimensions.E(lattice.getPrimitive().getSize());
 	    dimensions.TE(size);
-	    box.setDimensions(dimensions);
+	    box.getBoundary().setDimensions(dimensions);
 
 	    // Set the number of molecules for the box and
 	    // initialze the positions.

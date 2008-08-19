@@ -64,8 +64,8 @@ public class ConfigurationSAM implements Configuration {
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(2, nCellsZ*cellSizeZ);
         double boxLengthY = dim.x(1);
-        box.setDimensions(dim);
-        pretendBox.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
+        pretendBox.getBoundary().setDimensions(dim);
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, boxLengthY, cellSizeZ);
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basisMolecules);
         ConfigurationLatticeSimple config = new ConfigurationLatticeSimple(lattice, space);

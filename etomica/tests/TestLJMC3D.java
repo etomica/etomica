@@ -1,5 +1,6 @@
 package etomica.tests;
 import etomica.action.ActionIntegrate;
+import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -59,7 +60,9 @@ public class TestLJMC3D extends Simulation {
 	    box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.setDensity(0.65);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(0.65);
+        inflater.actionPerformed();
         potential = new P2LennardJones(space, sigma, 1.0);
         double truncationRadius = 3.0*sigma;
         if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)) {

@@ -234,7 +234,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
 	    BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisCubicFcc());
         
-        box.setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
+        box.getBoundary().setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
         
 	    nA = (nCellsAx * nCellsAy * nCellsAz) * basisA;
 	    nAFixed = (nCellsAx * nCellsAy * 2) * basisA;

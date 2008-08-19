@@ -79,7 +79,7 @@ public class Interfacial extends Simulation {
         else {
             dim.E(new double[]{22,11,11});
         }
-        box.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, N);
         if (space.D() == 2) {
             new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);

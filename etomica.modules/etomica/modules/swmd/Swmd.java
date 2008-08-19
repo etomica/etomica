@@ -71,7 +71,7 @@ public class Swmd extends Simulation {
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);
-        box.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc() : new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
         integrator.setBox(box);

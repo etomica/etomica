@@ -107,7 +107,7 @@ public class Sam extends Simulation {
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.4, sizeCellZ*numZCells});
-        box.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, 2*numXCells*numZCells);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
@@ -380,7 +380,7 @@ public class Sam extends Simulation {
         IVector dim = space.makeVector();
         double zShift = box.getBoundary().getDimensions().x(2);
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
-        box.setDimensions(dim);
+        box.getBoundary().setDimensions(dim);
         config.setNCellsZ(numZCells);
         if (!increase) {
             config.initializeCoordinates(box);

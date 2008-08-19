@@ -126,7 +126,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 int numSurfactants = (int)nSurfactantSlider.getValue();
                 Box pretendBox = new Box(sim, space);
                 dim.setX(0, dim.x(0)/expansionFac);
-                pretendBox.setDimensions(dim);
+                pretendBox.getBoundary().setDimensions(dim);
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
                 configLattice.initializeCoordinates(pretendBox);

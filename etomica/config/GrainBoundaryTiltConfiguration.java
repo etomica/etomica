@@ -199,7 +199,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	}
     	
     	//Set Box size
-    	box.setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
+    	box.getBoundary().setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
     }
     
     public void initializeCoordinates(IBox box){

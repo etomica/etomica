@@ -974,7 +974,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        int D = 2;
+        int D = 3;
         boolean doRDF = false;
         boolean doDensityInput = false;
         boolean doConfigButton = false;
