@@ -302,7 +302,6 @@ public class DisplayBox extends Display {
                 }
                 boxX *=1.4;
                 boxY *=1.4;
-                //canvas = new DisplayBoxCanvas3DOpenGL(this, boxX, boxY);
                 if(canvas == null) {
                 	canvas = new DisplayBoxCanvasG3DSys(this, space);
                     setSize(boxX, boxY);
@@ -470,19 +469,6 @@ public class DisplayBox extends Display {
         }
     }
     
-/*    public double getFPS() {
-        try {
-            return Default.DISPLAY_USE_OPENGL ? ((DisplayCanvasOpenGL)canvas).getFps() : 0.;
-        }
-        catch(NoClassDefFoundError e) {System.out.println("NoClassDefFoundError in getFPS");}
-        return 0.0;
-    }
-    public boolean getUseFpsSleep() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseFpsSleep());return(true);}
-    public boolean getUseRepaint() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseRepaint());return(true);}
-    public void setFPS(double fps) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setAnimateFps(fps);}
-    public void setUseFpsSleep(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseFpsSleep(b);}
-    public void setUseRepaint(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseRepaint(b);}
-*/
     protected void computeImageParameters() {
         int w = canvas.getSize().width - 2 * originShift[0];
         int h = canvas.getSize().height - 2 * originShift[1];
@@ -660,8 +646,6 @@ public class DisplayBox extends Display {
         
         public void mouseClicked(MouseEvent evt) {
             canvas.requestFocus();
-            //if(parentSimulation().space().D() == 3 && Default.DISPLAY_USE_OPENGL)
-            //((DisplayBoxCanvas3DOpenGL)canvas).start();
         }
         public void mouseEntered(MouseEvent evt) {canvas.requestFocus();}
         public void mouseExited(MouseEvent evt) {canvas.transferFocus();}
