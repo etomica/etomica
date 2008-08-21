@@ -48,16 +48,10 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     
     protected Pixel pixel;
     
-    protected final Controller controller;
-
     public DisplayCanvas() {
-        this(null);
-    }
-    
-    public DisplayCanvas(Controller controller) {
-        this.controller = controller;
         setBackground(java.awt.Color.white);
     }
+
     public void createOffScreen () {
         if (offScreen == null) { 
             createOffScreen(getSize().width, getSize().height);
