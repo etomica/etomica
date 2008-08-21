@@ -2,7 +2,6 @@ package etomica.models.oneDHardRods;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomSet;
@@ -101,6 +100,8 @@ public class TestMCMove extends Simulation {
         convert.setCoordinateDefinition(coordinateDefinition);
 //        convert.setTemperature(temperature);
         convert.setBox((IBox)box);
+        convert.setStepSizeMin(0.001);
+        convert.setStepSize(0.01);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -108,9 +109,9 @@ public class TestMCMove extends Simulation {
         locations = new double[numAtoms];
         IAtomSet leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
-        	//one d is assumed here.
-        	locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-        	System.out.println(locations[i]);
+            //one d is assumed here.
+            locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+//            System.out.println(locations[i]);
         }
         
         
@@ -120,22 +121,22 @@ public class TestMCMove extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-    	/*
-		 * This whole setup defines a set of default parameters
-		 * in the inner class Sim1DHRParams.  These parameters can be changed
-		 * individually in an appropriately named file, without affecting
-		 * the values of the other parameters.  The order of definition in the
-		 * file is irrelevant.
-		 * 
-		 */
-		Sim1DHRParams params = new Sim1DHRParams();
-		String inputFilename = null;
-		if(args.length > 0){
-			inputFilename = args[0];
-		}
+        /*
+         * This whole setup defines a set of default parameters
+         * in the inner class Sim1DHRParams.  These parameters can be changed
+         * individually in an appropriately named file, without affecting
+         * the values of the other parameters.  The order of definition in the
+         * file is irrelevant.
+         * 
+         */
+        Sim1DHRParams params = new Sim1DHRParams();
+        String inputFilename = null;
+        if(args.length > 0){
+            inputFilename = args[0];
+        }
         if(inputFilename != null){
-        	ReadParameters readParameters = new ReadParameters(inputFilename, params);
-        	readParameters.readParameters();
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
         }
         double density = params.density;
         long numSteps = params.numSteps;
@@ -145,7 +146,7 @@ public class TestMCMove extends Simulation {
         int D = params.D;
         String filename = params.filename;
         if(filename.length() == 0){
-        	filename = "normal_modes_1DHR _" + numAtoms;
+            filename = "normal_modes_1DHR _" + numAtoms;
         }
         String refFileName = args.length>0 ? filename+"_ref" : null;
         
@@ -163,8 +164,9 @@ public class TestMCMove extends Simulation {
         //calculate the differences in position:
         IAtomSet leaflist = sim.box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
-        	//one d is assumed here.
-        	sim.locations[i] -= ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+            //one d is assumed here.
+            sim.locations[i] -= ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+            System.out.println(sim.locations[i]);
         }
         
         
@@ -196,7 +198,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 100;
+        public long numSteps = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
