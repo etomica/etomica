@@ -69,6 +69,7 @@ public class DisplayPlot extends Display implements DataSetListener {
         units = new Unit[0];
         labelList = new LinkedList<DataTagBag>();
         unitList = new LinkedList<DataTagBag>();
+        drawLineList = new LinkedList<DataTagBag>();
         
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem resetMenuItem = new JMenuItem("reset");
@@ -205,12 +206,18 @@ public class DisplayPlot extends Display implements DataSetListener {
         	if(dataSet.getDataInfo(k) instanceof DataInfoFunction) {
                 xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
                 data = ((DataFunction)dataSet.getData(k)).getData();
+
+                boolean dataSetDrawLine = true;
+                DataTagBag tagDrawLine = DataTagBag.getDataTagBag(drawLineList, dataSet.getDataInfo(k).getTags());
+                if (tagDrawLine != null) {
+                    dataSetDrawLine = ((Boolean)tagDrawLine.object).booleanValue();
+                }
                 boolean drawLine = false;
                 for(int i=0; i<data.length; i++) {
                     double y = units[k].fromSim(data[i]);
                     if (!Double.isNaN(y)) {
                         plot.addPoint(k, xUnit.fromSim(xValues[i]), y, drawLine);
-                        drawLine = true;
+                        drawLine = dataSetDrawLine;
                     }
                     else {
                         drawLine = false;
@@ -276,6 +283,18 @@ public class DisplayPlot extends Display implements DataSetListener {
     public void setLegend(DataTag[] dataTags, String label) {
         labelList.add(new DataTagBag(dataTags, label));
     }
+
+    /**
+     * Sets the data set corresponding to the given tags to be have the data
+     * points connected with lines or not.
+     */
+    public void setDoDrawLines(DataTag[] dataTags, boolean doDrawLines) {
+        drawLineList.add(new DataTagBag(dataTags, doDrawLines));
+        // if a data set's points aren't connected, we need to draw points
+        if (!doDrawLines) {
+            plot.setMarksStyle("points");
+        }
+    }
     
     /**
      * Accessor method to plot class so that its properties can be edited.
@@ -334,6 +353,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     protected final EtomicaPlot plot;
     protected final LinkedList<DataTagBag> labelList;
     protected final LinkedList<DataTagBag> unitList;
+    protected final LinkedList<DataTagBag> drawLineList;
     protected final javax.swing.JPanel panel;
     private boolean doLegend = true;
     private Unit xUnit = Null.UNIT;
