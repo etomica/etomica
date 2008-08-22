@@ -1,140 +1,110 @@
 package etomica.modules.materialfracture;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.DataTag;
+import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.modifier.ModifierGeneral;
 import etomica.util.HistoryScrolling;
 
+/**
+ * Graphical components for Material Fracture module
+ */
 public class MaterialFractureGraphic extends SimulationGraphic {
 
-    
-//********************start of Composite Manager Panel*************************************************
-    public static JPanel compositePanel = new JPanel(new java.awt.GridBagLayout()); //default shape of panel
-    public static GridBagLayout gbLayout = new GridBagLayout();
-    public static GridBagConstraints gbConst = new GridBagConstraints();    
-    public static JPanel temperaturePanel = new JPanel(new java.awt.GridLayout(1, 2)); //default shape of panel
-    public static JPanel pdPanel = new JPanel(new java.awt.GridLayout()); //default shape of panel
-    public static JTabbedPane sliderTabbedPane = new JTabbedPane();
-//********************end of Composite Manager Panel***************************************************
-
-/**
-/* constructor
- */
-  public MaterialFractureGraphic(MaterialFracture sim) {
-    super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace());
-    gbLayout = (GridBagLayout)compositePanel.getLayout();
-//    SimulationResetForSSF srssf = new SimulationResetForSSF(); // this is different from SimulationRestart
-//        srssf.setSpecies(sim.species);
-//        srssf.setDisplay(displayPhase0);
-//        srssf.setPhase(phase0);
-//    etomica.graphics.DeviceTrioControllerButton dscb = new etomica.graphics.DeviceTrioControllerButton();//start, reset, reset average
-//        dscb.setShape("VERTICAL");
-//        dscb.resetButton().setAction(new ActionGraphic(srssf));
+    public MaterialFractureGraphic(MaterialFracture sim) {
+        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace());
              
-    final StrainColorScheme strainColor = new StrainColorScheme(sim);    
-    getDisplayBox(sim.box).setColorScheme(strainColor);
-    strainColor.setNumber(37);
+        final StrainColorScheme strainColor = new StrainColorScheme(sim);    
+        getDisplayBox(sim.box).setColorScheme(strainColor);
+        strainColor.setNumber(37);
 
-//********************************* Simulation Configuration Data*********************************************************
-//    JPanel textPanel = new JPanel();
-//    textPanel.setBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EtchedBorder(
-//                                javax.swing.border.EtchedBorder.RAISED, java.awt.Color.gray, java.awt.Color.black)));
-//    final JTextField textField1[] = new JTextField[4];
-//    final JTextField textField2[] = new JTextField[4];
-//        textPanel.setLayout(new java.awt.GridLayout(1, (textField1.length+textField2.length) ));
-//        for(int i=0; i<textField1.length;i++){
-//                textField1[i] = new JTextField();
-//                textField1[i].setHorizontalAlignment(SwingConstants.CENTER);textField1[i].setEditable(false); 
-//                textField1[i].setFont(new java.awt.Font(null,java.awt.Font.BOLD,12));
-//                textField2[i] = new JTextField();
-//                textField2[i].setHorizontalAlignment(SwingConstants.CENTER);textField2[i].setEditable(true);                
-//                textPanel.add(textField1[i]);textPanel.add(textField2[i]);
-//            }
-//     textField1[0].setText(" Number of Atom ");   
-//     textField1[1].setText(" Dimension X ");   
-//     textField1[2].setText(" Dimension Y ");
-//     textField1[3].setText(" Gage Length ");
-//     srssf.setTextFields(textField2);     
-// *********************************Simulation Configuraiton Data*********************************************************
-//************************ start of Display Plot related ********************************************            
+        getController().getSimRestart().setConfiguration(sim.config);
 
-    final MeterStrain meterStrain = new MeterStrain();
-    meterStrain.setBox(sim.box);
-    meterStrain.setAtomNumber(37);
-    DataFork strainFork = new DataFork();
-    DataPump strainPump = new DataPump(meterStrain, strainFork);
-    getController().getDataStreamPumps().add(strainPump);
-    sim.integrator.addIntervalAction(strainPump);
-    AccumulatorAverageCollapsing strainAverage = new AccumulatorAverageCollapsing();
-    strainFork.addDataSink(strainAverage);
+        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
+        thermoSlider.setIntegrator(sim.integrator);
+        thermoSlider.setMaximum(600);
+        add(thermoSlider);
+        
+        final MeterStrain meterStrain = new MeterStrain();
+        meterStrain.setBox(sim.box);
+        meterStrain.setAtomNumber(37);
+        DataFork strainFork = new DataFork();
+        DataPump strainPump = new DataPump(meterStrain, strainFork);
+        getController().getDataStreamPumps().add(strainPump);
+        sim.integrator.addIntervalAction(strainPump);
+        AccumulatorAverageCollapsing strainAverage = new AccumulatorAverageCollapsing();
+        strainFork.addDataSink(strainAverage);
     
-    final MeterStress meterStress = new MeterStress(sim.pc);
-    meterStress.setBox(sim.box);
-    DataFork stressFork = new DataFork();
-    DataPump stressPump = new DataPump(meterStress, stressFork);
-    getController().getDataStreamPumps().add(stressPump);
-    sim.integrator.addIntervalAction(stressPump);
-    AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryScrolling(400));
-    stressHistory.setTimeDataSource(meterStrain);
-    stressFork.addDataSink(stressHistory);
-    AccumulatorAverageCollapsing stressAverage = new AccumulatorAverageCollapsing();
-    stressAverage.setPushInterval(10);
-    stressFork.addDataSink(stressAverage);
+        final MeterStress meterStress = new MeterStress(sim.pc);
+        meterStress.setBox(sim.box);
+        DataFork stressFork = new DataFork();
+        DataPump stressPump = new DataPump(meterStress, stressFork);
+        getController().getDataStreamPumps().add(stressPump);
+        sim.integrator.addIntervalAction(stressPump);
+        AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryScrolling(400));
+        stressHistory.setTimeDataSource(meterStrain);
+        stressFork.addDataSink(stressHistory);
+        AccumulatorAverageCollapsing stressAverage = new AccumulatorAverageCollapsing();
+        stressAverage.setPushInterval(10);
+        stressFork.addDataSink(stressAverage);
     
-    DisplayPlot stressHistoryPlot = new DisplayPlot();
-    stressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
-    stressHistoryPlot.setLabel("Stress");
-    stressHistoryPlot.setDoLegend(false);
-    
-    add(stressHistoryPlot);
-    
-    final MeterElongation meterElongation = new MeterElongation();
-    meterElongation.setBox(sim.box);
-    meterElongation.setAtomNumber(37);
-    DataFork elongationFork = new DataFork();
-    DataPump elongationPump = new DataPump(meterElongation, elongationFork);
-    getController().getDataStreamPumps().add(elongationPump);
-    sim.integrator.addIntervalAction(elongationPump);
-    
-    final MeterLoad meterLoad = new MeterLoad(sim.pc);
-    DataFork loadFork = new DataFork();
-    DataPump loadPump = new DataPump(meterLoad, loadFork);
-    getController().getDataStreamPumps().add(loadPump);
-    sim.integrator.addIntervalAction(loadPump);
-    AccumulatorHistory loadHistory = new AccumulatorHistory(new HistoryScrolling(400));
-    loadHistory.setTimeDataSource(meterElongation);
-    loadFork.addDataSink(loadHistory);
-    AccumulatorAverageCollapsing loadAverage = new AccumulatorAverageCollapsing();
-    loadAverage.setPushInterval(10);
-    loadFork.addDataSink(loadAverage);
-    
-    DisplayPlot loadHistoryPlot = new DisplayPlot();
-    loadHistory.setDataSink(loadHistoryPlot.getDataSet().makeDataSink());
-    loadHistoryPlot.setLabel("Load");
-    stressHistoryPlot.setDoLegend(false);
-    
-    add(loadHistoryPlot);
-    
-    DisplayTextBoxesCAE stressDisplay = new DisplayTextBoxesCAE();
-    stressDisplay.setAccumulator(stressAverage);
-    add(stressDisplay);
-    
-    DisplayTextBoxesCAE strainDisplay = new DisplayTextBoxesCAE();
-    strainDisplay.setAccumulator(strainAverage);
-    add(strainDisplay);
+        DisplayPlot stressHistoryPlot = new DisplayPlot();
+        stressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
+        stressHistoryPlot.setLabel("Stress");
+        stressHistoryPlot.setDoLegend(false);
+        stressHistoryPlot.setDoDrawLines(new DataTag[]{stressHistory.getTag()}, false);
 
-     
+        add(stressHistoryPlot);
+
+        final MeterElongation meterElongation = new MeterElongation();
+        meterElongation.setBox(sim.box);
+        meterElongation.setAtomNumber(37);
+        DataFork elongationFork = new DataFork();
+        DataPump elongationPump = new DataPump(meterElongation, elongationFork);
+        getController().getDataStreamPumps().add(elongationPump);
+        sim.integrator.addIntervalAction(elongationPump);
+
+        final MeterLoad meterLoad = new MeterLoad(sim.pc);
+        DataFork loadFork = new DataFork();
+        DataPump loadPump = new DataPump(meterLoad, loadFork);
+        getController().getDataStreamPumps().add(loadPump);
+        sim.integrator.addIntervalAction(loadPump);
+        AccumulatorHistory loadHistory = new AccumulatorHistory(new HistoryScrolling(400));
+        loadHistory.setTimeDataSource(meterElongation);
+        loadFork.addDataSink(loadHistory);
+        AccumulatorAverageCollapsing loadAverage = new AccumulatorAverageCollapsing();
+        loadAverage.setPushInterval(10);
+        loadFork.addDataSink(loadAverage);
+
+        DisplayPlot loadHistoryPlot = new DisplayPlot();
+        loadHistory.setDataSink(loadHistoryPlot.getDataSet().makeDataSink());
+        loadHistoryPlot.setLabel("Load");
+        loadHistoryPlot.setDoLegend(false);
+        loadHistoryPlot.setDoDrawLines(new DataTag[]{loadHistory.getTag()}, false);
+
+        add(loadHistoryPlot);
+
+        DisplayTextBoxesCAE stressDisplay = new DisplayTextBoxesCAE();
+        stressDisplay.setAccumulator(stressAverage);
+        add(stressDisplay);
+
+        DisplayTextBoxesCAE strainDisplay = new DisplayTextBoxesCAE();
+        strainDisplay.setAccumulator(strainAverage);
+        add(strainDisplay);
+
+        ModifierGeneral springConstantModifier = new ModifierGeneral(sim.p1Tension, "springConstant");
+        DeviceSlider springConstantSlider = new DeviceSlider(sim.getController(), springConstantModifier);
+        springConstantSlider.setLabel("Spring Constant");
+        springConstantSlider.setShowBorder(true);
+        springConstantSlider.setMaximum(30);
+        add(springConstantSlider);
 //Potential Sliders
 //    etomica.ModulatorAbstract[] modul1 = new etomica.ModulatorAbstract[4];    
 //    DiameterModulator diaModulator1 = this.new DiameterModulator(P2LennardJones1,speciesSpheres0 );

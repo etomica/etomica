@@ -6,7 +6,7 @@ import etomica.data.DataSourceScalar;
 import etomica.units.Null;
 
 
-public final class MeterStrain extends DataSourceScalar {
+public class MeterStrain extends DataSourceScalar {
     
     public MeterStrain() {
         super("Strain", Null.DIMENSION);

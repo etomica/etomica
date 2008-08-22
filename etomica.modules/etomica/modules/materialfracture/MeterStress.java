@@ -9,7 +9,7 @@ import etomica.units.Pressure2D;
  *
  * @author Andrew Schultz
  */
-public final class MeterStress extends DataSourceScalar {
+public class MeterStress extends DataSourceScalar {
     
     public MeterStress(PotentialCalculationForceStress pc) {
         super("Stress", Pressure2D.DIMENSION);
