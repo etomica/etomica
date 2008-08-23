@@ -94,6 +94,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
         if (osg == null) {
             return;
         }
+        doPaint(osg);
         // now dispatch the paint request, which will happen on another thread
         super.repaint();
     }
