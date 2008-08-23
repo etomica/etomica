@@ -107,7 +107,9 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             BasisCell cell = cells[iCell];
+            System.out.println("Old");
             for(int i = 0; i< coordinateDim; i++){
+            	System.out.println(u[i]);
                 u[i] = 0;
             }
             
@@ -127,17 +129,23 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
                         delta1 = 5.0;
                         delta2 = 1.0;
                         u[j] += eigenVectors[iVector][i][j]*2.0*(delta1*coskR - delta2*sinkR);
-                        System.out.println("iCell: "+ iCell+" i: "+i+ " j: "+j+" u: "+u[j]);
+//                        System.out.println("iCell: "+ iCell+" i: "+i+ " j: "+j+" u: "+u[j]+ " ev: "+ eigenVectors[iVector][i][j]);
                     }
                 }
 //            }
             double normalization = 1/Math.sqrt(cells.length);
+            System.out.println("prenormal");
             for(int i = 0; i < coordinateDim; i++){
+                System.out.println(u[i]);
                 u[i] *= normalization;
             }
             
             coordinateDefinition.setToU(cells[iCell].molecules, u);
             
+            System.out.println("Postnormal");
+            for(int i = 0; i < coordinateDim; i++){
+                System.out.println(u[i]);
+            }
         }
         
         energyNew = energyMeter.getDataAsScalar();
