@@ -59,6 +59,15 @@ public class EtomicaPlot extends Plot {
         }
     }
     
+    public Graphics getGraphics() {
+        // this is so dumb, this is the only way to add points to the plot
+        // while the plot isn't showing.
+        if (!isShowing()) {
+            return null;
+        }
+        return super.getGraphics();
+    }
+    
     protected final DisplayPlot displayPlot;
     protected boolean needUpdate = false;
 }
