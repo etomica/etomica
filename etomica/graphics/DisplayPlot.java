@@ -194,12 +194,16 @@ public class DisplayPlot extends Display implements DataSetListener {
      */
     public void doUpdate() {
         int nSource = dataSet.getDataCount();
-        if (!plot.isShowing()) {
+        if (!plot.isShowing() && doClear) {
             // notify the plot we have updated data
             plot.notifyNeedUpdate();
             return;
         }
-        plot.clear(false);
+        // if we don't clear the plot, we'll draw now even if the plot isn't
+        // showing, since the data won't be remembered otherwise
+        if (doClear) {
+            plot.clear(false);
+        }
         for(int k=0; k<nSource; k++) {
         	double[] xValues = null;
             double[] data = null;
@@ -207,17 +211,17 @@ public class DisplayPlot extends Display implements DataSetListener {
                 xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
                 data = ((DataFunction)dataSet.getData(k)).getData();
 
-                boolean dataSetDrawLine = true;
                 DataTagBag tagDrawLine = DataTagBag.getDataTagBag(drawLineList, dataSet.getDataInfo(k).getTags());
                 if (tagDrawLine != null) {
-                    dataSetDrawLine = ((Boolean)tagDrawLine.object).booleanValue();
+                    // don't (or perhaps do) draw lines for this data set
+                    plot.setConnected(((Boolean)tagDrawLine.object).booleanValue(), k);
                 }
                 boolean drawLine = false;
                 for(int i=0; i<data.length; i++) {
                     double y = units[k].fromSim(data[i]);
                     if (!Double.isNaN(y)) {
                         plot.addPoint(k, xUnit.fromSim(xValues[i]), y, drawLine);
-                        drawLine = dataSetDrawLine;
+                        drawLine = true;
                     }
                     else {
                         drawLine = false;
@@ -225,7 +229,9 @@ public class DisplayPlot extends Display implements DataSetListener {
                 }
         	}
         }
-        plot.repaint();
+        if (plot.isShowing()) {
+            plot.repaint();
+        }
     }
 
     /**
@@ -281,7 +287,19 @@ public class DisplayPlot extends Display implements DataSetListener {
     public boolean isDoLegend() {return doLegend;}
     
     public void setLegend(DataTag[] dataTags, String label) {
+        DataTagBag bag = DataTagBag.getDataTagBagExact(labelList, dataTags);
+        if (bag != null) {
+            labelList.remove(bag);
+        }
         labelList.add(new DataTagBag(dataTags, label));
+    }
+
+    public void setDoClear(boolean newDoClear) {
+        doClear = newDoClear;
+    }
+
+    public boolean isDoClear() {
+        return doClear;
     }
 
     /**
@@ -289,6 +307,11 @@ public class DisplayPlot extends Display implements DataSetListener {
      * points connected with lines or not.
      */
     public void setDoDrawLines(DataTag[] dataTags, boolean doDrawLines) {
+        DataTagBag bag = DataTagBag.getDataTagBagExact(drawLineList, dataTags);
+        if (bag != null) {
+            drawLineList.remove(bag);
+        }
+        
         drawLineList.add(new DataTagBag(dataTags, doDrawLines));
         // if a data set's points aren't connected, we need to draw points
         if (!doDrawLines) {
@@ -319,10 +342,14 @@ public class DisplayPlot extends Display implements DataSetListener {
     }
     
     public void setUnit(DataTag[] dataTags, Unit newUnit) {
+        DataTagBag bag = DataTagBag.getDataTagBagExact(unitList, dataTags);
+        if (bag != null) {
+            unitList.remove(bag);
+        }
+
         unitList.add(new DataTagBag(dataTags, newUnit));
 
-        // now go through and look for a current Data with these tags, but
-        // don't use these tags if a previous set of tags also matches.
+        // now go through and look for a current Data with these tags
         for(int i=0; i<units.length; i++) {
             // if the user specified a unit for this data specifically, use it.
             DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
@@ -356,6 +383,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     protected final LinkedList<DataTagBag> drawLineList;
     protected final javax.swing.JPanel panel;
     private boolean doLegend = true;
+    protected boolean doClear = true;
     private Unit xUnit = Null.UNIT;
     private Unit[] units;
     private Unit defaultUnit;
