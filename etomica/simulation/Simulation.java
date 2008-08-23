@@ -2,7 +2,6 @@ package etomica.simulation;
 
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
@@ -32,7 +31,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         this.space = space;
         this.dynamic = isDynamic;
         boxList = new IBox[0];
-        setController(new Controller());
+        controller = new Controller();
         random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
         speciesManager = new SpeciesManager(this);
@@ -90,16 +89,10 @@ public class Simulation implements java.io.Serializable, ISimulation  {
      * Returns the Controller used to run the simulation's Actions and 
      * Activities.
      */
-	public IController getController() {
+	public Controller getController() {
 		return controller;
 	}
 	
-	//TODO transfer control from old to new controller (copy over integrators, etc)
-    //AJS really?
-	public void setController(IController controller) {
-		this.controller = controller;
-	}
-    
     /**
      * @return Returns a flag indicating whether the simulation involves molecular dynamics.
      */
@@ -133,5 +126,5 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     private final ISpeciesManager speciesManager;
     protected final IRandom random;
     protected final boolean dynamic;
-    private IController controller;
+    private Controller controller;
 }
