@@ -15,7 +15,7 @@ import etomica.data.DataTag;
 public class DataTagBag {
 
     public DataTagBag(DataTag[] tags, Object obj) {
-        this.tags = (DataTag[])tags.clone();
+        this.tags = tags.clone();
         object = obj;
     }
     public final DataTag[] tags;
@@ -25,14 +25,14 @@ public class DataTagBag {
      * Returns the first DataTagBag from the given list that has no non-matching
      * tags with the given desiredTags
      */
-    public static DataTagBag getDataTagBag(LinkedList dataTagBags, DataTag[] desiredTags) {
-        Iterator iterator = dataTagBags.iterator();
+    public static DataTagBag getDataTagBag(LinkedList<DataTagBag> dataTagBags, DataTag[] desiredTags) {
+        Iterator<DataTagBag> iterator = dataTagBags.iterator();
         // match the first set of tags that has no non-matching tags
         DataTagBag bestBag = null;
         int bestNumMatches = 0;
         while (iterator.hasNext()) {
             int thisNumMatches = 0;
-            DataTagBag tagUnit = (DataTagBag)iterator.next();
+            DataTagBag tagUnit = iterator.next();
             DataTag[] tags = tagUnit.tags;
             boolean found = true;
             for (int j=0; j<tags.length; j++) {
@@ -58,5 +58,39 @@ public class DataTagBag {
         
         return bestBag;
     }
-    
+
+    /**
+     * Return the DataTagBag with the given set of tags (exactly) if it exists,
+     * or null of no such DataTagBag exists.
+     */
+    public static DataTagBag getDataTagBagExact(LinkedList<DataTagBag> dataTagBags, DataTag[] exactTags) {
+        Iterator<DataTagBag> iterator = dataTagBags.iterator();
+        // match the first set of tags that has no non-matching tags
+        while (iterator.hasNext()) {
+            DataTagBag tagUnit = iterator.next();
+            DataTag[] tags = tagUnit.tags;
+            if (tags.length != exactTags.length) {
+                continue;
+            }
+            boolean found = true;
+            for (int j=0; j<tags.length; j++) {
+                found = false;
+                for (int k=0; k<exactTags.length; k++) {
+                    if (exactTags[k] == tags[j]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    break;
+                }
+            }
+            if (found) {
+                return tagUnit;
+            }
+        }
+        
+        return null;
+    }
+ 
 }
