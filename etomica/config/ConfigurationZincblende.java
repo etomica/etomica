@@ -136,7 +136,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         config.initializeCoordinates(box);
 
         final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, space);
-        simGraphic.add(new DisplayBox(sim, box, space));
+        simGraphic.add(new DisplayBox(sim, box, space, sim.getController()));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(speciesSpheres0.getLeafType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getLeafType(), java.awt.Color.red);

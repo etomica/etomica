@@ -102,7 +102,7 @@ public class Heisenberg extends Simulation {
         simGraphic.remove(displayBox);
         BoxAgentManager boxAgentManager = sim.potentialMaster.getCellAgentManager();
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(sim.box);
-        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp));
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp, sim.getController()));
         simGraphic.add(displayBox);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
         temperatureSlider.setMinimum(0.5);

@@ -2,6 +2,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import etomica.action.activity.Controller;
 import etomica.atom.AtomFilter;
 import etomica.exception.MethodNotImplementedException;
 import etomica.math.geometry.LineSegment;
@@ -12,7 +13,8 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
     
     private DisplayPolytope displayPolytope;
 
-    public DisplayPolytopeCanvas2D(DisplayPolytope _polytope) {
+    public DisplayPolytopeCanvas2D(DisplayPolytope _polytope, Controller controller) {
+        super(controller);
         displayPolytope = _polytope;
     }
     

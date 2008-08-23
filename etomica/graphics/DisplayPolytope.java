@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
+import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
@@ -14,7 +15,6 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.PolygonGeneral;
 import etomica.math.geometry.Polytope;
-import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -175,7 +175,7 @@ public class DisplayPolytope extends Display implements IAction {
 //                canvas = new DisplayPolytopeCanvasG3Dsys(this, 400, 400);
                 break;
             case 2:
-                canvas = new DisplayPolytopeCanvas2D(this);
+                canvas = new DisplayPolytopeCanvas2D(this, null);
                 break;
             case 1:
 //                canvas = new DisplayBoundaryCanvas1D(this);

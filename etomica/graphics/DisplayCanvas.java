@@ -48,31 +48,56 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     
     protected Pixel pixel;
     
-    public DisplayCanvas() {
+    protected final Controller controller;
+    
+    /**
+     * Construct a DisplayCanvas using the given controller (which may be null).
+     * If a controller is given, the DisplayCanvas will suppress paint events
+     * from the system that occur while the controller is active.
+     */
+    public DisplayCanvas(Controller controller) {
+        this.controller = controller;
         setBackground(java.awt.Color.white);
     }
 
-    public void createOffScreen () {
+    protected void ensureOffScreen () {
         if (offScreen == null) { 
             createOffScreen(getSize().width, getSize().height);
         }
     }
-    public void createOffScreen (int p) {
-        createOffScreen(p,p);
-    }
-    public void createOffScreen(int w, int h) {
+
+    protected void createOffScreen(int w, int h) {
         offScreen = createImage(w,h);
         if(offScreen != null) osg = offScreen.getGraphics();
     }
     
-    public abstract void doPaint(Graphics g);
+    protected abstract void doPaint(Graphics g);
     
     public void paint(Graphics g) {
-        createOffScreen();
-        doPaint(osg);
+        if (controller == null || !controller.isActive() || controller.isPaused()) {
+            // controller isn't running (we weren't called from the integrator)
+            // so we need to do the drawing work here
+            ensureOffScreen();
+            if (osg == null) {
+                return;
+            }
+            doPaint(osg);
+        }
+        // copy the image we just made (or was made previously on the
+        // integrator's thread to the screen
         g.drawImage(offScreen, 0, 0, null);
     }
 
+    public void repaint() {
+        // do the drawing work now (on this thread)
+        ensureOffScreen();
+        if (osg == null) {
+            return;
+        }
+        // now dispatch the paint request, which will happen on another thread
+        super.repaint();
+    }
+    
     /**
      * Same as setSize, but included to implement DisplayCanvasInterface,
      * which has this for compatibility with OpenGL.

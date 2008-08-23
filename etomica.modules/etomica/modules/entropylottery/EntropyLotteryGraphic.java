@@ -46,7 +46,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 	    //display of box, timer
         getDisplayBox(sim.box).setPixelUnit(new Pixel(300/sim.box.getBoundary().getDimensions().x(0)));
         getDisplayBox(sim.box).setDrawingHeight(300);
-        DisplayBoxCanvas1DBins canvas = new DisplayBoxCanvas1DBins(getDisplayBox(sim.box));
+        DisplayBoxCanvas1DBins canvas = new DisplayBoxCanvas1DBins(getDisplayBox(sim.box), sim.getController());
         getDisplayBox(sim.box).setBoxCanvas(canvas);
 
         //tabbed pane for the big displays

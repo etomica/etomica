@@ -8,6 +8,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
+import etomica.action.activity.Controller;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
@@ -37,7 +38,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private final IVector boundingBox;
     protected final ISpace space;
         
-    public DisplayBoxCanvas2D(DisplayBox _box, ISpace _space) {
+    public DisplayBoxCanvas2D(DisplayBox _box, ISpace _space, Controller controller) {
+        super(controller);
     	this.space = _space;
         scaleText.setVisible(true);
         scaleText.setEditable(false);

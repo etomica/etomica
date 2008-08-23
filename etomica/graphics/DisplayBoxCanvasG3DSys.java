@@ -3,12 +3,12 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Panel;
-import java.awt.TextField;
 
 import javax.vecmath.Point3f;
 
 import org.jmol.g3d.Graphics3D;
 
+import etomica.action.activity.Controller;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -37,7 +37,6 @@ import g3dsys.images.Triangle;
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		AgentSource, BondManager {
 
-	private TextField scaleText = new TextField();
 
 	// will handle all actual drawing
 	private G3DSys gsys;
@@ -60,11 +59,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private double[] planeAngles;
     private final ISpace space;
 
-	public DisplayBoxCanvasG3DSys(DisplayBox _box, ISpace _space) {
-		// old stuff
-		scaleText.setVisible(true);
-		scaleText.setEditable(false);
-		scaleText.setBounds(0, 0, 100, 50);
+	public DisplayBoxCanvasG3DSys(DisplayBox _box, ISpace _space, Controller controller) {
+	    super(controller);
 		displayBox = _box;
 		space = _space;
 
@@ -210,6 +206,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	}
 
 	public void doPaint(Graphics g) {
+	    System.out.println("painting");
 
 		// handle pending bond addition requests
 		if (pendingBonds.size() > 0) {

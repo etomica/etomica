@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
+import etomica.action.activity.Controller;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
@@ -83,6 +84,8 @@ public class DisplayBox extends Display {
      * to have on when imageShells is non-zero.  Default value is <code>false</code>.
      */
     private boolean drawOverflow = false;
+    
+    protected final Controller controller;
   
     /**
      * Warning: after instantiation, clients using G3DSys may need to toggle
@@ -96,8 +99,9 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(ISimulation sim, IBox box, ISpace space) {
+    public DisplayBox(ISimulation sim, IBox box, ISpace space, Controller controller) {
         super();
+        this.controller = controller;
         this.space = space;
         colorScheme = new ColorSchemeByType(sim);
         setLabel("Configuration");
@@ -303,7 +307,7 @@ public class DisplayBox extends Display {
                 boxX *=1.4;
                 boxY *=1.4;
                 if(canvas == null) {
-                	canvas = new DisplayBoxCanvasG3DSys(this, space);
+                	canvas = new DisplayBoxCanvasG3DSys(this, space, controller);
                     setSize(boxX, boxY);
                 }
                 else {
@@ -314,13 +318,13 @@ public class DisplayBox extends Display {
                 break;
             case 2:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * toPixels + 1);
-                canvas = new DisplayBoxCanvas2D(this, space);
+                canvas = new DisplayBoxCanvas2D(this, space, controller);
                 setSize(boxX, boxY);
                 break;
             case 1:
             default:
                 boxY = drawingHeight;
-                canvas = new DisplayBoxCanvas1D(space, this);
+                canvas = new DisplayBoxCanvas1D(space, this, controller);
                 setSize(boxX, boxY);
                 break;
         }

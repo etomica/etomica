@@ -1,12 +1,16 @@
 package etomica.graphics;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
@@ -15,6 +19,7 @@ import etomica.api.IBox;
 import etomica.api.IController;
 import etomica.api.IIntegrator;
 import etomica.api.ISimulation;
+import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.Simulation;
@@ -42,7 +47,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     private SimulationPanel simulationPanel;
     private final DeviceTrioControllerButton dcb;
-    protected final ISimulation simulation;
+    protected final Simulation simulation;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList displayList = new LinkedList();
     private final LinkedList deviceList = new LinkedList();
@@ -130,7 +135,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        IBox box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
-	        final DisplayBox display = new DisplayBox(simulation, box, space);
+	        final DisplayBox display = new DisplayBox(simulation, box, space, simulation.getController());
 	        add(display);
 	         
 	        /* For G3DSys: panel is invisible until set visible here.

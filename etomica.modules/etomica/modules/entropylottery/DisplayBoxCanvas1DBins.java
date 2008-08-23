@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Iterator;
 
+import etomica.action.activity.Controller;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.api.IAtomPositioned;
-
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -25,7 +25,8 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     private int[] atomCount;
     private DataSource extraDataSource;
     
-    public DisplayBoxCanvas1DBins(DisplayBox _box) {
+    public DisplayBoxCanvas1DBins(DisplayBox _box, Controller controller) {
+        super(controller);
         displayBox = _box;
         atomCount = new int[0];
     }

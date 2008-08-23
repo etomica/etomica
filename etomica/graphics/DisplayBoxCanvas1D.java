@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.action.activity.Controller;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeSphere;
@@ -31,7 +32,8 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     private final static Color wellColor = new Color(185,185,185, 110);
     private final ISpace space;
     
-    public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box) {
+    public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box, Controller _controller) {
+        super(_controller);
         displayBox = _box;
         space = _space;
         scaleText.setVisible(true);
