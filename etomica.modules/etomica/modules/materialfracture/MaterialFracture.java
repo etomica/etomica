@@ -48,8 +48,8 @@ public class MaterialFracture extends Simulation {
         pc = new PotentialCalculationForceStress();
         integrator.setForceSum(pc);
         getController().addAction(new ActivityIntegrate(integrator));
-        P2LennardJones p2LennardJones1 = new P2LennardJones(space, 3, 2000);
-        P2SoftSphericalTruncated pt = new P2SoftSphericalTruncated(space, p2LennardJones1, 4.5*3.0);
+        P2LennardJones p2LJ = new P2LennardJones(space, 3, 2000);
+        P2SoftSphericalTruncated pt = new P2SoftSphericalTruncated(space, p2LJ, 7.5);
         
         p1Tension = new P1Tension(space); 
         p1Tension.setSpringConstant(1);
