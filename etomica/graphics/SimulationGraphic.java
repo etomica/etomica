@@ -1,12 +1,12 @@
 package etomica.graphics;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -49,9 +49,9 @@ public class SimulationGraphic implements SimulationContainer {
     private final DeviceTrioControllerButton dcb;
     protected final Simulation simulation;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
-    private final LinkedList displayList = new LinkedList();
-    private final LinkedList deviceList = new LinkedList();
-    private HashMap repaintActions = new HashMap();
+    private final LinkedList<Display> displayList = new LinkedList<Display>();
+    private final LinkedList<Device> deviceList = new LinkedList<Device>();
+    private HashMap<IBox,IAction> repaintActions = new HashMap<IBox,IAction>();
     private int graphicType = GRAPHIC_ONLY;
     protected final ISpace space;
 
@@ -101,8 +101,8 @@ public class SimulationGraphic implements SimulationContainer {
 
     public ISimulation getSimulation() {return simulation;}
     
-    public final LinkedList displayList() { return displayList;}
-    public final LinkedList deviceList() { return deviceList; }
+    public final LinkedList<Display> displayList() { return displayList;}
+    public final LinkedList<Device> deviceList() { return deviceList; }
         
     /**
      * A visual display of the simulation via a JPanel.
@@ -115,7 +115,7 @@ public class SimulationGraphic implements SimulationContainer {
 	private void setupDisplayBox() {
 	    IController controller = ((Simulation)simulation).getController();
 	    IAction[] activities = controller.getPendingActions();
-	    LinkedList boxList = new LinkedList();
+	    LinkedList<IBox> boxList = new LinkedList<IBox>();
 	    for (int i=0; i<activities.length; i++) {
 	        if (activities[i] instanceof ActivityIntegrate) {
 	            IIntegrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
@@ -130,7 +130,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * a box handled by an Integrator is in BoxList, a new DisplayBox is
 	  * not created.
 	  */
-	private void setupDisplayBox(IIntegrator integrator, LinkedList boxList) {
+	private void setupDisplayBox(IIntegrator integrator, LinkedList<IBox> boxList) {
 	    if (integrator instanceof IntegratorBox) {
 	        IBox box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
@@ -143,14 +143,12 @@ public class SimulationGraphic implements SimulationContainer {
 	         * the 'random gray panel on startup' bug. Have been
 	         * unable to reproduce after adding this, anyway.
 	         */
-	        if(display.canvas instanceof JComponent) {
 	          /* setting to false and then true just in case that's enough
 	           * to fix it, since switching tabs on a gray startup will
 	           * always make the panel draw properly again
 	           */
-	          ((JComponent)display.canvas).setVisible(false);
-	          ((JComponent)display.canvas).setVisible(true);
-	        }
+	        display.canvas.setVisible(false);
+	        display.canvas.setVisible(true);
 	         
             IAction repaintAction = createDisplayBoxPaintAction(box);
 	        integrator.addIntervalAction(repaintAction);
@@ -174,7 +172,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  */
     public void setPaintInterval(IBox box, int interval) {
 
-    	IAction repaintAction = (IAction)repaintActions.get(box);
+    	IAction repaintAction = repaintActions.get(box);
 	    IAction[] controllerActions = ((Simulation)simulation).getController().getAllActions();
 
 	    for (int i = 0;  i < controllerActions.length;  i++) {
@@ -218,10 +216,10 @@ public class SimulationGraphic implements SimulationContainer {
 	  * @return Returns the paint action associated with the given Box.
 	  */
     public IAction getPaintAction(IBox box) {
-	    return (IAction)repaintActions.get(box);
+	    return repaintActions.get(box);
     }
    
-    public void add(Display display) {
+    public void add(final Display display) {
         final Component component = display.graphic(null);
         if(component == null) return; //display is not graphic
 
@@ -231,10 +229,47 @@ public class SimulationGraphic implements SimulationContainer {
         	}
         	else {
         		getPanel().metricPanel.add(component, SimulationPanel.getVertGBC());
-        		if(getPanel().metricPanel.isAncestorOf(getPanel().tabbedPane) == false) {
+        		if(getPanel().metricPanel.getParent() == null) {
         		    getPanel().tabbedPane.add(getPanel().metricPanel);
         		    int idx = getPanel().tabbedPane.indexOfComponent(getPanel().metricPanel);
                     getPanel().tabbedPane.setTitleAt(idx,"Metrics");
+
+                    final JPopupMenu popupMenu = new JPopupMenu();
+                    final JMenuItem detachMenuItem = new JMenuItem("detach");
+                    final JMenuItem reattachMenuItem = new JMenuItem("reattach");
+                    detachMenuItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            JFrame f = new JFrame();
+                            f.setTitle("Metrics");
+                            getPanel().tabbedPane.remove(getPanel().metricPanel);
+                            f.add(getPanel().metricPanel);
+                            f.setSize(getPanel().metricPanel.getWidth()+5,getPanel().metricPanel.getHeight()+40);
+                            f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                            f.setVisible(true);
+                            popupMenu.removeAll();
+                            popupMenu.add(reattachMenuItem);
+                        }
+                    });
+                    popupMenu.add(detachMenuItem);
+
+                    reattachMenuItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            Container f = getPanel().metricPanel.getParent();
+                            while (!(f instanceof JFrame)) {
+                                f = f.getParent();
+                                if (f == null) {
+                                    return;
+                                }
+                            }
+                            f.remove(getPanel().metricPanel);
+                            f.setVisible(false);
+                            getPanel().tabbedPane.add("Metrics", getPanel().metricPanel);
+                            popupMenu.removeAll();
+                            popupMenu.add(detachMenuItem);
+                        }
+                    });
+
+                    getPanel().metricPanel.addMouseListener(new PopupListener(popupMenu));
         		}
         	}
         }
@@ -244,6 +279,45 @@ public class SimulationGraphic implements SimulationContainer {
             }
             else {
             	getPanel().tabbedPane.add(display.getLabel(), component);
+
+            	if (!(display instanceof DisplayBox)) {
+                    final JPopupMenu popupMenu = new JPopupMenu();
+                    final JMenuItem detachMenuItem = new JMenuItem("detach");
+                    final JMenuItem reattachMenuItem = new JMenuItem("reattach");
+                    detachMenuItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            JFrame f = new JFrame();
+                            f.setTitle(display.getLabel());
+                            getPanel().tabbedPane.remove(component);
+                            f.add(component);
+                            f.setSize(component.getWidth()+5,component.getHeight()+40);
+                            f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                            f.setVisible(true);
+                            popupMenu.removeAll();
+                            popupMenu.add(reattachMenuItem);
+                        }
+                    });
+                    popupMenu.add(detachMenuItem);
+
+                    reattachMenuItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            Container f = component.getParent();
+                            while (!(f instanceof JFrame)) {
+                                f = f.getParent();
+                                if (f == null) {
+                                    return;
+                                }
+                            }
+                            f.remove(component);
+                            f.setVisible(false);
+                            getPanel().tabbedPane.add(display.getLabel(), component);
+                            popupMenu.removeAll();
+                            popupMenu.add(detachMenuItem);
+                        }
+                    });
+
+                    component.addMouseListener(new PopupListener(popupMenu));
+            	}
             }
             //add a listener to update the tab label if the name of the display changes
             display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -378,7 +452,7 @@ public class SimulationGraphic implements SimulationContainer {
         };
         
     public DisplayBox getDisplayBox(IBox box) {
-        Iterator iterator = displayList.iterator();
+        Iterator<Display> iterator = displayList.iterator();
         while(iterator.hasNext()) {
             Object display = iterator.next();
             if(display instanceof DisplayBox) {
