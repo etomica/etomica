@@ -30,47 +30,46 @@ public class MaterialFracture extends Simulation {
     public final IntegratorVelocityVerlet integrator;
     public final PotentialCalculationForceStress pc;
     public final P1Tension p1Tension;
-    
+
     public MaterialFracture() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
         box = new Box(this, space);
         box.setBoundary(new BoundaryRectangularSlit(this, 0, space));
-        box.getBoundary().setDimensions(space.makeVector(new double[]{80,30}));
+        box.getBoundary().setDimensions(space.makeVector(new double[]{90,30}));
         addBox(box);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);
-        integrator.setThermostatInterval(1);
-        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(400);
+        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_NODRIFT);
         integrator.setBox(box);
-        pc = new PotentialCalculationForceStress();
+        pc = new PotentialCalculationForceStress(space);
         integrator.setForceSum(pc);
         getController().addAction(new ActivityIntegrate(integrator));
         P2LennardJones p2LJ = new P2LennardJones(space, 3, 2000);
         P2SoftSphericalTruncated pt = new P2SoftSphericalTruncated(space, p2LJ, 7.5);
-        
+
         p1Tension = new P1Tension(space); 
-        p1Tension.setSpringConstant(1);
         species = new SpeciesSpheresMono(this, space);
         ((ElementSimple)species.getLeafType().getElement()).setMass(40);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(3.0);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 198);
-        
+
         potentialMaster.addPotential(pt, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.addPotential(p1Tension, new IAtomTypeLeaf[]{species.getLeafType()});
-        
+
         PrimitiveGeneral primitive = new PrimitiveGeneral(space, new IVector[]{space.makeVector(new double[]{Math.sqrt(3),0}), space.makeVector(new double[]{0,1})});
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {
-            public void initializeCoordinates(IBox box) {
-                IVector d = box.getBoundary().getDimensions();
-                d.setX(0, 60);
-                box.getBoundary().setDimensions(d);
-                super.initializeCoordinates(box);
-                d.setX(0, 80);
-                box.getBoundary().setDimensions(d);
+            public void initializeCoordinates(IBox aBox) {
+                IVector d = aBox.getBoundary().getDimensions();
+                d.setX(0, 64.7);
+                aBox.getBoundary().setDimensions(d);
+                super.initializeCoordinates(aBox);
+                d.setX(0, 90);
+                aBox.getBoundary().setDimensions(d);
             }
         };
         config.initializeCoordinates(box);
