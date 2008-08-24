@@ -5,12 +5,16 @@ import etomica.api.IAtomSet;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
-import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialSoft;
+import etomica.space.ISpace;
 
 public class PotentialCalculationForceStress extends
-        PotentialCalculationForceSum {
+        PotentialCalculationForcePressureSum {
 
+    public PotentialCalculationForceStress(ISpace space) {
+        super(space);
+    }
     
     public void reset() {
         super.reset();
@@ -28,7 +32,7 @@ public class PotentialCalculationForceStress extends
     public void doCalculation(IAtomSet atoms, IPotential potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
-        IVector[] f = potentialSoft.gradient(atoms);
+        IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
         switch(nBody) {
             case 1:
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
