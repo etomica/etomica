@@ -127,10 +127,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         private static final long serialVersionUID = 1L;
         public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
         public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
+        public static final ThermostatType ANDERSEN_NODRIFT = new ThermostatType("Anderson without drift");
         public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
         //public static final ThermostatType NOSE_HOOVER;
         public static ThermostatType[] choices() {
-            return new ThermostatType[] {VELOCITY_SCALING,ANDERSEN,ANDERSEN_SINGLE};
+            return new ThermostatType[] {VELOCITY_SCALING,ANDERSEN,ANDERSEN_SINGLE,ANDERSEN_NODRIFT};
         }
 
         /**
@@ -179,14 +180,15 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     public void doThermostat() {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
-            if (thermostat == ThermostatType.ANDERSEN || !initialized) {
+            if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.ANDERSEN_NODRIFT || !initialized) {
                 // if initializing the system always randomize the velocity
                 randomizeMomenta();
-                currentKineticEnergy = meterKE.getDataAsScalar();
+                if (thermostat == ThermostatType.ANDERSEN) {
+                    currentKineticEnergy = meterKE.getDataAsScalar();
+                }
             }
-            if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
+            if (thermostat == ThermostatType.VELOCITY_SCALING || thermostat == ThermostatType.ANDERSEN_NODRIFT || !isothermal) {
                 scaleMomenta();
-                currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
@@ -247,6 +249,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         momentum.E(0);
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
+        currentKineticEnergy = 0;
         if (nLeaf == 0) return;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -281,8 +284,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             }
             momentum.E(0);
         }
-        if (temperature == 0) {
-        }
         
         // calculate current kinetic temperature.
         for (int i = 0; i < space.D(); i++) {
@@ -307,10 +308,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
                 }
                 randomizeMomenta();
                 i--;
-                // try again, we could infinite loop in theory, but only if 
+                // try again, we could infinite loop in theory
                 continue;
             }
             double s = Math.sqrt(temperature / (sum / nLeaf));
+            currentKineticEnergy += 0.5*sum*s*s;
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
