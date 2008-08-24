@@ -19,7 +19,7 @@ public class P1Tension implements PotentialSoft {
         this.space = space;
         force = new IVector[1];
         force[0] = space.makeVector();
-        setSpringConstant(100.0);
+        setSpringConstant(0.0);
     }
     
     public int nBody() {
