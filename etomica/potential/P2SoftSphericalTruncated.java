@@ -124,7 +124,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
         
         public IVector[] gradient(IAtomSet atoms) {
-            throw new RuntimeException("Should not be calling gradient on zero-body potential");
+            return null;
         }
         
         public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
