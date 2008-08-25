@@ -48,7 +48,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return kcut;
 	}
 	
-	double jcut = 4.5; //this may not be ideal cutoff for FCC Cu system
+	double jcut = 6.0; //this may not be ideal cutoff for FCC Cu system
 	double kcut = jcut * 1.14;
 	
 	public void calcSums(IAtomSet atoms) {
@@ -61,9 +61,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             IAtomPositioned atomj = (IAtomPositioned)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			nearestImageTransformer.nearestImage(rij);
-			double r = Math.sqrt(rij.squared()); 
-			if (r > jcut) continue; 
-			//System.out.println("atom j  "+j+" | rij "+r);
+			double r = Math.sqrt(rij.squared()); 		
+			if (r > jcut){ 
+			    //System.out.println("atom j  "+j+" | rij "+r+", continue.");
+			    continue; 
+			}
+			
 			int indexj = atomj.getType().getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
@@ -133,25 +136,30 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				}
 				Sij *= Sijk;
 			} // exit for loop over k atoms
-	
-			if (Sij == 0) continue; // continue to next j atom in for loop 
+			
+			if (Sij == 0){
+			    //System.out.println("Sij is zero for atoms "+indexi+", "+atomj+".");
+			    continue;
+			} // continue to next j atom in for loop 
 			//System.out.println("		Sij "+ Sij);
 			
 			double rhoj0, rhoj1, rhoj2, rhoj3, x, y, z;
-   
+
 			rhoj0 = pj.rho0 * Math.exp(-pj.b0 * ((r/pj.r0) - 1.0)) * Sij;
 			rhoj1 = pj.rho0 * Math.exp(-pj.b1 * ((r/pj.r0) - 1.0)) * Sij;
 			rhoj2 = pj.rho0 * Math.exp(-pj.b2 * ((r/pj.r0) - 1.0)) * Sij;
 			rhoj3 = pj.rho0 * Math.exp(-pj.b3 * ((r/pj.r0) - 1.0)) * Sij;
-	
+			
+			//if(rhoj0==0){System.out.println("rhoj0 is zero.");}
+			
 			unitVector.E(rij);
 			unitVector.normalize();
 			x = unitVector.x(0);
 			y = unitVector.x(1);
 			z = unitVector.x(2);
-    
-			sum[RHOj0] += rhoj0;
-
+						
+            sum[RHOj0] += rhoj0;
+            
 			sum[RHOj1x] += rhoj1 * x;
 			sum[RHOj1y] += rhoj1 * y;
 			sum[RHOj1z] += rhoj1 * z;  	
@@ -222,6 +230,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			}
 		} // exit for loop over j atoms
 		//System.out.println("Done");
+		
 	} // exit calcSums()
 
 	/** The following methods are not called until after calcSums() is called in
@@ -350,6 +359,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		}
 		
         calcSums(atoms);
+        
+        if(sum[RHOj0]==0){
+            System.out.println("Returning zero for force: atom "+atoms.getAtom(0));
+            return 0;
+        }
         
         double rhoi0 = rhoi0(), rhoi1sq = rhoi1sq(), rhoi2sq = rhoi2sq(), 
 			rhoi3sq = rhoi3sq(), tav1 = tav1(), tav2 = tav2(), tav3 = tav3(), 
@@ -1199,8 +1213,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			//System.exit(0);
 		
 			gnEi[n].E(gnF);
-			gnEi[n].PEa1Tv1(0.5, sumGnPhi);
-            
+			gnEi[n].PEa1Tv1(0.5, sumGnPhi);	
+			
             // calculate contribution to pressure tensor and virial
             if (pressureTensor != null) {
                 // pressure tensor might be null if we're actually looking for
@@ -1276,6 +1290,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		
 		gnEi[0].E(giF);
 		gnEi[0].PEa1Tv1(0.5, sumGiPhi);
+		
+		if(gnEi[0].isNaN()){
+            throw new RuntimeException("atom "+indexi+"    "+atoms.getAtom(indexi));   
+        }
 		
 		return virial;
 	}
