@@ -34,21 +34,43 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         vect.setX(1, 0.1);
         vect.setX(2, -1.0);
         
-        sim.setMovableAtoms(50.0, vect);
-        
+        sim.setMovableAtoms(80.0, vect);
         sim.setPotentialListAtoms();
         
-        sim.initializeConfiguration("snSurface-md");
+        /*
+        sim.initializeConfiguration(fileName+"_saddle");
+        sim.calculateVibrationalModes(fileName+"_saddle");
+        
+        sim.initializeConfiguration(fileName+"_A_minimum");
+        sim.calculateVibrationalModes(fileName+"_A_minimum");
+        
+        sim.initializeConfiguration(fileName+"_B_minimum");
+        sim.calculateVibrationalModes(fileName+"_B_minimum");
+        */
+        
+        sim.initializeConfiguration("sns-md-6rc-l");
+        //sim.initializeConfiguration(fileName+"_saddle");
         
         sim.enableMolecularDynamics(1000);
         
-        sim.enableDimerSearch(fileName, 1000, true, false);
+        sim.enableDimerSearch(fileName, 1500, false, false);
+        
+        //sim.enableMinimumSearch(fileName, true);
+        
         
         XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+".xyz");
+        xyzwriter.setFileName(fileName+"_saddle.xyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimer.addIntervalAction(xyzwriter);
-        sim.integratorDimer.setActionInterval(xyzwriter, 10);
+        sim.integratorDimer.setActionInterval(xyzwriter, 5);
+        
+        /*
+        XYZWriter xyzwriterMin = new XYZWriter(sim.box);
+        xyzwriterMin.setFileName(fileName+"_B_minimum.xyz");
+        xyzwriterMin.setIsAppend(true);
+        sim.integratorDimerMin.addIntervalAction(xyzwriterMin);
+        sim.integratorDimerMin.setActionInterval(xyzwriterMin, 1);
+        */
         
     	sim.getController().actionPerformed();
 
