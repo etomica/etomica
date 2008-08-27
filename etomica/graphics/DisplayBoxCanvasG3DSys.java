@@ -206,7 +206,6 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	}
 
 	public void doPaint(Graphics g) {
-	    System.out.println("painting");
 
 		// handle pending bond addition requests
 		if (pendingBonds.size() > 0) {
