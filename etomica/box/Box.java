@@ -10,7 +10,6 @@ import etomica.api.IBoxEventManager;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.space.Boundary;
@@ -64,7 +63,6 @@ public class Box implements java.io.Serializable, IBox {
         eventManager = new BoxEventManager();
         setBoundary(boundary);
         
-        inflateEvent = new BoxInflateEvent(this);
         moleculeLists = new AtomArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
@@ -107,9 +105,11 @@ public class Box implements java.io.Serializable, IBox {
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
         addAtomNotify(molecule);
-        for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
-            if (moleculeLists[speciesIndex].getAtom(i).getIndex() != i) {
-                throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getAtom(i)+" "+i);
+        if (Debug.ON) {
+            for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
+                if (moleculeLists[speciesIndex].getAtom(i).getIndex() != i) {
+                    throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getAtom(i)+" "+i);
+                }
             }
         }
     }
@@ -117,7 +117,7 @@ public class Box implements java.io.Serializable, IBox {
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         AtomArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (moleculeList.getAtom(moleculeIndex) != molecule) {
+        if (Debug.ON && moleculeList.getAtom(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find "+molecule);
         }
         if (moleculeIndex < moleculeList.getAtomCount()-1) {
@@ -464,7 +464,6 @@ public class Box implements java.io.Serializable, IBox {
     private static final long serialVersionUID = 2L;
     private IBoundary boundary;;
     private final IBoxEventManager eventManager;
-    private final BoxEvent inflateEvent;
     protected AtomArrayList[] moleculeLists;
     private int index;
     private final ISpace space;
