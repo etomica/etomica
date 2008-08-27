@@ -169,7 +169,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
             n++;
         }
         // reserve this symbol so future calls to makeUniqueElementSymbol won't return it
-        // this will get repalced by the actual Element when it gets added via childTypeAddedNotify
+        // this will get replaced by the actual Element when it gets added via childTypeAddedNotify
         elementSymbolHash.put(symbolBase+n, null);
         return symbolBase+n;
     }
