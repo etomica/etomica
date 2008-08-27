@@ -11,7 +11,6 @@ public class Molecule extends Atom implements IMolecule {
     public Molecule(ISpecies species) {
         super(species);
         childList = new AtomArrayList(species.getNumLeafAtoms());
-        assignChildOrdinals();
     }
     
     /**
@@ -30,16 +29,6 @@ public class Molecule extends Atom implements IMolecule {
      */
     public final String toString() {
         return "Molecule(" + getType().getIndex()+" "+index + ")";
-    }
-
-    /**
-     * Assigns ordinals to all child atoms, numbering them sequentially
-     * according to their position in the childList.
-     */
-    private void assignChildOrdinals() {
-        for (int i = 0; i < childList.getAtomCount(); i++) {
-            childList.getAtom(i).setIndex(i);
-        }
     }
 
     /**
