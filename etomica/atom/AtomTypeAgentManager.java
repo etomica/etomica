@@ -172,6 +172,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         }
         else if (evt instanceof SimulationSpeciesAddedEvent) {
             ISpecies species = ((SimulationSpeciesAddedEvent)evt).getSpecies();
+            addAgent(species);
             for(int i = 0; i < species.getChildTypeCount(); i++) {
                 IAtomTypeLeaf newType = species.getChildType(i);
                 int indexMax = newType.getIndex();
