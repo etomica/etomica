@@ -188,7 +188,15 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
                 }
             }
             if (thermostat == ThermostatType.VELOCITY_SCALING || thermostat == ThermostatType.ANDERSEN_NODRIFT || !isothermal) {
-                scaleMomenta();
+                shiftMomenta();
+                if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
+                    scaleMomenta();
+                }
+                else {
+                    // shifting changes the kinetic energy, so we need to recalculate it
+                    // (scaleMomenta does this on its own)
+                    currentKineticEnergy = meterKE.getDataAsScalar();
+                }
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
@@ -240,16 +248,13 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     }
     
     /**
-     * Crude method to enforce constant-temperature constraint
-     * Scales momenta of all atoms by a constant factor so that 
-     * box adheres to setpoint temperature.  The state of the 
-     * integrator may need to be updated after calling this method.
+     * Subtracts net momentum from all atoms such that the new net momentum of
+     * the whole system is 0.
      */
-    protected void scaleMomenta() {
+    protected void shiftMomenta() {
         momentum.E(0);
         IAtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
-        currentKineticEnergy = 0;
         if (nLeaf == 0) return;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -284,7 +289,19 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             }
             momentum.E(0);
         }
-        
+    }
+
+    /**
+     * Crude method to enforce constant-temperature constraint
+     * Scales momenta of all atoms by a constant factor so that 
+     * box adheres to setpoint temperature.  The state of the 
+     * integrator may need to be updated after calling this method.
+     */
+    protected void scaleMomenta() {
+        IAtomSet leafList = box.getLeafList();
+        int nLeaf = leafList.getAtomCount();
+        currentKineticEnergy = 0;
+        if (nLeaf == 0) return;
         // calculate current kinetic temperature.
         for (int i = 0; i < space.D(); i++) {
             // scale independently in each dimension
