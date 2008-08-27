@@ -131,46 +131,32 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     	return speciesList.length;
     }
 
-    /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#getSpecie()
-	 */
     public ISpecies getSpecies(int index) {
         return speciesList[index];
     }
 
-    /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#atomTypeAddedNotify(etomica.api.IAtomType)
-	 */
     protected void atomTypeAddedNotify(IAtomTypeLeaf newChildType) {
-        if (newChildType instanceof IAtomTypeLeaf) {
-            Element newElement = ((IAtomTypeLeaf)newChildType).getElement();
-            Element oldElement = elementSymbolHash.get(newElement.getSymbol());
-            if (oldElement != null && oldElement != newElement) {
-                // having two AtomTypes with the same Element is OK, but having
-                // two Elements with the same symbol is not allowed.
-                throw new IllegalStateException("Element symbol "+newElement.getSymbol()+" already exists in this simulation as a different element");
-            }
-            // remember the element so we can check for future duplication
-            elementSymbolHash.put(newElement.getSymbol(), newElement);
-            LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
-            if (atomTypeList == null) {
-                atomTypeList = new LinkedList<IAtomType>();
-                elementAtomTypeHash.put(newElement, atomTypeList);
-            }
-            atomTypeList.add(newChildType);
+        Element newElement = newChildType.getElement();
+        Element oldElement = elementSymbolHash.get(newElement.getSymbol());
+        if (oldElement != null && oldElement != newElement) {
+            // having two AtomTypes with the same Element is OK, but having
+            // two Elements with the same symbol is not allowed.
+            throw new IllegalStateException("Element symbol "+newElement.getSymbol()+" already exists in this simulation as a different element");
         }
-
+        // remember the element so we can check for future duplication
+        elementSymbolHash.put(newElement.getSymbol(), newElement);
+        LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
+        if (atomTypeList == null) {
+            atomTypeList = new LinkedList<IAtomType>();
+            elementAtomTypeHash.put(newElement, atomTypeList);
+        }
+        atomTypeList.add(newChildType);
     }
 
-    /* (non-Javadoc)
-	 * @see etomica.simulation.ISpeciesManager#atomTypeRemovedNotify(etomica.api.IAtomType)
-	 */
     protected void atomTypeRemovedNotify(IAtomTypeLeaf removedType) {
-        // put the removed AtomType indices in a reservoir
-        Element oldElement = ((IAtomTypeLeaf)removedType).getElement();
+        // remove the type's element from our hash 
+        Element oldElement = removedType.getElement();
         elementSymbolHash.remove(oldElement.getSymbol());
-
-
     }
 
     /**
