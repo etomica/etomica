@@ -4,14 +4,15 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISimulationEventManager;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
-import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
+import etomica.simulation.SimulationSpeciesAddedEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
 
@@ -169,19 +170,13 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         if (evt instanceof SimulationSpeciesRemovedEvent) {
             releaseAgents(((SimulationSpeciesRemovedEvent)evt).getSpecies());
         }
-        else if (evt instanceof SimulationAtomTypeAddedEvent) {
-            IAtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
-            int indexMax = newType.getIndex();
-            if (newType instanceof ISpecies) {
-                int childMax = getMaxIndexOfChildren((ISpecies)newType);
-                if (childMax > indexMax) {
-                    indexMax = childMax;
-                }
-            }
-            agents = Arrays.resizeArray(agents, indexMax+1);
-            addAgent(newType);
-            if (newType instanceof ISpecies) {
-                makeChildAgents((ISpecies)newType);
+        else if (evt instanceof SimulationSpeciesAddedEvent) {
+            ISpecies species = ((SimulationSpeciesAddedEvent)evt).getSpecies();
+            for(int i = 0; i < species.getChildTypeCount(); i++) {
+                IAtomTypeLeaf newType = species.getChildType(i);
+                int indexMax = newType.getIndex();
+                agents = Arrays.resizeArray(agents, indexMax+1);
+                addAgent(newType);
             }
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {

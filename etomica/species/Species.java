@@ -4,7 +4,6 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IConformation;
 import etomica.api.ISpecies;
-import etomica.api.ISpeciesManager;
 import etomica.atom.AtomType;
 import etomica.util.Arrays;
 
@@ -21,17 +20,6 @@ public abstract class Species extends AtomType implements ISpecies {
      */
     public Species(IAtomPositionDefinition positionDefinition) {
         super(positionDefinition);
-    }
-    
-    /**
-     * Sets the SpeciesManager.  This is used for callbacks for notification of
-     * removal and addition of child types (not that that should ever happen!)
-     */
-    public void setSpeciesManager(ISpeciesManager newSpeciesManager) {
-        speciesManager = newSpeciesManager;
-        for (int i=0; i<childTypes.length; i++) {
-            childTypes[i].setIndex(speciesManager.requestTypeIndex());
-        }
     }
 
     /* (non-Javadoc)
@@ -51,10 +39,6 @@ public abstract class Species extends AtomType implements ISpecies {
         childTypes = (IAtomTypeLeaf[])Arrays.removeObject(childTypes,removedType);
         for (int i = 0; i < childTypes.length; i++) {
             childTypes[i].setChildIndex(i);
-        }
-        if (speciesManager != null) {
-            System.err.println("removing child types is generally a bit scary, but you did it while the molecule type was in the simulation, which makes you a bad person");
-            speciesManager.atomTypeRemovedNotify(removedType);
         }
     }
     
@@ -83,11 +67,6 @@ public abstract class Species extends AtomType implements ISpecies {
         newChildType.setSpecies(this);
         newChildType.setChildIndex(childTypes.length);
         childTypes = (IAtomTypeLeaf[]) Arrays.addObject(childTypes, newChildType);
-        if (speciesManager != null) {
-            System.err.println("You really shouldn't be adding leaf atom types after the Species has been added to the simulation");
-            speciesManager.atomTypeAddedNotify(newChildType);
-            newChildType.setIndex(speciesManager.requestTypeIndex());
-        }
     }
     
     /* (non-Javadoc)
@@ -104,6 +83,5 @@ public abstract class Species extends AtomType implements ISpecies {
     
     private static final long serialVersionUID = 2L;
     protected IConformation conformation;
-    protected ISpeciesManager speciesManager;
     protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
 }

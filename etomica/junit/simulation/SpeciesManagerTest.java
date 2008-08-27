@@ -135,7 +135,6 @@ public class SpeciesManagerTest extends TestCase {
 	/*
 	 * testRemoveFirstSpeciesChildIndex
 	 */
-/*
 	public void testRemoveFirstSpeciesChildIndex() {
 		int numSpecies = 6;
 		final int numAtomsPerSpecies = 3;
@@ -167,20 +166,16 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-//System.out.println("SPECIES : " + i);
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-//System.out.println("  i + " + i + " j : " + j + " idx : " + sm.getSpecies(i).getChildType(j).getIndex());
 			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
 			    		   sm.getSpecies(i).getChildType(j).getIndex());
 			}
 		}
 	}
-*/
 
 	/*
 	 * testRemoveSpeciesFromMiddleChildIndex
 	 */
-/*
 	public void testRemoveSpeciesFromMiddleChildIndex() {
 		int numSpecies = 6;
 		final int numAtomsPerSpecies = 3;
@@ -212,20 +207,16 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-//System.out.println("SPECIES : " + i);
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-//System.out.println("  i + " + i + " j : " + j + " idx : " + sm.getSpecies(i).getChildType(j).getIndex());
 			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
 			    		   sm.getSpecies(i).getChildType(j).getIndex());
 			}
 		}
 	}
-*/
 
 	/*
 	 * testRemoveLastSpeciesChildIndex
 	 */
-/*
 	public void testRemoveLastSpeciesChildIndex() {
 		int numSpecies = 6;
 		final int numAtomsPerSpecies = 3;
@@ -257,13 +248,11 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-//System.out.println("SPECIES : " + i);
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-//System.out.println("  i + " + i + " j : " + j + " idx : " + sm.getSpecies(i).getChildType(j).getIndex());
 			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
 			    		   sm.getSpecies(i).getChildType(j).getIndex());
 			}
 		}
 	}
-*/
+
 }

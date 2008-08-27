@@ -31,12 +31,6 @@ public interface ISpecies extends IAtomType {
     public int getIndex();
 
     /**
-     * Sets the SpeciesManager.  This is used for callbacks for notification of
-     * removal and addition of child types (not that that should ever happen!)
-     */
-    public void setSpeciesManager(ISpeciesManager newSpeciesManager);
-
-    /**
      * Builds and returns the IMolecule of this ISpecies.
      */
     public IMolecule makeMolecule();

@@ -19,7 +19,7 @@ public interface ISpeciesManager {
      * Simulation and does cleanup, including renumbering indices and firing 
      * AtomType-related event notifications.
      */
-    public boolean removeSpecies(ISpecies removedSpecies);
+    public void removeSpecies(ISpecies removedSpecies);
 
     /**
      * Returns the number of Species in the Simulation.
@@ -30,17 +30,5 @@ public interface ISpeciesManager {
      * Returns the Species in the Simulation for the specified index.
      */
     public ISpecies getSpecies(int index);
-
-    /**
-     * This method notifies the SpeciesManager that the give atomType was added
-     * to the system.  This method should be called by the AtomType at the top
-     * of the AtomType hierarchy whenver it receives notification of a new
-     * AtomType.
-     */
-    public void atomTypeAddedNotify(IAtomType newChildType);
-
-    public int requestTypeIndex();
-
-    public void atomTypeRemovedNotify(IAtomType removedType);
 
 }
