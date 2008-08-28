@@ -58,27 +58,27 @@ public class SimulationGraphic implements SimulationContainer {
     protected final ISpace space;
 
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              ISpace space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              int graphicType,
                              ISpace space,
                              Controller controller) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              String appName,
                              ISpace space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              int graphicType,
                              String appName,
                              ISpace space,
@@ -86,7 +86,7 @@ public class SimulationGraphic implements SimulationContainer {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              String appName,
                              int updateInterval,
                              ISpace space,
@@ -94,7 +94,7 @@ public class SimulationGraphic implements SimulationContainer {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space, controller);
     }
 
-    public SimulationGraphic(Simulation simulation,
+    public SimulationGraphic(ISimulation simulation,
                              int graphicType,
                              String appName,
     		                 int updateInterval,
@@ -117,7 +117,7 @@ public class SimulationGraphic implements SimulationContainer {
         default:
             throw new IllegalArgumentException("I don't understand graphicType "+graphicType);
         }
-        dcb = new DeviceTrioControllerButton(simulation, space);
+        dcb = new DeviceTrioControllerButton(simulation, space, controller);
         add(dcb);
         setupDisplayBox();
     }

@@ -38,9 +38,9 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(Simulation simulation, ISpace space) {
+    public DeviceTrioControllerButton(ISimulation simulation, ISpace space, Controller _controller) {
         this();
-        setSimulation(simulation, space);
+        setSimulation(simulation, space, _controller);
     }
     
     /**
@@ -69,10 +69,10 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    protected void setSimulation(Simulation sim, ISpace space) {
+    protected void setSimulation(ISimulation sim, ISpace space, Controller controller) {
         simulation = sim;
         simRestart = new SimulationRestart(sim, space);
-        final Controller c = (Controller)sim.getController();
+        final Controller c = controller;
         setController(c);
         startButton.setController(c);
         reinitButton.setPreAction(new IAction() {
@@ -171,7 +171,7 @@ public class DeviceTrioControllerButton extends Device {
         etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D(); 
 
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim, sp);
+        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim, sp, sim.getController());
             button.setShape("HORIZONTAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
 //          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
