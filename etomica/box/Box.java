@@ -91,7 +91,7 @@ public class Box implements java.io.Serializable, IBox {
         addMolecule(aNew);
         return aNew;
     }
-    
+
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
@@ -232,15 +232,8 @@ public class Box implements java.io.Serializable, IBox {
     private void collapseGlobalIndices() {
         if (Debug.ON) {
             int[] oldIndexArray = new int[maxIndex+1];
-            for (int i=0; i<allMoleculeList.getAtomCount(); i++) {
-                IAtom a = allMoleculeList.getAtom(i);
-                if (oldIndexArray[a.getGlobalIndex()] != 0) {
-                    throw new RuntimeException("molecule double index "+a.getGlobalIndex());
-                }
-                oldIndexArray[a.getGlobalIndex()] = 1;
-            }
             for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom a = leafList.getAtom(i);
+                IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
                 if (oldIndexArray[a.getGlobalIndex()] != 0) {
                     throw new RuntimeException("leaf double index "+a.getGlobalIndex());
                 }
@@ -274,10 +267,8 @@ public class Box implements java.io.Serializable, IBox {
         // we can't loop over the actual atoms in the box because we might be
         // in the middle of removing a molecule.  the leaf list and molecule list
         // will contain the atoms that haven't had their global indices recycled.
-        boolean isLeafList = allMoleculeList.getAtomCount() == 0;
-        IAtomSet currentList = isLeafList ? leafList : allMoleculeList;
-        for (int j = 0; j<currentList.getAtomCount(); j++) {
-            IAtom a = currentList.getAtom(j);
+        for (int j = 0; j<leafList.getAtomCount(); j++) {
+            IAtomLeaf a = (IAtomLeaf)leafList.getAtom(j);
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
                 recycledCount++;
                 // Just re-invoke the Atom's method without first "returning"
@@ -302,13 +293,6 @@ public class Box implements java.io.Serializable, IBox {
                     }
                 }
             }
-            if (!isLeafList && j == currentList.getAtomCount()-1) {
-                // wow, this is evil.  we finished with the molecules, so now
-                // go through the leaf atoms
-                isLeafList = true;
-                currentList = leafList;
-                j = -1;
-            }
         }
         maxIndex -= reservoirSize;
         if (leafIndices.length > maxIndex + 1 + reservoirSize) {
@@ -323,10 +307,10 @@ public class Box implements java.io.Serializable, IBox {
             }
             System.out.println();
             for (int i=0; i<leafList.getAtomCount(); i++) {
-                System.out.println(leafList.getAtom(i)+" "+leafList.getAtom(i).getGlobalIndex());
+                System.out.println(leafList.getAtom(i)+" "+((IAtomLeaf)leafList.getAtom(i)).getGlobalIndex());
             }
             for (int i=0; i<allMoleculeList.getAtomCount(); i++) {
-                System.out.println(allMoleculeList.getAtom(i)+" "+allMoleculeList.getAtom(i).getGlobalIndex());
+                System.out.println(allMoleculeList.getAtom(i)+" "+((IAtomLeaf)allMoleculeList.getAtom(i)).getGlobalIndex());
             }
             for (int i=0; i<reservoirCount; i++) {
                 System.out.println("reservoir_"+i+" "+indexReservoir[i]);
@@ -385,9 +369,9 @@ public class Box implements java.io.Serializable, IBox {
     }
 
     public void addAtomNotify(IAtom newAtom) {
-        newAtom.setGlobalIndex(requestGlobalIndex());
         if (newAtom instanceof IAtomLeaf) {
-            int globalIndex = newAtom.getGlobalIndex();
+            int globalIndex = requestGlobalIndex();
+            ((IAtomLeaf)newAtom).setGlobalIndex(globalIndex);
             if (globalIndex > leafIndices.length-1) {
                 leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
             }
@@ -412,28 +396,27 @@ public class Box implements java.io.Serializable, IBox {
     public void removeAtomNotify(IAtom oldAtom) {
         eventManager.fireEvent(new BoxAtomRemovedEvent(this, oldAtom));
         if (oldAtom instanceof IAtomLeaf) {
-            int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
+            int leafIndex = leafIndices[((IAtomLeaf)oldAtom).getGlobalIndex()];
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();
             // if we didn't remove the last atom, removeAndReplace
             // inserted the last atom in the emtpy spot.  Set its leaf index.
             if (leafList.getAtomCount() > leafIndex) {
-                IAtom movedAtom = leafList.getAtom(leafIndex);
+                IAtomLeaf movedAtom = (IAtomLeaf)leafList.getAtom(leafIndex);
                 int globalIndex = movedAtom.getGlobalIndex();
                 BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, leafIndices[globalIndex]);
                 leafIndices[globalIndex] = leafIndex;
                 eventManager.fireEvent(event);
             }
-            returnGlobalIndex(oldAtom.getGlobalIndex());
+            returnGlobalIndex(((IAtomLeaf)oldAtom).getGlobalIndex());
         } else {
             IAtomSet childList = ((IMolecule)oldAtom).getChildList();
-            returnGlobalIndex(oldAtom.getGlobalIndex());
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
                 int leafIndex = leafIndices[childAtom.getGlobalIndex()];
                 leafList.removeAndReplace(leafIndex);
                 if (leafList.getAtomCount() > leafIndex) {
-                    IAtom movedAtom = leafList.getAtom(leafIndex);
+                    IAtomLeaf movedAtom = (IAtomLeaf)leafList.getAtom(leafIndex);
                     int globalIndex = movedAtom.getGlobalIndex();
                     BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, leafIndices[globalIndex]);
                     leafIndices[globalIndex] = leafIndex;

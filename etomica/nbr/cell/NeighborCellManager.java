@@ -324,7 +324,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             Cell atomCell = (Cell)lattice.site(position);
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
-                System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);
+                System.out.println("assigning new "+atom+" at "+position+" to "+atomCell);
             }
             return atomCell;
         }
