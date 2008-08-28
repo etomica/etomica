@@ -42,11 +42,11 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
 
         // All of the atom types index need to be incremented
         // due to the insertion of the new species.
-        for(int i = 0; i < speciesList.length-1; i++) {
-            for(int j = 0; j < speciesList[i].getChildTypeCount(); j++) {
+        for(int i = speciesList.length-2; i > -1; i--) {
+            for(int j = speciesList[i].getChildTypeCount()-1 ; j > -1; j--) {
                 IAtomTypeLeaf leafType = speciesList[i].getChildType(j);
                 int oldIndex = leafType.getIndex();
-                leafType.setIndex(++index);
+                leafType.setIndex(oldIndex+1);
                 sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex));
             }
 	    }
