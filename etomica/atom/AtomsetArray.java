@@ -8,7 +8,7 @@ import etomica.api.IAtomSet;
  * AtomSet formed by wrapping an Atom array.  Size of array
  * cannot be changed after construction.
  */
-public class AtomsetArray implements AtomSet, java.io.Serializable {
+public class AtomsetArray implements IAtomSet, java.io.Serializable {
 
     /**
      * Wraps a new atom array of the given length.

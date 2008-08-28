@@ -7,7 +7,7 @@ import etomica.api.IAtomSet;
 /**
  * AtomSet formed by wrapping an AtomArrayList.  ArrayList can be 
  */
-public class AtomsetArrayList implements AtomSet, java.io.Serializable {
+public class AtomsetArrayList implements IAtomSet, java.io.Serializable {
 
     /**
      * Wraps a new atom array of the given length.

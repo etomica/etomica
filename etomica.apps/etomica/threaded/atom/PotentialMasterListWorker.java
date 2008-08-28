@@ -8,7 +8,6 @@ import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomsetArrayList;
@@ -202,7 +201,7 @@ public class PotentialMasterListWorker extends Thread {
         
         this.neighborManager = nm;
         neighborManager.updateLists();
-        neighborLists = new AtomSet[stopAtom-startAtom][];
+        neighborLists = new IAtomSet[stopAtom-startAtom][];
                 
         for(int i=0; i<(stopAtom-startAtom); i++){
             threadList.add(list.getAtom(i+startAtom));

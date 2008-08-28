@@ -1,12 +1,13 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomSet;
 
 
 /**
  * Data structure that contains two mutable atom instances.
  */
-public class AtomPair implements AtomSet, java.io.Serializable {
+public class AtomPair implements IAtomSet, java.io.Serializable {
 
     public AtomPair() {
     }

@@ -20,7 +20,6 @@ import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomTypeLeaf;
@@ -149,7 +148,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         int iterationsTotal = 0;
         int numRigid = 0;
         if (Debug.ON && Debug.DEBUG_NOW) {
-            AtomSet pair = Debug.getAtoms(box);
+            IAtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
@@ -568,7 +567,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         
         super.reset();
         if (Debug.ON && Debug.DEBUG_NOW) {
-            AtomSet pair = Debug.getAtoms(box);
+            IAtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());

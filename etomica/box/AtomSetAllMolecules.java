@@ -2,9 +2,8 @@ package etomica.box;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
-import etomica.atom.AtomSet;
 
-public class AtomSetAllMolecules implements AtomSet {
+public class AtomSetAllMolecules implements IAtomSet {
 
     public AtomSetAllMolecules() {
         moleculeTotals = new int[1];
