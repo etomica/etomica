@@ -136,7 +136,6 @@ public class SimulationGraphic implements SimulationContainer {
 	}
      
 	private void setupDisplayBox() {
-	    IController controller = ((Simulation)simulation).getController();
 	    IAction[] activities = controller.getPendingActions();
 	    LinkedList<IBox> boxList = new LinkedList<IBox>();
 	    for (int i=0; i<activities.length; i++) {
@@ -196,7 +195,7 @@ public class SimulationGraphic implements SimulationContainer {
     public void setPaintInterval(IBox box, int interval) {
 
     	IAction repaintAction = repaintActions.get(box);
-	    IAction[] controllerActions = ((Simulation)simulation).getController().getAllActions();
+	    IAction[] controllerActions = controller.getAllActions();
 
 	    for (int i = 0;  i < controllerActions.length;  i++) {
 	        if (controllerActions[i] instanceof ActivityIntegrate) {
