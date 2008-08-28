@@ -47,6 +47,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
                 IAtomTypeLeaf leafType = speciesList[i].getChildType(j);
                 int oldIndex = leafType.getIndex();
                 leafType.setIndex(oldIndex+1);
+                index++;
                 sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex));
             }
 	    }
