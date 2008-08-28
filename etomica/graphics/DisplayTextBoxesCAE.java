@@ -173,7 +173,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
         pressureMeter.setIntegrator(sim.integrator);

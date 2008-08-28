@@ -68,7 +68,7 @@ public class InterfacialGraphic extends SimulationGraphic {
 
     public InterfacialGraphic(final Interfacial simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space);
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
 

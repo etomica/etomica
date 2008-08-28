@@ -140,7 +140,7 @@ public class HSMD3D extends Simulation {
         HSMD3DParam params = new HSMD3DParam();
         params.ignoreOverlap = true;
         final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp, params);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim, sp));
         nSelector.setSpecies(sim.species);

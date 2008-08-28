@@ -98,7 +98,7 @@ public class DeviceNSelector extends DeviceSlider {
 
         etomica.space.Space space = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space, sim.getController());
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim, space));

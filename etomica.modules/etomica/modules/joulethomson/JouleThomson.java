@@ -84,7 +84,7 @@ public class JouleThomson extends SimulationGraphic {
 
 
     public JouleThomson(JouleThomsonSim simulation, Space _space) {
-        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         sim = simulation;
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 

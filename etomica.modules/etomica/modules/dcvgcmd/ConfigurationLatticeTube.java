@@ -202,7 +202,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         configuration.initializeCoordinates(box);
 //		etomica.graphics.DisplayBox display = new etomica.graphics.DisplayBox(box);
 		
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, sp);
+        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, sp, sim.getController());
         simGraphic.add(new DisplayBox(sim, box, sp, sim.getController()));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(species1.getLeafType(), java.awt.Color.blue);

@@ -132,7 +132,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.addIntervalAction(kineticPump);
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space);
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space, sim.getController());
         ArrayList dataStreamPumps = simgraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);

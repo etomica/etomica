@@ -470,7 +470,7 @@ public class DisplayTable extends Display implements DataTableListener {
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,sp);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,sp, sim.getController());
         sim.integrator.setIsothermal(true);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());

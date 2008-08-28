@@ -191,7 +191,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim, APP_NAME, sp);
+                sim, APP_NAME, sp, sim.getController());
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

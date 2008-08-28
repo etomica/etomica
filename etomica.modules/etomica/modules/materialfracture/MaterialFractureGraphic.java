@@ -31,7 +31,7 @@ import etomica.util.HistoryScrolling;
 public class MaterialFractureGraphic extends SimulationGraphic {
 
     public MaterialFractureGraphic(final MaterialFracture sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace());
+        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace(), sim.getController());
              
         final StrainColorScheme strainColor = new StrainColorScheme(sim);    
         getDisplayBox(sim.box).setColorScheme(strainColor);

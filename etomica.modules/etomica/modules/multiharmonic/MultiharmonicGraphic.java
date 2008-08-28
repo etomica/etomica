@@ -41,7 +41,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
      * 
      */
     public MultiharmonicGraphic(Multiharmonic simulation, ISpace _space) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space);
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         
         ArrayList dataStreamPumps = getController().getDataStreamPumps();

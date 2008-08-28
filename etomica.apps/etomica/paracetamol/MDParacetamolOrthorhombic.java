@@ -390,7 +390,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
      */
     public static void main(String[] args) {
         etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1, sim.space);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1, sim.space, sim.getController());
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

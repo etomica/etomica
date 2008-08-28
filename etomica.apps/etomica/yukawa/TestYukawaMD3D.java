@@ -88,7 +88,7 @@ public class TestYukawaMD3D extends Simulation{
 	
 	public static void main(String[] args){
 		TestYukawaMD3D sim = new TestYukawaMD3D();
-		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

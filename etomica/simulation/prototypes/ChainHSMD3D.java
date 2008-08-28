@@ -73,7 +73,7 @@ public class ChainHSMD3D extends Simulation {
     public static void main(String[] args) {
 
       final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
+      final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
       BondListener bl = new BondListener(sim.box,(DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas);
       bl.addModel(sim.model);
 

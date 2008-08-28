@@ -267,7 +267,7 @@ public class DimerApproach extends Simulation {
             // Things that matter more than the title
             // ****************************************
             
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, sim.space);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, sim.space, sim.getController());
             // The default Paint Interval is too infrequent
             simGraphic.setPaintInterval(sim.box, 1);
             //simGraphic.getDisplayBox(sim.box).setShowBoundary(false);

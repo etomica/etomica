@@ -68,7 +68,7 @@ public class HexaneVolumeFraction extends Simulation {
         HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
         
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
             simGraphic.makeAndDisplayFrame();
         } else {
             long overlaps = 0;

@@ -69,7 +69,7 @@ public class Osmosis extends SimulationGraphic {
 
     public Osmosis(OsmosisSim simulation, ISpace _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         

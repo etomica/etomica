@@ -68,7 +68,7 @@ public class MEAM_MC extends Simulation {
 	    //energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyPump);
 
-	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space);
+	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space, sim.getController());
         simgraphic.getController().getDataStreamPumps().add(energyPump);
 
 	    simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());

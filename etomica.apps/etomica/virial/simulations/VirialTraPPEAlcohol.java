@@ -223,7 +223,7 @@ public class VirialTraPPEAlcohol {
             
             referenceBox.getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             targetBox.getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
             

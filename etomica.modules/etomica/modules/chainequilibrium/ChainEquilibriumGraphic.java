@@ -70,7 +70,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
     public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, ISpace _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         
         int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());

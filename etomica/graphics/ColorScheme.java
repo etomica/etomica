@@ -52,7 +52,7 @@ public abstract class ColorScheme implements java.io.Serializable {
 
       etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
       final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp);
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
+      final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
 

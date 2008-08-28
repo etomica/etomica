@@ -52,7 +52,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class SamGraphic extends SimulationGraphic {
     
     public SamGraphic(final Sam sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace());
+        super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
         getDisplayBox(sim.box).setShowBoundary(false);

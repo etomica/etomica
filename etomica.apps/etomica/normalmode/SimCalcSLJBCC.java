@@ -132,7 +132,7 @@ public class SimCalcSLJBCC extends Simulation {
         
         
         final String APP_NAME = "SimCalcSLJ";
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
   
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.makeAndDisplayFrame(APP_NAME);

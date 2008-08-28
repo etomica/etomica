@@ -277,7 +277,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         // etomica.graphics.DisplayBox display = new
         // etomica.graphics.DisplayBox(box);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

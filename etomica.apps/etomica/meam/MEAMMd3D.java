@@ -128,7 +128,7 @@ public class MEAMMd3D extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.addIntervalAction(kineticPump);
        
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);

@@ -45,7 +45,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	public DCVGCMDGraphic(final DCVGCMD sim, ISpace _space){
 
-		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);	
+		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         getController().getDataStreamPumps().add(sim.profile1pump);

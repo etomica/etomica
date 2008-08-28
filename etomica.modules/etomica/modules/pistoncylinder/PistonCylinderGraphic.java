@@ -141,7 +141,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * this can be used.
      */
     public PistonCylinderGraphic(PistonCylinder sim, ISpace _space) {
-    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
+    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
     	pc = sim;
     }
 

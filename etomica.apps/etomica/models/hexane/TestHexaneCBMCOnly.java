@@ -176,7 +176,7 @@ public class TestHexaneCBMCOnly extends Simulation {
                 numMolecules);
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
             simGraphic.makeAndDisplayFrame(APP_NAME);
         } else {
             // PDBWriter write = new PDBWriter(sim.box);

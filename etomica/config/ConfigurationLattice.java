@@ -277,7 +277,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim, sp);
+                sim, sp, sim.getController());
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

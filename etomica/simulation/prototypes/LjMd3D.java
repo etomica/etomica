@@ -80,7 +80,7 @@ public class LjMd3D extends Simulation {
         public void init() {
             final String APP_NAME = "LjMd3D";
             LjMd3D sim= new LjMd3D();
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(sim.pump);
@@ -95,7 +95,7 @@ public class LjMd3D extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "LjMd3D";
     	final LjMd3D sim = new LjMd3D();
-    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space);
+    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);

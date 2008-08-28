@@ -236,7 +236,7 @@ public class TestSetToUHexane extends Simulation {
         boolean graphic = false;
         
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
             simGraphic.makeAndDisplayFrame();
         } else {
             sim.runit();

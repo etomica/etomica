@@ -560,7 +560,7 @@ public class Sam extends Simulation {
 
     public static void main(String[] args) {
         Sam sim = new Sam();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance(), sim.getController());
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 //        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
         ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);

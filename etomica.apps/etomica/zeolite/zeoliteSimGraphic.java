@@ -10,7 +10,7 @@ public class zeoliteSimGraphic extends SimulationGraphic {
 	}
 
 	public zeoliteSimGraphic(ZeoliteSimulation sim, ISpace space, String appName){
-		super(sim, appName, space);
+		super(sim, appName, space, sim.getController());
 		DeviceButtonSingle tSwitch = new DeviceButtonSingle(sim.getController());
 		ZeoliteSimStart action = new ZeoliteSimStart(sim,this);
 		tSwitch.setAction(action);
