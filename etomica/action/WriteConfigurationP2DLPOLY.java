@@ -117,7 +117,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
     	return this.typeInteraction;
     }
     
-    public void setMolecule(IAtom molecule1, IAtom molecule2){
+    public void setMolecule(IMolecule molecule1, IMolecule molecule2){
     	indexj = molecule1.getIndex();
     	indexjp = molecule2.getIndex();
     }

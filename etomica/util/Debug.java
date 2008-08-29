@@ -98,24 +98,26 @@ public final class Debug {
 	public static boolean anyAtom(IAtomSet atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
 		    if (atoms.getAtom(i) instanceof IAtomLeaf) {
-		        if ((atoms.getAtom(i).getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
-		            ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getIndex() == MOLECULE1_INDEX &&
-		            ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
+		        IAtomLeaf atom = (IAtomLeaf)atoms.getAtom(i);
+		        if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
+		            atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
+		            atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
 		            return true;
 		        }
-                if ((atoms.getAtom(i).getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getIndex() == MOLECULE2_INDEX &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
+                if ((atom.getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
+                    atom.getParentGroup().getIndex() == MOLECULE2_INDEX &&
+                    atom.getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
                     return true;
                 }
 		    }
 		    else {
-                if (atoms.getAtom(i).getIndex() == MOLECULE1_INDEX &&
-                    atoms.getAtom(i).getType().getIndex() == SPECIES1_INDEX) {
+		        IMolecule molecule = (IMolecule)atoms.getAtom(i);
+                if (molecule.getIndex() == MOLECULE1_INDEX &&
+                    molecule.getType().getIndex() == SPECIES1_INDEX) {
                     return true;
                 }
-                if (atoms.getAtom(i).getIndex() == MOLECULE2_INDEX &&
-                    atoms.getAtom(i).getType().getIndex() == SPECIES2_INDEX) {
+                if (molecule.getIndex() == MOLECULE2_INDEX &&
+                    molecule.getType().getIndex() == SPECIES2_INDEX) {
                     return true;
                 }
 		    }
@@ -133,24 +135,26 @@ public final class Debug {
         for (int i=0; i<atoms.getAtomCount(); i++) {
             boolean success = false;
             if (atoms.getAtom(i) instanceof IAtomLeaf) {
-                if ((atoms.getAtom(i).getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getIndex() == MOLECULE1_INDEX &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
+                IAtomLeaf atom = (IAtomLeaf)atoms.getAtom(i);
+                if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
+                    atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
+                    atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
                     success = true;
                 }
-                if ((atoms.getAtom(i).getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getIndex() == MOLECULE2_INDEX &&
-                    ((IAtomLeaf)atoms.getAtom(i)).getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
+                if ((atom.getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
+                    atom.getParentGroup().getIndex() == MOLECULE2_INDEX &&
+                    atom.getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
                     success = true;
                 }
             }
             else {
-                if (atoms.getAtom(i).getIndex() == MOLECULE1_INDEX &&
-                    atoms.getAtom(i).getType().getIndex() == SPECIES1_INDEX) {
+                IMolecule molecule = (IMolecule)atoms.getAtom(i);
+                if (molecule.getIndex() == MOLECULE1_INDEX &&
+                    molecule.getType().getIndex() == SPECIES1_INDEX) {
                     success = true;
                 }
-                if (atoms.getAtom(i).getIndex() == MOLECULE2_INDEX &&
-                    atoms.getAtom(i).getType().getIndex() == SPECIES2_INDEX) {
+                if (molecule.getIndex() == MOLECULE2_INDEX &&
+                    molecule.getType().getIndex() == SPECIES2_INDEX) {
                     success = true;
                 }
             }

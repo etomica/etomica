@@ -145,7 +145,7 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
             }
             else if (evt instanceof BoxAtomRemovedEvent) {
                 if (a instanceof IMolecule) {
-                    int index = a.getIndex();
+                    int index = ((IMolecule)a).getIndex();
                     int typeIndex = a.getType().getIndex();
                     Object[] speciesAgents = agents[typeIndex];
                     if (speciesAgents[index] != null) {
@@ -160,7 +160,7 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
                 int oldIndex = ((BoxMoleculeIndexChangedEvent)evt).getOldIndex();
                 int typeIndex = a.getType().getIndex();
                 Object[] speciesAgents = agents[typeIndex];
-                speciesAgents[a.getIndex()] = speciesAgents[oldIndex];
+                speciesAgents[((IMolecule)a).getIndex()] = speciesAgents[oldIndex];
                 speciesAgents[oldIndex] = null;
             }
         }

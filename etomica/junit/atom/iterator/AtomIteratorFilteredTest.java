@@ -29,7 +29,7 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
         public boolean accept(IAtom a) {
             if(n == 0) return true;
-            return ((a.getIndex()+1) % n != 0);
+            return ((((IAtomLeaf)a).getIndex()+1) % n != 0);
         }
 
     }

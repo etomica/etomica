@@ -8,10 +8,4 @@ public interface IAtom {
      * atoms made by this atom's factory.
      */
     public IAtomType getType();
-
-    /**
-     * Returns this IAtom's index, which is its place in the parent AtomGroup's
-     * list of child IAtoms.
-     */
-    public int getIndex();
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 
 public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Serializable {
@@ -20,7 +21,7 @@ public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Seriali
     }
     
     public int getIndex(IAtom atom) {
-        return atom.getIndex();
+        return ((IMolecule)atom).getIndex();
     }
     
     public void setBox(IBox box) {

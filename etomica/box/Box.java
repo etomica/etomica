@@ -113,7 +113,7 @@ public class Box implements java.io.Serializable, IBox {
 
         if (Debug.ON) {
             for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
-                if (moleculeLists[speciesIndex].getAtom(i).getIndex() != i) {
+                if (((IMolecule)moleculeLists[speciesIndex].getAtom(i)).getIndex() != i) {
                     throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getAtom(i)+" "+i);
                 }
             }

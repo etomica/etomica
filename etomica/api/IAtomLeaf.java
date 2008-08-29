@@ -4,6 +4,12 @@ package etomica.api;
 public interface IAtomLeaf extends IAtom {
 
     /**
+     * Returns this IAtom's index, which is its place in the parent AtomGroup's
+     * list of child IAtoms.
+     */
+    public int getIndex();
+
+    /**
      * Informs the IAtom of its index, which is used to construct the address.
      */
     public void setIndex(int index);
