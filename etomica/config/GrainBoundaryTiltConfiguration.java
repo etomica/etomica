@@ -189,7 +189,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	//If plane does not intersect Y axis
         if(millerPlane[1]==0){
             yaxisperiod.Ev1Mv2(plane[0], plane[2]);
-            yaxispbc=Math.sqrt(xaxisperiod.squared());
+            yaxispbc=Math.sqrt(yaxisperiod.squared());
             xaxispbc=latticeTOP.getLatticeConstants()[1];
         }
     	
@@ -266,7 +266,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.setX(2,transformedPosition.x(2)+(0.25*box.getBoundary().getDimensions().x(2)));
             
             // If the atom position is outside the original simulation domain A (top half of simulation box)
-            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<-0.000001){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<-0.0001){
                continue;            
             }
             
@@ -338,7 +338,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.setX(2,transformedPosition.x(2)+(-0.25*box.getBoundary().getDimensions().x(2)));
             
             // If the atom position is outside the original simulation domain B (bottom half of simulation box)
-            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.000001){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0001){
                continue;            
             }
             
@@ -360,7 +360,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
 
-        dist = 5.0;
+        dist = 3.0;
         IVector rij = space.makeVector();
         
         int removeCount = 0;
