@@ -113,7 +113,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
             IAtomSet allMolecules = box.getLeafList();
             for (int i=0; i<allMolecules.getAtomCount(); i++) {
                 if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
-                    throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition()+" "+allMolecules.getAtom(i).getGlobalIndex());
+                    throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition());
                 }
             }
 		} 
