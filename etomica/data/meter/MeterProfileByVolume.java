@@ -105,7 +105,7 @@ public class MeterProfileByVolume implements DataSource, DataSourceIndependent, 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
             IMolecule a = (IMolecule)moleculeList.getAtom(iMolecule);
             double value = ((DataDouble)meter.getData(a)).x;
-            position.E(a.getType().getPositionDefinition().position(a));
+            position.E(((ISpecies)a.getType()).getPositionDefinition().position(a));
             position.PE(boundary.centralImage(position));
             int i = xDataSource.getIndex(position.x(profileDim));
             y[i] += value;

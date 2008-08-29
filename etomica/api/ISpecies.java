@@ -56,4 +56,14 @@ public interface ISpecies extends IAtomType {
      * the atoms/atom-groups produced by this factory.
      */
     public IConformation getConformation();
+
+    /**
+     * The position definition held by the type provides an appropriate default
+     * to define the position of an atom of this type. This field is set in the
+     * definition of the parent species of the atom. It is null for SpeciesRoot,
+     * SpeciesMaster, and SpeciesAgent atoms.
+     * 
+     * @return Returns the PositionDefinition for an atom of this type.
+     */
+    public IAtomPositionDefinition getPositionDefinition();
 }

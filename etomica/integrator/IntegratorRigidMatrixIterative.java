@@ -697,7 +697,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                     position.PE(shift);
                 }
                 else {
-                    IVector position = molecule.getType().getPositionDefinition().position(molecule);
+                    IVector position = ((ISpecies)molecule.getType()).getPositionDefinition().position(molecule);
                     IVector shift = boundary.centralImage(position);
                     if (!shift.isZero()) {
                         translateBy.setTranslationVector(shift);

@@ -182,7 +182,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 siteCount++;
             }
             // initialize coordinates of child atoms
-        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+        	atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
             IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
 

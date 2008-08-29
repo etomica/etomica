@@ -118,7 +118,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
             IConformation config = ((ISpecies)a.getType()).getConformation();
             config.initializePositions(((IMolecule)a).getChildList());
 
-            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
             destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }

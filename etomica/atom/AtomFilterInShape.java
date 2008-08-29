@@ -2,6 +2,8 @@ package etomica.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
+import etomica.api.IAtomPositioned;
+import etomica.api.ISpecies;
 import etomica.math.geometry.Shape;
 
 
@@ -28,8 +30,11 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
      * Returns true if the atom's position is inside the shape.
      */
     public boolean accept(IAtom atom) {
+        if (atom instanceof IAtomPositioned) {
+            return shape.contains(((IAtomPositioned)atom).getPosition());
+        }
         if(positionDefinition == null) {
-            return shape.contains(atom.getType().getPositionDefinition().position(atom));
+            return shape.contains(((ISpecies)atom.getType()).getPositionDefinition().position(atom));
         }
         return shape.contains(positionDefinition.position(atom));
     }

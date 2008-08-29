@@ -5,6 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
@@ -70,7 +71,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-        r0.E(molecule.getType().getPositionDefinition().position(molecule));
+        r0.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
         doTransform();
         
         energyMeter.setTarget(molecule);

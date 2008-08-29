@@ -11,6 +11,7 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -258,7 +259,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     public void assignCell(IMolecule atom) {
         IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
-                    atom.getType().getPositionDefinition().position(atom);
+                    ((ISpecies)atom.getType()).getPositionDefinition().position(atom);
         Cell atomCell;
         if (doApplyPBC) {
             v.E(position);
@@ -320,7 +321,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         if (atom.getType().isInteracting()) {
             IVector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
-                        atom.getType().getPositionDefinition().position(atom);
+                        ((ISpecies)atom.getType()).getPositionDefinition().position(atom);
             Cell atomCell = (Cell)lattice.site(position);
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {

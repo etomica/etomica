@@ -4,6 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -54,7 +55,7 @@ public class BoxImposePbc extends BoxActionAdapter {
                     position.PE(shift);
                 }
                 else {
-                    shift = boundary.centralImage(molecule.getType().getPositionDefinition().position(molecule));
+                    shift = boundary.centralImage(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
                 }
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
