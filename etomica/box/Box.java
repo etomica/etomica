@@ -106,7 +106,7 @@ public class Box implements java.io.Serializable, IBox {
         int nLeafAtoms = leafList.getAtomCount();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
             IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
-            childAtom.setLeafIndex(nLeafAtoms);
+            childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
         eventManager.fireEvent(new BoxAtomAddedEvent(this, molecule));
