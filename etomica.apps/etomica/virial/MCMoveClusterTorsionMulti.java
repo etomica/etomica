@@ -8,6 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -171,7 +172,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         bias = 1;
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            oldCenter.E(selectedMolecules[i].getType().getPositionDefinition().position(selectedMolecules[i]));
+            oldCenter.E(((ISpecies)selectedMolecules[i].getType()).getPositionDefinition().position(selectedMolecules[i]));
             IAtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
 
@@ -340,7 +341,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                     }
                 }
             }
-            oldCenter.ME(selectedMolecules[i].getType().getPositionDefinition().position(selectedMolecules[i]));
+            oldCenter.ME(((ISpecies)selectedMolecules[i].getType()).getPositionDefinition().position(selectedMolecules[i]));
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change

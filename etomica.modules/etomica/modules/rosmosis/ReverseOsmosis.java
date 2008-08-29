@@ -42,8 +42,6 @@ public class ReverseOsmosis extends Simulation {
         super(_space);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space); //List(this, 2.0);
         
-        int N = 360;  //number of atoms, originally 768
-        
         //controller and integrator
 	    integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), space);
 	    integrator.setIsothermal(false);

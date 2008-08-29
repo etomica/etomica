@@ -136,10 +136,17 @@ public class SamGraphic extends SimulationGraphic {
         psiSlider.setPostAction(reinitAction);
         chainThetaPsi.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
 
-        JPanel chainPhi = new JPanel(new GridBagLayout());
-        conformationTabs.add(chainPhi, "phi");
-
+        JPanel chainPhi = null;
         for (int i=0; i<4; i++) {
+            if (i==0) {
+                chainPhi = new JPanel(new GridBagLayout());
+                conformationTabs.add(chainPhi, "phi12");
+            }
+            else if (i==2) {
+                chainPhi = new JPanel(new GridBagLayout());
+                conformationTabs.add(chainPhi, "phi34");
+            }
+
             final int iChain = i;
             Modifier phiModifier = new Modifier() {
                 public Dimension getDimension() {

@@ -83,7 +83,7 @@ public class ConfigurationMembraneWater implements Configuration {
                 IMolecule atom = (IMolecule)molecules.getAtom(i);
                 pretendBox.removeMolecule(atom);
                 // we need to translate the molecules into the proper chamber
-                double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
+                double x = ((ISpecies)atom.getType()).getPositionDefinition().position(atom).x(membraneDim);
                 if (x < 0) {
                     translationVector.setX(membraneDim, -0.5*chamberLength - membraneTotalThickness);
                 }
@@ -94,7 +94,7 @@ public class ConfigurationMembraneWater implements Configuration {
                 if (fluidSpecies[iSpecies] == speciesSolute1 && i % 2 == 0) {
                     // insert speciesSolute2 instead
                     IMolecule solute2 = speciesSolute2.makeMolecule();
-                    translationVector.E(atom.getType().getPositionDefinition().position(atom));
+                    translationVector.E(((ISpecies)atom.getType()).getPositionDefinition().position(atom));
                     translator.actionPerformed(solute2);
                     atom = solute2;
                     translationVector.E(0);

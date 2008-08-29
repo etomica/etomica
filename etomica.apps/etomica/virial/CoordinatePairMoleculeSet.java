@@ -1,9 +1,9 @@
 package etomica.virial;
 
-import etomica.api.IVector;
-import etomica.api.IAtomSet;
 import etomica.api.IAtom;
-
+import etomica.api.IAtomSet;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -54,10 +54,10 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
             IAtom iAtom = atoms[i];
-            iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
+            iPosition.E(((ISpecies)iAtom.getType()).getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 IAtom jAtom = atoms[j];
-                IVector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
+                IVector jPosition = ((ISpecies)jAtom.getType()).getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }

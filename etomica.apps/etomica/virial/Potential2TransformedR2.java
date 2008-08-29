@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
-
 import etomica.atom.AtomPair;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2SoftSpherical;
@@ -48,8 +48,8 @@ public class Potential2TransformedR2 extends Potential2 {
         else {
             IAtom atom0 = ((AtomPair)atoms).atom0;
             IAtom atom1 = ((AtomPair)atoms).atom1;
-            dr.E(atom0.getType().getPositionDefinition().position(atom0));
-            dr.ME(atom1.getType().getPositionDefinition().position(atom1));
+            dr.E(((ISpecies)atom0.getType()).getPositionDefinition().position(atom0));
+            dr.ME(((ISpecies)atom1.getType()).getPositionDefinition().position(atom1));
             r2 = dr.squared();
         }
         double e;

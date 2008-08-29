@@ -242,7 +242,7 @@ public abstract class CoordinateDefinition {
         }
         public Object makeAgent(IMolecule molecule) {
             IVector vector = space.makeVector();
-            vector.E(molecule.getType().getPositionDefinition().position(molecule));
+            vector.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
             return vector;
         }
         public void releaseAgent(Object agent, IMolecule molecule) {

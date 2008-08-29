@@ -6,6 +6,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -41,7 +42,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         int j = 0;
         for (int i=0; i<molecules.getAtomCount(); i++) {
             IAtom molecule = molecules.getAtom(i);
-            IVector pos = molecule.getType().getPositionDefinition().position(molecule);
+            IVector pos = ((ISpecies)molecule.getType()).getPositionDefinition().position(molecule);
             IVector site = getLatticePosition(molecule);
             work1.Ev1Mv2(pos, site);
             for (int k = 0; k < pos.getD(); k++) {
@@ -72,7 +73,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             }
             
             atomActionTranslateTo.setDestination(work1);
-            atomActionTranslateTo.setAtomPositionDefinition(molecule.getType().getPositionDefinition());
+            atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)molecule.getType()).getPositionDefinition());
             atomActionTranslateTo.actionPerformed(molecule);
             
             j += coordinateDim/molecules.getAtomCount();

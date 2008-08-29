@@ -302,7 +302,7 @@ public class Sam extends Simulation {
         if (iChain == 0) {
             IMolecule molecule = species.makeMolecule();
             IVector moleculePos = space.makeVector();
-            moleculePos.E(molecule.getType().getPositionDefinition().position(molecule));
+            moleculePos.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
             IVector sulfurPosition = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
             sulfurPosition.ME(moleculePos);
             molecule = null;

@@ -23,7 +23,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         fValues = new double[pointCount][pointCount][fArray.length];
         uijPol = new double[pointCount][pointCount];
 
-        scfAtoms = new AtomArrayList(); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
+        scfAtoms = new AtomArrayList(5); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
     }
 
     // equal point count enforced in constructor 

@@ -81,7 +81,7 @@ public class ConfigurationMembrane implements Configuration {
                 IMolecule atom = (IMolecule)molecules.getAtom(i);
                 pretendBox.removeMolecule(atom);
                 // we need to translate the molecules into the proper chamber
-                double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
+                double x = ((ISpecies)atom.getType()).getPositionDefinition().position(atom).x(membraneDim);
                 if (x < 0) {
                     translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
                 }
