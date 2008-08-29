@@ -1,6 +1,7 @@
 package etomica.modules.sam;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
@@ -201,8 +202,8 @@ public class Sam extends Simulation {
 
         NeighborCriterion nonBondedCriterion = new NeighborCriterion() {
             public boolean accept(IAtomSet pair) {
-                int idx0 = pair.getAtom(0).getIndex();
-                int idx1 = pair.getAtom(1).getIndex();
+                int idx0 = ((IAtomLeaf)pair.getAtom(0)).getIndex();
+                int idx1 = ((IAtomLeaf)pair.getAtom(1)).getIndex();
                 int idxDiff = idx0 - idx1;
                 return idxDiff > 3 || idxDiff < -3;
             }

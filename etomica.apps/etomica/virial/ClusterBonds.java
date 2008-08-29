@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.api.IAtom;
 import etomica.math.discrete.PermutationIterator;
 
 /**
@@ -146,47 +145,6 @@ public class ClusterBonds implements java.io.Serializable {
 		sum *= rPermutations;//divide by nPermutations
 		return sum;
 	}//end valueUsingPermutations
-	
-	/**
-	 * Returns the contributions of the given atom for the given set of atom
-	 * pairs at the given value of beta = 1/kT.
-	 * @param atom Atom for which contribution to cluster is returned by method
-	 * @param pairs PairSet defining current configuration.  Does not call reset
-	 * for atom pairs.
-	 * @param beta reciprocal temperature, 1/kT
-	 * @return double value of the cluster
-	 */
-	public double value(IAtom atom, double[][][] fPairs) {
-		int i = atom.getIndex();
-		double p = 1.0;
-		for(int j=0; j<nPoints; j++) {
-            int protoIndex = bondIndexArray[i][j];
-			if(protoIndex==-1) continue;
-			p *= fPairs[protoIndex][i][j];
-		}
-		return p;
-	}
-
-	/**
-	 * Returns the contributions of the given two atoms for the given set of
-	 * atom pairs at the given value of beta = 1/kT.  Returns 1.0 if no bond is
-	 * defined between the given pair of atoms for this cluster.
-	 * @param atom1 First atom for which contribution to cluster is returned by
-	 * method
-	 * @param atom2 Second atom for which contribution to cluster is returned by
-	 * method
-	 * @param pairs PairSet defining current configuration.  Does not call reset
-	 * for atom pairs.
-	 * @param beta reciprocal temperature, 1/kT
-	 * @return double value of the cluster
-	 */
-
-	public double value(IAtom atom1, IAtom atom2, double[][][] fPairs) {
-		int i = atom1.getIndex();
-		int j = atom2.getIndex();
-        int protoIndex = bondIndexArray[i][j];
-		return (protoIndex==-1) ? 1.0 : fPairs[protoIndex][i][j];
-	}
 
     private static final long serialVersionUID = 1L;
 	private final int nPoints; //number of points (molecules) in cluster

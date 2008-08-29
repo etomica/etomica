@@ -1,9 +1,9 @@
 package etomica.paracetamol;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.ISimulation;
-import etomica.api.IVector;
 import etomica.api.IAtomSet;
+import etomica.api.IVector;
 import etomica.space.ISpace;
 
 /**
@@ -39,8 +39,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     	nearestImageTransformer.nearestImage(dr01);
         double r2 = dr01.squared();
         
-        int index0 = atom0.getIndex();
-        int index1 = atom1.getIndex();
+        int index0 = ((IAtomLeaf)atom0).getIndex();
+        int index1 = ((IAtomLeaf)atom1).getIndex();
         
         if (true){
         	return 0;
@@ -58,8 +58,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     	nearestImageTransformer.nearestImage(dr01);
         double r2 = dr01.squared();
         
-        int index0 = atom0.getIndex();
-        int index1 = atom1.getIndex();
+        int index0 = ((IAtomLeaf)atom0).getIndex();
+        int index1 = ((IAtomLeaf)atom1).getIndex();
         
         double sumU = du(r2) - constant*SpeciesParacetamol.Echarge[index0]*SpeciesParacetamol.Echarge[index1]/Math.sqrt(r2);
         

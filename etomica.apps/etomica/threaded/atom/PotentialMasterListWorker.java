@@ -19,6 +19,10 @@ import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.threaded.PotentialThreaded;
 
+/*
+ * XXX: This class is unlikely to work properly due to changes made since this
+ * class was last used.
+ */
 public class PotentialMasterListWorker extends Thread {
 
 	public PotentialMasterListWorker (int threadNumber, AtomTypeAgentManager rangedAgentManager, PotentialMasterListThreaded pmlt){
@@ -110,7 +114,8 @@ public class PotentialMasterListWorker extends Thread {
                 break;
             case 2:
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    IAtomSet list = neighborLists[atom.getIndex()-startAtom][i];
+                    // XXX hahaha, pretend this is a molecule.
+                    IAtomSet list = neighborLists[((IMolecule)atom).getIndex()-startAtom][i];
                     atomPair.atom0 = atom;
                     for (int j=0; j<list.getAtomCount(); j++) {
                         atomPair.atom1 = list.getAtom(j);
@@ -136,7 +141,8 @@ public class PotentialMasterListWorker extends Thread {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    IAtomSet list = neighborLists[atom.getIndex()+startAtom][i];
+                    //XXX hahahaha, pretend this is a molecule
+                    IAtomSet list = neighborLists[((IMolecule)atom).getIndex()+startAtom][i];
                     for (int j=0; j<list.getAtomCount(); j++) {
                         IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentialThread);

@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -35,7 +36,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         if(box.getMoleculeList().getAtomCount()==1) return false;
         
         atom = atomSource.getAtom();
-        while (atom.getIndex() == 0) {
+        while (((IMolecule)atom).getIndex() == 0) {
             atom = atomSource.getAtom();
         }
         
