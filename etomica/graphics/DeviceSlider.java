@@ -92,6 +92,7 @@ public class DeviceSlider extends Device {
     private int nMajor = 3;
     protected IAction targetAction;
     private boolean showMinorTicks = false;
+    protected boolean suppressAction = false;
 
     public DeviceSlider(IController controller) {
         super(controller);
@@ -179,11 +180,19 @@ public class DeviceSlider extends Device {
         setMaximum(getMaximum());
     }
     public final Modifier getModifier() {return modifyAction.getWrappedModifier();}
-    
+
     public void doUpdate() {
         double value = unit.fromSim(modifyAction.getValue());
+        suppressAction = true;
         slider.setDecimalSliderValue(value);
         textField.setText(String.valueOf(value));
+        suppressAction = false;
+    }
+
+    public void doAction(IAction action) {
+        if (!suppressAction) {
+            super.doAction(action);
+        }
     }
     
     public String getProperty() {return property;}
