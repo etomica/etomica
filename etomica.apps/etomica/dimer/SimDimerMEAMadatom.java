@@ -395,7 +395,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public void enableMolecularDynamics(long maxSteps){
         integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integratorMD.setTimeStep(0.001);
-        integratorMD.setTemperature(Kelvin.UNIT.toSim(295));
+        integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
         integratorMD.setBox(box);
@@ -450,25 +450,24 @@ public class SimDimerMEAMadatom extends Simulation{
         vect.setX(1, 0.1);
         vect.setX(2, -1.0);
         
-        sim.setMovableAtoms(50.0, vect);
+        sim.setMovableAtoms(90.0, vect);
         
         sim.setPotentialListAtoms();
         
-        sim.initializeConfiguration("snSurface-md");
+        //sim.initializeConfiguration("snSurface-md");
         
-        //sim.enableMolecularDynamics(100);
+        sim.enableMolecularDynamics(1000);
         
         //sim.enableDimerSearch("snSurface-dimer", 1000, false, false);
         
-        sim.enableMinimumSearch("sn101-dimer-", false);
+        //sim.enableMinimumSearch("sn101-dimer-", false);
         
-        XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName("snSurface-dimer"+".xyz");
-        xyzwriter.setIsAppend(true);
-        sim.integratorDimerMin.addIntervalAction(xyzwriter);
-        sim.integratorDimerMin.setActionInterval(xyzwriter, 10);
+        WriteConfiguration poswriter = new WriteConfiguration(sim.space);
+        poswriter.setConfName("sns-inital");
+        sim.integratorMD.addIntervalAction(poswriter);
+        sim.integratorMD.setActionInterval(poswriter, 1000);
         
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
@@ -478,15 +477,15 @@ public class SimDimerMEAMadatom extends Simulation{
         plotPE.setLabel("PE Plot");
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
-        sim.integratorDimerMin.addIntervalAction(energyPump);
-        sim.integratorDimerMin.setActionInterval(energyPump,1);
+        sim.integratorMD.addIntervalAction(energyPump);
+        sim.integratorMD.setActionInterval(energyPump,1);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

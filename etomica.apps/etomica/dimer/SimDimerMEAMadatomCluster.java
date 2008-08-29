@@ -24,7 +24,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	        
         String fileName = args[0];
         //int mdSteps = Integer.parseInt(args[1]);
-        //boolean ortho = Boolean.parseBoolean(args[2]);
+        boolean ortho = Boolean.parseBoolean(args[1]);
         
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
 
@@ -34,7 +34,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         vect.setX(1, 0.1);
         vect.setX(2, -1.0);
         
-        sim.setMovableAtoms(80.0, vect);
+        sim.setMovableAtoms(90.0, vect);
         sim.setPotentialListAtoms();
         
         /*
@@ -48,21 +48,27 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         sim.calculateVibrationalModes(fileName+"_B_minimum");
         */
         
-        sim.initializeConfiguration("sns-md-6rc-l");
+        sim.initializeConfiguration("sns-initial");
         //sim.initializeConfiguration(fileName+"_saddle");
         
         sim.enableMolecularDynamics(1000);
         
-        sim.enableDimerSearch(fileName, 1500, false, false);
+        sim.enableDimerSearch(fileName, 1500, ortho, false);
         
         //sim.enableMinimumSearch(fileName, true);
-        
+        /*
+        WriteConfiguration poswriter = new WriteConfiguration(sim.getSpace());
+        poswriter.setConfName(fileName);
+        poswriter.setBox(sim.box);
+        sim.integratorDimer.addIntervalAction(poswriter);
+        sim.integratorDimer.setActionInterval(poswriter, 1000);
+        */
         
         XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+"_saddle.xyz");
+        xyzwriter.setFileName(fileName+".xyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimer.addIntervalAction(xyzwriter);
-        sim.integratorDimer.setActionInterval(xyzwriter, 5);
+        sim.integratorDimer.setActionInterval(xyzwriter, 1);
         
         /*
         XYZWriter xyzwriterMin = new XYZWriter(sim.box);
