@@ -7,6 +7,11 @@ package etomica.api;
 public interface IMolecule extends IAtom {
 
     /**
+     * Informs the IAtom of its index, which is used to construct the address.
+     */
+    public void setIndex(int index);
+
+    /**
      * Adds the given Atom as a child of this Atom.  The given child Atom
      * should be parentless when this method is called.
      * @throws IllegalArgumentException if the given atom already has a parent.

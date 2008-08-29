@@ -60,7 +60,7 @@ public class Molecule extends Atom implements IMolecule {
                 if (childList.getAtomCount() > i) {
                     // reassign the old last Atom (which is now in the removed
                     // Atom's place) to have the old Atom's index.
-                    childList.getAtom(i).setIndex(i);
+                    ((IAtomLeaf)childList.getAtom(i)).setIndex(i);
                 }
                 return;
             }

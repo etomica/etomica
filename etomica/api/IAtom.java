@@ -10,11 +10,6 @@ public interface IAtom {
     public IAtomType getType();
 
     /**
-     * Informs the IAtom of its index, which is used to construct the address.
-     */
-    public void setIndex(int index);
-
-    /**
      * Returns this IAtom's index, which is its place in the parent AtomGroup's
      * list of child IAtoms.
      */

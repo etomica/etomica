@@ -4,6 +4,11 @@ package etomica.api;
 public interface IAtomLeaf extends IAtom {
 
     /**
+     * Informs the IAtom of its index, which is used to construct the address.
+     */
+    public void setIndex(int index);
+
+    /**
      * Sets the atom's global index to the give value.  This method should only
      * be called by the IBox.
      */
