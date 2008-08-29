@@ -31,10 +31,6 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
         position = space.makeVector();
     }
 
-//    public void setIndex(int index) {
-//        setIndex((parent != null) ? parent.getAddress() : 0, index);
-//    }
-//    
     /**
      * Returns a string of digits that uniquely identifies this atom.  String is
      * formed by concatenating the ordinal of this atom to the signature
@@ -57,7 +53,6 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
      * molecule, group, or (leaf) atom.
      */
     public final String toString() {
-//        return Integer.toBinaryString(node.index());
         return "Atom(" + signature() + ")";
     }
 
@@ -82,7 +77,16 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
         return position;
     }
     
-    private static final long serialVersionUID = 2L;
+    public int getLeafIndex() {
+        return leafIndex;
+    }
+    
+    public void setLeafIndex(int newLeafIndex) {
+        leafIndex = newLeafIndex;
+    }
+    
+    private static final long serialVersionUID = 3L;
     protected final IVector position;
     protected IMolecule parent;
+    protected int leafIndex;
 }

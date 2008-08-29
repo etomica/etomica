@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.chem.elements.ElementSimple;
 
  /**
@@ -41,14 +40,6 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     
     public abstract String signature();
     
-    public void setGlobalIndex(int newGlobalIndex) {
-        globalIndex = newGlobalIndex;
-    }
-
-    public final int getGlobalIndex() {
-        return globalIndex;
-    }
-    
     /**
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
@@ -65,6 +56,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
         return index;
     }
     
+    private static final long serialVersionUID = 1L;
     protected final IAtomType type;
     
     /**
@@ -73,6 +65,5 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      */
     private static int INSTANCE_COUNT = 0;
     
-    private int globalIndex = -1;
     protected int index;
 }

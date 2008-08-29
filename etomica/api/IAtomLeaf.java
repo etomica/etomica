@@ -7,7 +7,7 @@ public interface IAtomLeaf extends IAtom {
      * Sets the atom's global index to the give value.  This method should only
      * be called by the IBox.
      */
-    public void setGlobalIndex(int newGlobalIndex);
+    public void setLeafIndex(int newGlobalIndex);
 
     /**
      * Returns the global index (within the Box) of this Atom.  The global
@@ -16,7 +16,7 @@ public interface IAtomLeaf extends IAtom {
      * other IAtoms in the Box.  An BoxGlobalAtomIndexEvent is fired by
      * the Box's event manager when an Atom's global index changes. 
      */
-    public int getGlobalIndex();
+    public int getLeafIndex();
 
     /**
      * Informs the Atom that the given AtomGroup is its parent.
