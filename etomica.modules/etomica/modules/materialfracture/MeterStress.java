@@ -31,7 +31,7 @@ public class MeterStress extends DataSourceScalar {
             area *= dim.x(i);
         }
 
-        return pc.getLoad()/area;
+        return pc.getLoad()/area / 2.0;
     }
 
     protected final PotentialCalculationForceStress pc;
