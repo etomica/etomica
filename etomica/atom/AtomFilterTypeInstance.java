@@ -1,7 +1,9 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 
 
 
@@ -20,7 +22,7 @@ public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable 
      * @param acceptedType type instance that must equal atom type for atom
      * to be accepted 
      */
-    public AtomFilterTypeInstance(IAtomType acceptedType) {
+    public AtomFilterTypeInstance(IAtomTypeLeaf acceptedType) {
         this.acceptedType = acceptedType;
     }
 
@@ -30,16 +32,16 @@ public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable 
      * also if atom is null.
      */
     public boolean accept(IAtom atom) {
-        return (atom != null) && (atom.getType() == acceptedType);
+        return (atom != null) && (((IAtomLeaf)atom).getType() == acceptedType);
     }
 
     /**
      * @return Returns the acceptedType.
      */
-    public IAtomType getAcceptedType() {
+    public IAtomTypeLeaf getAcceptedType() {
         return acceptedType;
     }
     
     private static final long serialVersionUID = 1L;
-    private final IAtomType acceptedType;
+    private final IAtomTypeLeaf acceptedType;
 }

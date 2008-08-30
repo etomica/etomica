@@ -238,7 +238,7 @@ public class SimDimerMEAMadatom extends Simulation{
         IAtomSet loopSet = box.getMoleculeList();
         IAtomSet movableSet = box.getMoleculeList(movable);
         for(int i=0; i<loopSet.getAtomCount(); i++){
-            if(loopSet.getAtom(i).getType()==movable){
+            if(((IMolecule)loopSet.getAtom(i)).getType()==movable){
                 continue;
             }
             boolean fixedFlag = true;

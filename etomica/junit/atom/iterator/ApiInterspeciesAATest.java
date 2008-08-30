@@ -5,6 +5,7 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
@@ -104,7 +105,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         public SpeciesTestAction() {
         }
         public void actionPerformed(IAtomSet atomSet) {
-            assertTrue(atomSet.getAtom(0).getType().getIndex() < atomSet.getAtom(1).getType().getIndex());
+            assertTrue(((IMolecule)atomSet.getAtom(0)).getType().getIndex() < ((IMolecule)atomSet.getAtom(1)).getType().getIndex());
         }
     }
     

@@ -7,8 +7,8 @@ import java.util.Formatter;
 import java.util.HashMap;
 
 import etomica.api.IAction;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -179,7 +179,7 @@ public class WriteConfigurationDLPOLY implements IAction {
 	            	IMolecule molecule = (IMolecule)box.getMoleculeList().getAtom(iMolec);
 	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
 	                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
-	                	String atomName = (String)elementHash.get(((IAtomTypeLeaf)atom.getType()).getElement());
+	                	String atomName = (String)elementHash.get(((IAtomLeaf)atom).getType().getElement());
 	       
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;

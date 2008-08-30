@@ -1,12 +1,11 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomOrientedKinetic;
@@ -85,7 +84,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                     IAtomSet children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                        double mass = ((IAtomTypeLeaf)a.getType()).getMass();
+                        double mass = ((IAtomLeaf)a).getType().getMass();
                         if(mass == Double.POSITIVE_INFINITY) continue;
         //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                         IVector velocity = a.getVelocity();

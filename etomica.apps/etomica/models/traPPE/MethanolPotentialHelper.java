@@ -165,29 +165,29 @@ public class MethanolPotentialHelper {
 		****************************************************************************
 		*/
 		
-		U_a_b.addPotential(uLJCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3 }));
+		U_a_b.addPotential(uLJCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH3 }));
 		
-		U_a_b.addPotential(uLJCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeO}));
-		U_a_b.addPotential(uLJCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO,   typeCH3 }));
+		U_a_b.addPotential(uLJCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeO}));
+		U_a_b.addPotential(uLJCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeO,   typeCH3 }));
 		
-		U_a_b.addPotential(uLJOO,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO,   typeO}));
+		U_a_b.addPotential(uLJOO,     ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeO,   typeO}));
 
 	         
-		U_a_b.addPotential(uCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3 }));
+		U_a_b.addPotential(uCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH3 }));
 		
-		U_a_b.addPotential(uCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeO}));
-		U_a_b.addPotential(uCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO,   typeCH3 }));
+		U_a_b.addPotential(uCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeO}));
+		U_a_b.addPotential(uCH3O,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeO,   typeCH3 }));
 	         
-		U_a_b.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeH}));
-		U_a_b.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH,   typeCH3 }));
+		U_a_b.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeH}));
+		U_a_b.addPotential(uCH3H,   ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeH,   typeCH3 }));
 	         
-		U_a_b.addPotential(uOO,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO,   typeO}));
+		U_a_b.addPotential(uOO,     ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeO,   typeO}));
 		
-		U_a_b.addPotential(uOH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeO,   typeH }));
-		U_a_b.addPotential(uOH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH,   typeO }));
+		U_a_b.addPotential(uOH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeO,   typeH }));
+		U_a_b.addPotential(uOH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeH,   typeO }));
 	         
 	         
-		U_a_b.addPotential(uHH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH,   typeH}));
+		U_a_b.addPotential(uHH,     ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeH,   typeH}));
 		
 	}
 

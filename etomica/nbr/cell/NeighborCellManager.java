@@ -380,7 +380,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         }
 
         private void updateCell(IAtom atom) {
-            if (atom.getType().isInteracting()) {
+            if (((IAtomLeaf)atom).getType().isInteracting()) {
                 IBoundary boundary = box.getBoundary();
                 if (atom instanceof IMolecule) {
                     // we only need to remove the atom from the cell's list and

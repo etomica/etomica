@@ -3,7 +3,6 @@ package etomica.integrator;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -91,7 +90,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
-                v.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
+                v.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),agent.force);  // p += f(old)*dt/2
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             }
 
@@ -131,8 +130,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 //                    System.out.println(Math.sqrt(dr2)+" "+Math.sqrt(bl2));
                     double diffSq = bl2 - dr2;
                     if (Math.abs(diffSq/bl2) > shakeTol) {
-                        double mass1 = ((IAtomTypeLeaf)atom1.getType()).getMass();
-                        double mass2 = ((IAtomTypeLeaf)atom2.getType()).getMass();
+                        double mass1 = ((IAtomLeaf)atom1).getType().getMass();
+                        double mass2 = ((IAtomLeaf)atom2).getType().getMass();
                         double rMass = 1.0/mass1 + 1.0/mass2;
                         double drDotDrOld = dr.dot(drOld[j]);
                         if  (drDotDrOld / bl2 < 0.1) {
@@ -183,7 +182,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
         }
 
         /*
@@ -224,8 +223,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     boundary.nearestImage(dr);
                     dv.Ev1Mv2(atom2.getVelocity(), atom1.getVelocity());
                     double drdotdv = dr.dot(dv);
-                    double mass1 = ((IAtomTypeLeaf)atom1.getType()).getMass();
-                    double mass2 = ((IAtomTypeLeaf)atom2.getType()).getMass();
+                    double mass1 = ((IAtomLeaf)atom1).getType().getMass();
+                    double mass2 = ((IAtomLeaf)atom2).getType().getMass();
                     double bl2 = bondLengths[j]*bondLengths[j];
                     double g = -drdotdv / ((1.0/mass1+1.0/mass2) * bl2);
                     if (Math.abs(g) > shakeTol) {
@@ -306,8 +305,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     dv.Ev1Mv2(atom2.getVelocity(), atom1.getVelocity());
                     double drdotdv = dr.dot(dv);
 //                    System.out.println(j+" "+drdotdv);
-                    double mass1 = ((IAtomTypeLeaf)atom1.getType()).getMass();
-                    double mass2 = ((IAtomTypeLeaf)atom2.getType()).getMass();
+                    double mass1 = ((IAtomLeaf)atom1).getType().getMass();
+                    double mass2 = ((IAtomLeaf)atom2).getType().getMass();
                     double bl2 = bondLengths[j]*bondLengths[j];
                     double g = -drdotdv / ((1.0/mass1+1.0/mass2) * bl2);
                     if (Math.abs(g) > shakeTol) {

@@ -3,6 +3,7 @@ package etomica.atom.iterator;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -78,7 +79,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
             if (molecule instanceof IAtomLeaf) {
                 molecule = ((IAtomLeaf)molecule).getParentGroup();
             }
-            if (molecule.getType() != species) {
+            if (((IMolecule)molecule).getType() != species) {
                 molecule = null;
             }
             littleList.clear();

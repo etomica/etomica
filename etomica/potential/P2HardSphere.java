@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.space.ISpace;
@@ -99,8 +99,8 @@ public class P2HardSphere extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtomTypeLeaf)atom0.getType()).rm();
-        double rm1 = ((IAtomTypeLeaf)atom1.getType()).rm();
+        double rm0 = ((IAtomLeaf)atom0).getType().rm();
+        double rm1 = ((IAtomLeaf)atom1).getType().rm();
         double reducedMass = 2.0/(rm0 + rm1);
         lastCollisionVirial = reducedMass*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;

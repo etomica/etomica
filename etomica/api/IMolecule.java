@@ -34,4 +34,10 @@ public interface IMolecule extends IAtom {
      * @return the children as an AtomArrayList
      */
     public IAtomSet getChildList();
+
+    /**
+     * @return the Atom type, holding properties held in common with other 
+     * atoms made by this atom's factory.
+     */
+    public ISpecies getType();
 }

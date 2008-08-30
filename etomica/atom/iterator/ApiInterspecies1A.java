@@ -7,6 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -139,13 +140,13 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             if (targetMolecule instanceof IAtomLeaf) {
                 targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
-            if (targetMolecule.getType() == species0) {
+            if (((IMolecule)targetMolecule).getType() == species0) {
                 //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
                 iterator = apiUp;
                 aiInner.setList(box.getMoleculeList(species1));
             }
-            else if (targetMolecule.getType() == species1) {
+            else if (((IMolecule)targetMolecule).getType() == species1) {
                 //target is species1
                 allowedDirection = IteratorDirective.Direction.DOWN;
                 iterator = apiDown;

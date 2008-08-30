@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -61,7 +62,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
         IAtomSet leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
         	for (int j=0; j<atomType.length; j++) {
-        		if(leafList.getAtom(i).getType()==atomType[j]){
+        		if(((IAtomLeaf)leafList.getAtom(i)).getType()==atomType[j]){
         			arrayList.add(leafList.getAtom(i));
         		}
         	}

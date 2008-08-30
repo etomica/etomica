@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.space.ISpace;
@@ -48,7 +48,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((IAtomTypeLeaf)atom0.getType()).rm() + ((IAtomTypeLeaf)atom1.getType()).rm());
+        double reduced_m = 1/(((IAtomLeaf)atom0).getType().rm() + ((IAtomLeaf)atom1).getType().rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);

@@ -119,14 +119,6 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         else {
             AtomsetIteratorPDT iterator = iteratorFactory.makeMoleculeIterator(species);
             addPotential(potential, iterator, species);
-            if(potential instanceof PotentialTruncated) {
-                Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(species); 
-                if(lrcPotential != null) {
-                    lrcMaster().addPotential(
-                        lrcPotential,
-                        new AtomIterator0(),null);
-                }
-            }
         }
     }
     

@@ -6,6 +6,7 @@ import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.AtomToAtomSetSpecies;
 
@@ -88,7 +89,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             if (targetMolecule instanceof IAtomLeaf) {
                 targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
-            if (targetMolecule.getType() != species) {
+            if (((IMolecule)targetMolecule).getType() != species) {
                 targetMolecule = null;
             }
         }

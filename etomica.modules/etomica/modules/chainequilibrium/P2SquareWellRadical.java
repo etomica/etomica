@@ -164,7 +164,10 @@ public class P2SquareWellRadical extends P2SquareWell {
         double nudge = 0;
         double eps = 1.0e-10;
 
-        double reduced_m = 2.0 / (((IAtomTypeLeaf)atom0.getType()).rm() + ((IAtomTypeLeaf)atom1.getType()).rm());
+        double rm0 = ((IAtomLeaf)atom0).getType().rm();
+        double rm1 = ((IAtomLeaf)atom1).getType().rm();
+        
+        double reduced_m = 2.0 /  + (rm0 + rm1);
 
         IAtomLeaf atomLeaf0 = (IAtomLeaf)atom0;
         IAtomLeaf atomLeaf1 = (IAtomLeaf)atom1;
@@ -218,10 +221,10 @@ public class P2SquareWellRadical extends P2SquareWell {
 
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2, dr);
-        atom0.getVelocity().PEa1Tv1(((IAtomTypeLeaf)atom0.getType()).rm(), dv);
-        atom1.getVelocity().PEa1Tv1(-((IAtomTypeLeaf)atom1.getType()).rm(), dv);
-        atom0.getPosition().PEa1Tv1(-falseTime * ((IAtomTypeLeaf)atom0.getType()).rm(), dv);
-        atom1.getPosition().PEa1Tv1(falseTime * ((IAtomTypeLeaf)atom1.getType()).rm(), dv);
+        atom0.getVelocity().PEa1Tv1(rm0, dv);
+        atom1.getVelocity().PEa1Tv1(-rm1, dv);
+        atom0.getPosition().PEa1Tv1(-falseTime * rm0, dv);
+        atom1.getPosition().PEa1Tv1(falseTime * rm1, dv);
 
         if (nudge != 0) {
             atom0.getPosition().PEa1Tv1(-nudge, dr);

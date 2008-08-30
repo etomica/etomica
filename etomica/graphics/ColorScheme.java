@@ -3,7 +3,6 @@ import java.awt.Color;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
 import etomica.modifier.ModifierGeneral;
@@ -29,7 +28,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         simulation = sim;
     }
 
-    public abstract Color getAtomColor(IAtom a);
+    public abstract Color getAtomColor(IAtomLeaf a);
     
     public final void setDefaultColor(Color c) {defaultColor = c;}
     public final Color getDefaultColor() {return defaultColor;}
@@ -43,7 +42,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         public Simple(ISimulation sim) {super(sim);}
         public Simple(ISimulation sim, java.awt.Color color) {super(sim,color);}
-        public Color getAtomColor(IAtom a) {return defaultColor;}
+        public Color getAtomColor(IAtomLeaf a) {return defaultColor;}
     }
     
     //for color scheme demo

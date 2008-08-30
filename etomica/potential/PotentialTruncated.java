@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IPotential;
 
 
@@ -22,5 +22,5 @@ public interface PotentialTruncated extends IPotential {
      * Returns a class that calculates the long-range contribution to the potential
      * that becomes neglected by the truncation.  May return null.
      */
-    public Potential0Lrc makeLrcPotential(IAtomType[] types);
+    public Potential0Lrc makeLrcPotential(IAtomTypeLeaf[] types);
 }

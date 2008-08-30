@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.IAtomKinetic;
@@ -88,7 +88,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
             workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
-            workTensor.TE(((IAtomTypeLeaf)atom.getType()).getMass());
+            workTensor.TE(((IAtomLeaf)atom).getType().getMass());
             pressureTensor.PE(workTensor);
         }
         

@@ -9,7 +9,7 @@ import etomica.api.ISpecies;
 public class Molecule extends Atom implements IMolecule {
 
     public Molecule(ISpecies species) {
-        super(species);
+        this.species = species;
         childList = new AtomArrayList(species.getNumLeafAtoms());
     }
     
@@ -20,7 +20,7 @@ public class Molecule extends Atom implements IMolecule {
      * from only the ordinal.
      */
     public String signature() {
-        return type.getIndex()+" "+index;
+        return species.getIndex()+" "+index;
     }
 
     /**
@@ -100,12 +100,22 @@ public class Molecule extends Atom implements IMolecule {
     public final IAtomSet getChildList() {
         return childList;
     }
+    
+    public final void setIndex(int newIndex) {
+        index = newIndex;
+    }
+    
+    public final int getIndex() {
+        return index;
+    }
+    
+    public final ISpecies getType() {
+        return species;
+    }
 
     private static final long serialVersionUID = 1L;
     
-    //nobody should add/remove atoms except via AtomGroup's methods.
-    //consider a mechanism to ensure this; a inner mutator class made available only
-    //to list's creator, for example (still wouldn't prevent modification via direct
-    //access of entry classes).
+    protected int index;
     protected final AtomArrayList childList;
+    protected final ISpecies species;
 }

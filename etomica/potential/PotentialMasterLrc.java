@@ -40,7 +40,7 @@ public class PotentialMasterLrc extends PotentialMaster {
             atomIterator.setBox(box);
             potential.setBox(box);
             atomIterator.setTarget(targetAtom);
-            ((Potential0Lrc)potential).setTargetAtoms(targetAtom);
+            ((IPotential0Lrc)potential).setTargetAtoms(targetAtom);
             if (potential instanceof PotentialGroup) {
                 ((PotentialGroup)potential).calculate(atomIterator, id, pc);
             }

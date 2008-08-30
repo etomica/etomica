@@ -163,7 +163,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
-                v.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
+                v.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),agent.force);  // p += f(old)*dt/2
                 temp.E(r);
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
 //                System.out.println(iLeaf+" "+r);
@@ -204,8 +204,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                     double bl2 = bondLengths[j]*bondLengths[j];
                     double diffSq = bl2 - dr2;
                     if (Math.abs(diffSq/bl2) > shakeTol) {
-                        double mass1 = ((IAtomTypeLeaf)atom1.getType()).getMass();
-                        double mass2 = ((IAtomTypeLeaf)atom2.getType()).getMass();
+                        double mass1 = ((IAtomLeaf)atom1).getType().getMass();
+                        double mass2 = ((IAtomLeaf)atom2).getType().getMass();
                         double rMass = 1.0/mass1 + 1.0/mass2;
                         double drDotDrOld = dr.dot(drOld[j]);
                         if  (drDotDrOld / bl2 < 0.1) {
@@ -251,8 +251,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
             // v(t+dt) = (r(t+dt) - r(t))/dt + 0.5 * f(t+dt) / m
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
-            currentKineticEnergy += ((IAtomTypeLeaf)a.getType()).getMass() * velocity.squared();
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
+            currentKineticEnergy += ((IAtomLeaf)a).getType().getMass() * velocity.squared();
         }
         currentKineticEnergy *= 0.5;
         

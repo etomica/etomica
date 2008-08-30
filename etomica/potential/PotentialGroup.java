@@ -5,6 +5,7 @@ import java.util.Arrays;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
@@ -77,7 +78,7 @@ public class PotentialGroup extends Potential {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(IPotential potential, IAtomType[] types) {
+    public void addPotential(IPotential potential, IAtomTypeLeaf[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
@@ -116,7 +117,7 @@ public class PotentialGroup extends Potential {
         addPotential(potential,iterator,null);
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -157,13 +158,13 @@ public class PotentialGroup extends Potential {
      * within this group or does not apply to specific AtomTypes, null is 
      * returned.
      */
-    public IAtomType[] getAtomTypes(IPotential potential) {
+    public IAtomTypeLeaf[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
             }
             if (link.potential instanceof PotentialGroup) {
-                IAtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
+                IAtomTypeLeaf[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
                 if (types != null) {
                     return types;
                 }
@@ -312,16 +313,16 @@ public class PotentialGroup extends Potential {
         private static final long serialVersionUID = 1L;
         public final IPotential potential;
         public final AtomsetIteratorBasisDependent iterator;
-        public final IAtomType[] types;
+        public final IAtomTypeLeaf[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, IAtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, IAtomTypeLeaf[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;
             if (t != null) {
-                types = (IAtomType[])t.clone();
+                types = t.clone();
             }
             else {
                 types = null;

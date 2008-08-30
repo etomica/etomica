@@ -1,12 +1,11 @@
 package etomica.modules.crystalviewer;
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.graphics.ColorScheme;
 import etomica.lattice.LatticePlane;
-import etomica.space3d.Vector3D;
 
 /**
  * Colors atoms according to whether or not they are in a plane,
@@ -27,8 +26,8 @@ public class ColorSchemePlane extends ColorScheme {
         this.colorIn = colorIn;
         this.colorOut = colorOut;
     }
-    public Color getAtomColor(IAtom a) {
-        return plane.inPlane((Vector3D)((IAtomPositioned)a).getPosition()) ? colorIn : colorOut;
+    public Color getAtomColor(IAtomLeaf a) {
+        return plane.inPlane(((IAtomPositioned)a).getPosition()) ? colorIn : colorOut;
     }
     
     /**

@@ -3,8 +3,8 @@
  */
 package etomica.data.meter;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
@@ -49,7 +49,7 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            double mass = ((IAtomTypeLeaf)a.getType()).getMass();
+            double mass = ((IAtomLeaf)a).getType().getMass();
             momentumSum.PEa1Tv1(mass,a.getVelocity());
         }
         return data;

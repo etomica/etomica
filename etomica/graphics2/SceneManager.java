@@ -85,7 +85,7 @@ public final class SceneManager {
         while (agentIterator.hasNext()) {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
             IAtomPositioned a = wrapper.atom;
-            int c = colorScheme.atomColor(a);
+            int c = colorScheme.atomColor((IAtomLeaf)a);
             IVector r = a.getPosition();
 
             Renderable.Shape shp = wrapper.shape;

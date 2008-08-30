@@ -35,8 +35,8 @@ public class StrainColorScheme extends ColorScheme {
         hex = b;
     }
 
-    public Color getAtomColor(IAtom a) {
-        int idx = ((IAtomLeaf)a).getParentGroup().getIndex();
+    public Color getAtomColor(IAtomLeaf a) {
+        int idx = a.getParentGroup().getIndex();
         if(hex){
             if( (idx>=atomNumber && idx<atomNumber+18 && idx%2 == atomNumber%2)
                     || (idx>197-atomNumber-18 && idx<=197-atomNumber && idx%2==(197-atomNumber-18)%2) ) return centerAtomColor;

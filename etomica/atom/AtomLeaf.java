@@ -17,7 +17,8 @@ import etomica.util.Debug;
 public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
 
     public AtomLeaf(ISpace space, IAtomTypeLeaf type) {
-        super(type);
+        super();
+        this.type = type;
         position = space.makeVector();
     }
     
@@ -28,6 +29,7 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
      */
     public AtomLeaf(ISpace space) {
         super();
+        type = null;
         position = space.makeVector();
     }
 
@@ -56,6 +58,14 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
         return "Atom(" + signature() + ")";
     }
 
+    public final void setIndex(int newIndex) {
+        index = newIndex;
+    }
+    
+    public final int getIndex() {
+        return index;
+    }
+    
     /**
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.
@@ -84,8 +94,18 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
     public void setLeafIndex(int newLeafIndex) {
         leafIndex = newLeafIndex;
     }
-    
+
+    /**
+     * @return the Atom type, holding properties held in common with other 
+     * atoms made by this atom's factory.
+     */
+    public final IAtomTypeLeaf getType() {
+        return type;
+    }
+
     private static final long serialVersionUID = 3L;
+    protected final IAtomTypeLeaf type;
+    protected int index;
     protected final IVector position;
     protected IMolecule parent;
     protected int leafIndex;

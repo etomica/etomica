@@ -2,9 +2,8 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
-import etomica.api.ISpecies;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.ISpace;
 import etomica.util.Debug;
 
@@ -25,7 +24,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairMoleculeSet(IAtomSet list, ISpace space) {
-        atoms = new IAtom[list.getAtomCount()];
+        atoms = new IMolecule[list.getAtomCount()];
         numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
@@ -42,22 +41,18 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     }
 
     private void setAtoms(IAtomSet list) {
-        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
-        iterator.reset();
-        int k=0;
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
-            atoms[k++] = atom;
+        for (int i=0; i<list.getAtomCount(); i++) {
+            atoms[i] = (IMolecule)list.getAtom(i);
         }
     }
     
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
             IAtom iAtom = atoms[i];
-            iPosition.E(((ISpecies)iAtom.getType()).getPositionDefinition().position(iAtom));
+            iPosition.E(((IMolecule)iAtom).getType().getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 IAtom jAtom = atoms[j];
-                IVector jPosition = ((ISpecies)jAtom.getType()).getPositionDefinition().position(jAtom);
+                IVector jPosition = ((IMolecule)jAtom).getType().getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }
@@ -79,7 +74,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     
     private static final long serialVersionUID = 1L;
     protected final double[] r2;
-    protected final IAtom[] atoms;
+    protected final IMolecule[] atoms;
     protected final int numAtoms;
     protected final IVector dr;
     private final IVector iPosition;

@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.api.IAction;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.chem.elements.Element;
@@ -73,20 +73,20 @@ public class XYZWriter implements IAction, Serializable {
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
-                Element element = ((IAtomTypeLeaf)atom.getType()).getElement();
+                Element element = ((IAtomLeaf)atom).getType().getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
                     Iterator elementIterator = elementAtomType.iterator();
                     int elementIndex = -1;
                     while (elementIterator.hasNext()) {
                         ElementLinker thisElement = (ElementLinker)elementIterator.next();
-                        if (thisElement.type == atom.getType()) {
+                        if (thisElement.type == ((IAtomLeaf)atom).getType()) {
                             elementIndex = thisElement.elementIndex;
                             break;
                         }
                     }
                     if (elementIndex == -1) {
-                        ElementLinker thisElement = new ElementLinker(elementCount,atom.getType());
+                        ElementLinker thisElement = new ElementLinker(elementCount,((IAtomLeaf)atom).getType());
                         elementIndex = thisElement.elementIndex;
                         elementCount++;
                         elementAtomType.add(thisElement);

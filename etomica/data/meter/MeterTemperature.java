@@ -1,12 +1,11 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.data.DataSourceScalar;
@@ -70,10 +69,10 @@ public class MeterTemperature extends DataSourceScalar {
 	                else {
 	                    IAtomSet children = molecule.getChildList();
 	                    if (children.getAtomCount() == 0 || 
-	                        Double.isInfinite(((IAtomTypeLeaf)children.getAtom(0).getType()).getMass())) {
+	                        Double.isInfinite(((IAtomLeaf)children.getAtom(0)).getType().getMass())) {
 	                        continue;
 	                    }
-	                    if (children.getAtom(0).getType() instanceof AtomTypeOrientedSphere) {
+	                    if (((IAtomLeaf)children.getAtom(0)).getType() instanceof AtomTypeOrientedSphere) {
 	                        // oriented sphere at this point corresponds to cylindrical symmetry
 	                        if (dim == 3) {
 	                            totalD += 5*nMolecules*children.getAtomCount();

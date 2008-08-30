@@ -3,7 +3,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -29,12 +28,12 @@ public class ColorSchemeCell extends ColorScheme {
         }
     }
     
-    public Color getAtomColor(IAtom a) {
-        return (Color)hash.get(cellManager.getCell((IAtomLeaf)a));
+    public Color getAtomColor(IAtomLeaf a) {
+        return hash.get(cellManager.getCell(a));
     }
     
     private static final long serialVersionUID = 1L;
-    private final HashMap hash = new HashMap();
+    private final HashMap<Object,Color> hash = new HashMap<Object,Color>();
     private final NeighborCellManager cellManager;
     private final IRandom random;
 }

@@ -546,9 +546,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 IAtomSet leafList = box.getLeafList();
                 int nLeaf = leafList.getAtomCount();
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                    IAtom atom = leafList.getAtom(iLeaf);
+                    IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
                     if (atom.getType() == type) {
-                        ((Agent)agentManager.getAgent((IAtomLeaf)atom)).setNullPotential(nullPotential);
+                        ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
                     }
                 }
             }
@@ -556,8 +556,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 IAtomSet moleculeList = box.getMoleculeList((ISpecies)type);
                 int nMolecules = moleculeList.getAtomCount();
                 for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-                    IAtom atom = moleculeList.getAtom(iMolecule);
-                    ((Agent)agentManager.getAgent((IAtomLeaf)atom)).setNullPotential(nullPotential);
+                    IAtomLeaf atom = (IAtomLeaf)moleculeList.getAtom(iMolecule);
+                    ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
                 }
             }
         }

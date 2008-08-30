@@ -4,7 +4,6 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
@@ -79,8 +78,8 @@ public final class IntegratorHardField extends IntegratorHard {
             a.getPosition().PEa1Tv1(tStep,a.getVelocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.getPosition().PEa1Tv1(t2*((IAtomTypeLeaf)a.getType()).rm(),agent.force);
-                a.getVelocity().PEa1Tv1(tStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);
+                a.getPosition().PEa1Tv1(t2*((IAtomLeaf)a).getType().rm(),agent.force);
+                a.getVelocity().PEa1Tv1(tStep*((IAtomLeaf)a).getType().rm(),agent.force);
             }
         }
     }

@@ -8,14 +8,13 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomTypeLeaf;
-import etomica.api.IAtomTypeSphere;
-import etomica.api.IVector;
-
 import etomica.action.AtomAction;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
+import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeSphere;
+import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -360,7 +359,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomAction() {
-            public void actionPerformed(IAtom a) {((ElementSimple)((IAtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
+            public void actionPerformed(IAtom a) {((ElementSimple)((IAtomLeaf)a).getType().getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         private final ISpace space;

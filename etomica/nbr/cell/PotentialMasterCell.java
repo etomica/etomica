@@ -1,7 +1,7 @@
 package etomica.nbr.cell;
 
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
@@ -121,7 +121,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomTypeLeaf[] atomType) {
         super.addRangedPotentialForTypes(potential, atomType);
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();

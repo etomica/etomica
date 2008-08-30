@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
@@ -40,23 +41,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
     
     public void addPotential(IPotential potential, ISpecies[] species) {
-        super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
-             if (potential.getRange() == Double.POSITIVE_INFINITY) {
-                 System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
-                 return;
-             }
-             //the potential is range-dependent 
-             for (int i=0; i<species.length; i++) {
-                 addRangedPotential(potential,species[i]);
-             }
-             addRangedPotentialForTypes(potential, species);
+            System.err.println("You gave me a concrete molecule potential and I'm very confused now.  I'll pretend like that's OK but don't hold your breath.");
         }
+        super.addPotential(potential, species);
     }
 
     public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         super.potentialAddedNotify(subPotential, pGroup);
-        IAtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
+        IAtomTypeLeaf[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
             if (pGroup.nBody() == 1 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
                 boolean found = false;
@@ -88,9 +81,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
 
-    protected abstract void addRangedPotentialForTypes(IPotential subPotential, IAtomType[] atomTypes);
+    protected abstract void addRangedPotentialForTypes(IPotential subPotential, IAtomTypeLeaf[] atomTypes);
     
-    protected void addRangedPotential(IPotential potential, IAtomType atomType) {
+    protected void addRangedPotential(IPotential potential, IAtomTypeLeaf atomType) {
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);

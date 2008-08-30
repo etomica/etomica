@@ -1,8 +1,10 @@
 
 package etomica.nbr;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 
 /**
  * Filters AtomSets to match a given set of AtomTypes.  CriterionType and
@@ -13,9 +15,9 @@ import etomica.api.IAtomType;
 public class CriterionTypesMulti extends CriterionAdapter {
 
     public CriterionTypesMulti(NeighborCriterion criterion, 
-            IAtomType[] types) {
+            IAtomTypeLeaf[] types) {
         super(criterion);
-        this.types = (IAtomType[])types.clone();
+        this.types = types.clone();
     }
     
     /**
@@ -28,7 +30,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;
             for (int j=0; j<nAtoms; j++) {
-                if (atoms.getAtom(j).getType() == types[i]) {
+                if (((IAtomLeaf)atoms.getAtom(j)).getType() == types[i]) {
                     accepted = true;
                 }
             }
@@ -43,9 +45,9 @@ public class CriterionTypesMulti extends CriterionAdapter {
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
     public IAtomType[] getTypes() {
-        return (IAtomType[])types.clone();
+        return types;
     }
     
     private static final long serialVersionUID = 1L;
-    private final IAtomType[] types;
+    private final IAtomTypeLeaf[] types;
 }

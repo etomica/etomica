@@ -1,13 +1,11 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtom;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
@@ -112,13 +110,13 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         IVector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getDimensions());
         IVector destinationVector = atomActionTranslateTo.getDestination();
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {
+        for (IMolecule a = (IMolecule)atomIterator.nextAtom(); a != null;
+             a = (IMolecule)atomIterator.nextAtom()) {
             // initialize coordinates of child atoms
-            IConformation config = ((ISpecies)a.getType()).getConformation();
-            config.initializePositions(((IMolecule)a).getChildList());
+            IConformation config = a.getType().getConformation();
+            config.initializePositions(a.getChildList());
 
-            atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
+            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }

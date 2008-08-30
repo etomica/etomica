@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -59,14 +59,14 @@ import etomica.space.ISpace;
  *
  * @author David Kofke
  */
-public abstract class Potential0Lrc extends Potential0 implements PotentialSoft {
+public abstract class Potential0Lrc extends Potential0 implements PotentialSoft, IPotential0Lrc {
     
-    protected final IAtomType[] types;
+    protected final IAtomTypeLeaf[] types;
     protected final boolean interType;
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
     
-    public Potential0Lrc(ISpace space, IAtomType[] types, Potential truncatedPotential) {
+    public Potential0Lrc(ISpace space, IAtomTypeLeaf[] types, Potential truncatedPotential) {
         super(space);
         this.types = types.clone();
         if(types.length != 2) {
@@ -84,26 +84,20 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         return truncatedPotential;
     }
 
-    public void setBox(IBox p) {
-        if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
-            // count the number of Atoms of the relevant type in each molecule
-            for (int i=0; i<2; i++) {
-                if (lrcAtomsPerMolecule[i] == 0) {
-                    if (types[i] instanceof IAtomTypeLeaf) {
-                        lrcAtomsPerMolecule[i] = 1;
-                    }
-                    else if (p.getNMolecules((ISpecies)types[i]) > 0) {
-                        IAtomSet childList = ((IMolecule)p.getMoleculeList((ISpecies)types[i]).getAtom(0)).getChildList();
-                        int numAtoms = 0;
-                        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                            if (childList.getAtom(iChild).getType() == types[i]) numAtoms++;
-                        }
-                        lrcAtomsPerMolecule[i] = numAtoms;
-                    }
+    public void setBox(IBox b) {
+        for (int i=0; i<2; i++) {
+            if (lrcAtomsPerMolecule[i] != 0) {
+                continue;
+            }
+            IMolecule mol = types[i].getSpecies().makeMolecule();
+            IAtomSet childList = mol.getChildList();
+            for (int j=0; j<childList.getAtomCount(); j++) {
+                if (((IAtomLeaf)childList.getAtom(j)).getType() == types[i]) {
+                    lrcAtomsPerMolecule[i]++;
                 }
             }
         }
-        box = p;
+        box = b;
     }
     
     public void setTargetAtoms(IAtom targetAtom) {
@@ -112,16 +106,16 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             return;
         }
         int typeIndex = 1;
-        if (types[0] == targetAtom.getType() || (types[0] instanceof IAtomTypeLeaf && 
-             ((IAtomTypeLeaf)types[0]).getSpecies() == targetAtom.getType())) {
+        if ((targetAtom instanceof IAtomLeaf && types[0] == ((IAtomLeaf)targetAtom).getType()) ||
+            (targetAtom instanceof IMolecule && types[0].getSpecies() == ((IMolecule)targetAtom).getType())) {
             typeIndex = 0;
         }
-        else if (!(types[1] == targetAtom.getType() || (types[1] instanceof IAtomTypeLeaf && 
-                  ((IAtomTypeLeaf)types[1]).getSpecies() == targetAtom.getType()))) {
+        else if (!(targetAtom instanceof IAtomLeaf && types[1] == ((IAtomLeaf)targetAtom).getType()) || 
+                  (targetAtom instanceof IMolecule && types[1].getSpecies() == ((IMolecule)targetAtom).getType())) {
             divisor = 0;
             return;
         }
-        ISpecies species = types[typeIndex] instanceof ISpecies ? (ISpecies)types[typeIndex] : ((IAtomTypeLeaf)types[typeIndex]).getSpecies();
+        ISpecies species = types[typeIndex].getSpecies();
         divisor = box.getNMolecules(species) * lrcAtomsPerMolecule[typeIndex];
         if (!interType) {
             divisor = divisor/2.0;
@@ -137,10 +131,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected int nPairs() {
         if(divisor == 0) return 0;
         int nPairs = 0;
-        ISpecies species0 = types[0] instanceof ISpecies ? (ISpecies)types[0] : ((IAtomTypeLeaf)types[0]).getSpecies();
+        ISpecies species0 = types[0].getSpecies();
         int n0 = box.getNMolecules(species0)*lrcAtomsPerMolecule[0];
         if(interType) {
-            ISpecies species1 = types[1] instanceof ISpecies ? (ISpecies)types[1] : ((IAtomTypeLeaf)types[1]).getSpecies();
+            ISpecies species1 = types[1].getSpecies();
             int n1 = box.getNMolecules(species1);
             nPairs = n0*n1*lrcAtomsPerMolecule[1];
         }

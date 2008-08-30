@@ -184,7 +184,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomTypeLeaf[] atomType) {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
@@ -192,13 +192,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (atomType.length == 2) {
             CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
-            if ((atomType[0] instanceof IAtomTypeLeaf) &&
-                    (atomType[1] instanceof IAtomTypeLeaf)) {
-                ISpecies moleculeType0 = ((IAtomTypeLeaf)atomType[0]).getSpecies();
-                ISpecies moleculeType1 = ((IAtomTypeLeaf)atomType[1]).getSpecies();
-                if (moleculeType0 == moleculeType1) {
-                    criterion = new CriterionInterMolecular(criterion);
-                }
+            ISpecies moleculeType0 = atomType[0].getSpecies();
+            ISpecies moleculeType1 = atomType[1].getSpecies();
+            if (moleculeType0 == moleculeType1) {
+                criterion = new CriterionInterMolecular(criterion);
             }
         }
         else if (atomType.length == 1) {
@@ -420,16 +417,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
         }
         else {
-            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            for(int i=0; i<potentials.length; i++) {
-                potentials[i].setBox(box);
-            }
-
             if (targetAtom instanceof IAtomLeaf) {
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
+                IPotential[] potentials = potentialArray.getPotentials();
+                for(int i=0; i<potentials.length; i++) {
+                    potentials[i].setBox(box);
+                }
+                
                 //first walk up the tree looking for 1-body range-independent potentials that apply to parents
                 IMolecule parentAtom = ((IAtomLeaf)targetAtom).getParentGroup();
-                potentialArray = getIntraPotentials((ISpecies)parentAtom.getType());
+                potentialArray = getIntraPotentials(parentAtom.getType());
                 potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
@@ -438,6 +435,12 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 calculate((IAtomLeaf)targetAtom, id, pc, neighborManager);
             }
             else {
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IMolecule)targetAtom).getType());
+                IPotential[] potentials = potentialArray.getPotentials();
+                for(int i=0; i<potentials.length; i++) {
+                    potentials[i].setBox(box);
+                }
+
                 calculate((IMolecule)targetAtom, id, pc, neighborManager);
             }
         }

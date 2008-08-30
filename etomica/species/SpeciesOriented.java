@@ -1,8 +1,8 @@
 package etomica.species;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
@@ -37,7 +37,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         for (int i=0; i<children.getAtomCount(); i++) {
             IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
             xWork.Ev1Mv2(atom.getPosition(), com);
-            double atomMass = ((IAtomTypeLeaf)atom.getType()).getMass();
+            double atomMass = ((IAtomLeaf)atom).getType().getMass();
             mass += atomMass;
             for (int j=0; j<3; j++) {
                 for (int k=0; k<3; k++) {

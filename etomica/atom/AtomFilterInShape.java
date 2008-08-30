@@ -3,7 +3,7 @@ package etomica.atom;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.ISpecies;
+import etomica.api.IMolecule;
 import etomica.math.geometry.Shape;
 
 
@@ -34,7 +34,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
             return shape.contains(((IAtomPositioned)atom).getPosition());
         }
         if(positionDefinition == null) {
-            return shape.contains(((ISpecies)atom.getType()).getPositionDefinition().position(atom));
+            return shape.contains(((IMolecule)atom).getType().getPositionDefinition().position(atom));
         }
         return shape.contains(positionDefinition.position(atom));
     }

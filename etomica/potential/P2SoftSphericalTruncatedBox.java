@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.ISpace;
@@ -108,7 +108,7 @@ public class P2SoftSphericalTruncatedBox extends Potential2SoftSpherical
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
+    public Potential0Lrc makeLrcPotential(IAtomTypeLeaf[] types) {
         return new P0Lrc(space, potential, this, types);
     }
     
@@ -123,7 +123,7 @@ public class P2SoftSphericalTruncatedBox extends Potential2SoftSpherical
         private P2SoftSphericalTruncatedBox potential;
         
         public P0Lrc(ISpace space, Potential2SoftSpherical truncatedPotential, 
-                P2SoftSphericalTruncatedBox potential, IAtomType[] types) {
+                P2SoftSphericalTruncatedBox potential, IAtomTypeLeaf[] types) {
             super(space, types, truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element

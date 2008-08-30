@@ -10,7 +10,6 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IConformation;
@@ -150,22 +149,22 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         indexIteratorA.reset();
         while (indexIteratorA.hasNext()) {
         	//System.out.println("At start of while loop over indexIteratorA  " + firstAtomPosition);
-        	IAtom a;
+        	IMolecule a;
         	int[] ii = indexIteratorA.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz, because of 
         	//how setSize method works
             if (ii[2] > ((nCellsAz - 2) - 1)) {
-            	a = listFixedA.getAtom(iFixedA);
+            	a = (IMolecule)listFixedA.getAtom(iFixedA);
             	iFixedA++;
             }
             else {
-            	a = listMobileA.getAtom(iMobileA);
+            	a = (IMolecule)listMobileA.getAtom(iMobileA);
             	iMobileA++;
             	//System.out.println(ii[2] + "  |  " + a);
             }
             // initialize coordinates of child atoms
-            IConformation config = ((ISpecies)a.getType()).getConformation();
-            config.initializePositions(((IMolecule)a).getChildList());
+            IConformation config = a.getType().getConformation();
+            config.initializePositions(a.getChildList());
             IVector site = (IVector) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
@@ -177,20 +176,20 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
 
         indexIteratorB.reset();
         while (indexIteratorB.hasNext()) {
-        	IAtom a;
+        	IMolecule a;
         	int[] ii = indexIteratorB.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz
             if (ii[2] < 2) {
-            	a = listFixedB.getAtom(iFixedB);
+            	a = (IMolecule)listFixedB.getAtom(iFixedB);
             	
             }
             else {
-            	a = listMobileB.getAtom(iMobileB);
+            	a = (IMolecule)listMobileB.getAtom(iMobileB);
             	
             }
             // initialize coordinates of child atoms
-            IConformation config = ((ISpecies)a.getType()).getConformation();
-            config.initializePositions(((IMolecule)a).getChildList());
+            IConformation config = a.getType().getConformation();
+            config.initializePositions(a.getChildList());
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);

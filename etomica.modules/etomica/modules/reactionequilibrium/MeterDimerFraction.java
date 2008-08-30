@@ -1,9 +1,7 @@
 package etomica.modules.reactionequilibrium;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
@@ -58,13 +56,13 @@ public final class MeterDimerFraction implements DataSource {
         int nLeaf = leafAtoms.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             IAtomLeaf a = (IAtomLeaf)leafAtoms.getAtom(i);
-        	IAtom partner = (IAtom)agentManager.getAgent(a);
+        	IAtomLeaf partner = (IAtomLeaf)agentManager.getAgent(a);
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
-            if(((IAtomTypeLeaf)a.getType()).getSpecies() == speciesA) {
+            if(a.getType().getSpecies() == speciesA) {
                if(partner == null) {
                  count[0]++;  //A radical
                }
-               else if(((IAtomTypeLeaf)partner.getType()).getSpecies() == speciesA) {
+               else if(partner.getType().getSpecies() == speciesA) {
                  count[2]++;  //A-A
                }
                else {
@@ -75,7 +73,7 @@ public final class MeterDimerFraction implements DataSource {
                if(partner == null) {
                  count[1]++;  //B radical
                }
-               else if(((IAtomTypeLeaf)partner.getType()).getSpecies() == speciesA) {
+               else if(partner.getType().getSpecies() == speciesA) {
                  count[3]++;  //A-B
                }
                else {

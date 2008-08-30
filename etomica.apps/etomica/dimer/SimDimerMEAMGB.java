@@ -226,7 +226,7 @@ public class SimDimerMEAMGB extends Simulation{
         IAtomSet loopSet = box.getMoleculeList();
         IAtomSet dimerSet = box.getMoleculeList(dimer);
         for(int i=0; i<loopSet.getAtomCount(); i++){
-            if(loopSet.getAtom(i).getType()==dimer){
+            if(((IMolecule)loopSet.getAtom(i)).getType()==dimer){
                 continue;
             }
             boolean fixedFlag = true;

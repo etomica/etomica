@@ -27,8 +27,8 @@ public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
         this.bondingAgentManager = bondingAgentManager;
     }
     
-    public Color getAtomColor(IAtom atom) {
-        IAtom[] nbrs = (IAtom[])bondingAgentManager.getAgent((IAtomLeaf)atom);
+    public Color getAtomColor(IAtomLeaf atom) {
+        IAtom[] nbrs = (IAtom[])bondingAgentManager.getAgent(atom);
         if (nbrs != null && colorMaps.length > nbrs.length) {
             return (Color)colorMaps[nbrs.length].getAgent(atom.getType());
         }

@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
@@ -129,10 +129,10 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
      * potential does not result in a gradient or torque on the molecule and is
      * independent of position or orientation.
      */
-    public static class P0ReactionField extends Potential0Lrc {
+    public static class P0ReactionField extends Potential0 implements IPotential0Lrc, PotentialSoft {
 
         public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
-            super(space, new IAtomType[2], p);
+            super(space);
             this.potential = p;
             gradient = new IVector[0];
         }
@@ -161,12 +161,12 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
             box = newBox;
         }
         
-        public void setTargetAtoms(IAtomSet atoms) {
-            if (atoms == null || atoms.getAtom(0) == null || !(atoms.getAtom(0) instanceof IMolecule)) {
+        public void setTargetAtoms(IAtom atom) {
+            if (atom == null || !(atom instanceof IMolecule)) {
                 targetAtom = null;
                 return;
             }
-            targetAtom = (IMolecule)atoms.getAtom(0);
+            targetAtom = (IMolecule)atom;
         }
         
         public IVector[] gradient(IAtomSet atoms) {
@@ -185,5 +185,6 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         protected final P2ReactionFieldDipole potential;
         protected final IVector[] gradient;
         protected IMolecule targetAtom;
+        protected IBox box;
     }
 }

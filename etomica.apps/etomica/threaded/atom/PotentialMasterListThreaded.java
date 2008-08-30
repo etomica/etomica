@@ -81,14 +81,14 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             if (targetAtom instanceof IAtomLeaf) {
                 IMolecule molecule = ((IAtomLeaf)targetAtom).getParentGroup();
-                PotentialArray potentialArray = getIntraPotentials((ISpecies)molecule.getType());
+                PotentialArray potentialArray = getIntraPotentials(molecule.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id,pc);
                 }
                 
-                potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
+                potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
                 potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
@@ -96,7 +96,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 calculate((IAtomLeaf)targetAtom, id, pc, neighborManager);
             }
             else {
-                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);

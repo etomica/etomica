@@ -1,8 +1,8 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -89,7 +89,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
-                if(((IAtomTypeLeaf)a.getType()).getSpecies() == species) speciesSum++;
+                if(((IAtomLeaf)a).getType().getSpecies() == species) speciesSum++;
             }
         }
         if(totalSum == 0) return Double.NaN;

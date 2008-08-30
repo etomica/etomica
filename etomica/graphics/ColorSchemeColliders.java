@@ -1,7 +1,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
 import etomica.integrator.IntegratorHard;
 
@@ -29,7 +29,7 @@ public class ColorSchemeColliders extends ColorScheme {
     /**
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
      */ 
-    public Color getAtomColor(IAtom a) {
+    public Color getAtomColor(IAtomLeaf a) {
         IntegratorHard.Agent colliderAgent = integrator.colliderAgent();
         if(colliderAgent == null) return defaultColor;
         else if(a == colliderAgent.atom) return colliderColor;

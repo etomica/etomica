@@ -51,8 +51,8 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
-            v.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
-            if (a.getType() == sulfurType) {
+            v.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+            if (((IAtomLeaf)a).getType() == sulfurType) {
                 // sulfur isn't allowed to move in the Y direction
                 v.setX(1, 0);
             }
@@ -73,13 +73,13 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);
-            workTensor.TE(((IAtomTypeLeaf)a.getType()).getMass());
+            workTensor.TE(((IAtomLeaf)a).getType().getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
-            if (a.getType() == sulfurType) {
+            velocity.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
+            if (((IAtomLeaf)a).getType() == sulfurType) {
                 velocity.setX(1, 0);
             }
         }

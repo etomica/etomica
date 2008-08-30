@@ -12,8 +12,8 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -233,7 +233,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         
         public boolean accept(IAtom atom) {
             if(!active) return true;
-            if(((IAtomTypeLeaf)atom.getType()).getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
+            if(((IAtomLeaf)atom).getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.x(0);
             return ((IAtomPositioned)atom).getPosition().x(0) < x0;
 

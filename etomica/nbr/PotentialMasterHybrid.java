@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
@@ -119,7 +119,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         }
     }
     
-    protected void addRangedPotentialForTypes(IPotential potential, IAtomType[] atomTypes) {
+    protected void addRangedPotentialForTypes(IPotential potential, IAtomTypeLeaf[] atomTypes) {
     }
     
     public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {

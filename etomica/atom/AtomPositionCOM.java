@@ -5,9 +5,9 @@ import java.io.Serializable;
 import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -48,7 +48,7 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
             vectorSum = sum;
         }
         public void actionPerformed(IAtom a) {
-            double mass = ((IAtomTypeLeaf)a.getType()).getMass();
+            double mass = ((IAtomLeaf)a).getType().getMass();
             vectorSum.PEa1Tv1(mass, ((IAtomPositioned)a).getPosition());
             massSum += mass;
         }

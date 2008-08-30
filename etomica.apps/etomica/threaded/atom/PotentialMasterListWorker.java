@@ -1,6 +1,7 @@
 package etomica.threaded.atom;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -69,7 +70,23 @@ public class PotentialMasterListWorker extends Thread {
            threadCalculate = System.currentTimeMillis(); 
             // Thread completes objective
             for(int i=startAtom; i<stopAtom; i++){
-                calculate(threadList.getAtom(i-startAtom), id, pc);       
+                IMolecule molecule = (IMolecule)threadList.getAtom(i-startAtom);
+                PotentialArray potentialArray = pmlt.getIntraPotentials(molecule.getType());
+                IPotential[] potentials = potentialArray.getPotentials();
+                for(int j=0; j<potentials.length; j++) {
+                
+                    // Extracts thread-specific potential for intra-molecular atoms
+                    IPotential potentialIntraThread = ((PotentialThreaded)potentials[j]).getPotentials()[threadNumber];
+                    ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent(molecule,id,pc);
+                }
+                
+                //cannot use AtomIterator field because of recursive call
+                IAtomSet list = molecule.getChildList();
+                int size = list.getAtomCount();
+                for (int j=0; j<size; j++) {
+                    IAtomLeaf a = (IAtomLeaf)list.getAtom(j);
+                    calculate(a, id, pc);//recursive call
+                }
             }
            threadCalculate = System.currentTimeMillis()-threadCalculate;
            
@@ -93,7 +110,7 @@ public class PotentialMasterListWorker extends Thread {
 	}
 	
 	
-	public void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
+	public void calculate(IAtomLeaf atom, IteratorDirective id, PotentialCalculation pc) {
 		
 	     IteratorDirective.Direction direction = id.direction();
 	     PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
@@ -156,26 +173,6 @@ public class PotentialMasterListWorker extends Thread {
                 
             }//end of switch
         }//end of for
-
-		//		if atom has children, repeat process with them
-        if(atom instanceof IMolecule) {
-            potentialArray = pmlt.getIntraPotentials((ISpecies)atom.getType());
-            potentials = potentialArray.getPotentials();
-            for(int i=0; i<potentials.length; i++) {
-            
-                // Extracts thread-specific potential for intra-molecular atoms
-                IPotential potentialIntraThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
-                ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent((IMolecule)atom,id,pc);
-            }
-            
-            //cannot use AtomIterator field because of recursive call
-            IAtomSet list = ((IMolecule)atom).getChildList();
-            int size = list.getAtomCount();
-            for (int i=0; i<size; i++) {
-                IAtom a = list.getAtom(i);
-                calculate(a, id, pc);//recursive call
-            }
-        }
 	}
 	
 	protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, IPotential potential) {

@@ -3,7 +3,7 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomLeaf;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
@@ -35,7 +35,7 @@ public class AtomActionRandomizeVelocity implements AtomAction, Serializable {
      */
     public void actionPerformed(IAtom a) {
         IVector velocity = ((IAtomKinetic)a).getVelocity();
-        double mass = ((IAtomTypeLeaf)a.getType()).getMass();
+        double mass = ((IAtomLeaf)a).getType().getMass();
         if(Double.isInfinite(mass)) {
             velocity.E(0.0);
             return;

@@ -246,7 +246,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		    Ball ball = null;
 		    try {
 		        a = (IAtomPositioned) leafList.getAtom(iLeaf);
-	            if (a == null || !(a.getType() instanceof IAtomTypeSphere))
+	            if (a == null || !(((IAtomLeaf)a).getType() instanceof IAtomTypeSphere))
 	                continue;
 	            ball = (Ball) aam.getAgent((IAtomLeaf)a);
 		    }
@@ -276,9 +276,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				continue;
 			}
 			a.getPosition().assignTo(coords);
-			float diameter = (float) ((IAtomTypeSphere) a.getType())
+			float diameter = (float) ((IAtomTypeSphere) ((IAtomLeaf)a).getType())
 					.getDiameter();
-			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
+			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor((IAtomLeaf)a)));
 			ball.setD(diameter);
 			ball.setX((float) coords[0]);
 			ball.setY((float) coords[1]);

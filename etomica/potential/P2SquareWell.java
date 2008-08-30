@@ -1,7 +1,7 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.space.ISpace;
@@ -72,8 +72,8 @@ public class P2SquareWell extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((IAtomTypeLeaf)atom0.getType()).rm();
-        double rm1 = ((IAtomTypeLeaf)atom1.getType()).rm();
+        double rm0 = ((IAtomLeaf)atom0).getType().rm();
+        double rm1 = ((IAtomLeaf)atom1).getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
