@@ -31,13 +31,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
-    
+
     protected AtomLeafAgentManager agentManager;
 
     public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
-    
+
     public IntegratorVelocityVerlet(IPotentialMaster potentialMaster, IRandom random,
             double timeStep, double temperature, ISpace _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
@@ -52,12 +52,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
-        return info;
-    }
-    
+
     public void setForceSum(PotentialCalculationForceSum pc){
         forceSum = pc;
         if(box != null){
@@ -65,7 +60,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         }
         
     }
-    
+
     public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
@@ -75,7 +70,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
-    
+
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
@@ -107,11 +102,11 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         forceSum.reset();
         //Compute forces on each atom
         potential.calculate(box, allAtoms, forceSum);
-        
+
         if(forceSum instanceof PotentialCalculationForcePressureSum){
             pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
         }
-        
+
         //Finish integration step
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -125,7 +120,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             }
             velocity.PEa1Tv1(0.5*timeStep*((IAtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
         }
-        
+
         pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
