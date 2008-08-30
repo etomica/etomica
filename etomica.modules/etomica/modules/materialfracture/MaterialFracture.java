@@ -16,6 +16,7 @@ import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -49,7 +50,7 @@ public class MaterialFracture extends Simulation {
         integrator.setForceSum(pc);
         getController().addAction(new ActivityIntegrate(integrator));
         P2LennardJones p2LJ = new P2LennardJones(space, 3, 2000);
-        P2SoftSphericalTruncated pt = new P2SoftSphericalTruncated(space, p2LJ, 7.5);
+        P2SoftSphericalTruncatedForceShifted pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7.5);
 
         p1Tension = new P1Tension(space); 
         species = new SpeciesSpheresMono(this, space);
