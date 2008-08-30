@@ -1,10 +1,6 @@
 package etomica.modules.materialfracture;
 
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
-import etomica.api.IBox;
-import etomica.atom.IAtomKinetic;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.Data;
@@ -87,14 +83,9 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
         meterPressure.setIntegrator(sim.integrator);
         DataProcessor pressureToStress = new DataProcessor(){
+            public DataPipe getDataCaster(IDataInfo incomingDataInfo) { return null; }
         
-            public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-                return null;
-            }
-        
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                return dataInfo;
-            }
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
         
             protected Data processData(Data inputData) {
                 // xx component is the first one
@@ -118,7 +109,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing internalStressAverage = new AccumulatorAverageCollapsing();
         internalStressAverage.setPushInterval(10);
         internalStressFork.addDataSink(internalStressAverage);
-    
+
         internalStressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
         stressHistoryPlot.setDoDrawLines(new DataTag[]{internalStressHistory.getTag()}, false);
         stressHistoryPlot.setLegend(new DataTag[]{internalStressHistory.getTag()}, "Internal Stress");
@@ -134,7 +125,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         springConstantSlider.setShowBorder(true);
         springConstantSlider.setMaximum(30);
         add(springConstantSlider);
-        
+
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 stressHistoryPlot.getPlot().clear(false);
