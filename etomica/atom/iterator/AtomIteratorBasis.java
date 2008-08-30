@@ -62,9 +62,6 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      */
     public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
-        if (targetAtom != null) {
-            leafTarget = targetAtom instanceof IAtomLeaf;
-        }
         needSetupIterator = (basis != null);//flag to setup iterator only if
                                             // presently has a non-null basis
         listIterator.unset();
@@ -215,7 +212,6 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                                                        // one iterate if target
                                                        // is specified
     private IAtom targetAtom;
-    private boolean leafTarget;
     private IAtom basis;
     private IAtomSet list;
     private boolean needSetupIterator = true;//flag to indicate if
