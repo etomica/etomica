@@ -257,7 +257,7 @@ public class Sam extends Simulation {
         potentialMaster.addPotential(p1SurfaceBond, new IAtomTypeLeaf[]{species.getSulfurType()});
         
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        wallPotential.setWallPosition(box.getBoundary().getDimensions().x(1));
+        wallPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
 
