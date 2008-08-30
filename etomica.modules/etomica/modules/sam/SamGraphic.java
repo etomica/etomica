@@ -46,10 +46,16 @@ import etomica.units.Kelvin;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.units.Radian;
 import etomica.util.HistoryCollapsingAverage;
 
 public class SamGraphic extends SimulationGraphic {
+    
+    public final ActionMoveWall moveWallAction;
+    public final DeviceButton wallButton;
+    public final DeviceButton corrugationButton;
+    public final DeviceSlider thetaSlider;
+    public final DeviceSlider[] phiSlider;
+    public final DeviceSlider numCellsSlider;
     
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
@@ -69,6 +75,34 @@ public class SamGraphic extends SimulationGraphic {
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
         
+        final IAction moveWallToggle = new IAction() {
+            public void actionPerformed() {
+                if (moveWallAction.enabled) {
+                    moveWallAction.enabled = false;
+                    wallButton.setLabel("Lower wall");
+                    thetaSlider.setEnabled(true);
+                    for (int i=0; i<4; i++) {
+                        phiSlider[i].setEnabled(true);
+                    }
+                    numCellsSlider.setEnabled(true);
+                    corrugationButton.getButton().setEnabled(true);
+                }
+                else {
+                    moveWallAction.enabled = true;
+                    thetaSlider.setEnabled(false);
+                    for (int i=0; i<4; i++) {
+                        phiSlider[i].setEnabled(false);
+                    }
+                    numCellsSlider.setEnabled(false);
+                    corrugationButton.getButton().setEnabled(false);
+                    wallButton.setLabel("Stop wall");
+                }
+            }
+        };
+        wallButton = new DeviceButton(sim.getController(), moveWallToggle);
+        wallButton.setLabel("Lower wall");
+        add(wallButton);
+
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
         thermoSlider.setIsothermalButtonsVisibility(false);
         thermoSlider.setUnit(Kelvin.UNIT);
@@ -87,12 +121,20 @@ public class SamGraphic extends SimulationGraphic {
         add(temperatureDisplay);
 
         Modifier wallPositionModifier = new ModifierWallPosition(sim);
-        DeviceSlider wallPositionSlider = new DeviceSlider(sim.getController(), wallPositionModifier);
+        final DeviceSlider wallPositionSlider = new DeviceSlider(sim.getController(), wallPositionModifier);
         wallPositionSlider.setPrecision(1);
         wallPositionSlider.setShowBorder(true);
         wallPositionSlider.setLabel("Wall position");
         wallPositionSlider.setMinimum(15);
-        wallPositionSlider.setMaximum(30);
+        double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+        double sliderValue = sim.wallPotential.getWallPosition()-surfacePosition;
+        if (sliderValue < 30) {
+            wallPositionSlider.setMaximum(30);
+        }
+        else {
+            wallPositionSlider.setMaximum(40);
+            wallPositionSlider.setNMajor(5);
+        }
         wallPositionSlider.setShowValues(true);
         wallPositionSlider.setPostAction(new ActionGroupSeries(new IAction[]{getPaintAction(sim.box),resetAction}));
         add(wallPositionSlider);
@@ -103,7 +145,7 @@ public class SamGraphic extends SimulationGraphic {
         JPanel chainThetaPsi = new JPanel(new GridBagLayout());
         conformationTabs.add(chainThetaPsi, "theta, psi");
         ModifierGeneral thetaModifier = new ModifierGeneral(sim, "chainTheta");
-        DeviceSlider thetaSlider = new DeviceSlider(sim.getController(), thetaModifier);
+        thetaSlider = new DeviceSlider(sim.getController(), thetaModifier);
         thetaSlider.setShowBorder(true);
         thetaSlider.setUnit(Degree.UNIT);
         thetaSlider.setLabel("Theta");
@@ -112,6 +154,8 @@ public class SamGraphic extends SimulationGraphic {
         thetaSlider.setShowValues(true);
         IAction reinitAction = new IAction() {
             public void actionPerformed() {
+                sim.wallPotential.setWallPosition(20);
+                wallPositionSlider.doUpdate();
                 sim.config.initializeCoordinates(sim.box);
                 sim.findTetherBonds();
                 try {
@@ -137,14 +181,15 @@ public class SamGraphic extends SimulationGraphic {
         chainThetaPsi.add(psiSlider.graphic(), SimulationPanel.getVertGBC());
 
         JPanel chainPhi = null;
+        phiSlider = new DeviceSlider[4];
         for (int i=0; i<4; i++) {
             if (i==0) {
                 chainPhi = new JPanel(new GridBagLayout());
-                conformationTabs.add(chainPhi, "phi12");
+                conformationTabs.add(chainPhi, "phi 1,2");
             }
             else if (i==2) {
                 chainPhi = new JPanel(new GridBagLayout());
-                conformationTabs.add(chainPhi, "phi34");
+                conformationTabs.add(chainPhi, "phi 3,4");
             }
 
             final int iChain = i;
@@ -165,15 +210,15 @@ public class SamGraphic extends SimulationGraphic {
                     sim.setChainPhi(iChain, newValue);
                 }
             };
-            DeviceSlider phiSlider = new DeviceSlider(sim.getController(), phiModifier);
-            phiSlider.setShowBorder(true);
-            phiSlider.setUnit(Degree.UNIT);
-            phiSlider.setLabel("Phi "+(i+1));
-            phiSlider.setMinimum(0);
-            phiSlider.setMaximum(360);
-            phiSlider.setShowValues(true);
-            phiSlider.setPostAction(reinitAction);
-            chainPhi.add(phiSlider.graphic(), SimulationPanel.getVertGBC());
+            phiSlider[i] = new DeviceSlider(sim.getController(), phiModifier);
+            phiSlider[i].setShowBorder(true);
+            phiSlider[i].setUnit(Degree.UNIT);
+            phiSlider[i].setLabel("Phi "+(i+1));
+            phiSlider[i].setMinimum(0);
+            phiSlider[i].setMaximum(360);
+            phiSlider[i].setShowValues(true);
+            phiSlider[i].setPostAction(reinitAction);
+            chainPhi.add(phiSlider[i].graphic(), SimulationPanel.getVertGBC());
         }
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -220,7 +265,7 @@ public class SamGraphic extends SimulationGraphic {
                 sim.setNumZCells((int)newValue);
             }
         };
-        DeviceSlider numCellsSlider = new DeviceSlider(sim.getController(), nCellsModifier);
+        numCellsSlider = new DeviceSlider(sim.getController(), nCellsModifier);
         numCellsSlider.setShowBorder(true);
         numCellsSlider.setLabel("# of cells");
         numCellsSlider.setMinimum(1);
@@ -296,7 +341,6 @@ public class SamGraphic extends SimulationGraphic {
         tiltPlot.setLegend(new DataTag[]{tilt2History.getTag()}, "avg tilt");
         add(tiltPlot);
 
-        
         DisplayPlot plot = new DisplayPlot();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterKE.getTag()}, "KE");
@@ -306,7 +350,7 @@ public class SamGraphic extends SimulationGraphic {
         plot.setLegend(new DataTag[]{meterEnergy.getTag()}, "E");
         plot.setLabel("Energy");
         
-        final DeviceButton corrugationButton = new DeviceButton(sim.getController());
+        corrugationButton = new DeviceButton(sim.getController());
         IAction corrugationAction = new IAction() {
             public void actionPerformed() {
                 sinusoidalEnabled = !sinusoidalEnabled;
@@ -316,6 +360,8 @@ public class SamGraphic extends SimulationGraphic {
                 sim.p2SurfaceBond.setSpringConstant(sinusoidalEnabled ? 0 : sim.harmonicStrength);
                 sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getSulfurType() : null);
 
+                sim.wallPotential.setWallPosition(20);
+                wallPositionSlider.doUpdate();
                 sim.config.initializeCoordinates(sim.box);
                 sim.findTetherBonds();
                 try {
@@ -333,13 +379,45 @@ public class SamGraphic extends SimulationGraphic {
         corrugationButton.setLabel("Sinusoidal corrugation");
 
         add(plot);
+        
+        moveWallAction = new ActionMoveWall(wallPositionSlider, sim, moveWallToggle);
+        sim.integrator.addIntervalAction(moveWallAction);
+        sim.integrator.setActionInterval(moveWallAction, 100);
     }
     
     public static void main(String[] args) {
         Sam sim = new Sam();
         SamGraphic graphic = new SamGraphic(sim);
         graphic.makeAndDisplayFrame();
-//        sim.activityIntegrate.setSleepPeriod(10);
+    }
+
+    public class ActionMoveWall implements IAction {
+        private final DeviceSlider wallPositionSlider;
+        private final Sam sim;
+        private final IAction moveWallToggle;
+        public boolean enabled;
+
+        private ActionMoveWall(DeviceSlider wallPositionSlider, Sam sim,
+                IAction moveWallToggle) {
+            this.wallPositionSlider = wallPositionSlider;
+            this.sim = sim;
+            this.moveWallToggle = moveWallToggle;
+            enabled = false;
+        }
+
+        public void actionPerformed() {
+            if (!enabled) {
+                return;
+            }
+            double position = sim.wallPotential.getWallPosition()-0.1;
+            sim.wallPotential.setWallPosition(position);
+            wallPositionSlider.doUpdate();
+            double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+            if (position-surfacePosition < 15.01) {
+                // turn ourselves off
+                moveWallToggle.actionPerformed();
+            }
+        }
     }
 
     public static class ModifierWallPosition implements Modifier {
