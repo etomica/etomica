@@ -36,7 +36,7 @@ public class AtomsetArray implements IAtomSet, java.io.Serializable {
      *             if argument is null
      */
     public AtomsetArray(AtomsetArray atomSet) {
-        this((IAtom[]) atomSet.atoms.clone());
+        this(atomSet.atoms.clone());
 
     }
 

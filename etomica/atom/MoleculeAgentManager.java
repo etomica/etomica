@@ -8,7 +8,6 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;
 import etomica.box.BoxAtomRemovedEvent;

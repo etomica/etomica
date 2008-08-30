@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 
 

@@ -4,7 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
