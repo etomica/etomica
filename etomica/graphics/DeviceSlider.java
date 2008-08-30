@@ -147,13 +147,18 @@ public class DeviceSlider extends Device {
         setEditValues(false); // default is false to edit values of slider thru textField
     }
     
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Slider-type device for changing a property");
-        return info;
+    /**
+     * Sets the deivce's slider and textfield to be enabled or not.
+     */
+    public void setEnabled(boolean isEnabled) {
+        slider.setEnabled(isEnabled);
+        textField.setEnabled(isEnabled);
     }
-
+    
+    public boolean isEnabled() {
+        return slider.isEnabled();
+    }
+    
     /**
      * Override superclass setUnit method to update label when unit is changed
      */
