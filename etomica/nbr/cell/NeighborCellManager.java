@@ -11,7 +11,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -19,7 +18,6 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.BoxCellManager;
 import etomica.box.BoxEvent;
 import etomica.box.BoxInflateEvent;
@@ -47,7 +45,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected final ISimulation sim;
     protected final CellLattice lattice;
     protected final ISpace space;
-    protected final AtomIteratorTreeBox atomIterator;
     protected final IAtomPositionDefinition positionDefinition;
     protected final IBox box;
     protected int cellRange = 2;
@@ -78,9 +75,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         this.box = box;
         this.sim = sim;
         space = _space;
-        atomIterator = new AtomIteratorTreeBox();
-        atomIterator.setDoAllNodes(true);
-        atomIterator.setBox(box);
 
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
@@ -259,7 +253,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     public void assignCell(IMolecule atom) {
         IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
-                    ((ISpecies)atom.getType()).getPositionDefinition().position(atom);
+                    atom.getType().getPositionDefinition().position(atom);
         Cell atomCell;
         if (doApplyPBC) {
             v.E(position);
@@ -321,7 +315,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         if (atom.getType().isInteracting()) {
             IVector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
-                        ((ISpecies)atom.getType()).getPositionDefinition().position(atom);
+                        atom.getType().getPositionDefinition().position(atom);
             Cell atomCell = (Cell)lattice.site(position);
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
