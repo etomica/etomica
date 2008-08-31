@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IMolecule;
@@ -68,32 +67,6 @@ public class Molecule extends Atom implements IMolecule {
         throw new IllegalArgumentException(oldChildAtom+" is not a child");
     }
 
-    
-    /**
-     * Returns a specified atom descended from this one in the atom tree.  
-     * Each index of the given array specifies the i-th child at the
-     * depth of the array index.  So if path is {2, 0, 3},
-     * returns the 3rd child of the 0th child of the 2nd child of
-     * this node.  That is: (this node) -> (2nd child) -> (0th child) -> (3rd child)
-     * The path indexes do not correspond to the ordinals assigned to the
-     * children (ordinals are numbered from 1; specifications in path are
-     * numbered from 0).
-     */
-    public IAtom getDescendant(int[] path) {
-        return getDescendant(0, path);
-    }
-    
-    private IAtom getDescendant(int n, int[] path) {
-        IAtom child = childList.getAtom(path[n]);
-        if(path.length - 1 > n) {//go further down hierarchy
-            if(!(child instanceof IMolecule)) {//no more there
-                throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
-            }//get indicated descendant recursively
-            child = ((Molecule)child).getDescendant(n+1, path);
-        }
-        return child;
-    }
-    
     /**
      * @return the childList
      */
