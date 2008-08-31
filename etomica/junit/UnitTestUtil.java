@@ -1,11 +1,9 @@
 package etomica.junit;
 
-import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -128,20 +126,4 @@ public class UnitTestUtil {
         }
         return sim;
     }
-    
-    public static void main(String[] arg) {
-        ISimulation sim = makeStandardSpeciesTree();
-        int boxCount = sim.getBoxCount();
-        for (int i=0; i<boxCount; i++) {
-            AtomIteratorTreeBox iterator = new AtomIteratorTreeBox();
-            iterator.setBox(sim.getBox(i));
-            iterator.setDoAllNodes(true);
-            iterator.reset();
-            for (IAtomSet atom = iterator.next(); atom != null;
-                 atom = iterator.next()) {
-                System.out.println(atom.toString());
-            }
-        }
-    }
-
 }
