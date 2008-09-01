@@ -62,7 +62,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
                     allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
                 }
                 //pGroup is PotentialGroupNbr
-                IAtomType[] parentType = getAtomTypes(pGroup);
+                ISpecies[] parentType = getSpecies(pGroup);
                 ((PotentialArray)intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);
             }
             else {
@@ -116,7 +116,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
     }
     
-    public PotentialArray getRangedPotentials(IAtomType atomType) {
+    public PotentialArray getRangedPotentials(IAtomTypeLeaf atomType) {
         return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 

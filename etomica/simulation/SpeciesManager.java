@@ -24,7 +24,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         this.sim = sim;
         speciesList = new ISpecies[0];
         elementSymbolHash = new HashMap<String,Element>();
-        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomType>>();
+        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomTypeLeaf>>();
     }
 
     /* (non-Javadoc)
@@ -146,9 +146,9 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         }
         // remember the element so we can check for future duplication
         elementSymbolHash.put(newElement.getSymbol(), newElement);
-        LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
+        LinkedList<IAtomTypeLeaf> atomTypeList = elementAtomTypeHash.get(newElement);
         if (atomTypeList == null) {
-            atomTypeList = new LinkedList<IAtomType>();
+            atomTypeList = new LinkedList<IAtomTypeLeaf>();
             elementAtomTypeHash.put(newElement, atomTypeList);
         }
         atomTypeList.add(newChildType);
@@ -178,6 +178,6 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     private static final long serialVersionUID = 1L;
     private ISpecies[] speciesList;
     private final HashMap<String,Element> elementSymbolHash;
-    private final HashMap<Element,LinkedList<IAtomType>> elementAtomTypeHash;
+    private final HashMap<Element,LinkedList<IAtomTypeLeaf>> elementAtomTypeHash;
     private final ISimulation sim;
 }

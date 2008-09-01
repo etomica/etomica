@@ -59,7 +59,7 @@ public class Swmd extends Simulation {
 	    species = new SpeciesSpheresMono(this, space);//index 1
 	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         getSpeciesManager().addSpecies(species);
-        integrator.setNullPotential(nullPotential, species);
+        integrator.setNullPotential(nullPotential, species.getLeafType());
         
         //instantiate several potentials for selection in combo-box
 	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(space.D() == 3 ? 1000 : 1500), true);

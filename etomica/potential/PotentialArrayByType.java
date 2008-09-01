@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IPotential;
 import etomica.util.Arrays;
 
@@ -48,12 +48,12 @@ public class PotentialArrayByType implements java.io.Serializable {
      * @param newPotential the potential being added
      * @return the new or previously assigned index for the potential
      */
-    public int addPotential(IPotential newPotential, IAtomType type) {
+    public int addPotential(IPotential newPotential, IAtomTypeLeaf type) {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
         potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
-        types = (IAtomType[])Arrays.resizeArray(types, potentials.length);
+        types = (IAtomTypeLeaf[])Arrays.resizeArray(types, potentials.length);
         types[types.length-1] = type;
     	return potentials.length-1;
     }
@@ -72,7 +72,7 @@ public class PotentialArrayByType implements java.io.Serializable {
     	    	System.arraycopy(potentials,i+1,newPotentials,i,potentials.length-i-1);
     	    	potentials = newPotentials;
 
-                IAtomType[] newTypes = new IAtomType[types.length-1];
+                IAtomTypeLeaf[] newTypes = new IAtomTypeLeaf[types.length-1];
                 System.arraycopy(types,0,newTypes,0,i);
                 System.arraycopy(types,i+1,newTypes,i,types.length-i-1);
                 types = newTypes;
@@ -86,12 +86,12 @@ public class PotentialArrayByType implements java.io.Serializable {
     	return potentials;
     }
     
-    public final IAtomType[] getTypes() {
+    public final IAtomTypeLeaf[] getTypes() {
         return types;
     }
     
     private static final long serialVersionUID = 1L;
     private IPotential[] potentials = new IPotential[0];
-    private IAtomType[] types = new IAtomType[0];
+    private IAtomTypeLeaf[] types = new IAtomTypeLeaf[0];
     private int mostRecentIndex = -1;
 }

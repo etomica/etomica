@@ -4,7 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomsetArrayList;
@@ -25,7 +25,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
      * @param species species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public AtomIteratorAllLeafType(IAtomType[] atomType) {
+    public AtomIteratorAllLeafType(IAtomTypeLeaf[] atomType) {
     	this.atomType = atomType;
         next = new AtomsetArrayList();
     }
@@ -111,7 +111,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
     }
 
     private static final long serialVersionUID = 1L;
-    private final IAtomType[] atomType;
+    private final IAtomTypeLeaf[] atomType;
     private IBox box;
     private int nextCursor;
     private final AtomsetArrayList next;

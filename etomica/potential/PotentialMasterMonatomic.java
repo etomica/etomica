@@ -59,7 +59,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
                 continue;
             }
             PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(atomTypes[i]);
-            IAtomType otherType = null;
+            IAtomTypeLeaf otherType = null;
             if (potential.nBody() == 2) {
                 otherType = atomTypes[1-i];
             }
@@ -130,7 +130,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             }
         }
 
-        IAtomType[] types = potentialArray.getTypes();
+        IAtomTypeLeaf[] types = potentialArray.getTypes();
         if (direction != IteratorDirective.Direction.DOWN) {
             atomPair.atom0 = leafAtom;
             for (int j=leafIndex+1; j<leafCount; j++) {

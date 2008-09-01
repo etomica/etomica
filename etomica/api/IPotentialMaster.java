@@ -5,7 +5,6 @@ import etomica.chem.models.Model;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMasterLrc;
-import etomica.space.ISpace;
 
 public interface IPotentialMaster {
 
@@ -76,15 +75,7 @@ public interface IPotentialMaster {
 	 * Returns the potential that applies to the specified types,
 	 * or null of no existing potential applies.
 	 */
-	public PotentialGroup getPotential(IAtomType[] types);
-
-	/**
-	 * Returns the AtomTypes that the given potential applies to if the given 
-	 * potential is within this potential group.  If the potential is not 
-	 * contained by the potential master or any PotentialGroup it holds, or 
-	 * does not apply to specific AtomTypes, null is returned.
-	 */
-	public IAtomType[] getAtomTypes(IPotential potential);
+	public PotentialGroup getPotential(ISpecies[] types);
 
 	/**
 	 * Removes given potential from the group.  No error is generated if

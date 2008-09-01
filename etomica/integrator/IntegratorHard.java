@@ -523,7 +523,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     /**
      * @return Returns the nullPotential.
      */
-    public PotentialHard getNullPotential(IAtomType atomType) {
+    public PotentialHard getNullPotential(IAtomTypeLeaf atomType) {
         return (PotentialHard)nullPotentialManager.getAgent(atomType);
     }
 
@@ -532,7 +532,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * a 1-body potential used by IntegratorHard to handle Atoms that wrap
      * around periodic boundaries when neighbor listing is not used.
      */
-    public void setNullPotential(PotentialHard nullPotential, IAtomType type) {
+    public void setNullPotential(PotentialHard nullPotential, IAtomTypeLeaf type) {
         // if nullPotentialManager is null, it's because you passed a null
         // ISimulation when you constructed this class
         nullPotentialManager.setAgent(type, nullPotential);
@@ -540,23 +540,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             nullPotential.setBox(box);
         }
         if (box != null) {
-            if (type instanceof IAtomTypeLeaf) {
-                // inefficient -- we could loop over molecules of type.getSpecies()
-                // and then their children.  oh well.
-                IAtomSet leafList = box.getLeafList();
-                int nLeaf = leafList.getAtomCount();
-                for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                    IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
-                    if (atom.getType() == type) {
-                        ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
-                    }
-                }
-            }
-            else {
-                IAtomSet moleculeList = box.getMoleculeList((ISpecies)type);
-                int nMolecules = moleculeList.getAtomCount();
-                for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-                    IAtomLeaf atom = (IAtomLeaf)moleculeList.getAtom(iMolecule);
+            // inefficient -- we could loop over molecules of type.getSpecies()
+            // and then their children.  oh well.
+            IAtomSet leafList = box.getLeafList();
+            int nLeaf = leafList.getAtomCount();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
+                if (atom.getType() == type) {
                     ((Agent)agentManager.getAgent(atom)).setNullPotential(nullPotential);
                 }
             }
@@ -693,11 +683,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             }
         }
     }
-
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("Collision-based molecular dynamics simulation of hard potentials");
-		return info;
-	}
 
     /**
      * Class used to construct a linked list of collision listeners

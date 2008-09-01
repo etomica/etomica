@@ -3,7 +3,6 @@ package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 
 /**
@@ -26,8 +25,8 @@ public class CriterionTypePair extends CriterionAdapter {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(IAtomSet pair) {
-        IAtomType atom0Type = ((IAtomLeaf)pair.getAtom(0)).getType();
-        IAtomType atom1Type = ((IAtomLeaf)pair.getAtom(1)).getType();
+        IAtomTypeLeaf atom0Type = ((IAtomLeaf)pair.getAtom(0)).getType();
+        IAtomTypeLeaf atom1Type = ((IAtomLeaf)pair.getAtom(1)).getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);
@@ -38,8 +37,8 @@ public class CriterionTypePair extends CriterionAdapter {
     /**
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
-    public IAtomType[] getTypes() {
-        return new IAtomType[]{type0,type1};
+    public IAtomTypeLeaf[] getTypes() {
+        return new IAtomTypeLeaf[]{type0,type1};
     }
     
     private static final long serialVersionUID = 1L;

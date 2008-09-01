@@ -91,7 +91,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#addModel(etomica.chem.models.Model)
 	 */
     public void addModel(Model newModel) {
-        if (getPotential(new IAtomType[]{newModel.getSpecies()}) != null) {
+        if (getPotential(new ISpecies[]{newModel.getSpecies()}) != null) {
             throw new IllegalArgumentException(newModel+" has already been added");
         }
         PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
@@ -159,40 +159,27 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#getPotential(etomica.api.IAtomType[])
 	 */
-    public PotentialGroup getPotential(IAtomType[] types) {
+    public PotentialGroup getPotential(ISpecies[] types) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential instanceof PotentialGroup) {
                 if(Arrays.equals(types,link.types)) {
                     return (PotentialGroup)link.potential;
-                }
-                PotentialGroup candidate = ((PotentialGroup)link.potential).getPotential(types);
-                if (candidate != null) {
-                    return candidate;
                 }
             }
         }
         return null;
     }
     
-    /* (non-Javadoc)
-	 * @see etomica.potential.IPotentialMaster#getAtomTypes(etomica.api.IPotential)
-	 */
-    public IAtomType[] getAtomTypes(IPotential potential) {
+    public ISpecies[] getSpecies(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
-            }
-            if (link.potential instanceof PotentialGroup) {
-                IAtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
-                if (types != null) {
-                    return types;
-                }
             }
         }
         return null;
     }
 
-    public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, IAtomType[] types) {
+    public void addPotential(IPotential potential, AtomsetIteratorPDT iterator, ISpecies[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -315,11 +302,11 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         private static final long serialVersionUID = 1L;
         public final IPotential potential;
         public final AtomsetIteratorPDT iterator;
-        public final IAtomType[] types;
+        public final ISpecies[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotential a, AtomsetIteratorPDT i, IAtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorPDT i, ISpecies[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

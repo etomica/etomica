@@ -44,7 +44,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
     /**
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
-    public IAtomType[] getTypes() {
+    public IAtomTypeLeaf[] getTypes() {
         return types;
     }
     

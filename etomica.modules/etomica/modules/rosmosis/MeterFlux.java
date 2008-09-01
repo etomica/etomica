@@ -125,7 +125,7 @@ public class MeterFlux implements DataSource, MoleculeAgentSource, IIntegratorNo
                 IMolecule atom = (IMolecule)molecules.getAtom(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
-                IVector newPosition = ((ISpecies)atom.getType()).getPositionDefinition().position(atom);
+                IVector newPosition = atom.getType().getPositionDefinition().position(atom);
                 double newX = newPosition.x(dim);
                 for (int k=0; k<boundaries.length; k++) {
                     double newDelta = newX - boundaries[k];

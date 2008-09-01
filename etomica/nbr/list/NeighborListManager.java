@@ -8,7 +8,7 @@ import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
@@ -198,7 +198,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         iieCount = updateInterval;
     }
 
-    public NeighborCriterion[] getCriterion(IAtomType atomType) {
+    public NeighborCriterion[] getCriterion(IAtomTypeLeaf atomType) {
         return potentialMaster.getRangedPotentials(atomType).getCriteria();
     }
 

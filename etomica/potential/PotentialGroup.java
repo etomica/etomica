@@ -132,25 +132,6 @@ public class PotentialGroup extends Potential {
             potentialMaster.potentialAddedNotify(potential, this);
         }
     }
-    
-    /**
-     * Returns the potential that applies to the specified types,
-     * or null of no existing potential applies.
-     */
-    public PotentialGroup getPotential(IAtomType[] types) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if (link.potential instanceof PotentialGroup) {
-                if(Arrays.equals(types,link.types)) {
-                    return (PotentialGroup)link.potential;
-                }
-                PotentialGroup candidate = ((PotentialGroup)link.potential).getPotential(types);
-                if (candidate != null) {
-                    return candidate;
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Returns the AtomTypes that the given potential applies to if the given 
@@ -162,12 +143,6 @@ public class PotentialGroup extends Potential {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
-            }
-            if (link.potential instanceof PotentialGroup) {
-                IAtomTypeLeaf[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
-                if (types != null) {
-                    return types;
-                }
             }
         }
         return null;
