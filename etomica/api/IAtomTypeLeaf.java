@@ -1,7 +1,6 @@
 package etomica.api;
 
 import etomica.chem.elements.Element;
-import etomica.units.Dimension;
 
 public interface IAtomTypeLeaf extends IAtomType {
 

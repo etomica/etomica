@@ -7,11 +7,6 @@ public interface IAtomType {
 
 	public abstract int getIndex();
 
-	/**
-	 * Sets the PositionDefinition used for this AtomType
-	 */
-	public abstract void setPositionDefinition(
-			IAtomPositionDefinition newPositionDefinition);
 
 	public abstract void setInteracting(boolean b);
 
