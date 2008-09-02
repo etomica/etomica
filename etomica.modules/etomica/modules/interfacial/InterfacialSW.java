@@ -93,10 +93,6 @@ public class InterfacialSW extends Simulation {
         leafType = species.getLeafType();
         headType = surfactant.getChildType(0); // head likes the monatomic species
         tailType = surfactant.getChildType(1);
-        // these will (unfortunately) not be in the system when the neighborCellManager
-        // tries to decide if they're interacting or not.  so it to true here
-        headType.setInteracting(true);
-        tailType.setInteracting(true);
 
         //instantiate several potentials for selection in combo-box
         P2SquareWell p2SW = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
