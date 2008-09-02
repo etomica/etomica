@@ -30,10 +30,7 @@ public class DataLogger extends DataProcessor implements ControllerListener, jav
      * Gives data to DataSink for writing
      */
     public Data processData(Data data) {
-        if (--count == 0) {
-            count = writeInterval;
-            doWrite(data);
-        }
+ 
         return data;
     }
     
@@ -55,7 +52,7 @@ public class DataLogger extends DataProcessor implements ControllerListener, jav
         if(dataSink != null && (evt.getType() == ControllerEvent.NO_MORE_ACTIONS ||
             evt.getType() == ControllerEvent.HALTED)) {
             if (writeOnFinishSource != null) {
-                doWrite(writeOnFinishSource.getData());
+                putData(writeOnFinishSource.getData());
             }
             closeFile(); //close the file when finished
         }
@@ -66,10 +63,10 @@ public class DataLogger extends DataProcessor implements ControllerListener, jav
      * settings of the Logger.  Called by intervalAction and by the
      * actionPerformed method of any Actions made by the writeAction method.
      */
-    private void doWrite(Data data) {
+    public void putData(Data data) {
         openFile();
-        ((DataWriter)dataSink).setFileWriter(fileWriter);
-        dataSink.putData(data);
+        ((DataWriter)trueDataSink).setFileWriter(fileWriter);
+        super.putData(data);
         if(closeFileEachTime || !appending) {
             closeFile();
         }
@@ -95,7 +92,7 @@ public class DataLogger extends DataProcessor implements ControllerListener, jav
             if(fileName == "") fileName = defaultFileName(); //if fileName is not defined yet, use the current date to be the fileName.
             fileWriter = new FileWriter(fileName + fileNameSuffix, appending);
             if (!appending) {
-                ((DataWriter)dataSink).reset();
+                ((DataWriter)trueDataSink).reset();
             }
             fileIsOpen = true;
         }
