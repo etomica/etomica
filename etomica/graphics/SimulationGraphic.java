@@ -478,7 +478,7 @@ public class SimulationGraphic implements SimulationContainer {
         while(iterator.hasNext()) {
             Object display = iterator.next();
             if(display instanceof DisplayBox) {
-                if(((DisplayBox)display).getBox() == box) return (DisplayBox)display;
+                if(((DisplayBox)display).getBox().getIndex() == box.getIndex()) return (DisplayBox)display;
             }
         }
         return null;
