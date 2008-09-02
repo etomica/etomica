@@ -111,9 +111,9 @@ public class TestMCMove extends Simulation {
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
             locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-//            System.out.println(locations[i]);
+            System.out.println(locations[i]);
         }
-        
+        System.out.println("/n");
         
     }
     
@@ -163,12 +163,14 @@ public class TestMCMove extends Simulation {
         
         //calculate the differences in position:
         IAtomSet leaflist = sim.box.getLeafList();
+        double dork = 0;
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            sim.locations[i] -= ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+            sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
             System.out.println(sim.locations[i]);
+            dork += sim.locations[i];
         }
-        
+        System.out.println("dork:  "+ dork);
         
         
         //print out final positions:
@@ -198,7 +200,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 2;
+        public long numSteps = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
