@@ -1,7 +1,6 @@
 package etomica.nbr.cell;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
@@ -13,10 +12,7 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
 import etomica.box.BoxEvent;
@@ -39,7 +35,7 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, MoleculeAgentSource, BoxListener, java.io.Serializable {
+public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, BoxListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
@@ -50,7 +46,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected int cellRange = 2;
     protected double range;
     protected final AtomLeafAgentManager agentManager;
-    protected final MoleculeAgentManager moleculeAgentManager;
     protected boolean doApplyPBC;
     protected final IVector v;
     
@@ -79,7 +74,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         agentManager = new AtomLeafAgentManager(this,box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         v = space.makeVector();
         doApplyPBC = false;
     }
@@ -193,37 +187,12 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         int count = leafList.getAtomCount();
         for (int i=0; i<count; i++) {
             IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(i);
-            if (atom.getType().isInteracting()) {
-                assignCell(atom);
-            }
-            else {
-                // the atom is probably not in a cell, but if it is, this is
-                // the only way it will get purged.  This is probably as cheap
-                // or cheaper than checking first.
-                agentManager.setAgent(atom, null);
-            }
-        }
-
-        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            if (!sim.getSpeciesManager().getSpecies(i).isInteracting()) {
-                // should we try removing the molecules from cells
-                continue;
-            }
-            IAtomSet moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
-            count = moleculeList.getAtomCount();
-            for (int j=0; j<count; j++) {
-                IMolecule atom = (IMolecule)moleculeList.getAtom(i);
-                assignCell(atom);
-            }
+            assignCell(atom);
         }
     }
     
     public Cell getCell(IAtomLeaf atom) {
         return (Cell)agentManager.getAgent(atom);
-    }
-
-    public Cell getCell(IMolecule molecule) {
-        return (Cell)moleculeAgentManager.getAgent(molecule);
     }
 
     /**
@@ -245,28 +214,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         agentManager.setAgent(atom, atomCell);
     }
     
-    /**
-     * Assigns the cell for the given atom.  The atom will be listed in the
-     * cell's atom list and the cell with be associated with the atom via
-     * agentManager.
-     */
-    public void assignCell(IMolecule atom) {
-        IVector position = (positionDefinition != null) ?
-                positionDefinition.position(atom) :
-                    atom.getType().getPositionDefinition().position(atom);
-        Cell atomCell;
-        if (doApplyPBC) {
-            v.E(position);
-            v.PE(box.getBoundary().centralImage(position));
-            atomCell = (Cell)lattice.site(v);
-        }
-        else {
-            atomCell = (Cell)lattice.site(position);
-        }
-        atomCell.addAtom(atom);
-        moleculeAgentManager.setAgent(atom, atomCell);
-    }
-    
     public MCMoveListener makeMCMoveListener() {
         return new MyMCMoveListener(space,box,this);
     }
@@ -280,56 +227,23 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * cell's atom list.
      */
     public Object makeAgent(IAtomLeaf atom) {
-        if (atom.getType().isInteracting()) {
-            IVector position = ((IAtomPositioned)atom).getPosition();
-            v.E(position);
-            if (doApplyPBC) {
-                v.PE(box.getBoundary().centralImage(position));
-            }
-            Cell atomCell = (Cell)lattice.site(v);
-            atomCell.addAtom(atom);
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
-                System.out.println("assigning new "+atom+" at "+position+" to "+atomCell);
-            }
-            return atomCell;
+        IVector position = ((IAtomPositioned)atom).getPosition();
+        v.E(position);
+        if (doApplyPBC) {
+            v.PE(box.getBoundary().centralImage(position));
         }
-        return null;
+        Cell atomCell = (Cell)lattice.site(v);
+        atomCell.addAtom(atom);
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
+            System.out.println("assigning new "+atom+" at "+position+" to "+atomCell);
+        }
+        return atomCell;
     }
 
     /**
      * Removes the given atom from the cell.
      */
     public void releaseAgent(Object cell, IAtomLeaf atom) {
-        ((Cell)cell).removeAtom(atom);
-    }
-    
-    public Class getMoleculeAgentClass() {
-        return Cell.class;
-    }
-
-    /**
-     * Returns the cell containing the given atom.  The atom is added to the
-     * cell's atom list.
-     */
-    public Object makeAgent(IMolecule atom) {
-        if (atom.getType().isInteracting()) {
-            IVector position = (positionDefinition != null) ?
-                    positionDefinition.position(atom) :
-                        atom.getType().getPositionDefinition().position(atom);
-            Cell atomCell = (Cell)lattice.site(position);
-            atomCell.addAtom(atom);
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
-                System.out.println("assigning new "+atom+" at "+position+" to "+atomCell);
-            }
-            return atomCell;
-        }
-        return null;
-    }
-
-    /**
-     * Removes the given atom from the cell.
-     */
-    public void releaseAgent(Object cell, IMolecule atom) {
         ((Cell)cell).removeAtom(atom);
     }
     
@@ -348,9 +262,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener(ISpace space, IBox box, NeighborCellManager manager) {
-            moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
-            moleculeTranslator = new AtomGroupAction(translator);
             this.box = box;
             neighborCellManager = manager;
         }
@@ -363,46 +275,28 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             AtomIterator iterator = move.affectedAtoms();
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
-                updateCell(atom);
-                if (atom instanceof IMolecule) {
+                if (atom instanceof IAtomLeaf) {
+                    updateCell((IAtomLeaf)atom);
+                }
+                else {
                     IAtomSet childList = ((IMolecule)atom).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        updateCell(childList.getAtom(iChild));
+                        updateCell((IAtomLeaf)childList.getAtom(iChild));
                     }
                 }
             }
         }
 
-        private void updateCell(IAtom atom) {
-            if (((IAtomLeaf)atom).getType().isInteracting()) {
-                IBoundary boundary = box.getBoundary();
-                if (atom instanceof IMolecule) {
-                    // we only need to remove the atom from the cell's list and
-                    // not de-associate the atom from the cell.  assignCell below
-                    // will do that.
-                    Cell cell = neighborCellManager.getCell((IMolecule)atom);
-                    cell.removeAtom(atom);
-
-                    IVector shift = boundary.centralImage(moleculePosition.position(atom));
-                    if (!shift.isZero()) {
-                        translator.setTranslationVector(shift);
-                        moleculeTranslator.actionPerformed(atom);
-                    }
-                    neighborCellManager.assignCell((IMolecule)atom);
-                }
-                else {
-                    Cell cell = neighborCellManager.getCell((IAtomLeaf)atom);
-                    cell.removeAtom(atom);
-                    boundary.nearestImage(((IAtomPositioned)atom).getPosition());
-                    neighborCellManager.assignCell((IAtomLeaf)atom);
-                }
-            }
+        private void updateCell(IAtomLeaf atom) {
+            IBoundary boundary = box.getBoundary();
+            Cell cell = neighborCellManager.getCell(atom);
+            cell.removeAtom(atom);
+            boundary.nearestImage(((IAtomPositioned)atom).getPosition());
+            neighborCellManager.assignCell(atom);
         }
         
         private static final long serialVersionUID = 1L;
-        private final IAtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
-        private final AtomGroupAction moleculeTranslator;
         private final IBox box;
         private final NeighborCellManager neighborCellManager;
     }

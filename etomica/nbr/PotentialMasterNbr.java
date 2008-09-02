@@ -87,7 +87,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
-        atomType.setInteracting(true);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {
             if (allPotentials[i] == potential) {
