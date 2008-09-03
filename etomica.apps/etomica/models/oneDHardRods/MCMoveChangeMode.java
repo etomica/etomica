@@ -46,7 +46,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
         deltaU = new double[coordinateDefinition.getCoordinateDim()];
-        uOld = null;         //
+        uOld = null;
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -110,10 +110,9 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             BasisCell cell = cells[iCell];
-//            for(int i = 0; i< coordinateDim; i++){
-////            	System.out.println("Old  " +u[i]);
-//                u[i] = 0;
-//            }
+            for(int i = 0; i< coordinateDim; i++){
+                  deltaU[i] = 0;
+            }
             
             //loop over the wavevectors, and sum contribution of each to the
             //generalized coordinates.  Change the selected wavevector's eigen-
@@ -127,22 +126,26 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
                     for(int j = 0; j < coordinateDim; j++){
 //                        delta1 = 5.0; delta2 = 1.0;
                         deltaU[j] += eigenVectors[iVector][i][j]*2.0*(delta1*coskR - delta2*sinkR);
-//                        System.out.println("iCell: "+ iCell+" i: "+i+ " j: "+j+" u: "+u[j]+ " ev: "+ eigenVectors[iVector][i][j]);
+//                        System.out.println("iCell: "+ iCell+" i: "+i+ " j: "+j+" u: "+deltaU[j]+ " ev: "+ eigenVectors[iVector][i][j]);
                     }
                 }
 //            }
             double normalization = 1/Math.sqrt(cells.length);
 //                System.out.println("norm  " +normalization);
             for(int i = 0; i < coordinateDim; i++){
-//                System.out.println("prenormal " + u[i]);
+//                System.out.println("prenormal " + deltaU[i]);
                 deltaU[i] *= normalization;
             }
             
-            coordinateDefinition.setToU(cells[iCell].molecules, deltaU);
+            for(int i = 0; i < coordinateDim; i++) {
+                uNow[i] += deltaU[i];
+//            	System.out.println("uNow:  " + uNow[i]);
+            }
+            coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
             
 //            for(int i = 0; i < coordinateDim; i++){
-//                System.out.println("Postnormal " +u[i]);
+//                System.out.println("Postnormal " +deltaU[i]);
 //            }
         }
         
@@ -159,7 +162,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept");
+//        System.out.println("accept");
     }
 
     public double energyChange() {
