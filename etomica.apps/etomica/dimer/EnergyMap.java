@@ -33,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
  *
  */
 
-public class EnergyMapMEAMadatom extends Simulation{
+public class EnergyMap extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MEAM Md3D";
@@ -46,7 +46,7 @@ public class EnergyMapMEAMadatom extends Simulation{
     
 
     
-    public EnergyMapMEAMadatom(double height, String fileTail) {
+    public EnergyMap(double height, String fileTail) {
     	super(Space3D.getInstance(), true);
     	
     	potentialMaster = new PotentialMaster(space);
@@ -192,7 +192,7 @@ public class EnergyMapMEAMadatom extends Simulation{
         double height1 = 10.0;
         String fileTail1 = ""+height1;
     	final String APP_NAME = "EnergyMapMEAMadatomSn";
-    	final EnergyMapMEAMadatom sim = new EnergyMapMEAMadatom(height1, fileTail1);
+    	final EnergyMap sim = new EnergyMap(height1, fileTail1);
     	
     	sim.activityIntegrateMAP.setMaxSteps(1); 
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());

@@ -12,12 +12,12 @@ import etomica.space.Space;
  *
  */
 
-public class EnergyMapMEAMadatomCluster extends Simulation{
+public class EnergyMapCluster extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "EnergyMapMEAMadatom";
 
-    public EnergyMapMEAMadatomCluster(Space space) {
+    public EnergyMapCluster(Space space) {
     	super(space);
     }
 
@@ -26,7 +26,7 @@ public class EnergyMapMEAMadatomCluster extends Simulation{
         height = Double.parseDouble(args[0]);
         String fileTail = ""+height;
 
-    	final EnergyMapMEAMadatom sim = new EnergyMapMEAMadatom(height, fileTail);
+    	final EnergyMap sim = new EnergyMap(height, fileTail);
     	
     	
     	sim.activityIntegrateMAP.setMaxSteps(1);
