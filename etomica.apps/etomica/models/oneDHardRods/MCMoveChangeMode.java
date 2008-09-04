@@ -86,7 +86,6 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
 //    }
 //    
     public boolean doTrial() {
-//    	System.out.println("called");
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -99,7 +98,10 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
-        changedWV = random.nextInt(waveVectors.length);
+        //The zero wavevector is center of mass motion, and is rejected as a 
+        //possibility.
+        changedWV = random.nextInt(waveVectors.length-1);
+        changedWV +=1;
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -117,36 +119,24 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             //loop over the wavevectors, and sum contribution of each to the
             //generalized coordinates.  Change the selected wavevector's eigen-
             //vectors at the same time!
-//            for(int iVector = ; iVector <= waveVectors.length; iVector++){
-            int iVector = changedWV;    
-            double kR = waveVectors[iVector].dot(cell.cellPosition);
+            double kR = waveVectors[changedWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for(int i = 0; i < coordinateDim; i++){
                     for(int j = 0; j < coordinateDim; j++){
-//                        delta1 = 5.0; delta2 = 1.0;
-                        deltaU[j] += eigenVectors[iVector][i][j]*2.0*(delta1*coskR - delta2*sinkR);
-//                        System.out.println("iCell: "+ iCell+" i: "+i+ " j: "+j+" u: "+deltaU[j]+ " ev: "+ eigenVectors[iVector][i][j]);
+                        deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                     }
                 }
-//            }
             double normalization = 1/Math.sqrt(cells.length);
-//                System.out.println("norm  " +normalization);
             for(int i = 0; i < coordinateDim; i++){
-//                System.out.println("prenormal " + deltaU[i]);
                 deltaU[i] *= normalization;
             }
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//            	System.out.println("uNow:  " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
-            
-//            for(int i = 0; i < coordinateDim; i++){
-//                System.out.println("Postnormal " +deltaU[i]);
-//            }
         }
         
         energyNew = energyMeter.getDataAsScalar();
