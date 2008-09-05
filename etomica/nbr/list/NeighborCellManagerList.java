@@ -31,6 +31,10 @@ public class NeighborCellManagerList extends NeighborCellManager {
     }
 
     public Object makeAgent(IAtomLeaf atom) {
+        if (range == 0) {
+            // no range, no lattice, etc
+            return null;
+        }
         Object cell = super.makeAgent(atom);
         // if agentManager is null, we're in the constructor, which means we're
         // just starting up.  And we don't need to do this craziness.

@@ -72,8 +72,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
 
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
-        agentManager = new AtomLeafAgentManager(this,box);
         v = space.makeVector();
+        agentManager = new AtomLeafAgentManager(this,box);
         doApplyPBC = false;
     }
     
