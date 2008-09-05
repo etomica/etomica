@@ -2,6 +2,7 @@ package etomica.models.oneDHardRods;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomSet;
@@ -9,6 +10,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
+import etomica.data.DataPump;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
@@ -16,10 +18,11 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveHarmonic;
+import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -44,6 +47,7 @@ public class TestMCMove extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
+//    MeterNormalMode mnm;
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -93,6 +97,13 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
+        
+//        mnm = new MeterNormalMode();
+//        mnm.setCoordinateDefinition(coordinateDefinition);
+//        mnm.setWaveVectorFactory(waveVectorFactory);
+//        mnm.setBox(box);
+//        mnm.reset();
+
         MCMoveChangeMode convert = new MCMoveChangeMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -158,6 +169,16 @@ public class TestMCMove extends Simulation {
         //instantiate simulation
         TestMCMove sim = new TestMCMove(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
+        
+        MeterNormalMode mnm = new MeterNormalMode();
+        mnm.setCoordinateDefinition(sim.coordinateDefinition);
+        mnm.setWaveVectorFactory(sim.nm.getWaveVectorFactory());
+        mnm.setBox(sim.box);
+        mnm.reset();
+        
+        sim.integrator.addIntervalAction(mnm);
+        sim.integrator.setActionInterval(mnm, 2);
+        
         ((Controller)sim.getController()).actionPerformed();
         
         //calculate the differences in position:
@@ -181,7 +202,13 @@ public class TestMCMove extends Simulation {
             throw new RuntimeException("Oops, failed to write data "+e);
         }
         
-        
+
+        WriteS sWriter = new WriteS(sim.space);
+        sWriter.setFilename(filename);
+        sWriter.setMeter(mnm);
+        sWriter.setWaveVectorFactory(sim.nm.getWaveVectorFactory());
+        sWriter.setOverwrite(true);
+        sWriter.actionPerformed();
         
         System.out.println("Fini.");
     }
@@ -194,7 +221,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000000;
+        public long numSteps = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
