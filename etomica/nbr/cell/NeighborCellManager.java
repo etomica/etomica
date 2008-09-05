@@ -1,6 +1,5 @@
 package etomica.nbr.cell;
 
-import etomica.action.AtomActionTranslateBy;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
@@ -40,7 +39,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
     protected final CellLattice lattice;
-    protected final ISpace space;
     protected final IAtomPositionDefinition positionDefinition;
     protected final IBox box;
     protected int cellRange = 2;
@@ -48,6 +46,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected final AtomLeafAgentManager agentManager;
     protected boolean doApplyPBC;
     protected final IVector v;
+    protected final int[] numCells;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
@@ -65,11 +64,11 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
-        space = _space;
+        numCells = new int[space.D()];
 
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
@@ -133,13 +132,13 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-    	int D = space.D();
-        int[] nCells = new int[D];
         IVector dimensions = box.getBoundary().getDimensions();
         lattice.setDimensions(dimensions);
-        for (int i=0; i<D; i++) {
-            nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
-            if (nCells[i] < cellRange*2+1) {
+        int[] oldSize = lattice.getSize();
+        boolean latticeNeedsUpdate = false;
+        for (int i=0; i<numCells.length; i++) {
+            numCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
+            if (numCells[i] < cellRange*2+1) {
                 // the box is too small for the lattice, but things might still be OK.
                 // it's possible the box is big enough for the potential range, but
                 // the extra padding that's needed for happy cells is missing.
@@ -147,8 +146,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                 // get any advantage from using cells in this direction.  ideally
                 // we would make the neighbor iterator non-wrapping in this direction
                 // and use 1 cell.
-                if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+nCells[i]+" to "+(cellRange*2+1));
-                nCells[i] = cellRange*2+1;
+                if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+numCells[i]+" to "+(cellRange*2+1));
+                numCells[i] = cellRange*2+1;
                 if (range > dimensions.x(i)/2) {
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
@@ -156,14 +155,13 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                     System.err.println("range is greater than half the box length in direction "+i);
                 }
             }
+            latticeNeedsUpdate = latticeNeedsUpdate || oldSize[i] != numCells[i];
         }
+
         //only update the lattice (expensive) if the number of cells changed
-        int[] oldSize = lattice.getSize();
-        for (int i=0; i<D; i++) {
-            if (oldSize[i] != nCells[i]) {
-                lattice.setSize(nCells);
-                return true;
-            }
+        if (latticeNeedsUpdate) {
+            lattice.setSize(numCells);
+            return true;
         }
         return false;
     }
@@ -215,7 +213,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     }
     
     public MCMoveListener makeMCMoveListener() {
-        return new MyMCMoveListener(space,box,this);
+        return new MyMCMoveListener(box,this);
     }
     
     public Class getAgentClass() {
@@ -261,8 +259,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     }
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
-        public MyMCMoveListener(ISpace space, IBox box, NeighborCellManager manager) {
-            translator = new AtomActionTranslateBy(space);
+        public MyMCMoveListener(IBox box, NeighborCellManager manager) {
             this.box = box;
             neighborCellManager = manager;
         }
@@ -296,7 +293,6 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         }
         
         private static final long serialVersionUID = 1L;
-        private final AtomActionTranslateBy translator;
         private final IBox box;
         private final NeighborCellManager neighborCellManager;
     }
