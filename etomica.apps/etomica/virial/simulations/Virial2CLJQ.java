@@ -45,7 +45,20 @@ public class Virial2CLJQ {
         double moment = params.moment;
         double bondL = params.bondL;
         boolean isCO2 = params.isCO2;
-            
+
+        if (isCO2) {
+            epsilon = Kelvin.UNIT.toSim(125.317);// for CO2
+            sigma = 3.0354; // for CO2
+            moment = 3.0255*epsilon*Math.pow(sigma,5);    // moment=Q^2/(epsilon*sigma^5), 3.0255 for CO2
+            bondL = 0.699*sigma;   // 0.699sigma for CO2;
+            sigmaHSRef = sigmaHSRef*sigma;
+            System.out.println("CO2 overlap sampling B"+nPoints+" at T="+temperature+" Kelvin");
+            temperature = Kelvin.UNIT.toSim(temperature);
+        }
+        else {
+            System.out.println("2CLJQ overlap sampling B"+nPoints+" at T="+temperature);
+        }
+
         final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -62,18 +75,6 @@ public class Virial2CLJQ {
         System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
         System.out.println("B7HS: "+HSB[7]+" = 0.013046 B2HS^6");
         System.out.println("B8HS: "+HSB[8]+" = 0.004164 B2HS^7");
-        if (isCO2) {
-            epsilon = Kelvin.UNIT.toSim(125.317);// for CO2
-            sigma = 3.0354; // for CO2
-            moment = 3.0255*epsilon*Math.pow(sigma,5);    // moment=Q^2/(epsilon*sigma^5), 3.0255 for CO2
-            bondL = 0.699*sigma;   // 0.699sigma for CO2;
-            sigmaHSRef = sigmaHSRef*sigma;
-            System.out.println("CO2 overlap sampling B"+nPoints+" at T="+temperature+" Kelvin");
-            temperature = Kelvin.UNIT.toSim(temperature);
-        }
-        else {
-            System.out.println("2CLJQ overlap sampling B"+nPoints+" at T="+temperature);
-        }
         System.out.println("bondL = "+bondL);
         System.out.println("moment = "+moment);
 		
@@ -174,7 +175,7 @@ public class Virial2CLJQ {
 
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
-        
+
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
@@ -215,4 +216,3 @@ public class Virial2CLJQ {
         double bondL = 1.0;
     }
 }
-
