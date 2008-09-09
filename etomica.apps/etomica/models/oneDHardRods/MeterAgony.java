@@ -3,6 +3,7 @@ package etomica.models.oneDHardRods;
 import etomica.api.IPotential;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialMasterMonatomic;
+import etomica.units.Null;
 
 public class MeterAgony extends DataSourceScalar {
     int numTrials, numAccept;
@@ -13,7 +14,7 @@ public class MeterAgony extends DataSourceScalar {
     
     
     public MeterAgony(){
-        
+        super("agony", Null.DIMENSION);
     }
     @Override
     public double getDataAsScalar() {
