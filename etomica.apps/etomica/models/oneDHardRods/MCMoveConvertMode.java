@@ -18,7 +18,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * @author cribbin
  *
  */
-public class MCMoveChangeMode extends MCMoveBoxStep{
+public class MCMoveConvertMode extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -31,13 +31,18 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
     int changedWV;
+    private double gaussian;
+    boolean waveVectorRandomFlag;     //used to indicate whether the wavevector of 
+                                //of interest is random or not.
     
-    public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
         iterator = new AtomIteratorAllMolecules();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        waveVectorRandomFlag = false;
+        
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -77,11 +82,6 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         return iterator;
     }
 
-//    public void setWaveVectorAndEigenVectorsChanged(int wv, int[] evectors){
-//        //we will need some flag to indicate that these were set, and not
-          //randomly assign them.
-//    }
-//    
     public boolean doTrial() {
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -97,8 +97,10 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
-        changedWV = random.nextInt(waveVectors.length-1);
-        changedWV +=1;
+        if(waveVectorRandomFlag == true){
+            changedWV = random.nextInt(waveVectors.length-1);
+            changedWV +=1;
+        }
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -164,6 +166,18 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
+    }
+    
+    public double getGaussian(){
+        return gaussian;
+    }
+    
+    public void setWaveVector(int wv){
+        changedWV = wv;
+        waveVectorRandomFlag = false;
+    }
+    public int getWaveVector(){
+        return changedWV;
     }
 
 }

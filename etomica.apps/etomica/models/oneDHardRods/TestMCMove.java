@@ -47,7 +47,6 @@ public class TestMCMove extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-//    MeterNormalMode mnm;
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -97,13 +96,6 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        
-//        mnm = new MeterNormalMode();
-//        mnm.setCoordinateDefinition(coordinateDefinition);
-//        mnm.setWaveVectorFactory(waveVectorFactory);
-//        mnm.setBox(box);
-//        mnm.reset();
-
         MCMoveChangeMode convert = new MCMoveChangeMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -186,7 +178,7 @@ public class TestMCMove extends Simulation {
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
             sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-        }        
+        }
         
         //print out final positions:
         try {
