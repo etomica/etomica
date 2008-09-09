@@ -28,7 +28,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     BravaisLatticeCrystal latticeTOP, latticeBOTTOM;
     ISpecies [] species;
     double cutoff;
-    double angle;
+    double phi, theta;
     double dist;
     double spacing;
     protected ISpecies fixedSpecies, mobileSpecies;
@@ -85,10 +85,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
      * the given angle. Calls method from RotationTensor3D.
      */
     public void setRotationTOP(int axis, double aAngle){
-        angle = aAngle;
-        
         RotationTensor rotT = latticeTOP.getSpace().makeRotationTensor();
-        rotT.setAxial(axis, angle);
+        rotT.setAxial(axis, aAngle);
         rotT.TE(eulerRotationL2BoxTOP);
         eulerRotationL2BoxTOP.E(rotT);
         eulerRotationB2LatticeTOP.E(eulerRotationL2BoxTOP);
@@ -97,10 +95,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     }
     
     public void setRotationBOTTOM(int axis, double aAngle){
-        angle = aAngle;
-        
         RotationTensor rotT = latticeBOTTOM.getSpace().makeRotationTensor();       
-        rotT.setAxial(axis, angle);
+        rotT.setAxial(axis, aAngle);
         rotT.TE(eulerRotationL2BoxBOTTOM);
         eulerRotationL2BoxBOTTOM.E(rotT);
         eulerRotationB2LatticeBOTTOM.E(eulerRotationL2BoxBOTTOM);
@@ -131,7 +127,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	projection.E(normal);
     	//get XY projection of normal
     	projection.setX(2, 0.0);
-    	double theta = Math.acos(projection.dot(origin[1]) / Math.sqrt(projection.squared()));
+    	theta = Math.acos(projection.dot(origin[1]) / Math.sqrt(projection.squared()));
     	setRotationTOP(2,theta);
     	setRotationBOTTOM(2,theta);
     	
@@ -140,7 +136,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	//get normal after rotation
     	eulerRotationL2BoxTOP.transform(projection);
     	
-    	double phi = Math.acos(projection.dot(origin[2]) / Math.sqrt(projection.squared()));
+    	phi = Math.acos(projection.dot(origin[2]) / Math.sqrt(projection.squared()));
     	System.out.println(phi);
     	setRotationTOP(0,phi);
     	setRotationBOTTOM(0,-phi);
@@ -392,7 +388,22 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             }
         }
         */
-        System.out.println("Tilt Grain Boundary of "+angle*180/Math.PI+" degrees created.");
+        
+        if(millerPlane[2]==0){
+        	theta = 360*theta/Math.PI;
+        	if(theta>90){
+        		theta = 180-theta;
+        	}
+        	System.out.println("Tilt Grain Boundary of "+theta+" degrees created.----");
+        }else{
+        	phi = 360*phi/Math.PI;
+        	if(phi>90){
+        		phi = 180-phi;
+        	}
+        	System.out.println("Tilt Grain Boundary of "+phi+" degrees created.");
+        }
+        
         System.out.println(removeCount+" atoms were within "+Math.sqrt(dist)+" of another, and removed.");
+    
     }
 }
