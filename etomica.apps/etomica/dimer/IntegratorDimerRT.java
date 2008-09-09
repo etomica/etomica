@@ -57,6 +57,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public double saddleT;
 	public double dFsq;
 	public double gammai;
+	public int rotNum;
 	public int counter, rotCounter;
 	public int movableAtoms;
 	public boolean rotate, ortho, ortho2, startOrtho;
@@ -118,6 +119,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		counter = 0;
 		rotCounter = 0;
+		rotNum = 2;
+	}
+	
+	public void setRotNum(int num){
+		this.rotNum = num;
 	}
 	
 	/**
@@ -544,7 +550,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 									    
 			rotCounter++;
 			
-			if(rotCounter>100){
+			if(rotCounter>rotNum){
 				System.out.println(rotCounter+" rotations.");
 				break;
 			}
