@@ -504,8 +504,8 @@ public class ClusterOperations {
     private ClusterDiagram eta[][] = new ClusterDiagram[][] {{zero}, {f02f12}};
     private ClusterDiagram w[][] = new ClusterDiagram[][] {eta[0], eta[1]};
     private ClusterDiagram b[][] = new ClusterDiagram[][] {{zero}, {zero}};
-    public final int NONE = 0;
-    public final int PY = 1;
-    public final int HNC = 2;
+    public static final int NONE = 0;
+    public static final int PY = 1;
+    public static final int HNC = 2;
     private int approx = HNC;
 }
