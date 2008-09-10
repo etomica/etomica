@@ -3,9 +3,6 @@ package etomica.virial.cluster;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import javax.swing.JPanel;
-
-import etomica.graphics.SimulationGraphic;
 import etomica.math.SpecialFunctions;
 import etomica.math.discrete.FixedSumIterator;
 import etomica.util.Arrays;
@@ -446,10 +443,10 @@ public class ClusterOperations {
 //        cluster2.deleteConnection(1, 0);
 //        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
         
-        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
-        applet.init();
-        applet.starter.setDrawNumbersOfBlack(true);
-        applet.starter.setDrawNumbersOfWhite(true);
+        //etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
+//        applet.init();
+//        applet.starter.setDrawNumbersOfBlack(true);
+//        applet.starter.setDrawNumbersOfWhite(true);
         
         int n = 3;
         ClusterOperations ops = new ClusterOperations();
@@ -483,11 +480,11 @@ public class ClusterOperations {
         out = integrate(out);
         out = integrate(out);
         out = makeReeHoover(out);
-        for(int i=0; i<out.length; i++) {
-            applet.starter.addCluster(out[i]);
-        }
-        JPanel panel = applet.myPanel;
-        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
+//        for(int i=0; i<out.length; i++) {
+//            applet.starter.addCluster(out[i]);
+//        }
+//        JPanel panel = applet.myPanel;
+//        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
     }
     
     private static final ClusterDiagram zero = new ClusterDiagram(2, 2, new int[][] {}, new Rational(0,1));//cluster with zero weight
