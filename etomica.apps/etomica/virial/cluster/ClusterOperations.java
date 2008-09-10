@@ -297,7 +297,10 @@ public class ClusterOperations {
             for(k=0; k<nUnbonded; k++) {
                 if((i & (1<<k)) != 0) {//bit for bond k is 1 -- add f-bond
                     neg = !neg;
-                    rhClusters[i].addConnection(pairList[k][0], pairList[k][1]);
+                    int node1 = pairList[k][0];
+                    int node2 = pairList[k][1];
+                    rhClusters[i].addConnection(node1, node2);
+                    rhClusters[i].addConnection(node2, node1);
                 }
             }
             if(neg) {//odd number of f-bonds introduced
@@ -331,26 +334,37 @@ public class ClusterOperations {
             h = (ClusterDiagram[][])Arrays.resizeArray(h, n+1);
         }
         LinkedList list = new LinkedList();
-        FixedSumIterator iterator = new FixedSumIterator(n);
-        iterator.setSum(n);
-        iterator.reset();
-        for(int[] arr=iterator.next(); arr!=null; arr=iterator.next()) {
-            ClusterDiagram[] clusters = new ClusterDiagram[] {unity};
-            int factor = 1;
-            for(int i=0; i<n; i++) {
-                factor *= SpecialFunctions.factorial(arr[i]);
-                for(int j=0; j<arr[i]; j++) {
-                    clusters = product(clusters, getW(i+1));
-                }
+        if(approx == PY) {
+            getEta(n);
+            for(int i=0; i<eta[n].length; i++) {
+                list.add(new ClusterDiagram(eta[n][i]));
+                ClusterDiagram eeta = new ClusterDiagram(eta[n][i]);
+                eeta.addConnection(0, 1);
+                eeta.addConnection(1, 0);
+                list.add(eeta);
             }
-            Rational rFactor = new Rational(1, factor);
-            for(int i=0; i<clusters.length; i++) {
-                clusters[i].setWeight(clusters[i].getWeight().times(rFactor));
-                list.add(clusters[i]);
-                ClusterDiagram fCluster = new ClusterDiagram(clusters[i]);
-                fCluster.addConnection(0, 1);
-                fCluster.addConnection(1, 0);
-                list.add(fCluster);
+        } else {
+            FixedSumIterator iterator = new FixedSumIterator(n);
+            iterator.setSum(n);
+            iterator.reset();
+            for(int[] arr=iterator.next(); arr!=null; arr=iterator.next()) {
+                ClusterDiagram[] clusters = new ClusterDiagram[] {unity};
+                int factor = 1;
+                for(int i=0; i<n; i++) {
+                    factor *= SpecialFunctions.factorial(arr[i]);
+                    for(int j=0; j<arr[i]; j++) {
+                        clusters = product(clusters, getW(i+1));
+                    }
+                }
+                Rational rFactor = new Rational(1, factor);
+                for(int i=0; i<clusters.length; i++) {
+                    clusters[i].setWeight(clusters[i].getWeight().times(rFactor));
+                    list.add(clusters[i]);
+                    ClusterDiagram fCluster = new ClusterDiagram(clusters[i]);
+                    fCluster.addConnection(0, 1);
+                    fCluster.addConnection(1, 0);
+                    list.add(fCluster);
+                }
             }
         }
         addEquivalents(list);
@@ -381,7 +395,8 @@ public class ClusterOperations {
 
     /**
      * Returns all diagrams of order n in the expansion for the indirect correlation function eta(r) = h(r) - c(r),
-     * in the presence of any approximations currently in effect.
+     * in the presence of any approximations currently in effect.  Evaluates eta via convolution of appropriate terms in
+     * h(r) and c(r) up to order n-1.
      */
     public ClusterDiagram[] getEta(int n) {
         if(n < eta.length && eta[n] != null) {
@@ -421,58 +436,58 @@ public class ClusterOperations {
     }
     
     public static void main(String args[]) {
-////        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
-////        cluster1.deleteConnection(0, 1);
-////        cluster1.deleteConnection(1, 0);
-////        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
-////        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
-////        cluster2.addConnection(0, 2);
-////        cluster2.deleteConnection(0, 1);
-////        cluster2.deleteConnection(1, 0);
-////        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
-//        
-//        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
-//        applet.init();
-//        applet.starter.setDrawNumbersOfBlack(true);
-//        applet.starter.setDrawNumbersOfWhite(true);
-//        
-//        int n = 4;
-//        ClusterOperations ops = new ClusterOperations();
-//        ClusterDiagram[] approxClusters = ops.getC(n);
-////        applet.starter.addCluster(cluster1);
-////        applet.starter.addCluster(cluster2);
-////        applet.starter.addCluster(product);
-//        
-//        LinkedList list = new LinkedList();
-//        ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
-//        ClusterGenerator gen = new ClusterGenerator(cluster);
-//        gen.setAllPermutations(false);
-//        gen.setOnlyConnected(false);
-//        gen.setOnlyDoublyConnected(true);
-//        gen.setExcludeArticulationPoint(true);
-//        gen.setExcludeArticulationPair(false);
-//        gen.setExcludeNodalPoint(true);
-//        gen.setMakeReeHover(false);
-//        //cluster.reset();
-//        gen.reset();
-//        cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
-//        list.add(new ClusterDiagram(cluster));
-//        while(gen.advance()) {
-//            cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
-//            list.add(new ClusterDiagram(cluster));
-//        }
-//        addEquivalents(list);
-//        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
-//        ClusterDiagram[] xs = difference(trueClusters, approxClusters);
-//        ClusterDiagram[] out = xs;
-//        out = integrate(out);
-//        out = integrate(out);
-//        out = makeReeHoover(out);
-//        for(int i=0; i<out.length; i++) {
-//            applet.starter.addCluster(out[i]);
-//        }
-//        JPanel panel = applet.myPanel;
-//        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
+//        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
+//        cluster1.deleteConnection(0, 1);
+//        cluster1.deleteConnection(1, 0);
+//        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
+//        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
+//        cluster2.addConnection(0, 2);
+//        cluster2.deleteConnection(0, 1);
+//        cluster2.deleteConnection(1, 0);
+//        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
+        
+        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
+        applet.init();
+        applet.starter.setDrawNumbersOfBlack(true);
+        applet.starter.setDrawNumbersOfWhite(true);
+        
+        int n = 3;
+        ClusterOperations ops = new ClusterOperations();
+        ClusterDiagram[] approxClusters = ops.getC(n);
+//        applet.starter.addCluster(cluster1);
+//        applet.starter.addCluster(cluster2);
+//        applet.starter.addCluster(product);
+        
+        LinkedList list = new LinkedList();
+        ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
+        ClusterGenerator gen = new ClusterGenerator(cluster);
+        gen.setAllPermutations(false);
+        gen.setOnlyConnected(false);
+        gen.setOnlyDoublyConnected(true);
+        gen.setExcludeArticulationPoint(true);
+        gen.setExcludeArticulationPair(false);
+        gen.setExcludeNodalPoint(true);
+        gen.setMakeReeHover(false);
+        //cluster.reset();
+        gen.reset();
+        cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+        list.add(new ClusterDiagram(cluster));
+        while(gen.advance()) {
+            cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+            list.add(new ClusterDiagram(cluster));
+        }
+        addEquivalents(list);
+        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        ClusterDiagram[] xs = difference(trueClusters, approxClusters);
+        ClusterDiagram[] out = trueClusters;
+        out = integrate(out);
+        out = integrate(out);
+        out = makeReeHoover(out);
+        for(int i=0; i<out.length; i++) {
+            applet.starter.addCluster(out[i]);
+        }
+        JPanel panel = applet.myPanel;
+        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
     }
     
     private static final ClusterDiagram zero = new ClusterDiagram(2, 2, new int[][] {}, new Rational(0,1));//cluster with zero weight
@@ -485,5 +500,8 @@ public class ClusterOperations {
     private ClusterDiagram eta[][] = new ClusterDiagram[][] {{zero}, {f02f12}};
     private ClusterDiagram w[][] = new ClusterDiagram[][] {eta[0], eta[1]};
     private ClusterDiagram b[][] = new ClusterDiagram[][] {{zero}, {zero}};
-    private int approx = 1;//approximation level: 0 = none; 1 = PY; 2 = HNC
+    public final int NONE = 0;
+    public final int PY = 1;
+    public final int HNC = 2;
+    private int approx = HNC;
 }
