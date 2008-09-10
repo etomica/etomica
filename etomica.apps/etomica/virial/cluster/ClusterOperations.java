@@ -70,7 +70,7 @@ public class ClusterOperations {
      * the clusters in them are not changed, and all clusters in the returned array are new.
      */
     public static ClusterDiagram[] product(ClusterDiagram[] set1, ClusterDiagram[] set2) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         if(set1.length == 0 || set2.length == 0) {
             return new ClusterDiagram[] {};
         }
@@ -80,7 +80,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return list.toArray(new ClusterDiagram[] {});
     }
     
     /**
@@ -95,7 +95,7 @@ public class ClusterOperations {
      *             if any input cluster has no root points
      */
     public static ClusterDiagram[] integrate(ClusterDiagram[] clusters) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         for(int i=0; i<clusters.length; i++) {
             if(clusters[i].getNumRootPoints() == 0) {
                 throw new IllegalArgumentException("Cannot integrate a cluster having no root points");
@@ -106,7 +106,7 @@ public class ClusterOperations {
             list.add(newCluster);
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return list.toArray(new ClusterDiagram[] {});
     }
     
     /**
@@ -114,18 +114,18 @@ public class ClusterOperations {
      * given by their sum.  Both the list and the the weights of the clusters it contains
      * may be altered by this method.
      */
-    public static void addEquivalents(LinkedList list) {
+    public static void addEquivalents(LinkedList<ClusterDiagram> list) {
         if(list.size() == 0 || list.size() == 1) {
             return;
         }
-        ListIterator outer = list.listIterator(0);
+        ListIterator<ClusterDiagram> outer = list.listIterator(0);
         ClusterDiagram cluster1 = null;
         int j = 0;
         while(outer.hasNext()) {
-            cluster1 = (ClusterDiagram)outer.next();
-            ListIterator inner = list.listIterator(++j);
+            cluster1 = outer.next();
+            ListIterator<ClusterDiagram> inner = list.listIterator(++j);
             while(inner.hasNext()) {
-                ClusterDiagram cluster2 = (ClusterDiagram)inner.next();
+                ClusterDiagram cluster2 = inner.next();
                 if(cluster2.getWeight().numerator() == 0) {
                     continue;
                 }
@@ -143,9 +143,9 @@ public class ClusterOperations {
             }
         }
         //remove clusters having zero weight
-        ListIterator iterator = list.listIterator(0);
+        ListIterator<ClusterDiagram> iterator = list.listIterator(0);
         while(iterator.hasNext()) {
-            ClusterDiagram cluster = (ClusterDiagram)iterator.next();
+            ClusterDiagram cluster = iterator.next();
             if(cluster.getWeight().numerator() == 0) {
                 iterator.remove();
             }
@@ -210,7 +210,7 @@ public class ClusterOperations {
      * instances.
      */
     public static ClusterDiagram[] difference(ClusterDiagram[] set1, ClusterDiagram[] set2) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         for(int i=0; i<set1.length; i++) {
             list.add(new ClusterDiagram(set1[i]));
         }
@@ -220,7 +220,7 @@ public class ClusterOperations {
             list.add(cluster2);
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray();
+        return list.toArray(new ClusterDiagram[] {});
     }
 
     /**
@@ -230,7 +230,7 @@ public class ClusterOperations {
      * the second set. The returned array and all clusters in it are new instances.
      */
     public static ClusterDiagram[] sum(ClusterDiagram[] set1, ClusterDiagram[] set2) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         for(int i=0; i<set1.length; i++) {
             list.add(new ClusterDiagram(set1[i]));
         }
@@ -238,7 +238,7 @@ public class ClusterOperations {
             list.add(new ClusterDiagram(set2[i]));
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray();
+        return list.toArray(new ClusterDiagram[] {});
     }
 
     /**
@@ -247,7 +247,7 @@ public class ClusterOperations {
      * clusters they change are unchanged, and all clusters in the returned array are new.
      */
     public static ClusterDiagram[] convolution(ClusterDiagram[] set1, ClusterDiagram[] set2) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         if(set1.length == 0 || set2.length == 0) {
             return new ClusterDiagram[] {};
         }
@@ -257,7 +257,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray();
+        return list.toArray(new ClusterDiagram[] {});
     }
     
     /**
@@ -307,7 +307,7 @@ public class ClusterOperations {
     }
     
     public static ClusterDiagram[] makeReeHoover(ClusterDiagram[] clusters) {
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         for(int i=0; i<clusters.length; i++) {
             ClusterDiagram[] rhClusters = makeReeHoover(clusters[i]);
             for(int j=0; j<rhClusters.length; j++) {
@@ -315,7 +315,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray();
+        return list.toArray(new ClusterDiagram[] {});
     }
     
     public void setApproximation(int approximation) {
@@ -337,7 +337,7 @@ public class ClusterOperations {
         if(n >= h.length) {
             h = (ClusterDiagram[][])Arrays.resizeArray(h, n+1);
         }
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         if(approx == PY) {
             getEta(n);
             for(int i=0; i<eta[n].length; i++) {
@@ -372,7 +372,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        h[n] =  (ClusterDiagram[])list.toArray();
+        h[n] = list.toArray(new ClusterDiagram[] {});
         return h[n];
     }
     
@@ -409,7 +409,7 @@ public class ClusterOperations {
         if(n >= eta.length) {
             eta = (ClusterDiagram[][])Arrays.resizeArray(eta, n+1);
         }
-        LinkedList clusterList = new LinkedList();
+        LinkedList<ClusterDiagram> clusterList = new LinkedList<ClusterDiagram>();
         for(int i=0; i<n; i++) {
             int j = n - 1 - i;
             ClusterDiagram[] conv = convolution(getC(i), getH(j));
@@ -417,7 +417,7 @@ public class ClusterOperations {
                 clusterList.add(conv[k]);
             }
         }
-        eta[n] = (ClusterDiagram[])clusterList.toArray();
+        eta[n] = clusterList.toArray(new ClusterDiagram[] {});
         return eta[n];
     }
     
@@ -462,7 +462,7 @@ public class ClusterOperations {
 //        applet.starter.addCluster(cluster2);
 //        applet.starter.addCluster(product);
         
-        LinkedList list = new LinkedList();
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
         ClusterGenerator gen = new ClusterGenerator(cluster);
         gen.setAllPermutations(false);
@@ -483,7 +483,7 @@ public class ClusterOperations {
         addEquivalents(list);
         ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray();
         ClusterDiagram[] xs = difference(trueClusters, approxClusters);
-        ClusterDiagram[] out = trueClusters;
+        ClusterDiagram[] out = xs;
         out = integrate(out);
         out = integrate(out);
         out = makeReeHoover(out);
