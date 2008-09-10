@@ -136,10 +136,9 @@ public class ClusterOperations {
                         cluster2.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
                         cluster1.setWeight(Rational.ZERO);
                         break;
-                    } else {
-                        cluster1.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
-                        cluster2.setWeight(Rational.ZERO);
                     }
+                    cluster1.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
+                    cluster2.setWeight(Rational.ZERO);
                 }
             }
         }
@@ -221,7 +220,7 @@ public class ClusterOperations {
             list.add(cluster2);
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return (ClusterDiagram[])list.toArray();
     }
 
     /**
@@ -239,7 +238,7 @@ public class ClusterOperations {
             list.add(new ClusterDiagram(set2[i]));
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return (ClusterDiagram[])list.toArray();
     }
 
     /**
@@ -258,7 +257,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return (ClusterDiagram[])list.toArray();
     }
     
     /**
@@ -316,7 +315,15 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return (ClusterDiagram[])list.toArray();
+    }
+    
+    public void setApproximation(int approximation) {
+        approx = approximation;
+    }
+    
+    public int getApproximation() {
+        return approx;
     }
     
     /**
@@ -365,7 +372,7 @@ public class ClusterOperations {
             }
         }
         addEquivalents(list);
-        h[n] =  (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        h[n] =  (ClusterDiagram[])list.toArray();
         return h[n];
     }
     
@@ -410,7 +417,7 @@ public class ClusterOperations {
                 clusterList.add(conv[k]);
             }
         }
-        eta[n] = (ClusterDiagram[])clusterList.toArray(new ClusterDiagram[] {});
+        eta[n] = (ClusterDiagram[])clusterList.toArray();
         return eta[n];
     }
     
@@ -474,7 +481,7 @@ public class ClusterOperations {
             list.add(new ClusterDiagram(cluster));
         }
         addEquivalents(list);
-        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray();
         ClusterDiagram[] xs = difference(trueClusters, approxClusters);
         ClusterDiagram[] out = trueClusters;
         out = integrate(out);
