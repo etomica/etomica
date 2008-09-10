@@ -1,6 +1,9 @@
 package etomica.virial.cluster;
+import java.util.LinkedList;
+
 import etomica.math.SpecialFunctions;
 import etomica.util.Arrays;
+import etomica.util.Rational;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
@@ -163,7 +166,102 @@ public final class Standard {
             // only use permutations if the diagram has permutations
             boolean thisUsePermutations = !uniqueOnly && usePermutations && 
                                           clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
-            // only use e-bonds if one of the diagrms has some
+            // only use e-bonds if one of the diagram has some
+            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
+            double [] newWeights = new double[weights.length+1];
+            System.arraycopy(weights,0,newWeights,0,weights.length);
+            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
+            weights = newWeights;
+        } while (generator.advance());
+        if (e != null) {
+            return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
+        }
+        return new ClusterSum(clusters,weights,new MayerFunction[]{f});
+    }
+    
+    public static ClusterAbstract virialClusterXS(int nBody, MayerFunction f, 
+            boolean usePermutations, MayerFunction e, boolean uniqueOnly, int approx) {
+        uniqueOnly = uniqueOnly && nBody > 3;
+        if (nBody < 4) {
+            e = null;
+        }
+        int nBondTypes = (e == null) ? 1 : 2;
+        ClusterDiagram clusterD = new ClusterDiagram(nBody,2);
+        ClusterGenerator generator = new ClusterGenerator(clusterD);
+        generator.setAllPermutations(!usePermutations);
+        generator.setOnlyConnected(false);
+        generator.setOnlyDoublyConnected(true);
+        generator.setExcludeArticulationPoint(true);
+        generator.setExcludeArticulationPair(false);
+        generator.setExcludeNodalPoint(true);
+        generator.setMakeReeHover(false);
+        generator.reset();
+
+        clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
+        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
+        list.add(new ClusterDiagram(clusterD));
+        while(generator.advance()) {
+            clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
+            list.add(new ClusterDiagram(clusterD));
+        }
+        ClusterOperations.addEquivalents(list);
+        ClusterDiagram[] trueClusters = list.toArray(new ClusterDiagram[]{});
+        ClusterOperations ops = new ClusterOperations();
+        ops.setApproximation(approx);
+        ClusterDiagram[] approxClusters = ops.getC(nBody-2);
+        ClusterDiagram[] xs = ClusterOperations.difference(trueClusters, approxClusters);
+        xs = ClusterOperations.integrate(xs);
+        xs = ClusterOperations.integrate(xs);
+        if (e != null) {
+            xs = ClusterOperations.makeReeHoover(xs);
+        }
+
+        ClusterBonds[] clusters = new ClusterBonds[0];
+        double[] weights = new double[0];
+        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
+
+        for (int m=0; m<xs.length; m++) {
+            clusterD = xs[m];
+            ClusterOperations.sortConnections(clusterD);
+            int iBond = 0, iEBond = 0;
+            int numBonds = clusterD.getNumConnections();
+            int[][][] bondList = new int[nBondTypes][][];
+            bondList[0] = new int[numBonds][2];
+            if (nBondTypes == 2) {
+                int totalBonds = nBody*(nBody-1)/2;
+                bondList[1] = new int[totalBonds-numBonds][2];
+            }
+            for (int i = 0; i < nBody; i++) {
+                int lastBond = i;
+                int[] iConnections = clusterD.mConnections[i];
+                for (int j=0; j<nBody-1; j++) {
+                    if (iConnections[j] > i) {
+                        if (e != null) {
+                            
+                            for (int k=lastBond+1; k<iConnections[j]; k++) {
+                                bondList[1][iEBond][0] = i;
+                                bondList[1][iEBond++][1] = k;
+                            }
+                        }
+                        bondList[0][iBond][0] = i;
+                        bondList[0][iBond++][1] = iConnections[j];
+                        lastBond = iConnections[j];
+                    }
+                    else if ((lastBond>i || iConnections[j] == -1) && e != null) {
+                        // we're done with f-bonds, fill in the rest with e-bonds
+                        for (int k=lastBond+1; k<nBody; k++) {
+                            bondList[1][iEBond][0] = i;
+                            bondList[1][iEBond++][1] = k;
+                        }
+                    }
+                    if (iConnections[j] == -1) break;
+                }
+            }
+            // only use permutations if the diagram has permutations
+            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
+                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
+            // only use e-bonds if one of the diagrams has some
             clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
             double [] newWeights = new double[weights.length+1];
             System.arraycopy(weights,0,newWeights,0,weights.length);
