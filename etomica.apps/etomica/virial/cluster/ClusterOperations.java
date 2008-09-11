@@ -13,6 +13,18 @@ public class ClusterOperations {
     public ClusterOperations() {
     }
     
+    public static void sortConnections(ClusterDiagram cluster) {
+        for (int i=0; i<cluster.mConnections.length; i++) {
+            int lastBond = -1;
+            for (int j=0; j<cluster.mConnections[i].length; j++) {
+                if (cluster.mConnections[i][j] > -1) {
+                    lastBond = j;
+                }
+            }
+            java.util.Arrays.sort(cluster.mConnections[i], 0, lastBond+1);
+        }
+    }
+    
     /**
      * Returns a new cluster that is the product of the given clusters.  Input clusters must have the
      * same number of root points and my not both have bonds between the same root points.
@@ -481,7 +493,7 @@ public class ClusterOperations {
             list.add(new ClusterDiagram(cluster));
         }
         addEquivalents(list);
-        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray();
+        ClusterDiagram[] trueClusters = list.toArray(new ClusterDiagram[] {});
         ClusterDiagram[] xs = difference(trueClusters, approxClusters);
         ClusterDiagram[] out = xs;
         out = integrate(out);
