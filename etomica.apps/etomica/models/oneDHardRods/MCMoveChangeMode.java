@@ -88,7 +88,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
         //nan These lines make it a single atom-per-molecule class, and
-        // assumes that the first cell is the same as every other cell.
+        // assume that the first cell is the same as every other cell.
 //        BasisCell cell = cells[0];
         double sqrtCells = Math.sqrt(cells.length);
 //        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
@@ -117,13 +117,13 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             //generalized coordinates.  Change the selected wavevectors eigen-
             //vectors at the same time!
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
-                double coskR = Math.cos(kR);
-                double sinkR = Math.sin(kR);
-                for(int i = 0; i < coordinateDim; i++){
-                    for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
-                    }
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+            for(int i = 0; i < coordinateDim; i++){
+                for(int j = 0; j < coordinateDim; j++){
+                    deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                 }
+            }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
                 deltaU[i] *= normalization;
