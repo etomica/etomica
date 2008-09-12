@@ -114,7 +114,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             }
             
             //loop over the wavevectors, and sum contribution of each to the
-            //generalized coordinates.  Change the selected wavevector's eigen-
+            //generalized coordinates.  Change the selected wavevectors eigen-
             //vectors at the same time!
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
