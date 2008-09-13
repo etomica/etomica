@@ -17,6 +17,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSourceScalar;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterEnergy;
@@ -47,6 +48,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
+import etomica.util.HistoryScrolling;
 
 public class SamGraphic extends SimulationGraphic {
     
@@ -306,7 +308,7 @@ public class SamGraphic extends SimulationGraphic {
         pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Pressure (bar)");
         add(pressurePlot);
         
-        MeterTilt meterTilt = new MeterTilt(space, sim.species);
+        final MeterTilt meterTilt = new MeterTilt(space, sim.species);
         meterTilt.setBox(sim.box);
         DataSplitter tiltSplitter = new DataSplitter(); 
         pump = new DataPump(meterTilt, tiltSplitter);
@@ -340,6 +342,39 @@ public class SamGraphic extends SimulationGraphic {
         tilt2History.setDataSink(tiltPlot.getDataSet().makeDataSink());
         tiltPlot.setLegend(new DataTag[]{tilt2History.getTag()}, "avg tilt");
         add(tiltPlot);
+        
+        AccumulatorHistory stressStrain = new AccumulatorHistory(new HistoryScrolling(1));
+        stressStrain.setTimeDataSource(new DataSourceScalar("Wall position", Length.DIMENSION) {
+            public double getDataAsScalar() {
+                return sim.wallPotential.wallPosition;
+            }
+        });
+        fork.addDataSink(stressStrain);
+        DisplayPlot stressStrainPlot = new DisplayPlot();
+        stressStrain.setDataSink(stressStrainPlot.getDataSet().makeDataSink());
+        stressStrainPlot.setLabel("Stress vs. Strain");
+        stressStrainPlot.setDoLegend(false);
+        stressStrainPlot.setDoClear(false);
+        stressStrainPlot.setDoDrawLines(new DataTag[]{stressStrain.getTag()}, false);
+        add(stressStrainPlot);
+        
+        AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryScrolling(1));
+        energyTilt.setTimeDataSource(new DataSourceScalar("Tilt Angle", Angle.DIMENSION) {
+            public double getDataAsScalar() {
+                return meterTilt.getData().getValue(0);
+            }
+        });
+        DataPump energyTiltPump = new DataPump(meterPE, energyTilt);
+        sim.integrator.addIntervalAction(energyTiltPump);
+        sim.integrator.setActionInterval(energyTiltPump, 10);
+        DisplayPlot energyTiltPlot = new DisplayPlot();
+        energyTiltPlot.setXUnit(Degree.UNIT);
+        energyTilt.setDataSink(energyTiltPlot.getDataSet().makeDataSink());
+        energyTiltPlot.setLabel("Energy vs. Tilt");
+        energyTiltPlot.setDoLegend(false);
+        energyTiltPlot.setDoClear(false);
+        energyTiltPlot.setDoDrawLines(new DataTag[]{energyTilt.getTag()}, false);
+        add(energyTiltPlot);
 
         DisplayPlot plot = new DisplayPlot();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());
