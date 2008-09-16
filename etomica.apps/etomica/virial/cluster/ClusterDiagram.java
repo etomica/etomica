@@ -342,7 +342,7 @@ public class ClusterDiagram implements java.io.Serializable {
         ClusterGenerator.findMaxScore(excludeRootPermutations, this, score);
         ClusterGenerator.findMaxScore(excludeRootPermutations, anotherCluster, anotherScore);
         setWeight(weight);
-        anotherCluster.setWeight(weight);
+        anotherCluster.setWeight(anotherCluster.getWeight());
         for(int i=0; i<score.length; i++) {
             if(score[i] != anotherScore[i]) {
                 return false;
