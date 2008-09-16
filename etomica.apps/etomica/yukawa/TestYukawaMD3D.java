@@ -92,7 +92,7 @@ public class TestYukawaMD3D extends Simulation{
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sim.space));
+        nSelector.setResetAction(new SimulationRestart(sim, sim.space, sim.getController()));
         nSelector.setPostAction(repaintAction);
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);

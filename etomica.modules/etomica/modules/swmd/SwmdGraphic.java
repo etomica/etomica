@@ -411,7 +411,7 @@ public class SwmdGraphic extends SimulationGraphic {
         peDisplay.setLabel("Potential Energy (J/mol)");
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim, space));
+        nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);

@@ -377,7 +377,7 @@ public class JouleThomson extends SimulationGraphic {
             sigma[0] = currentSig;
             epsilon[0] = currentEps;
             mass[0] = currentMass;
-            simRestart = new SimulationRestart(sim, space);
+            simRestart = new SimulationRestart(sim, space, sim.getController());
         }
         
         public void itemStateChanged(java.awt.event.ItemEvent evt) {

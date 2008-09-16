@@ -120,7 +120,7 @@ public class HSMD2D_noNbr extends Simulation {
         temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim, sp));
+        nSelector.setResetAction(new SimulationRestart(sim, sp, sim.getController()));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
         IAction repaintAction = graphic.getPaintAction(sim.box);
