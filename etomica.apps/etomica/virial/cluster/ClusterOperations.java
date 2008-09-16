@@ -228,7 +228,7 @@ public class ClusterOperations {
         }
         for(int i=0; i<set2.length; i++) {
             ClusterDiagram cluster2 = new ClusterDiagram(set2[i]);
-            cluster2.setWeight(cluster2.getWeight().negate());
+            cluster2.setWeight(cluster2.getWeight().times(new Rational(-1,1)));
             list.add(cluster2);
         }
         addEquivalents(list);
@@ -312,7 +312,7 @@ public class ClusterOperations {
                 }
             }
             if(neg) {//odd number of f-bonds introduced
-                rhClusters[i].setWeight(rhClusters[i].getWeight().negate());
+                rhClusters[i].setWeight(rhClusters[i].getWeight().times(new Rational(-1,1)));
             }
         }
         return rhClusters;
@@ -322,12 +322,14 @@ public class ClusterOperations {
         LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
         for(int i=0; i<clusters.length; i++) {
             ClusterDiagram[] rhClusters = makeReeHoover(clusters[i]);
-            for(int j=0; j<rhClusters.length; j++) {
-                list.add(rhClusters[j]);
+            for (int j=0; j<rhClusters.length; j++) {
+                if (rhClusters[j].getWeight().numerator() != 0) {
+                    list.add(rhClusters[j]);
+                }
             }
         }
         addEquivalents(list);
-        return list.toArray(new ClusterDiagram[] {});
+        return list.toArray(new ClusterDiagram[list.size()]);
     }
     
     public void setApproximation(int approximation) {
