@@ -236,7 +236,7 @@ public class ClusterDiagram implements java.io.Serializable {
      * than the given score.  The current score is computed only 
      * enough to determine if it is less than the current cluster.
      */
-    public boolean scoreGreaterThan(int[] compareScore) {
+    protected boolean scoreGreaterThan(int[] compareScore) {
         for (int i = 1; i < mNumBody / 2 + 1; i++) {
             int myScore = 0;
             for (int thisNode = 0; thisNode < mNumBody; thisNode++) {
@@ -341,6 +341,8 @@ public class ClusterDiagram implements java.io.Serializable {
         boolean excludeRootPermutations = true;
         ClusterGenerator.findMaxScore(excludeRootPermutations, this, score);
         ClusterGenerator.findMaxScore(excludeRootPermutations, anotherCluster, anotherScore);
+        setWeight(weight);
+        anotherCluster.setWeight(weight);
         for(int i=0; i<score.length; i++) {
             if(score[i] != anotherScore[i]) {
                 return false;
