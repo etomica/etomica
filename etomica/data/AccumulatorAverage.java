@@ -43,7 +43,6 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         averageTag = new DataTag();
         errorTag = new DataTag();
         standardDeviationTag = new DataTag();
-        mostRecentBlockTag = new DataTag();
         blockCorrelationTag = new DataTag();
     }
 
@@ -136,16 +135,12 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         factory.setLabel(incomingLabel+" stddev");
         IDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
-        factory.setLabel(incomingLabel+" most recent blk");
-        IDataInfo mostRecentBlockInfo = factory.makeDataInfo();
-        mostRecentBlockInfo.addTag(mostRecentBlockTag);
         factory.setLabel(incomingLabel+" blk correlation");
         IDataInfo correlationInfo = factory.makeDataInfo();
         correlationInfo.addTag(blockCorrelationTag);
         
         dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
-            mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, mostRecentBlockInfo,
-            correlationInfo});
+            mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
         dataInfo.addTag(getTag());
         return dataInfo;
     }
@@ -215,6 +210,6 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;
-    private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, mostRecentBlockTag, blockCorrelationTag;
+    private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, blockCorrelationTag;
 
 }

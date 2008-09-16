@@ -54,7 +54,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         count++;
         blockCountDown = blockSize;
         blockSum.TE(1 / (double) blockSize);//compute block average
-        //XXX should we divide blockSumSq by blockSize too?
         sum.PE(blockSum);
         work.E(blockSum);
         work.TE(blockSum);
