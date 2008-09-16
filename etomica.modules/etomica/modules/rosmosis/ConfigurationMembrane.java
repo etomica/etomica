@@ -56,7 +56,7 @@ public class ConfigurationMembrane implements Configuration {
         pretendBox.getBoundary().setDimensions(pretendBoxDim);
         int nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solventChamberDensity);
         pretendBox.setNMolecules(speciesSolvent, nMolecules);
-        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
+        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         IAtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);

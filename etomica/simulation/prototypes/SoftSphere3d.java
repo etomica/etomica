@@ -67,7 +67,7 @@ public class SoftSphere3d extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
        // box.setNMolecules(species2, 20);
-        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 	    potential = new P2SoftSphere(space,1,1,exponent);
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());

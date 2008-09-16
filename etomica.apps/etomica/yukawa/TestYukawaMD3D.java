@@ -82,7 +82,7 @@ public class TestYukawaMD3D extends Simulation{
 		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
 		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});
 		
-		new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);
 	}
 	

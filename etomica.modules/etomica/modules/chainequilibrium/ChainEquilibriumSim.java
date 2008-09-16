@@ -124,7 +124,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         box.setNMolecules(speciesB, 100);
         nDiAcid = 100;
 
-        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space, random);
+        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager(this,box);

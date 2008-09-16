@@ -84,10 +84,10 @@ public class JouleThomsonSim extends Simulation {
         
         SpaceLattice lattice;
         if (space.D() == 2) {
-            lattice = new LatticeOrthorhombicHexagonal();
+            lattice = new LatticeOrthorhombicHexagonal(space);
         }
         else {
-            lattice = new LatticeCubicFcc();
+            lattice = new LatticeCubicFcc(space);
         }
         config = new ConfigurationLattice(lattice, space);
         config.initializeCoordinates(box);

@@ -46,7 +46,7 @@ public class LjMd2D extends Simulation {
         box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 50);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
         

@@ -206,7 +206,7 @@ public class DCVGCMD extends Simulation {
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
-        config = new ConfigurationLatticeTube(new LatticeCubicFcc(), length, space);
+        config = new ConfigurationLatticeTube(new LatticeCubicFcc(space), length, space);
         config.setSpeciesSpheres(new SpeciesSpheresMono[]{species1, species2});
         config.setSpeciesTube(speciesTube);
         config.initializeCoordinates(box);

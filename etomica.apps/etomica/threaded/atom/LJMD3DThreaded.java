@@ -93,7 +93,7 @@ public class LJMD3DThreaded extends Simulation {
         //--------------------------------------\\
         
 //        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(box);
-        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);

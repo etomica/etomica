@@ -58,16 +58,16 @@ public class CrystalViewer extends SimulationPanel {
         BasisMonatomic basisMonatomic = new BasisMonatomic(space);
         
         BravaisLattice[] lattices = new BravaisLattice[] {
-                new LatticeCubicSimple(),
+                new LatticeCubicSimple(space),
                 new BravaisLatticeCrystal(new PrimitiveTetragonal(space), basisMonatomic),
                 new BravaisLatticeCrystal(new PrimitiveHexagonal(space), basisMonatomic),
                 new BravaisLatticeCrystal(new PrimitiveOrthorhombic(space), basisMonatomic),
                 new BravaisLatticeCrystal(new PrimitiveMonoclinic(space), basisMonatomic),
                 new BravaisLatticeCrystal(new PrimitiveTriclinic(space), basisMonatomic),
-                new LatticeCubicFcc(),
-                new LatticeCubicBcc(),
-                new LatticeHcp(),
-                new LatticeCubicDiamond()
+                new LatticeCubicFcc(space),
+                new LatticeCubicBcc(space),
+                new LatticeHcp(space),
+                new LatticeCubicDiamond(space)
             };
 
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };

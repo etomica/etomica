@@ -49,7 +49,7 @@ public class HsMc2d extends Simulation {
         addBox(box);
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
 	    IAtomTypeLeaf type1 = species.getLeafType();
         IAtomTypeLeaf type2 = species2.getLeafType();

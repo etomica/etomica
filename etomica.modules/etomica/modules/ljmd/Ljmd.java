@@ -58,7 +58,7 @@ public class Ljmd extends Simulation {
         dim.E(15);
         box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, N);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
 
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));

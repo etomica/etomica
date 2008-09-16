@@ -65,7 +65,7 @@ public class LatticePlaneTestUtility {
     	switch(index) {
     	
     	case SIMPLE_CUBIC:
-    		lattice = new LatticeCubicSimple();
+    		lattice = new LatticeCubicSimple(space);
     		break;
     	case TETRAGONAL:
             basisMonatomic = new BasisMonatomic(space);
@@ -88,16 +88,16 @@ public class LatticePlaneTestUtility {
             lattice = new BravaisLatticeCrystal(new PrimitiveTriclinic(space), basisMonatomic);
     		break;
     	case FCC:
-    		lattice = new LatticeCubicFcc();
+    		lattice = new LatticeCubicFcc(space);
     		break;
     	case BCC:
-    		lattice = new LatticeCubicBcc();
+    		lattice = new LatticeCubicBcc(space);
     		break;
     	case HCP:
-    		lattice = new LatticeHcp();
+    		lattice = new LatticeHcp(space);
     		break;
     	case CUBIC_DIAMOND:
-    		lattice = new LatticeCubicDiamond();
+    		lattice = new LatticeCubicDiamond(space);
     		break;
     	default:
     		break;

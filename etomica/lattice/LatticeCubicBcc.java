@@ -1,7 +1,7 @@
 package etomica.lattice;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.space3d.Space3D;
+import etomica.space.ISpace;
 
 /**
  * Cubic primitive with a 2-site bcc basis.
@@ -16,12 +16,15 @@ public class LatticeCubicBcc extends BravaisLatticeCrystal implements CubicLatti
      * Use scaleBy method if desired to make lattice constant give
      * maximum density for another sphere size.
 	 */
-    public LatticeCubicBcc() {
-        this(2.0/Math.sqrt(3.0));
+    public LatticeCubicBcc(ISpace space) {
+        this(space, 2.0/Math.sqrt(3.0));
     }
     
-	public LatticeCubicBcc(double latticeConstant) {
-		this(new PrimitiveCubic(Space3D.getInstance(), latticeConstant));
+	public LatticeCubicBcc(ISpace space, double latticeConstant) {
+		this(new PrimitiveCubic(space, latticeConstant));
+        if(space.D() != 3) {
+            throw new IllegalArgumentException("LatticeCubicBcc requires a 3-D space");
+        }
 	}
 
 	/**

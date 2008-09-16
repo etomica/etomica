@@ -417,10 +417,10 @@ public class JouleThomson extends SimulationGraphic {
                 sim.box.getBoundary().setDimensions(v);
                 SpaceLattice lattice;
                 if (space.D() == 2) {
-                    lattice = new LatticeOrthorhombicHexagonal();
+                    lattice = new LatticeOrthorhombicHexagonal(space);
                 }
                 else {
-                    lattice = new LatticeCubicFcc();
+                    lattice = new LatticeCubicFcc(space);
                 }
                 Configuration config = new ConfigurationLattice(lattice, space);
                 config.initializeCoordinates(sim.box);

@@ -118,7 +118,7 @@ public class SWMD3D extends Simulation {
     BoxInflate inflater = new BoxInflate(box, space);
     inflater.setTargetDensity(0.0405);
     inflater.actionPerformed();
-    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(), space);
+    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
     configuration.initializeCoordinates(box);
   }
 

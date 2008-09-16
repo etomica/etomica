@@ -55,11 +55,11 @@ public class PistonCylinder extends Simulation {
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         IVector newDim;
         if (space.D() == 2) {
-            config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space);
+            config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
             newDim = new Vector2D(80,150);
         }
         else {
-            config = new ConfigurationLattice(new LatticeCubicFcc(), space);
+            config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
             newDim = new Vector3D(30,80,30);
         }
         config.setBoundaryPadding(sigma);

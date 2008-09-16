@@ -180,7 +180,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         integrator.setBox(box);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationLatticeSimple configuration = new ConfigurationLatticeSimple(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));

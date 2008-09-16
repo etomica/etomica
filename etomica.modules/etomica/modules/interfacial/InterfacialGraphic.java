@@ -325,7 +325,7 @@ public class InterfacialGraphic extends SimulationGraphic {
                 getDisplayBox(sim.box).repaint();
             }
             
-            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space);
+            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
             int oldN = sim.box.getMoleculeList().getAtomCount();
         });
 

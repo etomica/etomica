@@ -116,7 +116,7 @@ public class SimDimerLJadatom extends Simulation{
 		potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), movable.getLeafType()});
         
     //CRYSTAL
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box); 
        
     //ADATOM CREATION AND PLACEMENT

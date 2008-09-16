@@ -61,7 +61,7 @@ public class HSMD2D_noNbr extends Simulation {
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[]{10,10}));
         box.setNMolecules(species, 64);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);

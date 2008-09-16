@@ -74,7 +74,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
-        config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space, random);
+        config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 

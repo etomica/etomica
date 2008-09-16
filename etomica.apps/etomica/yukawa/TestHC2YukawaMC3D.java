@@ -77,7 +77,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 			
 		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 		
-		new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);
 		
 		potentialMaster.getNbrCellManager(box).assignCellAll();

@@ -84,7 +84,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
-        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space);
+        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
         config.initializeCoordinates(sim.box);
 
 		temperatureSelect = new DeviceThermoSlider(sim.controller1);

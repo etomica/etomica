@@ -12,8 +12,8 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
 	/**
 	 * Simple 3D cubic lattice with a unit lattice constant. 
 	 */
-    public LatticeCubicSimple() {
-        this(Space.getInstance(3), 1.0);
+    public LatticeCubicSimple(ISpace space) {
+        this(space, 1.0);
     }
     
     /**
@@ -24,6 +24,9 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
      */
     public LatticeCubicSimple(ISpace space, double latticeConstant) {
         super(new PrimitiveCubic(space));
+        if(space.D() != 3) {
+            throw new IllegalArgumentException("LatticeCubicSimple requires a 3-D space");
+        }
         this.primitive = (PrimitiveCubic)getPrimitive();
         primitive.setSizeABC(latticeConstant);
     }

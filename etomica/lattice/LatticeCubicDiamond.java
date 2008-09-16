@@ -1,7 +1,7 @@
 package etomica.lattice;
 import etomica.lattice.crystal.BasisCubicDiamond;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.space3d.Space3D;
+import etomica.space.ISpace;
 
 /**
  * Cubic primitive with a 4-site fcc basis, on which each site 
@@ -21,12 +21,15 @@ public class LatticeCubicDiamond extends BravaisLatticeCrystal implements CubicL
      * Use scaleBy method if desired to make lattice constant give maximum
      * density for another sphere size.
      */
-    public LatticeCubicDiamond() {
-        this(4.0/Math.sqrt(3.0));
+    public LatticeCubicDiamond(ISpace space) {
+        this(space, 4.0/Math.sqrt(3.0));
     }
     
-    public LatticeCubicDiamond(double latticeConstant) {
-        this(new PrimitiveCubic(Space3D.getInstance()));
+    public LatticeCubicDiamond(ISpace space, double latticeConstant) {
+        this(new PrimitiveCubic(space));
+        if(space.D() != 3) {
+            throw new IllegalArgumentException("LatticeCubicDiamond requires a 3-D space");
+        }
         ((PrimitiveCubic)primitive).setSizeABC(latticeConstant);
     }
 

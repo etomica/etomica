@@ -64,7 +64,7 @@ public class LjMd3D extends Simulation {
         imposepbc.setBox(box);
         integrator.addIntervalAction(imposepbc);
 		
-        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(), space);
+        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         energy = new MeterPotentialEnergy(potentialMaster);
         energy.setBox(box);

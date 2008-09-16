@@ -65,7 +65,7 @@ public class VLESim extends Simulation {
         addBox(boxVapor);
         boxLiquid.setNMolecules(species, initNumMolecules);
         boxVapor.setNMolecules(species, initNumMolecules);
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);
 

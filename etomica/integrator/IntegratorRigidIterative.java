@@ -694,7 +694,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         box.setNMolecules(species, numMolecules);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
         if (true) {
-            new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+            new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
         else {
             new ConfigurationFile("water"+numMolecules+(periodic ? "pbc":"")).initializeCoordinates(box);

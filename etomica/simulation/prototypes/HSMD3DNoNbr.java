@@ -59,7 +59,7 @@ public class HSMD3DNoNbr extends Simulation {
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setBox(box);
         integrator.addIntervalAction(new BoxImposePbc(box, space));
-        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 

@@ -30,7 +30,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     protected ISpecies[] species;
     
     public ConfigurationZincblende(double latticeConstant, ISpace space) {
-        super(new LatticeCubicFcc(latticeConstant), space);
+        super(new LatticeCubicFcc(space, latticeConstant), space);
         species = new ISpecies[2];
     }
     

@@ -268,7 +268,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         integrator.setBox(box);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationLattice configuration = new ConfigurationLattice(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));

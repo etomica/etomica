@@ -56,7 +56,7 @@ public class ConfigurationMembraneWater implements Configuration {
         int nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solventChamberDensity);
         System.out.println("adding "+nMolecules+" of species "+speciesSolvent);
         pretendBox.setNMolecules(speciesSolvent, nMolecules);
-        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
+        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         IAtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);

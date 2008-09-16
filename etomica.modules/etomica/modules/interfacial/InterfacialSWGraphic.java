@@ -174,7 +174,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 isExpanded = true;
             }
             IVector dim = space.makeVector();
-            ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
+            ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         };
         expandButton.setAction(expandAction);
         expandButton.setLabel("Expand");
@@ -524,7 +524,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
-        final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal() : new LatticeCubicFcc(), space);
+        final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 int n = sim.box.getNMolecules(sim.species);

@@ -127,10 +127,10 @@ public class InterfacialSW extends Simulation {
         box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, N);
         if (space.D() == 2) {
-            new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
+            new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         }
         else {
-            new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+            new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
         integrator.setBox(box);
 

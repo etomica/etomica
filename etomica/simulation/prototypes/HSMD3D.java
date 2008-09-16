@@ -104,7 +104,7 @@ public class HSMD3D extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(params.eta * 6 / Math.PI);
         inflater.actionPerformed();
-        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         //deformed
 //        box.setBoundary(
 //            new etomica.space.BoundaryDeformablePeriodic(

@@ -195,7 +195,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         
         box.setNMolecules(speciesTube, 1);
 //        CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, sp);
 //        box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
