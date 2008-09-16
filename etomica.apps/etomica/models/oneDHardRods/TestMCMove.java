@@ -93,30 +93,8 @@ public class TestMCMove extends Simulation {
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
-//        double[][] os = nm.getOmegaSquared(box);
-//        int imax = os.length;
-//        System.out.println("imax: " +imax);
-//        int jmax = os[0].length;
-//        System.out.println("jmax: " + jmax);
-//        for(int i = 0; i < imax; i++){
-//        	for (int j = 0; j < jmax; j++){
-//        		System.out.println("i: " + i + "   j: " + j + "   os: " + os[i][j]);
-//        	}
-//        }
-        
-        
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        
-//        MCMoveChangeMode change = new MCMoveChangeMode(potentialMaster, random);
-//        integrator.getMoveManager().addMCMove(convert);
-//        change.setWaveVectors(waveVectorFactory.getWaveVectors());
-//        change.setEigenVectors(nm.getEigenvectors(box));
-//        change.setCoordinateDefinition(coordinateDefinition);
-////        change.setTemperature(temperature);
-//        change.setBox((IBox)box);
-//        change.setStepSizeMin(0.001);
-//        change.setStepSize(0.01);
         
         MCMoveConvertMode convert = new MCMoveConvertMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
@@ -136,15 +114,10 @@ public class TestMCMove extends Simulation {
         
         locations = new double[numAtoms];
         IAtomSet leaflist = box.getLeafList();
-//        System.out.println("First locations: ");
-        int nurk = 0;
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
             locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-            nurk += locations[i];
-//            System.out.println(i + "  " + locations[i]);
         }
-        System.out.println("Nurk:  " + nurk);
     }
     
     /**
@@ -204,15 +177,13 @@ public class TestMCMove extends Simulation {
         
         //see if anything moved:
         IAtomSet leaflist = sim.box.getLeafList();
-        System.out.println("Last locations: ");
-        double turn = 0;
+        
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-//            System.out.println(i + "  " + sim.locations[i]);
-            turn += sim.locations[i];
+            sim.locations[i] -= ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
         }
-        System.out.println("final loc: " +turn);
+
+
         
         
         //print out final positions:

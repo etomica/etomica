@@ -38,6 +38,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     protected double[] iRand;
     private double[] waveVectorCoefficients;
     private double wvc;
+    private double[] realT, imagT;
+    
 
 
     public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -49,53 +51,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         gaussian = new double[2];
     }
 
-    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
-        coordinateDefinition = newCoordinateDefinition;
-        deltaU = new double[coordinateDefinition.getCoordinateDim()];
-        uOld = null;
-    }
-    
-    public CoordinateDefinition getCoordinateDefinition() {
-        return coordinateDefinition;
-    }
-
-    /**
-     * Set the wave vectors accessible to the move.
-     * 
-     * @param wv
-     */
-    public void setWaveVectors(IVector[] wv){
-        waveVectors = new IVector[wv.length];
-        waveVectors = wv;
-    }    
-    public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
-        waveVectorCoefficients = newWaveVectorCoefficients;
-    }
-    /**
-     * Informs the move of the eigenvectors for the selected wave vector.  The
-     * actual eigenvectors used will be those specified via setModes
-     */
-    public void setEigenVectors(double[][][] newEigenVectors) {
-        eigenVectors = newEigenVectors;
-    }
-    
-    public void setOmegaSquared(double[][] omega2, double[] coeff) {
-        stdDev = new double[omega2.length][omega2[0].length];
-        for (int i=0; i<stdDev.length; i++) {
-            for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
-            }
-        }
-    }
-    public void setBox(IBox newBox) {
-        super.setBox(newBox);
-        iterator.setBox(newBox);
-        energyMeter.setBox(newBox);
-    }
-
-    public AtomIterator affectedAtoms() {
-        return iterator;
-    }
 
     public boolean doTrial() {
         energyOld = energyMeter.getDataAsScalar();
@@ -108,7 +63,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         // assumes that the first cell is the same as every other cell.
 //        BasisCell cell = cells[0];
         double sqrtCells = Math.sqrt(cells.length);
-//        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
         //set up the gaussian values
@@ -128,7 +82,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             if (wvc == 0.5) imaginaryGauss = 0;
 //            lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
         }
-        
         //calculate the new positions of the atoms.
         //loop over cells
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -137,28 +90,28 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             BasisCell cell = cells[iCell];
             
-            //Calculate the positions of the atoms without the converted wave 
-            // vector, and zero out the delta.
-            for(int j = 0; j < coordinateDim; j++){
-                deltaU[j] = 0;
-                for(int i = 0; i < coordinateDim; i++){
-//                    System.out.println("j: "+j+ " uNow before: " + uNow[j]);
-                    uNow[j] -= wvc*eigenVectors[convertedWV][i][j];
-//                    System.out.println("j: "+j+ " uNow after: " + uNow[j]);
-                }
-            }
+//            //Calculate the positions of the atoms without the converted wave 
+//            // vector, and zero out the delta.
+//            for(int j = 0; j < coordinateDim; j++){
+//                deltaU[j] = 0;
+//                for(int i = 0; i < coordinateDim; i++){
+//                    uNow[j] -= wvc*eigenVectors[convertedWV][i][j];
+//                    
+//                    
+//                }
+//            }
             
             // Calculate the change in position due to the substitution of a 
             //  Gaussian.
             double kR = waveVectors[convertedWV].dot(cell.cellPosition);
-                double coskR = Math.cos(kR);
-                double sinkR = Math.sin(kR);
-                for(int i = 0; i < coordinateDim; i++){
-                    for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
-                            2.0*(rRand[i]*coskR - iRand[i]*sinkR);
-                    }
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+            for(int i = 0; i < coordinateDim; i++){
+                for(int j = 0; j < coordinateDim; j++){
+                    deltaU[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                        (rRand[i]*coskR - iRand[i]*sinkR);
                 }
+            }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
                 deltaU[i] *= normalization;
@@ -166,7 +119,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//                System.out.println("i: "+i+ " uNow final: " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
@@ -201,6 +153,56 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
     }
+
+    public void setBox(IBox newBox) {
+        super.setBox(newBox);
+        iterator.setBox(newBox);
+        energyMeter.setBox(newBox);
+    }
+
+    public AtomIterator affectedAtoms() {
+        return iterator;
+    }
+    
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
+        deltaU = new double[coordinateDefinition.getCoordinateDim()];
+        uOld = null;
+        realT = new double[coordinateDefinition.getCoordinateDim()];
+        imagT = new double[coordinateDefinition.getCoordinateDim()];
+    }
+    
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
+    }
+
+    /**
+     * Set the wave vectors accessible to the move.
+     * 
+     * @param wv
+     */
+    public void setWaveVectors(IVector[] wv){
+        waveVectors = new IVector[wv.length];
+        waveVectors = wv;
+    }    
+    public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
+        waveVectorCoefficients = newWaveVectorCoefficients;
+    }
+    /**
+     * Informs the move of the eigenvectors 
+     */
+    public void setEigenVectors(double[][][] newEigenVectors) {
+        eigenVectors = newEigenVectors;
+    }
+    
+    public void setOmegaSquared(double[][] omega2, double[] coeff) {
+        stdDev = new double[omega2.length][omega2[0].length];
+        for (int i=0; i<stdDev.length; i++) {
+            for (int j=0; j<stdDev[i].length; j++) {
+                stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
+            }
+        }
+    }
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
@@ -210,6 +212,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     public void setConvertedWaveVector(int wv){
         convertedWV = wv;
         wvc = waveVectorCoefficients[wv];
+        coordinateDefinition.calcT(waveVectors[wv], realT, imagT);
     }
     public int getConvertedWaveVector(){
         return convertedWV;
