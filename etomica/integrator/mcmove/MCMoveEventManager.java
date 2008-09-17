@@ -1,5 +1,7 @@
 package etomica.integrator.mcmove;
 
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.util.EventManager;
 
 public class MCMoveEventManager extends EventManager {
@@ -8,11 +10,11 @@ public class MCMoveEventManager extends EventManager {
         super();
     }
 
-    public void fireEvent(MCMoveEvent event) {
+    public void fireEvent(IEvent event) {
         for(EventManager.Linker link=first; link!=null; link=link.next) {
-            ((MCMoveListener)link.listener).actionPerformed(event);
+            ((IListener)link.listener).actionPerformed(event);
         }
     }
 
-    protected Class getListenerClass() {return MCMoveListener.class;}
+//    protected Class getListenerClass() {return MCMoveListener.class;}
 }

@@ -33,7 +33,7 @@ public interface ISimulation {
      * Returns the Simulation's event manager, which fires events for
      * Boxs and Species being added and removed.
      */
-    public ISimulationEventManager getEventManager();
+    public IEventManager getEventManager();
 
     /**
      * Returns the SpeciesManager, which tracks the Species in the Simulation.

@@ -4,6 +4,8 @@ import java.awt.FontMetrics;
 import java.awt.GridLayout;
 
 import etomica.EtomicaInfo;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.util.EventManager;
 
 /**
@@ -292,7 +294,7 @@ public class DeviceTernarySelector extends Device {
         }//end of fractions
     }//end of Triangle
     
-    public interface Listener {
+    public interface Listener extends IListener {
         public void ternaryAction(double x1, double x2, double x3);
     }
     
@@ -307,13 +309,15 @@ public class DeviceTernarySelector extends Device {
             }
         }
         
+        public void fireEvent(IEvent evt) { }
+
         public void setTriangle(Triangle newTriangle) {
             triangle = newTriangle;
         }
 
-        protected Class getListenerClass () {
-            return Listener.class;
-        }
+//        protected Class getListenerClass () {
+//            return Listener.class;
+//        }
         
         private Triangle triangle;
     }

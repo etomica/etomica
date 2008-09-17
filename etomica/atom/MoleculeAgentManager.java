@@ -6,17 +6,16 @@ import java.lang.reflect.Array;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;
 import etomica.box.BoxAtomRemovedEvent;
-import etomica.box.BoxEvent;
-import etomica.box.BoxListener;
 import etomica.box.BoxMoleculeIndexChangedEvent;
 import etomica.box.BoxNumMoleculesEvent;
 import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesAddedEvent;
 import etomica.simulation.SimulationSpeciesEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
@@ -30,7 +29,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager implements BoxListener, SimulationListener, Serializable {
+public class MoleculeAgentManager implements IListener, Serializable {
 
     public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source) {
         this(sim, box, source, true);
@@ -136,7 +135,7 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
         }
     }
     
-    public void actionPerformed(BoxEvent evt) {
+    public void actionPerformed(IEvent evt) {
         if (evt instanceof BoxAtomEvent) {
             IAtom a = ((BoxAtomEvent)evt).getAtom();
             if (evt instanceof BoxAtomAddedEvent && a instanceof IMolecule) {
@@ -174,16 +173,13 @@ public class MoleculeAgentManager implements BoxListener, SimulationListener, Se
                 agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
             }
         }
-    }
-
-    public void actionPerformed(SimulationEvent event) {
-        if (event instanceof SimulationSpeciesEvent) {
-            if (event instanceof SimulationSpeciesAddedEvent) {
+        else if (evt instanceof SimulationSpeciesEvent) {
+            if (evt instanceof SimulationSpeciesAddedEvent) {
                 agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
                 agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
             }
-            else if (event instanceof SimulationSpeciesRemovedEvent) {
-                agents = (Object[][])Arrays.removeObject(agents, agents[((SimulationSpeciesEvent)event).getSpecies().getIndex()]);
+            else if (evt instanceof SimulationSpeciesRemovedEvent) {
+                agents = (Object[][])Arrays.removeObject(agents, agents[((SimulationSpeciesEvent)evt).getSpecies().getIndex()]);
             }
         }
     }

@@ -5,7 +5,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IBoxEventManager;
+import etomica.api.IEventManager;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -205,7 +205,7 @@ public class Box implements java.io.Serializable, IBox {
         inflater.actionPerformed();
     }
 
-    public IBoxEventManager getEventManager() {
+    public IEventManager getEventManager() {
         return eventManager;
     }
 
@@ -264,7 +264,7 @@ public class Box implements java.io.Serializable, IBox {
     
     private static final long serialVersionUID = 2L;
     private IBoundary boundary;;
-    private final IBoxEventManager eventManager;
+    private final IEventManager eventManager;
     protected AtomArrayList[] moleculeLists;
     private int index;
     private final ISpace space;

@@ -4,15 +4,14 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.box.BoxAtomAddedEvent;
-import etomica.box.BoxEvent;
-import etomica.box.BoxListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -28,7 +27,7 @@ import etomica.util.EnumeratedType;
  * Extends the Integrator class by adding methods that 
  * set the time step.
  */
-public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
+public abstract class IntegratorMD extends IntegratorBox implements IListener {
 
     public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, ISpace _space) {
@@ -371,7 +370,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         meterTemperature = meter;
     }
     
-    public void actionPerformed(BoxEvent event) {
+    public void actionPerformed(IEvent event) {
         if (event instanceof BoxAtomAddedEvent) {
             IAtom atom = ((BoxAtomAddedEvent)event).getAtom();
             if (atom instanceof IAtomKinetic) {

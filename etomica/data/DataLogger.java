@@ -6,13 +6,14 @@ import java.util.Date;
 import java.util.Locale;
 
 import etomica.action.activity.ControllerEvent;
-import etomica.action.activity.ControllerListener;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 
 /**
  * DataSink that manages a FileWriter and also listens to non-interval 
  * integrator events and sends appropriate data to a DataWriter.
  */
-public class DataLogger extends DataProcessor implements ControllerListener, java.io.Serializable {
+public class DataLogger extends DataProcessor implements IListener, java.io.Serializable {
     
     public DataLogger(){
         super();
@@ -48,13 +49,15 @@ public class DataLogger extends DataProcessor implements ControllerListener, jav
     /**
      * Close file when integrator is done.
      */
-    public void actionPerformed(ControllerEvent evt){
-        if(dataSink != null && (evt.getType() == ControllerEvent.NO_MORE_ACTIONS ||
-            evt.getType() == ControllerEvent.HALTED)) {
-            if (writeOnFinishSource != null) {
-                putData(writeOnFinishSource.getData());
+    public void actionPerformed(IEvent evt){
+        if(evt instanceof ControllerEvent) {
+            if(dataSink != null && (((ControllerEvent)evt).getType() == ControllerEvent.NO_MORE_ACTIONS ||
+                    ((ControllerEvent)evt).getType() == ControllerEvent.HALTED)) {
+                if (writeOnFinishSource != null) {
+                    putData(writeOnFinishSource.getData());
+                }
+                closeFile(); //close the file when finished
             }
-            closeFile(); //close the file when finished
         }
     }
     

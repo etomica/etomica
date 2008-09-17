@@ -1,13 +1,14 @@
 package etomica.box;
 
 import etomica.api.IBox;
+import etomica.api.IEvent;
 
 /**
  * Event that conveys some happening with respect to a box or the things it contains.
  *
  * @see BoxListener
  */
-public class BoxEvent implements java.io.Serializable {
+public class BoxEvent implements IEvent, java.io.Serializable {
     
     public BoxEvent(IBox box) {
         super();

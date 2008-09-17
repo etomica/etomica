@@ -1,7 +1,9 @@
 package etomica.simulation;
 
+import etomica.api.IEvent;
 
-public class SimulationEvent implements java.io.Serializable {
+
+public class SimulationEvent implements IEvent, java.io.Serializable {
     
     public SimulationEvent() {
     	super();

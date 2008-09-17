@@ -5,7 +5,7 @@ import java.util.HashMap;
 import etomica.action.Activity;
 import etomica.api.IAction;
 import etomica.api.IController;
-import etomica.api.IControllerEventManager;
+import etomica.api.IEventManager;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
 
@@ -276,11 +276,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return "Controller";
     }
     
-    public IControllerEventManager getEventManager() {
+    public IEventManager getEventManager() {
         return eventManager;
     }
     
-    private final IControllerEventManager eventManager;
+    private final IEventManager eventManager;
 
     private boolean repeatCurrentAction = false;
 

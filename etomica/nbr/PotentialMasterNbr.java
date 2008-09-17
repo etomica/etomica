@@ -2,9 +2,9 @@ package etomica.nbr;
 
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IEventManager;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
-import etomica.api.ISimulationEventManager;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.atom.AtomTypeAgentManager;
@@ -28,7 +28,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         intraAgentManager = new AtomTypeAgentManager(this);
 
         ISpeciesManager speciesManager = sim.getSpeciesManager();
-        ISimulationEventManager simEventManager = sim.getEventManager();
+        IEventManager simEventManager = sim.getEventManager();
         rangedAgentManager.init(speciesManager, simEventManager);
         intraAgentManager.init(speciesManager, simEventManager);
         rangedPotentialIterator = rangedAgentManager.makeIterator();

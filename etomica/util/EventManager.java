@@ -1,29 +1,31 @@
 package etomica.util;
 import java.io.IOException;
 
+import etomica.api.IEvent;
 import etomica.api.IEventManager;
+import etomica.api.IListener;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.
  * A class can make an instance of this manager as a field, and delegate any 
  * listener management functions to it.  
  */
-public abstract class EventManager implements java.io.Serializable, IEventManager {
+public abstract class EventManager implements IEventManager, java.io.Serializable  {
     
     /* (non-Javadoc)
 	 * @see etomica.util.IEventManager#addListener(java.lang.Object)
 	 */
-    public synchronized void addListener(Object listener) {
+    public synchronized void addListener(IListener listener) {
         addListener(listener, true);
     }
     
     /* (non-Javadoc)
 	 * @see etomica.util.IEventManager#addListener(java.lang.Object, boolean)
 	 */
-    public synchronized void addListener(Object listener, boolean doSerialize) {
-        if (listener.getClass().isInstance(getListenerClass())) {
-            throw new IllegalArgumentException("must add listeners of class "+getListenerClass());
-        }
+    public synchronized void addListener(IListener listener, boolean doSerialize) {
+//        if (listener.getClass().isInstance(getListenerClass())) {
+//            throw new IllegalArgumentException("must add listeners of class "+getListenerClass());
+//        }
         //add listener to beginning of list 
         //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
         first = new EventManager.Linker(listener, first, doSerialize);
@@ -32,7 +34,7 @@ public abstract class EventManager implements java.io.Serializable, IEventManage
     /* (non-Javadoc)
 	 * @see etomica.util.IEventManager#removeListener(java.lang.Object)
 	 */
-    public synchronized void removeListener(Object listener) {
+    public synchronized void removeListener(IListener listener) {
         Linker previous = null;
         for(Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
@@ -44,7 +46,7 @@ public abstract class EventManager implements java.io.Serializable, IEventManage
         }
     }
     
-    protected abstract Class getListenerClass();
+//    protected abstract Class getListenerClass();
 
     protected transient EventManager.Linker first;
     
@@ -79,7 +81,7 @@ public abstract class EventManager implements java.io.Serializable, IEventManage
         int count = in.readInt();
 
         for (int i=0; i<count; i++) {
-            addListener(in.readObject());
+            addListener((IListener)in.readObject());
         }
     }
     

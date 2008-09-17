@@ -1,5 +1,7 @@
 package etomica.integrator;
 
+import etomica.api.IEvent;
+import etomica.api.IEventManager;
 import etomica.api.IIntegrator;
 import etomica.api.IRandom;
 import etomica.exception.ConfigurationOverlapException;
@@ -165,7 +167,7 @@ public class IntegratorManagerMC extends Integrator {
         }
     }
 
-    public MCMoveEventManager getMoveEventManager() {
+    public IEventManager getMoveEventManager() {
         return eventManager;
     }
     
@@ -197,10 +199,10 @@ public class IntegratorManagerMC extends Integrator {
     private double globalMoveInterval;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
-    protected final MCMoveEventManager eventManager;
+    protected final IEventManager eventManager;
     protected IIntegrator[] integrators;
     protected int nIntegrators;
-    private final MCMoveTrialInitiatedEvent trialEvent;
-    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
+    private final IEvent trialEvent;
+    private final IEvent acceptedEvent, rejectedEvent;
     protected final IRandom random;
 }

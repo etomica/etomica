@@ -2,9 +2,10 @@ package etomica.action.activity;
 
 import etomica.api.IAction;
 import etomica.api.IController;
+import etomica.api.IEvent;
 import etomica.util.EnumeratedType;
 
-public class ControllerEvent implements java.io.Serializable {
+public class ControllerEvent implements IEvent, java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
     protected final IController controller;

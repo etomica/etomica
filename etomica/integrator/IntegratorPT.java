@@ -2,6 +2,8 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.api.IRandom;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -11,7 +13,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
@@ -106,7 +107,7 @@ public class IntegratorPT extends IntegratorManagerMC {
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
      * record of how the boxes swap configurations.
      */
-    public static class BoxTracker implements DataSource, MCMoveListener, java.io.Serializable {
+    public static class BoxTracker implements DataSource, IListener, java.io.Serializable {
         
         public BoxTracker() {
             data = new DataDoubleArray(0);
@@ -126,10 +127,10 @@ public class IntegratorPT extends IntegratorManagerMC {
         /**
          * Method called when two boxes are successfully exchanged.
          */
-        public void actionPerformed(MCMoveEvent evt) {
+        public void actionPerformed(IEvent evt) {
             if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).isAccepted()) return;
-            if(!(evt.getMCMove() instanceof MCMoveSwap)) return;
-            IBox[] boxes = ((MCMoveSwap)evt.getMCMove()).swappedBoxes();
+            if(!(((MCMoveEvent)evt).getMCMove() instanceof MCMoveSwap)) return;
+            IBox[] boxes = ((MCMoveSwap)((MCMoveEvent)evt).getMCMove()).swappedBoxes();
             int i0 = boxes[0].getIndex()-1;
             int i1 = boxes[1].getIndex()-1;
             int temp = track[i0];

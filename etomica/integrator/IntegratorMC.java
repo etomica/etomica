@@ -2,6 +2,8 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IEventManager;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -132,14 +134,14 @@ public class IntegratorMC extends IntegratorBox {
      * Adds a listener that will be notified when a MCMove trial is attempted
      * and when it is completed.
      */
-    public MCMoveEventManager getMoveEventManager() {
+    public IEventManager getMoveEventManager() {
         return eventManager;
     }
 
     private static final long serialVersionUID = 2L;
     protected final IRandom random;
     protected MCMoveManager moveManager;
-    protected final MCMoveEventManager eventManager;
-    private final MCMoveTrialInitiatedEvent trialEvent;
-    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
+    protected final IEventManager eventManager;
+    private final IEvent trialEvent;
+    private final IEvent acceptedEvent, rejectedEvent;
 }

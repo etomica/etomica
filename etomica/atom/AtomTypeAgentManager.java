@@ -5,13 +5,13 @@ import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.ISimulationEventManager;
+import etomica.api.IEvent;
+import etomica.api.IEventManager;
+import etomica.api.IListener;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesAddedEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
@@ -25,7 +25,7 @@ import etomica.util.Arrays;
  * would be stale at that point.
  * @author andrew
  */
-public class AtomTypeAgentManager implements SimulationListener, java.io.Serializable {
+public class AtomTypeAgentManager implements IListener, java.io.Serializable {
 
     public AtomTypeAgentManager(AgentSource source) {
         agentSource = source;
@@ -33,7 +33,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     public AtomTypeAgentManager(AgentSource source, ISpeciesManager speciesManager,
-            ISimulationEventManager simEventManager, boolean isBackend) {
+            IEventManager simEventManager, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
         init(speciesManager, simEventManager);
@@ -153,7 +153,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISpeciesManager newSpeciesManager, ISimulationEventManager newSimEventManager) {
+    public void init(ISpeciesManager newSpeciesManager, IEventManager newSimEventManager) {
         simEventManager = newSimEventManager;
         speciesManager = newSpeciesManager;
         simEventManager.addListener(this, isBackend);
@@ -165,7 +165,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         makeAllAgents();
     }
     
-    public void actionPerformed(SimulationEvent evt) {
+    public void actionPerformed(IEvent evt) {
         // we learn about new Species via AtomTypeAdded events
         if (evt instanceof SimulationSpeciesRemovedEvent) {
             releaseAgents(((SimulationSpeciesRemovedEvent)evt).getSpecies());
@@ -225,7 +225,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected ISimulationEventManager simEventManager;
+    protected IEventManager simEventManager;
     protected ISpeciesManager speciesManager;
     private final boolean isBackend;
 

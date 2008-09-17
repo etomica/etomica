@@ -3,13 +3,13 @@ package etomica.box;
 import java.lang.reflect.Array;
 
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IEventManager;
+import etomica.api.IListener;
 import etomica.api.ISimulation;
-import etomica.api.ISimulationEventManager;
 import etomica.simulation.SimulationBoxAddedEvent;
 import etomica.simulation.SimulationBoxEvent;
 import etomica.simulation.SimulationBoxRemovedEvent;
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 import etomica.util.Arrays;
 
 /**
@@ -21,7 +21,7 @@ import etomica.util.Arrays;
  * point. 
  * @author andrew
  */
-public class BoxAgentManager implements SimulationListener, java.io.Serializable {
+public class BoxAgentManager implements IListener, java.io.Serializable {
 
     public BoxAgentManager(BoxAgentSource source) {
         agentSource = source;
@@ -82,7 +82,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
         agents = null;
     }
     
-    public void actionPerformed(SimulationEvent evt) {
+    public void actionPerformed(IEvent evt) {
         if (evt instanceof SimulationBoxAddedEvent) {
             addAgent(((SimulationBoxEvent)evt).getBox());
         }
@@ -119,7 +119,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
 
     private static final long serialVersionUID = 1L;
     private final BoxAgentSource agentSource;
-    protected ISimulationEventManager simEventManager;
+    protected IEventManager simEventManager;
     protected Object[] agents;
     private final boolean isBackend;
     

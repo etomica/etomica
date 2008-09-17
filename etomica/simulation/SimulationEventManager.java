@@ -1,9 +1,10 @@
 package etomica.simulation;
 
-import etomica.api.ISimulationEventManager;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.util.EventManager;
 
-public class SimulationEventManager extends EventManager implements ISimulationEventManager {
+public class SimulationEventManager extends EventManager {
 
     public SimulationEventManager() {
         super();
@@ -12,11 +13,11 @@ public class SimulationEventManager extends EventManager implements ISimulationE
     /* (non-Javadoc)
 	 * @see etomica.simulation.ISimulationEventManager#fireEvent(etomica.simulation.SimulationEvent)
 	 */
-    public void fireEvent(SimulationEvent event) {
+    public void fireEvent(IEvent event) {
         for(EventManager.Linker link=first; link!=null; link=link.next) {
-            ((SimulationListener)link.listener).actionPerformed(event);
+            ((IListener)link.listener).actionPerformed(event);
         }
     }
 
-    protected Class getListenerClass() {return SimulationListener.class;}
+//    protected Class getListenerClass() {return SimulationListener.class;}
 }

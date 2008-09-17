@@ -2,16 +2,12 @@ package etomica.api;
 
 public interface IEventManager {
 
-	/**
-	 * Adds a listener.  Synchronized to avoid conflict with removeListener.
-	 */
-	public abstract void addListener(Object listener);
+    public void fireEvent(IEvent event);
 
-	public abstract void addListener(Object listener, boolean doSerialize);
+	public void addListener(IListener listener);
 
-	/**
-	 * Removes a listener.  Synchronized to avoid conflict with addListener.
-	 */
-	public abstract void removeListener(Object listener);
+	public void addListener(IListener listener, boolean doSerialize);
+
+	public void removeListener(IListener listener);
 
 }

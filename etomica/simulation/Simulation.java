@@ -2,9 +2,9 @@ package etomica.simulation;
 
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
+import etomica.api.IEventManager;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.ISimulationEventManager;
 import etomica.api.ISpeciesManager;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
@@ -111,7 +111,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         return random;
     }
     
-    public ISimulationEventManager getEventManager() {
+    public IEventManager getEventManager() {
         return eventManager;
     }
     
@@ -121,7 +121,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 
     private static final long serialVersionUID = 4L;
     protected final ISpace space;
-    protected final ISimulationEventManager eventManager;
+    protected final IEventManager eventManager;
     private IBox[] boxList;
     private final ISpeciesManager speciesManager;
     protected final IRandom random;

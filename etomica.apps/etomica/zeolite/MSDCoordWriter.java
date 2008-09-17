@@ -4,14 +4,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ControllerEvent;
-import etomica.action.activity.ControllerListener;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IEvent;
 import etomica.api.IIntegrator;
+import etomica.api.IListener;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.ISpace;
 
 /* =====SUMMARY======
@@ -44,8 +45,7 @@ import etomica.space.ISpace;
  */
 
 
-public class MSDCoordWriter implements IAction,
-                                       ControllerListener {
+public class MSDCoordWriter implements IAction, IListener {
 	
 	public MSDCoordWriter(ISpace _space, String fileName){
 		// Creates an instance of subclass AfterPBC
@@ -145,10 +145,10 @@ public class MSDCoordWriter implements IAction,
 		return 50;
 	}
 
-    public void actionPerformed(ControllerEvent evt) {
+    public void actionPerformed(IEvent evt) {
         if (fileWriter != null &&
-            (evt.getType() == ControllerEvent.NO_MORE_ACTIONS ||
-             evt.getType() == ControllerEvent.HALTED)) {
+            (((ControllerEvent)evt).getType() == ControllerEvent.NO_MORE_ACTIONS ||
+             ((ControllerEvent)evt).getType() == ControllerEvent.HALTED)) {
             closeFile();
         }
     }

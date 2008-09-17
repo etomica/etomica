@@ -3,9 +3,9 @@ package etomica.simulation;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IEvent;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
@@ -48,7 +48,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
                 int oldIndex = leafType.getIndex();
                 leafType.setIndex(oldIndex+1);
                 index++;
-                sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex));
+                IEvent evt = new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex);
+                sim.getEventManager().fireEvent(evt);
             }
 	    }
 
@@ -64,7 +65,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         }
 
         // this just fires an event for listeners to receive
-	    sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
+        IEvent evt = new SimulationSpeciesAddedEvent(species);
+	    sim.getEventManager().fireEvent(evt);
 
     }
 
@@ -89,7 +91,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
             if(speciesList[j].getIndex() != j) {
                 int oldIndex = speciesList[j].getIndex();
                 speciesList[j].setIndex(j);
-                sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(speciesList[j], oldIndex));
+                IEvent evt = new SimulationAtomTypeIndexChangedEvent(speciesList[j], oldIndex);
+                sim.getEventManager().fireEvent(evt);
             }
         }
         
@@ -97,8 +100,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         for (int j = 0; j < boxCount; j++) {
             sim.getBox(j).removeSpeciesNotify(removedSpecies);
         }
-        
-        sim.getEventManager().fireEvent(new SimulationSpeciesRemovedEvent(removedSpecies));
+        IEvent evt = new SimulationSpeciesRemovedEvent(removedSpecies);
+        sim.getEventManager().fireEvent(evt);
         
         int atomTypeIndex = speciesList.length;
         int numAtomTypes = 0;
@@ -109,12 +112,14 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
                 int oldIndex = leafType.getIndex();
                 leafType.setIndex(atomTypeIndex++);
                 if(oldIndex != atomTypeIndex-1) {
-                    sim.getEventManager().fireEvent(new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex));
+                    IEvent event = new SimulationAtomTypeIndexChangedEvent(leafType, oldIndex);
+                    sim.getEventManager().fireEvent(event);
                 }
             }
         }
         
-        sim.getEventManager().fireEvent(new SimulationAtomTypeMaxIndexEvent(speciesList.length + numAtomTypes));
+        IEvent maxEvt = new SimulationAtomTypeMaxIndexEvent(speciesList.length + numAtomTypes);
+        sim.getEventManager().fireEvent(maxEvt);
 
     }
 

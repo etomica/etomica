@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
@@ -9,7 +11,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.units.Null;
 
@@ -26,7 +27,7 @@ import etomica.units.Null;
  * for the system's cluster.  An equivalent formula is used for the overlap
  * clusters.
  */
-public class MeterVirialRejected implements DataSource, MCMoveListener, java.io.Serializable {
+public class MeterVirialRejected implements DataSource, IListener, java.io.Serializable {
 
 	/**
 	 * Constructor for MeterVirialRejected.
@@ -105,7 +106,7 @@ public class MeterVirialRejected implements DataSource, MCMoveListener, java.io.
         return integrator;
     }
     
-    public void actionPerformed(MCMoveEvent event) {
+    public void actionPerformed(IEvent event) {
         if (event instanceof MCMoveTrialCompletedEvent) {
             if (((MCMoveTrialCompletedEvent)event).isAccepted()) {
                 // if a move is accepted make the "trial" values into the "old" values
@@ -124,7 +125,7 @@ public class MeterVirialRejected implements DataSource, MCMoveListener, java.io.
         }
         
         // this is a trial
-        BoxCluster box = (BoxCluster)((MCMoveBox)event.getMCMove()).getBox();
+        BoxCluster box = (BoxCluster)((MCMoveBox)((MCMoveEvent)event).getMCMove()).getBox();
         trialPi = box.getSampleCluster().value(box);
         trialValues[0] = clusters[0].value(box);
         double x[] = data.getData();

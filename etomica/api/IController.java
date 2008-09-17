@@ -42,6 +42,6 @@ public interface IController extends ActivityGroup {
      * itself.
      * @see ControllerEvent
      */
-    public IControllerEventManager getEventManager();
+    public IEventManager getEventManager();
 
 }

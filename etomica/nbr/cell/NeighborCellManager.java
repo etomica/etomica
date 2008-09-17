@@ -7,6 +7,8 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
@@ -14,12 +16,9 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
-import etomica.box.BoxEvent;
 import etomica.box.BoxInflateEvent;
-import etomica.box.BoxListener;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
 import etomica.space.ISpace;
@@ -34,7 +33,7 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, BoxListener, java.io.Serializable {
+public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, IListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
@@ -121,6 +120,19 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
         checkDimensions();
+    }
+
+    public void actionPerformed(IEvent evt) {
+        if (evt instanceof BoxInflateEvent) {
+            checkDimensions();
+            // we need to reassign cells even if checkDimensions didn't resize
+            // the lattice.  If the box size changed, the cell size changed,
+            // and the atom assignments need to change too.
+            //FIXME but only if we have multi-atomic molecules.  For monatomic
+            // molecules, we would only need to call this if the lattice size
+            // changes
+            assignCellAll();
+        }
     }
     
     /**
@@ -212,7 +224,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         agentManager.setAgent(atom, atomCell);
     }
     
-    public MCMoveListener makeMCMoveListener() {
+    public IListener makeMCMoveListener() {
         return new MyMCMoveListener(box,this);
     }
     
@@ -245,40 +257,30 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         ((Cell)cell).removeAtom(atom);
     }
     
-    public void actionPerformed(BoxEvent event) {
-        if (event instanceof BoxInflateEvent) {
-            checkDimensions();
-            // we need to reassign cells even if checkDimensions didn't resize
-            // the lattice.  If the box size changed, the cell size changed,
-            // and the atom assignments need to change too.
-            //FIXME but only if we have multi-atomic molecules.  For monatomic
-            // molecules, we would only need to call this if the lattice size
-            // changes
-            assignCellAll();
-        }
-    }
-    
-    private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
+    private static class MyMCMoveListener implements IListener, java.io.Serializable {
         public MyMCMoveListener(IBox box, NeighborCellManager manager) {
             this.box = box;
             neighborCellManager = manager;
         }
         
-        public void actionPerformed(MCMoveEvent evt) {
+        public void actionPerformed(IEvent evt) {
             if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
                 return;
             }
-            MCMoveBox move = (MCMoveBox)evt.getMCMove();
-            AtomIterator iterator = move.affectedAtoms();
-            iterator.reset();
-            for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
-                if (atom instanceof IAtomLeaf) {
-                    updateCell((IAtomLeaf)atom);
-                }
-                else {
-                    IAtomSet childList = ((IMolecule)atom).getChildList();
-                    for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        updateCell((IAtomLeaf)childList.getAtom(iChild));
+
+            if (evt instanceof MCMoveEvent) {
+                MCMoveBox move = ((MCMoveBox)((MCMoveEvent)evt).getMCMove());
+                AtomIterator iterator = move.affectedAtoms();
+                iterator.reset();
+                for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
+                    if (atom instanceof IAtomLeaf) {
+                        updateCell((IAtomLeaf)atom);
+                    }
+                    else {
+                        IAtomSet childList = ((IMolecule)atom).getChildList();
+                        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                            updateCell((IAtomLeaf)childList.getAtom(iChild));
+                        }
                     }
                 }
             }

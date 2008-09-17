@@ -1,9 +1,10 @@
 package etomica.box;
 
-import etomica.api.IBoxEventManager;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.util.EventManager;
 
-public class BoxEventManager extends EventManager implements IBoxEventManager {
+public class BoxEventManager extends EventManager {
 
     public BoxEventManager() {
         super();
@@ -12,12 +13,12 @@ public class BoxEventManager extends EventManager implements IBoxEventManager {
     /* (non-Javadoc)
 	 * @see etomica.box.IBoxEventManager#fireEvent(etomica.box.BoxEvent)
 	 */
-    public void fireEvent(BoxEvent event) {
+    public void fireEvent(IEvent event) {
         for(EventManager.Linker link=first; link!=null; link=link.next) {
-            ((BoxListener)link.listener).actionPerformed(event);
+            ((IListener)link.listener).actionPerformed(event);
         }
     }
 
     private static final long serialVersionUID = 1L;
-    protected Class getListenerClass() {return BoxListener.class;}
+//    protected Class getListenerClass() {return BoxListener.class;}
 }

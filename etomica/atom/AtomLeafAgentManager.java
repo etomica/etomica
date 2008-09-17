@@ -7,14 +7,14 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;
 import etomica.box.BoxAtomLeafIndexChangedEvent;
 import etomica.box.BoxAtomRemovedEvent;
-import etomica.box.BoxEvent;
 import etomica.box.BoxGlobalAtomLeafIndexEvent;
-import etomica.box.BoxListener;
 import etomica.util.Arrays;
 
 /**
@@ -26,7 +26,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager implements BoxListener, Serializable {
+public class AtomLeafAgentManager implements IListener, Serializable {
 
     public AtomLeafAgentManager(AgentSource source, IBox box) {
         this(source, box, true);
@@ -136,7 +136,7 @@ public class AtomLeafAgentManager implements BoxListener, Serializable {
         }
     }
     
-    public void actionPerformed(BoxEvent evt) {
+    public void actionPerformed(IEvent evt) {
         if (evt instanceof BoxAtomEvent) {
             IAtom a = ((BoxAtomEvent)evt).getAtom();
             if (evt instanceof BoxAtomAddedEvent) {
