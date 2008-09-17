@@ -23,9 +23,6 @@ public abstract class EventManager implements IEventManager, java.io.Serializabl
 	 * @see etomica.util.IEventManager#addListener(java.lang.Object, boolean)
 	 */
     public synchronized void addListener(IListener listener, boolean doSerialize) {
-//        if (listener.getClass().isInstance(getListenerClass())) {
-//            throw new IllegalArgumentException("must add listeners of class "+getListenerClass());
-//        }
         //add listener to beginning of list 
         //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
         first = new EventManager.Linker(listener, first, doSerialize);
@@ -45,8 +42,6 @@ public abstract class EventManager implements IEventManager, java.io.Serializabl
             previous = link;
         }
     }
-    
-//    protected abstract Class getListenerClass();
 
     protected transient EventManager.Linker first;
     

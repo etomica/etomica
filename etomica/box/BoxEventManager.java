@@ -20,5 +20,5 @@ public class BoxEventManager extends EventManager {
     }
 
     private static final long serialVersionUID = 1L;
-//    protected Class getListenerClass() {return BoxListener.class;}
+
 }

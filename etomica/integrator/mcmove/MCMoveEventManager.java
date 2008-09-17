@@ -16,5 +16,4 @@ public class MCMoveEventManager extends EventManager {
         }
     }
 
-//    protected Class getListenerClass() {return MCMoveListener.class;}
 }

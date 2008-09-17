@@ -315,10 +315,6 @@ public class DeviceTernarySelector extends Device {
             triangle = newTriangle;
         }
 
-//        protected Class getListenerClass () {
-//            return Listener.class;
-//        }
-        
         private Triangle triangle;
     }
     

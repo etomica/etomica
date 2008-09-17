@@ -19,5 +19,4 @@ public class SimulationEventManager extends EventManager {
         }
     }
 
-//    protected Class getListenerClass() {return SimulationListener.class;}
 }

@@ -19,5 +19,4 @@ public class ControllerEventManager extends EventManager {
         }
     }
 
-//    protected Class getListenerClass() {return ControllerListener.class;}
 }
