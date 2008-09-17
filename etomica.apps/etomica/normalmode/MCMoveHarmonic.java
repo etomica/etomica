@@ -115,7 +115,7 @@ public class MCMoveHarmonic extends MCMoveBox {
             }
             //loop over wavevectors and sum contribution of each to the generalized coordinates
             for (int iVector=0; iVector<waveVectors.length; iVector++) {
-                double kR = waveVectors[iVector].dot(cell.cellPosition);//getLatticePositions()[atomCount]);
+                double kR = waveVectors[iVector].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 
