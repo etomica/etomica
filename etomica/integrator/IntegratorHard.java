@@ -2,19 +2,18 @@ package etomica.integrator;
 
 import java.io.Serializable;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -24,7 +23,6 @@ import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.BoxEvent;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.list.BoxEventNeighborsUpdated;
 import etomica.potential.PotentialCalculation;
@@ -423,7 +421,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         }
     }
 
-    public void actionPerformed(BoxEvent boxEvent) {
+    public void actionPerformed(IEvent boxEvent) {
         super.actionPerformed(boxEvent);
         if (boxEvent instanceof BoxEventNeighborsUpdated) {
             resetCollisionTimes();
