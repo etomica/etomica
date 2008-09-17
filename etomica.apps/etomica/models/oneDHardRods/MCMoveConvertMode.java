@@ -34,12 +34,10 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     private double[] gaussian;
     protected double temperature;
     private double[][] stdDev;
-    protected double[] rRand;
-    protected double[] iRand;
+    private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     private double wvc;
-    private double[] realT, imagT;
-    
+    private long count;
 
 
     public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -49,6 +47,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         iterator = new AtomIteratorAllMolecules();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
+        count = 0;
     }
 
 
@@ -58,6 +57,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
         iRand = new double[coordinateDim];
+        realT = new double[coordinateDim];
+        imagT = new double[coordinateDim];
         
         //nan These lines make it a single atom-per-molecule class, and
         // assumes that the first cell is the same as every other cell.
@@ -82,6 +83,10 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             if (wvc == 0.5) imaginaryGauss = 0;
 //            lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
         }
+        
+        //Get normal mode coordinate information
+        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
+        
         //calculate the new positions of the atoms.
         //loop over cells
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -90,16 +95,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             BasisCell cell = cells[iCell];
             
-//            //Calculate the positions of the atoms without the converted wave 
-//            // vector, and zero out the delta.
-//            for(int j = 0; j < coordinateDim; j++){
-//                deltaU[j] = 0;
-//                for(int i = 0; i < coordinateDim; i++){
-//                    uNow[j] -= wvc*eigenVectors[convertedWV][i][j];
-//                    
-//                    
-//                }
-//            }
             
             // Calculate the change in position due to the substitution of a 
             //  Gaussian.
@@ -107,9 +102,22 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
+                //Calculate the current coordinate:
+                double realCoord = 0, imaginaryCoord = 0;
+                double[] coordToChange = new double[coordinateDim];
+                
+                for (int j=0; j<coordinateDim; j++) {
+                    realCoord += eigenVectors[convertedWV][i][j] * realT[j];
+                    imaginaryCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+                    coordToChange[j] = 0.0;
+                }
                 for(int j = 0; j < coordinateDim; j++){
+                    coordToChange[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                        (realCoord*coskR - imaginaryCoord*sinkR);
+                    //nan does the above need to be realCoore[j]?
                     deltaU[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
                         (rRand[i]*coskR - iRand[i]*sinkR);
+                    deltaU[j] -= coordToChange[j];
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);
@@ -137,7 +145,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept");
+//        System.out.println("accept");
+    	count++;
     }
 
     public double energyChange() {
@@ -145,7 +154,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject");
+//        System.out.println("reject");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
