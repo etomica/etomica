@@ -37,7 +37,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     private double wvc;
-    private long count;
+    public long count;
     double[] uNow;
 
     public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -52,23 +52,109 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
 
 
     public boolean doTrial() {
-        energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
-        
-        //FIRST WE REMOVE A NORMAL MODE, AND SUBSTITUTE A GAUSSIAN FOR IT.
         rRand = new double[coordinateDim];
         iRand = new double[coordinateDim];
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
-
         
-        //nan These lines make it a single atom-per-molecule class, and
-        // assumes that the first cell is the same as every other cell.
-//        BasisCell cell = cells[0];
-        double sqrtCells = Math.sqrt(cells.length);
+        //nan These lines make it a single atom-per-molecule class.
+        BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         
+        //Get normal mode coordinate information
+        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
+        
+//ZERO OUT A NORMAL MODE, AND MEASURE energyOld
+        for(int iCell = 0; iCell < cells.length; iCell++){
+            //store old positions.
+            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            cell = cells[iCell];
+            
+            //Calculate the contributions to the current position of the zeroed
+            //mode, and subtract it from the overall position
+            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+            for(int i = 0; i < coordinateDim; i++){
+                //Calculate the current coordinate:
+                double realCoord = 0, imagCoord = 0;
+                double[] coordToChange = new double[coordinateDim];
+                
+                for (int j=0; j<coordinateDim; j++) {
+                    realCoord += eigenVectors[convertedWV][i][j] * realT[j];
+                    System.out.println("realcoord " + realCoord);
+                    imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+                    System.out.println("imagcoord " + imagCoord);
+                    coordToChange[j] = 0.0;
+                }
+                for(int j = 0; j < coordinateDim; j++){
+//                    coordToChange[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+//                        (realCoord*coskR - imagCoord*sinkR);
+//                    deltaU[j] = -coordToChange[j];
+                    
+                    deltaU[j] = -wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                         (realCoord*coskR - imagCoord*sinkR);
+                    System.out.println(deltaU[j]);
+                }
+            }
+            
+            for(int i = 0; i < coordinateDim; i++) {
+                uNow[i] += deltaU[i];
+                System.out.println("i: " + i + " "+uNow[i]);
+            }
+            coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+            
+        }
+        energyOld = energyMeter.getDataAsScalar();
+        System.out.println("NRGOLD: "+ energyOld);
+
+//MOVE A RANDOM GAUSSIAN MODE, AND MEASURE energyNew
+        if(convertedWV != 1) {
+            //Select the wave vector whose eigenvectors will be changed.
+            //The zero wavevector is center of mass motion, and is rejected as a 
+            //possibility, as is the converted wavevector.
+            changedWV = random.nextInt(convertedWV-2);
+            changedWV +=1;
+            
+            //calculate the new positions of the atoms.
+            //loop over cells
+            double delta1 = (2*random.nextDouble()-1) * stepSize;
+            double delta2 = (2*random.nextDouble()-1) * stepSize;
+            delta1 = 0.25; delta2 = 0.5;
+            for(int iCell = 0; iCell < cells.length; iCell++){
+                cell = cells[iCell];
+                
+                //loop over the wavevectors, and sum contribution of each to the
+                //generalized coordinates.  Change the selected wavevectors eigen
+                //-vectors at the same time!
+                double kR = waveVectors[changedWV].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for(int i = 0; i < coordinateDim; i++){
+                    for(int j = 0; j < coordinateDim; j++){
+                         deltaU[j] += eigenVectors[changedWV][i][j]*2.0*
+                             (delta1*coskR - delta2*sinkR);
+                    }
+                }
+                double normalization = 1/Math.sqrt(cells.length);
+                for(int i = 0; i < coordinateDim; i++){
+                    deltaU[i] *= normalization;
+                }
+                
+                for(int i = 0; i < coordinateDim; i++) {
+                     uNow[i] += deltaU[i];
+                }
+                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+                
+            }
+        }
+        energyNew = energyMeter.getDataAsScalar();
+
+        
+//MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
         //set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
         for (int j=0; j<coordinateDim; j++) {
@@ -84,20 +170,12 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             // it's hard to know which.  So long as we don't put an atom at the origin
             // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
             if (wvc == 0.5) imaginaryGauss = 0;
-//            lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
         }
         
-        //Get normal mode coordinate information
-        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
-        
+
         //calculate the new positions of the atoms.
-        //loop over cells
         for(int iCell = 0; iCell < cells.length; iCell++){
-            //store old positions.
-            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            BasisCell cell = cells[iCell];
-            
+            cell = cells[iCell];
             
             // Calculate the change in position due to the substitution of a 
             //  Gaussian.
@@ -117,7 +195,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
                 for(int j = 0; j < coordinateDim; j++){
                     coordToChange[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
                         (realCoord*coskR - imaginaryCoord*sinkR);
-                    //nan does the above need to be realCoore[j]?
                     deltaU[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
                         (rRand[i]*coskR - iRand[i]*sinkR);
                     deltaU[j] -= coordToChange[j];
@@ -135,53 +212,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
         }
         
-        //SECOND WE EXPLORE THE REMAINING SYSTEM.
-        
-//      Select the wave vector whose eigenvectors will be changed.
-        //The zero wavevector is center of mass motion, and is rejected as a 
-        //possibility, as is the converted wavevector.
-        changedWV = random.nextInt(convertedWV-2);
-        changedWV +=1;
-        
-        //calculate the new positions of the atoms.
-        //loop over cells
-        double delta1 = (2*random.nextDouble()-1) * stepSize;
-        double delta2 = (2*random.nextDouble()-1) * stepSize;
-        for(int iCell = 0; iCell < cells.length; iCell++){
-            BasisCell cell = cells[iCell];
-            
-            
-            //loop over the wavevectors, and sum contribution of each to the
-            //generalized coordinates.  Change the selected wavevectors eigen-vectors at the same time!
-            double kR = waveVectors[changedWV].dot(cell.cellPosition);
-            double coskR = Math.cos(kR);
-            double sinkR = Math.sin(kR);
-            for(int i = 0; i < coordinateDim; i++){
-                for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
-                }
-            }
-            double normalization = 1/Math.sqrt(cells.length);
-            for(int i = 0; i < coordinateDim; i++){
-                deltaU[i] *= normalization;
-            }
-            
-            for(int i = 0; i < coordinateDim; i++) {
-                uNow[i] += deltaU[i];
-            }
-            coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-            
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        energyNew = energyMeter.getDataAsScalar();
         return true;
     }
     
@@ -194,8 +224,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("accept");
-    	count++;
+        System.out.println("accept"+ count++);
     }
 
     public double energyChange() {
@@ -203,7 +232,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject");
+        System.out.println("reject");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
@@ -218,12 +247,10 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         energyMeter.setBox(newBox);
     }
 
-    public AtomIterator affectedAtoms() {
-        return iterator;
-    }
+    public AtomIterator affectedAtoms() {return iterator;}
     
-    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
-        coordinateDefinition = newCoordinateDefinition;
+    public void setCoordinateDefinition(CoordinateDefinition newCD) {
+        coordinateDefinition = newCD;
         deltaU = new double[coordinateDefinition.getCoordinateDim()];
         uOld = null;
         realT = new double[coordinateDefinition.getCoordinateDim()];
@@ -268,6 +295,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         return gaussian;
     }
     public void setConvertedWaveVector(int wv){
+        if(wv == 1) {System.out.println("System is now entirely Gaussian!");};
         convertedWV = wv;
         wvc = waveVectorCoefficients[wv];
         coordinateDefinition.calcT(waveVectors[wv], realT, imagT);

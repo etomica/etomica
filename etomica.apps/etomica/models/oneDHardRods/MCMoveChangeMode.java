@@ -89,8 +89,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         
         //nan These lines make it a single atom-per-molecule class, and
         // assume that the first cell is the same as every other cell.
-//        BasisCell cell = cells[0];
-        double sqrtCells = Math.sqrt(cells.length);
+        BasisCell cell = cells[0];
 //        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
@@ -108,7 +107,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
             //store old positions.
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            BasisCell cell = cells[iCell];
+            cell = cells[iCell];
             for(int i = 0; i< coordinateDim; i++){
                   deltaU[i] = 0;
             }
