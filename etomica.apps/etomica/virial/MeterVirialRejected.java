@@ -132,6 +132,11 @@ public class MeterVirialRejected implements DataSource, IListener, java.io.Seria
         x[0] = (oldValues[0]+trialValues[0]) / (oldPi+trialPi);
         double value1 = clusters[1].value(box);
         for (int i=0; i<nBennetPoints; i++) {
+            if (trialPi == 0) {
+                // arithmetic below can fail due to 0/0
+                trialValues[i+1] = 0;
+                continue;
+            }
             trialValues[i+1] = trialPi * value1;
             if (isReference) {
                 trialValues[i+1] /= (value1 + alpha[i]*trialPi);
