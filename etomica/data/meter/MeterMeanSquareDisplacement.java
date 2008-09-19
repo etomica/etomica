@@ -36,10 +36,10 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         setIterator(iter);
         BeforePbc beforePbc = new BeforePbc(this);
         integrator.addIntervalAction(beforePbc);
-        integrator.setActionInterval(beforePbc, 50);
+        integrator.setIntervalActionPriority(beforePbc, 50);
         AfterPbc afterPbc = new AfterPbc(this);
         integrator.addIntervalAction(afterPbc);
-        integrator.setActionInterval(afterPbc, 200);
+        integrator.setIntervalActionPriority(afterPbc, 200);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -86,6 +86,10 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             sum += rAccum[i].squared();
         }
         return sum/nAtoms;
+    }
+    
+    public IVector [] getDataAsArray() {
+    	return rAccum;
     }
     
     private static class BeforePbc implements IAction, java.io.Serializable {
