@@ -18,9 +18,10 @@ public class CalcVibrationalModes{
     double [] frequencies;
     int[] modeSigns;
     Matrix fC;
+    double mass;
     EigenvalueDecomposition eigenDecomp;
     
-    public CalcVibrationalModes(double [][] aForceConstantArray){
+    public CalcVibrationalModes(double [][] aForceConstantArray, double Amass){
         
         modeSigns = new int[3];
 
@@ -29,6 +30,7 @@ public class CalcVibrationalModes{
         // Finds Eigenvalues of Matrix fC
         eigenDecomp = new EigenvalueDecomposition(fC);
         
+        this.mass = Amass;
         }
     
     /**
@@ -83,7 +85,7 @@ public class CalcVibrationalModes{
                 continue;
             }
             
-            frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI);
+            frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI) / Math.sqrt(mass) / 0.000000000001;
         }
         //System.out.println(eigenDecomp.getV().getArray()[1][2]);
         //eigenDecomp.getV().print(15, 6);

@@ -1,17 +1,16 @@
 package etomica.dimer;
 
-import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
+import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IVector;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.graphics.DisplayPlot;
+import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
+import etomica.atom.iterator.AtomIteratorFiltered;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -40,28 +39,39 @@ public class SimDimerMEAMGBCluster extends Simulation{
         //int y = Integer.parseInt(args[5]);
         //int z = Integer.parseInt(args[6]);
         
-        int num = Integer.parseInt(args[1]);
+        double num = Double.parseDouble(args[1]);
         
         final String APP_NAME = "SimDimerMEAMGBCluster";
         
-        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {2,1,0}, new int[] {2,6,12});
+        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {2,0,1}, new int[] {2,4,12});
         
-        sim.initializeConfiguration("sngb210-2612-md");
-        
+        sim.initializeConfiguration("sngb101-2412-md");
         
         IVector dimerCenter = sim.getSpace().makeVector();
         dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
         dimerCenter.setX(1, 1.0);
         dimerCenter.setX(2, 0.0);
-         
+        IVector cubeSize = sim.getSpace().makeVector();
+        cubeSize.setX(0, 6.0);
+        cubeSize.setX(1, 8.0);
+        cubeSize.setX(2, 8.0);
+        
         if(sim.millerPlane[2] == 0){
             dimerCenter.setX(1, sim.box.getBoundary().getDimensions().x(1)/2.0);
             dimerCenter.setX(0, 1.0);
             dimerCenter.setX(2, 0.0);
+            cubeSize.setX(0, 6.0);
+            cubeSize.setX(1, 8.0);
+            cubeSize.setX(2, 8.0);
         }
+
         
-        sim.setMovableAtoms(6.0, dimerCenter);
+        
+        //sim.setMovableAtomsSphere(6.0, dimerCenter);
+        sim.setMovableAtomsCube(cubeSize, dimerCenter);
         sim.setMovableAtomsList();
+        
+        sim.removeAtoms(num, dimerCenter);
         
         /*
         sim.initializeConfiguration(fileName+"_saddle");
@@ -72,18 +82,25 @@ public class SimDimerMEAMGBCluster extends Simulation{
         
         sim.initializeConfiguration(fileName+"_B_minimum");
         sim.calculateVibrationalModes(fileName+"_B_minimum");
-        */      
+        */
+        
         sim.initializeConfiguration(fileName+"_saddle");
         
         //sim.enableMolecularDynamics(10000);
         
         //sim.enableDimerSearch(fileName, 2500, false, false);
-        //sim.integratorDimer.setRotNum(num);
+        //sim.integratorDimer.setRotNum(1);
         
         sim.enableMinimumSearch(fileName, true);
         
+        //Limit MSD calculation to a specific species
+        AtomIteratorFiltered aif = AtomIteratorFiltered.makeIterator(new AtomIteratorLeafAtoms(sim.box), 
+        		new AtomFilterTypeInstance(sim.dimer.getChildType(0)));
+        MeterMeanSquareDisplacement msd = new MeterMeanSquareDisplacement(sim.getSpace(), sim.integratorDimerMin);
+        msd.setIterator((AtomIteratorBoxDependent)aif);
+        
         XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+"-B_minumum.xyz");
+        xyzwriter.setFileName(fileName+"_B_minimum.xyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimerMin.addIntervalAction(xyzwriter);
         sim.integratorDimerMin.setActionInterval(xyzwriter, 5);
@@ -100,6 +117,15 @@ public class SimDimerMEAMGBCluster extends Simulation{
         //energyMeter.setBox(sim.box);
          
         sim.getController().actionPerformed();
+        
+        IVector [] msdarray = msd.getDataAsArray();
+        aif.reset();
+        int i=0;
+        System.out.println("-----MSD Info-----");
+        for(IAtom a=aif.nextAtom(); a!=null; a=aif.nextAtom()){
+        	System.out.println(((IAtomLeaf)a).getLeafIndex()+"     "+msdarray[i].squared());
+        	i++;
+        }
 
     }
 

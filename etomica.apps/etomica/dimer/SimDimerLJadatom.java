@@ -252,7 +252,7 @@ public class SimDimerLJadatom extends Simulation{
 		        d[l] = 0;
 		    }
 		    
-		    calcVibrationalModes = new CalcVibrationalModes(dForces);
+		    calcVibrationalModes = new CalcVibrationalModes(dForces,movable.getLeafType().getElement().getMass());
 		    modeSigns = new int[3];
 		
 		    // calculate vibrational modes and frequencies
