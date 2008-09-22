@@ -6,13 +6,13 @@ import java.lang.reflect.Array;
 import etomica.api.IAtom;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IBoxAtomAddedEvent;
+import etomica.api.IBoxAtomEvent;
+import etomica.api.IBoxAtomRemovedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.box.BoxAtomAddedEvent;
-import etomica.box.BoxAtomEvent;
-import etomica.box.BoxAtomRemovedEvent;
 import etomica.box.BoxMoleculeIndexChangedEvent;
 import etomica.box.BoxNumMoleculesEvent;
 import etomica.simulation.SimulationEvent;
@@ -136,12 +136,12 @@ public class MoleculeAgentManager implements IListener, Serializable {
     }
     
     public void actionPerformed(IEvent evt) {
-        if (evt instanceof BoxAtomEvent) {
-            IAtom a = ((BoxAtomEvent)evt).getAtom();
-            if (evt instanceof BoxAtomAddedEvent && a instanceof IMolecule) {
+        if (evt instanceof IBoxAtomEvent) {
+            IAtom a = ((IBoxAtomEvent)evt).getAtom();
+            if (evt instanceof IBoxAtomAddedEvent && a instanceof IMolecule) {
                 addAgent((IMolecule)a);
             }
-            else if (evt instanceof BoxAtomRemovedEvent) {
+            else if (evt instanceof IBoxAtomRemovedEvent) {
                 if (a instanceof IMolecule) {
                     int index = ((IMolecule)a).getIndex();
                     int typeIndex = ((IMolecule)a).getType().getIndex();

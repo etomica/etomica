@@ -2,9 +2,9 @@ package etomica.space;
 
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IBoxEvent;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.box.BoxEvent;
 import etomica.box.BoxInflateEvent;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -119,5 +119,5 @@ public abstract class Boundary implements INearestImageTransformer, java.io.Seri
     protected final Polytope shape;
     protected final ISpace space;
     protected IBox box;
-    protected BoxEvent inflateEvent;
+    protected IBoxEvent inflateEvent;
 }

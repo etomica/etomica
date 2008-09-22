@@ -5,6 +5,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IPotentialMaster;
@@ -371,7 +372,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     }
     
     public void actionPerformed(IEvent event) {
-        if (event instanceof BoxAtomAddedEvent) {
+        if (event instanceof IBoxAtomAddedEvent) {
             IAtom atom = ((BoxAtomAddedEvent)event).getAtom();
             if (atom instanceof IAtomKinetic) {
                 randomizeMomentum((IAtomKinetic)atom);

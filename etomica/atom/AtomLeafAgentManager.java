@@ -7,13 +7,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IBoxAtomAddedEvent;
+import etomica.api.IBoxAtomEvent;
+import etomica.api.IBoxAtomRemovedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
-import etomica.box.BoxAtomAddedEvent;
-import etomica.box.BoxAtomEvent;
 import etomica.box.BoxAtomLeafIndexChangedEvent;
-import etomica.box.BoxAtomRemovedEvent;
 import etomica.box.BoxGlobalAtomLeafIndexEvent;
 import etomica.util.Arrays;
 
@@ -137,9 +137,9 @@ public class AtomLeafAgentManager implements IListener, Serializable {
     }
     
     public void actionPerformed(IEvent evt) {
-        if (evt instanceof BoxAtomEvent) {
-            IAtom a = ((BoxAtomEvent)evt).getAtom();
-            if (evt instanceof BoxAtomAddedEvent) {
+        if (evt instanceof IBoxAtomEvent) {
+            IAtom a = ((IBoxAtomEvent)evt).getAtom();
+            if (evt instanceof IBoxAtomAddedEvent) {
                 if (a instanceof IMolecule) {
                     // add all leaf atoms below this atom
                     IAtomSet childList = ((IMolecule)a).getChildList();
@@ -152,7 +152,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     addAgent((IAtomLeaf)a);
                 }
             }
-            else if (evt instanceof BoxAtomRemovedEvent) {
+            else if (evt instanceof IBoxAtomRemovedEvent) {
                 if (a instanceof IMolecule) {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
                     IAtomSet childList = ((IMolecule)a).getChildList();

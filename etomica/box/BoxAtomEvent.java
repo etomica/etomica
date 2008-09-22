@@ -2,17 +2,21 @@ package etomica.box;
 
 import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IBoxAtomEvent;
 
 /**
  * Event that conveys some happening with respect to an Atom in a Box.
  */
-public class BoxAtomEvent extends BoxEvent {
+public class BoxAtomEvent extends BoxEvent implements IBoxAtomEvent {
     
     public BoxAtomEvent(IBox box, IAtom atom) {
         super(box);
         this.atom = atom;
     }
 
+    /* (non-Javadoc)
+     * @see etomica.box.IBoxAtomEvent#getAtom()
+     */
     public IAtom getAtom() {
         return atom;
     }
