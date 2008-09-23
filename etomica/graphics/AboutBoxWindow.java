@@ -37,7 +37,7 @@ public class AboutBoxWindow extends JDialog {
     private String SUNY_TEXT = "University at Buffalo, The State University of New York";
     private String CE_TEXT = "Department of Chemical & Biological Engineering";
     private String NSF_TEXT = "Funding support provided by the National Science Foundation.";
-    private String WWW_TEXT = "http://www.ccr.buffalo.edu/etomica/";
+    private String WWW_TEXT = "http://www.etomica.org";
 
 	private int GRAPHIC_WIDTH    = 200;
 	private int GRAPHIC_HEIGHT   = 40;
