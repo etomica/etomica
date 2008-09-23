@@ -9,11 +9,11 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IBoxAtomEvent;
+import etomica.api.IBoxAtomLeafIndexChangedEvent;
 import etomica.api.IBoxAtomRemovedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
-import etomica.box.BoxAtomLeafIndexChangedEvent;
 import etomica.box.BoxGlobalAtomLeafIndexEvent;
 import etomica.util.Arrays;
 
@@ -175,9 +175,9 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     }
                 }
             }
-            else if (evt instanceof BoxAtomLeafIndexChangedEvent) {
+            else if (evt instanceof IBoxAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
-                int oldIndex = ((BoxAtomLeafIndexChangedEvent)evt).getOldIndex();
+                int oldIndex = ((IBoxAtomLeafIndexChangedEvent)evt).getOldIndex();
                 agents[box.getLeafIndex((IAtomLeaf)a)] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
