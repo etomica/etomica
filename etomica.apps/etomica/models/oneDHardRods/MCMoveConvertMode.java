@@ -12,8 +12,8 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
- * A Monte Carlo move which selects a wave vector, and an eigenvector allowed 
- * by that wave vector.
+ * A Monte Carlo move which converts one normal mode to a harmonic thingy and
+ * then explores the phase space defined by the remaining normal modes.
  * 
  * @author cribbin
  *
@@ -37,7 +37,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     private double wvc;
-    public long count;
     double[] uNow;
 
     public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -47,7 +46,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         iterator = new AtomIteratorAllMolecules();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
-        count = 0;
     }
 
 
@@ -66,12 +64,26 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         //Get normal mode coordinate information
         coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
         
+        System.out.println("Real");
+        for(int k = 0; k < coordinateDim; k++){
+        	System.out.println(realT[k]);
+        }
+        System.out.println("Imag");
+        for(int k = 0; k < coordinateDim; k++){
+        	System.out.println(imagT[k]);
+        }
+        
+        
 //ZERO OUT A NORMAL MODE, AND MEASURE energyOld
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             cell = cells[iCell];
+            for(int j = 0; j < coordinateDim; j++){
+                deltaU[j] = 0.0;
+            }
+            
             
             //Calculate the contributions to the current position of the zeroed
             //mode, and subtract it from the overall position
@@ -85,31 +97,26 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
                 
                 for (int j=0; j<coordinateDim; j++) {
                     realCoord += eigenVectors[convertedWV][i][j] * realT[j];
-                    System.out.println("realcoord " + realCoord);
+//                    System.out.println("realcoord " + realCoord);
                     imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
-                    System.out.println("imagcoord " + imagCoord);
+//                    System.out.println("imagcoord " + imagCoord);
                     coordToChange[j] = 0.0;
                 }
                 for(int j = 0; j < coordinateDim; j++){
-//                    coordToChange[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
-//                        (realCoord*coskR - imagCoord*sinkR);
-//                    deltaU[j] = -coordToChange[j];
-                    
-                    deltaU[j] = -wvc*eigenVectors[convertedWV][i][j] * 2.0 *
-                         (realCoord*coskR - imagCoord*sinkR);
-                    System.out.println(deltaU[j]);
+                    coordToChange[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                        (realCoord*coskR - imagCoord*sinkR);
+                    deltaU[j] = -coordToChange[j];
                 }
             }
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-                System.out.println("i: " + i + " "+uNow[i]);
+                System.out.println("unow " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
         }
         energyOld = energyMeter.getDataAsScalar();
-        System.out.println("NRGOLD: "+ energyOld);
 
 //MOVE A RANDOM GAUSSIAN MODE, AND MEASURE energyNew
         if(convertedWV != 1) {
@@ -224,7 +231,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept"+ count++);
+        System.out.println("accept");
     }
 
     public double energyChange() {
@@ -298,7 +305,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         if(wv == 1) {System.out.println("System is now entirely Gaussian!");};
         convertedWV = wv;
         wvc = waveVectorCoefficients[wv];
-        coordinateDefinition.calcT(waveVectors[wv], realT, imagT);
+//        coordinateDefinition.calcT(waveVectors[wv], realT, imagT);
     }
     public int getConvertedWaveVector(){
         return convertedWV;

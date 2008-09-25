@@ -107,7 +107,7 @@ public class TestMCMove extends Simulation {
         convert.setBox((IBox)box);
         convert.setStepSizeMin(0.001);
         convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(16);
+        convert.setConvertedWaveVector(3);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -221,7 +221,7 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 2;
+        public long numSteps = 1 ;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;

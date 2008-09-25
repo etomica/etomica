@@ -12,8 +12,8 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
- * A Monte Carlo move which selects a wave vector, and an eigenvector allowed 
- * by that wave vector.
+ * A Monte Carlo move which selects a wave vector, and changes the normal mode
+ * associated with that wave vector.
  * 
  * @author cribbin
  *
