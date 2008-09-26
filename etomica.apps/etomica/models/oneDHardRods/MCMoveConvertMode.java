@@ -57,6 +57,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         
+        System.out.println("convertedWV "+ waveVectors[convertedWV] + "  "+ convertedWV);
+        
         //nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
@@ -71,12 +73,12 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             //store old positions.
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            
             cell = cells[iCell];
             //rezero deltaU
             for(int j = 0; j < coordinateDim; j++){
                 deltaU[j] = 0.0;
             }
-            
             
             //Calculate the contributions to the current position of the zeroed
             //mode, and subtract it from the overall position
@@ -100,7 +102,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-                System.out.println("unow " + uNow[i]);
+                System.out.println("1-unow " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
@@ -146,6 +148,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                      uNow[i] += deltaU[i];
+                   System.out.println("2-unow " + uNow[i]);
+
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 
@@ -198,6 +202,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
+              System.out.println("3-unow " + uNow[i]);
+
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
