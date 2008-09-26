@@ -60,6 +60,13 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
         
         //get normal mode coordinate of "last" wavevector
         coordinateDefinition.calcT(wavevectors[convertedWV], realT, imagT);
+        double realCoord = 0.0, imagCoord = 0.0;
+        for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+            for(int j = 0; j < coordinateDim; j++){
+                realCoord += eigenvectors[convertedWV][i][j] * realT[j];
+                imagCoord += eigenvectors[convertedWV][i][j] * imagT[j];
+            }
+        }
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -76,11 +83,6 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 //Calculate the current coordinates
-                double realCoord =0.0, imagCoord = 0.0;
-                for(int j = 0; j < coordinateDim; j++){
-                    realCoord += eigenvectors[convertedWV][i][j] * realT[j];
-                    imagCoord += eigenvectors[convertedWV][i][j] * imagT[j];
-                }
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] -= wvc*eigenvectors[convertedWV][i][j] *
                         2.0 * (realCoord*coskR - imagCoord*sinkR);

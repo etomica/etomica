@@ -11,7 +11,8 @@ import etomica.units.Null;
 
 
 /**
- * 
+ * Uses brute force to calculate energy of a system with a set number of 
+ * normal modes, and the rest of the degrees of freedom taken by Gaussians.
  * Assumes 1D system - otherwise, choose a mode and eliminate i loops.
  * 
  * @author cribbin
