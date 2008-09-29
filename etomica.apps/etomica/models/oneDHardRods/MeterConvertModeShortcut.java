@@ -102,8 +102,7 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
                 continue;
             }
           double normalCoord = gaussian[0]*gaussian[0] + gaussian[1]*gaussian[1];
-            energyOP += wavevectorCoefficients[convertedWV] * normalCoord * 
-                omegaSquared[convertedWV][i];
+            energyOP += wvc * normalCoord * omegaSquared[convertedWV][i];
         }
         
         // Set all the atoms back to the old values of u

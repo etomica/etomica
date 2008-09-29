@@ -99,8 +99,7 @@ public class MeterConvertModeBrute extends DataSourceScalar {
                 continue;
             }
             double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
-            energyOP += wavevectorCoefficients[convertedWV] * normalCoord * 
-                omegaSquared[convertedWV][i];
+            energyOP += wvc * normalCoord * omegaSquared[convertedWV][i];
         }
         
         // Set all the atoms back to the old values of u
