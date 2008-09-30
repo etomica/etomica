@@ -22,11 +22,11 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
     
-    private double eigenvectors[][][];
-    private IVector[] wavevectors;
+    private double eigenVectors[][][];
+    private IVector[] waveVectors;
     int convertedWV;
     protected double temperature;
-    private double[] wavevectorCoefficients;
+    private double[] waveVectorCoefficients;
     private double wvc;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
@@ -59,12 +59,12 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
         energyOP = 0.0;
         
         //get normal mode coordinate of "last" wavevector
-        coordinateDefinition.calcT(wavevectors[convertedWV], realT, imagT);
+        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
         double realCoord = 0.0, imagCoord = 0.0;
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
             for(int j = 0; j < coordinateDim; j++){
-                realCoord += eigenvectors[convertedWV][i][j] * realT[j];
-                imagCoord += eigenvectors[convertedWV][i][j] * imagT[j];
+                realCoord += eigenVectors[convertedWV][i][j] * realT[j];
+                imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
             }
         }
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -78,13 +78,13 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
             
             //Calculate the contributions to the current position of the 
             //zeroed mode, and subtract it from the overall position.
-            double kR = wavevectors[convertedWV].dot(cell.cellPosition);
+            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 //Calculate the current coordinates
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenvectors[convertedWV][i][j] *
+                    deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] *
                         2.0 * (realCoord*coskR - imagCoord*sinkR);
                 }
             }
@@ -115,34 +115,29 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
     }
 
     
-    public void setEigenvectors(double[][][] eigenvectors) {
-        this.eigenvectors = eigenvectors;
+    public void setEigenVectors(double[][][] eigenVectors) {
+        this.eigenVectors = eigenVectors;
     }
-    public void setWavevectors(IVector[] wavevectors) {
-        this.wavevectors = wavevectors;
+    public void setWaveVectors(IVector[] waveVectors) {
+        this.waveVectors = waveVectors;
     }
     public void setConvertedWV(int convertedWV) {
         this.convertedWV = convertedWV;
-        wvc = wavevectorCoefficients[convertedWV];
+        wvc = waveVectorCoefficients[convertedWV];
     }
     public void setTemperature(double temperature) {
         this.temperature = temperature;
     }
-    public void setWavevectorCoefficients(double[] wavevectorCoefficients) {
-        this.wavevectorCoefficients = wavevectorCoefficients;
-    }
-    public void setWvc(double wvc) {
-        this.wvc = wvc;
+    public void setWaveVectorCoefficients(double[] waveVectorCoefficients) {
+        this.waveVectorCoefficients = waveVectorCoefficients;
     }
     public void setCoordinateDefinition(CoordinateDefinition cd){
         coordinateDefinition = cd;
         coordinateDim = coordinateDefinition.getCoordinateDim();
     }
-    
     public void setSpringConstants(double[][] sc){
         omegaSquared = sc;
     }
-    
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
     }
