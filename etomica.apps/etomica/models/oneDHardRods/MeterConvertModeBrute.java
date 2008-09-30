@@ -125,7 +125,7 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     public void setTemperature(double temperature) {
         this.temperature = temperature;
     }
-    public void setWavevectorCoefficients(double[] waveVectorCoefficients) {
+    public void setWaveVectorCoefficients(double[] waveVectorCoefficients) {
         this.waveVectorCoefficients = waveVectorCoefficients;
     }
     public void setCoordinateDefinition(CoordinateDefinition cd){
