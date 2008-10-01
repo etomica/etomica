@@ -248,6 +248,7 @@ public class TestA extends Simulation {
         sWriter.actionPerformed();
         
         System.out.println("overlap: " + sim.avgOverlap.getData().getValue(StatType.AVERAGE.index));
+        System.out.println("error: " + sim.avgOverlap.getData().getValue(StatType.ERROR.index));
         
         System.out.println("F:  " + sim.avgF.getData().getValue(StatType.AVERAGE.index));
         System.out.println("nm e-val " + sim.nm.getOmegaSquared(sim.box)[16][0]);

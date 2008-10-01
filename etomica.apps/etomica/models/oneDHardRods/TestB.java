@@ -237,7 +237,7 @@ public class TestB extends Simulation {
         
         
         System.out.println("overlap: " + sim.avgOverlap.getData().getValue(StatType.AVERAGE.index));
-        
+        System.out.println("error: " + sim.avgOverlap.getData().getValue(StatType.ERROR.index));
         System.out.println("Fini.");
     }
 
@@ -249,7 +249,7 @@ public class TestB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 10000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
