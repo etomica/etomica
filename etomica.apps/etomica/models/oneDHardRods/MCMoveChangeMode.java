@@ -30,6 +30,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
+    private double[] waveVectorCoefficients;
     int changedWV;
     
     public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -58,6 +59,9 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     public void setWaveVectors(IVector[] wv){
         waveVectors = new IVector[wv.length];
         waveVectors = wv;
+    }
+    public void setWaveVectorCoefficients(double[] coeff){
+        waveVectorCoefficients = coeff;
     }
     /**
      * Informs the move of the eigenvectors for the selected wave vector.  The
@@ -165,4 +169,5 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         }
     }
 
+    
 }

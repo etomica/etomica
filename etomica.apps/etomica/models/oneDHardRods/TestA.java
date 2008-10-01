@@ -10,7 +10,10 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -57,8 +60,9 @@ public class TestA extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MeterPotentialEnergy meterAinA;
-    MeterConvertModeBrute meterAinB;
+//    MeterPotentialEnergy meterAinA;
+//    MeterConvertModeBrute meterAinB;
+    AccumulatorAverageFixed avgAinA, avgBinA, avgF;
     
     private static final String APP_NAME = "TestA";
     
@@ -108,18 +112,15 @@ public class TestA extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        MCMoveConvertMode convert = new MCMoveConvertMode(potentialMaster, random);
-        integrator.getMoveManager().addMCMove(convert);
-        convert.setWaveVectors(waveVectorFactory.getWaveVectors());
-        convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        convert.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        convert.setEigenVectors(nm.getEigenvectors(box));
-        convert.setCoordinateDefinition(coordinateDefinition);
-        convert.setTemperature(temperature);
-        convert.setBox((IBox)box);
-        convert.setStepSizeMin(0.001);
-        convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(16);
+        MCMoveChangeMode change = new MCMoveChangeMode(potentialMaster, random);
+        integrator.getMoveManager().addMCMove(change);
+        change.setWaveVectors(waveVectorFactory.getWaveVectors());
+        change.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        change.setEigenVectors(nm.getEigenvectors(box));
+        change.setCoordinateDefinition(coordinateDefinition);
+        change.setBox((IBox)box);
+        change.setStepSizeMin(0.001);
+        change.setStepSize(0.01);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -131,18 +132,34 @@ public class TestA extends Simulation {
             locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
         }
         
-        meterAinA = new MeterPotentialEnergy(potentialMaster);
-//        DataPump pumpAinA = new DataPump();
-//        integrator.addIntervalAction(meterAinA);
+        MeterPotentialEnergy meterAinA = new MeterPotentialEnergy(potentialMaster);
+        meterAinA.setBox(box);
+        avgAinA = new AccumulatorAverageFixed();
+        DataPump pumpAinA = new DataPump(meterAinA, avgAinA);
+        integrator.addIntervalAction(pumpAinA);
+        integrator.setActionInterval(pumpAinA, 100);
         
-        meterAinB = new MeterConvertModeBrute(potentialMaster);
-        meterAinB.setConvertedWV(16);
-        meterAinB.setCoordinateDefinition(coordinateDefinition);
-        meterAinB.setEigenVectors(nm.getEigenvectors(box));
-        meterAinB.setOmegaSquared(nm.getOmegaSquared(box));
-        meterAinB.setTemperature(temperature);
-        meterAinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        meterAinB.setWaveVectors(waveVectorFactory.getWaveVectors());
+        MeterConvertModeBrute meterBinA = new MeterConvertModeBrute(potentialMaster, coordinateDefinition, box);
+        meterBinA.setEigenVectors(nm.getEigenvectors(box));
+        meterBinA.setOmegaSquared(nm.getOmegaSquared(box));
+        meterBinA.setTemperature(temperature);
+        meterBinA.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        meterBinA.setWaveVectors(waveVectorFactory.getWaveVectors());
+        meterBinA.setConvertedWV(16);
+
+        avgBinA = new AccumulatorAverageFixed();
+        DataPump pumpBinA = new DataPump(meterBinA, avgBinA);
+        integrator.addIntervalAction(pumpBinA);
+        integrator.setActionInterval(pumpBinA, 100);
+        
+        MeterF meterF = new MeterF(coordinateDefinition);
+        AccumulatorAverageFixed avgF = new AccumulatorAverageFixed();
+        DataPump pumpF = new DataPump(meterF, avgF);
+        integrator.addIntervalAction(pumpF);
+        integrator.setActionInterval(pumpF, 100);
+        
+        
+        
     }
     
     /**
@@ -227,6 +244,10 @@ public class TestA extends Simulation {
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
         
+        System.out.println("AinA:  " + sim.avgAinA.getData().getValue(StatType.AVERAGE.index));
+        System.out.println("BinA:  " + sim.avgBinA.getData().getValue(StatType.AVERAGE.index));
+        
+        
         System.out.println("Fini.");
     }
 
@@ -238,7 +259,7 @@ public class TestA extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000;
+        public long numSteps = 100000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;

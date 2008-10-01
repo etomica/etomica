@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
@@ -39,12 +40,15 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     
     
-    public MeterConvertModeBrute(IPotentialMaster potentialMaster){
+    public MeterConvertModeBrute(IPotentialMaster potentialMaster, 
+            CoordinateDefinition cd, IBox box){
         super("meterConvertMode", Null.DIMENSION);
+        setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setBox(box);
         
     }    
     
@@ -52,10 +56,11 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
+        double normalization = 1/Math.sqrt(cells.length);
         energyNM = 0.0;
         energyOP = 0.0;
         
-        //get normal mode coordinate of "last" wavevector
+        //get normal mode coordinate of "last" waveVector
         coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
         double realCoord = 0.0, imagCoord = 0.0;
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
@@ -64,6 +69,7 @@ public class MeterConvertModeBrute extends DataSourceScalar {
                 imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
             }
         }
+        
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -84,6 +90,10 @@ public class MeterConvertModeBrute extends DataSourceScalar {
                     deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] *
                         2.0 * (realCoord*coskR - imagCoord*sinkR);
                 }
+            }
+
+            for(int i = 0; i < coordinateDim; i++){
+                deltaU[i] *= normalization;
             }
             
             for(int i = 0; i < coordinateDim; i++) {

@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -26,7 +27,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
-    protected double energyOld, energyNew /*, latticeEnergy*/;
+    protected double energyOld, energyNew, energyEvenLater; /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
@@ -38,7 +39,11 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     private double[] waveVectorCoefficients;
     private double wvc;
     double[] uNow;
-
+    
+    
+    
+    int count;
+    
     public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
@@ -46,6 +51,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         iterator = new AtomIteratorAllMolecules();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
+        count = 0;
     }
 
 
@@ -122,7 +128,12 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
         }
         energyOld = energyMeter.getDataAsScalar();
-        
+        if(energyOld != 0.0){
+            for(int k = 0; k < 32; k++){
+                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
+            }
+            throw new IllegalStateException("This is not legal in New York!");
+        }
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
@@ -168,8 +179,11 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             }
         }
         energyNew = energyMeter.getDataAsScalar();
+//        System.out.println("youNou " + energyNew);
 
-
+//        for(int k = 0; k < 32; k++){
+//            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
+//        }
         
         
         
@@ -186,18 +200,16 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
 //            realGauss = 0.6;  //nork
 //            imagGauss = 0.3;  //nork
             
-            rRand[j] = realGauss * stdDev[convertedWV][j];
-            iRand[j] = imagGauss * stdDev[convertedWV][j];
-//            System.out.println("rrand " + rRand[j]);
-//            System.out.println("irand " + iRand[j]);
-            gaussian[0] = realGauss;
-            gaussian[1] = imagGauss;
             //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
             // it's hard to know which.  So long as we don't put an atom at the origin
             // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
             if (wvc == 0.5) imagGauss = 0;
+            rRand[j] = realGauss * stdDev[convertedWV][j];
+            iRand[j] = imagGauss * stdDev[convertedWV][j];
+            gaussian[0] = realGauss;
+            gaussian[1] = imagGauss;
+            
         }
-        
 
         //calculate the new positions of the atoms.
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -229,6 +241,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }
         
+        energyEvenLater = energyMeter.getDataAsScalar();
+        
         return true;
     }
     
@@ -241,7 +255,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept");
+//        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
+        count ++;
     }
 
     public double energyChange() {
@@ -249,7 +264,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject");
+//        System.out.println("reject " + energyNew);
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

@@ -10,6 +10,9 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -47,8 +50,9 @@ public class TestB extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MeterPotentialEnergy meterBinB;
-    MeterConvertModeBrute meterBinA;
+//    MeterPotentialEnergy meterBinB;
+//    MeterConvertModeBrute meterAinB;
+    AccumulatorAverageFixed avgBinB, avgAinB;
     
     private static final String APP_NAME = "TestB";
     
@@ -121,8 +125,25 @@ public class TestB extends Simulation {
             locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
         }
         
-        
-        
+        MeterPotentialEnergy meterAinB = new MeterPotentialEnergy(potentialMaster);
+        meterAinB.setBox(box);
+        avgAinB = new AccumulatorAverageFixed();
+        DataPump pumpAinB = new DataPump(meterAinB, avgAinB);
+        integrator.addIntervalAction(pumpAinB);
+        integrator.setActionInterval(pumpAinB, 100);
+      
+        MeterConvertModeBrute meterBinB = new MeterConvertModeBrute(potentialMaster,coordinateDefinition,box);
+        meterBinB.setCoordinateDefinition(coordinateDefinition);
+        meterBinB.setEigenVectors(nm.getEigenvectors(box));
+        meterBinB.setOmegaSquared(nm.getOmegaSquared(box));
+        meterBinB.setTemperature(temperature);
+        meterBinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        meterBinB.setWaveVectors(waveVectorFactory.getWaveVectors());
+        meterBinB.setConvertedWV(16);
+        avgBinB= new AccumulatorAverageFixed();
+        DataPump pumpBinB = new DataPump(meterBinB, avgBinB);
+        integrator.addIntervalAction(pumpBinB);
+        integrator.setActionInterval(pumpBinB, 100);
     }
     
     /**
@@ -211,6 +232,9 @@ public class TestB extends Simulation {
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
         
+        System.out.println("AinB:  " + sim.avgAinB.getData().getValue(StatType.AVERAGE.index));
+        System.out.println("BinB:  " + sim.avgBinB.getData().getValue(StatType.AVERAGE.index));
+        
         System.out.println("Fini.");
     }
 
@@ -222,7 +246,7 @@ public class TestB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000;
+        public long numSteps = 100000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
