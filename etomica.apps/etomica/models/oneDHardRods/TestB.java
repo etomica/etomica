@@ -50,14 +50,14 @@ public class TestB extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-//    MeterPotentialEnergy meterBinB;
-//    MeterConvertModeBrute meterAinB;
+    int affectedWV;
     AccumulatorAverageFixed avgBinB, avgAinB;
     
     private static final String APP_NAME = "TestB";
     
 
-    public TestB(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge){
+    public TestB(Space _space, int numAtoms, double density, double temperature,
+            String filename, double harmonicFudge, int awv){
         super(_space, true);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -102,6 +102,8 @@ public class TestB extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
+        affectedWV = awv;
+        
         MCMoveConvertMode convert = new MCMoveConvertMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -113,7 +115,7 @@ public class TestB extends Simulation {
         convert.setBox((IBox)box);
         convert.setStepSizeMin(0.001);
         convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(16);
+        convert.setConvertedWaveVector(affectedWV);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -139,7 +141,7 @@ public class TestB extends Simulation {
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactory.getWaveVectors());
-        meterBinB.setConvertedWV(16);
+        meterBinB.setConvertedWV(affectedWV);
         avgBinB= new AccumulatorAverageFixed();
         DataPump pumpBinB = new DataPump(meterBinB, avgBinB);
         integrator.addIntervalAction(pumpBinB);
@@ -184,10 +186,12 @@ public class TestB extends Simulation {
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println((numSteps/1000)+ " total steps of 1000");
         System.out.println("output data to "+filename);
+        System.out.println("affected wave vector = " + params.aWV);
         
         
         //instantiate simulation
-        TestB sim = new TestB(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestB sim = new TestB(Space.getInstance(D), numAtoms, density, 
+                temperature, filename, harmonicFudge, params.aWV);
         sim.activityIntegrate.setMaxSteps(numSteps);
         
         MeterNormalMode mnm = new MeterNormalMode();
@@ -250,5 +254,6 @@ public class TestB extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
+        public int aWV = 16;
     }
 }

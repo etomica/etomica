@@ -60,14 +60,13 @@ public class TestA extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-//    MeterPotentialEnergy meterAinA;
-//    MeterConvertModeBrute meterAinB;
-    AccumulatorAverageFixed avgAinA, avgBinA, avgF;
+    int affectedWV;
+    AccumulatorAverageFixed avgOverlap, avgF;
     
     private static final String APP_NAME = "TestA";
     
 
-    public TestA(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge){
+    public TestA(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -112,6 +111,8 @@ public class TestA extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
+        affectedWV = awv;
+        
         MCMoveChangeMode change = new MCMoveChangeMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(change);
         change.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -134,10 +135,6 @@ public class TestA extends Simulation {
         
         MeterPotentialEnergy meterAinA = new MeterPotentialEnergy(potentialMaster);
         meterAinA.setBox(box);
-        avgAinA = new AccumulatorAverageFixed();
-        DataPump pumpAinA = new DataPump(meterAinA, avgAinA);
-        integrator.addIntervalAction(pumpAinA);
-        integrator.setActionInterval(pumpAinA, 100);
         
         MeterConvertModeBrute meterBinA = new MeterConvertModeBrute(potentialMaster, coordinateDefinition, box);
         meterBinA.setEigenVectors(nm.getEigenvectors(box));
@@ -145,15 +142,20 @@ public class TestA extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactory.getWaveVectors());
-        meterBinA.setConvertedWV(16);
+        meterBinA.setConvertedWV(affectedWV);
 
-        avgBinA = new AccumulatorAverageFixed();
-        DataPump pumpBinA = new DataPump(meterBinA, avgBinA);
-        integrator.addIntervalAction(pumpBinA);
-        integrator.setActionInterval(pumpBinA, 100);
+        MeterOverlapTestA meterOA = new MeterOverlapTestA(meterAinA, meterBinA, temperature);
+        avgOverlap = new AccumulatorAverageFixed();
+        DataPump pumpOverlap = new DataPump(meterOA, avgOverlap);
+        integrator.addIntervalAction(pumpOverlap);
+        integrator.setActionInterval(pumpOverlap, 100);
         
         MeterF meterF = new MeterF(coordinateDefinition);
-        AccumulatorAverageFixed avgF = new AccumulatorAverageFixed();
+        meterF.setEigenVectors(nm.getEigenvectors(box));
+        meterF.setWaveVectors(waveVectorFactory.getWaveVectors());
+        meterF.setConvertedWV(affectedWV);
+        
+        avgF = new AccumulatorAverageFixed();
         DataPump pumpF = new DataPump(meterF, avgF);
         integrator.addIntervalAction(pumpF);
         integrator.setActionInterval(pumpF, 100);
@@ -200,10 +202,11 @@ public class TestA extends Simulation {
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println((numSteps/1000)+ " total steps of 1000");
         System.out.println("output data to "+filename);
+        System.out.println("affected wave vector = " + params.aWV);
         
         
         //instantiate simulation
-        TestA sim = new TestA(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestA sim = new TestA(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge, params.aWV);
         sim.activityIntegrate.setMaxSteps(numSteps);
         
         MeterNormalMode mnm = new MeterNormalMode();
@@ -244,9 +247,10 @@ public class TestA extends Simulation {
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
         
-        System.out.println("AinA:  " + sim.avgAinA.getData().getValue(StatType.AVERAGE.index));
-        System.out.println("BinA:  " + sim.avgBinA.getData().getValue(StatType.AVERAGE.index));
+        System.out.println("overlap: " + sim.avgOverlap.getData().getValue(StatType.AVERAGE.index));
         
+        System.out.println("F:  " + sim.avgF.getData().getValue(StatType.AVERAGE.index));
+        System.out.println("nm e-val " + sim.nm.getOmegaSquared(sim.box)[16][0]);
         
         System.out.println("Fini.");
     }
@@ -263,5 +267,6 @@ public class TestA extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
+        public int aWV = 16;
     }
 }
