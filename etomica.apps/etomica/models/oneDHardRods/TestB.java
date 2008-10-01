@@ -51,7 +51,7 @@ public class TestB extends Simulation {
     NormalModes1DHR nm;
     double[] locations;
     int affectedWV;
-    AccumulatorAverageFixed avgBinB, avgAinB;
+    AccumulatorAverageFixed avgOverlap;
     
     private static final String APP_NAME = "TestB";
     
@@ -129,11 +129,7 @@ public class TestB extends Simulation {
         
         MeterPotentialEnergy meterAinB = new MeterPotentialEnergy(potentialMaster);
         meterAinB.setBox(box);
-        avgAinB = new AccumulatorAverageFixed();
-        DataPump pumpAinB = new DataPump(meterAinB, avgAinB);
-        integrator.addIntervalAction(pumpAinB);
-        integrator.setActionInterval(pumpAinB, 100);
-      
+       
         MeterConvertModeBrute meterBinB = new MeterConvertModeBrute(potentialMaster,coordinateDefinition,box);
         meterBinB.setCoordinateDefinition(coordinateDefinition);
         meterBinB.setEigenVectors(nm.getEigenvectors(box));
@@ -142,10 +138,12 @@ public class TestB extends Simulation {
         meterBinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactory.getWaveVectors());
         meterBinB.setConvertedWV(affectedWV);
-        avgBinB= new AccumulatorAverageFixed();
-        DataPump pumpBinB = new DataPump(meterBinB, avgBinB);
-        integrator.addIntervalAction(pumpBinB);
-        integrator.setActionInterval(pumpBinB, 100);
+        
+        MeterOverlapTestB meterOverlapB = new MeterOverlapTestB(meterAinB, meterBinB, temperature);
+        avgOverlap = new AccumulatorAverageFixed();
+        DataPump pumpOverlap = new DataPump(meterOverlapB, avgOverlap);
+        integrator.addIntervalAction(pumpOverlap);
+        integrator.setActionInterval(pumpOverlap, 100);
     }
     
     /**
@@ -236,8 +234,9 @@ public class TestB extends Simulation {
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
         
-        System.out.println("AinB:  " + sim.avgAinB.getData().getValue(StatType.AVERAGE.index));
-        System.out.println("BinB:  " + sim.avgBinB.getData().getValue(StatType.AVERAGE.index));
+        
+        
+        System.out.println("overlap: " + sim.avgOverlap.getData().getValue(StatType.AVERAGE.index));
         
         System.out.println("Fini.");
     }
@@ -250,7 +249,7 @@ public class TestB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 100000;
+        public long numSteps = 10000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
