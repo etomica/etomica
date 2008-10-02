@@ -43,9 +43,9 @@ public class SimDimerMEAMGBCluster extends Simulation{
         
         final String APP_NAME = "SimDimerMEAMGBCluster";
         
-        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {2,0,1}, new int[] {2,4,12});
+        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {2,1,0}, new int[] {2,6,12});
         
-        sim.initializeConfiguration("sngb101-2412-md");
+        sim.initializeConfiguration("sngb210-2612-md");
         
         IVector dimerCenter = sim.getSpace().makeVector();
         dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
@@ -67,11 +67,11 @@ public class SimDimerMEAMGBCluster extends Simulation{
 
         
         
-        //sim.setMovableAtomsSphere(6.0, dimerCenter);
-        sim.setMovableAtomsCube(cubeSize, dimerCenter);
-        sim.setMovableAtomsList();
+        sim.setMovableAtomsSphere(6.0, dimerCenter);
+        //sim.setMovableAtomsCube(cubeSize, dimerCenter);
+        //sim.setMovableAtomsList();
         
-        sim.removeAtoms(num, dimerCenter);
+        //sim.removeAtoms(num, dimerCenter);
         
         /*
         sim.initializeConfiguration(fileName+"_saddle");
@@ -84,12 +84,13 @@ public class SimDimerMEAMGBCluster extends Simulation{
         sim.calculateVibrationalModes(fileName+"_B_minimum");
         */
         
-        sim.initializeConfiguration(fileName+"_saddle");
+        //sim.initializeConfiguration(fileName+"_saddle");
         
         //sim.enableMolecularDynamics(10000);
         
         //sim.enableDimerSearch(fileName, 2500, false, false);
         //sim.integratorDimer.setRotNum(1);
+        
         
         sim.enableMinimumSearch(fileName, true);
         
@@ -99,11 +100,14 @@ public class SimDimerMEAMGBCluster extends Simulation{
         MeterMeanSquareDisplacement msd = new MeterMeanSquareDisplacement(sim.getSpace(), sim.integratorDimerMin);
         msd.setIterator((AtomIteratorBoxDependent)aif);
         
+        
+        
         XYZWriter xyzwriter = new XYZWriter(sim.box);
         xyzwriter.setFileName(fileName+"_B_minimum.xyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimerMin.addIntervalAction(xyzwriter);
         sim.integratorDimerMin.setActionInterval(xyzwriter, 5);
+        
         
         /*
         WriteConfiguration writer = new WriteConfiguration(sim.getSpace());
@@ -112,21 +116,19 @@ public class SimDimerMEAMGBCluster extends Simulation{
         sim.integratorMD.addIntervalAction(writer);
         sim.integratorMD.setActionInterval(writer, 10000);
 		*/
-        
-        //MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        //energyMeter.setBox(sim.box);
-         
+           
         sim.getController().actionPerformed();
+        
         
         IVector [] msdarray = msd.getDataAsArray();
         aif.reset();
         int i=0;
         System.out.println("-----MSD Info-----");
         for(IAtom a=aif.nextAtom(); a!=null; a=aif.nextAtom()){
-        	System.out.println(((IAtomLeaf)a).getLeafIndex()+"     "+msdarray[i].squared());
+        	System.out.println(((IAtomLeaf)a).getLeafIndex()+"     "+Math.sqrt(msdarray[i].squared()));
         	i++;
         }
-
+		
     }
 
 }

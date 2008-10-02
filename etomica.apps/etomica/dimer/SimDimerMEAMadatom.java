@@ -101,7 +101,7 @@ public class SimDimerMEAMadatom extends Simulation{
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         ((IAtomTypeSphere)potentialSpecies.getLeafType()).setDiameter(3.022);
-        box.setNMolecules(fixed, 560);
+        box.setNMolecules(fixed, 800);
         
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
@@ -120,7 +120,7 @@ public class SimDimerMEAMadatom extends Simulation{
               
         double a = 5.92; 
         double c = 3.23;
-        box.getBoundary().setDimensions(new Vector3D(a*5, a*4, c*7));
+        box.getBoundary().setDimensions(new Vector3D(a*5, a*5, c*8));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
@@ -172,10 +172,10 @@ public class SimDimerMEAMadatom extends Simulation{
         Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box);
         
-        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), potentialSpecies.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), potentialSpecies.getLeafType()});
         potentialMaster.setRange(potential.getRange()*1.1);
         CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomTypeLeaf[] {movable.getLeafType(), potentialSpecies.getLeafType(), fixed.getLeafType()}));
+        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomTypeLeaf[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
         
         this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), potentialSpecies.getLeafType()});
         potentialMasterD.setSpecies(new ISpecies []{potentialSpecies, movable});
@@ -188,9 +188,9 @@ public class SimDimerMEAMadatom extends Simulation{
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
-        adAtomPos.setX(0, 16.0);
-        adAtomPos.setX(1, 0.1);
-        adAtomPos.setX(2, -1.0);
+        adAtomPos.setX(0, 15.5);
+        adAtomPos.setX(1, -0.2);
+        adAtomPos.setX(2, -0.2);
         IVector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
         newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
@@ -451,15 +451,15 @@ public class SimDimerMEAMadatom extends Simulation{
        
         final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 16.0);
-        vect.setX(1, 0.1);
-        vect.setX(2, -1.0);
+        vect.setX(0, 15.5);
+        vect.setX(1, -0.2);
+        vect.setX(2, -0.2);
         
-        sim.setMovableAtoms(200.0, vect);
+        sim.setMovableAtoms(120.0, vect);
         
         sim.setPotentialListAtoms();
         
-        //sim.initializeConfiguration("snSurface-md");
+        //sim.initializeConfiguration("sns101-initial");
         
         sim.enableMolecularDynamics(5000);
         
@@ -468,9 +468,10 @@ public class SimDimerMEAMadatom extends Simulation{
         //sim.enableMinimumSearch("sn101-dimer-", false);
         
         WriteConfiguration poswriter = new WriteConfiguration(sim.space);
-        poswriter.setConfName("sns101-initial");
+        poswriter.setConfName("sns101-initial3");
+        poswriter.setBox(sim.box);
         sim.integratorMD.addIntervalAction(poswriter);
-        sim.integratorMD.setActionInterval(poswriter, 1000);
+        sim.integratorMD.setActionInterval(poswriter, 1);
         
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);

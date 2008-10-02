@@ -30,15 +30,15 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 
     	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 16.0);
-        vect.setX(1, 0.1);
-        vect.setX(2, -1.0);
+        vect.setX(0, 15.5);
+        vect.setX(1, -0.2);
+        vect.setX(2, -0.2);
         
-        sim.setMovableAtoms(200.0, vect);
+        sim.setMovableAtoms(120.0, vect);
         
         sim.setPotentialListAtoms();
         
-        //sim.initializeConfiguration("snSurface-md");
+        sim.initializeConfiguration("sns101-initial3");
         
         /*
         sim.initializeConfiguration(fileName+"_saddle");
@@ -51,25 +51,22 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         sim.calculateVibrationalModes(fileName+"_B_minimum");
         */
         
-        //im.initializeConfiguration("sns-initial");
-        //sim.initializeConfiguration(fileName+"_saddle");
         
-        sim.enableMolecularDynamics(5000);
+        sim.initializeConfiguration(fileName+"_saddle");
         
-        //sim.enableDimerSearch(fileName, 1500, ortho, false);
+        //sim.enableMolecularDynamics(5000);
         
-        //sim.enableMinimumSearch(fileName, true);
-
+        //sim.enableDimerSearch(fileName, 6000, false, false);
+        //sim.integratorDimer.setRotNum(1);
+        
+        sim.enableMinimumSearch(fileName, true);
+        
         XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+".xyz");
+        xyzwriter.setFileName(fileName+"_B_minimum.xyz");
         xyzwriter.setIsAppend(true);
-        sim.integratorDimer.addIntervalAction(xyzwriter);
-        sim.integratorDimer.setActionInterval(xyzwriter, 1);
+        sim.integratorDimerMin.addIntervalAction(xyzwriter);
+        sim.integratorDimerMin.setActionInterval(xyzwriter, 2);
         
-        WriteConfiguration poswriter = new WriteConfiguration(sim.getSpace());
-        poswriter.setConfName(fileName);
-        sim.integratorMD.addIntervalAction(poswriter);
-        sim.integratorMD.setActionInterval(poswriter, 1000);
         
     	sim.getController().actionPerformed();
 
