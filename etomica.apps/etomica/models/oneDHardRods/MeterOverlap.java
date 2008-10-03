@@ -16,6 +16,7 @@ public class MeterOverlap implements DataSource {
     DataInfo dataInfo;
     DataSourceScalar dataSourceA, dataSourceB;
     double temperature;
+    DataDoubleArray dda;
     
     MeterOverlap(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
@@ -29,12 +30,12 @@ public class MeterOverlap implements DataSource {
     }
     
     public DataDoubleArray getData(){
-        double[] eAeB = new double[2];
+        double[] eAeB = dda.getData();
         
         eAeB[1] = Math.exp(-dataSourceB.getDataAsScalar()/temperature);
         eAeB[0] = Math.exp(-dataSourceA.getDataAsScalar()/temperature);
         
-        return new DataDoubleArray(new int[] {2}, eAeB);
+        return dda;
     }
     
     public IDataInfo getDataInfo(){

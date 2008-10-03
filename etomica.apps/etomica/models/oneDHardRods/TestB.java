@@ -45,7 +45,6 @@ public class TestB extends Simulation {
     IBox box;
     CoordinateDefinition coordinateDefinition;
     Primitive primitive;
-    Basis basis;
     int[] nCells;
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
