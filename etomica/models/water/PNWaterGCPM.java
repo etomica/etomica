@@ -99,7 +99,7 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
         IVector H22r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
         IVector M1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
-        IVector M2r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+        IVector M2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
 
         double r = Math.sqrt(r2);
         double rOverSigma = r/sigma;
