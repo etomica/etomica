@@ -139,7 +139,8 @@ public class SimOverlapAB extends Simulation {
         
         integratorTarget.setBox(boxTarget);
         //nan do we need to reset the potentialmaster neighbormanager here?
-        
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+
         
         
         
