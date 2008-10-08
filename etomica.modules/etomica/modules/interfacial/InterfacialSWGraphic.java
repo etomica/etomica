@@ -188,13 +188,18 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 if (!isExpanded) return;
                 IVector dim = sim.box.getBoundary().getDimensions();
                 dim.setX(0, dim.x(0) / expansionFac);
+                sim.box.setNMolecules(sim.surfactant, 0);
+                int nMolecules = sim.box.getNMolecules(sim.species);
+                // need to delete the molecules so that the NeighborCellManager doesn't try
+                // to give them a new cell (which would fail)
+                sim.box.setNMolecules(sim.species, 0);
                 sim.box.getBoundary().setDimensions(dim);
+                sim.box.setNMolecules(sim.species, nMolecules);
                 nSlider.setEnabled(true);
                 nSurfactantSlider.getSlider().setEnabled(true);
                 expandButton.getButton().setEnabled(true);
                 xSlider.getSlider().setEnabled(true);
                 isExpanded = false;
-                sim.box.setNMolecules(sim.surfactant, 0);
 
                 densityProfileMeter.reset();
                 surfactantProfileMeter.reset();
