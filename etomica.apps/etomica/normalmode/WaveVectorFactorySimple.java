@@ -96,7 +96,7 @@ outer:              for (int i=0; i<3; i++){
                     if (flip) {
                         idx[0] -= k[0];
                         idx[1] -= k[1];
-                        idx[2] -= k[2];space.D();
+                        idx[2] -= k[2];
                     }
                     else {
                         idx[0] += k[0];
