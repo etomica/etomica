@@ -25,6 +25,8 @@ public class MeterWorkHarmonicBennet implements DataSource {
         meterEnergy = new MeterPotentialEnergy(potentialMaster);
         meterEnergy.setBox(mcMoveHarmonic.getBox());
         data = new DataDouble();
+        numSum = 0;
+        denomSum = 0;
         dataInfo = new DataInfoDouble("Scaled Harmonic and soft sphere Energies", Null.DIMENSION);
 
         tag = new DataTag();
@@ -45,9 +47,18 @@ public class MeterWorkHarmonicBennet implements DataSource {
     	double ratio = e0*e1/(e1+refPref*e0);
     	double overlapEnergy = -Math.log(ratio);
         data.x = overlapEnergy - mcMoveHarmonic.getLastTotalEnergy()/temperature;
+      	
+    	denomSum += ratio/e0;
+    	numSum += data.x*(ratio/e0);
+    	
         return data;
     }
-
+    
+    public Double getDataReweighted(){
+    	
+    	return numSum/denomSum;
+    }
+    
     public void setLatticeEnergy(double newLatticeEnergy) {
         latticeEnergy = newLatticeEnergy;
     }
@@ -75,6 +86,7 @@ public class MeterWorkHarmonicBennet implements DataSource {
     protected final DataInfoDouble dataInfo;
     protected final DataTag tag;
     protected double latticeEnergy;
+    protected double numSum, denomSum;
     public double refPref;
 
 }
