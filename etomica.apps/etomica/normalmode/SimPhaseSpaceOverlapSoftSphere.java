@@ -7,12 +7,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
+import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -29,7 +31,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -38,7 +40,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
 import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -100,13 +101,22 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
 
         integratorTarget.setBox(boxTarget);
+        
+        /*
+         *  1-body Potential to Constraint the atom from moving too far
+         *  	away from its lattice-site
+         *  
+         */
 
+        P1Constraint p1Constraint = new P1Constraint(space, primitive, boxTarget, coordinateDefinitionTarget);
+        potentialMasterTarget.addPotential(p1Constraint, new IAtomTypeLeaf[] {sphereType});
+        
         potentialMasterTarget.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
@@ -143,7 +153,7 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         /*
          * nuke this line if it is overlap between DB and harmonic
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
@@ -352,7 +362,7 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimPhaseSpaceOverlapSoftSphere sim = new SimPhaseSpaceOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
+        final SimPhaseSpaceOverlapSoftSphere sim = new SimPhaseSpaceOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -381,7 +391,7 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
 
         DataSource[] workMeters = new DataSource[2];
         DataSource[] workBennets = new DataSource[2];
-        
+        DataSource[] boltzmannDirectSampling = new DataSource[1];
         // Work Determination 
         
         // Target --> Harmonic
@@ -389,10 +399,32 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         meterWorkTarget.setLatticeEnergy(sim.latticeEnergy);
         workMeters[1] = meterWorkTarget;
         
-        AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
-        DataPump pumpTarget = new DataPump(workMeters[1], dataAverageTarget);
+        DataFork dataForkTarget = new DataFork();
+        DataPump pumpTarget = new DataPump(workMeters[1], dataForkTarget);
+        
+        final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
+        
+        dataForkTarget.addDataSink(dataAverageTarget);
         sim.integrators[1].addIntervalAction(pumpTarget);
         sim.integrators[1].setActionInterval(pumpTarget, 1);
+        
+        //Histogram Target ---> Harmonic
+        final AccumulatorHistogram histogramTargetHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150, 450)));
+        dataForkTarget.addDataSink(histogramTargetHarmonic);
+        
+        
+     //Direct Sampling - Boltzmann Factor difference average (Harmonic ---> Target)  
+        MeterDirectSamplingHarmonic meterDirectSampling = new MeterDirectSamplingHarmonic(sim.move, sim.potentialMasterTarget);
+        meterDirectSampling.setTemperature(temperature);
+        meterDirectSampling.setLatticeEnergy(sim.latticeEnergy);
+        
+        boltzmannDirectSampling[0] = meterDirectSampling;
+        
+        final AccumulatorAverageFixed dataAverageBoltzmann = new AccumulatorAverageFixed();
+        DataPump pumpBoltzmann = new DataPump(boltzmannDirectSampling[0], dataAverageBoltzmann);
+        
+        sim.integrators[0].addIntervalAction(pumpBoltzmann);
+        sim.integrators[0].setActionInterval(pumpBoltzmann, 1);
         
         // Harmonic --> Target
         MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMasterTarget);
@@ -400,11 +432,17 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         meterWorkHarmonic.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkHarmonic;
         
-        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
-        DataPump pumpHarmonic = new DataPump(workMeters[0], dataAverageHarmonic);
+        DataFork dataForkHarmonic = new DataFork();
+        DataPump pumpHarmonic = new DataPump(workMeters[0], dataForkHarmonic);
+        
+        final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
+        
+        dataForkHarmonic.addDataSink(dataAverageHarmonic);
         sim.integrators[0].addIntervalAction(pumpHarmonic);
         sim.integrators[0].setActionInterval(pumpHarmonic, 1);
        
+
+        
         /*
          * Perturbation 
          */
@@ -413,16 +451,19 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         meterWorkTargetBennet.setLatticeEnergy(sim.latticeEnergy);
         workBennets[1] = meterWorkTargetBennet;
         
-        AccumulatorAverageFixed dataAverageTargetBennet = new AccumulatorAverageFixed();
-        DataPump pumpTargetBennet = new DataPump(workBennets[1], dataAverageTargetBennet);
+        DataFork dataForkTargetBennet = new DataFork();
+        DataPump pumpTargetBennet = new DataPump(workBennets[1], dataForkTargetBennet);
+        
+        final AccumulatorAverageFixed dataAverageTargetBennet = new AccumulatorAverageFixed();
+        
+        dataForkTargetBennet.addDataSink(dataAverageTargetBennet);
         sim.integrators[1].addIntervalAction(pumpTargetBennet);
         sim.integrators[1].setActionInterval(pumpTargetBennet, numMolecules*2);
         
         //Histogram Target
-        AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(600,new DoubleRange(-150,450)));
-        DataPump pumpHistogramTarget = new DataPump(workBennets[1], histogramTarget);
-        sim.integrators[1].addIntervalAction(pumpHistogramTarget);
-        sim.integrators[1].setActionInterval(pumpHistogramTarget, numMolecules*2); //the interval is based on the system size
+        final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(600,new DoubleRange(-150,450)));
+        dataForkTargetBennet.addDataSink(histogramTarget);
+        
         
       // Harmonic ---> Bennet's Overlap
         MeterWorkHarmonicBennet meterWorkHarmonicBennet = new MeterWorkHarmonicBennet(sim.move, sim.potentialMasterTarget, sim.refPref);
@@ -430,194 +471,287 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         meterWorkHarmonicBennet.setLatticeEnergy(sim.latticeEnergy);
         workBennets[0] = meterWorkHarmonicBennet;
         
-        AccumulatorAverageFixed dataAverageHarmonicBennet = new AccumulatorAverageFixed();
-        DataPump pumpHarmonicBennet = new DataPump(workBennets[0], dataAverageHarmonicBennet);
+        DataFork dataForkHarmonicBennet = new DataFork();
+        DataPump pumpHarmonicBennet = new DataPump(workBennets[0], dataForkHarmonicBennet);
+        
+        final AccumulatorAverageFixed dataAverageHarmonicBennet = new AccumulatorAverageFixed();
+        
+        dataForkHarmonicBennet.addDataSink(dataAverageHarmonicBennet);
         sim.integrators[0].addIntervalAction(pumpHarmonicBennet);
         sim.integrators[0].setActionInterval(pumpHarmonicBennet, 1);
         
         //Histogram Harmonic
-        AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150,450)));
-        DataPump pumpHistogramHarmonic = new DataPump(workBennets[0], histogramHarmonic);
-        sim.integrators[0].addIntervalAction(pumpHistogramHarmonic);
-        sim.integrators[0].setActionInterval(pumpHistogramHarmonic, 1);
+        final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150,450)));
+        dataForkHarmonicBennet.addDataSink(histogramHarmonic);
+        
+        FileWriter fileWriter, fileWriterBennet;
+               
+        try{
+        	fileWriter = new FileWriter(filename+"_FE");
+        	fileWriterBennet = new FileWriter(filename+"_Ben");
+        }catch(IOException e){
+        	fileWriter = null;
+        	fileWriterBennet = null;
+        }
+        
+        final String outFileName = filename;
+        final double temp = temperature;
+        final int dimension = D;
+        final long steps = numSteps;
+        final FileWriter fileWriterFE = fileWriter;
+        final FileWriter fileWriterBen = fileWriterBennet;
+        
+        IAction outputAction = new IAction(){
+        	public void actionPerformed(){
+        		int idStep = sim.integratorOverlap.getStepCount();
+        		
+		        /*
+		         * Histogram
+		         */
+		        //Target ---> Harmonic
+				DataLogger dataLogger1 = new DataLogger();
+				DataTableWriter dataTableWriter1 = new DataTableWriter();
+				dataLogger1.setFileName(outFileName + "_hist_TargHarm");
+				dataLogger1.setDataSink(dataTableWriter1);
+				dataTableWriter1.setIncludeHeader(false);
+				dataLogger1.putDataInfo(histogramTargetHarmonic.getDataInfo());
+				
+				dataLogger1.setWriteInterval(1);
+				dataLogger1.setAppending(false); //overwrite data
+				dataLogger1.putData(histogramTargetHarmonic.getData());
+				dataLogger1.closeFile();
+		        
+				//Harmonic
+				DataLogger dataLogger2 = new DataLogger();
+				DataTableWriter dataTableWriter2 = new DataTableWriter();
+				dataLogger2.setFileName(outFileName + "_hist_HarmBenn");
+				dataLogger2.setDataSink(dataTableWriter2);
+				dataTableWriter2.setIncludeHeader(false);
+				dataLogger2.putDataInfo(histogramHarmonic.getDataInfo());
+				
+				dataLogger2.setWriteInterval(1);
+				dataLogger2.setAppending(false); //overwrite data
+				dataLogger2.putData(histogramHarmonic.getData());
+				dataLogger2.closeFile();
+			
+		        
+		        //Target
+				DataLogger dataLogger3 = new DataLogger();
+				DataTableWriter dataTableWriter3 = new DataTableWriter();
+				dataLogger3.setFileName(outFileName + "_hist_TargBenn");
+				dataLogger3.setDataSink(dataTableWriter3);
+				dataTableWriter3.setIncludeHeader(false);
+				dataLogger3.putDataInfo(histogramTarget.getDataInfo());
+				
+				dataLogger3.setWriteInterval(1);
+				dataLogger3.setAppending(false); //overwrite data
+				dataLogger3.putData(histogramTarget.getData());
+				dataLogger3.closeFile();
+				
+		        /*
+		         * 
+		         */
+		        
+		        
+		        
+		        
+		        System.out.println("\n*****************************************************************");
+		        System.out.println("**********              "+ idStep*1000 + "            ***************");
+		        System.out.println("*****************************************************************");
+		        System.out.println("\nfinal reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+		        
+		        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
+		        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
+		        double AHarmonic = 0;
+		        for(int i=0; i<omega2.length; i++) {
+		            for(int j=0; j<omega2[0].length; j++) {
+		                if (!Double.isInfinite(omega2[i][j])) {
+		                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temp*Math.PI));
+		                }
+		            }           
+		            
+		        }
+		
+		        int totalCells = 1;
+		        for (int i=0; i<dimension; i++) {
+		            totalCells *= sim.nCells[i];
+		        }
+		        int basisSize = sim.basis.getScaledCoordinates().length;
+		        double fac = 1;
+		        if (totalCells % 2 == 0) {
+		            fac = Math.pow(2,dimension);
+		        }
+		        AHarmonic -= Math.log(Math.pow(2.0, basisSize*dimension*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*dimension));
+		        System.out.println("Harmonic-reference free energy: "+AHarmonic*temp);
+		        
+		        
+		        /*
+		         * ratio = Q_target/Q_reference
+		         * delta_FE = FE_target- FE_reference = - ln (ratio)
+		         * 
+		         * FE_target = FE_reference + deltaFE
+		         * 
+		         * free energy difference = temp * (FE_reference + FE_target)
+		         * 
+		         *  note: Aharmonic has not been timed temperature yet
+		         *        that is why FE_reference * temp
+		         */
+		        double ratio = sim.dsvo.getDataAsScalar();
+		        double error = sim.dsvo.getError();
+		        double deltaFE = -Math.log(ratio);
+		        double targetFE = temp*(AHarmonic + deltaFE);
+		        double errorFE = temp*(error/ratio);
+		        
+		        double boltzmannAverage = dataAverageBoltzmann.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double boltzmannError = dataAverageBoltzmann.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        
+		        double deltaFE_DirectSampling = -Math.log(boltzmannAverage);
+		        System.out.println("boltzmann: " + boltzmannAverage);
+		        System.out.println("ratio average: "+ratio+", error: "+error);
+		        System.out.println("free energy difference (Bennett): "+ (temp*deltaFE) +" ,error: "+ errorFE);
+		        System.out.println("free energy difference (Direct Sampling): "+ (temp*deltaFE_DirectSampling) 
+		        											+ " ,error: " + boltzmannError/boltzmannAverage);
+		        
+		        System.out.println("target free energy: "+ targetFE);
+		        
+		        
+
+		                
+		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		
+		        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        
+		        /*
+		         * s_A = (u_B - u_A) - (FE_B - FE_A) 
+		         * s_B = (u_A - u_B) + (FE_B - FE_A)
+		         * 
+		         * 	[  deltaFE = FE_B - FE_A  ]
+		         *  
+		         *  
+		         *  A: target system
+		         *  B: reference system
+		         */
+		        
+		        double sHarmonic = wHarmonic - deltaFE;
+		        double sTarget =   wTarget + deltaFE;
+		        
+		        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (error/ratio)*(error/ratio));
+		        double er_sTarget = Math.sqrt(eTarget*eTarget + (error/ratio)*(error/ratio));
+		        
+		        System.out.println("wHarmonic: "+ wHarmonic + 
+		        		           " ,error: "+ eHarmonic);
+		        System.out.println("wTarget: " + wTarget +
+		        		           " ,error: "+ eTarget);
+		        System.out.println("beta*deltaFE (Bennett): " + deltaFE);
+		        System.out.println("beta*deltaFE (Direct Sampling): " + deltaFE_DirectSampling);
+		        
+		        System.out.println("\nHarmonic entropy: " + sHarmonic + " ,error: "+ er_sHarmonic);
+		        System.out.println("Target entropy: " + sTarget + " ,error: "+ er_sTarget);
+		        System.out.println("ratio entropy (harmonic-to-target) "+ sHarmonic/sTarget);
+		         
+		        double mNumStepsHarmonic = steps*1000*sim.integratorOverlap.getActualStepFreq0();
+		        double mNumStepsTarget = steps*1000*(1-sim.integratorOverlap.getActualStepFreq0());
+		        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*mNumStepsHarmonic*mNumStepsHarmonic))-Math.sqrt(2*sHarmonic);
+		        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*mNumStepsTarget*mNumStepsTarget))-Math.sqrt(2*sTarget);
+		        
+		        System.out.println("PI Harmonic: " + pi_harmonic + " ,Msteps: " + mNumStepsHarmonic);
+		        System.out.println("PI Target: " + pi_target + " ,Msteps: " + mNumStepsTarget);
+		        System.out.println();
+		        
+		        /*
+		         *     Q1/Q0 = ( Q_overlap/Q0 ) / ( Q_overlap/Q1 )    
+		         *         
+		         *         
+		         *    s_A = (u_B - u_A) - (FE_B - FE_A) 
+		         * 
+		         *   	[  deltaFE_harmonic = FE_B - FE_A  ]
+		         *      [  deltaFE_target   = FE_B - FE_A  ] 
+		         *  
+		         *  
+		         *  A: reference system, target system
+		         *  B: overlap region
+		         */
+		         
+		        double wHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double wTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		
+		        double eHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        double eTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        
+		        
+		        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+		        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
+		        double ratioHarmonicError = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+		        double deltaFEHarmonic = -Math.log(ratioHarmonicAverage);
+		        
+		        System.out.println("harmonic ratio average: "+ ratioHarmonicAverage
+		                          +" stdev: "+((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+		                          +" error: "+ ratioHarmonicError);
+		        
+		        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
+		        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
+		        double ratioTargetError = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+		        double deltaFETarget = -Math.log(ratioTargetAverage);
+		        
+		        System.out.println("target ratio average: "+ratioTargetAverage
+		                          +" stdev: "+((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+		                          +" error: "+ratioTargetError);
+		        
+		        double sHarmonicBennet = wHarmonicBennet - deltaFEHarmonic;
+		        double sTargetBennet = wTargetBennet - deltaFETarget;
+		        
+		        double er_sHarmonicBennet = Math.sqrt(eHarmonicBennet*eHarmonicBennet + (ratioHarmonicError/ratioHarmonicAverage)*(ratioHarmonicError/ratioHarmonicAverage));
+		        double er_sTargetBennet = Math.sqrt(eTargetBennet*eTargetBennet + (ratioTargetError/ratioTargetAverage)*(ratioTargetError/ratioTargetAverage));
+		        
+		        System.out.println("\nwHarmonicBennet: "+ wHarmonicBennet + 
+				           " ,error: "+ eHarmonicBennet);
+		        System.out.println("wTargetBennet: " + wTargetBennet +
+				           " ,error: "+ eTargetBennet);
+		        System.out.println("deltaFE Harmonic: "+ deltaFEHarmonic);
+		        System.out.println("deltaFE Target: "+ deltaFETarget);
+		        
+		        System.out.println("\nHarmonic entropy (perturbed into Bennet): " + sHarmonicBennet + 
+		        		" ,error: "+ er_sHarmonicBennet);
+		        System.out.println("Target entropy (perturbed into Bennet): " + sTargetBennet + 
+		        		" ,error: "+ er_sTargetBennet);
+		        
+		        double pi_harmonicBennet = Math.sqrt((sHarmonicBennet/sTargetBennet)*Math.log((0.5/Math.PI)*mNumStepsHarmonic*mNumStepsHarmonic))-Math.sqrt(2*sHarmonicBennet);
+		        double pi_targetBennet = Math.sqrt((sTargetBennet/sHarmonicBennet)*Math.log((0.5/Math.PI)*mNumStepsTarget*mNumStepsTarget))-Math.sqrt(2*sTargetBennet);
+		        
+		        System.out.println("PI Harmonic: " + pi_harmonicBennet + " ,Msteps: " + mNumStepsHarmonic);
+		        System.out.println("PI Target: " + pi_targetBennet + " ,Msteps: " + mNumStepsTarget);
+		        System.out.println();
+		        
+		        try {
+		        	
+		        	fileWriterFE.write(idStep*1000 + " " + temp*deltaFE + " " + temp*deltaFE_DirectSampling  
+		        							  + " " + targetFE + " "+ errorFE + " "+ wHarmonic + " " + wTarget
+		        			                  + " " + sHarmonic+ " "+ sTarget + " "+ pi_harmonic + " " + pi_target +"\n");
+		        	
+		        	fileWriterBen.write(idStep*1000 + " " + deltaFEHarmonic + " " + deltaFETarget + " " + wHarmonicBennet + " "+ wTargetBennet
+		        			                      + " " + sHarmonicBennet + " " + sTargetBennet + " " + pi_harmonicBennet + " "+ pi_targetBennet + "\n");
+		        	
+		        } catch (IOException e){
+		        	
+		        }
+        	}
+        }; 
+        
+        sim.integratorOverlap.addIntervalAction(outputAction);
+        sim.integratorOverlap.setActionInterval(outputAction, 10);
+        
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
-        /*
-         * Histogram
-         */
-        //Target
-		DataLogger dataLogger = new DataLogger();
-		DataTableWriter dataTableWriter = new DataTableWriter();
-		dataLogger.setFileName(filename + "_hist_TargBenn");
-		dataLogger.setDataSink(dataTableWriter);
-		dataTableWriter.setIncludeHeader(false);
-		dataLogger.putDataInfo(histogramTarget.getDataInfo());
-		
-		dataLogger.setWriteInterval(1);
-		dataLogger.putData(histogramTarget.getData());
-		dataLogger.closeFile();
-        
-		//Harmonic
-        dataLogger.setFileName(filename + "_hist_HarmBenn");
-        dataLogger.putData(histogramHarmonic.getData());
-        dataLogger.closeFile();
-        /*
-         * 
-         */
-        
-        
-
-        System.out.println("\nfinal reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
-        
-        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
-        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
-                }
-            }           
-            
+        try{
+	        fileWriterFE.close();
+	        fileWriterBen.close();
+        } catch (IOException e){
+        	
         }
-
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
-        System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
-        
-        
-        /*
-         * ratio = Q_ref/Q_target
-         * delta_FE = FE_reference - FE_target = ln (ratio)
-         * 
-         * FE_target = FE_reference - ln(Q_ref/Q_target)
-         * 
-         */
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
-        double deltaFE = Math.log(ratio);
-        
-        System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("free energy difference: "+ (-temperature*deltaFE) +", error: "+temperature*(error/ratio));
-        System.out.println("target free energy: "+temperature*(AHarmonic-deltaFE));
-                
-        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-
-        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        
-        /*
-         * s_A = (u_B - u_A) - (FE_B - FE_A) 
-         * s_B = (u_A - u_B) - (FE_A - FE_B)
-         * 
-         * 	[  deltaFE = FE_A - FE_B  ]
-         *  
-         *  
-         *  A: reference system
-         *  B: target system
-         */
-        
-        double sHarmonic = wHarmonic + deltaFE;
-        double sTarget =   wTarget - deltaFE;
-        
-        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (error/ratio)*(error/ratio));
-        double er_sTarget = Math.sqrt(eTarget*eTarget + (error/ratio)*(error/ratio));
-        
-        System.out.println("wHarmonic: "+ wHarmonic + 
-        		           ", error: "+ eHarmonic);
-        System.out.println("wTarget: " + wTarget +
-        		           ", error: "+ eTarget);
-        System.out.println("deltaFE: " + deltaFE);
-        
-        System.out.println("\nHarmonic entropy: " + sHarmonic + ", error: "+ er_sHarmonic);
-        System.out.println("Target entropy: " + sTarget + ", error: "+ er_sTarget);
-        System.out.println("ratio entropy (harmonic-to-target) "+ sHarmonic/sTarget);
-         
-        double mNumStepsHarmonic = numSteps*1000*sim.integratorOverlap.getActualStepFreq0();
-        double mNumStepsTarget = numSteps*1000*(1-sim.integratorOverlap.getActualStepFreq0());
-        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*mNumStepsHarmonic*mNumStepsHarmonic))-Math.sqrt(2*sHarmonic);
-        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*mNumStepsTarget*mNumStepsTarget))-Math.sqrt(2*sTarget);
-        
-        System.out.println("PI Harmonic: " + pi_harmonic + ", Msteps: " + mNumStepsHarmonic);
-        System.out.println("PI Target: " + pi_target + ", Msteps: " + mNumStepsTarget);
-        System.out.println();
-        
-        /*
-         *     Q0/Q1 = ( Q0/Q_overlap ) / ( Q1/Q_overlap )    
-         *         
-         *         
-         *    s_A = (u_B - u_A) + (FE_A - FE_B) 
-         * 
-         *   	[  deltaFE_harmonic = FE_A - FE_B  ]
-         *      [  deltaFE_target   = FE_A - FE_B  ] 
-         *  
-         *  
-         *  A: reference system, target system
-         *  B: overlap region
-         */
-         
-        double wHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double wTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-
-        double eHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double eTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        
-        
-        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-        double ratioHarmonicError = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
-        double deltaFEHarmonic = Math.log(ratioHarmonicAverage);
-        
-        System.out.println("harmonic ratio average: "+ ratioHarmonicAverage
-                          +" stdev: "+((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+ ratioHarmonicError);
-        
-        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-        double ratioTargetError = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
-        double deltaFETarget = Math.log(ratioTargetAverage);
-        
-        System.out.println("target ratio average: "+ratioTargetAverage
-                          +" stdev: "+((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+ratioTargetError);
-        
-        double sHarmonicBennet = wHarmonicBennet + deltaFEHarmonic;
-        double sTargetBennet = wTargetBennet + deltaFETarget;
-        
-        double er_sHarmonicBennet = Math.sqrt(eHarmonicBennet*eHarmonicBennet + (ratioHarmonicError/ratioHarmonicAverage)*(ratioHarmonicError/ratioHarmonicAverage));
-        double er_sTargetBennet = Math.sqrt(eTargetBennet*eTargetBennet + (ratioTargetError/ratioTargetAverage)*(ratioTargetError/ratioTargetAverage));
-        
-        System.out.println("\nwHarmonicBennet: "+ wHarmonicBennet + 
-		           ", error: "+ eHarmonicBennet);
-        System.out.println("wTargetBennet: " + wTargetBennet +
-		           ", error: "+ eTargetBennet);
-        System.out.println("deltaFE Harmonic: "+ deltaFEHarmonic);
-        System.out.println("deltaFE Target: "+ deltaFETarget);
-        
-        System.out.println("\nHarmonic entropy (perturbed into Bennet): " + sHarmonicBennet + 
-        		", error: "+ er_sHarmonicBennet);
-        System.out.println("Target entropy (perturbed into Bennet): " + sTargetBennet + 
-        		", error: "+ er_sTargetBennet);
-        
-        double pi_harmonicBennet = Math.sqrt((sHarmonicBennet/sTargetBennet)*Math.log((0.5/Math.PI)*mNumStepsHarmonic*mNumStepsHarmonic))-Math.sqrt(2*sHarmonicBennet);
-        double pi_targetBennet = Math.sqrt((sTargetBennet/sHarmonicBennet)*Math.log((0.5/Math.PI)*mNumStepsTarget*mNumStepsTarget))-Math.sqrt(2*sTargetBennet);
-        
-        System.out.println("PI Harmonic: " + pi_harmonicBennet + ", Msteps: " + mNumStepsHarmonic);
-        System.out.println("PI Target: " + pi_targetBennet + ", Msteps: " + mNumStepsTarget);
-        System.out.println();
-        
-        
     }
 
     private static final long serialVersionUID = 1L;
@@ -650,9 +784,9 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 5000000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "DB_FCC_n12_T10";
-        public double temperature = 1.0;
+        public String filename = "CB_FCC_n12_T01";
+        public double temperature = 0.1;
     }
 }

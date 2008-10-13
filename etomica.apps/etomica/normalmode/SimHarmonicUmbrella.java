@@ -2,15 +2,18 @@ package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
+import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -22,7 +25,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -96,12 +99,12 @@ public class SimHarmonicUmbrella extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundary.getDimensions().x(0) * 0.495;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         
@@ -174,7 +177,7 @@ public class SimHarmonicUmbrella extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        SimHarmonicUmbrella sim = new SimHarmonicUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
+        final SimHarmonicUmbrella sim = new SimHarmonicUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         DataSource[] workMeters = new DataSource[1];
         
@@ -184,41 +187,78 @@ public class SimHarmonicUmbrella extends Simulation {
         meterWorkHarmonicUmbrella.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkHarmonicUmbrella;
         
-        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
-        DataPump pumpHarmonic = new DataPump(workMeters[0], dataAverageHarmonic);
+        DataFork dataFork = new DataFork();
+        DataPump pumpHarmonic = new DataPump(workMeters[0], dataFork);
+        
+        final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
+        dataFork.addDataSink(dataAverageHarmonic);
         sim.integrator.addIntervalAction(pumpHarmonic);
         sim.integrator.setActionInterval(pumpHarmonic, 1);
         
         //Histogram Harmonic
-        AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150,450)));
-        DataPump pumpHistogramHarmonic = new DataPump(workMeters[0], histogramHarmonic);
-        sim.integrator.addIntervalAction(pumpHistogramHarmonic);
-        sim.integrator.setActionInterval(pumpHistogramHarmonic, 1);
+        final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150,450)));
+        dataFork.addDataSink(histogramHarmonic);
+
+
+       FileWriter fileWriter;
+        
+        try{
+        	fileWriter = new FileWriter(filename + "_HarmUmb");
+        } catch (IOException e){
+        	fileWriter = null;
+        }
+        
+        final String outFileName = filename;
+        final FileWriter fileWriterHarmUmb = fileWriter;
+        
+        IAction outputAction = new IAction(){
+        	public void actionPerformed(){
+        		int idStep = sim.integrator.getStepCount();
+		        /*
+		         * Histogram
+		         */
+		        //Harmonic
+				DataLogger dataLogger = new DataLogger();
+				DataTableWriter dataTableWriter = new DataTableWriter();
+				dataLogger.setFileName(outFileName + "_hist_HarmUmb");
+				dataLogger.setDataSink(dataTableWriter);
+				dataTableWriter.setIncludeHeader(false);
+				dataLogger.putDataInfo(histogramHarmonic.getDataInfo());
+				
+				dataLogger.setWriteInterval(1);
+				dataLogger.setAppending(false); //overwrite the file 8/5/08
+				dataLogger.putData(histogramHarmonic.getData());
+				dataLogger.closeFile();
+		        		        
+		        System.out.println("\n*****************************************************************");
+		        System.out.println("********** Harmonic-to-Umbrella Sampling "+ idStep + "   *************");
+		        System.out.println("*****************************************************************");
+		        
+				double wHarmonic   = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+				double eHarmonic   = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+				System.out.println("\n wHarmonicUmbrella: "  + wHarmonic   + " ,error: "+ eHarmonic);
+				
+				try {
+					fileWriterHarmUmb.write(idStep + " " + wHarmonic + " " + eHarmonic+ "\n");
+					
+					} catch(IOException e){
+					
+				}
+        	}
+        };
+        
+        sim.integrator.addIntervalAction(outputAction);
+        sim.integrator.setActionInterval(outputAction, 20000);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
-
         
-        /*
-         * Histogram
-         */
-        //Harmonic
-		DataLogger dataLogger = new DataLogger();
-		DataTableWriter dataTableWriter = new DataTableWriter();
-		dataLogger.setFileName(filename + "_hist_HarmUmbre");
-		dataLogger.setDataSink(dataTableWriter);
-		dataTableWriter.setIncludeHeader(false);
-		dataLogger.putDataInfo(histogramHarmonic.getDataInfo());
-		
-		dataLogger.setWriteInterval(1);
-		dataLogger.putData(histogramHarmonic.getData());
-		dataLogger.closeFile();
-        
-        double wHarmonic   = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double eHarmonic   = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        
-        System.out.println("\n wHarmonicUmbrella: "  + wHarmonic   + ", error: "+ eHarmonic);
-        
+        try {
+	        fileWriterHarmUmb.close();
+            
+		} catch(IOException e){
+			
+		}
     }
 
     private static final long serialVersionUID = 1L;
@@ -242,10 +282,10 @@ public class SimHarmonicUmbrella extends Simulation {
     	public double density = 1256;
     	public int exponentN = 12;
     	public int D = 3;
-    	public long numSteps = 100000;
+    	public long numSteps = 1000000;
     	public double harmonicFudge =1;
-    	public String filename = "FCC_SoftSphere_n12_T02";
-    	public double temperature = 0.2;
+    	public String filename = "CB_FCC_n12_T01";
+    	public double temperature = 0.1;
     }
 
 }

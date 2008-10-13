@@ -2,15 +2,18 @@ package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
+import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -22,7 +25,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -40,7 +43,7 @@ import etomica.util.ReadParameters;
  */
 public class SimUmbrella extends Simulation {
 
-	private static final String APP_NAME = "Sim Bennet's";
+	private static final String APP_NAME = "Sim Umbrella' s";
 
     public SimUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space, true);
@@ -95,12 +98,12 @@ public class SimUmbrella extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
+        Potential2SoftSpherical potential = new P2SoftSphere(space);
         double truncationRadius = boundary.getDimensions().x(0) * 0.495;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         
@@ -166,45 +169,46 @@ public class SimUmbrella extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        SimUmbrella sim = new SimUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
+        final SimUmbrella sim = new SimUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         DataSource[] workMeters = new DataSource[2];
         DataSource[] samplingMeters = new DataSource[2];
         
       // Umbrella Sampling ---> Harmonic
-        MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.meterHarmonicEnergy);
         meterWorkUmbrellaHarmonic.setRefPref(sim.refPref);
         meterWorkUmbrellaHarmonic.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkUmbrellaHarmonic;
         
-        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
-        DataPump pumpHarmonic = new DataPump(workMeters[0], dataAverageHarmonic);
+        DataFork dataForkHarmonic = new DataFork();
+        DataPump pumpHarmonic = new DataPump(workMeters[0], dataForkHarmonic);
+        
+        final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
+        dataForkHarmonic.addDataSink(dataAverageHarmonic);
         sim.integrator.addIntervalAction(pumpHarmonic);
         sim.integrator.setActionInterval(pumpHarmonic, 1);
         
         //Histogram Harmonic
-        AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramExpanding(1, new DoubleRange(0,1)));
-        DataPump pumpHistogramHarmonic = new DataPump(workMeters[0], histogramHarmonic);
-        sim.integrator.addIntervalAction(pumpHistogramHarmonic);
-        sim.integrator.setActionInterval(pumpHistogramHarmonic, 1);
+        final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramExpanding(1, new DoubleRange(0,1)));
+        dataForkHarmonic.addDataSink(histogramHarmonic);
         
       // Umbrella Sampling ---> Target
-        MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.meterHarmonicEnergy);
         meterWorkUmbrellaTarget.setRefPref(sim.refPref);
         meterWorkUmbrellaTarget.setLatticeEnergy(sim.latticeEnergy);
         workMeters[1] = meterWorkUmbrellaTarget;
         
-        AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
-        DataPump pumpTarget = new DataPump(workMeters[1], dataAverageTarget);
+        DataFork dataForkTarget = new DataFork();
+        DataPump pumpTarget = new DataPump(workMeters[1], dataForkTarget);
+        
+        final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
+        dataForkTarget.addDataSink(dataAverageTarget);
         sim.integrator.addIntervalAction(pumpTarget);
         sim.integrator.setActionInterval(pumpTarget, numAtoms*2);
         
         //Histogram Target
-        AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramExpanding(1,new DoubleRange(0,1)));
-        DataPump pumpHistogramTarget = new DataPump(workMeters[1], histogramTarget);
-        sim.integrator.addIntervalAction(pumpHistogramTarget);
-        sim.integrator.setActionInterval(pumpHistogramTarget, numAtoms*2); //the interval is based on the system size
-        
+        final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramExpanding(1,new DoubleRange(0,1)));
+        dataForkTarget.addDataSink(histogramTarget);
 
         /*
          * 
@@ -212,104 +216,146 @@ public class SimUmbrella extends Simulation {
         
         // Harmonic Sampling
         
-        MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterHarmonicEnergy);
         meterSamplingHarmonic.setRefPref(sim.refPref);
         meterSamplingHarmonic.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[0] = meterSamplingHarmonic;
         
-        AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
         sim.integrator.addIntervalAction(pumpSamplingHarmonic);
         sim.integrator.setActionInterval(pumpSamplingHarmonic, 1);
         
         // Target Sampling
         
-        MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterHarmonicEnergy);
         meterSamplingTarget.setRefPref(sim.refPref);
         meterSamplingTarget.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[1] = meterSamplingTarget;
         
-        AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
         sim.integrator.addIntervalAction(pumpSamplingTarget);
         sim.integrator.setActionInterval(pumpSamplingTarget, 1);
         
+        FileWriter fileWriter;
+        
+        try{
+        	fileWriter = new FileWriter(filename+"_SimUmb");
+        } catch(IOException e){
+        	fileWriter = null;
+        }
+        
+        final String outFileName = filename;
+        final double temp = temperature;
+        final long steps = numSteps;
+        final FileWriter fileWriterUmb = fileWriter;
+        
+        
+        IAction outputAction = new IAction(){
+        	public void actionPerformed(){
+        		int idStep = sim.integrator.getStepCount();
+		        /*
+		         * Histogram
+		         */
+		        //Target
+				DataLogger dataLogger = new DataLogger();
+				DataTableWriter dataTableWriter = new DataTableWriter();
+				dataLogger.setFileName(outFileName + "_hist_UmbTarg");
+				dataLogger.setDataSink(dataTableWriter);
+				dataTableWriter.setIncludeHeader(false);
+				dataLogger.putDataInfo(histogramTarget.getDataInfo());
+				
+				dataLogger.setWriteInterval(1);
+				dataLogger.setAppending(false); //overwrite the file 8/5/08
+				dataLogger.putData(histogramTarget.getData());
+				dataLogger.closeFile();
+		        
+				//Harmonic
+		        dataLogger.setFileName(outFileName + "_hist_UmbHarm");
+		        dataLogger.setAppending(false); // overwrite the file 8/5/08
+		        dataLogger.putData(histogramHarmonic.getData());
+		        dataLogger.closeFile();
+		        /*
+		         * 
+		         */
+		        
+		        System.out.println("\n*****************************************************************");
+		        System.out.println("**********        Umbrella Sampling "+ idStep + "         ***************");
+		        System.out.println("*****************************************************************");
+		       
+		        
+		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);        
+		        
+		        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        /*
+		         * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+		         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+		         * 
+		         */
+		        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		
+		        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        
+		        /*
+		         * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
+		         *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
+		         */
+		        double deltaFE_harmonic = - Math.log(Qharmonic);
+		        double deltaFE_target = - Math.log(Qtarget);
+		        double deltaFE = temp*deltaFE_target - temp*deltaFE_harmonic;
+		        
+		        double sHarmonic = wHarmonic - deltaFE_harmonic;
+		        double sTarget = wTarget - deltaFE_target;
+		        
+		        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic));
+		        double er_sTarget   = Math.sqrt(eTarget*eTarget + (eQtarget/Qtarget)*(eQtarget/Qtarget));
+		        
+		        System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temp*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
+		        System.out.println("free energy difference (umbrella --> target): "+ (temp*deltaFE_target) + "; error: " + eQtarget/Qtarget);
+		        System.out.println("free energy difference (harmonic --> target): " + deltaFE);
+		        
+		        System.out.println("\nwUmbrellaHarmonic: "+ wHarmonic + ", error: "+ eHarmonic);
+		        System.out.println(" wUmbrellaTarget : "  + wTarget   + ", error: "+ eTarget);
+		        System.out.println(" beta*deltaFE (harmonic): " + deltaFE_harmonic);
+		        System.out.println(" beta*deltaFE (target): " + deltaFE_target);
+		        
+		        System.out.println("\nUmbrella (perturbed into Harmonic) entropy: " + sHarmonic + ", error: "+ er_sHarmonic);
+		        System.out.println("Umbrella (perturbed into Target) entropy: " + sTarget + ", error: "+ er_sTarget);
+		        
+		        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sHarmonic);
+		        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sTarget);
+		        
+		        System.out.println("PI Harmonic: " + pi_harmonic);
+		        System.out.println("PI Target: " + pi_target);
+		        
+		        try {
+		        	fileWriterUmb.write( idStep + " " + deltaFE_harmonic + " " + deltaFE_target + " " + deltaFE + " "
+		        			                          + wHarmonic + " " + wTarget + " "
+		        			                          + sHarmonic + " " + sTarget + " "
+		        			                          + pi_harmonic + " " + pi_target + "\n");
+		        } catch (IOException e){
+		        	
+		        }
+		        
+        	}
+        };
+        
+        sim.integrator.addIntervalAction(outputAction);
+        sim.integrator.setActionInterval(outputAction, 10000);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
-        /*
-         * Histogram
-         */
-        //Target
-		DataLogger dataLogger = new DataLogger();
-		DataTableWriter dataTableWriter = new DataTableWriter();
-		dataLogger.setFileName(filename + "_hist_UmbreTarg");
-		dataLogger.setDataSink(dataTableWriter);
-		dataTableWriter.setIncludeHeader(false);
-		dataLogger.putDataInfo(histogramTarget.getDataInfo());
-		
-		dataLogger.setWriteInterval(1);
-		dataLogger.putData(histogramTarget.getData());
-		dataLogger.closeFile();
-        
-		//Harmonic
-        dataLogger.setFileName(filename + "_hist_UmbreHarm");
-        dataLogger.putData(histogramHarmonic.getData());
-        dataLogger.closeFile();
-        /*
-         * 
-         */
-        
-        
-        
-        
-        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);        
-        
-        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        /*
-         * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
-         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
-         * 
-         */
-        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-
-        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        
-        /*
-         * deltaFE_harmonic: beta*(U_harmonic - U_umbrella) = - ln(Qharmonic)
-         *  deltaFE_target : beta*(U_target - U_umbrella) = - ln(Qtarget)
-         */
-        double deltaFE_harmonic = - Math.log(Qharmonic);
-        double deltaFE_target = - Math.log(Qtarget);
-        
-        double sHarmonic = wHarmonic - deltaFE_harmonic;
-        double sTarget = wTarget - deltaFE_target;
-        
-        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic));
-        double er_sTarget   = Math.sqrt(eTarget*eTarget + (eQtarget/Qtarget)*(eQtarget/Qtarget));
-        
-        System.out.println("\nfree energy difference (harmonic): "+ (temperature*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
-        System.out.println("free energy difference (target): "+ (temperature*deltaFE_target) + "; error: " + eQtarget/Qtarget);
-        
-        System.out.println("\nwUmbrellaHarmonic: "+ wHarmonic + ", error: "+ eHarmonic);
-        System.out.println(" wUmbrellaTarget : "  + wTarget   + ", error: "+ eTarget);
-        System.out.println(" deltaFE (harmonic): " + deltaFE_harmonic);
-        System.out.println(" deltaFE (target): " + deltaFE_target);
-        
-        System.out.println("\nUmbrella (perturbed into Harmonic) entropy: " + sHarmonic + ", error: "+ er_sHarmonic);
-        System.out.println("Umbrella (perturbed into Target) entropy: " + sTarget + ", error: "+ er_sTarget);
-        
-        //double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*numSteps*numSteps))-Math.sqrt(2*sHarmonic);
-        //double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*numSteps*numSteps))-Math.sqrt(2*sTarget);
-        
-        //System.out.println("PI Harmonic: " + pi_harmonic);
-        //System.out.println("PI Target: " + pi_target);
-        
+        try{
+	        fileWriterUmb.close();
+        } catch (IOException e){
+        	
+        }
         
     }
 
@@ -334,10 +380,10 @@ public class SimUmbrella extends Simulation {
     	public double density = 1256;
     	public int exponentN = 12;
     	public int D = 3;
-    	public long numSteps = 100000;
+    	public long numSteps = 2000000;
     	public double harmonicFudge =1;
-    	public String filename = "FCC_SoftSphere_n12_T02";
-    	public double temperature = 0.2;
+    	public String filename = "CB_FCC_n12_T01";
+    	public double temperature = 0.1;
     }
 
 }
