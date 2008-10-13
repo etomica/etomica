@@ -85,7 +85,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         double exp_2uOld = exp_uOld*exp_uOld;
         double exp_2uOldHarmonic = exp_uOldHarmonic*exp_uOldHarmonic;
         
-        gamma_Old = Math.sqrt(exp_2uOld + exp_2uOldHarmonic);
+        gamma_Old = Math.sqrt(exp_2uOld + refPref*refPref*exp_2uOldHarmonic);
         
 //        System.out.println("exp_uOld: "+ exp_uOld);
 //        System.out.println("exp_uOldHarmonic: "+exp_uOldHarmonic);
@@ -108,7 +108,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         double exp_2uNew = exp_uNew*exp_uNew;
         double exp_2uNewHarmonic = exp_uNewHarmonic*exp_uNewHarmonic;
         
-        gamma_New = Math.sqrt(exp_2uNew + exp_2uNewHarmonic);
+        gamma_New = Math.sqrt(exp_2uNew + refPref*refPref*exp_2uNewHarmonic);
         
 //        System.out.println("\nexp_uNew: "+ exp_uNew);
 //        System.out.println("uexp_NewHarmonic: "+exp_uNewHarmonic);
