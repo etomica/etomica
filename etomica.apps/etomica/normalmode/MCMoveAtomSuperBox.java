@@ -167,6 +167,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
      */
     public void rejectNotify() {
     	
+    	//System.err.println("Rejected atom is in cell["+randomNumber0+"]["+randomAtom0+"]");
+    	
         for (int i=0; i<27;i++){
             
         	((IAtomPositioned)((IMolecule)boxCells[i][randomNumber0].molecules.getAtom(randomAtom0)).getChildList().getAtom(0)).getPosition().ME(translationVector);
