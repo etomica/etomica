@@ -10,10 +10,6 @@ import etomica.units.Null;
 
 public class DataProcessorBoltzmannFactor extends DataProcessor {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	public DataProcessorBoltzmannFactor() {
 		
 		data = new DataDouble();
