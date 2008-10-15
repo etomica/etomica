@@ -418,7 +418,7 @@ public class SimOverlapAB extends Simulation {
 //            System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid Bennett parameter");
         }
-        System.out.println("equilibration finsihed.")
+        System.out.println("equilibration finsihed.");
         
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
