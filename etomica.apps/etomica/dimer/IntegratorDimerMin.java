@@ -74,7 +74,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public double Frot, dFrot;
 	public double Fprimerot;
 	public double sinDtheta, cosDtheta;
-	public double e0prev, e0;
+	public double eMin, e0;
 	public int rotCounter, counter;
 	public boolean rotate, normalD;
 	public String file;
@@ -111,7 +111,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		counter = 0;
 		Frot = 1;
 		rotate = true;		
-		e0prev = 0;
 	}
 	
 	/**
@@ -130,7 +129,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    // Orient half-dimer on minimum energy path
         rotateDimerNewton();
 	    	    
-	    e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());     
+	    e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());
+	    eMin = ElectronVolt.UNIT.fromSim(energyBoxMin.getDataAsScalar());
         // Write energy to file
         try{
             fileWriter.write(e0+"\n");
@@ -298,9 +298,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             for(int i=0; i<F0.length; i++){
                 slope += F0[i].dot(N[i]);
             }
-            if(slope<0){
-                quitSearch();
-            }
+            if(slope<0){	
+            	if(eMin>e0){
+            		quitSearch();
+            	}
+           }
 	    }
 	    
 		while(true){

@@ -185,9 +185,11 @@ public class SimDimerMEAMadatom extends Simulation{
         
     //ADATOM CREATION AND PLACEMENT
         // Sn
+        
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
+        //adAtomPos = getSpace().makeVector();
         adAtomPos.setX(0, 15.5);
         adAtomPos.setX(1, -0.2);
         adAtomPos.setX(2, -0.2);
@@ -458,7 +460,7 @@ public class SimDimerMEAMadatom extends Simulation{
         sim.setMovableAtoms(120.0, vect);
         
         sim.setPotentialListAtoms();
-        
+        //sim.removeAtoms(2.9, vect);
         //sim.initializeConfiguration("sns101-initial");
         
         sim.enableMolecularDynamics(5000);

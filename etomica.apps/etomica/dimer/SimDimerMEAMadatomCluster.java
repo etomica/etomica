@@ -38,7 +38,9 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         
         sim.setPotentialListAtoms();
         
-        sim.initializeConfiguration("sns101-initial3");
+        //sim.removeAtoms(2.9, vect);
+        
+        //sim.initializeConfiguration("sns101-initial3");
         
         /*
         sim.initializeConfiguration(fileName+"_saddle");
@@ -60,6 +62,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         //sim.integratorDimer.setRotNum(1);
         
         sim.enableMinimumSearch(fileName, true);
+        
         
         XYZWriter xyzwriter = new XYZWriter(sim.box);
         xyzwriter.setFileName(fileName+"_B_minimum.xyz");
