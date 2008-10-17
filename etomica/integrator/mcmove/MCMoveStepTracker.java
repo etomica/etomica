@@ -40,11 +40,21 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     adjustInterval *= 2;
                     adjustStep *= 0.5;
                 }
+                if (lastAdjust == 5) {
+                    // sixth consecutive increase.  increase adjustment step  
+                    adjustStep *= 2;
+                    lastAdjust = 3;
+                }
                 stepSize *= 1.0+adjustStep;
                 if (noisyAdjustment) {
                     System.out.println(mcMove.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
-                lastAdjust = 1;
+                if (lastAdjust < 1) {
+                    lastAdjust = 1;
+                }
+                else {
+                    lastAdjust++;
+                }
             }
         } else {
             if (stepSize > mcMove.getStepSizeMin()) {
@@ -53,11 +63,21 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     adjustInterval *= 2;
                     adjustStep *= 0.5;
                 }
+                if (lastAdjust == -5) {
+                    // sixth consecutive decrease.  increase adjustment step  
+                    adjustStep *= 2;
+                    lastAdjust = -3;
+                }
                 stepSize *= 1.0-adjustStep;
                 if (noisyAdjustment) {
                     System.out.println(mcMove.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
-                lastAdjust = -1;
+                if (lastAdjust > -1) {
+                    lastAdjust = -1;
+                }
+                else {
+                    lastAdjust--;
+                }
             }
         }
         stepSize = Math.min(stepSize, mcMove.getStepSizeMax());
