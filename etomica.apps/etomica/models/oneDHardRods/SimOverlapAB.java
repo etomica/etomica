@@ -80,7 +80,7 @@ public class SimOverlapAB extends Simulation {
         
         basis = new BasisMonatomic(space);
         
-        //Set up target system   -A
+        //Set up target system   - A
         PotentialMasterList potentialMasterTarget = new 
             PotentialMasterList(this, space);
         boxTarget = new Box(this, space);
@@ -231,7 +231,7 @@ public class SimOverlapAB extends Simulation {
         
         
         meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
-                meterAinB, meterBinB, temperature);
+                meterBinB, meterAinB, temperature);
         meters[1] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
@@ -325,7 +325,7 @@ public class SimOverlapAB extends Simulation {
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
         if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
+            accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
         }
         else {

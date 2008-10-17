@@ -1,13 +1,12 @@
 package etomica.models.oneDHardRods;
 
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
 
 
@@ -18,9 +17,17 @@ public class MeterOverlap implements DataSource {
     double temperature;
     DataDoubleArray dda;
     
+    /**
+     * Put the system you are measuring in as the first DataSourceScalar
+     * @param label
+     * @param dimension
+     * @param dataSourceA
+     * @param dataSourceB
+     * @param temperature
+     */
     MeterOverlap(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
-        dataInfo = new DataInfoDouble(label, dimension);
+        dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
         
@@ -34,8 +41,9 @@ public class MeterOverlap implements DataSource {
     public DataDoubleArray getData(){
         double[] eAeB = dda.getData();
         
-        eAeB[1] = Math.exp(-dataSourceB.getDataAsScalar()/temperature);
-        eAeB[0] = Math.exp(-dataSourceA.getDataAsScalar()/temperature);
+        eAeB[1] = Math.exp(-dataSourceB.getDataAsScalar()/temperature)  
+                / Math.exp(-dataSourceA.getDataAsScalar()/temperature);
+        eAeB[0] = 1.0;
         
         return dda;
     }
