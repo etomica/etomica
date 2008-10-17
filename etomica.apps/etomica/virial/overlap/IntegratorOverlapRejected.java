@@ -136,30 +136,25 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
                             ((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1))+")");
         }
         minDiffLoc = newMinDiffLoc;
-        for (int i=0; i<nIntegrators; i++) {
-            double error = ((DataGroup)accumulators[i].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
-            double ratio = ((DataGroup)accumulators[i].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1);
-            if (Debug.ON && Debug.DEBUG_NOW) {
-                System.out.println(i+" "+Math.abs(error)+" "+Math.abs(ratio));
-            }
-            if (Double.isNaN(error) || Double.isNaN(ratio)) {
-                error = 1.0;
-                ratio = 1.0;
-            }
-            double sum = 1.0;
-            for (int j=0; j<nIntegrators; j++) {
-                if (j==i) continue;
-                double jRatio = ((DataGroup)accumulators[j].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1);
-                double jError = ((DataGroup)accumulators[j].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
-                if (Double.isNaN(jError) || Double.isNaN(jRatio)) {
-                    jError = 1.0;
-                    jRatio = 1.0;
-                }
-                double r = (ratio/error)*(jError/jRatio);
-                sum += r * r * totNumSubSteps[j] / totNumSubSteps[i];
-            }
-            stepFreq[i] = 1.0 / sum;
+
+        double refError = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
+        double refErrorRatio = refError/Math.abs(((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1));
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.println(0+" "+Math.abs(refError)+" "+Math.abs(refError/refErrorRatio));
         }
+        if (Double.isNaN(refErrorRatio) || refErrorRatio > 1) {
+            refErrorRatio = 1;
+        }
+
+        double targetError = ((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
+        double targetErrorRatio = targetError/Math.abs(((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1));
+        if (Double.isNaN(targetErrorRatio) || targetErrorRatio > 1) {
+            targetErrorRatio = 1;
+        }
+
+        stepFreq[0] = 1.0 / (1 + targetErrorRatio/refErrorRatio * Math.sqrt(((double)totNumSubSteps[1]) / totNumSubSteps[0]));
+        stepFreq[1] = 1.0 - stepFreq[0];
+
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.print("freq ");
             for (int i=0; i<nIntegrators; i++) {
