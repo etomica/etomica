@@ -10,12 +10,17 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes1DHR;
@@ -45,6 +50,7 @@ public class SimOverlapAB extends Simulation {
     double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
+    public BasisMonatomic basis;
     ActivityIntegrate activityIntegrate;
     
     IntegratorMC[] integrators;
@@ -72,7 +78,7 @@ public class SimOverlapAB extends Simulation {
         meters = new DataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
-        
+        basis = new BasisMonatomic(space);
         
         //Set up target system   -A
         PotentialMasterList potentialMasterTarget = new 
@@ -80,6 +86,7 @@ public class SimOverlapAB extends Simulation {
         boxTarget = new Box(this, space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
+//        accumulators[0] = new AccumulatorVirialOverlapSingleAverage(10, 11, false);
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
@@ -157,6 +164,7 @@ public class SimOverlapAB extends Simulation {
         boxRef = new Box(this, space);
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
+//        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
         
         p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
@@ -183,6 +191,7 @@ public class SimOverlapAB extends Simulation {
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
                 random, temperature);
         integratorRef.setBox(boxRef);
+        integrators[0] = integratorRef;
         activityIntegrate = new ActivityIntegrate(integratorRef);
         getController().addAction(activityIntegrate);
         
@@ -408,24 +417,81 @@ public class SimOverlapAB extends Simulation {
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
         sim.initBennettParameter(filename, numSteps/20);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || Double.isInfinite(sim.bennettParam)){
+        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                Double.isInfinite(sim.bennettParam)){
 //            System.out.println("bennet info:  " + )
-            throw new RuntimeException("Simulation failed to find a valid Bennett parameter");
+            throw new RuntimeException("Simulation failed to find a valid " +
+                    "Bennett parameter");
         }
         sim.equilibrate(refFileName, numSteps/10);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || Double.isInfinite(sim.bennettParam)){
-            
+        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                Double.isInfinite(sim.bennettParam)){
 //            System.out.println("bennet info:  " + )
-            throw new RuntimeException("Simulation failed to find a valid Bennett parameter");
+            throw new RuntimeException("Simulation failed to find a valid " +
+                    "Bennett parameter");
         }
         System.out.println("equilibration finsihed.");
         
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency " + 
+                sim.integratorOverlap.getStepFreq0() + " (actual: " + 
+                sim.integratorOverlap.getActualStepFreq0() + ")");
         
+        double[][] omega2 = sim.nm.getOmegaSquared(sim.boxTarget); 
+        //Above known from the analytical results. - otherwise it would be from 
+        //the S matrix.
+        double[] coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
         
+        //CALCULATION OF HARMONIC ENERGY
+        double AHarmonic = 0;
+        for(int i=0; i<omega2.length; i++) {
+            for(int j=0; j<omega2[0].length; j++) {
+                if (!Double.isInfinite(omega2[i][j])) {
+                    AHarmonic += coeffs[i] * Math.log(omega2[i][j]*coeffs[i] /
+                            (temperature*Math.PI));
+                }
+            }
+        }
+        int totalCells = 1;
+        for (int i=0; i<D; i++) {
+            totalCells *= sim.nCells[i];
+        }
+        int basisSize = sim.basis.getScaledCoordinates().length;
+        double fac = 1;
+        if (totalCells % 2 == 0) {
+            fac = Math.pow(2,D);
+        }
+        AHarmonic -= Math.log(Math.pow(2.0, basisSize *D * (totalCells - fac) / 
+                2.0) / Math.pow(totalCells, 0.5 * D));
+        System.out.println("Harmonic-reference free energy: " + AHarmonic * 
+                temperature);
+        double ratio = sim.dsvo.getDataAsScalar();
+        double error = sim.dsvo.getError();
+        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("free energy difference: " + (-Math.log(ratio)) + 
+                ", error: "+(error/ratio));
+        System.out.println("target free energy: " + (AHarmonic-Math.log(ratio)));
+        DataGroup allYourBase = 
+            (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("harmonic ratio average: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                 + " error: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints() -
+                sim.dsvo.minDiffLocation()-1);
+        System.out.println("target ratio average: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                 + " error: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+
+        if(D==1) {
+            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules)
+                + SpecialFunctions.lnFactorial(numMolecules) ;
+            System.out.println("Hard-rod free energy: "+AHR);
+        }
         
         
     }

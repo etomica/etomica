@@ -27,6 +27,8 @@ public class MeterOverlap implements DataSource {
         this.dataSourceA = dataSourceA;
         this.dataSourceB = dataSourceB;
         this.temperature = temperature;
+        
+        dda = new DataDoubleArray(2);
     }
     
     public DataDoubleArray getData(){
