@@ -63,6 +63,14 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     }
     
     /**
+     * Retruns the number of total number of integrator steps the sub-integrators
+     * perform for every step of the overlap integrator.  Default value is 1000.
+     */
+    public int getNumSubSteps() {
+        return numSubSteps;
+    }
+    
+    /**
      * Sets whether to adjust the number of relative number of steps for each
      * sub-integrator.  Default is true.
      */
@@ -157,6 +165,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         stepFreq[1] = 1.0 - stepFreq[0];
 
         if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.println("error ratios "+refErrorRatio+" "+targetErrorRatio);
             System.out.print("freq ");
             for (int i=0; i<nIntegrators; i++) {
                 System.out.print(stepFreq[i]+" ");

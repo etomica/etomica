@@ -2,7 +2,6 @@ package etomica.virial.overlap;
 
 import etomica.api.IRandom;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
@@ -61,6 +60,14 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
      */
     public void setNumSubSteps(int n) {
         numSubSteps = n;
+    }
+    
+    /**
+     * Returns the number of total number of integrator steps the sub-integrators
+     * perform for every step of the overlap integrator.  Default value is 1000.
+     */
+    public int getNumSubSteps() {
+        return numSubSteps;
     }
     
     /**
@@ -155,7 +162,7 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
         stepFreq[0] = 1.0 / (1 + targetErrorRatio/refErrorRatio * Math.sqrt(((double)totNumSubSteps[1]) / totNumSubSteps[0]));
         stepFreq[1] = 1.0 - stepFreq[0];
 
-        if (Debug.ON && Debug.DEBUG_NOW) {
+        if (random.nextInt(1000) == 1 || (Debug.ON && Debug.DEBUG_NOW)) {
             System.out.print("freq ");
             for (int i=0; i<nIntegrators; i++) {
                 System.out.print(stepFreq[i]+" ");
