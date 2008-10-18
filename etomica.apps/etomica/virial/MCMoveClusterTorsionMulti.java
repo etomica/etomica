@@ -172,7 +172,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         bias = 1;
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            oldCenter.E(((ISpecies)selectedMolecules[i].getType()).getPositionDefinition().position(selectedMolecules[i]));
+            oldCenter.E(selectedMolecules[i].getType().getPositionDefinition().position(selectedMolecules[i]));
             IAtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
 
@@ -188,17 +188,17 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
 
 //            System.out.println("|dr21| "+Math.sqrt(dr21.squared()));
-            if (Math.abs(Math.sqrt(dr21.squared())-1.54) > 0.0001) {
-                throw new RuntimeException("oops dr21 "+Math.sqrt(dr21.squared())+" "+i);
-            }
+//            if (Math.abs(Math.sqrt(dr21.squared())-1.54) > 0.0001) {
+//                throw new RuntimeException("oops dr21 "+Math.sqrt(dr21.squared())+" "+i);
+//            }
 //            System.out.println("|dr23| "+Math.sqrt(dr23.squared()));
-            if (Math.abs(Math.sqrt(dr23.squared())-1.54) > 0.0001) {
-                throw new RuntimeException("oops dr23 "+Math.sqrt(dr23.squared()));
-            }
+//            if (Math.abs(Math.sqrt(dr23.squared())-1.54) > 0.0001) {
+//                throw new RuntimeException("oops dr23 "+Math.sqrt(dr23.squared()));
+//            }
 //            System.out.println("|dr34| "+Math.sqrt(dr34.squared()));
-            if (Math.abs(Math.sqrt(dr34.squared())-1.54) > 0.0001) {
-                throw new RuntimeException("oops dr34 "+Math.sqrt(dr34.squared()));
-            }
+//            if (Math.abs(Math.sqrt(dr34.squared())-1.54) > 0.0001) {
+//                throw new RuntimeException("oops dr34 "+Math.sqrt(dr34.squared()));
+//            }
             
             double dr23Sq = dr23.squared();
             dr23.TE(1.0/Math.sqrt(dr23Sq));
@@ -267,11 +267,11 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                 // v1 = v1overAxis * axis
                 double v1overAxis = work2.dot(work1);
 
-                if (Math.abs(Math.abs(v1overAxis)-Math.sqrt(work1.squared())) < 1E-10) {
-                    // axis is almost exactly parallel or anti-parallel to direction,
-                    // so just don't rotate.
-                    continue;
-                }
+//                if (Math.abs(Math.abs(v1overAxis)-Math.sqrt(work1.squared())) < 1E-10) {
+//                    // axis is almost exactly parallel or anti-parallel to direction,
+//                    // so just don't rotate.
+//                    continue;
+//                }
 
                 work2.TE(-v1overAxis);
                 work2.PE(work1);
@@ -341,7 +341,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                     }
                 }
             }
-            oldCenter.ME(((ISpecies)selectedMolecules[i].getType()).getPositionDefinition().position(selectedMolecules[i]));
+            oldCenter.ME(selectedMolecules[i].getType().getPositionDefinition().position(selectedMolecules[i]));
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change

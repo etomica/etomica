@@ -127,7 +127,7 @@ public class ClusterOperations {
      * may be altered by this method.
      */
     public static void addEquivalents(LinkedList<ClusterDiagram> list) {
-        if(list.size() == 0 || list.size() == 1) {
+        if(list.size() < 2) {
             return;
         }
         ListIterator<ClusterDiagram> outer = list.listIterator(0);

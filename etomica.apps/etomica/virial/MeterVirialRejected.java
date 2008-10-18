@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import java.util.Random;
+
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.data.Data;
