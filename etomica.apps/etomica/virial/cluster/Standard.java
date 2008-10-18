@@ -188,14 +188,16 @@ public final class Standard {
         int nBondTypes = (e == null) ? 1 : 2;
         ClusterDiagram clusterD = new ClusterDiagram(nBody,2);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
-        generator.setAllPermutations(!usePermutations);
+        generator.setAllPermutations(false);
         generator.setOnlyConnected(false);
         generator.setOnlyDoublyConnected(true);
         generator.setExcludeArticulationPoint(true);
         generator.setExcludeArticulationPair(false);
         generator.setExcludeNodalPoint(true);
         generator.setMakeReeHover(false);
+//        clusterD.reset();
         generator.reset();
+
 
         clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
         LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
@@ -204,25 +206,61 @@ public final class Standard {
             clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
             list.add(new ClusterDiagram(clusterD));
         }
-        ClusterOperations.addEquivalents(list);
-        ClusterDiagram[] trueClusters = list.toArray(new ClusterDiagram[]{});
-        ClusterOperations ops = new ClusterOperations();
-        ops.setApproximation(approx);
-        ClusterDiagram[] approxClusters = ops.getC(nBody-2);
-        ClusterDiagram[] xs = ClusterOperations.difference(trueClusters, approxClusters);
-        xs = ClusterOperations.integrate(xs);
-        xs = ClusterOperations.integrate(xs);
-        if (e != null) {
-            xs = ClusterOperations.makeReeHoover(xs);
+        ClusterDiagram[] trueClusters = list.toArray(new ClusterDiagram[list.size()]);
+        System.out.println("true clusters");
+        for (int i=0; i<trueClusters.length; i++) {
+            System.out.println(trueClusters[i]);
         }
+        ClusterOperations.addEquivalents(list);
+        trueClusters = list.toArray(new ClusterDiagram[list.size()]);
+        System.out.println("true clusters (equiv)");
+        for (int i=0; i<trueClusters.length; i++) {
+            System.out.println(trueClusters[i]);
+        }
+        ClusterDiagram[] out = trueClusters;
+        if (approx != ClusterOperations.NONE) {
+            ClusterOperations ops = new ClusterOperations();
+            ops.setApproximation(approx);
+            ClusterDiagram[] approxClusters = ops.getC(nBody-2);
+            System.out.println("approx clusters");
+            for (int i=0; i<approxClusters.length; i++) {
+                System.out.println(approxClusters[i]);
+            }
+            out = ClusterOperations.difference(trueClusters, approxClusters);
+            System.out.println("difference clusters");
+            for (int i=0; i<out.length; i++) {
+                System.out.println(out[i]);
+            }
+        }
+        out = ClusterOperations.integrate(out);
+        System.out.println("integrate1 clusters");
+        for (int i=0; i<out.length; i++) {
+            System.out.println(out[i]);
+        }
+        out = ClusterOperations.integrate(out);
+        System.out.println("integrate2 clusters");
+        for (int i=0; i<out.length; i++) {
+            System.out.println(out[i]);
+        }
+        if (e != null) {
+            out = ClusterOperations.makeReeHoover(out);
+            System.out.println("ree-hoovered clusters");
+            for (int i=0; i<out.length; i++) {
+                System.out.println(out[i]);
+            }
+        }
+//        for (int i=0; i<xs.length; i++) {
+//            System.out.println(xs[i].toString());
+//        }
+//        System.exit(1);
 
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
         int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
 
-        for (int m=0; m<xs.length; m++) {
-            clusterD = xs[m];
+        for (int m=0; m<out.length; m++) {
+            clusterD = out[m];
             ClusterOperations.sortConnections(clusterD);
             int iBond = 0, iEBond = 0;
             int numBonds = clusterD.getNumConnections();
@@ -266,8 +304,10 @@ public final class Standard {
             double [] newWeights = new double[weights.length+1];
             System.arraycopy(weights,0,newWeights,0,weights.length);
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
+            System.out.println("hi "+clusterD.mReeHooverFactor+" "+weightPrefactor+" "+clusterD.mNumIdenticalPermutations+" "+newWeights[weights.length]);
             weights = newWeights;
         } while (generator.advance());
+        System.out.println("XS weights: "+Arrays.toString(weights));
         if (e != null) {
             return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
         }
