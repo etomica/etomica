@@ -45,6 +45,7 @@ public class DisplayBox extends Display {
     private IBox box;
     private boolean graphicResizable = true;
     private final ISpace space;
+    private double sigma = 1.0;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvas canvas = null;
@@ -865,4 +866,12 @@ public class DisplayBox extends Display {
         }
             
     }//end of InputEventHandler
+
+	public double getSigma() {
+		return sigma;
+	}
+
+	public void setSigma(double sigma) {
+		this.sigma = sigma;
+	}
 }//end of DisplayBox
