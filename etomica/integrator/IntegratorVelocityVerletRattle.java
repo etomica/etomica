@@ -252,7 +252,6 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         }
 
         if (printInterval > 0 && stepCount%printInterval == 0) {
-            meterPE.setBox(box);
             double PE = meterPE.getDataAsScalar();
             double KE = meterKE.getDataAsScalar();
             int moleculeCount = box.getMoleculeList().getAtomCount();
