@@ -13,8 +13,8 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
- * A Monte Carlo move which converts one normal mode to a harmonic thingy and
- * then explores the phase space defined by the remaining normal modes.
+ * A Monte Carlo move which converts one normal mode to a harmonic normal mode
+ *  and then explores the phase space defined by the remaining normal modes.
  * 
  * @author cribbin
  *

@@ -122,6 +122,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * getData for a specific Bennet parameter.
      */
     public Data getData() {
+//        System.out.println("AVOSA getData");
         return getData((nBennetPoints-1)/2);
     }
     

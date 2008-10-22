@@ -21,8 +21,8 @@ public class MeterOverlap implements DataSource {
      * Put the system you are measuring in as the first DataSourceScalar
      * @param label
      * @param dimension
-     * @param dataSourceA
-     * @param dataSourceB
+     * @param dataSourceA - denominator
+     * @param dataSourceB - numerator
      * @param temperature
      */
     MeterOverlap(String label, Dimension dimension, DataSourceScalar dataSourceA,
@@ -45,6 +45,7 @@ public class MeterOverlap implements DataSource {
                 / Math.exp(-dataSourceA.getDataAsScalar()/temperature);
         eAeB[0] = 1.0;
         
+//        System.out.println("meter overlap getdata");
         return dda;
     }
     

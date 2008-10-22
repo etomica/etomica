@@ -87,6 +87,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
 //    }
 //    
     public boolean doTrial() {
+//        System.out.println("MCMoveChangeMode doTrial");
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();

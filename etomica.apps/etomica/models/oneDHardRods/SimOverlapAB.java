@@ -80,13 +80,12 @@ public class SimOverlapAB extends Simulation {
         
         basis = new BasisMonatomic(space);
         
-        //Set up target system   - A
+        //Set up target system   - A - 1
         PotentialMasterList potentialMasterTarget = new 
             PotentialMasterList(this, space);
         boxTarget = new Box(this, space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
-//        accumulators[0] = new AccumulatorVirialOverlapSingleAverage(10, 11, false);
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
@@ -114,8 +113,6 @@ public class SimOverlapAB extends Simulation {
                 random, temperature);
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
-        activityIntegrate = new ActivityIntegrate(integratorTarget);
-        getController().addAction(activityIntegrate);
         
         nm = new NormalModes1DHR(space.D());
         nm.setHarmonicFudge(harmonicFudge);
@@ -148,17 +145,11 @@ public class SimOverlapAB extends Simulation {
         
         meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
-        meters[0] = meterOverlapInA;
+        meters[1] = meterOverlapInA;
         
-        integratorTarget.setBox(boxTarget);
-        //nan do we need to reset the potentialmaster neighbormanager here?
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
-
         
-        
-        
-        
-        //Set up reference system - Right now, SystemB - hybrid system
+        //Set up REFERENCE system - System B - 0 - hybrid system
         PotentialMasterList potentialMasterRef = new 
             PotentialMasterList(this, space);
         boxRef = new Box(this, space);
@@ -192,8 +183,6 @@ public class SimOverlapAB extends Simulation {
                 random, temperature);
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
-        activityIntegrate = new ActivityIntegrate(integratorRef);
-        getController().addAction(activityIntegrate);
         
         nm = new NormalModes1DHR(space.D());
         nm.setHarmonicFudge(harmonicFudge);
@@ -201,7 +190,6 @@ public class SimOverlapAB extends Simulation {
         
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
-        
         
         convertMove = new MCMoveConvertMode(potentialMasterRef, 
                 random);
@@ -228,11 +216,11 @@ public class SimOverlapAB extends Simulation {
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-        
+        integratorRef.setMeter(meterBinB);
         
         meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
-        meters[1] = meterOverlapInB;
+        meters[0] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
@@ -245,12 +233,12 @@ public class SimOverlapAB extends Simulation {
         integratorOverlap = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
         
         setBennettParameter(1.0, 30);
         
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
+        activityIntegrate = new ActivityIntegrate(integratorOverlap, 0, true);
         getController().addAction(activityIntegrate);
     }
     
@@ -285,6 +273,7 @@ public class SimOverlapAB extends Simulation {
                 setBennettParameter(bennettParam,1);
             }
             catch (IOException e) {
+                System.out.println("Bennett parameter not from file");
                 // file not there, which is ok.
             }
         }
@@ -413,6 +402,8 @@ public class SimOverlapAB extends Simulation {
         SimOverlapAB sim = new SimOverlapAB(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, affectedWV);
         
+        System.out.println("instantiated");
+        
         //start simulation & equilibrate
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
@@ -430,7 +421,7 @@ public class SimOverlapAB extends Simulation {
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
-        System.out.println("equilibration finsihed.");
+        System.out.println("equilibration finished.");
         
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -506,7 +497,7 @@ public class SimOverlapAB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 100000;
+        public long numSteps = 40000000; //40000 is minimum number of steps
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
