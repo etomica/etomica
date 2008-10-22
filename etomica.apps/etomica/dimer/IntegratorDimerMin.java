@@ -131,6 +131,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    	    
 	    e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());
 	    eMin = ElectronVolt.UNIT.fromSim(energyBoxMin.getDataAsScalar());
+	    
         // Write energy to file
         try{
             fileWriter.write(e0+"\n");
@@ -407,9 +408,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                 ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector2);
             }     
 			
-			// Calculate new F's
-			dimerForces2(Fmin);
-			
 			// Calculate new Normal
 			dimerNormal();
 			
@@ -508,17 +506,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			
 		}
 	}
-	
-	protected void dimerForces2(IVector []aF1){
-        forceMin.reset();
-        potential.calculate(boxMin, allatoms, forceMin);
-        
-        // Copy forces of dimer ends (R1, R2) to local array
-        for(int i=0; i<aF1.length; i++){
-            aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());           
-        }
-	}
-	
+		
 	/**
 	 * Used in the middle of the rotateDimer method.  Resets forces in box min only (we are rotating
 	 * the dimer around a fixed center).  Calls potential.calculate, and copies over the new forces

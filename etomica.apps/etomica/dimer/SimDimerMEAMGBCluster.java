@@ -29,7 +29,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
 
 	public static void main(String[] args){
 		
-		String fileName = args[0];
+		String fileName = "test12"; //args[0];
         //int mdSteps = 10;//Integer.parseInt(args[1]);
         //int h = Integer.parseInt(args[1]);
         //int k = Integer.parseInt(args[2]);
@@ -39,13 +39,13 @@ public class SimDimerMEAMGBCluster extends Simulation{
         //int y = Integer.parseInt(args[5]);
         //int z = Integer.parseInt(args[6]);
         
-        double num = Double.parseDouble(args[1]);
+        //double num = Double.parseDouble(args[1]);
         
         final String APP_NAME = "SimDimerMEAMGBCluster";
         
-        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {2,1,0}, new int[] {2,6,12});
+        final SimDimerMEAMGB sim = new SimDimerMEAMGB(new int[] {1,0,1}, new int[] {4,4,12});
         
-        sim.initializeConfiguration("sngb210-2612-md");
+        sim.initializeConfiguration("sngb101-4412-md");
         
         IVector dimerCenter = sim.getSpace().makeVector();
         dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
@@ -88,12 +88,13 @@ public class SimDimerMEAMGBCluster extends Simulation{
         
         //sim.enableMolecularDynamics(10000);
         
-        //sim.enableDimerSearch(fileName, 2500, false, false);
-        //sim.integratorDimer.setRotNum(1);
+        sim.enableDimerSearch(fileName, 2500, false, false);
+        sim.integratorDimer.setRotNum(1);
         
         
-        sim.enableMinimumSearch(fileName, true);
+        //sim.enableMinimumSearch(fileName, true);
         
+        /*
         //Limit MSD calculation to a specific species
         AtomIteratorFiltered aif = AtomIteratorFiltered.makeIterator(new AtomIteratorLeafAtoms(sim.box), 
         		new AtomFilterTypeInstance(sim.dimer.getChildType(0)));
@@ -107,7 +108,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
         xyzwriter.setIsAppend(true);
         sim.integratorDimerMin.addIntervalAction(xyzwriter);
         sim.integratorDimerMin.setActionInterval(xyzwriter, 5);
-        
+        */
         
         /*
         WriteConfiguration writer = new WriteConfiguration(sim.getSpace());
@@ -119,7 +120,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
            
         sim.getController().actionPerformed();
         
-        
+        /*
         IVector [] msdarray = msd.getDataAsArray();
         aif.reset();
         int i=0;
@@ -128,7 +129,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
         	System.out.println(((IAtomLeaf)a).getLeafIndex()+"     "+Math.sqrt(msdarray[i].squared()));
         	i++;
         }
-		
+		*/
     }
 
 }
