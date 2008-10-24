@@ -27,18 +27,32 @@ public final class SpecialFunctions {
      * 
      * @throws IllegalArgumentException if n < 0
      */
-    public static int factorial(int n){
+    public static long factorial(int n){
         if(n < 0){
             throw new IllegalArgumentException("Argument less than zero: "+n);
         }
-        return (n <= 1) ? 1 :(n*factorial(n-1));
+        if (n < 2) {
+            return 1;
+        }
+        long product = 2;
+        for (int i=3; i<n+1; i++) {
+            product *= i;
+        }
+        return product;
     }
     
     public static double lnFactorial(int n) {
         if(n < 0) {
             throw new IllegalArgumentException("Argument less than zero: "+n);
         }
-        return (n <= 1) ? 0 :(Math.log(n) + lnFactorial(n-1));
+        if (n < 2) {
+            return 0;
+        }
+        double sum = Math.log(n);
+        for (int i=n-1; i>1; i--) {
+            sum += Math.log(i);
+        }
+        return sum;
     }
         
     //non-recursive version
@@ -63,7 +77,6 @@ public final class SpecialFunctions {
      * Returns the ln(gamma), the natural logarithm of the gamma function.
      * This method is not tested.
      */
-
     public static double lnGamma(double x) {
     	double tmp = x+5.5;
     	double y = x;
@@ -84,6 +97,21 @@ public final class SpecialFunctions {
 			+0.1208650973866179e-02,
 			-0.5395239384953e-05};
     
+    public static double gamma(double x) {
+        if (x > 0) {
+            return Math.exp(lnGamma(x));
+        }
+        int n = -(int)x;
+        if (n != -x) {
+            n++;
+        }
+        double d = 1;
+        for (int i=0; i<n; i++) {
+            d *= (x+i);
+        }
+        return Math.exp(lnGamma(x+n))/d;
+    }
+    
     /**
      * Normalized incomplete gamma function, equal to
      * Integrate[Exp[-t] t^(a-1),{t,x,Infinity}]/Gamma[a]
@@ -94,9 +122,8 @@ public final class SpecialFunctions {
     	if(a == 0.0) return 1.0;
     	if(x < a+1.0) {
     		return 1.0 - gser(a, x);
-    	} else {
-    		return gcf(a, x);
     	}
+    	return gcf(a, x);
     }
     
     private static double gser(double a, double x) {
