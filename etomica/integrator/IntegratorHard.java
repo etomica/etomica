@@ -135,10 +135,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         if (Double.isInfinite(currentPotentialEnergy)) {
             // we were overlapped at some point.  try recalculating the PE now
             // so we can start re-tracking the PE once we aren't overlapped.
-//            meterPE.setBox(box);
-            if(meterPE instanceof MeterPotentialEnergy){
-                ((MeterPotentialEnergy)meterPE).setBox(box);
-            }
             currentPotentialEnergy = meterPE.getDataAsScalar();
         }
         super.doStepInternal();
@@ -256,10 +252,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         collisionTimeStep = 0.0;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisBox(box)) {
             eventList.check();
-//            meterPE.setBox(box);
-            if(meterPE instanceof MeterPotentialEnergy){
-                ((MeterPotentialEnergy)meterPE).setBox(box);
-            }
             double PE = meterPE.getDataAsScalar();
             if (Math.abs((PE - currentPotentialEnergy)/(PE+currentPotentialEnergy)) > 1.e-9
                     && Math.abs(PE - currentPotentialEnergy) > 1.e-9) {
