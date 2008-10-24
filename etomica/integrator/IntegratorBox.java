@@ -113,8 +113,12 @@ public abstract class IntegratorBox extends Integrator {
     public IBox getBox() {
         return box;
     }
-    
-    public void setMeter(DataSourceScalar mpe){
+
+    public void setMeterPotentialEnergy(DataSourceScalar mpe){
         meterPE = mpe;
+    }
+
+    public DataSourceScalar getMeterPotentialEnergy() {
+        return meterPE;
     }
 }

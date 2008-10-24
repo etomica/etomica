@@ -216,7 +216,7 @@ public class SimOverlapAB extends Simulation {
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-        integratorRef.setMeter(meterBinB);
+        integratorRef.setMeterPotentialEnergy(meterBinB);
         
         meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
