@@ -217,7 +217,7 @@ public class PermutationDegenerateIterator implements IndexIterator, java.io.Ser
             // for(int i=0; i<a.length-1; i++) System.out.print(a[i]+", ");
             // System.out.println(a[a.length-1]+"}");
         }
-        int expectedCount = SpecialFunctions.factorial(n);
+        long expectedCount = SpecialFunctions.factorial(n);
         int[] deg = p.getDegeneracy();
         for (int i = 0; i < deg.length; i++) {
             expectedCount /= SpecialFunctions.factorial(deg[i]);

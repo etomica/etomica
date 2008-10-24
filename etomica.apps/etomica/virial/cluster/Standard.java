@@ -127,7 +127,7 @@ public final class Standard {
         }
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
-        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        long fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
         do {
             int iBond = 0, iEBond = 0;
@@ -256,7 +256,7 @@ public final class Standard {
 
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
-        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        long fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
 
         for (int m=0; m<out.length; m++) {
@@ -372,7 +372,7 @@ public final class Standard {
         }
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
-        int fullSymmetry = SpecialFunctions.factorial(nBody);
+        long fullSymmetry = SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
         int[] iBond = new int[allNumBondTypes];
         do {
@@ -462,7 +462,7 @@ public final class Standard {
         generator.reset();
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
-        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        long fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
         do {
             int iBond = 0;

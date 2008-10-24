@@ -101,7 +101,7 @@ public class CombinationIterator implements IndexIterator, java.io.Serializable 
                 System.out.print(a[a.length - 1]);
             System.out.println("}");
         }
-        int s = SpecialFunctions.factorial(n) / SpecialFunctions.factorial(k) / SpecialFunctions.factorial(n - k);
+        long s = SpecialFunctions.factorial(n) / SpecialFunctions.factorial(k) / SpecialFunctions.factorial(n - k);
         System.out.println("Expected total:" + s);
     }
 
