@@ -39,18 +39,20 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
+    public MeterConvertModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+        this("meterConvertMode", potentialMaster, cd, box);
+    }
     
-    public MeterConvertModeBrute(IPotentialMaster potentialMaster, 
-            CoordinateDefinition cd, IBox box){
-        super("meterConvertMode", Null.DIMENSION);
+    public MeterConvertModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+        super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+    }
         
-    }    
     
     public double getDataAsScalar() {
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -59,6 +61,7 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         double normalization = 1/Math.sqrt(cells.length);
         energyNM = 0.0;
         energyOP = 0.0;
+        double energyOld = meterPE.getDataAsScalar();
         
         //get normal mode coordinate of "last" waveVector
         coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
@@ -116,6 +119,12 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         for (int iCell = 0; iCell<cells.length; iCell++) {
             cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
+        }
+        
+        if(getDataInfo().getLabel() == "meterBinA" && energyNM != 0.0 ){
+            System.out.println("energyOld  " + energyOld);
+            System.out.println("energyNM  " + energyNM);
+            System.out.println("energyOP  " + energyOP);
         }
         
         return energyNM + energyOP;

@@ -135,7 +135,7 @@ public class SimOverlapAB extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         
-        meterBinA = new MeterConvertModeBrute(potentialMasterTarget, 
+        meterBinA = new MeterConvertModeBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
         meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
