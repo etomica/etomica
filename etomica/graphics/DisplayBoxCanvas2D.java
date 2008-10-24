@@ -59,8 +59,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     protected void refreshSize() {
         Dimension dim = getSize();
         IVector boxDim = displayBox.getBox().getBoundary().getBoundingBox();
-        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getSigma());
-        double py = (dim.height - 1)/(boxDim.x(1)+displayBox.getSigma());
+        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
+        double py = (dim.height - 1)/(boxDim.x(1)+displayBox.getPaddingSigma());
         if (px > py) {
             // take the smaller of the two toPixel
             px = py;

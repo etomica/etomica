@@ -280,6 +280,28 @@ public class DisplayBox extends Display {
     public final IBox getBox() {return box;}
 
     /**
+     * Returns the amount of padding added around the edge of the drawing area.
+     * This allows atoms at the edge of the boundary to be fully drawn.  The
+     * padding is given in terms of simulations length units (Angstroms) and
+     * should (in general) be equal to the diameter of atoms in the box.
+     */
+    public double getPaddingSigma() {
+        return sigma;
+    }
+
+    /**
+     * Sets the amount of padding added around the edge of the drawing area.
+     * This allows atoms at the edge of the boundary to be fully drawn.  The
+     * padding is given in terms of simulations length units (Angstroms) and
+     * should (in general) be equal to the diameter of atoms in the box.
+     * DisplayBoxCanvas2D is currently the only thing that pays attention to
+     * this.
+     */
+    public void setPaddingSigma(double sigma) {
+        this.sigma = sigma;
+    }
+
+    /**
      * Specifies the box for this display.  Updates atomIterator appropriately.
      * @return void
      */
@@ -866,12 +888,4 @@ public class DisplayBox extends Display {
         }
             
     }//end of InputEventHandler
-
-	public double getSigma() {
-		return sigma;
-	}
-
-	public void setSigma(double sigma) {
-		this.sigma = sigma;
-	}
 }//end of DisplayBox
