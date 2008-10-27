@@ -63,6 +63,7 @@ public class SimOverlapAB extends Simulation {
     MCMoveConvertMode convertMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterConvertModeBrute meterBinA, meterBinB;
+    MeterConvertTest meterTestBinA, meterTestBinB;
     MeterOverlap meterOverlapInA, meterOverlapInB;
     
     public SimOverlapAB(Space _space, int numAtoms, double density, double 
@@ -143,6 +144,14 @@ public class SimOverlapAB extends Simulation {
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         
+        meterTestBinA = new MeterConvertTest("meterBinA", potentialMasterTarget, 
+                coordinateDefinitionTarget, boxTarget);
+        meterTestBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
+        meterTestBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
+        meterTestBinA.setTemperature(temperature);
+        meterTestBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
+        meterTestBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
+        
         meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
@@ -217,6 +226,16 @@ public class SimOverlapAB extends Simulation {
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
+        
+        meterTestBinB = new MeterConvertTest(potentialMasterRef,
+                coordinateDefinitionRef, boxRef);
+        meterTestBinB.setCoordinateDefinition(coordinateDefinitionRef);
+        meterTestBinB.setEigenVectors(nm.getEigenvectors(boxRef));
+        meterTestBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
+        meterTestBinB.setTemperature(temperature);
+        meterTestBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
+        meterTestBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
+        integratorRef.setMeterPotentialEnergy(meterTestBinB);
         
         meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
@@ -497,7 +516,7 @@ public class SimOverlapAB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 40000000; //40000 is minimum number of steps
+        public long numSteps = 40000; //40000 is minimum number of steps
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;

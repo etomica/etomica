@@ -12,14 +12,14 @@ import etomica.units.Null;
 
 
 /**
- * Uses brute force to calculate energy of a system with a set number of 
- * normal modes, and the rest of the degrees of freedom taken by Gaussians.
- * Assumes 1D system - otherwise, choose a mode and eliminate i loops.
+ * Ugly test code for 32 hard rods in 1 D.  making sure that our code is doing
+ * what it is supposed to do.
+ * 
  * 
  * @author cribbin
  *
  */
-public class MeterConvertModeBrute extends DataSourceScalar {
+public class MeterConvertTest extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
@@ -35,15 +35,16 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     private double[][] uOld, omegaSquared;
     private double[] uNow, deltaU;
     int coordinateDim;
-    private double energyHardRod, energyHarmonic;
+    private double energyHardRod, energyHarmonic, energyOld;
+    private double[] energyHRArray, energyHarmArray, energyOldArray;
     
     private static final long serialVersionUID = 1L;
     
-    public MeterConvertModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
-        this("meterConvertMode", potentialMaster, cd, box);
+    public MeterConvertTest(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+        this("meterConvertTEST", potentialMaster, cd, box);
     }
     
-    public MeterConvertModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterConvertTest(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
@@ -59,21 +60,27 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1/Math.sqrt(cells.length);
-        energyHardRod = 0.0;
-        energyHarmonic = 0.0;
-        double energyOld = meterPE.getDataAsScalar();
+        setConvertedWV(16);
         
-        //get normal mode coordinate of "last" waveVector
-        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
-        double realCoord = 0.0, imagCoord = 0.0;
-        for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-            for(int j = 0; j < coordinateDim; j++){
-                realCoord += eigenVectors[convertedWV][i][j] * realT[j];
-                imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+        for(int countWV = 16; countWV < 17; countWV--){
+            setConvertedWV(countWV);
+        
+            energyHardRod = 0.0;
+            energyHarmonic = 0.0;
+            energyOld = meterPE.getDataAsScalar();
+            
+            //get normal mode coordinate of "last" waveVector
+            coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
+            double realCoord = 0.0, imagCoord = 0.0;
+            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+                for(int j = 0; j < coordinateDim; j++){
+                    realCoord += eigenVectors[convertedWV][i][j] * realT[j];
+                    imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+                }
             }
-        }
         
         for(int iCell = 0; iCell < cells.length; iCell++){
+            System.out.println("iCell " +iCell +" energyHardRod " + energyHardRod +" energyHarmonic "+ energyHarmonic);
             //store original positions
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
@@ -121,11 +128,12 @@ public class MeterConvertModeBrute extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
         
-//        if(getDataInfo().getLabel() == "meterBinA" && energyHardRod != 0.0 ){
-//            System.out.println("energyOld  " + energyOld);
-//            System.out.println("energyNM  " + energyHardRod);
-//            System.out.println("energyOP  " + energyHarmonic);
-//        }
+        if(getDataInfo().getLabel() == "meterBinA" && energyHardRod != 0.0 ){
+            System.out.println("energyOld  " + energyOld);
+            System.out.println("energyNM  " + energyHardRod);
+            System.out.println("energyOP  " + energyHarmonic);
+        }
+        }
         
         return energyHardRod + energyHarmonic;
     }
