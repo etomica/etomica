@@ -26,7 +26,8 @@ public class MeterWorkUmbrellaTarget implements DataSource {
         
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Target and Bennet's Overlap Energies", Null.DIMENSION);
-
+        denomSum = 0;
+        numSum = 0;
         tag = new DataTag();
     }
 
@@ -50,9 +51,17 @@ public class MeterWorkUmbrellaTarget implements DataSource {
 //    	System.out.println("uBennetTarget: "+((uTarget - latticeEnergy)-overlapEnergy));
         
     	data.x =  ((uTarget - latticeEnergy) - umbrellaEnergy)/integrator.getTemperature();
-        return data;
+                
+    	denomSum += exp_uTarget/gamma;
+    	numSum += data.x*(exp_uTarget/gamma);  
+    	
+    	return data;
     }
 
+    public double getDataReweighted(){
+    	return numSum/denomSum;
+    }
+    
     public void setLatticeEnergy(double newLatticeEnergy) {
         latticeEnergy = newLatticeEnergy;
     }
@@ -81,6 +90,7 @@ public class MeterWorkUmbrellaTarget implements DataSource {
     protected final DataInfoDouble dataInfo;
     protected final DataTag tag;
     protected double latticeEnergy;
+    protected double numSum, denomSum;
     protected double refPref;
 
 }

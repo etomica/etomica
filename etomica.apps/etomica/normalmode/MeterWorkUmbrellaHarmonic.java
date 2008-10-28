@@ -25,7 +25,8 @@ public class MeterWorkUmbrellaHarmonic implements DataSource {
     	
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Scaled Harmonic and soft sphere Energies", Null.DIMENSION);
-
+        denomSum = 0;
+        numSum = 0;
         tag = new DataTag();
     }
 
@@ -49,9 +50,16 @@ public class MeterWorkUmbrellaHarmonic implements DataSource {
     	
     	data.x = (uHarmonic- umbrellaEnergy)/integrator.getTemperature();
         
-        return data;
+    	denomSum += exp_uHarmonic/gamma;
+    	numSum += data.x*(exp_uHarmonic/gamma);    	
+        
+    	return data;
     }
 
+    public double getDataReweighted(){
+    	return numSum/denomSum;
+    }
+    
     public void setLatticeEnergy(double newLatticeEnergy) {
         latticeEnergy = newLatticeEnergy;
     }
@@ -78,7 +86,9 @@ public class MeterWorkUmbrellaHarmonic implements DataSource {
     protected final DataDouble data;
     protected final DataInfoDouble dataInfo;
     protected final DataTag tag;
+    protected double numSum, denomSum;
     protected double latticeEnergy;
+    
     protected double refPref;
 
 
