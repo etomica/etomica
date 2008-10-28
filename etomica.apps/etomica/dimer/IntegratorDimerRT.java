@@ -151,7 +151,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void doStepInternal(){
 		//System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
 		
+		System.out.println("******new step******");
+		
 		rotateDimerNewton();
+		
+		System.out.println(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar()));
+		System.out.println(ElectronVolt.UNIT.fromSim(energyBox1.getDataAsScalar()));
+		System.out.println("____________post-rot");
 		
 		//N is now a vector orthogonal to N1, check curvatures along each;
 		if(ortho){
@@ -159,7 +165,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 		
 		translateDimerQuickmin();
-				
+		
+		System.out.println(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar()));
+		System.out.println(ElectronVolt.UNIT.fromSim(energyBox1.getDataAsScalar()));
+		System.out.println("____________post-trans");
+		
 		counter++;
 	}
 	
@@ -274,8 +284,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
+		energyBox1 = new MeterPotentialEnergy(this.potential);
+		energyBox1.setBox(box1);
 		
-		System.out.println(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar()));
 		
 		atomAgent0 = new AtomLeafAgentManager(this, box);
 		atomAgent1 = new AtomLeafAgentManager(this, box1);
@@ -580,7 +591,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void translateDimerQuickmin(){
 			
 		// Calculate Feff
-		dimerForceEff(F, Feff);
+		dimerForceEff(F, Feff, N);
 		
 		// Calculate Effective force normal
 		double mag = 0;
@@ -603,12 +614,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		// Calculate new dimer center force
 		dimerForceCenter(F);
-		
-		// Calculate new Normal
-        dimerNormal();
         		
-		// Calculate Feffstar
-        dimerForceEff(F, Feffstar);
+		// Calculate Feffstar with effective normal
+        dimerForceEff(F, Feffstar, Neff);
 		
         // Calculate magnitude of step
         double Feffmag = 0;
@@ -776,11 +784,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 		
 	// Calculate the effective force on the dimer using curvature and F, N
-	protected void dimerForceEff(IVector [] aF, IVector [] aFeff){
+	protected void dimerForceEff(IVector [] aF, IVector [] aFeff, IVector [] aNeff){
 		
 	    double mag = 0;
 	    for(int i=0; i<aF.length; i++){
-            mag += aF[i].dot(N[i]);
+            mag += aF[i].dot(aNeff[i]);
         }
 	    //System.out.println(F[0]+" actual force");
 	    //System.out.println(mag+" F dot N");
@@ -788,8 +796,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		// Feff = F - 2(F[dot]N)N
 		if(curvature<0){
 			IVector workvector = space.makeVector();
-			for (int i=0; i<N.length; i++){
-			    workvector.Ea1Tv1(2.0*mag, N[i]);
+			for (int i=0; i<aNeff.length; i++){
+			    workvector.Ea1Tv1(2.0*mag, aNeff[i]);
 			    aFeff[i].Ev1Mv2(aF[i], workvector);
 			}
 		}
@@ -797,7 +805,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		// Feff = -(F[dot]N)N
 		else{
 			for(int i=0; i<aFeff.length; i++){
-				aFeff[i].Ea1Tv1(-mag, N[i]);
+				aFeff[i].Ea1Tv1(-mag, aNeff[i]);
 			}
 		}
 	}
