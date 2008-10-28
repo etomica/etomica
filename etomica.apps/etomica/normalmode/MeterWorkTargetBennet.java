@@ -46,7 +46,7 @@ public class MeterWorkTargetBennet implements DataSource {
         return data;
     }
 
-    public Double getDataReweighted(){
+    public double getDataReweighted(){
     	
     	return numSum/denomSum;
     }
