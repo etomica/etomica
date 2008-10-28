@@ -11,6 +11,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -19,6 +20,8 @@ import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -39,11 +42,11 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
 /**
- * Simulation to sample Umbrella Overlap Sampling
+ * Simulation to sample Umbrella Sampling
  */
 public class SimUmbrella extends Simulation {
 
-	private static final String APP_NAME = "Sim Umbrella' s";
+	private static final String APP_NAME = "Sim Umbrella's";
 
     public SimUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space, true);
@@ -98,7 +101,7 @@ public class SimUmbrella extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space);
@@ -108,6 +111,16 @@ public class SimUmbrella extends Simulation {
         potentialMasterMonatomic.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
         
         integrator.setBox(box);
+        
+        /*
+         *  1-body Potential to Constraint the atom from moving too far
+         *  	away from its lattice-site
+         *  
+         */
+
+        P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
+        potentialMasterMonatomic.addPotential(p1Constraint, new IAtomTypeLeaf[] {sphereType});
+        
         
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
@@ -238,6 +251,16 @@ public class SimUmbrella extends Simulation {
         sim.integrator.addIntervalAction(pumpSamplingTarget);
         sim.integrator.setActionInterval(pumpSamplingTarget, 1);
         
+        //Pressure 
+        MeterPressure meterPressure = new MeterPressure(Space.getInstance(D));
+        meterPressure.setIntegrator(sim.integrator);
+        
+        final AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
+        DataPump pumpPressure = new DataPump(meterPressure, pressureAverage);
+        sim.integrator.addIntervalAction(pumpPressure);
+        sim.integrator.setActionInterval(pumpPressure, 100);
+        
+        
         FileWriter fileWriter;
         
         try{
@@ -279,17 +302,10 @@ public class SimUmbrella extends Simulation {
 		        /*
 		         * 
 		         */
-		        
-		        System.out.println("\n*****************************************************************");
-		        System.out.println("**********        Umbrella Sampling "+ idStep + "         ***************");
-		        System.out.println("*****************************************************************");
-		       
-		        
+		
 		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);        
-		        
-		        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-		        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		      
 		        /*
 		         * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
@@ -298,9 +314,6 @@ public class SimUmbrella extends Simulation {
 		        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		
-		        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-		        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-		        
 		        /*
 		         * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
 		         *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
@@ -311,31 +324,21 @@ public class SimUmbrella extends Simulation {
 		        
 		        double sHarmonic = wHarmonic - deltaFE_harmonic;
 		        double sTarget = wTarget - deltaFE_target;
-		        
-		        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic));
-		        double er_sTarget   = Math.sqrt(eTarget*eTarget + (eQtarget/Qtarget)*(eQtarget/Qtarget));
-		        
-		        System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temp*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
-		        System.out.println("free energy difference (umbrella --> target): "+ (temp*deltaFE_target) + "; error: " + eQtarget/Qtarget);
-		        System.out.println("free energy difference (harmonic --> target): " + deltaFE);
-		        
-		        System.out.println("\nwUmbrellaHarmonic: "+ wHarmonic + ", error: "+ eHarmonic);
-		        System.out.println(" wUmbrellaTarget : "  + wTarget   + ", error: "+ eTarget);
-		        System.out.println(" beta*deltaFE (harmonic): " + deltaFE_harmonic);
-		        System.out.println(" beta*deltaFE (target): " + deltaFE_target);
-		        
-		        System.out.println("\nUmbrella (perturbed into Harmonic) entropy: " + sHarmonic + ", error: "+ er_sHarmonic);
-		        System.out.println("Umbrella (perturbed into Target) entropy: " + sTarget + ", error: "+ er_sTarget);
-		        
+	
+		        double reweightedwHarmonic = meterWorkUmbrellaHarmonic.getDataReweighted();
+		        double reweightedwTarget = meterWorkUmbrellaTarget.getDataReweighted();
+
 		        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sHarmonic);
 		        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sTarget);
-		        
-		        System.out.println("PI Harmonic: " + pi_harmonic);
-		        System.out.println("PI Target: " + pi_target);
+	
+		        double pressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double pressureError = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        try {
 		        	fileWriterUmb.write( idStep + " " + deltaFE_harmonic + " " + deltaFE_target + " " + deltaFE + " "
 		        			                          + wHarmonic + " " + wTarget + " "
+		        			                          + reweightedwHarmonic + " " + reweightedwTarget + " "
+		        			                          + pressure + " " + pressureError + " "
 		        			                          + sHarmonic + " " + sTarget + " "
 		        			                          + pi_harmonic + " " + pi_target + "\n");
 		        } catch (IOException e){
@@ -357,6 +360,65 @@ public class SimUmbrella extends Simulation {
         	
         }
         
+        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);        
+        
+        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        /*
+         * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+         * 
+         */
+        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+
+        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        
+        /*
+         * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
+         *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
+         */
+        double deltaFE_harmonic = - Math.log(Qharmonic);
+        double deltaFE_target = - Math.log(Qtarget);
+        double deltaFE = temp*deltaFE_target - temp*deltaFE_harmonic;
+        
+        double sHarmonic = wHarmonic - deltaFE_harmonic;
+        double sTarget = wTarget - deltaFE_target;
+        
+        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic));
+        double er_sTarget   = Math.sqrt(eTarget*eTarget + (eQtarget/Qtarget)*(eQtarget/Qtarget));
+        
+        double reweightedwHarmonic = meterWorkUmbrellaHarmonic.getDataReweighted();
+        double reweightedwTarget = meterWorkUmbrellaTarget.getDataReweighted();
+        
+        System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temp*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
+        System.out.println("free energy difference (umbrella --> target): "+ (temp*deltaFE_target) + "; error: " + eQtarget/Qtarget);
+        System.out.println("free energy difference (harmonic --> target): " + deltaFE);
+        
+        System.out.println("\nwUmbrellaHarmonic: "+ wHarmonic + ", error: "+ eHarmonic);
+        System.out.println(" wUmbrellaTarget : "  + wTarget   + ", error: "+ eTarget);
+        
+        System.out.println("\nwHarmonicUmbrella: "+ reweightedwHarmonic );
+        System.out.println(" wTargetUmbrella : "  + reweightedwTarget   );
+        
+        System.out.println(" beta*deltaFE (harmonic): " + deltaFE_harmonic);
+        System.out.println(" beta*deltaFE (target): " + deltaFE_target);
+        
+        System.out.println("\nUmbrella (perturbed into Harmonic) entropy: " + sHarmonic + ", error: "+ er_sHarmonic);
+        System.out.println("Umbrella (perturbed into Target) entropy: " + sTarget + ", error: "+ er_sTarget);
+        
+        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sHarmonic);
+        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sTarget);
+        
+        System.out.println("PI Harmonic: " + pi_harmonic);
+        System.out.println("PI Target: " + pi_target);
+        
+        double pressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double pressureError = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+        System.out.println("Pressure: " + pressure);
+        System.out.println("Pressure error: " + pressureError);
     }
 
     private static final long serialVersionUID = 1L;
