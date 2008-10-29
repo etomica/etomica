@@ -12,7 +12,7 @@ import etomica.units.Null;
 
 
 /**
- * Ugly test code for 32 hard rods in 1 D.  making sure that our code is doing
+ * Ugly test code for hard rods in 1D.  making sure that our code is doing
  * what it is supposed to do.
  * 
  * 
@@ -36,7 +36,7 @@ public class MeterConvertTest extends DataSourceScalar {
     private double[] uNow, deltaU;
     int coordinateDim;
     private double energyHardRod, energyHarmonic, energyOld;
-    private double[] energyHRArray, energyHarmArray, energyOldArray;
+    public double[] energyHardRodArray, energyHarmonicArray, energyOldArray;
     
     private static final long serialVersionUID = 1L;
     
@@ -60,9 +60,17 @@ public class MeterConvertTest extends DataSourceScalar {
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1/Math.sqrt(cells.length);
-        setConvertedWV(16);
         
-        for(int countWV = 16; countWV < 17; countWV--){
+        int wvlength = waveVectors.length;
+        
+        energyHardRodArray = new double[wvlength];
+        energyHarmonicArray = new double[wvlength];
+        energyOldArray = new double[wvlength];
+        
+        
+        
+        
+        for(int countWV = wvlength-1; countWV > -1; countWV--){
             setConvertedWV(countWV);
         
             energyHardRod = 0.0;
@@ -78,48 +86,50 @@ public class MeterConvertTest extends DataSourceScalar {
                     imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
                 }
             }
-        
-        for(int iCell = 0; iCell < cells.length; iCell++){
-            System.out.println("iCell " +iCell +" energyHardRod " + energyHardRod +" energyHarmonic "+ energyHarmonic);
-            //store original positions
-            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            cell = cells[iCell];
-            for(int j = 0; j < coordinateDim; j++){
-                deltaU[j] = 0.0;
-            }
             
-            //Calculate the contributions to the current position of the 
-            //zeroed mode, and subtract it from the overall position.
-            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
-            double coskR = Math.cos(kR);
-            double sinkR = Math.sin(kR);
-            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-                //Calculate the current coordinates.
+            for(int iCell = 0; iCell < cells.length; iCell++){
+                //store original positions
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+                cell = cells[iCell];
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] *
-                        2.0 * (realCoord*coskR - imagCoord*sinkR);
+                    deltaU[j] = 0.0;
                 }
+                
+                //Calculate the contributions to the current position of the 
+                //zeroed mode, and subtract it from the overall position.
+                double kR = waveVectors[convertedWV].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+                    //Calculate the current coordinates.
+                    for(int j = 0; j < coordinateDim; j++){
+                        deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] *
+                            2.0 * (realCoord*coskR - imagCoord*sinkR);
+                    }
+                }
+    
+                for(int i = 0; i < coordinateDim; i++){
+                    deltaU[i] *= normalization;
+                }
+                
+                for(int i = 0; i < coordinateDim; i++) {
+                    uNow[i] += deltaU[i];
+                }
+                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
-
-            for(int i = 0; i < coordinateDim; i++){
-                deltaU[i] *= normalization;
-            }
+            energyHardRod = meterPE.getDataAsScalar();
+            energyHardRodArray[countWV] += energyHardRod;
             
-            for(int i = 0; i < coordinateDim; i++) {
-                uNow[i] += deltaU[i];
+            //Calculate the energy due to the Gaussian modes.
+            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+                if(Double.isInfinite(omegaSquared[convertedWV][i])){
+                    continue;
+                }
+                double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
+                energyHarmonic += wvc * normalCoord * omegaSquared[convertedWV][i];
             }
-            coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-        }
-        energyHardRod = meterPE.getDataAsScalar();
-        
-        //Calculate the energy due to the Gaussian modes.
-        for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-            if(Double.isInfinite(omegaSquared[convertedWV][i])){
-                continue;
-            }
-            double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
-            energyHarmonic += wvc * normalCoord * omegaSquared[convertedWV][i];
+        energyHarmonicArray[countWV] += energyHarmonic;
         }
         
         // Set all the atoms back to the old values of u
@@ -128,12 +138,17 @@ public class MeterConvertTest extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
         
-        if(getDataInfo().getLabel() == "meterBinA" && energyHardRod != 0.0 ){
-            System.out.println("energyOld  " + energyOld);
-            System.out.println("energyNM  " + energyHardRod);
-            System.out.println("energyOP  " + energyHarmonic);
+        System.out.println("HardRodenergies Harmonicenergies OldEnergies ");
+        for(int i = 0; i < 17; i++){
+            System.out.println(energyHardRodArray[i]+ " "+energyHarmonicArray[i]+ " "+energyOldArray[i]);
         }
-        }
+        
+        
+//        if(getDataInfo().getLabel() == "meterBinA" && energyHardRod != 0.0 ){
+//            System.out.println("energyOld  " + energyOld);
+//            System.out.println("energyNM  " + energyHardRod);
+//            System.out.println("energyOP  " + energyHarmonic);
+//        }
         
         return energyHardRod + energyHarmonic;
     }

@@ -10,6 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -81,6 +82,7 @@ public class SimOverlapAB extends Simulation {
         
         basis = new BasisMonatomic(space);
         
+//TARGET
         //Set up target system   - A - 1
         PotentialMasterList potentialMasterTarget = new 
             PotentialMasterList(this, space);
@@ -151,6 +153,10 @@ public class SimOverlapAB extends Simulation {
         meterTestBinA.setTemperature(temperature);
         meterTestBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterTestBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
+        AccumulatorAverageFixed binaSink = new AccumulatorAverageFixed();
+        DataPump pumpTestBinA = new DataPump(meterTestBinA, binaSink);
+        integratorTarget.addIntervalAction(pumpTestBinA);
+        integratorTarget.setActionInterval(pumpTestBinA, 1000);
         
         meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
@@ -158,6 +164,10 @@ public class SimOverlapAB extends Simulation {
         
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
+        
+        
+        
+//REFERENCE        
         //Set up REFERENCE system - System B - 0 - hybrid system
         PotentialMasterList potentialMasterRef = new 
             PotentialMasterList(this, space);
@@ -236,6 +246,10 @@ public class SimOverlapAB extends Simulation {
         meterTestBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterTestBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterTestBinB);
+        AccumulatorAverageFixed binbSink = new AccumulatorAverageFixed();
+        DataPump pumpTestBinB = new DataPump(meterTestBinB, binbSink);
+        integratorRef.addIntervalAction(pumpTestBinB);
+        integratorRef.setActionInterval(pumpTestBinB, 1000);
         
         meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
@@ -245,7 +259,7 @@ public class SimOverlapAB extends Simulation {
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
         
-        
+//JOINT
         //Set up the rest of the joint stuff
         setAffectedWaveVector(awv);
         
