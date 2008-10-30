@@ -3,9 +3,9 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -24,15 +24,12 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.units.ElectronVolt;
-import etomica.util.Debug;
 
 
 /**
@@ -888,6 +885,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    writer.setBox(box2);
 		    writer.actionPerformed();
 		    
+	        CalcVibrationalModes vib = new CalcVibrationalModes();
+	        vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
+		    vib.actionPerformed();
+		    vib.writeDataToFile(file+"_vibdata");
 		    
 	        activityIntegrate.setMaxSteps(0);
 			//System.exit(1);

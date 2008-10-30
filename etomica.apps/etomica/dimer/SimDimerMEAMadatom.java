@@ -1,10 +1,7 @@
 package etomica.dimer;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
+import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
-import etomica.action.XYZWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -46,6 +43,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.RandomNumberGenerator;
+import etomica.util.numerical.CalcGradientDifferentiable;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -325,80 +323,7 @@ public class SimDimerMEAMadatom extends Simulation{
             genConfig.actionPerformed();            
         }
     }
-    
-    public void calculateVibrationalModes(String fileName){
         
-        String file = fileName;
-        ConfigurationFile configFile = new ConfigurationFile(file);
-        configFile.initializeCoordinates(box); 
-        System.out.println(file+" ***Vibrational Normal Mode Analysis***");
-        System.out.println("  -Reading in system coordinates...");
-        calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet, space);
-        d = new int[movableSet.getAtomCount()*3];
-        positions = new double[d.length];
-        dForces = new double[positions.length][positions.length];
-        
-        // setup position array
-        for(int i=0; i<movableSet.getAtomCount(); i++){
-            for(int j=0; j<3; j++){
-                positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
-            }
-        }
-        // fill dForces array
-        for(int l=0; l<d.length; l++){
-            d[l] = 1;
-            System.arraycopy(calcGradientDifferentiable.df2(d, positions), 0, dForces[l], 0, d.length);
-            System.out.println("  -Calculating force constant row "+l+"...");
-            d[l] = 0;
-        }
-        calcVibrationalModes = new CalcVibrationalModes(dForces,movable.getLeafType().getElement().getMass());
-        modeSigns = new int[3];
-    
-        // calculate vibrational modes and frequencies
-        System.out.println("  -Calculating lambdas...");
-        lambdas = calcVibrationalModes.getLambdas();
-        System.out.println("  -Calculating frequencies...");
-        frequencies = calcVibrationalModes.getFrequencies();
-        modeSigns = calcVibrationalModes.getModeSigns();
-        System.out.println("  -Writing data...");
-        // output data
-        FileWriter writer;
-        //LAMBDAS
-        try { 
-            writer = new FileWriter(file+"_lambdas");
-            for(int i=0; i<lambdas.length; i++){
-                writer.write(lambdas[i]+"\n");
-            }
-            writer.close();
-        }catch(IOException e) {
-            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-            return;
-        }
-        //FREQUENCIES
-        try { 
-            writer = new FileWriter(file+"_frequencies");
-            for(int i=0; i<frequencies.length; i++){
-                writer.write(frequencies[i]+"\n");
-            }
-            writer.close();
-        }catch(IOException e) {
-            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-            return;
-        }
-        //MODE INFO
-        try { 
-            writer = new FileWriter(file+"_modeSigns");
-            writer.write(modeSigns[0]+" positive modes"+"\n");
-            writer.write(modeSigns[1]+" negative modes"+"\n");
-            writer.write(modeSigns[2]+" total modes"+"\n");
-            writer.close();
-        }catch(IOException e) {
-            System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-            return;
-        }
-        System.out.println("Done.");
-    }
-    
     public void enableMolecularDynamics(long maxSteps){
         integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integratorMD.setTimeStep(0.001);
