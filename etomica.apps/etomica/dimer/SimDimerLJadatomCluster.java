@@ -26,7 +26,7 @@ public class SimDimerLJadatomCluster extends Simulation{
     	
     	//Simulation 1 - MD and Dimer search
 
-    	final SimDimerLJadatom sim1 = new SimDimerLJadatom(fileName, true, true, false, false, false, false);
+    	final SimDimerLJadatom sim1 = new SimDimerLJadatom();
     	sim1.activityIntegrateMD.setMaxSteps(0);
     	sim1.activityIntegrateDimer.setMaxSteps(1000);
         sim1.getController().actionPerformed();

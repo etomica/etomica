@@ -293,7 +293,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    deltaTheta = 1.0;
 	    Frot = 1.0;
 	    
-	    if(counter>0){
+	    if(counter>5){
             //Check slope of energy after step
             double slope=0;
             for(int i=0; i<F0.length; i++){
@@ -407,10 +407,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                 workVector2.PEa1Tv1(deltaR, N[i]);
                 ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector2);
             }     
-			
-			// Calculate new Normal
-			dimerNormal();
-			
+						
 			rotCounter++;
 			
 			if(rotCounter>100){

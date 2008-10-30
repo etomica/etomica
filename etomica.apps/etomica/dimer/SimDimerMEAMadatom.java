@@ -457,25 +457,29 @@ public class SimDimerMEAMadatom extends Simulation{
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);
         
+        //sim.initializeConfiguration("sns-00_B_minimum");
+        
         sim.setMovableAtoms(120.0, vect);
         
         sim.setPotentialListAtoms();
         //sim.removeAtoms(2.9, vect);
-        //sim.initializeConfiguration("sns101-initial");
         
-        sim.enableMolecularDynamics(5000);
         
-        //sim.enableDimerSearch("snSurface-dimer", 1000, false, false);
+        //sim.enableMolecularDynamics(5000);
+        
+        sim.enableDimerSearch("sns-test1", 1000, false, false);
+        sim.integratorDimer.setRotNum(1);
         
         //sim.enableMinimumSearch("sn101-dimer-", false);
-        
+        /*
         WriteConfiguration poswriter = new WriteConfiguration(sim.space);
         poswriter.setConfName("sns101-initial3");
         poswriter.setBox(sim.box);
         sim.integratorMD.addIntervalAction(poswriter);
         sim.integratorMD.setActionInterval(poswriter, 1);
+        */
         
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
         energyMeter.setBox(sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
@@ -485,15 +489,15 @@ public class SimDimerMEAMadatom extends Simulation{
         plotPE.setLabel("PE Plot");
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
-        sim.integratorMD.addIntervalAction(energyPump);
-        sim.integratorMD.setActionInterval(energyPump,1);
+        sim.integratorDimer.addIntervalAction(energyPump);
+        sim.integratorDimer.setActionInterval(energyPump,1);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(plotPE);
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	
