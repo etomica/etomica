@@ -9,6 +9,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
@@ -365,7 +366,7 @@ public class SimDimerMEAMadatom extends Simulation{
         
     public void enableMinimumSearch(String fileName, Boolean normalDir){
         
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
         integratorDimerMin.setBox(box);
         integratorDimerMin.addNonintervalListener(potentialMasterD.getNeighborManager(box));
         integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box)); 

@@ -3,6 +3,7 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
@@ -10,6 +11,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -26,7 +28,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.units.ElectronVolt;
@@ -82,16 +83,15 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	private final ISpace space;
 	
 	
-	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster,
-			                  ISpecies[] species, String fileName,
+	public IntegratorDimerMin(ISimulation sim, IPotentialMaster potentialMaster,
+			                  ISpecies[] species,
 			                  Boolean normalDir, ISpace _space) {
-		this(sim, potentialMaster, sim.getRandom(), 1.0, species, fileName, normalDir, _space);
+		this(sim, potentialMaster, sim.getRandom(), 1.0, species, normalDir, _space);
 	}
 	
-	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster,
+	public IntegratorDimerMin(ISimulation aSim, IPotentialMaster potentialMaster,
 			                  IRandom arandom, double temperature,
-			                  ISpecies[] aspecies, String fileName,
-			                  Boolean normalDir, ISpace _space) {
+			                  ISpecies[] aspecies, Boolean normalDir, ISpace _space) {
 		super(potentialMaster, temperature);
 		this.random = arandom;
 		this.sim = aSim;
@@ -99,7 +99,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.forceMin = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
-		this.file = fileName;
 		this.normalD = normalDir;
 		this.space = _space;
 		
@@ -121,6 +120,35 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 */
 	public void setFileName(String fileName){
 	    file = fileName;
+	}
+		
+	public void reset(){
+
+        for(int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++){
+            boxMin.setNMolecules(sim.getSpeciesManager().getSpecies(i),
+                    box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
+        }
+	    
+	    // Read in coordinates for boxMin atom locations
+        ConfigurationFile configFile = new ConfigurationFile(file+"_A_saddle");
+        configFile.initializeCoordinates(boxMin);
+        writer = new WriteConfiguration(space);
+        writer.setConfName(file+"_A_minimum");
+                
+        if(normalD==true){
+            // Read in coordinates for opposite boxMin atom locations
+            ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
+            configFile1.initializeCoordinates(boxMin);
+            writer.setConfName(file+"_B_minimum");
+        }
+        
+        try{
+            fileWriter = new FileWriter(writer.getConfName()+"_path");
+        }catch(IOException e) {
+            
+        }
+        
+        dimerNormal();
 	}
 	
 	public void doStepInternal(){
@@ -443,6 +471,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    System.out.println(file+" +++Dimer Minimum Found+++");
 		System.out.println("Box0   = "+e0+" eV");
 		System.out.println("BoxMin = "+eMin+" eV");
+		
+        CalcVibrationalModes vib = new CalcVibrationalModes();
+        vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
+        vib.actionPerformed();
+        
 		try { 
             fileWriter.close();
             }catch(IOException e) {

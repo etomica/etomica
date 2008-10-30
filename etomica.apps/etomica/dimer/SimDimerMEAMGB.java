@@ -391,7 +391,7 @@ public class SimDimerMEAMGB extends Simulation{
         
     public void enableMinimumSearch(String fileName, Boolean normalDir){
         
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space);
         integratorDimerMin.setBox(box);
         integratorDimerMin.addNonintervalListener(potentialMasterD.getNeighborManager(box));
         integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box)); 

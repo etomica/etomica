@@ -232,7 +232,7 @@ public class SimDimerLJadatom extends Simulation{
         
     public void enableMinimumSearch(String fileName, Boolean normalDir){
         
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, space);
         integratorDimerMin.setBox(box);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

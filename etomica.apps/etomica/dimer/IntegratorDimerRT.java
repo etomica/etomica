@@ -11,6 +11,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -26,7 +27,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.units.ElectronVolt;
@@ -83,12 +83,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	private final ISpace space;
 	
 	
-	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster,
+	public IntegratorDimerRT(ISimulation sim, IPotentialMaster potentialMaster,
 			                 ISpecies[] species, ISpace _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
-	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster,
+	public IntegratorDimerRT(ISimulation aSim, IPotentialMaster potentialMaster,
 			                 IRandom random, double temperature,
 			                 ISpecies[] aspecies, ISpace _space) {
 		super(potentialMaster, temperature);
@@ -153,12 +153,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		rotateDimerNewton();
         
         System.out.println("translating...");
-        
-		//N is now a vector orthogonal to N1, check curvatures along each;
-		if(ortho){
-			testOrthoCurvature(N1, N);
-		}
-		
+        		
 		translateDimerQuickmin();
 		
 		counter++;
@@ -365,9 +360,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    		double magF2 = 0;
 	    		double magN1 = 0;
 	    		for(int i=0; i<F1.length; i++){
-	    			magF1 += F1[i].dot(N1[i]);
-	    		     // Calculate F's
-	    	        dimerForces(F1, F2, F);	magF2 += F2[i].dot(N1[i]);
+	    	        magF1 += F1[i].dot(N1[i]);
+	    	        magF2 += F2[i].dot(N1[i]);
 	    			magN1 += N[i].dot(N1[i]);
 	    		}
 	    		for (int i=0; i<F1.length; i++){
@@ -377,6 +371,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    		}
         		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
         		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
+        		
+        		//N is now a vector orthogonal to N1, check curvatures along each;
+                if(ortho){
+                    testOrthoCurvature(N1, N);
+                }
 			}
 	    	
 			// Calculate F|_
