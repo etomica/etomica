@@ -76,6 +76,7 @@ public class MeterConvertTest extends DataSourceScalar {
             energyHardRod = 0.0;
             energyHarmonic = 0.0;
             energyOld = meterPE.getDataAsScalar();
+            energyOldArray[countWV] = energyOld;
             
             //get normal mode coordinate of "last" waveVector
             coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
