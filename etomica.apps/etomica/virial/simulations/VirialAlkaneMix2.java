@@ -72,9 +72,9 @@ public class VirialAlkaneMix2 {
         //double sigmaCH4 = 3.741;
         double sigmaCH3 = 3.679;
         double sigmaCH2 = 4.000;
-        double bondL1 = 1.839;//bond lenth of CH3-CH3
-        double bondL2 = 1.687;//bond lenth of CH3-CH2
-        double bondL3 = 1.535;//bond lenth of CH2-CH2
+        double bondL1 = 1.839;//bond length of CH3-CH3
+        double bondL2 = 1.687;//bond length of CH3-CH2
+        double bondL3 = 1.535;//bond length of CH2-CH2
         double sigmaHSRef = 0.5*((sigmaCH3+0.5*nSpheres1)+(sigmaCH3+0.5*nSpheres2));//we need to modify by compare relative uncertainty
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
