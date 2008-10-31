@@ -77,10 +77,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public double sinDtheta, cosDtheta;
 	public double eMin, e0;
 	public int rotCounter, counter;
-	public boolean rotate, normalD;
+	public boolean rotate, normalD, minFound;
 	public String file;
 	public WriteConfiguration writer;
 	private final ISpace space;
+	public CalcVibrationalModes vib;
 	
 	
 	public IntegratorDimerMin(ISimulation sim, IPotentialMaster potentialMaster,
@@ -102,14 +103,15 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.normalD = normalDir;
 		this.space = _space;
 		
-		stepLength = 0.005;
+		stepLength = 0.001;
 		deltaR = 1E-3;
-		dTheta = 1E-3;
+		dTheta = 1E-4;
 		dFrot = 0.1;
 		rotCounter = 0;
 		counter = 0;
 		Frot = 1;
-		rotate = true;		
+		rotate = true;
+		minFound = false;
 	}
 	
 	/**
@@ -123,13 +125,23 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	}
 		
 	public void reset(){
-
-        for(int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++){
-            boxMin.setNMolecules(sim.getSpeciesManager().getSpecies(i),
-                    box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
-        }
+	        stepLength = 0.005;
+	        deltaR = 1E-3;
+	        dTheta = 1E-4;
+	        dFrot = 0.1;
+	        rotCounter = 0;
+	        counter = 0;
+	        Frot = 1;
+	        rotate = true;
+	        minFound = false;
 	    
-	    // Read in coordinates for boxMin atom locations
+	}
+	
+	public void initializeDimer(){
+        ConfigurationFile config = new ConfigurationFile(file+"_saddle");
+        config.initializeCoordinates(box);        
+        
+        // Read in coordinates for boxMin atom locations
         ConfigurationFile configFile = new ConfigurationFile(file+"_A_saddle");
         configFile.initializeCoordinates(boxMin);
         writer = new WriteConfiguration(space);
@@ -150,7 +162,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
         dimerNormal();
 	}
-	
 	public void doStepInternal(){
 	    // Step half-dimer toward the local energy minimum
 	    walkDimer();
@@ -266,26 +277,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			boxMin.setNMolecules(sim.getSpeciesManager().getSpecies(i),
 					box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
 		}
-		
-		// Read in coordinates for boxMin atom locations
-		ConfigurationFile configFile = new ConfigurationFile(file+"_A_saddle");
-    	configFile.initializeCoordinates(boxMin);
-    	writer = new WriteConfiguration(space);
-    	writer.setConfName(file+"_A_minimum");
-    	    	
-    	if(normalD==true){
-    		// Read in coordinates for opposite boxMin atom locations
-    		ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
-        	configFile1.initializeCoordinates(boxMin);
-        	writer.setConfName(file+"_B_minimum");
-    	}
-    	
-    	try{
-    	    fileWriter = new FileWriter(writer.getConfName()+"_path");
-    	}catch(IOException e) {
-            
-        }
-    	    	
+		    	    	
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
         listMin = new AtomArrayList();
@@ -300,10 +292,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		}  
 		
         dimerNormal();
-        
-        // Write out initial configuration
-        System.out.println(file+" ***Dimer Minima Search***");
-        System.out.println("Normal "+N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       	
 	}
 	
 	/**
@@ -316,12 +304,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public void rotateDimerNewton(){
 	    dimerNormal();
 	    dimerForces(Fmin, F0, Fmin2);
-	    
-	    dTheta = 1E-7;
-	    deltaTheta = 1.0;
+
 	    Frot = 1.0;
 	    
-	    if(counter>5){
+	    if(counter>10){
             //Check slope of energy after step
             double slope=0;
             for(int i=0; i<F0.length; i++){
@@ -406,8 +392,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
-			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			//System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
+			/*
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){
                     dTheta /= 10;
@@ -416,7 +403,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                         deltaTheta = -dTheta;
                     }
             }
-            
+            */
+			
             double sindeltaTheta = Math.sin(deltaTheta);
             double cosdeltaTheta = Math.cos(deltaTheta);
             
@@ -448,7 +436,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 *  Moves the half-dimer stepLength*N towards the energy minimum.
 	 */
 	public void walkDimer(){
-	    System.out.println(e0);
+	    //System.out.println(e0);
 		IVector workvector;
 		workvector = space.makeVector();
 		
@@ -466,13 +454,17 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 * 
 	 */
 	public void quitSearch(){
+	    /*
 	    double eMin;
 	    eMin = ElectronVolt.UNIT.fromSim(energyBoxMin.getDataAsScalar());
 	    System.out.println(file+" +++Dimer Minimum Found+++");
 		System.out.println("Box0   = "+e0+" eV");
 		System.out.println("BoxMin = "+eMin+" eV");
-		
-        CalcVibrationalModes vib = new CalcVibrationalModes();
+		*/
+	    
+	    minFound = true;
+	    
+        vib = new CalcVibrationalModes();
         vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
@@ -483,7 +475,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }
         writer.setBox(box);
         writer.actionPerformed();
-        activityIntegrate.setMaxSteps(0);
+        //activityIntegrate.setMaxSteps(0);
 	}
 	
 	/**

@@ -71,7 +71,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
         for(int l=0; l<d.length; l++){
             d[l] = 1;
             System.arraycopy(cgd.df2(d, positions), 0, dForces[l], 0, d.length);
-            System.out.println("  -Calculating force constant row "+l+"...");
+            //System.out.println("  -Calculating force constant row "+l+"...");
             d[l] = 0;
         }
         fC = new Matrix(dForces);
@@ -94,7 +94,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
         prodFreq = 1;      
         for(int i=0; i<frequencies.length; i++){
             if(frequencies[i] == 0.0){
-                System.out.println("ZERO TEST");
+                //System.out.println("ZERO TEST");
                 continue;
                 
             }
@@ -103,6 +103,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
         prodFreq = prodFreq  / 0.000000000001;
         
         System.out.println("Normal mode vibrational data calculated.");
+        //System.out.println(prodFreq);
         
     }
     
