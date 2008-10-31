@@ -12,18 +12,12 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.box.Box;
-import etomica.chem.elements.Tin;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2LennardJones;
@@ -33,7 +27,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -66,9 +59,8 @@ public class SimKMCLJadatom extends Simulation{
         
     //SPECIES
     	double sigma = 1.0;
-    	fixed = new SpeciesSpheresMono(this, space);
+    	fixed = new SpeciesSpheresMono(this, space, new ElementSimple("A", Double.POSITIVE_INFINITY));
         movable = new SpeciesSpheresMono(this, space);  
-        
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
