@@ -106,13 +106,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		deltaR = 1E-4;
 		dXl = 1E-3;
 		deltaXl = 0;
-		deltaXmax = 0.01;
+		deltaXmax = 0.05;
 		dTheta = 1E-3;
 		
 		deltaTheta = 0;
 		dTheta = 1E-4;
 		
-		dFsq = 0.001;
+		dFsq = 0.05;
 		
 		Frot = 1.0;
 		dFrot = 0.1;
@@ -205,8 +205,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             N1[i].TE(magN1);
         }
 
-        dimerForces(F1, F2, F);
-        
         // Set positions of atoms in replicas equal to box
         for(int i=0; i<box.getLeafList().getAtomCount(); i++){
             ((IAtomPositioned)((IMolecule)box1.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
@@ -227,6 +225,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                   ((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(2.0*deltaR, N[i]);
               }
           }
+        dimerForces(F1, F2, F);
         saddleFound=false;
         counter = 0;
 	}
@@ -854,6 +853,23 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 
 	}
 	
+	protected void resizeDimer(){
+	    
+	    dimerNormal();
+	    
+	    // Set positions of atoms in replicas equal to box
+        for(int i=0; i<box.getLeafList().getAtomCount(); i++){
+            ((IAtomPositioned)((IMolecule)box1.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
+            ((IAtomPositioned)((IMolecule)box2.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
+
+        }
+        // Offset replicas
+        for(int i=0; i<N.length; i++){
+            ((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
+            ((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
+        }
+	}
+	
 	// Calculates and checks magnitude of 3N dimensional force vector
 	protected void dimerSaddleTolerance(){
 		saddleT = 0.0;
@@ -861,25 +877,16 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		for(int i=0; i<F.length; i++){
 			saddleT += F[i].squared();
 		}
-		
 		if(saddleT<0.5){
 		    if(energyBox0.getDataAsScalar()>energyBox1.getDataAsScalar()){
-			    
-    		    dXl = 0.000001;
-    		    deltaXmax = 0.00001;
+		        deltaR = 1E-5;
+                resizeDimer();
+		        dXl = 0.000001;
+    		    deltaXmax = 0.001;
     		    dTheta = 0.000001;
-    		    dFrot = 0.001;
-		    }
-		    if(saddleT<0.001){
-		        System.out.println(".S FMAG: "+saddleT);
-		        dXl = 0.000000001;
-		        deltaXmax = 0.0000001;
-		        dTheta = 0.00000001;
-		        dFrot = 0.0001;
+    		    dFrot = 0.01;
 		    }
 		}
-		
-		
 		if(saddleT<dFsq){
 		    
 		    vib = new CalcVibrationalModes();

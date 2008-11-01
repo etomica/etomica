@@ -1,5 +1,6 @@
 package etomica.kmc;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
@@ -161,12 +162,16 @@ public class SimKMCLJadatom extends Simulation{
         sim.integratorKMC();
         sim.integratorKMC.setInitialStateConditions(-0.06976750944145352, 1.7236382371736393E90);
         sim.integratorKMC.createIntegrators();
+        sim.integratorKMC.setSearchLimit(4);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         
         sim.integratorKMC.addIntervalAction(simGraphic.getPaintAction(sim.box));
-         
+        sim.integratorKMC.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorKMC.integratorMin1.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorKMC.integratorMin2.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         
         colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.gray);

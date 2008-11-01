@@ -1,5 +1,6 @@
 package etomica.kmc;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.IAtomPositioned;
@@ -29,7 +30,7 @@ public class IntegratorKMC extends IntegratorBox{
     IRandom random;
     ISimulation sim;
     ISpecies [] species;
-    IVector [] minPosition;
+    IVector [] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
     double[] saddleEnergies;
     double[] rates;
@@ -44,6 +45,7 @@ public class IntegratorKMC extends IntegratorBox{
     int searchlimit;
     SimulationGraphic graphic;
     XYZWriter xyzfile;
+    BoxImposePbc imposePbc;
     
     public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, ISpace _space){
         super(_potentialMaster, _temperature);
@@ -79,11 +81,14 @@ public class IntegratorKMC extends IntegratorBox{
             integratorDimer.setFileName("s_"+goodSearch);
             System.out.println("Searching...");
             for(int j=0;j<800;j++){
+                imposePbc.actionPerformed();
                 integratorDimer.doStep();
                 if(integratorDimer.saddleFound){
-                    System.out.println("Good search "+goodSearch+", adding saddle data.");
-                    saddleEnergies[goodSearch] = integratorDimer.saddleEnergy;
-                    saddleVib[goodSearch] = integratorDimer.vib.getProductOfFrequencies();
+                    if(checkUniqueSaddle()){
+                        System.out.println("Good search "+goodSearch+", adding saddle data.");
+                        saddleEnergies[goodSearch] = integratorDimer.saddleEnergy;
+                        saddleVib[goodSearch] = integratorDimer.vib.getProductOfFrequencies();
+                    }
                     goodSearch++;
                     break;
                 }
@@ -96,7 +101,7 @@ public class IntegratorKMC extends IntegratorBox{
         calcRates();
         int rateNum = chooseRate();
         System.out.println("Rate "+rateNum+" is chosen.");
-        
+        System.out.println("Tau is "+tau);
         //Minimum Search with random transition
         integratorMin1.setFileName("s_"+rateNum);
         try {
@@ -156,7 +161,14 @@ public class IntegratorKMC extends IntegratorBox{
         
         rates = new double[searchlimit];
         beta = 1.0/(temperature*1.3806503E-023);
-        stepCounter = 0;              
+        stepCounter = 0;     
+        imposePbc = new BoxImposePbc(box, space);
+        currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
+        previousSaddle = new IVector[box.getMoleculeList().getAtomCount()];
+        for(int i=0; i<currentSaddle.length; i++){
+            currentSaddle[i] = space.makeVector();
+            previousSaddle[i] = space.makeVector();
+        }
     }
 
     public void setInitialStateConditions(double energy, double vibFreq){
@@ -201,11 +213,11 @@ public class IntegratorKMC extends IntegratorBox{
         double rate = 0;
         minEnergy = minEnergy * 1.60217646E-019;
         for(int i=0; i<rates.length; i++){
+            if(saddleEnergies[i]==0){continue;}
             saddleEnergies[i] = saddleEnergies[i] * 1.60217646E-019;
             rates[i] = (minVib / saddleVib[i]) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
-        
         //compute residence time
         tau += -Math.log(random.nextDouble())/rateSum;
 
@@ -218,16 +230,10 @@ public class IntegratorKMC extends IntegratorBox{
         for(int q=0; q<rates.length; q++){
             sum += rates[q];
         }
+        double sumgrt = 0;
         for(int i=0; i<rates.length; i++){
-            double sumless = 0;
-            double sumgreater = 0;
-            for(int j=0; j<i+1; j++){
-                sumgreater += rates[j];
-            }
-            for(int k=0; k<i; k++){
-                sumless += rates[k];
-            }
-            if(rand*sum>sumless && rand*sum<=sumgreater){
+            sumgrt += rates[i];
+            if(rand*sum<=sumgrt){
                 rt = i;
                 System.out.println("-----Choosing a rate-----");
                 for(int l=0; l<rates.length; l++){ 
@@ -235,14 +241,40 @@ public class IntegratorKMC extends IntegratorBox{
                 }
                 System.out.println("Sum:    "+sum);
                 System.out.println("-------------------------");
-                System.out.println(sumless+" < "+rand*sum+" <= "+sumgreater);
-                
+                System.out.println(rand*sum+" <= "+sumgrt);
                 break;
             }
         }
         return rt;
     }
-
+    
+    private boolean checkUniqueSaddle(){    
+        for(int p=0; p<box.getMoleculeList().getAtomCount(); p++){
+            currentSaddle[p].E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(p)).getChildList().getAtom(0)).getPosition());
+        }
+        for(int i=0; i<goodSearch; i++){
+            double positionDiff = 0;
+            loadConfiguration("s_"+i+"_saddle");
+            for(int j=0; j<box.getMoleculeList().getAtomCount(); j++){
+                previousSaddle[j].E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(j)).getChildList().getAtom(0)).getPosition());
+                previousSaddle[j].ME(currentSaddle[j]);
+                positionDiff += previousSaddle[j].squared();
+            }
+            if(positionDiff < 0.5){
+                System.out.println("Duplicate saddle found.");
+                return false;
+            }
+        }
+        System.out.println("Unique saddle found.");
+        return true;  
+    }
+    
+    private double truncate(double numA, int digits){
+        digits = (int)Math.pow(10,digits);
+        numA = (long)(digits*numA);
+        numA = (double)(numA/digits);
+        return numA;
+    }
     public boolean checkMin(){
         boolean goodMin = false;
         IVector workVector = space.makeVector();
@@ -289,7 +321,7 @@ public class IntegratorKMC extends IntegratorBox{
         
         xyzfile = new XYZWriter(box);
         xyzfile.setIsAppend(true);
-        xyzfile.setFileName("kmc-lj-2");
+        xyzfile.setFileName("kmc-lj-2.xyz");
     }
     
 
