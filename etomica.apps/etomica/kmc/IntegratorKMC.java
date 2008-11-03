@@ -80,7 +80,7 @@ public class IntegratorKMC extends IntegratorBox{
             }
             integratorDimer.setFileName("s_"+goodSearch);
             System.out.println("Searching...");
-            for(int j=0;j<800;j++){
+            for(int j=0;j<500;j++){
                 imposePbc.actionPerformed();
                 integratorDimer.doStep();
                 if(integratorDimer.saddleFound){
@@ -321,7 +321,7 @@ public class IntegratorKMC extends IntegratorBox{
         
         xyzfile = new XYZWriter(box);
         xyzfile.setIsAppend(true);
-        xyzfile.setFileName("kmc-lj-2.xyz");
+        xyzfile.setFileName("kmc-lj-3.xyz");
     }
     
 

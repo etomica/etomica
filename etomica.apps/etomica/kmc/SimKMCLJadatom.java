@@ -107,7 +107,7 @@ public class SimKMCLJadatom extends Simulation{
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
-            if(rij.squared() < distance){
+            if(rij.x(0)< distance){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -157,12 +157,12 @@ public class SimKMCLJadatom extends Simulation{
         vect.setX(2, 0.0);
         
         sim.initializeConfiguration("0");
-        sim.setMovableAtoms(12.0, vect);
+        sim.setMovableAtoms(2.0, vect);
 
         sim.integratorKMC();
         sim.integratorKMC.setInitialStateConditions(-0.06976750944145352, 1.7236382371736393E90);
         sim.integratorKMC.createIntegrators();
-        sim.integratorKMC.setSearchLimit(4);
+        sim.integratorKMC.setSearchLimit(10);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
