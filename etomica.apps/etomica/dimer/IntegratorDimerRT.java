@@ -897,15 +897,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    saddleFound = true;
 		    saddleEnergy = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());
 		    
-		    /*
+		    
 	        try{
-	            FileWriter fileWriter = new FileWriter(file+"_saddle-data", true);
-	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    "+counter+"\n");
+	            FileWriter fileWriter = new FileWriter(file+"_s_ev", false);
+	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n"+vib.getProductOfFrequencies());
 	            fileWriter.close();
 	        }catch(IOException e) {
 	          
 	        }
-	        */		
+	        		
 			
 			// Write out configurations of 3 boxes
 		    WriteConfiguration writer = new WriteConfiguration(space);
@@ -921,7 +921,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    writer.setBox(box2);
 		    writer.actionPerformed();
 		    
-		    //activityIntegrate.setMaxSteps(0);
+		    activityIntegrate.setMaxSteps(0);
 		    
 		}
 			

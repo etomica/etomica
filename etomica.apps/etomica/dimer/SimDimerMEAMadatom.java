@@ -23,6 +23,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
@@ -368,6 +369,7 @@ public class SimDimerMEAMadatom extends Simulation{
         
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
         integratorDimerMin.setBox(box);
+        integratorDimerMin.setFileName(fileName);
         integratorDimerMin.addNonintervalListener(potentialMasterD.getNeighborManager(box));
         integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box)); 
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
@@ -383,22 +385,19 @@ public class SimDimerMEAMadatom extends Simulation{
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);
         
-        //sim.initializeConfiguration("sns-00_B_minimum");
-        
         sim.setMovableAtoms(100.0, vect);
         
         sim.setPotentialListAtoms();
         //sim.removeAtoms(2.9, vect);
         
-        
         //sim.enableMolecularDynamics(5000);
         
-        sim.enableDimerSearch("0-MEAM2", 1000, false, false);
-        sim.integratorDimer.setRotNum(0);
+        //sim.enableDimerSearch("0-MEAM", 1000, false, false);
+        //sim.integratorDimer.setRotNum(0);
         
-        //sim.enableMinimumSearch("0-MEAM", false);
+        sim.enableMinimumSearch("s-09", false);
         //sim.integratorDimerMin.initializeDimer();
-        
+                
         /*
         WriteConfiguration poswriter = new WriteConfiguration(sim.space);
         poswriter.setConfName("sns101-initial3");
@@ -407,25 +406,11 @@ public class SimDimerMEAMadatom extends Simulation{
         sim.integratorMD.setActionInterval(poswriter, 1);
         */
         
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
-        energyMeter.setBox(sim.box);
-        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
-        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
-        DisplayPlot plotPE = new DisplayPlot();
-        plotPE.setLabel("PE Plot");
-        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        accumulatorAveragePE.setPushInterval(1);      
-        sim.integratorDimer.addIntervalAction(energyPump);
-        sim.integratorDimer.setActionInterval(energyPump,1);
-        
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        simGraphic.add(plotPE);
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

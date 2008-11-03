@@ -1,5 +1,11 @@
 package etomica.kmc;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
@@ -11,18 +17,22 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
+import etomica.atom.iterator.AtomIteratorFiltered;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationFile;
+import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.dimer.IntegratorDimerMin;
-import etomica.dimer.IntegratorDimerRT;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 
-public class IntegratorKMC extends IntegratorBox{
+public class IntegratorKMCCluster extends IntegratorBox{
 
     private static final long serialVersionUID = 1L;
-    IntegratorDimerRT integratorDimer;
     IntegratorDimerMin integratorMin1, integratorMin2;
     IPotentialMaster potentialMaster;
     double temperature;
@@ -38,72 +48,91 @@ public class IntegratorKMC extends IntegratorBox{
     double msd;
     double beta;
     double minEnergy;
+    double freqProd;
+    double saddleEnergy;
     double minVib;
     boolean search;
-    int goodSearch;
-    int stepCounter;
-    int searchlimit;
+    int searchNum;
+    int kmcStep;
+    int totalSearches;
     SimulationGraphic graphic;
-    XYZWriter xyzfile;
+    XYZWriter xyzMin1, xyzMin2;
     BoxImposePbc imposePbc;
+    MeterMeanSquareDisplacement msd1, msd2;
+    FileReader fileReader;
+    BufferedReader buffReader;
     
-    public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, ISpace _space){
+    public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, ISpace _space){
         super(_potentialMaster, _temperature);
+        
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;
         this.space = _space;
         this.random = _random;
         this.sim = _sim;
         this.species = _species;
-        
-        searchlimit = 5;
-        tau = 0;
+        this.totalSearches = _totalSearches;
+
         
                 
         // TODO Auto-generated constructor stub
     }
- 
-    @Override
+
     protected void doStepInternal(){
-        
-        //Dimer Searches from minimum
-        goodSearch = 0;
-        while(search){
-            loadConfiguration(stepCounter+"");
-            randomizePositions();
+        loadConfiguration(kmcStep-1+"");
+
+        for(int i=0; i<totalSearches; i++){
             try {
-                System.out.println("Initializing dimer.");
-                integratorDimer.initialize();
-            } catch (ConfigurationOverlapException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            integratorDimer.setFileName("s_"+goodSearch);
-            System.out.println("Searching...");
-            for(int j=0;j<500;j++){
-                imposePbc.actionPerformed();
-                integratorDimer.doStep();
-                if(integratorDimer.saddleFound){
-                    if(checkUniqueSaddle()){
-                        System.out.println("Good search "+goodSearch+", adding saddle data.");
-                        saddleEnergies[goodSearch] = integratorDimer.saddleEnergy;
-                        saddleVib[goodSearch] = integratorDimer.vib.getProductOfFrequencies();
-                    }
-                    goodSearch++;
-                    break;
-                }
-                
-            }
-            if(goodSearch>searchlimit-1){search = false;}
+                FileWriter goWriter = new FileWriter(i+".go");
+                goWriter.close();
+            } catch (IOException e1) {        }
         }
-        search = true;
-                
+        
+        while(true){
+            boolean success = true;
+            for(int i=0; i<totalSearches; i++){
+                if(!new File(i+".done").exists()){
+                    success = false;
+                }  
+            }
+            if(success){
+                break;
+            }
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e){        }
+        }
+        for(int i=0; i<totalSearches; i++){
+            new File(i+".done").delete();
+        }
+
+        for(int i=0; i<saddleEnergies.length; i++){
+
+            loadConfiguration(searchNum+"_saddle");
+            try {
+                fileReader = new FileReader(searchNum+"_s_ev");
+                buffReader = new BufferedReader(fileReader);
+                saddleEnergy = Double.parseDouble(buffReader.readLine());
+                freqProd = Double.parseDouble(buffReader.readLine());
+            }
+            catch(IOException e) {}
+
+            if(checkUniqueSaddle()){
+                System.out.println("Good search "+searchNum+", adding saddle data.");
+                saddleEnergies[searchNum] = saddleEnergy;
+                saddleVib[searchNum] = freqProd;
+            }
+            searchNum++;
+        }
+    
         calcRates();
         int rateNum = chooseRate();
         System.out.println("Rate "+rateNum+" is chosen.");
-        System.out.println("Tau is "+tau);
+        System.out.println("Step "+(kmcStep-1)+": tau is "+tau);
+                
         //Minimum Search with random transition
-        integratorMin1.setFileName("s_"+rateNum);
+        integratorMin1.setFileName(""+rateNum);
+        xyzMin1.setFileName((kmcStep-1)+"_s-"+kmcStep+".xyz");
         try {
             integratorMin1.initialize();
         } catch (ConfigurationOverlapException e) {
@@ -111,10 +140,7 @@ public class IntegratorKMC extends IntegratorBox{
             e.printStackTrace();
         }
         integratorMin1.initializeDimer();
-        writeConfiguration(stepCounter+"_saddle");
-        xyzfile.actionPerformed();
-        
-        stepCounter++;
+        writeConfiguration((kmcStep-1)+"_saddle");      
         
         for(int j=0;j<1000;j++){
             integratorMin1.doStep();
@@ -122,15 +148,16 @@ public class IntegratorKMC extends IntegratorBox{
                 break;
             }
         }
-        boolean check = checkMin();
-        if(check==true){
+        msd = msd1.getDataAsScalar();
+        if(checkMin()){
             minEnergy = integratorMin1.e0;
             minVib = integratorMin1.vib.getProductOfFrequencies();
-            writeConfiguration(stepCounter+"");
+            writeConfiguration(kmcStep+"");
+            writeConfiguration("searchStart");
             setInitialStateConditions(minEnergy, minVib);
-            System.out.println("Good minimum found.");
-        }else{
-            integratorMin2.setFileName("s_"+rateNum);
+            System.out.println("Good minimum found. Computing MSD for other direction...");
+            integratorMin2.setFileName(""+rateNum);
+            xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz");
             try {
                 integratorMin2.initialize();
             } catch (ConfigurationOverlapException e) {
@@ -144,33 +171,72 @@ public class IntegratorKMC extends IntegratorBox{
                     break;
                 }
             }
+            msd += msd2.getDataAsScalar();
+        }else{
+            integratorMin2.setFileName(""+rateNum);
+            //rename minimum 1 search XYZ file
+            new File((kmcStep-1)+"_s-"+kmcStep+".xyz").renameTo(new File((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz"));
+            xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep)+".xyz");
+            try {
+                integratorMin2.initialize();
+            } catch (ConfigurationOverlapException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            integratorMin2.initializeDimer();
+            for(int j=0;j<1000;j++){
+                integratorMin2.doStep();
+                if(integratorMin2.minFound){
+                    break;
+                }
+            }
+            //rename minimum 1 search XYZ file
+            new File((kmcStep-1)+"_s-"+kmcStep+".xyz").renameTo(new File((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz"));
+            msd += msd2.getDataAsScalar();
             minEnergy = integratorMin2.e0;
             minVib = integratorMin2.vib.getProductOfFrequencies();
-            writeConfiguration(stepCounter+"");
+            writeConfiguration(kmcStep+"");
+            writeConfiguration("searchStart");
             setInitialStateConditions(minEnergy, minVib);
             System.out.println("Good minimum found on second attempt.");
         }
-        xyzfile.actionPerformed();
-        
+                
+        try {
+            FileWriter writer = new FileWriter(kmcStep+"_tm.dat");
+            writer.write("step "+kmcStep+"\n"+tau+"\n"+msd);
+            writer.close();
+            
+            FileWriter writer2 = new FileWriter(kmcStep+"_ev");
+            writer2.write(minEnergy+"\n"+minVib);
+            writer2.close();
+            
+        }catch(IOException e) {
+            
+        }
+        kmcStep++;
     }
     
     public void setup(){
         search = true;
-        saddleVib = new double[searchlimit];
-        saddleEnergies = new double[searchlimit];
+        saddleVib = new double[totalSearches];
+        saddleEnergies = new double[totalSearches];
         
-        rates = new double[searchlimit];
+        msd = 0;
+        tau = 0;
+        searchNum = 0;
+        
+        rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
-        stepCounter = 0;     
-        imposePbc = new BoxImposePbc(box, space);
         currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         previousSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
         }
+        
+        createIntegrators();
     }
-
+    
     public void setInitialStateConditions(double energy, double vibFreq){
         minEnergy = energy;
         minVib = vibFreq;
@@ -184,10 +250,6 @@ public class IntegratorKMC extends IntegratorBox{
         for(int i=0; i<loopSet2.getAtomCount(); i++){
             minPosition[i].E(((IAtomPositioned)((IMolecule)loopSet2.getAtom(i)).getChildList().getAtom(0)).getPosition());
         }  
-    }
-    
-    public void setSearchLimit(int limit){
-        searchlimit = limit;
     }
     
     public void randomizePositions(){
@@ -206,11 +268,10 @@ public class IntegratorKMC extends IntegratorBox{
             currentPos[i].PE(workVector);
         }
     }
-        
+    
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
-        double rate = 0;
         minEnergy = minEnergy * 1.60217646E-019;
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
@@ -222,7 +283,7 @@ public class IntegratorKMC extends IntegratorBox{
         tau += -Math.log(random.nextDouble())/rateSum;
 
     }
-    
+
     public int chooseRate(){
         int rt = 0;
         double sum = 0;
@@ -252,7 +313,7 @@ public class IntegratorKMC extends IntegratorBox{
         for(int p=0; p<box.getMoleculeList().getAtomCount(); p++){
             currentSaddle[p].E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(p)).getChildList().getAtom(0)).getPosition());
         }
-        for(int i=0; i<goodSearch; i++){
+        for(int i=0; i<searchNum; i++){
             double positionDiff = 0;
             loadConfiguration("s_"+i+"_saddle");
             for(int j=0; j<box.getMoleculeList().getAtomCount(); j++){
@@ -269,24 +330,17 @@ public class IntegratorKMC extends IntegratorBox{
         return true;  
     }
     
-    private double truncate(double numA, int digits){
-        digits = (int)Math.pow(10,digits);
-        numA = (long)(digits*numA);
-        numA = (double)(numA/digits);
-        return numA;
-    }
     public boolean checkMin(){
-        boolean goodMin = false;
         IVector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getAtomCount(); i++){
             workVector.Ev1Mv2(minPosition[i],((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
             positionDiff += workVector.squared();
         }
-        if(positionDiff > 0.5){goodMin = true;}
-        return goodMin;
+        if(positionDiff > 0.5){return true;}
+        return false;
     }
-        
+    
     public void writeConfiguration(String file){
         WriteConfiguration writer = new WriteConfiguration(space);
         writer.setBox(box);
@@ -298,20 +352,18 @@ public class IntegratorKMC extends IntegratorBox{
         ConfigurationFile config = new ConfigurationFile(file);
         config.initializeCoordinates(box);
     }
-
+    
     public void createIntegrators(){
         integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space);
         integratorMin2= new IntegratorDimerMin(sim, potentialMaster, species, false, space);
-        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space);
         
         integratorMin1.setBox(box);
         integratorMin2.setBox(box);
-        integratorDimer.setBox(box);
-        integratorDimer.setRotNum(0);
-        integratorDimer.setOrtho(false, false);
+        
+        integratorMin1.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integratorMin2.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
         
         try {
-            integratorDimer.initialize();
             integratorMin1.initialize();
             integratorMin2.initialize();
         } catch (ConfigurationOverlapException e) {
@@ -319,10 +371,23 @@ public class IntegratorKMC extends IntegratorBox{
             e.printStackTrace();
         }
         
-        xyzfile = new XYZWriter(box);
-        xyzfile.setIsAppend(true);
-        xyzfile.setFileName("kmc-lj-3.xyz");
+        xyzMin1 = new XYZWriter(box);
+        xyzMin2 = new XYZWriter(box);
+        xyzMin1.setIsAppend(true);
+        xyzMin2.setIsAppend(true);
+        
+        integratorMin1.addIntervalAction(xyzMin1);
+        integratorMin2.addIntervalAction(xyzMin2);
+        integratorMin1.setActionInterval(xyzMin1, 5);
+        integratorMin2.setActionInterval(xyzMin2, 5);
+        
+        //Limit MSD calculation to a specific species
+        AtomIteratorFiltered aif = AtomIteratorFiltered.makeIterator(new AtomIteratorLeafAtoms(box),new AtomFilterTypeInstance(species[0].getChildType(0)));
+        msd1 = new MeterMeanSquareDisplacement(space, integratorMin1);
+        msd2 = new MeterMeanSquareDisplacement(space, integratorMin2);
+        msd1.setIterator((AtomIteratorBoxDependent)aif);
+        msd2.setIterator((AtomIteratorBoxDependent)aif);
     }
     
-
+    
 }

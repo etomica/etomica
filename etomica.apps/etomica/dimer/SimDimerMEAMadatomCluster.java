@@ -30,11 +30,11 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 
     	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 15.5);
+        vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);
         
-        sim.setMovableAtoms(120.0, vect);
+        sim.setMovableAtoms(100.0, vect);
         
         sim.setPotentialListAtoms();
         
@@ -54,22 +54,22 @@ public class SimDimerMEAMadatomCluster extends Simulation{
         */
         
         
-        sim.initializeConfiguration(fileName+"_saddle");
+        //sim.initializeConfiguration(fileName+"_saddle");
         
         //sim.enableMolecularDynamics(5000);
         
-        //sim.enableDimerSearch(fileName, 6000, false, false);
-        //sim.integratorDimer.setRotNum(1);
+        sim.enableDimerSearch(fileName, 2000, false, false);
+        sim.integratorDimer.setRotNum(0);
         
-        sim.enableMinimumSearch(fileName, true);
+        //sim.enableMinimumSearch(fileName, true);
         
-        
+        /*
         XYZWriter xyzwriter = new XYZWriter(sim.box);
         xyzwriter.setFileName(fileName+"_B_minimum.xyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimerMin.addIntervalAction(xyzwriter);
         sim.integratorDimerMin.setActionInterval(xyzwriter, 2);
-        
+        */
         
     	sim.getController().actionPerformed();
 

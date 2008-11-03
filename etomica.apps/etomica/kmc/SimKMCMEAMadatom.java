@@ -1,7 +1,6 @@
 package etomica.kmc;
 
 import etomica.action.CalcVibrationalModes;
-import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -17,19 +16,11 @@ import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.dimer.IntegratorDimerMin;
 import etomica.dimer.IntegratorDimerRT;
 import etomica.dimer.PotentialMasterListDimer;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
@@ -37,15 +28,11 @@ import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionTypesCombination;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Kelvin;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.numerical.CalcGradientDifferentiable;
 
 /**
@@ -64,8 +51,10 @@ public class SimKMCMEAMadatom extends Simulation{
     public IBox box;
     public SpeciesSpheresMono fixed, potentialSpecies, movable;
     public PotentialMEAM potential;
-    public ActivityIntegrate activityIntegrateKMC;
+    public ActivityIntegrate activityIntegrateKMC, activityIntegrateDimer, activityIntegrateKMCCluster;
     public IntegratorKMC integratorKMC;
+    public IntegratorKMCCluster integratorKMCCluster;
+    public IntegratorDimerRT integratorDimer;
     public CalcGradientDifferentiable calcGradientDifferentiable;
     public CalcVibrationalModes calcVibrationalModes;
     public double [][] dForces;
@@ -271,6 +260,23 @@ public class SimKMCMEAMadatom extends Simulation{
         
     }
     
+    public void randomizePositions(){
+        IVector workVector = space.makeVector();
+        IAtomSet loopSet3 = box.getMoleculeList(movable);
+        IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
+        double offset = 0;
+        for(int i=0; i<currentPos.length; i++){
+            currentPos[i] = space.makeVector();
+            currentPos[i] = (((IAtomPositioned)((IMolecule)loopSet3.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            for(int j=0; j<3; j++){
+                offset = random.nextGaussian()/10.0;
+                if(Math.abs(offset)>0.1){offset=0.1;}
+                workVector.setX(j,offset);
+            }
+            currentPos[i].PE(workVector);
+        }
+    }
+    
     //Must be run after setMovableAtoms
     public void removeAtoms(double distance, IVector center){
         distance = distance*distance;
@@ -298,6 +304,27 @@ public class SimKMCMEAMadatom extends Simulation{
         getController().addAction(activityIntegrateKMC);
     }
     
+    public void integratorKMCCluster(double temp, int totalSearch){
+        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMasterD, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
+        integratorKMCCluster.setBox(box);
+        activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
+        getController().addAction(activityIntegrateKMCCluster);
+    }
+    
+public void enableDimerSearch(String fileName, long maxSteps){
+        
+        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
+        integratorDimer.setBox(box);
+        integratorDimer.setOrtho(false, false);
+        integratorDimer.setFileName(fileName);
+        integratorDimer.addNonintervalListener(potentialMasterD.getNeighborManager(box));
+        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
+        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
+        getController().addAction(activityIntegrateDimer);
+        activityIntegrateDimer.setMaxSteps(maxSteps);
+    }
+    
     public static void main(String[] args){
        
         final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
@@ -313,7 +340,6 @@ public class SimKMCMEAMadatom extends Simulation{
         sim.setPotentialListAtoms();
         sim.integratorKMC();
         sim.integratorKMC.setInitialStateConditions(-0.06976750944145352, 1.7236382371736393E90);
-        sim.integratorKMC.createIntegrators();
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

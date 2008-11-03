@@ -104,7 +104,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.space = _space;
 		
 		stepLength = 0.001;
-		deltaR = 1E-3;
+		deltaR = 1E-5;
 		dTheta = 1E-4;
 		dFrot = 0.1;
 		rotCounter = 0;
@@ -124,16 +124,18 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    file = fileName;
 	}
 		
-	public void reset(){
-	        stepLength = 0.005;
-	        deltaR = 1E-3;
-	        dTheta = 1E-4;
-	        dFrot = 0.1;
-	        rotCounter = 0;
-	        counter = 0;
-	        Frot = 1;
-	        rotate = true;
-	        minFound = false;
+	public void reset() throws ConfigurationOverlapException{
+	    
+        super.reset();
+        stepLength = 0.01;
+        deltaR = 1E-5;
+        dTheta = 1E-4;
+        dFrot = 0.1;
+        rotCounter = 0;
+        counter = 0;
+        Frot = 1;
+        rotate = true;
+        minFound = false;
 	    
 	}
 	
@@ -291,7 +293,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }
 		}  
 		
-        dimerNormal();
+		initializeDimer();
+
 	}
 	
 	/**
@@ -468,6 +471,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
+        System.out.println("energy: "+ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    Vib: "+vib.getProductOfFrequencies());
+        
 		try { 
             fileWriter.close();
             }catch(IOException e) {
@@ -475,7 +480,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }
         writer.setBox(box);
         writer.actionPerformed();
-        //activityIntegrate.setMaxSteps(0);
+        activityIntegrate.setMaxSteps(0);
 	}
 	
 	/**
