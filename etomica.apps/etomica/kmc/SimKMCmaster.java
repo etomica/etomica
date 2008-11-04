@@ -33,7 +33,7 @@ public class SimKMCmaster extends Simulation{
         sim.initializeConfiguration("initialStart");
         
         sim.integratorKMCCluster(temp, steps, totalSearch);
-        sim.integratorKMCCluster.setInitialStateConditions(-0.055919748933009904, 3.1145942027562522E72);
+        sim.integratorKMCCluster.setInitialStateConditions(-539.543484823175, 3.1145942027562522E72);
         sim.getController().actionPerformed();
     }
 }

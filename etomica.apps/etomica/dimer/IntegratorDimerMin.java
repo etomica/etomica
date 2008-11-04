@@ -103,10 +103,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.normalD = normalDir;
 		this.space = _space;
 		
-		stepLength = 0.01;
-		deltaR = 1E-4;
+		stepLength = 0.005;
+		deltaR = 1E-3;
 		dTheta = 1E-5;
-		dFrot = 0.1;
+		dFrot = 0.01;
 		rotCounter = 0;
 		counter = 0;
 		Frot = 1;
@@ -128,7 +128,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    
         super.reset();
         rotate = true;
-        minFound = false;	    
+        minFound = false;
+        counter = 0;
 	}
 	
 	public void doStepInternal(){
@@ -136,18 +137,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    // Step half-dimer toward the local energy minimum
 	    walkDimer();
 	    
-	    e0 = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());
-	    eMin = ElectronVolt.UNIT.fromSim(energyBoxMin.getDataAsScalar());
+	    e0 = energyBox0.getDataAsScalar();
+	    eMin = energyBoxMin.getDataAsScalar();
         
 	    // Orient half-dimer on minimum energy path
-	    rotateDimerNewton();
-	    
-        // Write energy to file
-        try{
-            fileWriter.write(e0+"\n");
-        }catch(IOException e) {
-       
-        }
+	    if(counter>15){
+	        rotateDimerNewton();
+	    }
         //System.out.println("Step "+counter);
         //System.out.println("ebox0 "+e0+"   ebox1 "+eMin);
         /*
@@ -278,12 +274,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
             configFile1.initializeCoordinates(boxMin);
             writer.setConfName(file+"_B_minimum");
-        }
-        
-        try{
-            fileWriter = new FileWriter(writer.getConfName()+"_path");
-        }catch(IOException e) {
-            
         }
         
         dimerNormal();
@@ -425,7 +415,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			rotCounter++;
 			
 			if(rotCounter>100){
-	                break;
+			    rotCounter=0;    
+			    break;
 			}
 		}
 	}
@@ -457,13 +448,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
-        System.out.println("energy: "+ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    Vib: "+vib.getProductOfFrequencies());
-        
-		try { 
-            fileWriter.close();
-            }catch(IOException e) {
-                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
-            }
+        //System.out.println("energy: "+ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    Vib: "+vib.getProductOfFrequencies());
+
         writer.setBox(box);
         writer.actionPerformed();
         //activityIntegrate.setMaxSteps(0);

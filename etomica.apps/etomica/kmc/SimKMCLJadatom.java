@@ -183,6 +183,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
+ 
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
@@ -204,7 +205,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         sim.initializeConfiguration("0");
         sim.integratorKMC();
         sim.integratorKMC.createIntegrators();
-        sim.integratorKMC.setInitialStateConditions(-0.055919748933009904, 3.1145942027562522E72);
+        sim.integratorKMC.setInitialStateConditions(-539.543484823175, 3.1145942027562522E72);
         sim.integratorKMC.setSearchLimit(4);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());

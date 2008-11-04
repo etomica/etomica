@@ -16,19 +16,13 @@ import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -39,7 +33,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.RandomNumberGenerator;
 import etomica.util.numerical.CalcGradientDifferentiable;
 
@@ -269,12 +262,11 @@ public class SimDimerLJadatom extends Simulation{
         sim.setMovableAtoms(2.0, vect);
         
         //sim.initializeConfiguration("0");
-        
-        
-        sim.enableDimerSearch("0", 800, false, false);
+
+        //sim.enableDimerSearch("0", 800, false, false);
         //sim.randomizePositions();
-        sim.integratorDimer.setRotNum(0);
-        sim.enableMinimumSearch("0", false);
+        //sim.integratorDimer.setRotNum(0);
+        sim.enableMinimumSearch("s_1", false);
 
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());

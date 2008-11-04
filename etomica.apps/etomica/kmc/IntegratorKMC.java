@@ -114,9 +114,9 @@ public class IntegratorKMC extends IntegratorBox{
         xyzfile.actionPerformed();
         
         stepCounter++;
-        integratorMin1.deltaR = integratorDimer.deltaR;
-        integratorMin2.deltaR = integratorDimer.deltaR;
+
         for(int j=0;j<1000;j++){
+            System.out.println("Minimum search step...");
             integratorMin1.doStep();
             if(integratorMin1.minFound){
                 break;

@@ -60,8 +60,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
     XYZWriter xyzMin1, xyzMin2;
     BoxImposePbc imposePbc;
     MeterMeanSquareDisplacement msd1, msd2;
-    FileReader fileReader;
+    FileReader fileReader, writeTau;
     BufferedReader buffReader;
+    FileWriter writer;
     
     public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, ISpace _space){
         super(_potentialMaster, _temperature);
@@ -100,7 +101,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 break;
             }
             try {
-                Thread.sleep(60000);
+                Thread.sleep(20000);
             } catch (InterruptedException e){        }
         }
         for(int i=0; i<totalSearches; i++){
@@ -110,11 +111,12 @@ public class IntegratorKMCCluster extends IntegratorBox{
             new File(i+".done").delete();            
         }
         
+        searchNum = 0;
         for(int i=0; i<saddleEnergies.length; i++){
 
-            loadConfiguration("s_"+searchNum+"_saddle");
+            loadConfiguration("s_"+i+"_saddle");
             try {
-                fileReader = new FileReader("s_"+searchNum+"_s_ev");
+                fileReader = new FileReader("s_"+i+"_s_ev");
                 buffReader = new BufferedReader(fileReader);
                 saddleEnergy = Double.parseDouble(buffReader.readLine());
                 freqProd = Double.parseDouble(buffReader.readLine());
@@ -122,9 +124,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
             catch(IOException e) {}
 
             if(checkUniqueSaddle()){
-                System.out.println("Good search "+searchNum+", adding saddle data.");
-                saddleEnergies[searchNum] = saddleEnergy;
-                saddleVib[searchNum] = freqProd;
+                System.out.println("Good search "+i+", adding saddle data.");
+                saddleEnergies[i] = saddleEnergy;
+                saddleVib[i] = freqProd;
             }
             searchNum++;
         }
@@ -136,13 +138,13 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 
         //Minimum Search with random transition
         integratorMin1.setFileName("s_"+rateNum);
-        xyzMin1.setFileName((kmcStep-1)+"_s-"+kmcStep+".xyz");
         try {
             integratorMin1.initialize();
         } catch (ConfigurationOverlapException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        xyzMin1.setFileName((kmcStep-1)+"_s-A.xyz");
         writeConfiguration((kmcStep-1)+"_s");      
         
         for(int j=0;j<1000;j++){
@@ -151,7 +153,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 break;
             }
         }
-        msd = msd1.getDataAsScalar();
+        msd += msd1.getDataAsScalar();
         if(checkMin()){
             minEnergy = integratorMin1.e0;
             minVib = integratorMin1.vib.getProductOfFrequencies();
@@ -160,13 +162,13 @@ public class IntegratorKMCCluster extends IntegratorBox{
             setInitialStateConditions(minEnergy, minVib);
             System.out.println("Good minimum found. Computing MSD for other direction...");
             integratorMin2.setFileName("s_"+rateNum);
-            xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz");
             try {
                 integratorMin2.initialize();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            xyzMin2.setFileName((kmcStep-1)+"_s-B.xyz");
             for(int j=0;j<1000;j++){
                 integratorMin2.doStep();
                 if(integratorMin2.minFound){
@@ -177,22 +179,19 @@ public class IntegratorKMCCluster extends IntegratorBox{
         }else{
             integratorMin2.setFileName("s_"+rateNum);
             //rename minimum 1 search XYZ file
-            new File((kmcStep-1)+"_s-"+kmcStep+".xyz").renameTo(new File((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz"));
-            xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep)+".xyz");
             try {
                 integratorMin2.initialize();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            xyzMin2.setFileName((kmcStep-1)+"_s-A-right.xyz");
             for(int j=0;j<1000;j++){
                 integratorMin2.doStep();
                 if(integratorMin2.minFound){
                     break;
                 }
             }
-            //rename minimum 1 search XYZ file
-            new File((kmcStep-1)+"_s-"+kmcStep+".xyz").renameTo(new File((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz"));
             msd += msd2.getDataAsScalar();
             minEnergy = integratorMin2.e0;
             minVib = integratorMin2.vib.getProductOfFrequencies();
@@ -203,8 +202,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
         }
                 
         try {
-            FileWriter writer = new FileWriter(kmcStep+"_tm.dat");
-            writer.write("step "+kmcStep+"\n"+tau+"\n"+msd);
+            writer = new FileWriter("tau-msd.dat", true);
+            writer.write("-step "+kmcStep+"\n"+"tau: "+tau+"\n"+"msd: "+msd+"\n");
             writer.close();
             
             FileWriter writer2 = new FileWriter(kmcStep+"_ev");
@@ -214,6 +213,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
         }catch(IOException e) {
             
         }
+        clearRatesandEnergies();
+        msd1.reset();
+        msd2.reset();
         kmcStep++;
     }
     
@@ -226,9 +228,9 @@ public class IntegratorKMCCluster extends IntegratorBox{
         tau = 0;
         searchNum = 0;
         kmcStep = 1;
-        
+        imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
-        beta = 1.0/(temperature*1.3806503E-023);
+        beta = 1.0/(temperature);
         currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         previousSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         for(int i=0; i<currentSaddle.length; i++){
@@ -237,6 +239,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         }
         
         createIntegrators();
+
     }
     
     public void setInitialStateConditions(double energy, double vibFreq){
@@ -274,16 +277,22 @@ public class IntegratorKMCCluster extends IntegratorBox{
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
-        minEnergy = minEnergy * 1.60217646E-019;
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
-            saddleEnergies[i] = saddleEnergies[i] * 1.60217646E-019;
             rates[i] = (minVib / saddleVib[i]) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
         //compute residence time
         tau += -Math.log(random.nextDouble())/rateSum;
 
+    }
+    
+    public void clearRatesandEnergies(){
+        for(int i=0; i<rates.length; i++){
+            rates[i] = 0.0;
+            saddleEnergies[i] = 0.0;
+            saddleVib[i] = 0.0;
+        }
     }
 
     public int chooseRate(){
@@ -376,6 +385,10 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin2.addIntervalAction(xyzMin2);
         integratorMin1.setActionInterval(xyzMin1, 5);
         integratorMin2.setActionInterval(xyzMin2, 5);
+        integratorMin1.addIntervalAction(imposePbc);
+        integratorMin2.addIntervalAction(imposePbc);
+        integratorMin1.setActionInterval(imposePbc, 1);
+        integratorMin2.setActionInterval(imposePbc, 1);
         
         //Limit MSD calculation to a specific species
         AtomIteratorFiltered aif = AtomIteratorFiltered.makeIterator(new AtomIteratorLeafAtoms(box),new AtomFilterTypeInstance(species[0].getChildType(0)));

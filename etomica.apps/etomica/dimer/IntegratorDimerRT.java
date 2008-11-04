@@ -103,15 +103,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.movableSpecies = aspecies;
 		this.space = _space;
 				
-		deltaR = 1E-4;
+		deltaR = 1E-3;
 		dXl = 1E-3;
 		deltaXl = 0;
-		deltaXmax = 0.01;
+		deltaXmax = 0.025;
 		
 		deltaTheta = 0;
 		dTheta = 1E-4;
 		
-		dFsq = 0.05;
+		dFsq = 0.01;
 		
 		Frot = 1.0;
 		dFrot = 0.1;
@@ -165,7 +165,25 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	public void reset() throws ConfigurationOverlapException{
 	    super.reset();
-        saddleFound=false;
+        
+	    deltaR = 1E-3;
+        dXl = 1E-3;
+        deltaXl = 0;
+        deltaXmax = 0.025;
+        
+        deltaTheta = 0;
+        dTheta = 1E-4;
+        
+        dFsq = 0.05;
+        
+        Frot = 1.0;
+        dFrot = 0.1;
+        
+        counter = 0;
+        rotCounter = 0;
+        rotNum = 1;
+
+	    saddleFound=false;
         counter = 0;
         startOrtho = false;
         ortho2 = false;
@@ -879,12 +897,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	        
 	        
 		    saddleFound = true;
-		    saddleEnergy = ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar());
+		    saddleEnergy = energyBox0.getDataAsScalar();
 		    
 		    
 	        try{
 	            FileWriter fileWriter = new FileWriter(file+"_s_ev", false);
-	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n"+vib.getProductOfFrequencies());
+	            fileWriter.write(energyBox0.getDataAsScalar()+"\n"+vib.getProductOfFrequencies());
 	            fileWriter.close();
 	        }catch(IOException e) {
 	          
@@ -905,7 +923,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    writer.setBox(box2);
 		    writer.actionPerformed();
 		    
-		    activityIntegrate.setMaxSteps(0);
+		    //activityIntegrate.setMaxSteps(0);
 		    
 		}
 			
