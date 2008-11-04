@@ -24,6 +24,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.dimer.IntegratorDimerMin;
+import etomica.dimer.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
@@ -79,7 +80,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
 
     protected void doStepInternal(){
-        loadConfiguration(kmcStep-1+"");
+        loadConfiguration((kmcStep-1)+"");
 
         for(int i=0; i<totalSearches; i++){
             try {
@@ -103,14 +104,17 @@ public class IntegratorKMCCluster extends IntegratorBox{
             } catch (InterruptedException e){        }
         }
         for(int i=0; i<totalSearches; i++){
-            new File(i+".done").delete();
+            new File(i+".go").delete();            
         }
-
+        for(int i=0; i<totalSearches; i++){
+            new File(i+".done").delete();            
+        }
+        
         for(int i=0; i<saddleEnergies.length; i++){
 
-            loadConfiguration(searchNum+"_saddle");
+            loadConfiguration("s_"+searchNum+"_saddle");
             try {
-                fileReader = new FileReader(searchNum+"_s_ev");
+                fileReader = new FileReader("s_"+searchNum+"_s_ev");
                 buffReader = new BufferedReader(fileReader);
                 saddleEnergy = Double.parseDouble(buffReader.readLine());
                 freqProd = Double.parseDouble(buffReader.readLine());
@@ -131,7 +135,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         System.out.println("Step "+(kmcStep-1)+": tau is "+tau);
                 
         //Minimum Search with random transition
-        integratorMin1.setFileName(""+rateNum);
+        integratorMin1.setFileName("s_"+rateNum);
         xyzMin1.setFileName((kmcStep-1)+"_s-"+kmcStep+".xyz");
         try {
             integratorMin1.initialize();
@@ -139,8 +143,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        integratorMin1.initializeDimer();
-        writeConfiguration((kmcStep-1)+"_saddle");      
+        writeConfiguration((kmcStep-1)+"_s");      
         
         for(int j=0;j<1000;j++){
             integratorMin1.doStep();
@@ -156,7 +159,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
             writeConfiguration("searchStart");
             setInitialStateConditions(minEnergy, minVib);
             System.out.println("Good minimum found. Computing MSD for other direction...");
-            integratorMin2.setFileName(""+rateNum);
+            integratorMin2.setFileName("s_"+rateNum);
             xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz");
             try {
                 integratorMin2.initialize();
@@ -164,7 +167,6 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            integratorMin2.initializeDimer();
             for(int j=0;j<1000;j++){
                 integratorMin2.doStep();
                 if(integratorMin2.minFound){
@@ -173,7 +175,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
             }
             msd += msd2.getDataAsScalar();
         }else{
-            integratorMin2.setFileName(""+rateNum);
+            integratorMin2.setFileName("s_"+rateNum);
             //rename minimum 1 search XYZ file
             new File((kmcStep-1)+"_s-"+kmcStep+".xyz").renameTo(new File((kmcStep-1)+"_s-"+(kmcStep-1)+".xyz"));
             xyzMin2.setFileName((kmcStep-1)+"_s-"+(kmcStep)+".xyz");
@@ -183,7 +185,6 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            integratorMin2.initializeDimer();
             for(int j=0;j<1000;j++){
                 integratorMin2.doStep();
                 if(integratorMin2.minFound){
@@ -224,6 +225,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         msd = 0;
         tau = 0;
         searchNum = 0;
+        kmcStep = 1;
         
         rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
@@ -360,17 +362,11 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin1.setBox(box);
         integratorMin2.setBox(box);
         
-        integratorMin1.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        integratorMin2.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
-        
-        try {
-            integratorMin1.initialize();
-            integratorMin2.initialize();
-        } catch (ConfigurationOverlapException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(potential instanceof PotentialMasterListDimer){
+            integratorMin1.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+            integratorMin2.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
         }
-        
+                
         xyzMin1 = new XYZWriter(box);
         xyzMin2 = new XYZWriter(box);
         xyzMin1.setIsAppend(true);

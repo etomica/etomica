@@ -133,7 +133,7 @@ public class SimDimerLJadatom extends Simulation{
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
-            if(rij.squared() < distance){
+            if(rij.x(0)< distance){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -266,25 +266,21 @@ public class SimDimerLJadatom extends Simulation{
         vect.setX(1, 0.0);
         vect.setX(2, 0.0);
         
+        sim.setMovableAtoms(2.0, vect);
+        
+        //sim.initializeConfiguration("0");
         
         
-        sim.setMovableAtoms(12.0, vect);
-        //sim.removeAtoms(2.9, vect);
-        
-        sim.initializeConfiguration("0");
-        
-        
-        sim.enableDimerSearch("sns-test1", 800, false, false);
-        sim.randomizePositions();
-        sim.integratorDimer.initialize();
+        sim.enableDimerSearch("0", 800, false, false);
+        //sim.randomizePositions();
         sim.integratorDimer.setRotNum(0);
-        //sim.enableMinimumSearch("sns-test1", false);
+        sim.enableMinimumSearch("0", false);
 
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-        sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         

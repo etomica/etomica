@@ -392,10 +392,10 @@ public class SimDimerMEAMadatom extends Simulation{
         
         //sim.enableMolecularDynamics(5000);
         
-        //sim.enableDimerSearch("0-MEAM", 1000, false, false);
-        //sim.integratorDimer.setRotNum(0);
+        sim.enableDimerSearch("0-MEAM", 1000, false, false);
+        sim.integratorDimer.setRotNum(0);
         
-        sim.enableMinimumSearch("s-09", false);
+        //sim.enableMinimumSearch("s-09", false);
         //sim.integratorDimerMin.initializeDimer();
                 
         /*
@@ -410,7 +410,7 @@ public class SimDimerMEAMadatom extends Simulation{
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

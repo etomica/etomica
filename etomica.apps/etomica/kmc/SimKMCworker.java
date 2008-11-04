@@ -20,15 +20,14 @@ public class SimKMCworker extends Simulation{
         String fileName = args[0];
         final String APP_NAME = "SimKMCworker";
 
-        final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
+        final SimKMCLJadatom sim = new SimKMCLJadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 9.8);
-        vect.setX(1, -0.2);
-        vect.setX(2, -0.2);
+        vect.setX(0, 3.5);
+        vect.setX(1, 0.0);
+        vect.setX(2, 0.0);
         
-        sim.setMovableAtoms(100.0, vect);
         
-        sim.setPotentialListAtoms();
+        sim.setMovableAtoms(2.0, vect);
         
         sim.initializeConfiguration("searchStart");
         sim.randomizePositions();

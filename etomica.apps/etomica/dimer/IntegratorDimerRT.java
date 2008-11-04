@@ -106,8 +106,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		deltaR = 1E-4;
 		dXl = 1E-3;
 		deltaXl = 0;
-		deltaXmax = 0.05;
-		dTheta = 1E-3;
+		deltaXmax = 0.01;
 		
 		deltaTheta = 0;
 		dTheta = 1E-4;
@@ -166,25 +165,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	public void reset() throws ConfigurationOverlapException{
 	    super.reset();
-	    
-	    deltaR = 1E-4;
-        dXl = 1E-3;
-        deltaXl = 0;
-        deltaXmax = 0.01;
-        dTheta = 1E-3;
-        
-        deltaTheta = 0;
-        dTheta = 1E-4;
-        
-        dFsq = 0.001;
-        
-        Frot = 1.0;
-        dFrot = 0.1;
-        
+        saddleFound=false;
         counter = 0;
-        rotCounter = 0;
-        rotNum = 2;
-        
         startOrtho = false;
         ortho2 = false;
 	 // Use random unit array for N, N1 to generate dimer.
@@ -226,8 +208,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
               }
           }
         dimerForces(F1, F2, F);
-        saddleFound=false;
-        counter = 0;
+
 	}
 	
 	/**
@@ -364,13 +345,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void rotateDimerNewton(){
 		rotCounter=0;
 		
+	    // Calculate new F
+        dimerForces(F1, F2, F);
+        
+        dimerSaddleTolerance();
 				
 	    while(true){
 			
-	        // Calculate new F
-	        dimerForces(F1, F2, F);
-	    	
-	        dimerSaddleTolerance();
+	        // Calculate F1
+            dimerForcesStar(F1, F2, F);
 	        
 	    	//ORTHOGONAL DIMER SEARCH
 	    	if(ortho){
@@ -878,9 +861,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			saddleT += F[i].squared();
 		}
 		if(saddleT<0.5){
+		    setRotNum(5);
 		    if(energyBox0.getDataAsScalar()>energyBox1.getDataAsScalar()){
-		        deltaR = 1E-5;
-                resizeDimer();
+		        //deltaR = 1E-5;
+                //resizeDimer();
 		        dXl = 0.000001;
     		    deltaXmax = 0.001;
     		    dTheta = 0.000001;

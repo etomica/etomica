@@ -16,24 +16,24 @@ public class SimKMCmaster extends Simulation{
     }
 
     public static void main(String[] args){
-        String fileName = args[0];
+        double temp = Double.parseDouble(args[0]);
+        int steps = Integer.parseInt(args[1]);
+        int totalSearch = Integer.parseInt(args[2]);
         final String APP_NAME = "SimKMCmaster";
 
-        final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
+        final SimKMCLJadatom sim = new SimKMCLJadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 9.8);
-        vect.setX(1, -0.2);
-        vect.setX(2, -0.2);
+        vect.setX(0, 3.5);
+        vect.setX(1, 0.0);
+        vect.setX(2, 0.0);
         
-        sim.setMovableAtoms(100.0, vect);
         
-        sim.setPotentialListAtoms();
+        sim.setMovableAtoms(2.0, vect);
         
         sim.initializeConfiguration("initialStart");
         
-        sim.integratorKMCCluster(295.0, 500);
-        sim.integratorKMCCluster.setInitialStateConditions(1, 2);
-        
+        sim.integratorKMCCluster(temp, steps, totalSearch);
+        sim.integratorKMCCluster.setInitialStateConditions(-0.055919748933009904, 3.1145942027562522E72);
         sim.getController().actionPerformed();
     }
 }

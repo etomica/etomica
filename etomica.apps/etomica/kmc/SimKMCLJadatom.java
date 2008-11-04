@@ -17,6 +17,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
+import etomica.dimer.IntegratorDimerRT;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
@@ -43,9 +44,11 @@ public class SimKMCLJadatom extends Simulation{
     private static final String APP_NAME = "DimerLJadatom";
     public final PotentialMaster potentialMaster;
     public IntegratorKMC integratorKMC;
+    public IntegratorKMCCluster integratorKMCCluster;
+    public IntegratorDimerRT integratorDimer;
     public IBox box;
     public SpeciesSpheresMono fixed, movable;
-    public ActivityIntegrate activityIntegrateKMC;
+    public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
     public IAtomSet movableSet;
     public IVector adAtomPos;
     
@@ -129,11 +132,29 @@ public class SimKMCLJadatom extends Simulation{
         IAtomSet loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                box.removeMolecule((IMolecule)loopSet.getAtom(i));
             } 
         }   
+    }
+    
+    public void randomizePositions(){
+        IVector workVector = space.makeVector();
+        IAtomSet loopSet3 = box.getMoleculeList(movable);
+        IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
+        double offset = 0;
+        for(int i=0; i<currentPos.length; i++){
+            currentPos[i] = space.makeVector();
+            currentPos[i] = (((IAtomPositioned)((IMolecule)loopSet3.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            for(int j=0; j<3; j++){
+                offset = random.nextGaussian()/10.0;
+                if(Math.abs(offset)>0.1){offset=0.1;}
+                workVector.setX(j,offset);
+            }
+            currentPos[i].PE(workVector);
+        }
     }
     
     public void initializeConfiguration(String fileName){
@@ -148,6 +169,28 @@ public class SimKMCLJadatom extends Simulation{
         getController().addAction(activityIntegrateKMC);
     }
     
+    public void integratorKMCCluster(double temp, int steps, int totalSearch){
+        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
+        integratorKMCCluster.setBox(box);
+        activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
+        activityIntegrateKMCCluster.setMaxSteps(steps);
+        getController().addAction(activityIntegrateKMCCluster);
+    }
+    
+public void enableDimerSearch(String fileName, long maxSteps){
+        
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
+        integratorDimer.setBox(box);
+        integratorDimer.setOrtho(false, false);
+        integratorDimer.setFileName(fileName);
+        //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
+        getController().addAction(activityIntegrateDimer);
+        activityIntegrateDimer.setMaxSteps(maxSteps);
+    }
+
     public static void main(String[] args){
        
         final SimKMCLJadatom sim = new SimKMCLJadatom();
@@ -156,13 +199,13 @@ public class SimKMCLJadatom extends Simulation{
         vect.setX(1, 0.0);
         vect.setX(2, 0.0);
         
-        sim.initializeConfiguration("0");
+        
         sim.setMovableAtoms(2.0, vect);
-
+        sim.initializeConfiguration("0");
         sim.integratorKMC();
-        sim.integratorKMC.setInitialStateConditions(-0.06976750944145352, 1.7236382371736393E90);
         sim.integratorKMC.createIntegrators();
-        sim.integratorKMC.setSearchLimit(10);
+        sim.integratorKMC.setInitialStateConditions(-0.055919748933009904, 3.1145942027562522E72);
+        sim.integratorKMC.setSearchLimit(4);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

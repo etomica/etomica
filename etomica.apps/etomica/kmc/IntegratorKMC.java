@@ -110,20 +110,19 @@ public class IntegratorKMC extends IntegratorBox{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        integratorMin1.initializeDimer();
         writeConfiguration(stepCounter+"_saddle");
         xyzfile.actionPerformed();
         
         stepCounter++;
-        
+        integratorMin1.deltaR = integratorDimer.deltaR;
+        integratorMin2.deltaR = integratorDimer.deltaR;
         for(int j=0;j<1000;j++){
             integratorMin1.doStep();
             if(integratorMin1.minFound){
                 break;
             }
         }
-        boolean check = checkMin();
-        if(check==true){
+        if(checkMin()){
             minEnergy = integratorMin1.e0;
             minVib = integratorMin1.vib.getProductOfFrequencies();
             writeConfiguration(stepCounter+"");
@@ -137,7 +136,6 @@ public class IntegratorKMC extends IntegratorBox{
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            integratorMin2.initializeDimer();
             for(int j=0;j<1000;j++){
                 integratorMin2.doStep();
                 if(integratorMin2.minFound){
@@ -168,6 +166,13 @@ public class IntegratorKMC extends IntegratorBox{
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
+        }
+        
+        try {
+            integratorDimer.initialize();
+        } catch (ConfigurationOverlapException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -276,15 +281,14 @@ public class IntegratorKMC extends IntegratorBox{
         return numA;
     }
     public boolean checkMin(){
-        boolean goodMin = false;
         IVector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getAtomCount(); i++){
             workVector.Ev1Mv2(minPosition[i],((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
             positionDiff += workVector.squared();
         }
-        if(positionDiff > 0.5){goodMin = true;}
-        return goodMin;
+        if(positionDiff > 0.5){return true;}
+        return false;
     }
         
     public void writeConfiguration(String file){
@@ -309,16 +313,7 @@ public class IntegratorKMC extends IntegratorBox{
         integratorDimer.setBox(box);
         integratorDimer.setRotNum(0);
         integratorDimer.setOrtho(false, false);
-        
-        try {
-            integratorDimer.initialize();
-            integratorMin1.initialize();
-            integratorMin2.initialize();
-        } catch (ConfigurationOverlapException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
+                
         xyzfile = new XYZWriter(box);
         xyzfile.setIsAppend(true);
         xyzfile.setFileName("kmc-lj-3.xyz");
