@@ -89,7 +89,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
                 frequencies[i] = 0.0;
                 continue;
             }
-            frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI) / Math.sqrt(mass);
+            frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI);
         }
         prodFreq = 1;      
         for(int i=0; i<frequencies.length; i++){
@@ -100,7 +100,6 @@ public class CalcVibrationalModes implements IAction, Serializable {
             }
             prodFreq = prodFreq * frequencies[i];
         }
-        prodFreq = prodFreq  / 0.000000000001;
         
         System.out.println("Normal mode vibrational data calculated.");
         //System.out.println(prodFreq);

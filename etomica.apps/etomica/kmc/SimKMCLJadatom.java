@@ -163,7 +163,7 @@ public class SimKMCLJadatom extends Simulation{
     }
     
     public void integratorKMC(){
-        integratorKMC = new IntegratorKMC(this, potentialMaster, 273.15, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
+        integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
         integratorKMC.setBox(box);
         activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
         getController().addAction(activityIntegrateKMC);
@@ -206,7 +206,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         sim.integratorKMC();
         sim.integratorKMC.createIntegrators();
         sim.integratorKMC.setInitialStateConditions(-539.543484823175, 3.1145942027562522E72);
-        sim.integratorKMC.setSearchLimit(4);
+        sim.integratorKMC.setSearchLimit(1);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

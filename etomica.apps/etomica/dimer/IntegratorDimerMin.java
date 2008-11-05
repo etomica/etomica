@@ -448,7 +448,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
-        //System.out.println("energy: "+ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    Vib: "+vib.getProductOfFrequencies());
+        System.out.println("energy: "+energyBox0.getDataAsScalar()+"    Vib: "+vib.getProductOfFrequencies());
 
         writer.setBox(box);
         writer.actionPerformed();

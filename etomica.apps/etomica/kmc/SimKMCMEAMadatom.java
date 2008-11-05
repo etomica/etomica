@@ -87,7 +87,7 @@ public class SimKMCMEAMadatom extends Simulation{
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         ((IAtomTypeSphere)potentialSpecies.getLeafType()).setDiameter(3.022);
-        box.setNMolecules(fixed, 216);
+        box.setNMolecules(fixed, 180);
         
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
@@ -106,7 +106,7 @@ public class SimKMCMEAMadatom extends Simulation{
               
         double a = 5.92; 
         double c = 3.23;
-        box.getBoundary().setDimensions(new Vector3D(a*3, a*3, c*6));
+        box.getBoundary().setDimensions(new Vector3D(a*3, a*3, c*5));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
@@ -172,8 +172,8 @@ public class SimKMCMEAMadatom extends Simulation{
         adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         //adAtomPos = getSpace().makeVector();
         adAtomPos.setX(0, 9.8);
-        adAtomPos.setX(1, -0.2);
-        adAtomPos.setX(2, -0.2);
+        adAtomPos.setX(1, 0.2);
+        adAtomPos.setX(2, -1.0);
         IVector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
         newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
@@ -304,10 +304,11 @@ public class SimKMCMEAMadatom extends Simulation{
         getController().addAction(activityIntegrateKMC);
     }
     
-    public void integratorKMCCluster(double temp, int totalSearch){
+    public void integratorKMCCluster(double temp, int steps, int totalSearch){
         integratorKMCCluster = new IntegratorKMCCluster(this, potentialMasterD, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
         integratorKMCCluster.setBox(box);
         activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
+        activityIntegrateKMCCluster.setMaxSteps(steps);
         getController().addAction(activityIntegrateKMCCluster);
     }
     
@@ -333,19 +334,20 @@ public void enableDimerSearch(String fileName, long maxSteps){
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);
         
-        //sim.initializeConfiguration("sns-00_B_minimum");
-        
         sim.setMovableAtoms(100.0, vect);
         
         sim.setPotentialListAtoms();
-        sim.integratorKMC();
-        sim.integratorKMC.setInitialStateConditions(-0.06976750944145352, 1.7236382371736393E90);
+        sim.initializeConfiguration("0-MEAM_saddle");
+        sim.integratorKMCCluster(400.0, 800, 30);
+
+        //energy: -3331480.584975273    Vib: 9.561284069712113E96
+        sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorKMC.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorKMCCluster.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

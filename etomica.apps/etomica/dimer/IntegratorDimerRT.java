@@ -106,7 +106,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		deltaR = 1E-3;
 		dXl = 1E-3;
 		deltaXl = 0;
-		deltaXmax = 0.025;
+		deltaXmax = 0.04;
 		
 		deltaTheta = 0;
 		dTheta = 1E-4;
@@ -169,7 +169,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    deltaR = 1E-3;
         dXl = 1E-3;
         deltaXl = 0;
-        deltaXmax = 0.025;
+        deltaXmax = 0.04;
         
         deltaTheta = 0;
         dTheta = 1E-4;

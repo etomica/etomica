@@ -46,7 +46,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     double[] saddleEnergies;
     double[] rates;
     double tau;
-    double msd;
+    IVector msd;
     double beta;
     double minEnergy;
     double freqProd;
@@ -153,7 +153,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 break;
             }
         }
-        msd += msd1.getDataAsScalar();
+        msdCalc(msd1);
         if(checkMin()){
             minEnergy = integratorMin1.e0;
             minVib = integratorMin1.vib.getProductOfFrequencies();
@@ -175,7 +175,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                     break;
                 }
             }
-            msd += msd2.getDataAsScalar();
+            msdCalc(msd2);
         }else{
             integratorMin2.setFileName("s_"+rateNum);
             //rename minimum 1 search XYZ file
@@ -192,7 +192,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                     break;
                 }
             }
-            msd += msd2.getDataAsScalar();
+            msdCalc(msd2);
             minEnergy = integratorMin2.e0;
             minVib = integratorMin2.vib.getProductOfFrequencies();
             writeConfiguration(kmcStep+"");
@@ -224,7 +224,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         saddleVib = new double[totalSearches];
         saddleEnergies = new double[totalSearches];
         
-        msd = 0;
+        msd = space.makeVector();
         tau = 0;
         searchNum = 0;
         kmcStep = 1;
@@ -277,14 +277,22 @@ public class IntegratorKMCCluster extends IntegratorBox{
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
+        double massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
-            rates[i] = (minVib / saddleVib[i]) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
+            rates[i] = (minVib / saddleVib[i] / massSec) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
         //compute residence time
         tau += -Math.log(random.nextDouble())/rateSum;
 
+    }
+    
+    public void msdCalc(MeterMeanSquareDisplacement msdArray){
+        IVector [] msdVect = msdArray.getDataAsArray();
+        for(int i=0; i<msdVect.length; i++){
+            msd.PE(msdVect[i]);
+        }
     }
     
     public void clearRatesandEnergies(){

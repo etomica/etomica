@@ -3,6 +3,7 @@ package etomica.kmc;
 import etomica.api.IVector;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
+import etomica.units.Kelvin;
 
 public class SimKMCmaster extends Simulation{
 
@@ -21,19 +22,22 @@ public class SimKMCmaster extends Simulation{
         int totalSearch = Integer.parseInt(args[2]);
         final String APP_NAME = "SimKMCmaster";
 
-        final SimKMCLJadatom sim = new SimKMCLJadatom();
+        final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
         IVector vect = sim.getSpace().makeVector();
-        vect.setX(0, 3.5);
-        vect.setX(1, 0.0);
-        vect.setX(2, 0.0);
+        vect.setX(0, 9.8);
+        vect.setX(1, -0.2);
+        vect.setX(2, -0.2);
+               
+        sim.setMovableAtoms(100.0, vect);
         
-        
-        sim.setMovableAtoms(2.0, vect);
+        sim.setPotentialListAtoms();
         
         sim.initializeConfiguration("initialStart");
         
-        sim.integratorKMCCluster(temp, steps, totalSearch);
-        sim.integratorKMCCluster.setInitialStateConditions(-539.543484823175, 3.1145942027562522E72);
+        sim.integratorKMCCluster(Kelvin.UNIT.toSim(temp), steps, totalSearch);
+        
+        //for sn energy: -3331480.584975273    Vib: 9.561284069712113E96
+        sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
         sim.getController().actionPerformed();
     }
 }

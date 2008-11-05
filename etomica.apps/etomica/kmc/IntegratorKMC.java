@@ -158,7 +158,7 @@ public class IntegratorKMC extends IntegratorBox{
         saddleEnergies = new double[searchlimit];
         
         rates = new double[searchlimit];
-        beta = 1.0/(temperature*1.3806503E-023);
+        beta = 1.0/(temperature);
         stepCounter = 0;     
         imposePbc = new BoxImposePbc(box, space);
         currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
@@ -215,12 +215,10 @@ public class IntegratorKMC extends IntegratorBox{
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
-        double rate = 0;
-        minEnergy = minEnergy * 1.60217646E-019;
+        double massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
-            saddleEnergies[i] = saddleEnergies[i] * 1.60217646E-019;
-            rates[i] = (minVib / saddleVib[i]) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
+            rates[i] = (minVib / saddleVib[i] / massSec)* Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
         //compute residence time

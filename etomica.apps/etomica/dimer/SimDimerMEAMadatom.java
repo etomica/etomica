@@ -392,10 +392,17 @@ public class SimDimerMEAMadatom extends Simulation{
         
         //sim.enableMolecularDynamics(5000);
         
-        sim.enableDimerSearch("0-MEAM", 2000, false, false);
-        sim.integratorDimer.setRotNum(0);
-        
-        //sim.enableMinimumSearch("s-09", false);
+        //sim.enableDimerSearch("0-MEAM", 2000, false, false);
+        //sim.integratorDimer.setRotNum(0);
+        sim.initializeConfiguration("0-MEAM_A_minimum");
+        CalcVibrationalModes vib = new CalcVibrationalModes();
+        vib.setup(sim.box, sim.potentialMasterD, (IAtomSet)sim.box.getMoleculeList(sim.movable), sim.getSpace());
+        vib.actionPerformed();
+        System.out.println(vib.getProductOfFrequencies());
+        sim.initializeConfiguration("0-MEAM_saddle");
+        vib.actionPerformed();
+        System.out.println(vib.getProductOfFrequencies());
+        //sim.enableMinimumSearch("0-MEAM", false);
         //sim.integratorDimerMin.initializeDimer();
                 
         /*
@@ -415,15 +422,15 @@ public class SimDimerMEAMadatom extends Simulation{
         plotPE.setLabel("PE Plot");
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);      
-        sim.integratorDimer.addIntervalAction(energyPump);
-        sim.integratorDimer.setActionInterval(energyPump,1);
+        sim.integratorDimerMin.addIntervalAction(energyPump);
+        sim.integratorDimerMin.setActionInterval(energyPump,1);
         
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));        
         simGraphic.add(plotPE);
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	
