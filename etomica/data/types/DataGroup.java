@@ -1,12 +1,13 @@
 package etomica.data.types;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IFunction;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
 import etomica.units.Dimension;
 
 
@@ -25,7 +26,7 @@ import etomica.units.Dimension;
  *
  * @author David Kofke and Andrew Schultz
  */
-public class DataGroup implements Data, java.io.Serializable {
+public class DataGroup implements IData, java.io.Serializable {
 
     /**
      * Forms a data group from the given array of data objects. Given data array
@@ -41,9 +42,9 @@ public class DataGroup implements Data, java.io.Serializable {
      * @throws NullPointerException
      *             if any of the elements of the Data array are null
      */
-    public DataGroup(Data[] data) {
+    public DataGroup(IData[] data) {
         super();
-        this.data = (Data[])data.clone();
+        this.data = (IData[])data.clone();
     }
     
     /**
@@ -57,7 +58,7 @@ public class DataGroup implements Data, java.io.Serializable {
      *             elements than this DataGroup.
      *  
      */
-    public void E(Data newData) {
+    public void E(IData newData) {
         if(((DataGroup)newData).data.length != data.length) {
             throw new IllegalArgumentException("Attempt to copy data groups of different length: (this.length, argument's length): ("+this.data.length+", "+((DataGroup)newData).data.length+")");
         }
@@ -73,7 +74,7 @@ public class DataGroup implements Data, java.io.Serializable {
      *             exception if the given value does not reference a legitimate
      *             element
      */
-    public Data getData(int i) {
+    public IData getData(int i) {
         return data[i];
     }
     
@@ -97,15 +98,15 @@ public class DataGroup implements Data, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final Data[] data;
+    protected final IData[] data;
     
     public static class DataInfoGroup extends DataInfo {
-        public DataInfoGroup(String label, Dimension dimension, IDataInfo[] subDataInfo) {
+        public DataInfoGroup(String label, Dimension dimension, IEtomicaDataInfo[] subDataInfo) {
             super(label, dimension);
-            this.subDataInfo = (IDataInfo[])subDataInfo.clone();
+            this.subDataInfo = (IEtomicaDataInfo[])subDataInfo.clone();
         }
 
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoGroupFactory(this);
         }
         
@@ -125,7 +126,7 @@ public class DataGroup implements Data, java.io.Serializable {
          * Returns the DataInfo corresponding to the group's given wrapped 
          * Data object.
          */
-        public IDataInfo getSubDataInfo(int i) {
+        public IEtomicaDataInfo getSubDataInfo(int i) {
             return subDataInfo[i];
         }
         
@@ -143,8 +144,8 @@ public class DataGroup implements Data, java.io.Serializable {
             }
         }
         
-        public Data makeData() {
-            Data[] subData = new Data[subDataInfo.length];
+        public IData makeData() {
+            IData[] subData = new IData[subDataInfo.length];
             for (int i=0; i<subData.length; i++) {
                 subData[i] = subDataInfo[i].makeData();
             }
@@ -152,17 +153,17 @@ public class DataGroup implements Data, java.io.Serializable {
         }
 
         private static final long serialVersionUID = 1L;
-        protected final IDataInfo[] subDataInfo;
+        protected final IEtomicaDataInfo[] subDataInfo;
     }
     
     public static class DataInfoGroupFactory extends DataInfoFactory {
 
         protected DataInfoGroupFactory(DataInfoGroup template) {
             super(template);
-            subDataInfo = (IDataInfo[])template.subDataInfo.clone();
+            subDataInfo = (IEtomicaDataInfo[])template.subDataInfo.clone();
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             DataInfoGroup dataInfo = new DataInfoGroup(label, dimension, subDataInfo);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));
@@ -170,7 +171,7 @@ public class DataGroup implements Data, java.io.Serializable {
         }
      
         public void setSubDataInfo(IDataInfo[] newSubDataInfo) {
-            subDataInfo = (IDataInfo[])newSubDataInfo.clone();
+            subDataInfo = (IEtomicaDataInfo[])newSubDataInfo.clone();
         }
         
         public IDataInfo[] getSubDataInfo() {
@@ -178,7 +179,7 @@ public class DataGroup implements Data, java.io.Serializable {
         }
         
         private static final long serialVersionUID = 1L;
-        protected IDataInfo[] subDataInfo;
+        protected IEtomicaDataInfo[] subDataInfo;
     }
 
     public void assignTo(double[] array) {
@@ -187,7 +188,7 @@ public class DataGroup implements Data, java.io.Serializable {
         }
     }
 
-    public void DE(Data y) {
+    public void DE(IData y) {
         for (int i=0; i<data.length; i++) {
             data[i].DE(((DataGroup)y).getData(i));
         }
@@ -235,13 +236,13 @@ public class DataGroup implements Data, java.io.Serializable {
         }
     }
 
-    public void ME(Data y) {
+    public void ME(IData y) {
         for (int i=0; i<data.length; i++) {
             data[i].ME(((DataGroup)y).getData(i));
         }
     }
 
-    public void PE(Data y) {
+    public void PE(IData y) {
         for (int i=0; i<data.length; i++) {
             data[i].PE(((DataGroup)y).getData(i));
         }
@@ -253,7 +254,7 @@ public class DataGroup implements Data, java.io.Serializable {
         }
     }
 
-    public void TE(Data y) {
+    public void TE(IData y) {
         for (int i=0; i<data.length; i++) {
             data[i].TE(((DataGroup)y).getData(i));
         }

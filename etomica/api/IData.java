@@ -1,7 +1,4 @@
-package etomica.data;
-
-import etomica.api.IFunction;
-
+package etomica.api;
 
 /**
  * Abstract container of simulation data and information describing it. Data
@@ -35,7 +32,7 @@ import etomica.api.IFunction;
  * @see DataInfo
  */
 
-public interface Data {
+public interface IData {
 
     /**
      * Deep-copies the data from the given object to this one.
@@ -44,27 +41,27 @@ public interface Data {
      *             if the given data object is not of a type that can be copied
      *             to this one.
      */
-    public void E(Data data);
+    public void E(IData data);
     
     /**
      * Plus-equals (+=) operation.
      */
-    public void PE(Data y);
+    public void PE(IData y);
 
     /**
      * Minus-equals (-=) operation.
      */
-    public void ME(Data y);
+    public void ME(IData y);
 
     /**
      * Times-equals (*=) operation.
      */
-    public void TE(Data y);
+    public void TE(IData y);
 
     /**
      * Divide-equals (/=) operation.
      */
-    public void DE(Data y);
+    public void DE(IData y);
 
     /**
      * Equals (=) operation, sets all values in data equal to the given value.

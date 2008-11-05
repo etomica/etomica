@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -13,11 +14,11 @@ import etomica.data.types.DataGroup.DataInfoGroup;
  *
  * @author Andrew Schultz
  */
-public class DataGroupSplitter implements DataSink {
+public class DataGroupSplitter implements IDataSink {
 
     public DataGroupSplitter() {
         tag = new DataTag();
-        dataSinks = new DataSink[0];
+        dataSinks = new IDataSink[0];
     }
  
     /**
@@ -32,7 +33,7 @@ public class DataGroupSplitter implements DataSink {
      * Returns the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
      */
-    public DataSink getDataSink(int i) {
+    public IDataSink getDataSink(int i) {
         return dataSinks[i];
     }
 
@@ -44,21 +45,21 @@ public class DataGroupSplitter implements DataSink {
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
      */
-    public void setDataSink(int i, DataSink newDataSink) {
+    public void setDataSink(int i, IDataSink newDataSink) {
         dataSinks[i] = newDataSink;
         if (dataSinks[i] != null && dataInfoGroup != null) {
             dataSinks[i].putDataInfo(dataInfoGroup.getSubDataInfo(i));
         }
     }
 
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         if (!(incomingDataInfo instanceof DataInfoGroup)) {
             throw new RuntimeException("I want to take a DataGroup");
         }
         return null;
     }
 
-    public void putData(Data data) {
+    public void putData(IData data) {
         DataGroup dataGroup = (DataGroup)data;
         for (int i=0; i<dataSinks.length; i++) {
             if (dataSinks[i] != null) {
@@ -67,10 +68,10 @@ public class DataGroupSplitter implements DataSink {
         }
     }
 
-    public void putDataInfo(IDataInfo incomingDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
         dataInfoGroup = (DataInfoGroup)incomingDataInfo;
         if (dataSinks.length != dataInfoGroup.getNDataInfo()) {
-            dataSinks = new DataSink[dataInfoGroup.getNDataInfo()];
+            dataSinks = new IDataSink[dataInfoGroup.getNDataInfo()];
         }
         
         for (int i=0; i<dataSinks.length; i++) {
@@ -80,7 +81,7 @@ public class DataGroupSplitter implements DataSink {
         }
     }
 
-    protected DataSink[] dataSinks;
+    protected IDataSink[] dataSinks;
     protected DataDouble[] outData;
     protected DataInfoGroup dataInfoGroup;
     protected final DataTag tag;

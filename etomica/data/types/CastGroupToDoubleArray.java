@@ -1,11 +1,11 @@
 package etomica.data.types;
 
 
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -55,7 +55,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
      *             if DataInfo does not indicate a DataGroup, or if DataInfo
      *             indicates that expected DataGroup will not be homogeneous
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -65,11 +65,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
         if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            IDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
+            IEtomicaDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
             outputDataInfo.addTags(inputDataInfo.getTags());
             return outputDataInfo;
         }
-        IDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
+        IEtomicaDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
         Class subDataInfoClass = subDataInfo.getClass();
         for (int i = 1; i<numSubData; i++) {
@@ -136,7 +136,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
      *             the type indicated by the most recent call to
      *             processDataInfo.
      */
-    protected Data processData(Data data) {
+    protected IData processData(IData data) {
         DataGroup group = (DataGroup)data;
         //we don't add ourselves
         switch (inputType) {
@@ -190,7 +190,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataPipe getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IEtomicaDataInfo info) {
         return null;
     }
 

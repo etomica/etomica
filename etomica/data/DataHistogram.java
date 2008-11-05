@@ -4,6 +4,7 @@
  */
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -48,7 +49,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Adds each value in the given Data to a single histogram.
      */
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         histogram.reset();
         for (int i = 0; i <nData; i++) {
             histogram.addValue(inputData.getValue(i));
@@ -82,7 +83,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Sets up the histogram, discarding any previous results.
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
         histogram = histogramFactory.makeHistogram();
@@ -94,7 +95,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         if(inputDataInfo instanceof DataInfoDoubleArray) {
             return null;
         }
@@ -141,7 +142,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -149,7 +150,7 @@ public class DataHistogram extends DataProcessor {
     protected Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private IDataInfo binnedDataInfo;
+    private IEtomicaDataInfo binnedDataInfo;
     protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;

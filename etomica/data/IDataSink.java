@@ -1,20 +1,23 @@
 package etomica.data;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
+
 
 /**
  * A recipient of Data.  Data goes in and might (or might not) come out.
  */
-public interface DataSink {
+public interface IDataSink {
 
     /**
      * Gives data to DataSink for processing, display, or whatever it does.
      */
-    public void putData(Data data);
+    public void putData(IData data);
 
     /**
      * Informs the DataSink of the type of Data it should expect to receive.
      */
-    public void putDataInfo(IDataInfo dataInfo);
+    public void putDataInfo(IEtomicaDataInfo dataInfo);
 
     /**
      * Returns a DataProcessor that casts the data that will be given 
@@ -25,5 +28,5 @@ public interface DataSink {
      * 
      * @param dataInfo the DataInfo for the Data that will fed to the sink's putData method
      */
-    public DataPipe getDataCaster(IDataInfo dataInfo);
+    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo);
 }

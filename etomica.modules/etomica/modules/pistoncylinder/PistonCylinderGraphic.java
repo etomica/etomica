@@ -32,8 +32,8 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
-import etomica.data.DataSource;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
@@ -675,7 +675,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         temperatureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage temperatureAvg = new AccumulatorAverageCollapsing(100);
         temperatureAvg.setPushInterval(10);
-        pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
+        pump = new DataPump(thermometer,new DataFork(new IDataSink[]{temperatureHistory,temperatureAvg}));
         dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
@@ -684,7 +684,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         temperatureDisplayTextBox.setAccumulator(temperatureAvg);
         temperatureDisplayTextBox.setUnit(tUnit);
         
-        DataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature",Temperature.DIMENSION) {
+        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature",Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return tempSlider.getModifier().getValue();
             }
@@ -706,7 +706,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage pressureAvg = new AccumulatorAverageCollapsing(100);
         pressureAvg.setPushInterval(10);
-        pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
+        pump = new DataPump(pressureMeter, new DataFork(new IDataSink[]{pressureHistory,pressureAvg}));
         dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
@@ -715,7 +715,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureDisplayTextBox.setAccumulator(pressureAvg);
         pressureDisplayTextBox.setUnit(pUnit);
 
-        DataSource targetPressureDataSource = new DataSourceScalar("Target Pressure",Pressure.DIMENSION) {
+        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Target Pressure",Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pressureSlider.getValue());
             }
@@ -737,7 +737,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         densityHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage densityAvg = new AccumulatorAverageCollapsing(100);
         densityAvg.setPushInterval(10);
-        pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
+        pump = new DataPump(densityMeter,new DataFork(new IDataSink[]{densityAvg, densityHistory}));
         dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);

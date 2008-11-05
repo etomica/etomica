@@ -2,13 +2,13 @@ package etomica.modules.interfacial;
 import java.util.Arrays;
 
 import etomica.api.IAtomPositioned;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
@@ -32,8 +32,8 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     
     public DataSourceTensorVirialHardProfile(ISpace space) {
         super(space);
-        profileData = new DataGroup(new Data[0]);
-        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IDataInfo[0]);
+        profileData = new DataGroup(new IData[0]);
+        profileDataInfo = new DataInfoGroup("Virial profiles", Energy.DIMENSION, new IEtomicaDataInfo[0]);
         profileDataInfo.addTag(tag);
         binSize = 0.1;
         virialProfile = new double[space.D()][0];
@@ -205,18 +205,18 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     protected double L, Li, halfL;
     protected int nBins;
     
-    public static class DataSourceVirialProfile implements DataSource {
+    public static class DataSourceVirialProfile implements IEtomicaDataSource {
 
         public DataSourceVirialProfile(DataSourceTensorVirialHardProfile meter) {
             this.meter = meter;
             tag = new DataTag();
         }
         
-        public Data getData() {
+        public IData getData() {
             return meter.getVirialProfile();
         }
 
-        public IDataInfo getDataInfo() {
+        public IEtomicaDataInfo getDataInfo() {
             return meter.getProfileDataInfo();
         }
 

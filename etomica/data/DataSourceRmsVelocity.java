@@ -3,6 +3,7 @@ package etomica.data;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
+import etomica.api.IData;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
@@ -25,7 +26,7 @@ import etomica.util.HistogramCollapsing;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
+public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
 
     public DataSourceRmsVelocity() {
         this(new HistogramCollapsing());
@@ -41,7 +42,7 @@ public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, Data
         setupData();
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -49,7 +50,7 @@ public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, Data
         return tag;
     }
 
-    public IDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getAtomDataInfo() {
         return atomDataInfo;
     }
 
@@ -57,7 +58,7 @@ public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, Data
 	 * Returns the rms velocity of the atoms given by the iterator. Value is
 	 * given in the first element of the array, which is always of dimension 1.
 	 */
-	public Data getData() {
+	public IData getData() {
 		iterator.reset();
         histogramRMS.reset();
 		for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
@@ -90,7 +91,7 @@ public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, Data
         dataInfo.addTag(tag);
     }
     
-    public Data getData(IAtom a) {
+    public IData getData(IAtom a) {
         atomData.x = Math.sqrt(((IAtomKinetic)a).getVelocity().squared());
         return atomData;
     }
@@ -128,8 +129,8 @@ public class DataSourceRmsVelocity implements DataSource, DataSourceAtomic, Data
     private static final long serialVersionUID = 1L;
 	private AtomIterator iterator;
     private final DataDouble atomData;
-    private final IDataInfo atomDataInfo;
-    private IDataInfo dataInfo;
+    private final IEtomicaDataInfo atomDataInfo;
+    private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     private final Histogram histogramRMS;

@@ -5,11 +5,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -133,7 +133,7 @@ public class FitTanh extends DataProcessor {
         System.out.println("Final: "+params[0]+" "+params[1]+" "+params[2]);
     }
 
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         double[] x = fitDataInfo.getXDataSource().getIndependentData(0).getData();
         double[] y = ((DataDoubleArray)inputData).getData();
         doFit(x, y);
@@ -156,9 +156,9 @@ public class FitTanh extends DataProcessor {
         return fitData;
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         param[0] = Double.NaN;
-        IDataInfoFactory factory = inputDataInfo.getFactory();
+        IEtomicaDataInfoFactory factory = inputDataInfo.getFactory();
         factory.setLabel("fit");
         fitDataInfo = (DataInfoFunction)factory.makeDataInfo();
         fitDataInfo.addTag(tag);
@@ -166,7 +166,7 @@ public class FitTanh extends DataProcessor {
         return fitDataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo intputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo intputDataInfo) {
         return null;
     }
     

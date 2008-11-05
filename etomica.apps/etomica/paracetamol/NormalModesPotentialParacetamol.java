@@ -3,13 +3,13 @@ package etomica.paracetamol;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -227,7 +227,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     	}
     	
 
-		public Data getData() {
+		public IData getData() {
 			//Object is passed in as a set of generalized coordinates within a cell
 			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
 			
@@ -274,7 +274,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 			this.indexjp = indexjp;
 		}
 
-		public IDataInfo getDataInfo() {
+		public IEtomicaDataInfo getDataInfo() {
 			 return dataInfo;
 		}
 

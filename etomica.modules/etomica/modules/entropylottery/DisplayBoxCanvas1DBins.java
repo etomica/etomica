@@ -7,10 +7,10 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
@@ -23,7 +23,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     private double yScale = 0.4;
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private int[] atomCount;
-    private DataSource extraDataSource;
+    private IEtomicaDataSource extraDataSource;
     
     public DisplayBoxCanvas1DBins(DisplayBox _box, Controller controller) {
         super(controller);
@@ -67,7 +67,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
      * Sets a data source used to draw an extra set of "atoms".  The extra set
      * is drawn as thin blue bars.
      */
-    public void setExtraData(DataSource newExtraDataSource) {
+    public void setExtraData(IEtomicaDataSource newExtraDataSource) {
         extraDataSource = newExtraDataSource;
     }
     
@@ -139,7 +139,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
             return;
         }
         
-        Data extraData = extraDataSource.getData();
+        IData extraData = extraDataSource.getData();
         if (extraData.getLength() != atomCount.length) {
             // we caught it at a bad time.  we'll call back later.
             return;

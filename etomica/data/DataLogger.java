@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import etomica.action.activity.ControllerEvent;
+import etomica.api.IData;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 
@@ -20,7 +21,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         setWriteInterval(100);
     }
     
-    public void setDataSink(DataSink dataSink) {
+    public void setDataSink(IDataSink dataSink) {
         if (!(dataSink instanceof DataWriter)) {
             throw new IllegalArgumentException("data sink must be a DataWriter");
         }
@@ -30,18 +31,18 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     /**
      * Gives data to DataSink for writing
      */
-    public Data processData(Data data) {
+    public IData processData(IData data) {
  
         return data;
     }
     
-    public IDataInfo processDataInfo(IDataInfo newDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newDataInfo) {
         dataInfo = newDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
     }
     
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         // we don't care about the type although the DataWriter might
         return null;
     }
@@ -66,7 +67,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
      * settings of the Logger.  Called by intervalAction and by the
      * actionPerformed method of any Actions made by the writeAction method.
      */
-    public void putData(Data data) {
+    public void putData(IData data) {
         openFile();
         ((DataWriter)trueDataSink).setFileWriter(fileWriter);
         super.putData(data);
@@ -172,14 +173,14 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     /**
      * @return Returns the writeOnFinish.
      */
-    public DataSource getWriteOnFinishDataSource() {
+    public IEtomicaDataSource getWriteOnFinishDataSource() {
         return writeOnFinishSource;
     }
 
     /**
      * @param writeOnFinish The writeOnFinish to set.
      */
-    public void setWriteOnFinish(DataSource newWriteOnFinishSource) {
+    public void setWriteOnFinish(IEtomicaDataSource newWriteOnFinishSource) {
         writeOnFinishSource = newWriteOnFinishSource;
     }
 
@@ -209,7 +210,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private transient boolean fileIsOpen = false; //at the beginning, it is false.
-    private DataSource writeOnFinishSource = null;
+    private IEtomicaDataSource writeOnFinishSource = null;
     private boolean writeOnInterval = true;
 
     private void readObject(java.io.ObjectInputStream in)
@@ -225,7 +226,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     /**
      * Interface for a DataSink that actually writes data to a file
      */
-    public interface DataWriter extends DataSink {
+    public interface DataWriter extends IDataSink {
         
         /**
          * Sets the FileWriter to be used for actual file I/O.

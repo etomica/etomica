@@ -1,11 +1,11 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Pressure;
@@ -23,7 +23,7 @@ import etomica.units.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterOsmoticPressure implements DataSource {
+public class MeterOsmoticPressure implements IEtomicaDataSource {
 
     public MeterOsmoticPressure(IPotentialCalculationWallForce pc, IBox box) {
         this.pc = pc;
@@ -33,13 +33,13 @@ public class MeterOsmoticPressure implements DataSource {
         tag = new DataTag();
     }
     
-    public Data getData() {
+    public IData getData() {
         IVector dimensions = box.getBoundary().getDimensions();
         data.x = -pc.getWallForce() / (dimensions.x(1) * dimensions.x(2));
         return data;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

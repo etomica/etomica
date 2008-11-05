@@ -16,7 +16,7 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
@@ -175,7 +175,7 @@ public class SimBennet extends Simulation {
         
         
         
-        DataSource[] workMeters = new DataSource[2];
+        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         
       // Bennet's Overlap ---> Harmonic
         MeterWorkBennetHarmonic meterWorkBennetHarmonic = new MeterWorkBennetHarmonic(sim.integrator, sim.meterHarmonicEnergy);

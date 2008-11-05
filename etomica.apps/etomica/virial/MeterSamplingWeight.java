@@ -1,10 +1,10 @@
 package etomica.virial;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataSourceAtomDistance;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
@@ -13,7 +13,7 @@ import etomica.units.Null;
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
-public class MeterSamplingWeight implements DataSource, java.io.Serializable {
+public class MeterSamplingWeight implements IEtomicaDataSource, java.io.Serializable {
 
     /**
 	 * Constructor for MeterVirial.
@@ -26,7 +26,7 @@ public class MeterSamplingWeight implements DataSource, java.io.Serializable {
         dataInfo.addTag(tag);
 	}
 
-	public IDataInfo getDataInfo() {
+	public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -34,7 +34,7 @@ public class MeterSamplingWeight implements DataSource, java.io.Serializable {
         return tag;
     }
     
-    public Data getData() {
+    public IData getData() {
         double pi = box.getSampleCluster().value(box);
         data.getData()[0] = dataDistance.getDataAsScalar();
         data.getData()[1] = pi;
@@ -51,7 +51,7 @@ public class MeterSamplingWeight implements DataSource, java.io.Serializable {
 
     protected final DataSourceAtomDistance dataDistance;
 	private final DataDoubleArray data;
-	private final IDataInfo dataInfo;
+	private final IEtomicaDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
     private static final long serialVersionUID = 1L;

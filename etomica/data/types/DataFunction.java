@@ -1,10 +1,10 @@
 package etomica.data.types;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.Dimension;
 
 
@@ -84,11 +84,11 @@ public class DataFunction extends DataDoubleArray {
             return xDataSource;
         }
         
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoFunctionFactory(this);
         }
         
-        public Data makeData() {
+        public IData makeData() {
             return new DataFunction(arrayShape);
         }
 
@@ -102,7 +102,7 @@ public class DataFunction extends DataDoubleArray {
             xDataSource = template.xDataSource;
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             DataInfoFunction dataInfo = new DataInfoFunction(label, dimension, xDataSource);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

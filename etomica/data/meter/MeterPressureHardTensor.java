@@ -3,11 +3,11 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.atom.IAtomKinetic;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -15,7 +15,7 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Temperature;
 
-public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
+public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(ISpace space) {
     	dim = space.D();
@@ -31,7 +31,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         return info;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -39,7 +39,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         return tag;
     }
     
-    public Data getData() {
+    public IData getData() {
         if (box == null || integratorHard == null) throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
         data.x.TE(-1/((t-t0)*dim));
@@ -101,7 +101,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private String name;
     private IBox box;
     private final DataTensor data;
-    private final IDataInfo dataInfo;
+    private final IEtomicaDataInfo dataInfo;
     protected final DataTag tag;
     private final int dim;
 }

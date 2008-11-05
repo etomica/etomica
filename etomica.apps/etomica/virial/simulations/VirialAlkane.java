@@ -13,7 +13,7 @@ import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -242,7 +242,7 @@ public class VirialAlkane {
                 
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");

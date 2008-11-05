@@ -2,9 +2,9 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.api.IBox;
-import etomica.data.Data;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.data.DataInfo;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeSumCrystal;
@@ -43,7 +43,7 @@ public class HarmonicCrystalMonoclinic {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public double getLatticeEnergy() {
         FunctionGeneral function = new FunctionGeneral() {
-            public Data f(Object obj) {
+            public IData f(Object obj) {
                 //data.x = potential.u(((Vector3D)obj).squared());
                 return data;
             }

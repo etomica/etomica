@@ -1,15 +1,13 @@
 package etomica.paracetamol;
 
+import etomica.action.WriteConfigurationDLPOLY;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-
-import etomica.action.WriteConfigurationDLPOLY;
-import etomica.action.WriteConfigurationP2DLPOLY;
+import etomica.api.IData;
 import etomica.atom.AtomPair;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -238,7 +236,7 @@ public class HarmonicCrystalOrthorhombic {
     		
     	}
     
-		public Data getData() {
+		public IData getData() {
 			
 			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
 			
@@ -258,7 +256,7 @@ public class HarmonicCrystalOrthorhombic {
 			
 		}
 
-		public IDataInfo getDataInfo() {
+		public IEtomicaDataInfo getDataInfo() {
 			 return dataInfo;
 		}
 

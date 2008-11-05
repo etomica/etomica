@@ -5,7 +5,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
@@ -47,7 +47,7 @@ public class Sim1DHR extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public DataSource[] meters;
+    public IEtomicaDataSource[] meters;
 	   
 	Integrator integratorOverlap;
 	IntegratorBox[] integrators;
@@ -69,7 +69,7 @@ public class Sim1DHR extends Simulation {
      
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new DataSource[2];
+        meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);

@@ -2,15 +2,16 @@ package etomica.data.meter;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector3D;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -27,7 +28,7 @@ import etomica.units.Null;
  *
  * @author Michael Sellers, adapted from David Kofke's MeterRDF
  */
-public class MeterDihedralAngle implements IAction, DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute dihedral angle for all
@@ -53,7 +54,7 @@ public class MeterDihedralAngle implements IAction, DataSource, DataSourceIndepe
         dataInfo.addTag(tag);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -140,7 +141,7 @@ public class MeterDihedralAngle implements IAction, DataSource, DataSourceIndepe
 	 * Returns the Dihedral distribution, averaged over the calls to actionPerformed since the
      * meter was reset or had some parameter changed (# of bins).
 	 */
-	public Data getData() {
+	public IData getData() {
         if (phiData != xDataSource.getData() ||
             data.getLength() != phiData.getLength() || tetraNum == 0) {
             reset();
@@ -197,7 +198,7 @@ public class MeterDihedralAngle implements IAction, DataSource, DataSourceIndepe
     protected final ISpace space;
     protected long[] gSum;
     protected DataFunction data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
     private final IVector3D dr1, dr2, dr3;

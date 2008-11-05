@@ -4,7 +4,7 @@ import etomica.api.IAtomSet;
 import etomica.api.IBox;
 
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
 import etomica.potential.P1Harmonic;
 import etomica.units.Energy;
@@ -18,7 +18,7 @@ import etomica.units.Energy;
  * @author David Kofke
  *
  */
-public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
+public class MeterFreeEnergy extends DataSourceScalar implements IEtomicaDataSource {
     
     public MeterFreeEnergy(P1Harmonic reference, P1Harmonic target) {
         super("Free energy", Energy.DIMENSION);

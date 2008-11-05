@@ -19,23 +19,23 @@ import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IData;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterDensity;
@@ -327,7 +327,7 @@ public class SwmdGraphic extends SimulationGraphic {
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
-		temperatureFork.setDataSinks(new DataSink[]{temperatureAverage,temperatureHistory});
+		temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage,temperatureHistory});
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
 		dataStreamPumps.add(temperaturePump);
@@ -360,7 +360,7 @@ public class SwmdGraphic extends SimulationGraphic {
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(2);
-        DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
+        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
         peExcludeOverlap.setDataSink(peFork);
         final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
@@ -607,11 +607,11 @@ public class SwmdGraphic extends SimulationGraphic {
             myData = new DataDouble();
         }
         
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
             return null;
         }
         
-        public Data processData(Data data) {
+        public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;
             }
@@ -620,7 +620,7 @@ public class SwmdGraphic extends SimulationGraphic {
             return myData;
         }
 
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

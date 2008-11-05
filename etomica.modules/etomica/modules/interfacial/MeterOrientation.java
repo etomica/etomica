@@ -4,13 +4,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.ISpace;
@@ -38,7 +38,7 @@ public class MeterOrientation implements DataSourceAtomic {
         transformer = newBox.getBoundary();
     }
     
-    public Data getData(IAtom atom) {
+    public IData getData(IAtom atom) {
         IAtomSet children = ((IMolecule)atom).getChildList();
         dr.Ev1Mv2(((IAtomPositioned)children.getAtom(children.getAtomCount()-1)).getPosition(),
                   ((IAtomPositioned)children.getAtom(0)).getPosition());
@@ -47,7 +47,7 @@ public class MeterOrientation implements DataSourceAtomic {
         return data;
     }
     
-    public IDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getAtomDataInfo() {
         return dataInfo;
     }
     

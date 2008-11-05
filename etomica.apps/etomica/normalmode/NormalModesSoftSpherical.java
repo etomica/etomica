@@ -2,15 +2,15 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeSum;
 import etomica.lattice.crystal.Primitive;
 import etomica.api.IBox;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
@@ -63,7 +63,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         omega2 = new double[kFactory.getWaveVectors().length][lattice.D()];
         eigenvectors = new double[omega2.length][lattice.D()][lattice.D()];
         FunctionGeneral function = new FunctionGeneral() {
-            public Data f(Object obj) {
+            public IData f(Object obj) {
                 Vector3D r = (Vector3D)obj;
                 tensor.x.Ev1v2(r, r);
                 double r2 = r.squared();

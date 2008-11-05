@@ -1,9 +1,9 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -17,7 +17,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz
  */
-public class MeterBoltzmannTarget implements DataSource {
+public class MeterBoltzmannTarget implements IEtomicaDataSource {
     
     public MeterBoltzmannTarget(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -31,7 +31,7 @@ public class MeterBoltzmannTarget implements DataSource {
         tag = new DataTag();
     }
 
-    public Data getData() {
+    public IData getData() {
         data.getData()[1] = Math.exp(-(meterHarmonicEnergy.getDataAsScalar() -
                 (meterEnergy.getDataAsScalar() - latticeEnergy)) / integrator.getTemperature());
         return data;
@@ -41,7 +41,7 @@ public class MeterBoltzmannTarget implements DataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

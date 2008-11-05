@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Null;
@@ -14,16 +15,16 @@ import etomica.util.Arrays;
  * @author David Kofke
  *
  */
-public class DataSourceGroup implements DataSource, java.io.Serializable {
+public class DataSourceGroup implements IEtomicaDataSource, java.io.Serializable {
 
     /**
      * Forms a DataSourceGroup that contains no data sources, and which will give
      * an empty DataGroup for getData.  Must populate group with addDataSource method. 
      */
     public DataSourceGroup() {
-        data = new DataGroup(new Data[0]);
-        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IDataInfo[0]);
-        dataSources = new DataSource[0];
+        data = new DataGroup(new IData[0]);
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IEtomicaDataInfo[0]);
+        dataSources = new IEtomicaDataSource[0];
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -32,7 +33,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * Forms a DataGroup containing the given data sources.  Given
      * array is copied to another array internally.
      */
-    public DataSourceGroup(DataSource[] sources) {
+    public DataSourceGroup(IEtomicaDataSource[] sources) {
         this();
         if(sources != null) {
             for(int i=0; i<sources.length; i++) {
@@ -41,7 +42,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         }
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -54,7 +55,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * the data sources in this instance.  Dimension of returned data is that of
      * the Data it holds, if they are all the same; otherwise it is Dimension.UNDEFINED.
      */
-    public Data getData() {
+    public IData getData() {
         boolean rebuildData = false;
         //generate data from sources, check that all returned instances are the same as before
         //if a new data instance is given, make a new DataGroup that uses it instead of the previous data
@@ -74,15 +75,15 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     /**
      * Adds the given DataSource to those held by the group.
      */
-    public void addDataSource(DataSource newSource) {
-        dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
-        latestData = (Data[])Arrays.addObject(latestData, newSource.getData());
+    public void addDataSource(IEtomicaDataSource newSource) {
+        dataSources = (IEtomicaDataSource[])Arrays.addObject(dataSources, newSource);
+        latestData = (IData[])Arrays.addObject(latestData, newSource.getData());
         dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, getSubDataInfo());
         data = new DataGroup(latestData);
     }
     
-    protected IDataInfo[] getSubDataInfo() {
-        IDataInfo[] subDataInfo = new IDataInfo[dataSources.length];
+    protected IEtomicaDataInfo[] getSubDataInfo() {
+        IEtomicaDataInfo[] subDataInfo = new IEtomicaDataInfo[dataSources.length];
         for (int i=0; i<subDataInfo.length; i++) {
             subDataInfo[i] = dataSources[i].getDataInfo();
         }
@@ -90,9 +91,9 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private DataSource[] dataSources = new DataSource[0];
-    private Data[] latestData = new Data[0];
+    private IEtomicaDataSource[] dataSources = new IEtomicaDataSource[0];
+    private IData[] latestData = new IData[0];
     private DataGroup data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     protected final DataTag tag;
 }

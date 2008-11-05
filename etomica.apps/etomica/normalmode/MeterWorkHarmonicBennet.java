@@ -1,9 +1,9 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -17,7 +17,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class MeterWorkHarmonicBennet implements DataSource {
+public class MeterWorkHarmonicBennet implements IEtomicaDataSource {
     
     public MeterWorkHarmonicBennet(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster, double ref) {
         this.mcMoveHarmonic = mcMoveHarmonic;
@@ -40,7 +40,7 @@ public class MeterWorkHarmonicBennet implements DataSource {
         return temperature;
     }
     
-    public Data getData() {
+    public IData getData() {
     	double e0 = Math.exp( -mcMoveHarmonic.getLastTotalEnergy()/ temperature);
     	double e1 = Math.exp( -(meterEnergy.getDataAsScalar() - latticeEnergy)/ temperature);
     	
@@ -63,7 +63,7 @@ public class MeterWorkHarmonicBennet implements DataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

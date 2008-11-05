@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDouble;
 
 /**
@@ -9,11 +10,11 @@ import etomica.data.types.DataDouble;
  *
  * @author Andrew Schultz
  */
-public class DataSplitter implements DataSink {
+public class DataSplitter implements IDataSink {
 
     public DataSplitter() {
         tag = new DataTag();
-        dataSinks = new DataSink[0];
+        dataSinks = new IDataSink[0];
     }
  
     /**
@@ -28,7 +29,7 @@ public class DataSplitter implements DataSink {
      * Returns the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
      */
-    public DataSink getDataSink(int i) {
+    public IDataSink getDataSink(int i) {
         return dataSinks[i];
     }
 
@@ -40,18 +41,18 @@ public class DataSplitter implements DataSink {
      * Sets the DataSink for the ith output stream (corresponding to the ith
      * numerical value coming in).
      */
-    public void setDataSink(int i, DataSink newDataSink) {
+    public void setDataSink(int i, IDataSink newDataSink) {
         dataSinks[i] = newDataSink;
         if (dataSinks[i] != null && dataInfo != null) {
             dataSinks[i].putDataInfo(dataInfo);
         }
     }
 
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
 
-    public void putData(Data data) {
+    public void putData(IData data) {
         for (int i=0; i<dataSinks.length; i++) {
             if (dataSinks[i] != null) {
                 outData[i].x = data.getValue(i);
@@ -60,9 +61,9 @@ public class DataSplitter implements DataSink {
         }
     }
 
-    public void putDataInfo(IDataInfo incomingDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
         if (dataSinks.length != incomingDataInfo.getLength()) {
-            dataSinks = new DataSink[incomingDataInfo.getLength()];
+            dataSinks = new IDataSink[incomingDataInfo.getLength()];
             
             //do we really need a separate out data for each value?
             outData = new DataDouble[incomingDataInfo.getLength()];
@@ -80,7 +81,7 @@ public class DataSplitter implements DataSink {
         }
     }
 
-    protected DataSink[] dataSinks;
+    protected IDataSink[] dataSinks;
     protected DataDouble[] outData;
     protected DataInfo dataInfo;
     protected final DataTag tag;

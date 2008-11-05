@@ -3,12 +3,12 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.units.Quantity;
 
 /**
@@ -36,12 +36,12 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
         return (species == null) ? box.getMoleculeList().getAtomCount(): box.getNMolecules(species);
     }
     
-    public Data getData(IAtom atom) {
+    public IData getData(IAtom atom) {
         data.x = (species == null || (((IMolecule)atom).getType() == species)) ? 1 : 0;
         return data;
     }
     
-    public IDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getAtomDataInfo() {
         return dataInfo;
     }
     

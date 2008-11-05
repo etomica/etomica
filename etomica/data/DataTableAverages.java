@@ -35,7 +35,7 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with no sources.
      */
     public DataTableAverages(IIntegrator integrator, StatType[] types, int blockSize, 
-            DataSource[] sources) {
+            IEtomicaDataSource[] sources) {
         super();
         this.types = (StatType[]) types.clone();
         this.integrator = integrator;
@@ -52,7 +52,7 @@ public class DataTableAverages extends DataSinkTable {
     /**
      * Adds the given data source to those feeding the table.
      */
-    public void addDataSource(DataSource newSource) {
+    public void addDataSource(IEtomicaDataSource newSource) {
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(blockSize);
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);

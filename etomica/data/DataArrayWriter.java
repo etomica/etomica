@@ -3,6 +3,7 @@ package etomica.data;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IData;
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToDoubleArray;
@@ -35,11 +36,11 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         return includeHeader;
     }
     
-    public void putDataInfo(IDataInfo newDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo newDataInfo) {
         dataInfo = newDataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo newDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoDoubleArray) {
             // we like tables
             return null;
@@ -49,9 +50,9 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
                 //it's empty, turn it into an empty array
                 return new CastGroupToDoubleArray();
             }
-            IDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+            IEtomicaDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
             for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
-                IDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+                IEtomicaDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
                 if (subDataInfo.getClass() != dataInfo0.getClass()){
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
@@ -63,7 +64,7 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         return new CastToDoubleArray();
     }
     
-    public void putData(Data data) {
+    public void putData(IData data) {
         DataDoubleArray dataArray = (DataDoubleArray)data;
         try {
             int nColumns = dataArray.getArrayShape(1);
@@ -104,6 +105,6 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private FileWriter fileWriter;
     private boolean firstWrite;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     private boolean includeHeader;
 }

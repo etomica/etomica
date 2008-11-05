@@ -1,16 +1,16 @@
 package etomica.models.oneDHardRods;
 
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
 
 
-public class MeterOverlap implements DataSource {
+public class MeterOverlap implements IEtomicaDataSource {
     DataTag tag;
     DataInfo dataInfo;
     DataSourceScalar dataSourceA, dataSourceB;
@@ -49,7 +49,7 @@ public class MeterOverlap implements DataSource {
         return dda;
     }
     
-    public IDataInfo getDataInfo(){
+    public IEtomicaDataInfo getDataInfo(){
         return dataInfo;
     }
     public DataTag getTag() {

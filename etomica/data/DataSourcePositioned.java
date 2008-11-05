@@ -1,6 +1,7 @@
 package etomica.data;
 
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
 
 
@@ -14,9 +15,9 @@ public interface DataSourcePositioned {
     
     public void setBox(IBox box);
     
-    public Data getData(IVector a);
+    public IData getData(IVector a);
     
-    public IDataInfo getPositionDataInfo();
+    public IEtomicaDataInfo getPositionDataInfo();
     
     public DataTag getTag();
 }

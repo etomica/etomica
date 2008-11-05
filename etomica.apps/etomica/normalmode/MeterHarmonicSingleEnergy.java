@@ -1,13 +1,13 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IBox;
+import etomica.api.IData;
+import etomica.api.IVector;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.units.Energy;
 
 /**
@@ -16,7 +16,7 @@ import etomica.units.Energy;
  * 
  * @author Andrew Schultz
  */
-public class MeterHarmonicSingleEnergy implements DataSource {
+public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
 
     public MeterHarmonicSingleEnergy(CoordinateDefinition coordinateDefinition, NormalModes normalModes) {
         this.coordinateDefinition = coordinateDefinition;
@@ -33,12 +33,12 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         return coordinateDefinition;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
 
-    public Data getData() {
+    public IData getData() {
         double[] x = data.getData();
         
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {

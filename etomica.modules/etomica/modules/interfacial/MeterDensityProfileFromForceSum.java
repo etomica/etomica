@@ -1,10 +1,10 @@
 package etomica.modules.interfacial;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -14,7 +14,7 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Quantity;
 
-public class MeterDensityProfileFromForceSum implements DataSource, DataSourceIndependent {
+public class MeterDensityProfileFromForceSum implements IEtomicaDataSource, DataSourceIndependent {
 
     public MeterDensityProfileFromForceSum(PotentialCalculationForcePressureBinSum forceSum) {
         this.forceSum = forceSum;
@@ -42,7 +42,7 @@ public class MeterDensityProfileFromForceSum implements DataSource, DataSourceIn
         }
     }
     
-    public Data getData() {
+    public IData getData() {
         if (data.getData() != forceSum.getDensityProfile()) {
             setupData();
         }
@@ -61,7 +61,7 @@ public class MeterDensityProfileFromForceSum implements DataSource, DataSourceIn
         return xDataInfo;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

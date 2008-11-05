@@ -14,20 +14,20 @@ import javax.swing.border.TitledBorder;
 import etomica.api.IAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterNMolecules;
@@ -330,7 +330,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         peAccumulator.setPushInterval(2);
         foo = new DataSinkExcludeOverlap(sim.box);
         final DataPump pePump = new DataPump(peMeter, foo);
-        DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
+        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         foo.setDataSink(peFork);
         sim.integrator.addIntervalAction(pePump);
         sim.integrator.setActionInterval(pePump, 10);
@@ -661,17 +661,17 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             this.box = box;
         }
         
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
             return null;
         }
         
-        public Data processData(Data data) {
+        public IData processData(IData data) {
             myData.E(data);
             myData.TE(1.0/box.getLeafList().getAtomCount());
             return myData;
         }
 
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
             return inputDataInfo;
         }
         

@@ -2,16 +2,16 @@ package etomica.data.meter;
 import etomica.api.IAtomSet;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -39,7 +39,7 @@ import etomica.units.Length;
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfileByAtoms implements DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -54,7 +54,7 @@ public class MeterProfileByAtoms implements DataSource, DataSourceIndependent, j
         xDataSource.setTypeMin(LimitType.HALF_STEP);
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -97,7 +97,7 @@ public class MeterProfileByAtoms implements DataSource, DataSourceIndependent, j
     /**
      * Returns the profile for the current configuration.
      */
-    public Data getData() {
+    public IData getData() {
         IBoundary boundary = box.getBoundary();
         IAtomSet moleculeList = box.getMoleculeList();
         if (species != null) {
@@ -177,7 +177,7 @@ public class MeterProfileByAtoms implements DataSource, DataSourceIndependent, j
     protected DataFunction data;
     protected double[] y;
     protected int[] nAtoms;
-    protected IDataInfo dataInfo;
+    protected IEtomicaDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

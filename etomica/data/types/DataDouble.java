@@ -1,12 +1,12 @@
 package etomica.data.types;
 
+import etomica.api.IData;
 import etomica.api.IFunction;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.Dimension;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  * @author David Kofke and Andrew Schultz
  *  
  */
-public class DataDouble implements Data, java.io.Serializable {
+public class DataDouble implements IData, java.io.Serializable {
 
     /**
      * Constructs a new instance with given descriptors.
@@ -33,7 +33,7 @@ public class DataDouble implements Data, java.io.Serializable {
     /**
      * Sets the wrapped double to the value in the given instance.
      */
-    public void E(Data y) {
+    public void E(IData y) {
         x = ((DataDouble) y).x;
     }
 
@@ -48,7 +48,7 @@ public class DataDouble implements Data, java.io.Serializable {
      * Minus-equals (-=) operation. Subtracts the value in the given instance
      * from this instance's value.
      */
-    public void ME(Data y) {
+    public void ME(IData y) {
         x -= ((DataDouble) y).x;
     }
 
@@ -56,7 +56,7 @@ public class DataDouble implements Data, java.io.Serializable {
      * Plus-equals (+=) operation. Adds the value in the given instance to this
      * instance's value.
      */
-    public void PE(Data y) {
+    public void PE(IData y) {
         x += ((DataDouble) y).x;
     }
 
@@ -64,7 +64,7 @@ public class DataDouble implements Data, java.io.Serializable {
      * Times-equals (*=) operation. Replaces the value in this instance with its
      * value times the value in the given instance.
      */
-    public void TE(Data y) {
+    public void TE(IData y) {
         x *= ((DataDouble) y).x;
     }
 
@@ -72,7 +72,7 @@ public class DataDouble implements Data, java.io.Serializable {
      * Divide-equals (/=) operation. Divides this value by the value in the
      * given instance.
      */
-    public void DE(Data y) {
+    public void DE(IData y) {
         x /= ((DataDouble) y).x;
     }
 
@@ -159,11 +159,11 @@ public class DataDouble implements Data, java.io.Serializable {
             return 1;
         }
         
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }
         
-        public Data makeData() {
+        public IData makeData() {
             return new DataDouble();
         }
 
@@ -175,7 +175,7 @@ public class DataDouble implements Data, java.io.Serializable {
             super(template);
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             DataInfoDouble dataInfo = new DataInfoDouble(label, dimension);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

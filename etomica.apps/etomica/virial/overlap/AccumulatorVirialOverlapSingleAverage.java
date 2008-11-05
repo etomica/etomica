@@ -1,7 +1,7 @@
 package etomica.virial.overlap;
 
+import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
 import etomica.util.Debug;
 
@@ -55,7 +55,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     // the values coming in should be gamma1/|gamma1| and |gamma2|/|gamma1|
     // where 1 and 2 are target and reference or vica versa, depending on
     // which box the values are coming from.
-    public void addData(Data value) {
+    public void addData(IData value) {
         if (Debug.ON && ((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value and 'other' weight (only)");
         }
@@ -121,7 +121,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * Implements DataSource interface, but you probably want to
      * getData for a specific Bennet parameter.
      */
-    public Data getData() {
+    public IData getData() {
 //        System.out.println("AVOSA getData");
         return getData((nBennetPoints-1)/2);
     }
@@ -137,7 +137,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     /**
      * Return all standard data corresponding to the given Bennet parameter.  
      */
-    public Data getData(int iParam) {
+    public IData getData(int iParam) {
         if(count > 0) {
             // fill in data for set "1" with appropriate "overlap" data
             ((DataDoubleArray)sum).getData()[1] = overlapSum[iParam];

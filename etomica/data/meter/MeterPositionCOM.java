@@ -7,12 +7,12 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.ISpace;
@@ -23,7 +23,7 @@ import etomica.units.Length;
  * leaf atoms in a box, dividing by the number of atoms.
  *
  */
-public class MeterPositionCOM implements DataSource, java.io.Serializable {
+public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializable {
 
     public MeterPositionCOM(ISpace space) {
         data = new DataVector(space);
@@ -37,7 +37,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     /**
      * Returns the position of the center of mass of all atoms in the box.
      */
-    public Data getData() {
+    public IData getData() {
         positionSum.E(0.0);
         double massSum = 0.0;
         IAtomSet leafList = box.getLeafList();
@@ -77,7 +77,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
         return tag;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

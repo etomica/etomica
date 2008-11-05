@@ -1,12 +1,12 @@
 package etomica.modules.interfacial;
 
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -39,7 +39,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         return profileDim;
     }
 
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         DataGroup dataGroup = (DataGroup)inputData;
         int D = virialData.length;
         for (int i=0; i<D; i++) {
@@ -71,16 +71,16 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         return data;
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         DataInfoFunction dataInfo0 = (DataInfoFunction)((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
         data = (DataFunction)dataInfo0.makeData();
-        IDataInfoFactory dataInfoFactory = dataInfo0.getFactory();
+        IEtomicaDataInfoFactory dataInfoFactory = dataInfo0.getFactory();
         dataInfoFactory.setDimension(new DimensionRatio(Energy.DIMENSION, ((DataInfoGroup)inputDataInfo).getNDataInfo() == 2 ? Length.DIMENSION : Area.DIMENSION));
         dataInfoFactory.setLabel("Interfacial tension profile");
         return dataInfoFactory.makeDataInfo();
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 

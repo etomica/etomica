@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.api.IBox;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
 import etomica.units.Area;
 import etomica.units.CompoundDimension;
@@ -10,7 +10,7 @@ import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Time;
 
-public class MeterFlux extends DataSourceScalar implements DataSource {
+public class MeterFlux extends DataSourceScalar implements IEtomicaDataSource {
     
 	public MeterFlux(MyMCMove move, IntegratorDCVGCMD integrator) {
 		super("Flux",new DimensionRatio(Quantity.DIMENSION,new CompoundDimension(new Dimension[] {Area.DIMENSION, Time.DIMENSION}, new double[] {1,1})));

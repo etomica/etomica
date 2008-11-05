@@ -1,9 +1,9 @@
 package etomica.data.types;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTensor.DataInfoTensor;
@@ -56,7 +56,7 @@ public class CastToDoubleArray extends DataProcessor {
      *             if DataInfo is not one of the acceptable types, as described
      *             in general comments for this class
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         int[] arrayShape;
         if (inputDataInfo instanceof DataInfoDoubleArray) {
             inputType = 0;
@@ -89,7 +89,7 @@ public class CastToDoubleArray extends DataProcessor {
      *             call to processDataInfo
      *  
      */
-    protected Data processData(Data data) {
+    protected IData processData(IData data) {
         switch (inputType) {
         case 0:
             return data;
@@ -111,7 +111,7 @@ public class CastToDoubleArray extends DataProcessor {
         return outputData;
     }
 
-    public DataPipe getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IEtomicaDataInfo info) {
         return null;
     }
 

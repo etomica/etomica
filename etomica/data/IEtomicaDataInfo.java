@@ -1,30 +1,14 @@
 package etomica.data;
 
+import etomica.api.IDataInfo;
 import etomica.units.Dimension;
 
-public interface IDataInfo {
+public interface IEtomicaDataInfo extends IDataInfo {
 
     /**
      * @return Returns the dimension given at construction.
      */
     public Dimension getDimension();
-
-    /**
-     * @return Returns the descriptive label of the data, as given in
-     *         constructor or at last call to setLabel.
-     */
-    public String getLabel();
-
-    /**
-     * Returns "label (dimension)", where label and dimension are the values
-     * held by this instance.
-     */
-    public String toString();
-
-    /**
-     * Returns the number of numerical values held by the IData object.
-     */
-    public int getLength();
     
     /**
      * Adds the tag to this IDataInfo object.  You should only call this method
@@ -59,11 +43,6 @@ public interface IDataInfo {
      * Returns a mutable factory that can make copies of this instance of
      * DataInfo.
      */
-    public IDataInfoFactory getFactory();
-
-    /**
-     * Returns a Data object appropriate for this DataInfo instance.
-     */
-    public Data makeData();
+    public IEtomicaDataInfoFactory getFactory();
 
 }

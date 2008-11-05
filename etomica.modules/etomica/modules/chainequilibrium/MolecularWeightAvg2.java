@@ -1,9 +1,9 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Quantity;
@@ -21,7 +21,7 @@ public class MolecularWeightAvg2 extends DataProcessor {
         dataInfo = new DataInfoDouble("Avg MW", Quantity.DIMENSION);
     }
 
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         double sum = 0, sum2 = 0;
         for (int i=0; i<inputData.getLength(); i++) {
             double v = inputData.getValue(i);
@@ -32,11 +32,11 @@ public class MolecularWeightAvg2 extends DataProcessor {
         return data;
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         return dataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 

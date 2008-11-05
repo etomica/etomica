@@ -25,7 +25,7 @@ public class DataSourceCountSteps extends DataSourceScalar implements
         integrator = newIntegrator;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     

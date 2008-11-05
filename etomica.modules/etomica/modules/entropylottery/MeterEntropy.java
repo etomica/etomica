@@ -5,7 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IVector;
 
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
 import etomica.units.Null;
 
@@ -14,7 +14,7 @@ import etomica.units.Null;
  * using Stirling's approximation.
  * @author Andrew Schultz
  */
-public class MeterEntropy extends DataSourceScalar implements DataSource {
+public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource {
 
     public MeterEntropy() {
         super("entropy", Null.DIMENSION);

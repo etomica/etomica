@@ -1,15 +1,16 @@
 package etomica.data.meter;
+
 import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
@@ -28,7 +29,7 @@ import etomica.units.Volume;
  * and deltaV is the change in volume associated with that x value.  deltaV = s * V
  * where s is the scaling factor (available via getScalingDataSource)
  */
-public class MeterPressureByVolumeChange implements DataSource, java.io.Serializable {
+public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.Serializable {
     
     public MeterPressureByVolumeChange(ISpace space) {
         this(space, makeDefaultDimensions(space.D()));
@@ -91,7 +92,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         return integrator;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -133,11 +134,11 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     /**
      * Returns the data source for volume scalings.
      */
-    public DataSource getScalingDataSource() {
+    public IEtomicaDataSource getScalingDataSource() {
         return vDataSource;
     }
     
-    public Data getData() {
+    public IData getData() {
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
         IBox box = integrator.getBox();
         inflater.setBox(box);
@@ -167,7 +168,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
 
     private static final long serialVersionUID = 1L;
     private DataDoubleArray data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
@@ -184,7 +185,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     /**
      * Transforms the scaling from linear (-s to +s) to exponential (exp(-s) to exp(+s))
      */
-    protected static class DataSourceExp implements DataSource {
+    protected static class DataSourceExp implements IEtomicaDataSource {
         public DataSourceExp(DataSourceUniform wrappedDataSource) {
             this.wrappedDataSource = wrappedDataSource;
             tag = new DataTag();
@@ -198,7 +199,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             return tag;
         }
         
-        public IDataInfo getDataInfo() {
+        public IEtomicaDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -214,7 +215,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             }
         }
         
-        public Data getData() {
+        public IData getData() {
             return data;
         }
         

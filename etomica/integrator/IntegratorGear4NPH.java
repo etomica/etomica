@@ -6,6 +6,7 @@ import etomica.action.BoxInflate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
@@ -14,10 +15,9 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -236,7 +236,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 
     //meter for enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public static final class MeterEnthalpy implements DataSource, java.io.Serializable {
+    public static final class MeterEnthalpy implements IEtomicaDataSource, java.io.Serializable {
         
         public MeterEnthalpy(IntegratorGear4NPH integrator, int D) {
             data = new DataDouble();
@@ -247,7 +247,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             dim = D;
         }
         
-        public IDataInfo getDataInfo() {
+        public IEtomicaDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -255,7 +255,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             return tag;
         }
         
-        public Data getData() {
+        public IData getData() {
             IBox box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
             double mvsq = kineticT* dim * box.getLeafList().getAtomCount();
@@ -270,7 +270,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private static final long serialVersionUID = 1L;
         private DataDouble data;
         private IntegratorGear4NPH integrator;
-        private IDataInfo dataInfo;
+        private IEtomicaDataInfo dataInfo;
         private DataTag tag;
         private final int dim;
     }

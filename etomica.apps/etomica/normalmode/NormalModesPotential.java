@@ -6,11 +6,11 @@ import java.io.IOException;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IBox;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeSumCrystal;
@@ -73,7 +73,7 @@ public class NormalModesPotential implements NormalModes {
         eigenvectors = new double[kDim][eDim][eDim];
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
         FunctionGeneral function = new FunctionGeneral() {
-            public Data f(Object obj) {
+            public IData f(Object obj) {
                 Vector3D r = (Vector3D)obj;
                 tensor.x.Ev1v2(r, r);
                 double r2 = r.squared();

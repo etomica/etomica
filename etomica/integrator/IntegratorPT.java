@@ -2,13 +2,13 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IRandom;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
@@ -107,7 +107,7 @@ public class IntegratorPT extends IntegratorManagerMC {
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
      * record of how the boxes swap configurations.
      */
-    public static class BoxTracker implements DataSource, IListener, java.io.Serializable {
+    public static class BoxTracker implements IEtomicaDataSource, IListener, java.io.Serializable {
         
         public BoxTracker() {
             data = new DataDoubleArray(0);
@@ -116,7 +116,7 @@ public class IntegratorPT extends IntegratorManagerMC {
             dataInfo.addTag(tag);
         }
         
-        public IDataInfo getDataInfo() {
+        public IEtomicaDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -155,7 +155,7 @@ public class IntegratorPT extends IntegratorManagerMC {
          * Returns array y such that y[i] is the current
          * box of the configuration that began in box i.
          */
-        public Data getData() {
+        public IData getData() {
             for (int i=0; i<track.length; i++) {
                 dtrack[i] = track[i];
             }

@@ -18,12 +18,12 @@ import javax.swing.event.PopupMenuListener;
 
 import ptolemy.plot.Plot;
 import etomica.EtomicaInfo;
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataProcessor;
 import etomica.data.DataSet;
 import etomica.data.DataSetListener;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -142,7 +142,7 @@ public class DisplayPlot extends Display implements DataSetListener {
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
-                IDataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
+                IEtomicaDataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
                 xDimension = xDataInfo.getDimension();
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
@@ -256,9 +256,9 @@ public class DisplayPlot extends Display implements DataSetListener {
         }
     }
     
-    protected Data getDataFromSet(DataTag[] tags) {
+    protected IData getDataFromSet(DataTag[] tags) {
         for(int i=0; i<dataSet.getDataCount(); i++) {
-            Data thisData = dataSet.getData(i);
+            IData thisData = dataSet.getData(i);
             DataTag[] thisDataTags = dataSet.getDataInfo(i).getTags();
             boolean found = true;
             for (int j=0; j<tags.length; j++) {
@@ -435,7 +435,7 @@ public class DisplayPlot extends Display implements DataSetListener {
 
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
-        public DataProcessor getDataCaster(IDataInfo dataInfo) {
+        public DataProcessor getDataCaster(IEtomicaDataInfo dataInfo) {
             if (dataInfo instanceof DataInfoFunction) {
                 return null;
             }

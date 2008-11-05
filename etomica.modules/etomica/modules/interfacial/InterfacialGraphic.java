@@ -6,24 +6,24 @@ import java.util.ArrayList;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
+import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataGroupSplitter;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -163,7 +163,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
 		final DisplayTextBox tBox = new DisplayTextBox();
-		temperatureFork.setDataSinks(new DataSink[]{tBox,temperatureHistory});
+		temperatureFork.setDataSinks(new IDataSink[]{tBox,temperatureHistory});
         tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
@@ -198,7 +198,7 @@ public class InterfacialGraphic extends SimulationGraphic {
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(10);
-        DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
+        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
         sim.integrator.addIntervalAction(pePump);
         sim.integrator.setActionInterval(pePump, 60);
@@ -445,7 +445,7 @@ public class InterfacialGraphic extends SimulationGraphic {
             data = new DataDoubleArray(3);
         }
         
-        protected Data processData(Data inputData) {
+        protected IData processData(IData inputData) {
             double[] x = data.getData();
             for (int i=0; i<x.length; i++) {
                 x[i] = ((DataTensor)inputData).x.component(i,i);
@@ -453,12 +453,12 @@ public class InterfacialGraphic extends SimulationGraphic {
             return data;
         }
 
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
             dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
             return dataInfo;
         }
 
-        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
             if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
                 throw new IllegalArgumentException("Gotta be a DataInfoTensor");
             }

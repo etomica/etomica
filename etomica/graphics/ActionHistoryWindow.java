@@ -6,8 +6,8 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.api.IAction;
+import etomica.api.IData;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.types.DataFunction.DataInfoFunction;
 
 /**
@@ -27,8 +27,8 @@ public class ActionHistoryWindow implements IAction {
         textArea.setEditable(false);
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
-        Data data = accumulatorHistory.getData();
-        Data xData = ((DataInfoFunction)accumulatorHistory.getDataInfo()).getXDataSource().getIndependentData(0);
+        IData data = accumulatorHistory.getData();
+        IData xData = ((DataInfoFunction)accumulatorHistory.getDataInfo()).getXDataSource().getIndependentData(0);
         for (int i=0; i<data.getLength(); i++) {
             double x = xData.getValue(i);
             double y = data.getValue(i);

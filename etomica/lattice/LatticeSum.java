@@ -1,8 +1,8 @@
 package etomica.lattice;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.util.FunctionGeneral;
 
@@ -19,9 +19,9 @@ public class LatticeSum {
 
     public DataGroup calculateSum(FunctionGeneral function) {
         IDataInfo dataInfo = function.getDataInfo();
-        Data sumR = dataInfo.makeData();
-        Data sumI = dataInfo.makeData();
-        Data work = dataInfo.makeData();
+        IData sumR = dataInfo.makeData();
+        IData sumI = dataInfo.makeData();
+        IData work = dataInfo.makeData();
 //        double diff = 0.0;
         for(int m=1; m<=maxElement; m++) {
             coreIterator.setMaxElement(m);
@@ -29,7 +29,7 @@ public class LatticeSum {
             iterator.reset();
             while(iterator.hasNext()) {
                 IVector site = (IVector)lattice.site(iterator.next());
-                Data value = function.f(site);
+                IData value = function.f(site);
                 double kDotr = kVector.dot(site);
                 double ckr = Math.cos(kDotr);
                 double skr = Math.sin(kDotr);
@@ -44,7 +44,7 @@ public class LatticeSum {
 //            System.out.println(m + ".\t" + sumR + "\t" + sumI + "\t" + diff/sumR);
 //            diff = sumR;
         }
-        return new DataGroup(new Data[] {sumR, sumI});
+        return new DataGroup(new IData[] {sumR, sumI});
     }
     
     public void setK(IVector k) {

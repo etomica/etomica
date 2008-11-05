@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Dimension;
@@ -8,7 +9,7 @@ import etomica.units.Dimension;
  * Particular data source for which the data is a simple scalar of type double.
  */
  
-public abstract class DataSourceScalar implements DataSource, java.io.Serializable {
+public abstract class DataSourceScalar implements IEtomicaDataSource, java.io.Serializable {
     
     public DataSourceScalar(String label, Dimension dimension) {
         data = new DataDouble();
@@ -17,7 +18,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
         dataInfo.addTag(tag);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -44,11 +45,11 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
 		return data;
 	}
     
-    public final Data getData() {
+    public final IData getData() {
         return getDataDouble();
     }
 	
 	protected final DataDouble data;
-    protected final IDataInfo dataInfo;
+    protected final IEtomicaDataInfo dataInfo;
     protected final DataTag tag;
 }

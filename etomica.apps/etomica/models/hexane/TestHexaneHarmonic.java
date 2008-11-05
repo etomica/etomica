@@ -5,17 +5,17 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -298,18 +298,18 @@ public class TestHexaneHarmonic extends Simulation {
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
             return null;
         }
         
-        public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+        public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
             dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
             data = new DataDouble();
             return dataInfo;
         }
             
         
-        public Data processData(Data incomingData) {
+        public IData processData(IData incomingData) {
             data.x = 0;
             int nData = incomingData.getLength();
             for (int i=0; i<nData; i++) {

@@ -22,7 +22,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
@@ -173,7 +173,7 @@ public class JouleThomson extends SimulationGraphic {
         sim.activityIntegrate.setSleepPeriod(1);
 
         //set-pressure history
-        DataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure",Pressure.DIMENSION) {
+        IEtomicaDataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure",Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pSlider.getValue());
             }
@@ -185,7 +185,7 @@ public class JouleThomson extends SimulationGraphic {
         sim.integratorJT.setActionInterval(pump, 20);
 
         //set-pressure history
-        DataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature",Temperature.DIMENSION) {
+        IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature",Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return tUnit.toSim(tSlider.getValue());
             }

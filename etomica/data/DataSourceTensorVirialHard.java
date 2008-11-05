@@ -1,4 +1,5 @@
 package etomica.data;
+import etomica.api.IData;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -12,7 +13,7 @@ import etomica.units.Energy;
  *
  * @author Rob Riggleman
  */
-public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
+public class DataSourceTensorVirialHard implements IEtomicaDataSource, IntegratorHard.CollisionListener, java.io.Serializable {
 
     public DataSourceTensorVirialHard(ISpace space) {
         data = new DataTensor(space);
@@ -27,7 +28,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
         setIntegrator(integrator);
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -39,7 +40,7 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
      * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
      * If elapsed-time interval is zero, returns the value reported at the last call to the method.
      */
-    public Data getData() {
+    public IData getData() {
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         lastTime = currentTime;

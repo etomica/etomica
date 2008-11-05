@@ -2,6 +2,7 @@ package etomica.data;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -52,7 +53,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return (ISpecies)testMolecule.getType();
     }
 
-    public Data getData(IVector a) {
+    public IData getData(IVector a) {
         atomTranslator.setDestination(a);
         atomTranslator.actionPerformed(testMolecule);
         IBox box = integrator.getBox();
@@ -72,7 +73,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         }
     }
 
-    public IDataInfo getPositionDataInfo() {
+    public IEtomicaDataInfo getPositionDataInfo() {
         return dataInfo;
     }
 

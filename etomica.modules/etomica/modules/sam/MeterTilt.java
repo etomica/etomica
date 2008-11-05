@@ -3,13 +3,13 @@ package etomica.modules.sam;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.space.ISpace;
@@ -20,15 +20,15 @@ import etomica.units.Angle;
  *
  * @author Andrew Schultz
  */
-public class MeterTilt implements DataSource {
+public class MeterTilt implements IEtomicaDataSource {
 
     public MeterTilt(ISpace space, ISpecies species) {
         this.species = species;
         dr = space.makeVector();
         drSum = space.makeVector();
         tag = new DataTag();
-        data = new DataGroup(new Data[]{new DataDouble(), new DataDouble()});
-        dataInfo = new DataGroup.DataInfoGroup("Tilt", Angle.DIMENSION, new IDataInfo[]{
+        data = new DataGroup(new IData[]{new DataDouble(), new DataDouble()});
+        dataInfo = new DataGroup.DataInfoGroup("Tilt", Angle.DIMENSION, new IEtomicaDataInfo[]{
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION),
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION)});
     }
@@ -37,7 +37,7 @@ public class MeterTilt implements DataSource {
         box = newBox;
     }
 
-    public Data getData() {
+    public IData getData() {
         IAtomSet molecules = box.getMoleculeList(species);
         int nMolecules = molecules.getAtomCount();
         int leafCount = species.getNumLeafAtoms();
@@ -55,7 +55,7 @@ public class MeterTilt implements DataSource {
         return data;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -69,5 +69,5 @@ public class MeterTilt implements DataSource {
     protected final IVector dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;
-    protected final IDataInfo dataInfo;
+    protected final IEtomicaDataInfo dataInfo;
 }

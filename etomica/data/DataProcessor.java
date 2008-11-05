@@ -1,5 +1,7 @@
 package etomica.data;
 
+import etomica.api.IData;
+
 /**
  * An object that receives Data, processes it, and pushes the result on to a
  * DataSink.
@@ -24,7 +26,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      *            the Data for processing
      * @return the processed Data, for sending downstream (if not null)
      */
-    protected abstract Data processData(Data inputData);
+    protected abstract IData processData(IData inputData);
 
     /**
      * Informs this DataProcessor of the DataInfo for the Data it will be
@@ -36,14 +38,14 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * @return the DataInfo of the Data that will be output by this
      *         DataProcessor
      */
-    protected abstract IDataInfo processDataInfo(IDataInfo inputDataInfo);
+    protected abstract IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo);
 
     /**
      * Processes input Data and pushes it downstream if output Data and DataSink
      * are not null.
      */
-    public void putData(Data data) {
-        Data outputData = processData(data);
+    public void putData(IData data) {
+        IData outputData = processData(data);
         if (dataSink != null && outputData != null) {
             dataSink.putData(outputData);
         }
@@ -54,7 +56,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * DataInfo to the dataSink (if not null).  Will insert a data caster before
      * the DataSink if appropriate.
      */
-    public void putDataInfo(IDataInfo inputDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = processDataInfo(inputDataInfo);
         insertTransformerIfNeeded();
         if (dataSink != null) {
@@ -62,14 +64,14 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
         }
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
     /**
      * @return Returns the data sink, which may be null.
      */
-    public DataSink getDataSink() {
+    public IDataSink getDataSink() {
         return trueDataSink;
     }
 
@@ -79,7 +81,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * @param newDataSink
      *            The data sink to set.
      */
-    public void setDataSink(DataSink newDataSink) {
+    public void setDataSink(IDataSink newDataSink) {
         //trueDataSink is the sink that the caller acutally cares about
         //dataSink is the immeadiate sink for this processor (might be a transformer)
         trueDataSink = newDataSink;
@@ -101,8 +103,8 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
         }
     }
 
-    protected DataSink dataSink;
-    protected DataSink trueDataSink;
-    protected IDataInfo dataInfo;
+    protected IDataSink dataSink;
+    protected IDataSink trueDataSink;
+    protected IEtomicaDataInfo dataInfo;
     protected final DataTag tag;
 }

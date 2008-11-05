@@ -2,17 +2,17 @@ package etomica.graphics;
 
 import java.awt.Component;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.BorderFactory;
 
+import etomica.api.IData;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.Data;
 import etomica.data.DataPipe;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
-import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
@@ -34,7 +34,7 @@ import etomica.util.Constants;
 /*
  * Created on Feb 10, 2005
  */
-public class DisplayTextBoxesCAE extends Display implements DataSink {
+public class DisplayTextBoxesCAE extends Display implements IDataSink {
 
 	public AccumulatorAverage accumulatorAverage;
 	public DisplayTextBox currentBox, averageBox, errorBox;
@@ -49,7 +49,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         this("", Null.UNIT);
     }
 
-	public DisplayTextBoxesCAE(IDataInfo info) {
+	public DisplayTextBoxesCAE(IEtomicaDataInfo info) {
         this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
 
@@ -68,14 +68,14 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         setPrecision(4);
 	}
 
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         return null;
     }
 
-    public void putDataInfo(IDataInfo dataInfo) {
+    public void putDataInfo(IEtomicaDataInfo dataInfo) {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
         }
@@ -152,7 +152,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         setLabel(jLabelPanelParentGroup.getText());
     }
 
-    public void putData(Data data) {
+    public void putData(IData data) {
         currentBox.putData(((DataGroup)data).getData(0));
         averageBox.putData(((DataGroup)data).getData(1));
         errorBox.putData(((DataGroup)data).getData(2));

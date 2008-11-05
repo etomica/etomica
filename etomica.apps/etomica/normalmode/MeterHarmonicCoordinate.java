@@ -2,11 +2,10 @@ package etomica.normalmode;
 
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
@@ -18,7 +17,7 @@ import etomica.units.Energy;
  * 
  * @author Andrew Schultz
  */
-public class MeterHarmonicCoordinate implements DataSource {
+public class MeterHarmonicCoordinate implements IEtomicaDataSource {
 
     public MeterHarmonicCoordinate(CoordinateDefinition coordinateDefinition, NormalModes normalModes, int[] modes) {
         this.coordinateDefinition = coordinateDefinition;
@@ -36,12 +35,12 @@ public class MeterHarmonicCoordinate implements DataSource {
         return coordinateDefinition;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
 
-    public Data getData() {
+    public IData getData() {
         BasisCell cell = coordinateDefinition.getBasisCells()[0];
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 

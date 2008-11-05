@@ -1,5 +1,7 @@
 package etomica.data;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.util.Arrays;
 
 /**
@@ -62,7 +64,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to Data.
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
             throw new RuntimeException("AccumulatorAverageCollapsing can only handle single data");
         }
@@ -73,7 +75,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
-    public void addData(Data data) {
+    public void addData(IData data) {
         if (data.isNaN())
             return;
         double value = data.getValue(0);
@@ -144,7 +146,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * Returns a DataGroup with Data instances holding the statistics kept by
      * this accumulator (as described in general comments for this class).
      */
-    public Data getData() {
+    public IData getData() {
     	if (dataGroup == null) {
             return null;
         }
@@ -228,7 +230,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      *            array indicating the statistics to be included in the
      *            DataGroup sent to the sink.
      */
-    public void addDataSink(DataSink newDataSink, StatType[] types) {
+    public void addDataSink(IDataSink newDataSink, StatType[] types) {
         int[] indexes = new int[types.length];
         for (int i = 0; i < types.length; i++) {
             indexes[i] = types[i].index;

@@ -1,6 +1,7 @@
 package etomica.data;
 
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -48,7 +49,7 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         return surfaceDim;
     }
 
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         double area = 1;
         IVector dim = box.getBoundary().getDimensions();
         int D = dim.getD();
@@ -66,11 +67,11 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         return data;
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         return new DataInfoDouble("Interfacial tension", new DimensionRatio(Energy.DIMENSION, space.D() == 2 ? Length.DIMENSION : Area.DIMENSION));
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 

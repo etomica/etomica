@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -42,7 +43,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Adds each value in the given Data to its own histogram.
      */
-    protected void addData(Data inputData) {
+    protected void addData(IData inputData) {
     	if (histogram instanceof HistogramNotSoSimple) {
     		((HistogramNotSoSimple)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
     	} else  histogram.addValue(inputData.getValue(0));
@@ -51,7 +52,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns the set of histograms.
      */
-    public Data getData() {
+    public IData getData() {
         // check to see if current data functions are the right length
         // histogram might change the number of bins on its own.
         // covertly call getHistogram() here.  We have to call it anyway
@@ -67,7 +68,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Sets up data and histograms, discarding any previous results.
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         if (inputDataInfo.getLength() != 1 && inputDataInfo.getLength() != 2) {
             throw new IllegalArgumentException("AccumulatorHistogram can only handle single data");
@@ -79,7 +80,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns null.  AccumulatorHistory can take an type of Data.
      */
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 
@@ -139,7 +140,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -147,6 +148,6 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private IDataInfo binnedDataInfo;
+    private IEtomicaDataInfo binnedDataInfo;
     private int nBins;
 }

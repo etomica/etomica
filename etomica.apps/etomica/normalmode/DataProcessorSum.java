@@ -1,9 +1,9 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 
 /**
@@ -11,13 +11,13 @@ import etomica.data.types.DataDouble;
  * @author Andrew Schultz
  */
 public class DataProcessorSum extends DataProcessor {
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         data = new DataDouble();
         dataInfo = new DataDouble.DataInfoDouble(incomingDataInfo.getLabel(), incomingDataInfo.getDimension());
         return dataInfo;
     }
     
-    public Data processData(Data incomingData) {
+    public IData processData(IData incomingData) {
         data.x = 0;
         int n = incomingData.getLength();
         for (int i=0; i<n; i++) {
@@ -26,7 +26,7 @@ public class DataProcessorSum extends DataProcessor {
         return data;
     }
     
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
     

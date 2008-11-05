@@ -1,7 +1,7 @@
 package etomica.junit.data.types;
 
 import junit.framework.TestCase;
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 
@@ -13,14 +13,14 @@ public class DataGroupTest extends TestCase {
         DataDoubleArray data0 = new DataDoubleArray(new int[]{2}, new double[]{0,1});
         DataDoubleArray data1 = new DataDoubleArray(new int[]{3}, new double[]{2,3,4});
         DataDoubleArray data2 = new DataDoubleArray(new int[]{4}, new double[]{5,6,7,8});
-        data = new DataGroup(new Data[]{data0, data1, data2});
+        data = new DataGroup(new IData[]{data0, data1, data2});
     }
 
     public void testDataGroup() {
         testGetValue(data, new double[]{0,1,2,3,4,5,6,7,8});
     }
 
-    public void testGetValue(Data someData, double[] expectedValues) {
+    public void testGetValue(IData someData, double[] expectedValues) {
         assertEquals(someData.getLength(), expectedValues.length);
         for (int i=0; i<expectedValues.length; i++) {
             assertEquals(expectedValues[i], someData.getValue(i));

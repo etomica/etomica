@@ -1,9 +1,9 @@
 package etomica.data.types;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataGroup.DataInfoGroup;
 
 /**
@@ -24,7 +24,7 @@ public class CastToGroup extends DataProcessor {
     public CastToGroup() {
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;
         if (inputClass == DataGroup.class) {
@@ -34,7 +34,7 @@ public class CastToGroup extends DataProcessor {
         }
         inputType = 1;
         dataGroup = null;
-        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IDataInfo[]{inputDataInfo});
+        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IEtomicaDataInfo[]{inputDataInfo});
         return outputDataInfo;
     }
     
@@ -48,13 +48,13 @@ public class CastToGroup extends DataProcessor {
      *            the most recent call to processDataInfo
      * @return a DataGroup holding the values from given Data
      */
-    protected Data processData(Data data) {
+    protected IData processData(IData data) {
         switch (inputType) {
         case 0:
             return data;
         case 1:
             if (dataGroup == null) {
-                dataGroup = new DataGroup(new Data[]{data});
+                dataGroup = new DataGroup(new IData[]{data});
             }
             return dataGroup;
         default:
@@ -65,7 +65,7 @@ public class CastToGroup extends DataProcessor {
     /**
      * Returns null, indicating that this DataProcessor can accept any Data type.
      */
-    public DataPipe getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IEtomicaDataInfo info) {
         return null;
     }
 

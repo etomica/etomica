@@ -1,10 +1,9 @@
 package etomica.data.types;
 
-
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -51,7 +50,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      *             if DataInfo indicates that the DataTables have different
      *             numbers of rows
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -93,7 +92,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      *             the type indicated by the most recent call to
      *             processDataInfo.
      */
-    protected Data processData(Data data) {
+    protected IData processData(IData data) {
         if (outputData == null) {
             DataDoubleArray[] columns = new DataDoubleArray[outputDataInfo.getNDataInfo()];
             int i=0;
@@ -111,7 +110,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataPipe getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IEtomicaDataInfo info) {
         if (!(info instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }

@@ -2,11 +2,12 @@ package etomica.data;
 import java.io.PrintStream;
 
 import etomica.EtomicaInfo;
+import etomica.api.IData;
 
 /**
  * Writes data to console or another print stream.
  */
-public class DataSinkConsole implements DataSink, java.io.Serializable {
+public class DataSinkConsole implements IDataSink, java.io.Serializable {
 
     /**
      * Makes class using System.out as the default output stream.
@@ -31,21 +32,21 @@ public class DataSinkConsole implements DataSink, java.io.Serializable {
     /**
      * Returns null, indicating that any type of Data can be put here without casting.
      */
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
         return null;
     }
     
     /**
      * Causes the given DataInfo to be written to the print stream.
      */
-    public void putDataInfo(IDataInfo dataInfo) {
+    public void putDataInfo(IEtomicaDataInfo dataInfo) {
         out.println(dataInfo.toString());
     }
     
     /**
      * Causes the given values to be written to the print stream.
      */
-    public void putData(Data data) {
+    public void putData(IData data) {
         out.println(data.toString());
     }
 

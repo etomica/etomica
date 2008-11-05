@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
@@ -16,7 +17,7 @@ import etomica.util.EnumeratedType;
  * 
  * @author David Kofke
  */
-public class DataSourceUniform implements DataSource, java.io.Serializable {
+public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializable {
     
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive,
@@ -95,7 +96,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         typeMax = newTypeMax;
     }//end of calculateX
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -185,7 +186,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     /**
      * Returns the uniformly spaced values.
      */
-    public Data getData() {
+    public IData getData() {
         return data;
     }
             

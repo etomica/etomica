@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
+import etomica.api.IData;
 import etomica.util.Arrays;
 
 /**
@@ -27,7 +28,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * Constructs to forward data to the given sinks.  Sinks can be added
      * and removed after construction using appropriate method calls.
      */
-    public DataFork(DataSink[] dataSinks) {
+    public DataFork(IDataSink[] dataSinks) {
         this();
         setDataSinks(dataSinks);
     }
@@ -39,7 +40,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /**
      * Returns null, indicating that this DataSink can accept any type of Data.
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -47,7 +48,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * Puts the given Data through into all DataSinks. Does
      * nothing if given Data is null.
      */
-    public void putData(Data data) {
+    public void putData(IData data) {
         if(data != null) {
             for(int i=dataSinkList.length-1; i>=0; i--) {
                 dataSinkList[i].dataSink.putData(data);
@@ -59,7 +60,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * Puts the given DataInfo through into all DataSinks, inserting
      * a data caster before any sinks needing one.
      */
-    public void putDataInfo(IDataInfo incomingDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
         dataInfo = incomingDataInfo;
         for(int i=dataSinkList.length-1; i>=0; i--) {
             insertTransformerIfNeeded(i);
@@ -67,8 +68,8 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
         }
     }
 
-    public DataSink[] getDataSinks() {
-        DataSink[] sinks = new DataSink[dataSinkList.length];
+    public IDataSink[] getDataSinks() {
+        IDataSink[] sinks = new IDataSink[dataSinkList.length];
         for (int i=0; i<sinks.length; i++) {
             sinks[i] = dataSinkList[i].trueDataSink;
         }
@@ -84,14 +85,14 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * 
      * @param dataSink the new, sole DataSink connected to this DataFork
      */
-    public void setDataSink(DataSink dataSink) {
-        setDataSinks(new DataSink[] {dataSink});
+    public void setDataSink(IDataSink dataSink) {
+        setDataSinks(new IDataSink[] {dataSink});
     }
 
     /* (non-Javadoc)
      * @see etomica.data.DataPipeForked#setDataSinks(etomica.data.DataSink[])
      */
-    public void setDataSinks(DataSink[] dataSinks) {
+    public void setDataSinks(IDataSink[] dataSinks) {
         dataSinkList = new DataSinkWrapper[0];
         if(dataSinks == null) {
             return;
@@ -104,7 +105,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.data.DataPipeForked#addDataSink(etomica.data.DataSink)
      */
-    public void addDataSink(DataSink newDataSink) {
+    public void addDataSink(IDataSink newDataSink) {
         if(newDataSink == null) return;
         dataSinkList = (DataSinkWrapper[])Arrays.addObject(dataSinkList, new DataSinkWrapper(newDataSink));
         int numSinks = dataSinkList.length;
@@ -118,7 +119,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.data.DataPipeForked#removeDataSink(etomica.data.DataSink)
      */
-    public void removeDataSink(DataSink dataSink) {
+    public void removeDataSink(IDataSink dataSink) {
         for(int i=0; i<dataSinkList.length; i++) {
             if(dataSink == dataSinkList[i].trueDataSink) {
                 dataSinkList = (DataSinkWrapper[])Arrays.removeObject(dataSinkList, dataSinkList[i]);
@@ -140,13 +141,13 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected DataSinkWrapper[] dataSinkList = new DataSinkWrapper[0];
-    protected IDataInfo dataInfo;
+    protected IEtomicaDataInfo dataInfo;
     
     private static class DataSinkWrapper implements Serializable {
         private static final long serialVersionUID = 1L;
-        DataSink dataSink;
-        final DataSink trueDataSink;
-        DataSinkWrapper(DataSink dataSink) {
+        IDataSink dataSink;
+        final IDataSink trueDataSink;
+        DataSinkWrapper(IDataSink dataSink) {
             this.dataSink = dataSink;
             trueDataSink = dataSink;
         }

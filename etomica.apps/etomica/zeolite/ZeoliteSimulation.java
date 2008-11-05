@@ -11,7 +11,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
+import etomica.data.IDataSink;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -234,7 +234,7 @@ public class ZeoliteSimulation extends Simulation {
         energyHistory.getHistory().setHistoryLength(history);
         AccumulatorAverageCollapsing enAcc = new AccumulatorAverageCollapsing();
         enAcc.setPushInterval(20);
-        DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
+        DataFork enFork = new DataFork(new IDataSink[]{energyHistory, enAcc});
         DataPump energyPump = new DataPump(eMeter, enFork);
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.setActionInterval(energyPump, 10);

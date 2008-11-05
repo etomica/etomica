@@ -2,10 +2,10 @@ package etomica.data.types;
 
 import java.io.Serializable;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
@@ -33,7 +33,7 @@ import etomica.util.Arrays;
  * @author David Kofke and Andrew Schultz
  *  
  */
-public class DataTable extends DataGroup implements Data, Serializable {
+public class DataTable extends DataGroup implements IData, Serializable {
 
     /**
      * Creates a new table with a specified number of columns all of a given
@@ -128,7 +128,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
     private static final long serialVersionUID = 1L;
 
     public static class DataInfoTable extends DataInfoGroup {
-        public DataInfoTable(String label, IDataInfo[] columnInfo, int nRows, String[] rowHeaders) {
+        public DataInfoTable(String label, IEtomicaDataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
             if (rowHeaders != null) {
@@ -139,7 +139,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
             }
         }
         
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoTableFactory(this);
         }
         
@@ -165,7 +165,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
             return rowHeaders != null;
         }
         
-        public Data makeData() {
+        public IData makeData() {
             return new DataTable(subDataInfo.length, nRows);
         }
 
@@ -187,7 +187,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
             }
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             DataInfoDoubleArray[] columnInfo = new DataInfoDoubleArray[columnInfoFactories.length];
             for (int i=0; i<columnInfo.length; i++) {
                 columnInfo[i] = (DataInfoDoubleArray)columnInfoFactories[i].makeDataInfo();

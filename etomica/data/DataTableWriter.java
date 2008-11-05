@@ -3,6 +3,7 @@ package etomica.data;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IData;
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
@@ -37,11 +38,11 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
         return includeHeader;
     }
     
-    public void putDataInfo(IDataInfo newDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo newDataInfo) {
         dataInfo = newDataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo newDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoTable) {
             // we like tables
             return null;
@@ -51,9 +52,9 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
                 //it's empty, turn it into an empty array
                 return new CastGroupToDoubleArray();
             }
-            IDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+            IEtomicaDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
             for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
-                IDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+                IEtomicaDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
                 if (subDataInfo.getClass() != dataInfo0.getClass()){
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
@@ -69,7 +70,7 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
         return new CastToTable();
     }
     
-    public void putData(Data data) {
+    public void putData(IData data) {
         DataTable table = (DataTable)data;
         try {
             int nColumns = table.getNData();
@@ -112,6 +113,6 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
     // DataLogger will give the fileWriter back to us when it actually writes
     private transient FileWriter fileWriter;
     private boolean firstWrite;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     private boolean includeHeader;
 }

@@ -2,12 +2,12 @@ package etomica.data;
 
 import etomica.units.Dimension;
 
-public interface IDataInfoFactory {
+public interface IEtomicaDataInfoFactory {
 
     /**
      * Creates a new DataInfo object using the information held by this factory.
      */
-    public IDataInfo makeDataInfo();
+    public IEtomicaDataInfo makeDataInfo();
 
     /**
      * Sets the label

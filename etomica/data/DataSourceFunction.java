@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
+import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -18,7 +19,7 @@ import etomica.util.Function;
  * two Data components; the first (0) is x, and the second (1) is y.
  * Useful for displaying a fixed function on a plot.
  */
-public class DataSourceFunction implements DataSource, DataSourceIndependent, Serializable {
+public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndependent, Serializable {
     
     public DataSourceFunction() {
         this(new Function.Constant(0.0));
@@ -40,7 +41,7 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
         dataInfo.addTag(tag);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -60,7 +61,7 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     /**
      * Returns the DataFunction made by this source.
      */
-    public Data getData() { 
+    public IData getData() { 
         return data;
     }
     
@@ -129,7 +130,7 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     
     private static final long serialVersionUID = 1L;
     private DataFunction data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private IFunction function;

@@ -1,13 +1,14 @@
 package etomica.data.meter;
+
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataTensor;
 import etomica.potential.PotentialCalculationPressureTensor;
 import etomica.space.ISpace;
@@ -20,7 +21,7 @@ import etomica.units.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterPressureTensor implements DataSource, java.io.Serializable {
+public class MeterPressureTensor implements IEtomicaDataSource, java.io.Serializable {
     
     public MeterPressureTensor(IPotentialMaster potentialMaster, ISpace space) {
     	super();
@@ -44,7 +45,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
         return tag;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -87,7 +88,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
 	  * Computes total pressure in box by summing virial over all pairs, and adding
 	  * ideal-gas contribution.
 	  */
-    public Data getData() {
+    public IData getData() {
         if (box == null) {
             throw new IllegalStateException("You must call setBox before using this class");
         }

@@ -1,8 +1,8 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.data.Data;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P1HardMovingBoundary;
@@ -37,7 +37,7 @@ public class MeterRDFCylinder extends MeterRDF {
         iterator = new ApiFilteredCylinder(new ApiLeafAtoms(), filter);
     }
 
-    public Data getData() {
+    public IData getData() {
         super.getData();
 
         // renormalize the RDF to account for the excluded pairs

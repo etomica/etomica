@@ -1,8 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
+import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.Data;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
@@ -148,11 +148,11 @@ public class VirialLJXS {
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-        Data ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
-        Data ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
-        Data averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
-        Data stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
-        Data errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
         System.out.println("hard sphere ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("hard sphere   average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)

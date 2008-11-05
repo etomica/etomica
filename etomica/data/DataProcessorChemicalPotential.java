@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorBox;
@@ -15,11 +16,11 @@ import etomica.integrator.IntegratorBox;
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
 
-    public void setDensityProfileDump(DataSource newDensityProfileSource) {
+    public void setDensityProfileDump(IEtomicaDataSource newDensityProfileSource) {
         densityProfileSource = newDensityProfileSource;
     }
 
-    public DataSource getDenstiyProfileDump() {
+    public IEtomicaDataSource getDenstiyProfileDump() {
         return densityProfileSource;
     }
     
@@ -27,10 +28,10 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         integrator = newIntegrator;
     }
     
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         double[] oldY = ((DataFunction)inputData).getData();
         double[] newY = data.getData();
-        Data densityData = densityProfileSource.getData();
+        IData densityData = densityProfileSource.getData();
         double temp = integrator.getTemperature();
         for (int i=0; i<oldY.length; i++) {
             double density = densityData.getValue(i);
@@ -44,18 +45,18 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         return data;
     }
 
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         data = new DataFunction(new int[]{inputDataInfo.getLength()});
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         return dataInfo;
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 
-    protected DataSource densityProfileSource;
+    protected IEtomicaDataSource densityProfileSource;
     protected DataFunction data;
     protected IntegratorBox integrator;
 }

@@ -18,7 +18,7 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
@@ -68,7 +68,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         potentialMasterTarget = new PotentialMasterMonatomic(this, space);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new DataSource[2];
+        meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -413,9 +413,9 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        DataSource[] workMeters = new DataSource[2];
-        DataSource[] workBennets = new DataSource[2];
-        DataSource[] boltzmannDirectSampling = new DataSource[2];
+        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
+        IEtomicaDataSource[] workBennets = new IEtomicaDataSource[2];
+        IEtomicaDataSource[] boltzmannDirectSampling = new IEtomicaDataSource[2];
         
       /*
        *	 Harmonic Sampling
@@ -1061,7 +1061,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public DataSource[] meters;
+    public IEtomicaDataSource[] meters;
     public AccumulatorAverageFixed accumulatorWorkAverage;
     public MCMoveHarmonic move;
     public IntegratorMC integratorTarget;

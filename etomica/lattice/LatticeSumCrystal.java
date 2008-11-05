@@ -1,8 +1,8 @@
 package etomica.lattice;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.util.FunctionGeneral;
 
@@ -32,9 +32,9 @@ public class LatticeSumCrystal {
 
     public DataGroup calculateSum(FunctionGeneral function) {
         IDataInfo dataInfo = function.getDataInfo();
-        Data work = dataInfo.makeData();
-        Data[][] sumR = new Data[basisDim][basisDim];
-        Data[][] sumI = new Data[basisDim][basisDim];
+        IData work = dataInfo.makeData();
+        IData[][] sumR = new IData[basisDim][basisDim];
+        IData[][] sumI = new IData[basisDim][basisDim];
         for(int jp=0; jp<basisDim; jp++) {
             for(int j=0; j<basisDim; j++) {
                 sumR[jp][j] = dataInfo.makeData();
@@ -75,7 +75,7 @@ public class LatticeSumCrystal {
                             ckr = Math.cos(kDotr);
                             skr = Math.sin(kDotr);
                         }
-                        Data value = function.f(dr);
+                        IData value = function.f(dr);
                         work.E(value);
                         work.TE(ckr);
                         sumR[jp][j].PE(work);
@@ -141,7 +141,7 @@ public class LatticeSumCrystal {
      * elements.
      */
     public class DataGroupLSC extends DataGroup {
-        private DataGroupLSC(Data[][] sumR, Data[][] sumI) {
+        private DataGroupLSC(IData[][] sumR, IData[][] sumI) {
             super(makeDataArray(sumR, sumI));
         }
         
@@ -150,7 +150,7 @@ public class LatticeSumCrystal {
          * @param j index of basis element in origin cell
          * @param jp index of basis element in lattice cell
          */
-        public Data getDataReal(int j, int jp) {
+        public IData getDataReal(int j, int jp) {
             return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(0);
         }
         
@@ -159,7 +159,7 @@ public class LatticeSumCrystal {
          * @param j index of basis element in origin cell
          * @param jp index of basis element in lattice cell
          */
-        public Data getDataImaginary(int j, int jp) {
+        public IData getDataImaginary(int j, int jp) {
             return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(1);
         }
 
@@ -168,14 +168,14 @@ public class LatticeSumCrystal {
     }
     
     //used by DataGroupLSC constructor
-    private static Data[] makeDataArray(Data[][] sumR, Data[][] sumI) {
+    private static IData[] makeDataArray(IData[][] sumR, IData[][] sumI) {
         int basisDim = sumR.length;
         DataGroup[] dataArray = new DataGroup[basisDim];
         
         DataGroup[] data = new DataGroup[basisDim];
         for(int jp=0; jp<basisDim; jp++) {
             for(int j=0; j<basisDim; j++) {
-                data[j] = new DataGroup(new Data[] {sumR[jp][j], sumI[jp][j]});
+                data[j] = new DataGroup(new IData[] {sumR[jp][j], sumI[jp][j]});
             }
             dataArray[jp] = new DataGroup(data);
         }

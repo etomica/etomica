@@ -3,23 +3,21 @@ package etomica.modules.entropylottery;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IVector;
-
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorNonintervalEvent;
-
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.space.BoundaryPeriodic;
 import etomica.units.Quantity;
 
-public class DataSourceProbabilityDensity implements DataSource, IAction, IIntegratorNonintervalListener {
+public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction, IIntegratorNonintervalListener {
 
     public DataSourceProbabilityDensity() {
         dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{0});
@@ -30,11 +28,11 @@ public class DataSourceProbabilityDensity implements DataSource, IAction, IInteg
         dataInfo.addTag(tag);
     }
     
-    public Data getData() {
+    public IData getData() {
         return data;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

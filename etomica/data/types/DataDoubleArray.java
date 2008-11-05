@@ -2,13 +2,13 @@ package etomica.data.types;
 
 import java.util.Arrays;
 
+import etomica.api.IData;
 import etomica.api.IFunction;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.Dimension;
 
 /**
@@ -39,7 +39,7 @@ import etomica.units.Dimension;
 //for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //note that number of sites = size[0]*jumpCount[0]
 
-public class DataDoubleArray implements Data, java.io.Serializable {
+public class DataDoubleArray implements IData, java.io.Serializable {
 
     /**
      * Constructs a new one-dimensional array of the given length.
@@ -105,7 +105,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
      * Sets the wrapped array of values to the values in the given
      * instance.
      */
-    public void E(Data y) {
+    public void E(IData y) {
         this.E(((DataDoubleArray) y).x);
     }
 
@@ -131,7 +131,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void PE(Data y) {
+    public void PE(IData y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] += yx[i];
@@ -147,7 +147,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void ME(Data y) {
+    public void ME(IData y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] -= yx[i];
@@ -161,7 +161,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void TE(Data y) {
+    public void TE(IData y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] *= yx[i];
@@ -176,7 +176,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void DE(Data y) {
+    public void DE(IData y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] /= yx[i];
@@ -363,11 +363,11 @@ public class DataDoubleArray implements Data, java.io.Serializable {
             return n;
         }
         
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoDoubleArrayFactory(this);
         }
 
-        public Data makeData() {
+        public IData makeData() {
             return new DataDoubleArray(arrayShape);
         }
 
@@ -380,7 +380,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
             arrayShape = (int[])template.arrayShape.clone();
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             DataInfoDoubleArray dataInfo = new DataInfoDoubleArray(label, dimension, arrayShape);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

@@ -1,16 +1,17 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Dimension;
 
-public class DataSourcePoints implements DataSource, DataSourceIndependent {
+public class DataSourcePoints implements IEtomicaDataSource, DataSourceIndependent {
 
     private static final long serialVersionUID = 1L;
     private DataTag tag;
-	private IDataInfo depDataInfo;
+	private IEtomicaDataInfo depDataInfo;
 	private DataInfoDoubleArray indDataInfo;
     private DataDoubleArray independentData = null;
     private DataFunction dependentData = null;
@@ -37,7 +38,7 @@ public class DataSourcePoints implements DataSource, DataSourceIndependent {
 		
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return depDataInfo;
     }
 
@@ -45,7 +46,7 @@ public class DataSourcePoints implements DataSource, DataSourceIndependent {
         return tag;
     }
 
-    public Data getData() {
+    public IData getData() {
         return dependentData;
     }
 

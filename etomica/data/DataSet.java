@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
+import etomica.api.IData;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
@@ -47,9 +48,9 @@ public class DataSet implements Serializable {
     /**
      * Returns the ith Data from the set.
      */
-    public Data getData(int i) {
+    public IData getData(int i) {
         int iData = backwardDataMap[i];
-        Data data = psuedoSinks[iData].getData();
+        IData data = psuedoSinks[iData].getData();
         if (data instanceof DataGroup) {
             data = ((DataGroup)data).getData(i-forwardDataMap[iData]);
         }
@@ -59,9 +60,9 @@ public class DataSet implements Serializable {
     /**
      * Returns the ith DataInfo from the set.
      */
-    public IDataInfo getDataInfo(int i) {
+    public IEtomicaDataInfo getDataInfo(int i) {
         int iData = backwardDataMap[i];
-        IDataInfo dataInfo = psuedoSinks[iData].getDataInfo();
+        IEtomicaDataInfo dataInfo = psuedoSinks[iData].getDataInfo();
         if (dataInfo instanceof DataInfoGroup) {
             dataInfo = ((DataInfoGroup)dataInfo).getSubDataInfo(i-forwardDataMap[iData]);
         }
@@ -167,7 +168,7 @@ public class DataSet implements Serializable {
         int dataCount = 0;
         for (int i=0; i<psuedoSinks.length; i++) {
             forwardDataMap[i] = dataCount;
-            IDataInfo dataInfo = psuedoSinks[i].getDataInfo();
+            IEtomicaDataInfo dataInfo = psuedoSinks[i].getDataInfo();
             if (dataInfo instanceof DataInfoGroup) {
                 dataCount += ((DataInfoGroup)dataInfo).getNDataInfo();
             }
@@ -221,7 +222,7 @@ public class DataSet implements Serializable {
     protected int[] backwardDataMap;
     
     public interface DataCasterJudge {
-        public DataProcessor getDataCaster(IDataInfo inputDataInfo);
+        public DataProcessor getDataCaster(IEtomicaDataInfo inputDataInfo);
     }
     
     /**
@@ -230,43 +231,43 @@ public class DataSet implements Serializable {
      * 
      * @author Andrew Schultz
      */
-    protected static class DataSetSink implements DataSink {
+    protected static class DataSetSink implements IDataSink {
         public DataSetSink(DataCasterJudge dataCasterJudge, DataSet dataSet) {
             this.dataCasterJudge = dataCasterJudge;
             this.dataSet = dataSet;
             index = -1;
         }
         
-        public void putDataInfo(IDataInfo newDataInfo) {
+        public void putDataInfo(IEtomicaDataInfo newDataInfo) {
             incomingDataInfo = newDataInfo;
             dataSet.dataInfoChanged(this);
         }
         
-        public void putData(Data incomingData) {
+        public void putData(IData incomingData) {
             data = incomingData;
             dataSet.dataChanged(this);
         }
         
-        public DataPipe getDataCaster(IDataInfo newIncomingDataInfo) {
+        public DataPipe getDataCaster(IEtomicaDataInfo newIncomingDataInfo) {
             if (dataCasterJudge == null) {
                 return null;
             }
             return dataCasterJudge.getDataCaster(newIncomingDataInfo);
         }
         
-        public IDataInfo getDataInfo() {
+        public IEtomicaDataInfo getDataInfo() {
             return incomingDataInfo;
         }
         
-        public Data getData() {
+        public IData getData() {
             return data;
         }
 
         private static final long serialVersionUID = 1L;
         private final DataCasterJudge dataCasterJudge;
-        private IDataInfo incomingDataInfo;
+        private IEtomicaDataInfo incomingDataInfo;
         private final DataSet dataSet;
-        private Data data;
+        private IData data;
         // index exists solely to indicate whether this DataSetSink is not in
         // the array of DataSetSinks (index=-1) or its position in the array so
         // the DataSet doesn't have to go looking to find it.

@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.util.ArrayList;
 
+import etomica.api.IData;
 import etomica.units.Dimension;
 import etomica.util.Debug;
 
@@ -15,9 +16,9 @@ import etomica.util.Debug;
  * 
  * @author Andrew Schultz and David Kofke
  * 
- * @see Data
+ * @see IData
  */
-public abstract class DataInfo implements java.io.Serializable, IDataInfo {
+public abstract class DataInfo implements java.io.Serializable, IEtomicaDataInfo {
 
     /**
      * Constructs new instance with descriptive label and dimension.

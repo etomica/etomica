@@ -14,8 +14,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import etomica.api.IAction;
+import etomica.api.IData;
 import etomica.api.IFunction;
-import etomica.data.Data;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourcePoints;
@@ -250,7 +250,7 @@ public class DevicePlotPoints {
 	                dataSourceFuncs[f].getXSource().setXMax(plotSizeSliders[MAX_X].getValue());
 	                dataSourceFuncs[f].getXSource().setXMin(plotSizeSliders[MIN_X].getValue());
 	                dataSourceFuncs[f].update();
-	                Data yFunc = dataSourceFuncs[f].getData();
+	                IData yFunc = dataSourceFuncs[f].getData();
 	                for (int i=0; i<yFunc.getLength(); i++) {
 	                    if (yFunc.getValue(i) > maxY) {
 	                        maxY = yFunc.getValue(i);

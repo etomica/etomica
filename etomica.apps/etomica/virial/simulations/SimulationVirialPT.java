@@ -5,7 +5,7 @@ import etomica.api.IMolecule;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.integrator.IntegratorMC;
@@ -53,8 +53,8 @@ public class SimulationVirialPT extends Simulation {
         accumulatorPump = new DataPump[temperature.length];
         mcMoveMulti = new MCMoveBoxStep[temperature.length];
         mcMoveRotate = new MCMoveBoxStep[temperature.length];
-        meterAccept = new DataSource[temperature.length-1];
-        meterAcceptP = new DataSource[temperature.length-1];
+        meterAccept = new IEtomicaDataSource[temperature.length-1];
+        meterAcceptP = new IEtomicaDataSource[temperature.length-1];
         
         // Parallel tempering would sorta work without separate instances of the clusters
         // but the value caching based on coordinate pair set ID would be confused because
@@ -121,8 +121,8 @@ public class SimulationVirialPT extends Simulation {
 	
     private static final long serialVersionUID = 1L;
 	public MeterVirial[] meter;
-    public DataSource[] meterAccept;
-    public DataSource[] meterAcceptP;
+    public IEtomicaDataSource[] meterAccept;
+    public IEtomicaDataSource[] meterAcceptP;
 	public DataAccumulator[] accumulator;
 	public DataPump[] accumulatorPump;
 	public ISpecies species;

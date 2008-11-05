@@ -3,13 +3,13 @@ package etomica.modules.reactionequilibrium;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -24,7 +24,7 @@ import etomica.units.Fraction;
 import etomica.units.Quantity;
 import etomica.units.Volume;
 
-public final class MeterDimerFraction implements DataSource {
+public final class MeterDimerFraction implements IEtomicaDataSource {
     public MeterDimerFraction(AtomLeafAgentManager aam) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
@@ -33,12 +33,12 @@ public final class MeterDimerFraction implements DataSource {
         tag = new DataTag();
         dataInfo.addTag(tag);
         dataDensity = new DataDouble();
-        dataGroup = new DataGroup(new Data[] {data, dataDensity});
+        dataGroup = new DataGroup(new IData[] {data, dataDensity});
         DataDouble.DataInfoDouble dataInfoDouble = new DataInfoDouble("rho", new CompoundDimension(new Dimension[] {Quantity.DIMENSION, Volume.DIMENSION},new double[] {1,-1}));
-        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IDataInfo[] {dataInfo, dataInfoDouble});
+        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IEtomicaDataInfo[] {dataInfo, dataInfoDouble});
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfoGroup;
     }
 
@@ -50,7 +50,7 @@ public final class MeterDimerFraction implements DataSource {
         speciesA = newSpeciesA;
     }
     
-    public Data getData() {
+    public IData getData() {
         for(int i=0; i<count.length; i++) {count[i] = 0;}
         IAtomSet leafAtoms = box.getLeafList();
         int nLeaf = leafAtoms.getAtomCount();

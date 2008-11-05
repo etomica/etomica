@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.util.Function;
 
 /**
@@ -24,7 +25,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     /**
      * Returns null (any data is good data)
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -32,7 +33,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
-    public void addData(Data data) {
+    public void addData(IData data) {
         if (data.isNaN())
             return;
 
@@ -77,7 +78,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      * Returns a DataGroup with Data instances holding the statistics kept by
      * this accumulator (as described in general comments for this class).
      */
-    public Data getData() {
+    public IData getData() {
         if (sum == null)
             return null;
         if (count > 0) {
@@ -164,7 +165,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         sumSquareBlock = incomingDataInfo.makeData();
@@ -179,11 +180,11 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
 
 
     private static final long serialVersionUID = 1L;
-    protected Data sum; //sum(blockSum/blkSize) = sum(blockAvg)
-    protected Data sumSquare;//sum(blockAvg^2)
-    protected Data blockSum;//block(value)
-    protected Data blockSumSq;//block(value^2)
-    protected Data sumSquareBlock;//sum(value^2)
-    protected Data mostRecentBlock, correlationSum, firstBlock;
-    protected Data work;
+    protected IData sum; //sum(blockSum/blkSize) = sum(blockAvg)
+    protected IData sumSquare;//sum(blockAvg^2)
+    protected IData blockSum;//block(value)
+    protected IData blockSumSq;//block(value^2)
+    protected IData sumSquareBlock;//sum(value^2)
+    protected IData mostRecentBlock, correlationSum, firstBlock;
+    protected IData work;
 }

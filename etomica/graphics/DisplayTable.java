@@ -18,7 +18,7 @@ import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
@@ -235,7 +235,7 @@ public class DisplayTable extends Display implements DataTableListener {
     protected void recomputeUnits() {
         units = new Unit[dataTable.getDataCount()];
         for (int i=0; i<units.length; i++) {
-            IDataInfo columnInfo = dataTable.getDataInfo(i);
+            IEtomicaDataInfo columnInfo = dataTable.getDataInfo(i);
             Unit dataUnit = defaultUnit == null ? columnInfo.getDimension().getUnit(UnitSystem.SIM) : defaultUnit;
 
             DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataTable.getDataInfo(i).getTags());
@@ -253,7 +253,7 @@ public class DisplayTable extends Display implements DataTableListener {
     protected void recomputeColumnHeaders() {
         columnHeaders = new String[dataTable.getDataCount()];
         for (int i=0; i<columnHeaders.length; i++) {
-            IDataInfo columnInfo = dataTable.getDataInfo(i);
+            IEtomicaDataInfo columnInfo = dataTable.getDataInfo(i);
             String header = columnInfo.getLabel();
             String suffix = "";
             if (showingUnits) {

@@ -2,11 +2,11 @@ package etomica.data.types;
 
 import java.io.Serializable;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -61,10 +61,10 @@ public class CastToTable extends DataProcessor implements Serializable {
      *             if DataInfo is not one of the acceptable types, as described
      *             in general comments for this class
      */
-    public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         int nRows, nColumns;
         String[] rowHeaders = null;
-        IDataInfo[] columnInfo = new IDataInfo[]{inputDataInfo};
+        IEtomicaDataInfo[] columnInfo = new IEtomicaDataInfo[]{inputDataInfo};
         if (inputDataInfo instanceof DataInfoFunction) {
             int[] arrayShape = ((DataInfoFunction)inputDataInfo).getArrayShape();
             if (arrayShape.length != 1) {
@@ -72,7 +72,7 @@ public class CastToTable extends DataProcessor implements Serializable {
             }
             nColumns = 2;
             nRows = arrayShape[0];
-            columnInfo = new IDataInfo[2];
+            columnInfo = new IEtomicaDataInfo[2];
             xDataSource = ((DataInfoFunction)inputDataInfo).getXDataSource();
             columnInfo[0] = xDataSource.getIndependentDataInfo(0);
             columnInfo[1] = inputDataInfo;
@@ -94,7 +94,7 @@ public class CastToTable extends DataProcessor implements Serializable {
                 inputType = 1;
                 nColumns = arrayShape[0];
                 nRows = arrayShape[1];
-                columnInfo = new IDataInfo[nColumns];
+                columnInfo = new IEtomicaDataInfo[nColumns];
                 for (int i=0; i<nColumns; i++) {
                     columnInfo[i] = inputDataInfo;
                 }
@@ -112,7 +112,7 @@ public class CastToTable extends DataProcessor implements Serializable {
             int D = ((DataInfoTensor)inputDataInfo).getSpace().D();
             nColumns = D;
             nRows = D;
-            columnInfo = new IDataInfo[nColumns];
+            columnInfo = new IEtomicaDataInfo[nColumns];
             for (int i=0; i<nColumns; i++) {
                 columnInfo[i] = inputDataInfo;
             }
@@ -137,7 +137,7 @@ public class CastToTable extends DataProcessor implements Serializable {
      *             call to processDataInfo
      *  
      */
-    protected Data processData(Data data) {
+    protected IData processData(IData data) {
         switch (inputType) {
         case 0: //DataDoubleArray
             if (outputData == null) {
@@ -177,7 +177,7 @@ public class CastToTable extends DataProcessor implements Serializable {
      * Returns null, indicating the this DataProcessor can handle (almost) any
      * Data type.
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         if (incomingDataInfo instanceof DataInfoGroup) {
             throw new IllegalArgumentException("Cannot cast to DataTable from "
                     + incomingDataInfo.getClass());

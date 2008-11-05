@@ -19,7 +19,7 @@ public abstract class DataStreamAction implements IAction, java.io.Serializable 
     public void actionPerformed(Object obj) {
         dataWalkerAction(obj);
         if (obj instanceof DataPipeForked) {
-            DataSink[] dataSinks = ((DataPipeForked)obj).getDataSinks();
+            IDataSink[] dataSinks = ((DataPipeForked)obj).getDataSinks();
             for (int i=0; i<dataSinks.length; i++) {
                 actionPerformed(dataSinks[i]);
             }

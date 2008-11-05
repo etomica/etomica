@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.api.IFunction;
 
 
@@ -24,7 +25,7 @@ public class DataProcessorFunction extends DataProcessor {
      * 
      * @throws ClassCastException if the input data does not implement DataArithmetic
      */
-    protected Data processData(Data inputData) {
+    protected IData processData(IData inputData) {
         inputData.map(function);
         return inputData;
     }
@@ -35,7 +36,7 @@ public class DataProcessorFunction extends DataProcessor {
      * @throws IllegalArgumentException if the input data class does not 
      * implement DataArithmetic
      */
-    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(getTag());
         return dataInfo;
@@ -44,7 +45,7 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Always returns null.
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
 

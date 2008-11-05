@@ -1,10 +1,10 @@
 package etomica.densityofstate;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -17,7 +17,7 @@ public class DataProcessorPhi extends DataProcessor {
 		tag = new DataTag();
 	}
 
-	protected Data processData(Data inputData) {
+	protected IData processData(IData inputData) {
 		// TODO Auto-generated method stub
 		double U = ((DataDouble)inputData).x;
 		double [] phi = data.getData();
@@ -56,7 +56,7 @@ public class DataProcessorPhi extends DataProcessor {
 	public void setTemperature(double newTemperature){
 		temperature = newTemperature;
 	}
-	protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+	protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
 		// TODO Auto-generated method stub
 		dataInfo = new DataInfoDoubleArray("phi", Null.DIMENSION, new int []{20});
 		data = new DataDoubleArray(20);
@@ -68,7 +68,7 @@ public class DataProcessorPhi extends DataProcessor {
 		return tag;
 	}
 
-	public DataPipe getDataCaster(IDataInfo dataInfo) { //hook up to meter to the Dataprocessor
+	public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) { //hook up to meter to the Dataprocessor
 		if (dataInfo instanceof DataInfoDouble)
 			return null;
 		throw new IllegalArgumentException("i only want double");

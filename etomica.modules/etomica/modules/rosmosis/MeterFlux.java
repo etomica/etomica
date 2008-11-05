@@ -2,6 +2,7 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -9,10 +10,9 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -38,7 +38,7 @@ import etomica.units.Time;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements DataSource, MoleculeAgentSource, IIntegratorNonintervalListener {
+public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IIntegratorNonintervalListener {
 
     public MeterFlux(ISimulation sim, ISpace _space) {
         this.sim = sim;
@@ -116,7 +116,7 @@ public class MeterFlux implements DataSource, MoleculeAgentSource, IIntegratorNo
         }
     }
     
-    public Data getData() {
+    public IData getData() {
         int crossings = 0;
         double boxLength = box.getBoundary().getDimensions().x(dim);
         for (int i=0; i<species.length; i++) {
@@ -156,7 +156,7 @@ public class MeterFlux implements DataSource, MoleculeAgentSource, IIntegratorNo
         return data;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

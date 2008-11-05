@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Quantity;
@@ -22,7 +23,7 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Returns null, indicating that any Data type is acceptable for input.
      */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -31,7 +32,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * 
      * @return the DataInfo for the output DataInteger
      */
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         dataInfo.clearTags();
         dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(getTag());
@@ -41,14 +42,14 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Increments the counter. Argument is ignored.
      */
-    protected void addData(Data dummyData) {
+    protected void addData(IData dummyData) {
         data.x++;
     }
 
     /**
      * Returns the DataInteger with the count.
      */
-    public Data getData() {
+    public IData getData() {
         return data;
     }
 

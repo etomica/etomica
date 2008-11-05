@@ -1,15 +1,15 @@
 package etomica.simulation;
 
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 
 public class DataStreamHeader implements java.io.Serializable {
 
-    DataStreamHeader(DataSource dataSource, Object object) {
+    DataStreamHeader(IEtomicaDataSource dataSource, Object object) {
         this.dataSource = dataSource;
         client = object;
     }
     
-    public DataSource getDataSource() {
+    public IEtomicaDataSource getDataSource() {
         return dataSource;
     }
     
@@ -21,6 +21,6 @@ public class DataStreamHeader implements java.io.Serializable {
         return client;
     }
     
-    private final DataSource dataSource;
+    private final IEtomicaDataSource dataSource;
     private Object client;
 }

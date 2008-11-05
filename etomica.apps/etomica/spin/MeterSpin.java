@@ -4,7 +4,7 @@ import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
 import etomica.space.ISpace;
 import etomica.units.Undefined;
@@ -18,7 +18,7 @@ import etomica.units.Undefined;
  * @author David Kofke
  *
  */
-public class MeterSpin extends DataSourceScalar implements DataSource {
+public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
 
     /**
      * 

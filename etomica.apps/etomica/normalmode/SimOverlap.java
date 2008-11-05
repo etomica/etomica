@@ -12,7 +12,7 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
@@ -53,7 +53,7 @@ public class SimOverlap extends Simulation {
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
-        meters = new DataSource[2];
+        meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -426,7 +426,7 @@ public class SimOverlap extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public DataSource[] meters;
+    public IEtomicaDataSource[] meters;
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor

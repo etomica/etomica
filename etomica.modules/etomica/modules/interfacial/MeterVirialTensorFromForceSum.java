@@ -1,10 +1,10 @@
 package etomica.modules.interfacial;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataTensor;
 import etomica.space.ISpace;
 import etomica.units.Energy;
@@ -15,7 +15,7 @@ import etomica.units.Energy;
  * well with IntegratorVerlet;
  * see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=164 )
  */
-public class MeterVirialTensorFromForceSum implements DataSource, java.io.Serializable {
+public class MeterVirialTensorFromForceSum implements IEtomicaDataSource, java.io.Serializable {
 
     public MeterVirialTensorFromForceSum(ISpace space, PotentialCalculationForcePressureBinSum forceSum) {
         tag = new DataTag();
@@ -24,7 +24,7 @@ public class MeterVirialTensorFromForceSum implements DataSource, java.io.Serial
         dataInfo = new DataTensor.DataInfoTensor("Virial", Energy.DIMENSION, space);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -32,7 +32,7 @@ public class MeterVirialTensorFromForceSum implements DataSource, java.io.Serial
         return tag;
     }
     
-    public Data getData() {
+    public IData getData() {
         data.x.E(forceSum.getPressureTensor());
         return data;
     }

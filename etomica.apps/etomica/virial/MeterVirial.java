@@ -1,9 +1,9 @@
 package etomica.virial;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
@@ -12,7 +12,7 @@ import etomica.units.Null;
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
-public class MeterVirial implements DataSource, java.io.Serializable {
+public class MeterVirial implements IEtomicaDataSource, java.io.Serializable {
 
     /**
 	 * Constructor for MeterVirial.
@@ -25,7 +25,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
         dataInfo.addTag(tag);
 	}
 
-	public IDataInfo getDataInfo() {
+	public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -33,7 +33,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
         return tag;
     }
     
-    public Data getData() {
+    public IData getData() {
         double pi = box.getSampleCluster().value(box);
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
@@ -57,7 +57,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
 
     protected final ClusterAbstract clusters[];
 	private final DataDoubleArray data;
-	private final IDataInfo dataInfo;
+	private final IEtomicaDataInfo dataInfo;
     private final DataTag tag;
     private BoxCluster box;
     private static final long serialVersionUID = 1L;

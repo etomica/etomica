@@ -6,7 +6,7 @@ import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -90,7 +90,7 @@ public class SimulationVirial extends Simulation {
 	}
 	
     private static final long serialVersionUID = 1L;
-	public DataSource meter;
+	public IEtomicaDataSource meter;
 	public DataAccumulator accumulator;
 	public DataPump accumulatorPump;
 	public ISpecies species;
@@ -104,7 +104,7 @@ public class SimulationVirial extends Simulation {
     public MCMoveBoxStep mcMoveWiggle;
     public MCMoveBox mcMoveReptate;
 
-	public void setMeter(DataSource newMeter) {
+	public void setMeter(IEtomicaDataSource newMeter) {
 		meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {

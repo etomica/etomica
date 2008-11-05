@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.api.IData;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -49,7 +50,7 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Returns null.  AccumulatorHistogram can take an type of Data.
      */
-    public DataPipe getDataCaster(IDataInfo newInputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo newInputDataInfo) {
         return null;
     }
     
@@ -58,7 +59,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * 
      * @param nData
      */
-    protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
+    protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newInputDataInfo) {
         if (newInputDataInfo.getLength() != 1) {
             throw new IllegalArgumentException("AccumulatorHistory only handles single-value data");
         }
@@ -73,14 +74,14 @@ public class AccumulatorHistory extends DataAccumulator {
      * history data is discarded and new historys are constructed (this behavior
      * can be modified by overriding the setNData method).
      */
-    protected void addData(Data newData) {
+    protected void addData(IData newData) {
         history.addValue(timeDataSource.getDataAsScalar(), newData.getValue(0));
     }
 
     /**
      * Returns the set of histories.
      */
-    public Data getData() {
+    public IData getData() {
         // check to see if current data functions are the right length
         // histogram might change the number of bins on its own.
         // covertly call getHistogram() here.  We have to call it anyway
@@ -122,7 +123,7 @@ public class AccumulatorHistory extends DataAccumulator {
         history.reset();
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -132,7 +133,7 @@ public class AccumulatorHistory extends DataAccumulator {
     private DataFunction data;
     protected int nData;
     private DataSourceScalar timeDataSource;
-    private IDataInfo inputDataInfo;
+    private IEtomicaDataInfo inputDataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

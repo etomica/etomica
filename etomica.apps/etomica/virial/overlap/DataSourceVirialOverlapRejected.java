@@ -1,7 +1,7 @@
 package etomica.virial.overlap;
 
+import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.Data;
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataGroup;
 import etomica.units.Fraction;
@@ -68,8 +68,8 @@ public class DataSourceVirialOverlapRejected extends DataSourceScalar {
 	 */
     public int minDiffLocation() {
 		int minDiffLoc = 0;
-		Data avgRefData = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
-        Data avgTargetData = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+		IData avgRefData = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        IData avgTargetData = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
         double ratio = avgRefData.getValue(0+1)/avgTargetData.getValue(0+1);
         double bias = refMeter.getBennetBias(0);
 		double minDiff = ratio/bias + bias/ratio - 2;

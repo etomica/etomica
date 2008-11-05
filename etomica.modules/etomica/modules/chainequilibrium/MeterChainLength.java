@@ -6,13 +6,13 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -24,7 +24,7 @@ import etomica.units.Quantity;
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
+public class MeterChainLength implements IEtomicaDataSource, Serializable, AgentSource, DataSourceIndependent {
 
     public MeterChainLength(AtomLeafAgentManager aam) {
         tag = new DataTag();
@@ -75,7 +75,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
-    public Data getData() {
+    public IData getData() {
         
         double[] histogram = data.getData();
         for (int i=0; i<histogram.length; i++) {
@@ -164,7 +164,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         tagManager = new AtomLeafAgentManager(this,box);
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

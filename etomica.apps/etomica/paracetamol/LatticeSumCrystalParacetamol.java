@@ -1,10 +1,10 @@
 package etomica.paracetamol;
 
 import etomica.action.AtomGroupAction;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.data.Data;
-import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -46,9 +46,9 @@ public class LatticeSumCrystalParacetamol {
 
     public DataGroup calculateSum(LatticeEnergyParacetamol lattice2ndDerivative) {
         IDataInfo dataInfo = lattice2ndDerivative.getDataInfo();
-    	Data work = dataInfo.makeData();
-        Data[][] sumR = new Data[basisDim][basisDim];
-        Data[][] sumI = new Data[basisDim][basisDim];
+    	IData work = dataInfo.makeData();
+        IData[][] sumR = new IData[basisDim][basisDim];
+        IData[][] sumI = new IData[basisDim][basisDim];
         for(int jp=0; jp<basisDim; jp++) {
             for(int j=0; j<basisDim; j++) {
                 sumR[jp][j] = dataInfo.makeData();
@@ -184,7 +184,7 @@ public class LatticeSumCrystalParacetamol {
      * elements.
      */
     public class DataGroupLSCParacetamol extends DataGroup {
-        private DataGroupLSCParacetamol(Data[][] sumR, Data[][] sumI) {
+        private DataGroupLSCParacetamol(IData[][] sumR, IData[][] sumI) {
             super(makeDataArray(sumR, sumI));
         }
         
@@ -193,7 +193,7 @@ public class LatticeSumCrystalParacetamol {
          * @param j index of basis element in origin cell
          * @param jp index of basis element in lattice cell
          */
-        public Data getDataReal(int j, int jp) {
+        public IData getDataReal(int j, int jp) {
             return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(0);
         }
         
@@ -202,7 +202,7 @@ public class LatticeSumCrystalParacetamol {
          * @param j index of basis element in origin cell
          * @param jp index of basis element in lattice cell
          */
-        public Data getDataImaginary(int j, int jp) {
+        public IData getDataImaginary(int j, int jp) {
             return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(1);
         }
 
@@ -211,14 +211,14 @@ public class LatticeSumCrystalParacetamol {
     }
     
     //used by DataGroupLSCParacetamol constructor
-    private static Data[] makeDataArray(Data[][] sumR, Data[][] sumI) {
+    private static IData[] makeDataArray(IData[][] sumR, IData[][] sumI) {
         int basisDim = sumR.length;
         DataGroup[] dataArray = new DataGroup[basisDim];
         
         DataGroup[] data = new DataGroup[basisDim];
         for(int jp=0; jp<basisDim; jp++) {
             for(int j=0; j<basisDim; j++) {
-                data[j] = new DataGroup(new Data[] {sumR[jp][j], sumI[jp][j]});
+                data[j] = new DataGroup(new IData[] {sumR[jp][j], sumI[jp][j]});
             }
             dataArray[jp] = new DataGroup(data);
         }

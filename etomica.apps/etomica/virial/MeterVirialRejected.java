@@ -2,11 +2,11 @@ package etomica.virial;
 
 import java.util.Random;
 
+import etomica.api.IData;
 import etomica.api.IEvent;
 import etomica.api.IListener;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -29,7 +29,7 @@ import etomica.units.Null;
  * for the system's cluster.  An equivalent formula is used for the overlap
  * clusters.
  */
-public class MeterVirialRejected implements DataSource, IListener, java.io.Serializable {
+public class MeterVirialRejected implements IEtomicaDataSource, IListener, java.io.Serializable {
 
 	/**
 	 * Constructor for MeterVirialRejected.
@@ -155,7 +155,7 @@ public class MeterVirialRejected implements DataSource, IListener, java.io.Seria
     }
     
     //returns the average gamma/pi since getData was last called
-	public Data getData() {
+	public IData getData() {
         // if you divide by 0 here, you've called the method twice without taking 
         // any data (via actionPerformed)!
         data.TE(1/(double)nTrials);

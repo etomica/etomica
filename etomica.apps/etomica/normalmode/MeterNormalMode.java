@@ -4,11 +4,11 @@ import java.io.Serializable;
 
 import etomica.api.IAction;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -22,7 +22,7 @@ import etomica.units.Null;
  * Calculates the S-matrix for a configuration.  This matrix is formed as T(k) T^(-k), where
  * T is the collective generalized-coordinate vector.
  */
-public class MeterNormalMode implements DataSource, IAction, Serializable {
+public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializable {
 
     public MeterNormalMode() {
         tag = new DataTag();
@@ -93,7 +93,7 @@ public class MeterNormalMode implements DataSource, IAction, Serializable {
         return waveVectors;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -124,7 +124,7 @@ public class MeterNormalMode implements DataSource, IAction, Serializable {
      * Returns the DataGroup of S(k) Tensors corresponding to the sum of 
      * T(k)*transpose(T(-k)).  To get the average (U), divide by callCount().
      */
-    public Data getData() {
+    public IData getData() {
         return data;
     }
 
@@ -159,7 +159,7 @@ public class MeterNormalMode implements DataSource, IAction, Serializable {
     private int numWaveVectors;
     private String name;
     private final DataTag tag;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     private DataGroup data;
     private int callCount;
 

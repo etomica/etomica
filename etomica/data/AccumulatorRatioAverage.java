@@ -1,5 +1,7 @@
 package etomica.data;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
@@ -36,7 +38,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         return super.getTag(statType);
     }
     
-    public Data getData() {
+    public IData getData() {
         if (sum == null) return null;
         if (count > 0) {
             super.getData();
@@ -85,14 +87,14 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         ratioStandardDeviation.E(Double.NaN);
     }
     
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
         ratio = incomingDataInfo.makeData();
         ratioError = incomingDataInfo.makeData();
         ratioStandardDeviation = incomingDataInfo.makeData();
 
-        Data[] dataGroups = new Data[dataGroup.getNData()+3];
+        IData[] dataGroups = new IData[dataGroup.getNData()+3];
         int i;
         for (i=0; i<dataGroup.getNData(); i++) {
             dataGroups[i] = dataGroup.getData(i);
@@ -106,16 +108,16 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         DataInfoGroupFactory groupFactory = (DataInfoGroupFactory)dataInfo.getFactory();
         IDataInfo[] subDataInfo = groupFactory.getSubDataInfo();
 
-        IDataInfoFactory factory = incomingDataInfo.getFactory();
+        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" ratio");
-        IDataInfo ratioInfo = factory.makeDataInfo();
+        IEtomicaDataInfo ratioInfo = factory.makeDataInfo();
         ratioInfo.addTag(ratioTag);
         factory.setLabel(incomingLabel+" ratio error");
-        IDataInfo ratioErrorInfo = factory.makeDataInfo();
+        IEtomicaDataInfo ratioErrorInfo = factory.makeDataInfo();
         ratioErrorInfo.addTag(ratioErrorTag);
         factory.setLabel(incomingLabel+" ratio");
-        IDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
+        IEtomicaDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
         ratioStandardDeviationInfo.addTag(ratioStandardDeviationTag);
         
         subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioInfo);
@@ -142,6 +144,6 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
     }
 
     //need separate fields because ratio values are calculated from the non-ratio values.
-    protected Data ratio, ratioStandardDeviation, ratioError;
+    protected IData ratio, ratioStandardDeviation, ratioError;
     private final DataTag ratioTag, ratioStandardDeviationTag, ratioErrorTag;
 }

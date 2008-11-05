@@ -1,14 +1,15 @@
 package etomica.data.meter;
+
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourcePositioned;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -27,7 +28,7 @@ import etomica.units.Length;
  * @author Rob Riggleman
  * @author Andrew Schultz
  */
-public class MeterProfile implements DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the x-axis, with 100 points in
@@ -41,7 +42,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         xDataSource.setTypeMin(LimitType.HALF_STEP);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -87,11 +88,11 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * Returns the profile for the current configuration.
      */
-    public Data getData() {
+    public IData getData() {
         IBoundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        Data xData = xDataSource.getData();
+        IData xData = xDataSource.getData();
         
         for (int i=0; i<y.length; i++) {
             double x = xData.getValue(i);
@@ -149,7 +150,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     private IBox box;
     private DataSourceUniform xDataSource;
     private DataFunction data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

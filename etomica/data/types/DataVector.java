@@ -1,12 +1,12 @@
 package etomica.data.types;
 
+import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.api.IVector;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 
@@ -20,7 +20,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  *  
  */
-public class DataVector implements Data, java.io.Serializable {
+public class DataVector implements IData, java.io.Serializable {
 
     /**
      * Constructs a new instance with the given DataInfo, wrapping a new Vector
@@ -42,7 +42,7 @@ public class DataVector implements Data, java.io.Serializable {
      * Copies the elements of the given vector (wrapped in the Data object)
      * to this vector.
      */
-    public void E(Data y) {
+    public void E(IData y) {
         x.E(((DataVector) y).x);
     }
 
@@ -56,28 +56,28 @@ public class DataVector implements Data, java.io.Serializable {
     /**
      * Minus-equals (-=) operation.  Performed element-by-element.
      */
-    public void ME(Data y) {
+    public void ME(IData y) {
         x.ME(((DataVector) y).x);
     }
 
     /**
      * Plus-equals (+=) operation. Performed element-by-element.
      */
-    public void PE(Data y) {
+    public void PE(IData y) {
         x.PE(((DataVector) y).x);
     }
 
     /**
      * Times-equals (*=) operation. Performed element-by-element.
      */
-    public void TE(Data y) {
+    public void TE(IData y) {
         x.TE(((DataVector) y).x);
     }
 
     /**
      * Divide-equals (/=) operation. Performed element-by-element.
      */
-    public void DE(Data y) {
+    public void DE(IData y) {
         x.DE(((DataVector) y).x);
     }
 
@@ -156,7 +156,7 @@ public class DataVector implements Data, java.io.Serializable {
             return space.D();
         }
         
-        public IDataInfoFactory getFactory() {
+        public IEtomicaDataInfoFactory getFactory() {
             return new DataInfoVectorFactory(this);
         }
         
@@ -164,7 +164,7 @@ public class DataVector implements Data, java.io.Serializable {
             return space;
         }
         
-        public Data makeData() {
+        public IData makeData() {
             return new DataVector(space);
         }
 
@@ -178,7 +178,7 @@ public class DataVector implements Data, java.io.Serializable {
             space = template.space;
         }
         
-        public IDataInfo makeDataInfo() {
+        public IEtomicaDataInfo makeDataInfo() {
             return new DataInfoVector(label, dimension, space);
         }
         

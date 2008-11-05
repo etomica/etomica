@@ -1,5 +1,7 @@
 package etomica.data;
 
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.EnumeratedType;
@@ -109,37 +111,37 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         standardDeviation = incomingDataInfo.makeData();
         average = incomingDataInfo.makeData();
         error = incomingDataInfo.makeData();
         mostRecent = incomingDataInfo.makeData();
         blockCorrelation = incomingDataInfo.makeData();
 
-        dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
+        dataGroup = new DataGroup(new IData[] { mostRecent, average, error,
                         standardDeviation, blockCorrelation});
         
         reset();
         
-        IDataInfoFactory factory = incomingDataInfo.getFactory();
+        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" most recent");
-        IDataInfo mostRecentInfo = factory.makeDataInfo();
+        IEtomicaDataInfo mostRecentInfo = factory.makeDataInfo();
         mostRecentInfo.addTag(mostRecentTag);
         factory.setLabel(incomingLabel+" avg");
-        IDataInfo averageInfo = factory.makeDataInfo();
+        IEtomicaDataInfo averageInfo = factory.makeDataInfo();
         averageInfo.addTag(averageTag);
         factory.setLabel(incomingLabel+" error");
-        IDataInfo errorInfo = factory.makeDataInfo();
+        IEtomicaDataInfo errorInfo = factory.makeDataInfo();
         errorInfo.addTag(errorTag);
         factory.setLabel(incomingLabel+" stddev");
-        IDataInfo standardDeviationInfo = factory.makeDataInfo();
+        IEtomicaDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
         factory.setLabel(incomingLabel+" blk correlation");
-        IDataInfo correlationInfo = factory.makeDataInfo();
+        IEtomicaDataInfo correlationInfo = factory.makeDataInfo();
         correlationInfo.addTag(blockCorrelationTag);
         
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
             mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
         dataInfo.addTag(getTag());
         return dataInfo;
@@ -158,7 +160,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      *            array indicating the statistics to be included in the
      *            DataGroup sent to the sink.
      */
-    public void addDataSink(DataSink newDataSink, StatType[] types) {
+    public void addDataSink(IDataSink newDataSink, StatType[] types) {
         int[] indexes = new int[types.length];
         for (int i = 0; i < types.length; i++) {
             indexes[i] = types[i].index;
@@ -204,9 +206,9 @@ public abstract class AccumulatorAverage extends DataAccumulator {
 
 
     private static final long serialVersionUID = 1L;
-    protected Data mostRecent;//most recent value
-    protected Data average, error, standardDeviation;
-    protected Data blockCorrelation;
+    protected IData mostRecent;//most recent value
+    protected IData average, error, standardDeviation;
+    protected IData blockCorrelation;
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;

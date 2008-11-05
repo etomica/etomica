@@ -4,12 +4,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IVector;
 import etomica.atom.IAtomKinetic;
-import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.space.ISpace;
@@ -47,14 +48,14 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         return tag;
     }
        
-    public IDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getAtomDataInfo() {
         return dataInfo;
     }
        
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Data getData() {
+    public IData getData() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         data.E(0.0);
         int count = 0;
@@ -72,7 +73,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
-    public Data getData(IAtom atom) {
+    public IData getData(IAtom atom) {
         IVector vel = ((IAtomKinetic)atom).getVelocity();
         atomData.x.Ev1v2(vel, vel);
         atomData.TE(((IAtomLeaf)atom).getType().rm());

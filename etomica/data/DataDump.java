@@ -1,5 +1,7 @@
 package etomica.data;
 
+import etomica.api.IData;
+
 /**
  * DataPump acts both as a DataSink and a DataSource.  DataDump takes the Data
  * it receives as a DataSink and exposes that as a DataSource.  This is useful
@@ -8,29 +10,29 @@ package etomica.data;
  *
  * @author Andrew Schultz
  */
-public class DataDump implements DataSink, DataSource {
+public class DataDump implements IDataSink, IEtomicaDataSource {
 
     public DataDump() {
         tag = new DataTag();
     }
 
-    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
 
-    public void putData(Data inputData) {
+    public void putData(IData inputData) {
         data = inputData;
     }
 
-    public Data getData() {
+    public IData getData() {
         return data;
     }
 
-    public void putDataInfo(IDataInfo inputDataInfo) {
+    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = inputDataInfo;
     }
 
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -38,7 +40,7 @@ public class DataDump implements DataSink, DataSource {
         return tag;
     }
 
-    protected Data data;
-    protected IDataInfo dataInfo;
+    protected IData data;
+    protected IEtomicaDataInfo dataInfo;
     protected final DataTag tag;
 }

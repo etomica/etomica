@@ -5,10 +5,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import etomica.EtomicaInfo;
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
-import etomica.data.DataSink;
-import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -26,7 +26,7 @@ import etomica.util.EnumeratedType;
  * @author David Kofke
  */
  
-public class DisplayTextBox extends Display implements DataSink, javax.swing.event.ChangeListener {
+public class DisplayTextBox extends Display implements IDataSink, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -60,7 +60,7 @@ public class DisplayTextBox extends Display implements DataSink, javax.swing.eve
         this("", Null.UNIT);
     }
     
-    public DisplayTextBox(IDataInfo info) {
+    public DisplayTextBox(IEtomicaDataInfo info) {
         this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
     
@@ -90,7 +90,7 @@ public class DisplayTextBox extends Display implements DataSink, javax.swing.eve
         });  */
     }//end of constructor
     
-    public void putDataInfo(IDataInfo dataInfo) {
+    public void putDataInfo(IEtomicaDataInfo dataInfo) {
         if(unit == Null.UNIT) {
             unit = dataInfo.getDimension().getUnit(UnitSystem.SIM);
         }
@@ -102,7 +102,7 @@ public class DisplayTextBox extends Display implements DataSink, javax.swing.eve
     /**
      * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
      */
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
         if(dataInfo instanceof DataInfoDouble) return null;
         return new CastToDouble();
     }
@@ -212,7 +212,7 @@ public class DisplayTextBox extends Display implements DataSink, javax.swing.eve
     /**
      * Sets the display text to reflect the desired value from the datasource.
      */
-    public void putData(Data data) {
+    public void putData(IData data) {
         double xValue = unit.fromSim(((DataDouble)data).x);
         if(integerDisplay) {
             value.setText(Integer.toString((int)xValue));

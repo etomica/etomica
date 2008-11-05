@@ -1,11 +1,11 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
+import etomica.api.IData;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -144,7 +144,7 @@ public class Virial2CLJQ {
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             int minDiffLoc = sim.dsvo.minDiffLocation();
             System.out.println(minDiffLoc+" "+sim.accumulators[0].getBennetAverage(minDiffLoc)+" "+sim.accumulators[1].getBennetAverage(minDiffLoc));
-            Data avg = ((DataGroup)sim.accumulators[0].getData(minDiffLoc)).getData(AccumulatorAverage.StatType.AVERAGE.index);
+            IData avg = ((DataGroup)sim.accumulators[0].getData(minDiffLoc)).getData(AccumulatorAverage.StatType.AVERAGE.index);
             System.out.println(avg.getValue(0)+" "+avg.getValue(1));
             avg = ((DataGroup)sim.accumulators[1].getData(minDiffLoc)).getData(AccumulatorAverage.StatType.AVERAGE.index);
             System.out.println(avg.getValue(0)+" "+avg.getValue(1));

@@ -3,16 +3,16 @@ import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
+import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.data.Data;
-import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -29,7 +29,7 @@ import etomica.units.Null;
  *
  * @author David Kofke
  */
-public class MeterRDF implements IAction, DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -54,7 +54,7 @@ public class MeterRDF implements IAction, DataSource, DataSourceIndependent, jav
         dataInfo.addTag(tag);
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -106,7 +106,7 @@ public class MeterRDF implements IAction, DataSource, DataSourceIndependent, jav
 	 * Returns the RDF, averaged over the calls to actionPerformed since the
      * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
-	public Data getData() {
+	public IData getData() {
         if (rData != xDataSource.getData() ||
             data.getLength() != rData.getLength() ||
             xDataSource.getXMax() != xMax) {
@@ -169,7 +169,7 @@ public class MeterRDF implements IAction, DataSource, DataSourceIndependent, jav
     protected final ISpace space;
     protected long[] gSum;
     protected DataFunction data;
-    private IDataInfo dataInfo;
+    private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected AtomsetIteratorBoxDependent iterator;
     private final IVector dr;

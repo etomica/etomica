@@ -15,23 +15,23 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
         dataSink = dataFork;
     }
        
-    public DataSink getDataSink() {
-        DataSink[] dataSinks = getDataSinks();
+    public IDataSink getDataSink() {
+        IDataSink[] dataSinks = getDataSinks();
         if (dataSinks.length == 0) {
             return null;
         }
         return dataSinks[0];
     }
     
-    public DataSink[] getDataSinks() {
+    public IDataSink[] getDataSinks() {
         return dataFork.getDataSinks();
     }
     
-    public void setDataSink(DataSink dataSink) {
+    public void setDataSink(IDataSink dataSink) {
         dataFork.setDataSink(dataSink);
     }
     
-    public void setDataSinks(DataSink[] dataSinks) {
+    public void setDataSinks(IDataSink[] dataSinks) {
         dataFork.setDataSinks(dataSinks);
     }
 
@@ -41,7 +41,7 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * 
      * @param dataSink
      */
-    public void addDataSink(DataSink newDataSink) {
+    public void addDataSink(IDataSink newDataSink) {
         dataFork.addDataSink(newDataSink);
     }
 
@@ -50,7 +50,7 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * 
      * @param dataSink data sink to be removed from this list, if present.
      */
-    public void removeDataSink(DataSink oldDataSink) {
+    public void removeDataSink(IDataSink oldDataSink) {
         dataFork.removeDataSink(oldDataSink);
     }
 

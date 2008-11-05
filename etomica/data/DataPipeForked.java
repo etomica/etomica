@@ -5,7 +5,7 @@ public interface DataPipeForked extends DataPipe {
     /**
      * @return the i-th DataSink
      */
-    public DataSink[] getDataSinks();
+    public IDataSink[] getDataSinks();
 
     /**
      * Sets the list of DataSinks that receive the Data entering this DataFork.
@@ -14,7 +14,7 @@ public interface DataPipeForked extends DataPipe {
      * 
      * @param dataSinks The data sinks to set.
      */
-    public void setDataSinks(DataSink[] dataSinks);
+    public void setDataSinks(IDataSink[] dataSinks);
 
     /**
      * Adds the given DataSink to those receiving the Data entering this DataFork,
@@ -23,7 +23,7 @@ public interface DataPipeForked extends DataPipe {
      * 
      * @param dataSink
      */
-    public void addDataSink(DataSink newDataSink);
+    public void addDataSink(IDataSink newDataSink);
 
     /**
      * Removes the specified data sink.  Does nothing if the given DataSink is
@@ -31,6 +31,6 @@ public interface DataPipeForked extends DataPipe {
      * 
      * @param dataSink data sink to be removed from this list, if present.
      */
-    public void removeDataSink(DataSink dataSink);
+    public void removeDataSink(IDataSink dataSink);
 
 }

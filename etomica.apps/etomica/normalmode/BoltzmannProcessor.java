@@ -1,10 +1,10 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
+import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.Null;
 import etomica.util.Function;
 
@@ -17,9 +17,9 @@ public class BoltzmannProcessor extends DataProcessor {
     public BoltzmannProcessor() {
     }
     
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+    public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         data = incomingDataInfo.makeData();
-        IDataInfoFactory factory = incomingDataInfo.getFactory();
+        IEtomicaDataInfoFactory factory = incomingDataInfo.getFactory();
         // we get energy in, spit out unitless
         factory.setDimension(Null.DIMENSION);
         dataInfo = factory.makeDataInfo();
@@ -30,7 +30,7 @@ public class BoltzmannProcessor extends DataProcessor {
         energyBase = newEnergyBase;
     }
     
-    public Data processData(Data incomingData) {
+    public IData processData(IData incomingData) {
         data.E(incomingData);
         data.PE(-energyBase);
         data.TE(-1/temperature);
@@ -38,7 +38,7 @@ public class BoltzmannProcessor extends DataProcessor {
         return data;
     }
     
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -51,7 +51,7 @@ public class BoltzmannProcessor extends DataProcessor {
     }
     
     private static final long serialVersionUID = 1L;
-    private Data data;
+    private IData data;
     private double temperature;
     private double energyBase;
 }

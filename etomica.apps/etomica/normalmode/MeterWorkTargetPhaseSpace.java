@@ -1,13 +1,12 @@
 package etomica.normalmode;
 
-import etomica.data.Data;
-import etomica.data.DataSource;
+import etomica.api.IData;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
 import etomica.units.Null;
 
@@ -18,7 +17,7 @@ import etomica.units.Null;
  * 
  * @author Andrew Schultz
  */
-public class MeterWorkTargetPhaseSpace implements DataSource {
+public class MeterWorkTargetPhaseSpace implements IEtomicaDataSource {
     
     public MeterWorkTargetPhaseSpace(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
@@ -30,7 +29,7 @@ public class MeterWorkTargetPhaseSpace implements DataSource {
         tag = new DataTag();
     }
 
-    public Data getData() {
+    public IData getData() {
         data.x = (meterHarmonicEnergy.getDataAsScalar() -
                 (meterEnergy.getDataAsScalar() - latticeEnergy)) / integrator.getTemperature();
         return data;
@@ -40,7 +39,7 @@ public class MeterWorkTargetPhaseSpace implements DataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
-    public IDataInfo getDataInfo() {
+    public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 

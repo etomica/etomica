@@ -16,7 +16,7 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
@@ -179,7 +179,7 @@ public class SimHarmonicUmbrella extends Simulation {
         //construct simulation
         final SimHarmonicUmbrella sim = new SimHarmonicUmbrella(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
-        DataSource[] workMeters = new DataSource[1];
+        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[1];
         
         // Harmonic 
         MeterWorkHarmonicUmbrella meterWorkHarmonicUmbrella = new MeterWorkHarmonicUmbrella(sim.integrator, sim.meterHarmonicEnergy);

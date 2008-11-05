@@ -1,15 +1,15 @@
 package etomica.modules.materialfracture;
 
 import etomica.api.IAction;
+import etomica.api.IData;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataTag;
-import etomica.data.IDataInfo;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceSlider;
@@ -83,17 +83,17 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
         meterPressure.setIntegrator(sim.integrator);
         DataProcessor pressureToStress = new DataProcessor(){
-            public DataPipe getDataCaster(IDataInfo incomingDataInfo) { return null; }
+            public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) { return null; }
         
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
+            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) { return dataInfo; }
         
-            protected Data processData(Data inputData) {
+            protected IData processData(IData inputData) {
                 // xx component is the first one
                 data.x = -inputData.getValue(0);
                 return data;
             }
             
-            protected final IDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
+            protected final IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
             protected final DataDouble data = new DataDouble();
         };
 
