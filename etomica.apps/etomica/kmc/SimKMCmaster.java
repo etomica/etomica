@@ -34,10 +34,10 @@ public class SimKMCmaster extends Simulation{
         
         sim.initializeConfiguration("initialStart");
         
-        sim.integratorKMCCluster(Kelvin.UNIT.toSim(temp), steps, totalSearch);
+        sim.integratorKMCCluster(temp, steps, totalSearch);
         
         //for sn energy: -3331480.584975273    Vib: 9.561284069712113E96
-        sim.integratorKMCCluster.setInitialStateConditions(-3331480.584975273, 9.561284069712113E96);
+        sim.integratorKMCCluster.setInitialStateConditions(-3331480.5785103873, 8.148332378344422E277);
         sim.getController().actionPerformed();
     }
 }

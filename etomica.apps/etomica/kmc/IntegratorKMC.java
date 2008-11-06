@@ -18,6 +18,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
+import etomica.units.Joule;
 
 public class IntegratorKMC extends IntegratorBox{
 
@@ -32,6 +33,7 @@ public class IntegratorKMC extends IntegratorBox{
     ISpecies [] species;
     IVector [] minPosition, currentSaddle, previousSaddle;
     double[] saddleVib;
+    double massSec;
     double[] saddleEnergies;
     double[] rates;
     double tau;
@@ -156,9 +158,9 @@ public class IntegratorKMC extends IntegratorBox{
         search = true;
         saddleVib = new double[searchlimit];
         saddleEnergies = new double[searchlimit];
-        
+        massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
         rates = new double[searchlimit];
-        beta = 1.0/(temperature);
+        beta = 1.0/(temperature*1.3806503E-023);
         stepCounter = 0;     
         imposePbc = new BoxImposePbc(box, space);
         currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
@@ -215,9 +217,10 @@ public class IntegratorKMC extends IntegratorBox{
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
-        double massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
+        minEnergy = Joule.UNIT.fromSim(minEnergy);
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
+            saddleEnergies[i] = Joule.UNIT.fromSim(saddleEnergies[i]);
             rates[i] = (minVib / saddleVib[i] / massSec)* Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
@@ -240,7 +243,7 @@ public class IntegratorKMC extends IntegratorBox{
                 rt = i;
                 System.out.println("-----Choosing a rate-----");
                 for(int l=0; l<rates.length; l++){ 
-                    System.out.println("Rate "+l+": "+rates[l]);
+                    System.out.println("Rate "+l+": "+rates[l]+", v: "+minVib / saddleVib[i] / massSec);
                 }
                 System.out.println("Sum:    "+sum);
                 System.out.println("-------------------------");

@@ -30,6 +30,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
+import etomica.units.Joule;
 
 public class IntegratorKMCCluster extends IntegratorBox{
 
@@ -48,6 +49,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     double tau;
     IVector msd;
     double beta;
+    double massSec;
     double minEnergy;
     double freqProd;
     double saddleEnergy;
@@ -223,14 +225,14 @@ public class IntegratorKMCCluster extends IntegratorBox{
         search = true;
         saddleVib = new double[totalSearches];
         saddleEnergies = new double[totalSearches];
-        
+        massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
         msd = space.makeVector();
         tau = 0;
         searchNum = 0;
         kmcStep = 1;
         imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
-        beta = 1.0/(temperature);
+        beta = 1.0/(temperature*1.3806503E-023);
         currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         previousSaddle = new IVector[box.getMoleculeList().getAtomCount()];
         for(int i=0; i<currentSaddle.length; i++){
@@ -277,9 +279,10 @@ public class IntegratorKMCCluster extends IntegratorBox{
     public void calcRates(){
         //convert energies to Joules and use hTST
         double rateSum = 0;
-        double massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
+        minEnergy = Joule.UNIT.fromSim(minEnergy);
         for(int i=0; i<rates.length; i++){
             if(saddleEnergies[i]==0){continue;}
+            saddleEnergies[i] = Joule.UNIT.fromSim(saddleEnergies[i]);
             rates[i] = (minVib / saddleVib[i] / massSec) * Math.exp( -(saddleEnergies[i] - minEnergy)*beta);
             rateSum += rates[i];
         }
@@ -289,9 +292,20 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     public void msdCalc(MeterMeanSquareDisplacement msdArray){
+        double sum = 0;
         IVector [] msdVect = msdArray.getDataAsArray();
         for(int i=0; i<msdVect.length; i++){
-            msd.PE(msdVect[i]);
+            sum = msd.x(0);
+            sum += msdVect[i].x(0)*msdVect[i].x(0);
+            msd.setX(0, sum);
+            
+            sum = msd.x(1);
+            sum += msdVect[i].x(1)*msdVect[i].x(1);
+            msd.setX(1, sum);
+            
+            sum = msd.x(2);
+            sum += msdVect[i].x(2)*msdVect[i].x(2);
+            msd.setX(2, sum);
         }
     }
     
@@ -317,7 +331,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
                 rt = i;
                 System.out.println("-----Choosing a rate-----");
                 for(int l=0; l<rates.length; l++){ 
-                    System.out.println("Rate "+l+": "+rates[l]);
+                    System.out.println("Rate "+l+": "+rates[l]+", v: "+minVib / saddleVib[i] / massSec);
                 }
                 System.out.println("Sum:    "+sum);
                 System.out.println("-------------------------");
