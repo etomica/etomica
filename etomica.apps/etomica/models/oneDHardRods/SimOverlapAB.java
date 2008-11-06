@@ -534,11 +534,11 @@ public class SimOverlapAB extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 40000000; //40000 is minimum number of steps
+        public long numSteps = 40000; //40000 is minimum number of steps
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int affectedWV = 15;
+        public int affectedWV = 1;
     }
     
 }

@@ -31,7 +31,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
-    int convertedWV, changedWV;
+    int convertedWV;
     private double[] gaussian;
     protected double temperature;
     private double[][] stdDev;
@@ -62,16 +62,6 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         iRand = new double[coordinateDim];
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
-
-        //Select the wave vector whose eigenvectors will be changed.
-        //The zero wavevector is center of mass motion, and is rejected as a 
-        //possibility, as is the converted wavevector and any wavevector
-        //number higher than it.
-        changedWV = random.nextInt(convertedWV-2);
-        changedWV += 1;
-        
-//        changedWV = 1;  //nork
-        
         
         //nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
@@ -138,6 +128,13 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
         if(convertedWV != 1) {
+            //Select the wave vector whose eigenvectors will be changed.
+            //The zero wavevector is center of mass motion, and is rejected as a 
+            //possibility, as is the converted wavevector and any wavevector
+            //number higher than it.
+            int changedWV = random.nextInt(convertedWV-1);
+            changedWV += 1;
+            
             //calculate the new positions of the atoms.
             //loop over cells
             double delta1 = (2*random.nextDouble()-1) * stepSize;
