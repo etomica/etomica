@@ -162,7 +162,7 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
         stepFreq[0] = 1.0 / (1 + targetErrorRatio/refErrorRatio * Math.sqrt(((double)totNumSubSteps[1]) / totNumSubSteps[0]));
         stepFreq[1] = 1.0 - stepFreq[0];
 
-        if (random.nextInt(1000) == 1 || (Debug.ON && Debug.DEBUG_NOW)) {
+        if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.print("freq ");
             for (int i=0; i<nIntegrators; i++) {
                 System.out.print(stepFreq[i]+" ");
