@@ -31,7 +31,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
-    int convertedWV;
+    int comparedWV;
     private double[] gaussian;
     protected double temperature;
     private double[][] stdDev;
@@ -69,7 +69,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         double normalization = 1/Math.sqrt(cells.length);
 
         //Get normal mode coordinate information
-        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
+        coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
 //        System.out.println("Real:  "+ realT[0]);
 //        System.out.println("Imag:  "+ imagT[0]);
         
@@ -88,20 +88,20 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             
             //Calculate the contributions to the current position of the zeroed
             //mode, and subtract it from the overall position
-            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
+            double kR = waveVectors[comparedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 //Calculate the current coordinate:
                 double realCoord = 0, imagCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
-                    realCoord += eigenVectors[convertedWV][i][j] * realT[j];
+                    realCoord += eigenVectors[comparedWV][i][j] * realT[j];
 //                    System.out.println("realcoord " + realCoord);
-                    imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+                    imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
 //                    System.out.println("imagcoord " + imagCoord);
                 }
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                    deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] * 2.0 *
                         (realCoord*coskR - imagCoord*sinkR);
 //                    System.out.println("delta 1 " + deltaU[j]);
                 }
@@ -127,12 +127,12 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
-        if(convertedWV != 1) {
+        if(comparedWV != 1) {
             //Select the wave vector whose eigenvectors will be changed.
             //The zero wavevector is center of mass motion, and is rejected as a 
             //possibility, as is the converted wavevector and any wavevector
             //number higher than it.
-            int changedWV = random.nextInt(convertedWV-1);
+            int changedWV = random.nextInt(comparedWV-1);
             changedWV += 1;
             
             //calculate the new positions of the atoms.
@@ -189,7 +189,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         //set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
         for (int j=0; j<coordinateDim; j++) {
-            if (stdDev[convertedWV][j] == 0) continue;
+            if (stdDev[comparedWV][j] == 0) continue;
             //generate real and imaginary parts of random normal-mode coordinate Q
             double realGauss = random.nextGaussian() * sqrtT;
             double imagGauss = random.nextGaussian() * sqrtT;
@@ -201,8 +201,8 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             // it's hard to know which.  So long as we don't put an atom at the origin
             // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
             if (wvc == 0.5) imagGauss = 0;
-            rRand[j] = realGauss * stdDev[convertedWV][j];
-            iRand[j] = imagGauss * stdDev[convertedWV][j];
+            rRand[j] = realGauss * stdDev[comparedWV][j];
+            iRand[j] = imagGauss * stdDev[comparedWV][j];
             gaussian[0] = realGauss;
             gaussian[1] = imagGauss;
             
@@ -218,12 +218,12 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
             }
             // Calculate the change in position due to the substitution of a 
             //  Gaussian.
-            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
+            double kR = waveVectors[comparedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += wvc*eigenVectors[convertedWV][i][j] * 2.0 *
+                    deltaU[j] += wvc*eigenVectors[comparedWV][i][j] * 2.0 *
                         (rRand[i]*coskR - iRand[i]*sinkR);
                 }
             }
@@ -325,11 +325,11 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     }
     public void setConvertedWaveVector(int wv){
         if(wv == 1) {System.out.println("System is now entirely Gaussian!");};
-        convertedWV = wv;
+        comparedWV = wv;
         wvc = waveVectorCoefficients[wv];
     }
     public int getConvertedWaveVector(){
-        return convertedWV;
+        return comparedWV;
     }
     public double[] getLastGaussian(){
         return gaussian;
