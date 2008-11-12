@@ -1,10 +1,10 @@
 package etomica.potential;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IPotential;
-import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
 import etomica.space.Tensor;

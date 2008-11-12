@@ -1,11 +1,11 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
 import etomica.units.Dimension;

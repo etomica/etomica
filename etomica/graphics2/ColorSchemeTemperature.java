@@ -2,8 +2,8 @@
 package etomica.graphics2;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.atom.IAtomKinetic;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Temperature;

@@ -6,10 +6,10 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.api.IAction;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 
 /**
  * Action that opens a new window and dumps the velocities into the window.

@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -11,7 +12,6 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Space;
 import etomica.units.Joule;

@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
@@ -9,7 +10,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;

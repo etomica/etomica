@@ -1,12 +1,12 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
 

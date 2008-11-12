@@ -2,11 +2,11 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 import etomica.graphics.Drawable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;

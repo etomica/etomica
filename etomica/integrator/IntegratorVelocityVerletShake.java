@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -16,7 +17,6 @@ import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;

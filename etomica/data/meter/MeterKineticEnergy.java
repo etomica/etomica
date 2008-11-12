@@ -1,9 +1,9 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;

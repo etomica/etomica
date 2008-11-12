@@ -3,8 +3,8 @@ package etomica.data;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IData;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;

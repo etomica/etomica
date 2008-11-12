@@ -3,6 +3,7 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -13,7 +14,6 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;

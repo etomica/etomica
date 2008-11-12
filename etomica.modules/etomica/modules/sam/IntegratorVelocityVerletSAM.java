@@ -1,5 +1,6 @@
 package etomica.modules.sam;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomSet;
@@ -8,7 +9,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.space.ISpace;

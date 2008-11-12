@@ -1,7 +1,5 @@
-package etomica.atom;
+package etomica.api;
 
-import etomica.api.IAtomPositioned;
-import etomica.api.IVector;
 
 /**
  * Interface for an atom that holds vectors for

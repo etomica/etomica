@@ -3,9 +3,9 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.ISimulation;
-import etomica.atom.IAtomKinetic;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Temperature;

@@ -7,13 +7,13 @@ import java.util.Formatter;
 import java.util.HashMap;
 
 import etomica.api.IAction;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;

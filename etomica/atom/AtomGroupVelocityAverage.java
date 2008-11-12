@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IVector;
 import etomica.space.ISpace;

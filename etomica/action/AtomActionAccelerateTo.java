@@ -1,9 +1,9 @@
 package etomica.action;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.AtomGroupVelocityAverage;
-import etomica.atom.IAtomKinetic;
 import etomica.space.ISpace;
 
 /**

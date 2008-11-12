@@ -1,9 +1,9 @@
 package etomica.action;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
-import etomica.atom.IAtomKinetic;
 import etomica.data.meter.MeterTemperature;
 
 /**

@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.api.IAtom;
-import etomica.atom.IAtomKinetic;
+import etomica.api.IAtomKinetic;
 
 
 /**

@@ -1,13 +1,13 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.data.DataSourceScalar;

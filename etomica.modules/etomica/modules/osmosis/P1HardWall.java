@@ -1,10 +1,10 @@
 package etomica.modules.osmosis;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomSet;
 import etomica.api.IVector;
 
 import etomica.EtomicaInfo;
-import etomica.atom.IAtomKinetic;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;

@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.space.ISpace;

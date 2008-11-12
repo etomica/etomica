@@ -3,6 +3,7 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IAtomType;
@@ -20,7 +21,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterPotentialEnergy;

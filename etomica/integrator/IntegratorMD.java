@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomSet;
 import etomica.api.IBox;
@@ -11,7 +12,6 @@ import etomica.api.IListener;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.atom.IAtomKinetic;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
