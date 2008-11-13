@@ -13,6 +13,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -99,7 +100,6 @@ public class SimulationVirialOverlap extends Simulation {
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
-                mcMoveTranslate[iBox].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species instanceof SpeciesSpheresRotating) {
@@ -223,6 +223,18 @@ public class SimulationVirialOverlap extends Simulation {
                 integrators[i].getMoveManager().setEquilibrating(true);
             }
 
+            int oldBlockSize = blockSize;
+            // 1000 blocks
+            long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+            if (newBlockSize < 1000) {
+                // make block size at least 1000, even if it means fewer blocks
+                newBlockSize = 1000;
+            }
+            if (newBlockSize > 1000000) {
+                // needs to be an int.  1e6 steps/block is a bit crazy.
+                newBlockSize = 1000000;
+            }
+            setAccumulatorBlockSize((int)newBlockSize);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(oldRefPref,30);
@@ -233,6 +245,7 @@ public class SimulationVirialOverlap extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref);
+            setAccumulatorBlockSize(oldBlockSize);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,false),1);
             setRefPref(refPref,4);
@@ -253,7 +266,18 @@ public class SimulationVirialOverlap extends Simulation {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         ai.setMaxSteps(initSteps);
-
+        int oldBlockSize = blockSize;
+        // 1000 blocks
+        long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+        if (newBlockSize < 1000) {
+            // make block size at least 1000, even if it means fewer blocks
+            newBlockSize = 1000;
+        }
+        if (newBlockSize > 1000000) {
+            // needs to be an int.  1e6 steps/block is a bit crazy.
+            newBlockSize = 1000000;
+        }
+        setAccumulatorBlockSize((int)newBlockSize);
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(true);
         }
@@ -287,6 +311,7 @@ public class SimulationVirialOverlap extends Simulation {
         else {
             dsvo.reset();
         }
+        setAccumulatorBlockSize(oldBlockSize);
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(false);
         }

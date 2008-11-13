@@ -102,7 +102,6 @@ public class SimulationVirialOverlapRejected extends Simulation {
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
-                mcMoveTranslate[iBox].setStepSize(0.41);
                 ((MCMoveStepTracker)mcMoveTranslate[iBox].getTracker()).setAcceptanceTarget(0.4);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
@@ -234,6 +233,18 @@ public class SimulationVirialOverlapRejected extends Simulation {
                 integrators[i].getMoveManager().setEquilibrating(true);
             }
 
+            int oldBlockSize = blockSize;
+            // 1000 blocks
+            long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+            if (newBlockSize < 1000) {
+                // make block size at least 1000, even if it means fewer blocks
+                newBlockSize = 1000;
+            }
+            if (newBlockSize > 1000000) {
+                // needs to be an int.  1e6 steps/block is a bit crazy.
+                newBlockSize = 1000000;
+            }
+            setAccumulatorBlockSize((int)newBlockSize);
             setMeter(new MeterVirialRejected(meters[0].getClusters(), 21, true), 0);
             setMeter(new MeterVirialRejected(meters[1].getClusters(), 21, false), 1);
             setRefPref(oldRefPref,30);
@@ -244,6 +255,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
             refPref = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)
                 /((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1);
             System.out.println("setting ref pref to "+refPref);
+            setAccumulatorBlockSize(oldBlockSize);
             setMeter(new MeterVirialRejected(meters[0].getClusters(), 15, true), 0);
             setMeter(new MeterVirialRejected(meters[1].getClusters(), 15, false), 1);
             setRefPref(refPref,4);
@@ -264,6 +276,18 @@ public class SimulationVirialOverlapRejected extends Simulation {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         ai.setMaxSteps(initSteps);
+        int oldBlockSize = blockSize;
+        // 1000 blocks
+        long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+        if (newBlockSize < 1000) {
+            // make block size at least 1000, even if it means fewer blocks
+            newBlockSize = 1000;
+        }
+        if (newBlockSize > 1000000) {
+            // needs to be an int.  1e6 steps/block is a bit crazy.
+            newBlockSize = 1000000;
+        }
+        setAccumulatorBlockSize((int)newBlockSize);
 
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(true);
@@ -296,6 +320,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         else {
             dsvo.reset();
         }
+        setAccumulatorBlockSize(oldBlockSize);
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(false);
         }
