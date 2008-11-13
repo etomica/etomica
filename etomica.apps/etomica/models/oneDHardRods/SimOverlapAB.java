@@ -61,7 +61,7 @@ public class SimOverlapAB extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeMode changeMove;
-    MCMoveConvertMode convertMove;
+    MCMoveCompareMode convertMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterConvertModeBrute meterBinA, meterBinB;
     MeterConvertTest meterTestBinA, meterTestBinB;
@@ -211,7 +211,7 @@ public class SimOverlapAB extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        convertMove = new MCMoveConvertMode(potentialMasterRef, 
+        convertMove = new MCMoveCompareMode(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(convertMove);
         convertMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());

@@ -38,10 +38,10 @@ public class MeterConvertModeShortcut extends DataSourceScalar {
                                 //energyOP is the energy of the Gaussian modes
     
     private static final long serialVersionUID = 1L;
-    MCMoveConvertMode mcmove;
+    MCMoveCompareMode mcmove;
     
     public MeterConvertModeShortcut(IPotentialMaster potentialMaster, 
-            MCMoveConvertMode mcmove){
+            MCMoveCompareMode mcmove){
         super("meterConvertMode", Null.DIMENSION);
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];

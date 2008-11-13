@@ -96,7 +96,7 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        MCMoveConvertMode convert = new MCMoveConvertMode(potentialMaster, random);
+        MCMoveCompareMode convert = new MCMoveCompareMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
         convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -107,7 +107,7 @@ public class TestMCMove extends Simulation {
         convert.setBox((IBox)box);
         convert.setStepSizeMin(0.001);
         convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(16);
+        convert.setConvertedWaveVector(2);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -229,9 +229,10 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000;
+        public long numSteps = 1000000000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
+        public int affectedWV = 2;
     }
 }

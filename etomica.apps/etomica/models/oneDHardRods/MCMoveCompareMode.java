@@ -19,7 +19,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * @author cribbin
  *
  */
-public class MCMoveConvertMode extends MCMoveBoxStep{
+public class MCMoveCompareMode extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -44,7 +44,7 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
     
     int count;
     
-    public MCMoveConvertMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveCompareMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -119,10 +119,10 @@ public class MCMoveConvertMode extends MCMoveBoxStep{
         }
         energyOld = energyMeter.getDataAsScalar();
         if(energyOld != 0.0){
-            for(int k = 0; k < 32; k++){
+            for(int k = 0; k < waveVectors.length; k++){
                 System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
             }
-            throw new IllegalStateException("This is not legal in New York!");
+            throw new IllegalStateException("Overlap after the removal of a mode!");
         }
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
