@@ -12,7 +12,11 @@ import etomica.species.SpeciesSpheresHetero;
 public class SpeciesAlkane extends SpeciesSpheresHetero {
 
     public SpeciesAlkane(ISimulation sim, ISpace _space, int numCarbons) {
-        super(_space, sim.isDynamic(), makeAtomTypeSpheres(new Element[]{new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
+        this(sim, _space,numCarbons, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14));
+        setTotalChildren(numCarbons);
+    }
+    public SpeciesAlkane(ISimulation sim, ISpace _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
+    	 super(_space, sim.isDynamic(), makeAtomTypeSpheres(new Element[]{CH3element, CH2element}));
         setTotalChildren(numCarbons);
     }
 
@@ -48,6 +52,5 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
             childCount[1] = 0;
         }
     }
-
     private static final long serialVersionUID = 1L;
 }
