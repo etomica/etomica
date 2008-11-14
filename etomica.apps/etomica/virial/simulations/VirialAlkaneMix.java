@@ -142,6 +142,7 @@ public class VirialAlkaneMix {
         //speciesFactory[1] = new SpeciesFactorySiepmannSpheres(space, 2);
         
         SpeciesFactorySiepmannSpheres speciesFactoryEthane = new SpeciesFactorySiepmannSpheres(space,2);
+        speciesFactoryEthane.setBondL(bondL);
                 
         SpeciesFactorySiepmannSpheres speciesFactoryMethane = new SpeciesFactorySiepmannSpheres(space,1);
         
@@ -167,7 +168,7 @@ public class VirialAlkaneMix {
         sim.integratorOS.setNumSubSteps(1000);
         
                                
-        if (false) {
+        if (true) {
             sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
@@ -263,12 +264,12 @@ public class VirialAlkaneMix {
      * Inner class for parameters
      */
     public static class VirialAlkaneMixParam extends ParameterBase {
-        public int nPoints = 4;
+        public int nPoints = 2;
         public int nSpheres1 = 1;   // methane
         public int nSpheres2 = 2;   // ethane 
         public double temperature = 300;   // Kelvin
         public long numSteps = 10000;
-        public int nMethane = 4;
+        public int nMethane = 2;
         public int nEthane = 0;
     }
 }

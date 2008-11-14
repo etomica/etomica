@@ -156,10 +156,10 @@ public class VirialAlkane {
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves = new MCMoveClusterTorsionMulti[2];
-            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves[0].setTemperature(temperature);
             sim.integrators[0].getMoveManager().addMCMove(torsionMoves[0]);
-            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves[1].setTemperature(temperature);
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }
@@ -189,7 +189,7 @@ public class VirialAlkane {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (false) {
+        if (true) {
             double size = (nSpheres+5)*1.5;
             sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
@@ -327,8 +327,8 @@ public class VirialAlkane {
      */
     public static class VirialSiepmannSpheresParam extends ParameterBase {
         public int nPoints = 2;
-        public int nSpheres = 8;
-        public double temperature = 500.0;   // Kelvin
+        public int nSpheres = 5;
+        public double temperature = 300.0;   // Kelvin
         public long numSteps = 10000;
     }
 }
