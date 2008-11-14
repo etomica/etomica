@@ -8,6 +8,7 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -32,7 +33,6 @@ import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres2;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.VirialAlkaneMix.VirialAlkaneMixParam;
 
 public class VirialAlkaneMix2 {
 
@@ -98,11 +98,11 @@ public class VirialAlkaneMix2 {
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);//Mayer e-function of HS potential
         //PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2, space);//CH4-CH4 potential group
         //PotentialGroup pMethaneMethylGroup = new PotentialGroup(2, space);//CH4-CH3 potential group
-        PotentialGroup pMethylMethylGroup = new PotentialGroup(2, space);//CH3-CH3 potential group
-        PotentialGroup pMethylMethyleneGroup = new PotentialGroup(2, space);//CH3-CH2 potential group
-        PotentialGroup pMethyleneMethyleneGroup = new PotentialGroup(2, space);//CH2-CH2 potential group
+        PotentialGroup pComp1Comp1Group = new PotentialGroup(2, space);//comp1-comp1 potential group
+        PotentialGroup pComp1Comp2Group = new PotentialGroup(2, space);//comp1-comp2 potential group
+        PotentialGroup pComp2Comp2Group = new PotentialGroup(2, space);//comp2-comp2 potential group
         
-        System.out.println("Mixture:"+"C"+nSpheres1+ "+ C"+nSpheres2+"B"+nPoints+" at "+temperature+"K");
+        System.out.println("Mixture:"+"C"+nSpheres1+ "+ C"+nSpheres2+"  B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
         //double epsilonCH4 = Kelvin.UNIT.toSim(160.3);// the minimum potential energy
         double epsilonCH3 = Kelvin.UNIT.toSim(129.6);
@@ -130,6 +130,8 @@ public class VirialAlkaneMix2 {
             System.out.println(rmCH4+" "+p2CH4.u(rmCH4*rmCH4));
           }
           System.exit(1);*/
+        int element1 = 0;
+        int element2 = 0;
         P2Exp6Buckingham p2CH3 = new P2Exp6Buckingham(space, epsilonCH3, alphaCH3, rmCH3, rmaxCH3);
         P2Exp6Buckingham p2CH2 = new P2Exp6Buckingham(space, epsilonCH2, alphaCH2, rmCH2, rmaxCH2);
         //P2Exp6Buckingham p2CH4CH3 = new P2Exp6Buckingham(space, epsilonCH4CH3, alphaCH4CH3, rmCH4CH3, rmaxCH4CH3);
@@ -137,33 +139,45 @@ public class VirialAlkaneMix2 {
         
         //MayerGeneral fMethaneMethaneTarget = new MayerGeneral(pMethaneMethaneGroup);//Mayer function of CH4-CH4
         //MayerGeneral fMethaneMethylTarget = new MayerGeneral(pMethaneMethylGroup);
-        MayerGeneral fMethylMethylTarget = new MayerGeneral(pMethylMethylGroup);
-        MayerGeneral fMethylMethyleneTarget = new MayerGeneral(pMethylMethyleneGroup);
-        MayerGeneral fMethyleneMethyleneTarget = new MayerGeneral(pMethyleneMethyleneGroup);
+        MayerGeneral fComp1Comp1Target = new MayerGeneral(pComp1Comp1Group);
+        MayerGeneral fComp1Comp2Target = new MayerGeneral(pComp1Comp2Group);
+        MayerGeneral fComp2Comp2Target = new MayerGeneral(pComp2Comp2Group);
         //MayerEGeneral eMethaneMethaneTarget = new MayerEGeneral(pMethaneMethaneGroup);
         //MayerEGeneral eMethaneMethylTarget = new MayerEGeneral(pMethaneMethylGroup);
-        MayerEGeneral eMethylMethylTarget = new MayerEGeneral(pMethylMethylGroup);
-        MayerEGeneral eMethylMethyleneTarget = new MayerEGeneral(pMethylMethyleneGroup);
-        MayerEGeneral eMethyleneMethyleneTarget = new MayerEGeneral(pMethyleneMethyleneGroup);
+        MayerEGeneral eComp1Comp1Target = new MayerEGeneral(pComp1Comp1Group);
+        MayerEGeneral eComp1Comp2Target = new MayerEGeneral(pComp1Comp2Group);
+        MayerEGeneral eComp2Comp2Target = new MayerEGeneral(pComp2Comp2Group);
         int[] nTypes = new int[]{nComp1,nComp2};      
-        ClusterAbstract targetCluster = Standard.virialClusterMixture(nPoints, new MayerFunction[][]{{fMethylMethylTarget,fMethylMethyleneTarget},{fMethylMethyleneTarget,fMethyleneMethyleneTarget}},
-                new MayerFunction[][]{{eMethylMethylTarget,eMethylMethyleneTarget},{eMethylMethyleneTarget,eMethyleneMethyleneTarget}}, nTypes);
+        ClusterAbstract targetCluster = Standard.virialClusterMixture(nPoints, new MayerFunction[][]{{fComp1Comp1Target,fComp1Comp2Target},{fComp1Comp2Target,fComp2Comp2Target}},
+                new MayerFunction[][]{{eComp1Comp1Target,eComp1Comp2Target},{eComp1Comp2Target,eComp2Comp2Target}}, nTypes);
         targetCluster.setTemperature(temperature);
         
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        //SpeciesFactorySiepmannSpheres speciesFactory = new SpeciesFactorySiepmannSpheres[2];
-        //speciesFactory[1].setBondLength(bondL);
-        //speciesFactory[0] = new SpeciesFactorySiepmannSpheres(space, 1);
-        //speciesFactory[1] = new SpeciesFactorySiepmannSpheres(space, 2);
-              
-        SpeciesFactorySpheres2 speciesFactoryComp1 = new SpeciesFactorySpheres2(space,nSpheres1);//make alkane model-component1
-        //speciesFactoryComp1.setBondL(bondL1);
-        SpeciesFactorySpheres2 speciesFactoryComp2 = new SpeciesFactorySpheres2(space,nSpheres2);//make alkane model-component2
-        //speciesFactoryComp2.setBondL(bondL2);
         
+        ElementSimple CH3element = new ElementSimple("CH3",15);
+        ElementSimple CH2element = new ElementSimple("CH2",14);
+        SpeciesFactorySpheres2 speciesFactoryComp1 = new SpeciesFactorySpheres2(space,nSpheres1, CH3element, CH2element);//make alkane model-component1
+        if (nSpheres1 == 2) {
+        	speciesFactoryComp1.setBondL(bondL1);
+        }
+        if (nSpheres1 ==3) {
+        	speciesFactoryComp1.setBondL(bondL2);
+        } else {
+        	speciesFactoryComp1.setBondL(bondL3);
+        }
+        SpeciesFactorySpheres2 speciesFactoryComp2 = new SpeciesFactorySpheres2(space,nSpheres2,CH3element, CH2element);//make alkane model-component2
+        if (nSpheres2 == 2) {
+        	speciesFactoryComp2.setBondL(bondL1);
+        }
+        if (nSpheres2 ==3) {
+        	speciesFactoryComp2.setBondL(bondL2);
+        } else {
+        	speciesFactoryComp1.setBondL(bondL3);
+        }
+
         SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
         
         speciesFactory[0] = speciesFactoryComp1;
@@ -171,7 +185,7 @@ public class VirialAlkaneMix2 {
         
         
         final SimulationVirialMultiOverlap sim = new SimulationVirialMultiOverlap(space, speciesFactory,
-                          temperature,refCluster,targetCluster, new int[]{nComp1,nComp2} );//overlap-sampling approach to evaluating a cluster diagram.
+                          temperature,refCluster,targetCluster, nSpheres1 > 2 || nSpheres2 > 2, new int[]{nComp1,nComp2} );//overlap-sampling approach to evaluating a cluster diagram.
         //        sim.integratorOS.setAdjustStepFreq(false);
 //        sim.integratorOS.setStepFreq0(1);
 
@@ -182,25 +196,26 @@ public class VirialAlkaneMix2 {
         IAtomTypeLeaf typeCH3B = species2.getChildType(0);
         IAtomTypeLeaf typeCH2A = species1.getChildType(1);
         IAtomTypeLeaf typeCH2B = species2.getChildType(1);
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2A}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2B}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2A}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2B}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3A}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3B}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3A}));
-        pMethylMethyleneGroup.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3B}));
-        pMethylMethylGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3A}));
-        pMethylMethylGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3B}));
-        pMethylMethylGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3A}));
-        pMethylMethylGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3B}));
-        pMethyleneMethyleneGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2A}));
-        pMethyleneMethyleneGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2B}));
-        pMethyleneMethyleneGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2A}));
-        pMethyleneMethyleneGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3B}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3A}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3B}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3A}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3B}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2A}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2B}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2A}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2B}));
         
         sim.integratorOS.setNumSubSteps(1000);
         PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
+        
         if (nSpheres1 > 2) {
             P3BondAngle p3 = new P3BondAngle(space);
             p3.setAngle(Math.PI*114.0/180.0);
@@ -227,10 +242,10 @@ public class VirialAlkaneMix2 {
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves1 = new MCMoveClusterTorsionMulti[2];
-            torsionMoves1[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves1[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves1[0].setTemperature(temperature);
             sim.integrators[0].getMoveManager().addMCMove(torsionMoves1[0]);
-            torsionMoves1[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves1[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves1[1].setTemperature(temperature);
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves1[1]);
         }
@@ -287,10 +302,10 @@ public class VirialAlkaneMix2 {
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves2 = new MCMoveClusterTorsionMulti[2];
-            torsionMoves2[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves2[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves2[0].setTemperature(temperature);
             sim.integrators[0].getMoveManager().addMCMove(torsionMoves2[0]);
-            torsionMoves2[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, nPoints, p4, 40);
+            torsionMoves2[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves2[1].setTemperature(temperature);
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves2[1]);
         }
@@ -421,9 +436,9 @@ public class VirialAlkaneMix2 {
     public static class VirialAlkaneMixParam extends ParameterBase {
         public int nPoints = 2; //The number of total components = nComp1+nComp2
         public int nSpheres1 = 2;   // The number of C for component1
-        public int nSpheres2 = 3;   // The number of C for component2
+        public int nSpheres2 = 10;   // The number of C for component2
         public double temperature = 300;   // Kelvin
-        public long numSteps = 10000;
+        public long numSteps = 1000;
         public int nComp1 = 1;//The number of component1
         public int nComp2 = 1;//The number of component2
     }
