@@ -17,6 +17,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -49,12 +50,13 @@ public class SimOverlapAB extends Simulation {
     int[] nCells;
     NormalModes1DHR nm;
     double bennettParam;       //adjustable parameter - Bennett's parameter
-    public IntegratorOverlap integratorOverlap;
+    public IntegratorOverlap integratorSim; //integrator for the whole simulation
     public DataSourceVirialOverlap dsvo;
     public BasisMonatomic basis;
     ActivityIntegrate activityIntegrate;
     
     IntegratorMC[] integrators;
+    protected int blockSize;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
@@ -72,6 +74,7 @@ public class SimOverlapAB extends Simulation {
         super(_space, true);
         
         //Set up some of the joint stuff
+        blockSize = 100000;
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
@@ -265,7 +268,7 @@ public class SimOverlapAB extends Simulation {
         //Set up the rest of the joint stuff
         setAffectedWaveVector(awv);
         
-        integratorOverlap = new IntegratorOverlap(random, new 
+        integratorSim = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
@@ -273,7 +276,7 @@ public class SimOverlapAB extends Simulation {
         
         setBennettParameter(1.0, 30);
         
-        activityIntegrate = new ActivityIntegrate(integratorOverlap, 0, true);
+        activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
     }
     
@@ -314,6 +317,18 @@ public class SimOverlapAB extends Simulation {
         }
         
         if (bennettParam == -1) {
+            
+            int oldBlockSize = blockSize;
+            long newBlockSize = initSteps*integratorSim.getNumSubSteps()/1000;
+            //Make sure the new block size is reasonable.
+            if(newBlockSize < 1000){
+                newBlockSize = 1000;
+            }
+            if(newBlockSize > 1000000){
+                newBlockSize = 1000000;
+            }
+            setAccumulatorBlockSize((int)newBlockSize);
+            
             // equilibrate off the lattice to avoid anomolous contributions
             activityIntegrate.setMaxSteps(initSteps/2);
             getController().actionPerformed();
@@ -333,6 +348,7 @@ public class SimOverlapAB extends Simulation {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
             System.out.println("setting ref pref to "+bennettParam);
+            setAccumulatorBlockSize(oldBlockSize);
             
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
@@ -348,6 +364,7 @@ public class SimOverlapAB extends Simulation {
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage 
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
+        accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -357,17 +374,42 @@ public class SimOverlapAB extends Simulation {
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
         }
-        if (integratorOverlap != null && accumulators[0] != null && 
+        if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorSim.setDSVO(dsvo);
         }
     }
     
+    public void setAccumulatorBlockSize(int newBlockSize) {
+        blockSize = newBlockSize;
+        for (int i=0; i<2; i++) {
+            accumulators[i].setBlockSize(newBlockSize);
+        }
+        try {
+            // reset the integrator so that it will re-adjust step frequency
+            // and ensure it will take enough data for both ref and target
+            integratorSim.reset();
+        }
+        catch (ConfigurationOverlapException e) { /* meaningless */ }
+    }
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
+        
+        //This code allows the computer to set the block size for the main
+        //simulation and equilibration/finding alpha separately.
+        int oldBlockSize = blockSize;
+        long newBlockSize = initSteps*integratorSim.getNumSubSteps()/1000;
+        //make sure new block size is reasonablel
+        if(newBlockSize < 1000){
+            newBlockSize = 1000;
+        }
+        if (newBlockSize >1000000) {
+            newBlockSize = 1000000;
+        }
+        setAccumulatorBlockSize((int)newBlockSize);
         
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
@@ -402,8 +444,8 @@ public class SimOverlapAB extends Simulation {
         else {
             dsvo.reset();
         }
+        setAccumulatorBlockSize(oldBlockSize);
     }
-    
     
     public static void main(String args[]){
         SimOverlapABParam params = new SimOverlapABParam();
@@ -442,7 +484,7 @@ public class SimOverlapAB extends Simulation {
         System.out.println("instantiated");
         
         //start simulation & equilibrate
-        sim.integratorOverlap.setNumSubSteps(1000);
+        sim.integratorSim.setNumSubSteps(1000);
         numSteps /= 1000;
         sim.initBennettParameter(filename, numSteps/20);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
@@ -460,12 +502,12 @@ public class SimOverlapAB extends Simulation {
         }
         System.out.println("equilibration finished.");
         
-        sim.integratorOverlap.getMoveManager().setEquilibrating(false);
+        sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorOverlap.getStepFreq0() + " (actual: " + 
-                sim.integratorOverlap.getActualStepFreq0() + ")");
+                sim.integratorSim.getStepFreq0() + " (actual: " + 
+                sim.integratorSim.getActualStepFreq0() + ")");
         
         double[][] omega2 = sim.nm.getOmegaSquared(sim.boxTarget); 
         //Above known from the analytical results. - otherwise it would be from 
