@@ -130,8 +130,6 @@ public class VirialAlkaneMix2 {
             System.out.println(rmCH4+" "+p2CH4.u(rmCH4*rmCH4));
           }
           System.exit(1);*/
-        int element1 = 0;
-        int element2 = 0;
         P2Exp6Buckingham p2CH3 = new P2Exp6Buckingham(space, epsilonCH3, alphaCH3, rmCH3, rmaxCH3);
         P2Exp6Buckingham p2CH2 = new P2Exp6Buckingham(space, epsilonCH2, alphaCH2, rmCH2, rmaxCH2);
         //P2Exp6Buckingham p2CH4CH3 = new P2Exp6Buckingham(space, epsilonCH4CH3, alphaCH4CH3, rmCH4CH3, rmaxCH4CH3);
