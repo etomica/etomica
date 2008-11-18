@@ -66,8 +66,8 @@ public class SimOverlapAB extends Simulation {
     MCMoveChangeMode changeMove;
     MCMoveCompareMode convertMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterConvertModeBrute meterBinA, meterBinB;
-    MeterConvertTest meterTestBinA, meterTestBinB;
+    MeterCompareModeBrute meterBinA, meterBinB;
+    MeterCompareTest meterTestBinA, meterTestBinB;
     MeterOverlap meterOverlapInA, meterOverlapInB;
     
     public SimOverlapAB(Space _space, int numAtoms, double density, double 
@@ -141,7 +141,7 @@ public class SimOverlapAB extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         
-        meterBinA = new MeterConvertModeBrute("meterBinA", potentialMasterTarget, 
+        meterBinA = new MeterCompareModeBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
         meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
@@ -231,7 +231,7 @@ public class SimOverlapAB extends Simulation {
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);
        
-        meterBinB = new MeterConvertModeBrute(potentialMasterRef,
+        meterBinB = new MeterCompareModeBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
         meterBinB.setEigenVectors(nm.getEigenvectors(boxRef));
@@ -588,8 +588,8 @@ public class SimOverlapAB extends Simulation {
     
     public void setAffectedWaveVector(int awv){
         convertMove.setConvertedWaveVector(awv);
-        meterBinA.setConvertedWV(awv);
-        meterBinB.setConvertedWV(awv);
+        meterBinA.setComparedWV(awv);
+        meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapABParam extends ParameterBase {
         public int numAtoms = 32;

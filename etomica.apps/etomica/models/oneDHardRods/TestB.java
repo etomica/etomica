@@ -129,14 +129,14 @@ public class TestB extends Simulation {
         MeterPotentialEnergy meterAinB = new MeterPotentialEnergy(potentialMaster);
         meterAinB.setBox(box);
        
-        MeterConvertModeBrute meterBinB = new MeterConvertModeBrute(potentialMaster,coordinateDefinition,box);
+        MeterCompareModeBrute meterBinB = new MeterCompareModeBrute(potentialMaster,coordinateDefinition,box);
         meterBinB.setCoordinateDefinition(coordinateDefinition);
         meterBinB.setEigenVectors(nm.getEigenvectors(box));
         meterBinB.setOmegaSquared(nm.getOmegaSquared(box));
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactory.getWaveVectors());
-        meterBinB.setConvertedWV(affectedWV);
+        meterBinB.setComparedWV(affectedWV);
         
         MeterOverlapTestB meterOverlapB = new MeterOverlapTestB(meterAinB, meterBinB, temperature);
         avgOverlap = new AccumulatorAverageFixed();

@@ -19,14 +19,14 @@ import etomica.units.Null;
  * @author cribbin
  *
  */
-public class MeterConvertModeBrute extends DataSourceScalar {
+public class MeterCompareModeBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
     
     private double eigenVectors[][][];
     private IVector[] waveVectors;
-    int convertedWV;
+    int comparedWV;
     protected double temperature;
     private double[] waveVectorCoefficients;
     private double wvc;
@@ -39,11 +39,11 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-    public MeterConvertModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
-        this("meterConvertMode", potentialMaster, cd, box);
+    public MeterCompareModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+        this("meterCompareMode", potentialMaster, cd, box);
     }
     
-    public MeterConvertModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
@@ -64,12 +64,12 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         double energyOld = meterPE.getDataAsScalar();
         
         //get normal mode coordinate of "last" waveVector
-        coordinateDefinition.calcT(waveVectors[convertedWV], realT, imagT);
+        coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
         double realCoord = 0.0, imagCoord = 0.0;
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
             for(int j = 0; j < coordinateDim; j++){
-                realCoord += eigenVectors[convertedWV][i][j] * realT[j];
-                imagCoord += eigenVectors[convertedWV][i][j] * imagT[j];
+                realCoord += eigenVectors[comparedWV][i][j] * realT[j];
+                imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
             }
         }
         
@@ -84,13 +84,13 @@ public class MeterConvertModeBrute extends DataSourceScalar {
             
             //Calculate the contributions to the current position of the 
             //zeroed mode, and subtract it from the overall position.
-            double kR = waveVectors[convertedWV].dot(cell.cellPosition);
+            double kR = waveVectors[comparedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 //Calculate the current coordinates.
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenVectors[convertedWV][i][j] *
+                    deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] *
                         2.0 * (realCoord*coskR - imagCoord*sinkR);
                 }
             }
@@ -108,11 +108,11 @@ public class MeterConvertModeBrute extends DataSourceScalar {
         
         //Calculate the energy due to the Gaussian modes.
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-            if(Double.isInfinite(omegaSquared[convertedWV][i])){
+            if(Double.isInfinite(omegaSquared[comparedWV][i])){
                 continue;
             }
             double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
-            energyHarmonic += wvc * normalCoord * omegaSquared[convertedWV][i];
+            energyHarmonic += wvc * normalCoord * omegaSquared[comparedWV][i];
         }
         
         // Set all the atoms back to the old values of u
@@ -137,9 +137,9 @@ public class MeterConvertModeBrute extends DataSourceScalar {
     public void setWaveVectors(IVector[] waveVectors) {
         this.waveVectors = waveVectors;
     }
-    public void setConvertedWV(int convertedWV) {
-        this.convertedWV = convertedWV;
-        wvc = waveVectorCoefficients[convertedWV];
+    public void setComparedWV(int comparedWV) {
+        this.comparedWV = comparedWV;
+        wvc = waveVectorCoefficients[comparedWV];
     }
     public void setTemperature(double temperature) {
         this.temperature = temperature;
