@@ -333,7 +333,7 @@ public class VirialAlkaneMix2 {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
                                
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
