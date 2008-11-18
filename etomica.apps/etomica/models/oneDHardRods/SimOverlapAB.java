@@ -486,10 +486,14 @@ public class SimOverlapAB extends Simulation {
         System.out.println("Running Nancy's 1DHR simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
-        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
+        System.out.println("temperature: ");
+        System.out.println("affected wave vector: " + affectedWV);
+        System.out.println("Total steps: "+numSteps+" in blocks of "+blockSize);
+        System.out.println(numEqSteps+" equilibration steps, in blocks of "+ eqBlockSize);
+        System.out.println(subBlockSize+" steps in subintegrator, per step in uberintegrator");
+//        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
         System.out.println("output data to "+filename);
    
-        
         
         //instantiate simulations!
         SimOverlapAB sim = new SimOverlapAB(Space.getInstance(D), numMolecules,
