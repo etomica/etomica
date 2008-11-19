@@ -19,7 +19,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * @author cribbin
  *
  */
-public class MCMoveCompareMode extends MCMoveBoxStep{
+public class MCMoveCompareSingleMode extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -44,7 +44,7 @@ public class MCMoveCompareMode extends MCMoveBoxStep{
     
     int count;
     
-    public MCMoveCompareMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveCompareSingleMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;

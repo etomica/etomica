@@ -43,7 +43,7 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapAB extends Simulation {
+public class SimOverlapSingleWaveVector extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimOverlapAB";
     Primitive primitive;
@@ -64,13 +64,13 @@ public class SimOverlapAB extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeMode changeMove;
-    MCMoveCompareMode convertMove;
+    MCMoveCompareSingleMode convertMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterCompareModeBrute meterBinA, meterBinB;
+    MeterCompareSingleModeBrute meterBinA, meterBinB;
     MeterCompareTest meterTestBinA, meterTestBinB;
     MeterOverlap meterOverlapInA, meterOverlapInB;
     
-    public SimOverlapAB(Space _space, int numAtoms, double density, double 
+    public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
@@ -141,7 +141,7 @@ public class SimOverlapAB extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         
-        meterBinA = new MeterCompareModeBrute("meterBinA", potentialMasterTarget, 
+        meterBinA = new MeterCompareSingleModeBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
         meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
@@ -214,7 +214,7 @@ public class SimOverlapAB extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        convertMove = new MCMoveCompareMode(potentialMasterRef, 
+        convertMove = new MCMoveCompareSingleMode(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(convertMove);
         convertMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -231,7 +231,7 @@ public class SimOverlapAB extends Simulation {
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);
        
-        meterBinB = new MeterCompareModeBrute(potentialMasterRef,
+        meterBinB = new MeterCompareSingleModeBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
         meterBinB.setEigenVectors(nm.getEigenvectors(boxRef));
@@ -496,7 +496,7 @@ public class SimOverlapAB extends Simulation {
    
         
         //instantiate simulations!
-        SimOverlapAB sim = new SimOverlapAB(Space.getInstance(D), numMolecules,
+        SimOverlapSingleWaveVector sim = new SimOverlapSingleWaveVector(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, affectedWV);
         
         System.out.println("instantiated");

@@ -19,7 +19,7 @@ import etomica.units.Null;
  * @author cribbin
  *
  */
-public class MeterCompareModeBrute extends DataSourceScalar {
+public class MeterCompareSingleModeBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
@@ -39,11 +39,11 @@ public class MeterCompareModeBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-    public MeterCompareModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareSingleModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
         this("meterCompareMode", potentialMaster, cd, box);
     }
     
-    public MeterCompareModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareSingleModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];

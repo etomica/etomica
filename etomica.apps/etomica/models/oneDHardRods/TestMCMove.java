@@ -96,7 +96,7 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        MCMoveCompareMode convert = new MCMoveCompareMode(potentialMaster, random);
+        MCMoveCompareSingleMode convert = new MCMoveCompareSingleMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
         convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

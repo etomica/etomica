@@ -103,7 +103,7 @@ public class TestB extends Simulation {
         
         affectedWV = awv;
         
-        MCMoveCompareMode convert = new MCMoveCompareMode(potentialMaster, random);
+        MCMoveCompareSingleMode convert = new MCMoveCompareSingleMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
         convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -129,7 +129,7 @@ public class TestB extends Simulation {
         MeterPotentialEnergy meterAinB = new MeterPotentialEnergy(potentialMaster);
         meterAinB.setBox(box);
        
-        MeterCompareModeBrute meterBinB = new MeterCompareModeBrute(potentialMaster,coordinateDefinition,box);
+        MeterCompareSingleModeBrute meterBinB = new MeterCompareSingleModeBrute(potentialMaster,coordinateDefinition,box);
         meterBinB.setCoordinateDefinition(coordinateDefinition);
         meterBinB.setEigenVectors(nm.getEigenvectors(box));
         meterBinB.setOmegaSquared(nm.getOmegaSquared(box));

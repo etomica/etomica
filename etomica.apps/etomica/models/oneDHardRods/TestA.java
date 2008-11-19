@@ -134,7 +134,7 @@ public class TestA extends Simulation {
         MeterPotentialEnergy meterAinA = new MeterPotentialEnergy(potentialMaster);
         meterAinA.setBox(box);
         
-        MeterCompareModeBrute meterBinA = new MeterCompareModeBrute(potentialMaster, coordinateDefinition, box);
+        MeterCompareSingleModeBrute meterBinA = new MeterCompareSingleModeBrute(potentialMaster, coordinateDefinition, box);
         meterBinA.setEigenVectors(nm.getEigenvectors(box));
         meterBinA.setOmegaSquared(nm.getOmegaSquared(box));
         meterBinA.setTemperature(temperature);
