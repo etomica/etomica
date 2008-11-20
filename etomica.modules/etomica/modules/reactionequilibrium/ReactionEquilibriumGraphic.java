@@ -82,7 +82,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         sim.integratorHard1.setTimeStep(0.01);
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
         config.initializeCoordinates(sim.box);

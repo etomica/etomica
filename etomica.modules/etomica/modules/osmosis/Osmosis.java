@@ -108,7 +108,6 @@ public class Osmosis extends SimulationGraphic {
         final IAction resetAction = simRestart.getDataResetAction();
         
         simRestart.setConfiguration(config);
-        getController().setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
 
         cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);

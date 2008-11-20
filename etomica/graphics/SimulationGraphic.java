@@ -1,4 +1,5 @@
 package etomica.graphics;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -395,7 +396,12 @@ public class SimulationGraphic implements SimulationContainer {
             }
         }
         else {
-            getPanel().controlPanel.add(component,SimulationPanel.getVertGBC());
+            if(device instanceof DeviceTrioControllerButton) {
+                getPanel().graphicsPanel.add(component, BorderLayout.SOUTH);
+            }
+            else {
+                getPanel().controlPanel.add(component,SimulationPanel.getVertGBC());
+            }
         }
         deviceList.add(device);
     }

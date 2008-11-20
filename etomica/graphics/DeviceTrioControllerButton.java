@@ -50,7 +50,7 @@ public class DeviceTrioControllerButton extends Device {
     public DeviceTrioControllerButton() {
         super();
         jp = new JPanel(new java.awt.GridLayout(1,0, 20, 20)); //default shape of panel
-        jp.setBorder(new TitledBorder(null, "Control", TitledBorder.CENTER, TitledBorder.TOP));
+//        jp.setBorder(new TitledBorder(null, "Control", TitledBorder.CENTER, TitledBorder.TOP));
         jp.setOpaque(false);
 
         startButton = new DeviceControllerButton(null);
@@ -63,7 +63,7 @@ public class DeviceTrioControllerButton extends Device {
         jp.add(reinitButton.graphic());  
         jp.add(resetButton.graphic());
                        
-        setShape("VERTICAL");
+        setShape("HORIZONTAL");
     }
         
     /**

@@ -18,6 +18,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
+import etomica.units.Pixel;
 import etomica.units.Pressure2D;
 import etomica.util.HistoryScrolling;
 
@@ -28,7 +29,9 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
     public MaterialFractureGraphic(final MaterialFracture sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace(), sim.getController());
-             
+
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
+
         final StrainColorScheme strainColor = new StrainColorScheme(sim);    
         getDisplayBox(sim.box).setColorScheme(strainColor);
         // 37 is the index of the first atom (on the left) to be colored red

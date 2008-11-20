@@ -77,7 +77,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(7));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
