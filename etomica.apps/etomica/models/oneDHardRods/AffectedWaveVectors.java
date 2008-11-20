@@ -18,7 +18,7 @@ public class AffectedWaveVectors {
     }
 
     /**
-     * Argument is a list of the wavevectors that are affected.
+     * Argument is a list of the wavevectors that are compared.
      * @param values
      */
     public void setWVs(int[] values){
@@ -27,13 +27,13 @@ public class AffectedWaveVectors {
                     "wavevectors than the system has (in AffectedWaveVectors!");
         }
         for (int i = 0; i < length; i++){
-            useme[i] = false;
+            useme[i] = true;
         }
         for(int j = 0; j < values.length; j++){
             if(values[j] < 1){
                 throw new IllegalArgumentException ("AffectedWaveVectors " +
                         "cannot cope with a negative or zero wavevector");} 
-            useme[values[j]] = true;
+            useme[values[j]] = false;
         }
     }
 
