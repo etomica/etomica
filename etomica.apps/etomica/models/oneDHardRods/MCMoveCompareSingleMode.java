@@ -42,7 +42,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     
     
     
-    int count;
+//    int count;
     
     public MCMoveCompareSingleMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -51,7 +51,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         iterator = new AtomIteratorAllMolecules();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
-        count = 0;
+//        count = 0;
     }
 
 
@@ -238,7 +238,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }
         
-        energyEvenLater = energyMeter.getDataAsScalar();
+//        energyEvenLater = energyMeter.getDataAsScalar();
         
         return true;
     }
@@ -253,7 +253,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     
     public void acceptNotify() {
 //        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
-        count ++;
+//        count ++;
     }
 
     public double energyChange() {
