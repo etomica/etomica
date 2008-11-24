@@ -475,11 +475,16 @@ public class SimOverlapSingleWaveVector extends Simulation {
         }
         double temperature = params.temperature;
         int affectedWV = params.affectedWV;
+        
         long numSteps = params.numSteps;
-        long numEqSteps = params.eqNumSteps;
-        long subBlockSize = params.subBlockSize;
-        long eqBlockSize = params.eqBlockSize;
         long blockSize = params.blockSize;
+        long subBlockSize = params.subBlockSize;
+        
+        long numEqSteps = params.eqNumSteps;
+        long eqBlockSize = params.eqBlockSize;
+
+        long numBennettSteps = params.bennettNumSteps;
+        long benBlockSize = params.benBlockSize;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
@@ -488,24 +493,29 @@ public class SimOverlapSingleWaveVector extends Simulation {
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: ");
         System.out.println("affected wave vector: " + affectedWV);
-        System.out.println("Total steps: "+numSteps+" in blocks of "+blockSize);
-        System.out.println(numEqSteps+" equilibration steps, in blocks of "+ eqBlockSize);
-        System.out.println(subBlockSize+" steps in subintegrator, per step in uberintegrator");
-//        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
+        System.out.println("Total steps: "+numSteps+" , split into blocks of "+blockSize);
+        System.out.println(subBlockSize+" steps in subintegrator, per step in  main integrator");
+        System.out.println(numEqSteps+" equilibration steps, split into blocks of "+ eqBlockSize);
+        System.out.println(numBennettSteps+" Bennett-only steps, split into blocks of"+benBlockSize);
+        //        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
         System.out.println("output data to "+filename);
-   
+
+
         
         //instantiate simulations!
         SimOverlapSingleWaveVector sim = new SimOverlapSingleWaveVector(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, affectedWV);
-        
         System.out.println("instantiated");
+        
+        //Divide out all the steps, so that the subpieces have the proper # of steps
+        numSteps /= (int)subBlockSize;
+        numEqSteps /= (int)subBlockSize;
+        numBennettSteps /= (int)subBlockSize;
         
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps((int)subBlockSize);
-        numSteps /= (int)subBlockSize;
-        sim.initBennettParameter(filename, numEqSteps/2);
+        sim.initBennettParameter(filename, numBennettSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
 //            System.out.println("bennet info:  " + )
@@ -598,14 +608,18 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int affectedWV = 1;
-        public long numSteps = 40000000; //40000 is minimum number of steps
-        public long eqNumSteps = 4000;  //This will be multiplied by the number
-                                        //of steps per subintegrator for the 
-                                        //total number of steps.
-        public long subBlockSize = 1000;    //# of steps per subintegrator
+        public int affectedWV = 10;
+        
+        public long numSteps = 40000000;
         public long blockSize = 100000;
+        public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+
+        public long eqNumSteps = 4000000;  
         public long eqBlockSize = 10000;
+        
+        public long bennettNumSteps = 2000000;
+        public long benBlockSize = 10000;
+
     }
     
 }

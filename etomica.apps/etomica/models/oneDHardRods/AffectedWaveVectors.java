@@ -9,13 +9,14 @@ package etomica.models.oneDHardRods;
  */
 
 public class AffectedWaveVectors {
-    boolean[] useThisWaveVector;
+//    boolean[] useThisWaveVector;
     int length;
-    int numberAffected;
+    int[] wvList;
     
-    public AffectedWaveVectors(int l){
-        length = l;
-        useThisWaveVector = new boolean[l];
+    public AffectedWaveVectors(int[] values){
+        length = values.length;
+//        useThisWaveVector = new boolean[values.length];
+        wvList = new int[values.length];
     }
 
     /**
@@ -23,36 +24,39 @@ public class AffectedWaveVectors {
      * @param values
      */
     public void setWVs(int[] values){
-        numberAffected = 0;
+        int numberAffected = 0;
         if(values.length > length){
             throw new IllegalArgumentException("Trying to compare more " +
                     "wavevectors than the system has (in AffectedWaveVectors!");
         }
-        //set all modes to used
-        for (int i = 0; i < length; i++){
-            useThisWaveVector[i] = true;
-        }
-        //change the modes that are not used to false
-        for(int j = 0; j < values.length; j++){
-            if(values[j] < 1){
-                throw new IllegalArgumentException ("AffectedWaveVectors " +
-                        "cannot cope with a negative or zero wavevector");
-            }
-            useThisWaveVector[values[j]] = false;
-            numberAffected++;
-        }
+//        //set all modes to used
+//        for (int i = 0; i < length; i++){
+//            useThisWaveVector[i] = true;
+//        }
+//        //change the modes that are not used to false
+//        for(int j = 0; j < values.length; j++){
+//            if(values[j] < 1){
+//                throw new IllegalArgumentException ("AffectedWaveVectors " +
+//                        "cannot cope with a negative or zero wavevector");
+//            }
+//            useThisWaveVector[values[j]] = false;
+//            numberAffected++;
+//        }
+        length = values.length;
+        wvList = values;
+        
     }
 
-    public boolean isUsed(int i){
-        return useThisWaveVector[i];
-    }
+//    public boolean isUsed(int i){
+//        return useThisWaveVector[i];
+//    }
 
-    public boolean[] getWVs(){
-        return useThisWaveVector;
-    }
+//    public boolean[] getWVs(){
+//        return useThisWaveVector;
+//    }
     
     public int getNumberOfWVsAffected(){
-        return numberAffected;
+        return length;
     }
     
     

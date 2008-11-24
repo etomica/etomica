@@ -38,8 +38,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     double[] uNow;
-
-    AffectedWaveVectors affectedWVs;
+    
+    int howManyChangesToHardRodModes;
+ 
+    int[] affectedWVs;
 
     int count;
 
@@ -52,6 +54,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
         count = 0;
+        howManyChangesToHardRodModes = 1;
     }
 
     public boolean doTrial() {
@@ -66,63 +69,63 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1 / Math.sqrt(cells.length);
+        int numWV = affectedWVs.length;
 
         /*
          * This loop looks at each wavevector, asks if that wavevector is
          * removed, and calculates what happens if it is.
          */
 // ZERO OUT A NORMAL MODE.
-        for (int wvCount = 0; wvCount < waveVectors.length; wvCount++) {
-            if (affectedWVs.isUsed(wvCount) == false) {
-                // Get normal mode coordinate information
-                coordinateDefinition.calcT(waveVectors[wvCount], realT, imagT);
-                // System.out.println("Real: "+ realT[0]);
-                // System.out.println("Imag: "+ imagT[0]);
-                for (int iCell = 0; iCell < cells.length; iCell++) {
-                    // store old positions.
-                    uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-                    System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-                    cell = cells[iCell];
-                    // rezero deltaU
-                    for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] = 0.0;
-                        // System.out.println(uNow[j]);
-                    }
-
-                    // Calculate the contributions to the current position of
-                    // the zeroed
-                    // mode, and subtract it from the overall position
-                    double kR = waveVectors[wvCount].dot(cell.cellPosition);
-                    double coskR = Math.cos(kR);
-                    double sinkR = Math.sin(kR);
-                    for (int i = 0; i < coordinateDim; i++) {
-                        // Calculate the current coordinate:
-                        double realCoord = 0, imagCoord = 0;
-                        for (int j = 0; j < coordinateDim; j++) {
-                            realCoord += eigenVectors[wvCount][i][j] * realT[j];
-                            // System.out.println("realcoord " + realCoord);
-                            imagCoord += eigenVectors[wvCount][i][j] * imagT[j];
-                            // System.out.println("imagcoord " + imagCoord);
-                        }
-                        for (int j = 0; j < coordinateDim; j++) {
-                            deltaU[j] -= waveVectorCoefficients[wvCount] * eigenVectors[wvCount][i][j]
-                                    * 2.0
-                                    * (realCoord * coskR - imagCoord * sinkR);
-                            // System.out.println("delta 1 " + deltaU[j]);
-                        }
-                    }
-                    for (int i = 0; i < coordinateDim; i++) {
-                        deltaU[i] *= normalization;
-                    }
-
-                    for (int i = 0; i < coordinateDim; i++) {
-                        uNow[i] += deltaU[i];
-                        // System.out.println("1-unow " + uNow[i]);
-                    }
-                    coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-
+        for (int wvCount = 0; wvCount < numWV; wvCount++) {
+            int comparedwv = affectedWVs[wvCount];
+            // Get normal mode coordinate information
+            coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
+            // System.out.println("Real: "+ realT[0]);
+            // System.out.println("Imag: "+ imagT[0]);
+            for (int iCell = 0; iCell < cells.length; iCell++) {
+                // store old positions.
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+                cell = cells[iCell];
+                // rezero deltaU
+                for (int j = 0; j < coordinateDim; j++) {
+                    deltaU[j] = 0.0;
+                    // System.out.println(uNow[j]);
                 }
-            }// end of wvCount loop's if statement
+
+                // Calculate the contributions to the current position of
+                // the zeroed
+                // mode, and subtract it from the overall position
+                double kR = waveVectors[comparedwv].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for (int i = 0; i < coordinateDim; i++) {
+                    // Calculate the current coordinate:
+                    double realCoord = 0, imagCoord = 0;
+                    for (int j = 0; j < coordinateDim; j++) {
+                        realCoord += eigenVectors[comparedwv][i][j] * realT[j];
+                        // System.out.println("realcoord " + realCoord);
+                        imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
+                        // System.out.println("imagcoord " + imagCoord);
+                    }
+                    for (int j = 0; j < coordinateDim; j++) {
+                        deltaU[j] -= waveVectorCoefficients[comparedwv] * eigenVectors[comparedwv][i][j]
+                                * 2.0
+                                * (realCoord * coskR - imagCoord * sinkR);
+                        // System.out.println("delta 1 " + deltaU[j]);
+                    }
+                }
+                for (int i = 0; i < coordinateDim; i++) {
+                    deltaU[i] *= normalization;
+                }
+
+                for (int i = 0; i < coordinateDim; i++) {
+                    uNow[i] += deltaU[i];
+                    // System.out.println("1-unow " + uNow[i]);
+                }
+                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+
+            }
         }// end of wvCount loop
 
         energyOld = energyMeter.getDataAsScalar();
@@ -139,58 +142,59 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
 // MOVE AN EQUIVALENT NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
-        int numWV = affectedWVs.getNumberOfWVsAffected();
         int changedWV;
-        for(int wvCount = 0; wvCount < numWV; wvCount++){
-            if (affectedWVs.isUsed(wvCount) == false) {
-                // Select the wave vector whose eigenvectors will be changed.
-                // The zero wavevector is center of mass motion, and is rejected as
-                // a possibility.
-                do{
-                    changedWV = random.nextInt(numWV-1);
-                    changedWV += 1;
-                } while (affectedWVs.isUsed(changedWV));
-                
-                // calculate the new positions of the atoms.
-                // loop over cells
-                double delta1 = (2 * random.nextDouble() - 1) * stepSize;
-                double delta2 = (2 * random.nextDouble() - 1) * stepSize;
-                // delta1 = 0.0; delta2 = 0.5; //nork
-                for (int iCell = 0; iCell < cells.length; iCell++) {
-                    uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-                    cell = cells[iCell];
-                    // rezero deltaU
+        for(int wvCount = 0; wvCount <= howManyChangesToHardRodModes; wvCount++){
+            // Select the wave vector whose eigenvectors will be changed.
+            // The zero wavevector is center of mass motion, and is rejected as
+            // a possibility.
+            boolean flag = false;
+            do{
+                changedWV = random.nextInt(numWV-1);
+                changedWV += 1;
+                for(int i = 0; i < affectedWVs.length; i++){
+                    if (changedWV != affectedWVs[i]) {flag = true;}
+                }
+            } while (flag/*affectedWVs.isUsed(changedWV)*/);
+            
+            // calculate the new positions of the atoms.
+            // loop over cells
+            double delta1 = (2 * random.nextDouble() - 1) * stepSize;
+            double delta2 = (2 * random.nextDouble() - 1) * stepSize;
+            // delta1 = 0.0; delta2 = 0.5; //nork
+            for (int iCell = 0; iCell < cells.length; iCell++) {
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                cell = cells[iCell];
+                // rezero deltaU
+                for (int j = 0; j < coordinateDim; j++) {
+                    deltaU[j] = 0.0;
+                    // System.out.println(uNow[j]);
+                }
+                // loop over the wavevectors, and sum contribution of each to
+                // the generalized coordinates. Change the selected wavevectors
+                // eigenvectors at the same time!
+                double kR = waveVectors[changedWV].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                // System.out.println("icell " +iCell);
+                // System.out.println("sinkR " + sinkR);
+                // System.out.println("coskR "+ coskR);
+                for (int i = 0; i < coordinateDim; i++) {
                     for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] = 0.0;
-                        // System.out.println(uNow[j]);
+                        deltaU[j] += waveVectorCoefficients[changedWV]
+                                * eigenVectors[changedWV][i][j] * 2.0
+                                * (delta1 * coskR - delta2 * sinkR);
                     }
-                    // loop over the wavevectors, and sum contribution of each to
-                    // the generalized coordinates. Change the selected wavevectors
-                    // eigenvectors at the same time!
-                    double kR = waveVectors[changedWV].dot(cell.cellPosition);
-                    double coskR = Math.cos(kR);
-                    double sinkR = Math.sin(kR);
-                    // System.out.println("icell " +iCell);
-                    // System.out.println("sinkR " + sinkR);
-                    // System.out.println("coskR "+ coskR);
-                    for (int i = 0; i < coordinateDim; i++) {
-                        for (int j = 0; j < coordinateDim; j++) {
-                            deltaU[j] += waveVectorCoefficients[changedWV]
-                                    * eigenVectors[changedWV][i][j] * 2.0
-                                    * (delta1 * coskR - delta2 * sinkR);
-                        }
+            }
+                // for(int i = 0; i < coordinateDim; i++){
+                // // deltaU[i] *= normalization;
+                // System.out.println(deltaU[i]);
+                // }
+                for (int i = 0; i < coordinateDim; i++) {
+                    uNow[i] += deltaU[i];
+                    // System.out.println("2-unow " + uNow[i]);
                 }
-                    // for(int i = 0; i < coordinateDim; i++){
-                    // // deltaU[i] *= normalization;
-                    // System.out.println(deltaU[i]);
-                    // }
-                    for (int i = 0; i < coordinateDim; i++) {
-                        uNow[i] += deltaU[i];
-                        // System.out.println("2-unow " + uNow[i]);
-                    }
-                    coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-                }
-            }//end wvCount if statement
+                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+            }
         }//end wvCount loop
         
         energyNew = energyMeter.getDataAsScalar();
@@ -208,64 +212,63 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         //This should loop over the 
         
         for(int wvCount = 0; wvCount < numWV; wvCount++){
-            if (affectedWVs.isUsed(wvCount) == false) {
+            int comparedWV = affectedWVs[wvCount];
+            for (int j = 0; j < coordinateDim; j++) {
+                if (stdDev[wvCount][j] == 0)
+                    continue;
+                // generate real and imaginary parts of random normal-mode
+                // coordinate Q
+                double realGauss = random.nextGaussian() * sqrtT;
+                double imagGauss = random.nextGaussian() * sqrtT;
+    
+                // realGauss = 0.6; //nork
+                // imagGauss = 0.3; //nork
+    
+                // XXX we know that if c(k) = 0.5, one of the gaussians will be
+                // ignored, but
+                // it's hard to know which. So long as we don't put an atom at the
+                // origin
+                // (which is true for 1D if c(k)=0.5), it's the real part that will
+                // be ignored.
+                if (waveVectorCoefficients[wvCount] == 0.5)
+                    imagGauss = 0;
+                rRand[j] = realGauss * stdDev[wvCount][j];
+                iRand[j] = imagGauss * stdDev[wvCount][j];
+                gaussian[0] = realGauss;
+                gaussian[1] = imagGauss;
+    
+            }
+    
+            // calculate the new positions of the atoms.
+            for (int iCell = 0; iCell < cells.length; iCell++) {
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                cell = cells[iCell];
+                // rezero deltaU
                 for (int j = 0; j < coordinateDim; j++) {
-                    if (stdDev[wvCount][j] == 0)
-                        continue;
-                    // generate real and imaginary parts of random normal-mode
-                    // coordinate Q
-                    double realGauss = random.nextGaussian() * sqrtT;
-                    double imagGauss = random.nextGaussian() * sqrtT;
-        
-                    // realGauss = 0.6; //nork
-                    // imagGauss = 0.3; //nork
-        
-                    // XXX we know that if c(k) = 0.5, one of the gaussians will be
-                    // ignored, but
-                    // it's hard to know which. So long as we don't put an atom at the
-                    // origin
-                    // (which is true for 1D if c(k)=0.5), it's the real part that will
-                    // be ignored.
-                    if (waveVectorCoefficients[wvCount] == 0.5)
-                        imagGauss = 0;
-                    rRand[j] = realGauss * stdDev[wvCount][j];
-                    iRand[j] = imagGauss * stdDev[wvCount][j];
-                    gaussian[0] = realGauss;
-                    gaussian[1] = imagGauss;
-        
+                    deltaU[j] = 0.0;
                 }
-        
-                // calculate the new positions of the atoms.
-                for (int iCell = 0; iCell < cells.length; iCell++) {
-                    uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-                    cell = cells[iCell];
-                    // rezero deltaU
+                // Calculate the change in position due to the substitution of a
+                // Gaussian.
+                double kR = waveVectors[wvCount].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for (int i = 0; i < coordinateDim; i++) {
                     for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] = 0.0;
+                        deltaU[j] += waveVectorCoefficients[wvCount] * eigenVectors[wvCount][i][j] * 2.0
+                                * (rRand[i] * coskR - iRand[i] * sinkR);
                     }
-                    // Calculate the change in position due to the substitution of a
-                    // Gaussian.
-                    double kR = waveVectors[wvCount].dot(cell.cellPosition);
-                    double coskR = Math.cos(kR);
-                    double sinkR = Math.sin(kR);
-                    for (int i = 0; i < coordinateDim; i++) {
-                        for (int j = 0; j < coordinateDim; j++) {
-                            deltaU[j] += waveVectorCoefficients[wvCount] * eigenVectors[wvCount][i][j] * 2.0
-                                    * (rRand[i] * coskR - iRand[i] * sinkR);
-                        }
-                    }
-                    for (int i = 0; i < coordinateDim; i++) {
-                        deltaU[i] *= normalization;
-                    }
-        
-                    for (int i = 0; i < coordinateDim; i++) {
-                        uNow[i] += deltaU[i];
-                        // System.out.println("3-unow " + uNow[i]);
-                    }
-                    coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 }
+                for (int i = 0; i < coordinateDim; i++) {
+                    deltaU[i] *= normalization;
+                }
+    
+                for (int i = 0; i < coordinateDim; i++) {
+                    uNow[i] += deltaU[i];
+                    // System.out.println("3-unow " + uNow[i]);
+                }
+                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+            }
                 
-            } //end wvCount if statement
         } // end wvCount loop
             
 //        energyEvenLater = energyMeter.getDataAsScalar();
@@ -331,7 +334,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     public void setWaveVectors(IVector[] wv){
         waveVectors = new IVector[wv.length];
         waveVectors = wv;
-        affectedWVs.setWVs(new int[wv.length]);
     }
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
         waveVectorCoefficients = newWaveVectorCoefficients;
@@ -362,6 +364,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void setConvertedWaveVectors(int[] wv) {
-        affectedWVs.setWVs(wv);
+        affectedWVs = wv;
+    }
+    public void setAffectedWV(int[] wv){
+        affectedWVs = wv;
     }
 }
