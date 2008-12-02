@@ -177,8 +177,8 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(random, new IntegratorBox[]{integratorHarmonic, integratorTarget});
-        integratorOverlap.setAdjustStepFreq(false);
-        integratorOverlap.setStepFreq0(0.02); //to make the number of sampling the same!! 7/29/08
+        //integratorOverlap.setAdjustStepFreq(false);
+        //integratorOverlap.setStepFreq0(0.02); //to make the number of sampling the same!! 7/29/08
         
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         meterHarmonicEnergy.setBox(boxTarget);
@@ -279,7 +279,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
-            setRefPref(1,200);
+            setRefPref(1.0,200);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
             getController().reset();
@@ -390,14 +390,15 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);   
-
-
         numSteps /= 1000;
 
 //        StopWatcher stopWatcher = new StopWatcher("stop", sim, filename);
 //        IntervalActionAdapter iaa = new IntervalActionAdapter(stopWatcher);
 //        iaa.setActionInterval(100);
 //        sim.integratorOverlap.addListener(iaa);
+
+        //sim.integratorOverlap.setAdjustStepFreq(false);
+        //sim.integratorOverlap.setStepFreq0(0.02);  //11/5/2008
 
         sim.initRefPref(refFileName, numSteps/20);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
@@ -413,10 +414,13 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
+        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         IEtomicaDataSource[] workBennets = new IEtomicaDataSource[2];
         IEtomicaDataSource[] boltzmannDirectSampling = new IEtomicaDataSource[2];
-        
+      
       /*
        *	 Harmonic Sampling
        */
@@ -456,14 +460,6 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         final AccumulatorHistogram histogramHarmonicTarget = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-50, 200)));
         dataForkHarmonic.addDataSink(histogramHarmonicTarget);
         
-        //Pressure (Integrator harmonic)
-        MeterPressure meterPressureHarmonic = new MeterPressure(Space.getInstance(D));
-        meterPressureHarmonic.setIntegrator(sim.integrators[0]);
-        
-        final AccumulatorAverage pressureHarmonicAverage = new AccumulatorAverageCollapsing();
-        DataPump pumpPressureHarmonic = new DataPump(meterPressureHarmonic, pressureHarmonicAverage);
-        sim.integrators[0].addIntervalAction(pumpPressureHarmonic);
-        sim.integrators[0].setActionInterval(pumpPressureHarmonic, 100);
         // end of Harmonic
         
         
@@ -767,14 +763,14 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
 		        double reweightedWorkBennHarm = meterWorkHarmonicBennet.getDataReweighted();
 		        double reweightedWorkBennTarg = meterWorkTargetBennet.getDataReweighted();
 		        
-		        double pressureHarmonic = ((DataGroup)pressureHarmonicAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double pressureTarget = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		        double pressureError = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        try {
 		        	
 		        	fileWriterDSFE.write(idStep*1000 + " " + deltaFE + " " + deltaFE_DSHarmonic + " " + deltaFE_DSTarget 
 		        							  + " " + targetFE + " "+ errorFE + " "+ wHarmonic + " " + wTarget
-		        			                  + " " + sHarmonic+ " "+ sTarget + " "+ pressureHarmonic + " " + pressureTarget + "\n");
+		        			                  + " " + sHarmonic+ " "+ sTarget + " "+ pressureTarget + " " + pressureError + "\n");
 		        	
 		        	fileWriterBen.write(idStep*1000 + " " + deltaFEHarmonic + " " + deltaFETarget + " " + wHarmonicBennet + " "+ wTargetBennet
 		        			+ " " + reweightedWorkBennHarm + " " + reweightedWorkBennTarg                      
@@ -1025,8 +1021,9 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
-        System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
+        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
+        System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio))+" ,error: "+temperature*(error/ratio));
+        System.out.println("target free energy per particle: "+temperature*(AHarmonic-Math.log(ratio))/numMolecules);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
@@ -1037,6 +1034,9 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
         
+        System.out.println("Average-Pressure: "+ ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
+				 " ,Error-Pressure: "+ ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+
         try{
 	        fileWriterDSFE.close();
 	        fileWriterBen.close();
@@ -1045,6 +1045,8 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         } catch (IOException e){
         	
         }
+        
+        
     }
 
     private static final long serialVersionUID = 1L;
@@ -1077,9 +1079,9 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 10000000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "CB_FCC_n12_T04";
-        public double temperature = 0.4;
+        public String filename = "CB_FCC_n12_T01";
+        public double temperature = 0.1;
     }
 }

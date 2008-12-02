@@ -73,6 +73,9 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             boundary = new BoundaryRectangularPeriodic(space, random, n * L);
             basis = new BasisCubicFcc();
         }
+        
+        System.out.println("L is: " + Math.pow(4.0/density, 1.0/3.0));
+        System.out.println("n is: " + (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0)));
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
         
@@ -107,7 +110,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
         // defaults
         int D = 3;
-        int nA = 108;
+        int nA = 32;
         double density = 1.256;
         double temperature = 0.1;
         int exponent = 12 ;
@@ -115,7 +118,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             nA = 3;
             density = 1.0;
         }
-        long simSteps =100000;
+        long simSteps =1000000;
 
         // parse arguments
         if (args.length > 1) {
@@ -197,6 +200,9 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
+        
+        long startTime = System.currentTimeMillis();
+        System.out.println("\nStart Time: " +startTime);
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().reset();
         meterNormalMode.reset();
@@ -208,7 +214,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
         sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, (int)simSteps/10);
+        sim.integrator.setActionInterval(sWriter, (int)simSteps/200);
         
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
@@ -216,12 +222,16 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
         
-        System.out.println("Average Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));
+        System.out.println("\nAverage Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));
         System.out.println("Error Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
         System.out.println(" ");
         
-        System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));
-        System.out.println("Error Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+        System.out.println("Average-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
+        					 " ,Error-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("End Time: " + endTime);
+        System.out.println("Time taken: " + (endTime - startTime));
     }
 
     private static final long serialVersionUID = 1L;

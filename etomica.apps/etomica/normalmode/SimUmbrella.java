@@ -11,7 +11,6 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -20,8 +19,6 @@ import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -101,7 +98,7 @@ public class SimUmbrella extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space);
@@ -251,16 +248,6 @@ public class SimUmbrella extends Simulation {
         sim.integrator.addIntervalAction(pumpSamplingTarget);
         sim.integrator.setActionInterval(pumpSamplingTarget, 1);
         
-        //Pressure 
-        MeterPressure meterPressure = new MeterPressure(Space.getInstance(D));
-        meterPressure.setIntegrator(sim.integrator);
-        
-        final AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
-        DataPump pumpPressure = new DataPump(meterPressure, pressureAverage);
-        sim.integrator.addIntervalAction(pumpPressure);
-        sim.integrator.setActionInterval(pumpPressure, 100);
-        
-        
         FileWriter fileWriter;
         
         try{
@@ -331,14 +318,11 @@ public class SimUmbrella extends Simulation {
 		        double pi_harmonic = Math.sqrt((sHarmonic/sTarget)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sHarmonic);
 		        double pi_target = Math.sqrt((sTarget/sHarmonic)*Math.log((0.5/Math.PI)*(steps-1)*(steps-1)))-Math.sqrt(2*sTarget);
 	
-		        double pressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double pressureError = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        try {
 		        	fileWriterUmb.write( idStep + " " + deltaFE_harmonic + " " + deltaFE_target + " " + deltaFE + " "
 		        			                          + wHarmonic + " " + wTarget + " "
 		        			                          + reweightedwHarmonic + " " + reweightedwTarget + " "
-		        			                          + pressure + " " + pressureError + " "
 		        			                          + sHarmonic + " " + sTarget + " "
 		        			                          + pi_harmonic + " " + pi_target + "\n");
 		        } catch (IOException e){
@@ -359,6 +343,29 @@ public class SimUmbrella extends Simulation {
         } catch (IOException e){
         	
         }
+
+		double[][] omega2 = sim.normalModes.getOmegaSquared(sim.box);
+		double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
+		double AHarmonic = 0;
+		for(int i=0; i<omega2.length; i++) {
+		      for(int j=0; j<omega2[0].length; j++) {
+		            if (!Double.isInfinite(omega2[i][j])) {
+		               AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
+		            }
+		      }
+		}
+
+        int totalCells = 1;
+        for (int i=0; i<D; i++) {
+        		totalCells *= sim.nCells[i];
+        }
+		int basisSize = sim.basis.getScaledCoordinates().length;
+		double fac = 1;
+		if (totalCells % 2 == 0) {
+			fac = Math.pow(2,D);
+		}
+		AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
+		System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
         
         double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);        
@@ -395,7 +402,12 @@ public class SimUmbrella extends Simulation {
         
         System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temp*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
         System.out.println("free energy difference (umbrella --> target): "+ (temp*deltaFE_target) + "; error: " + eQtarget/Qtarget);
-        System.out.println("free energy difference (harmonic --> target): " + deltaFE);
+        System.out.println("free energy difference (harmonic --> target): " + deltaFE 
+	           	+ ", error: " + Math.sqrt( (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget) ));
+        System.out.println("target free energy: " + (temperature*AHarmonic+ deltaFE)+ 
+        		" ,error: " + Math.sqrt( (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget) ));
+        System.out.println("target free energy per particle: " + (temperature*AHarmonic+ deltaFE)/numAtoms);
+        
         
         System.out.println("\nwUmbrellaHarmonic: "+ wHarmonic + ", error: "+ eHarmonic);
         System.out.println(" wUmbrellaTarget : "  + wTarget   + ", error: "+ eTarget);
@@ -415,10 +427,6 @@ public class SimUmbrella extends Simulation {
         System.out.println("PI Harmonic: " + pi_harmonic);
         System.out.println("PI Target: " + pi_target);
         
-        double pressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double pressureError = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-        System.out.println("Pressure: " + pressure);
-        System.out.println("Pressure error: " + pressureError);
     }
 
     private static final long serialVersionUID = 1L;

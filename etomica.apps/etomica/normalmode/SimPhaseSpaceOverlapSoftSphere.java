@@ -17,8 +17,8 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -387,7 +387,9 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
-//
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
+		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+	       
 
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         IEtomicaDataSource[] workBennets = new IEtomicaDataSource[2];

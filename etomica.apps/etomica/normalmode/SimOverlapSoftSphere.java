@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
@@ -24,6 +25,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.math.SpecialFunctions;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -42,6 +44,9 @@ import etomica.virial.overlap.IntegratorOverlap;
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
  * the harmonic potential based on normal mode data from a previous simulation.
+ * 
+ * The original Bennett's Overlapping Sampling Simulation
+ * 	- used to check for the computation time
  * 
  * @author Andrew Schultz & Tai Tan
  */
@@ -101,6 +106,15 @@ public class SimOverlapSoftSphere extends Simulation {
 
         integratorTarget.setBox(boxTarget);
 
+        /*
+         *  1-body Potential to Constraint the atom from moving too far
+         *  	away from its lattice-site
+         *  
+         */
+
+        P1Constraint p1Constraint = new P1Constraint(space, primitive, boxTarget, coordinateDefinitionTarget);
+        potentialMasterTarget.addPotential(p1Constraint, new IAtomTypeLeaf[] {sphereType});
+        
         potentialMasterTarget.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
@@ -133,6 +147,9 @@ public class SimOverlapSoftSphere extends Simulation {
         
         normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
+        /*
+         * nuke this line if it is overlap between DB and harmonic
+         */
         normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
@@ -308,7 +325,7 @@ public class SimOverlapSoftSphere extends Simulation {
      * @see SimOverlapSoftSphere.SimOverlapParam
      */
     public static void main(String[] args) {
-        
+
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
@@ -322,17 +339,19 @@ public class SimOverlapSoftSphere extends Simulation {
         double density = params.density/1000;
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
-        int numMolecules = params.numMolecules;
+        final int numMolecules = params.numMolecules;
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
         int D = params.D;
         String filename = params.filename;
         if (filename.length() == 0) {
         	System.err.println("Need input files!!!");
-            filename = "FCC_SoftSphere_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
+            filename = "CB_FCC_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
         }
-        String refFileName = args.length > 0 ? filename+"_ref" : null;
-
+        //String refFileName = args.length > 0 ? filename+"_ref" : null;
+        String refFileName = filename+"_ref";
+        
+        
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
@@ -340,7 +359,7 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
+        final SimOverlapSoftSphere sim = new SimOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -364,14 +383,10 @@ public class SimOverlapSoftSphere extends Simulation {
         
         System.out.println("equilibration finished");
         System.out.flush();
-
-//        sim.integratorOverlap.setAdjustStepFreq(false);
-//
-        sim.integratorOverlap.setStepFreq0(0);
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
-
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        final long startTime = System.currentTimeMillis();
+        System.out.println("Start Time: " + startTime);
+       
+  
         
         double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
         double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
@@ -395,12 +410,34 @@ public class SimOverlapSoftSphere extends Simulation {
         }
         AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
-
+        System.out.println(" ");
+        
+        final double temp = temperature;
+        final double AHarm = AHarmonic;
+        
+        IAction output = new IAction(){
+        	public void actionPerformed(){
+        		double ratio = sim.dsvo.getDataAsScalar();
+        	    long currentTime = System.currentTimeMillis();
+        	 	System.out.println("Time: " + (currentTime - startTime)+ 
+        				" ,Targ_FE/N: "+temp*(AHarm-Math.log(ratio))/numMolecules);
+        	}
+        };
+        
+		sim.integratorOverlap.addIntervalAction(output);
+	    sim.integratorOverlap.setActionInterval(output, 2500);
+        
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().actionPerformed();
+        
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
+        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
-        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("\nratio average: "+ratio+", error: "+error);
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
         System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
+        System.out.println("target free energy per particle: "+temperature*(AHarmonic-Math.log(ratio))/numMolecules);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
@@ -410,6 +447,9 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        long endTime = System.currentTimeMillis();
+        System.out.println("End Time: " + endTime);
+        System.out.println("Time taken: " + (endTime - startTime));
     }
 
     private static final long serialVersionUID = 1L;
@@ -436,9 +476,9 @@ public class SimOverlapSoftSphere extends Simulation {
         public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 100000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "FCC_SoftSphere_n12_T01";
+        public String filename = "CB_FCC_n12_T01";
         public double temperature = 0.1;
     }
 }
