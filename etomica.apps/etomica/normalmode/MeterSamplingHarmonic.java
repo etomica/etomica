@@ -13,7 +13,7 @@ import etomica.units.Null;
 /**
  * Meter used for compute for the probability of the harmonic sampling 
  * 
- * < e0 / sqrt(e1^2 + alpha^2 * e0^2)>0
+ * < e0 / sqrt(e1^2 + alpha^2 * e0^2)>umb
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
