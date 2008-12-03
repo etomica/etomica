@@ -159,22 +159,18 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 changedWV = random.nextInt(waveVectorCoefficients.length-1);
                 changedWV += 1;
 //                System.out.println(changedWV);
-                changedWV = 3;
                 for(int i = 0; i < comparedWVs.length; i++){
                     if (changedWV != comparedWVs[i]) {
                         flagHarmonic = true;
-                        break;
                     }
-                    System.out.println("comp "+i);
                 }
                 for(int i = 0; i < harmonicWVs.length; i++){
                     if (changedWV != harmonicWVs[i]) {
                         flagHarmonic = true;
-                        break;
                     }
-                    System.out.println("harm "+i);
                 }
-            } while (flagHarmonic);
+                System.out.println("torge");
+            } while (!flagHarmonic);
             
             System.out.println("Yes no banananananas");
             
@@ -386,13 +382,13 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void setComparedWVs(int[] wv){
-        System.out.println("setComparedWVs");
-        if (harmonicWVs != null){
-            for(int i = 0; i < wv.length; i++) {
-                if(wv[i] == 0) {
-                    throw new IllegalArgumentException("Cannot compare the " +
-                            "zero wavevector!");
-                }
+//        System.out.println("setComparedWVs");
+        for(int i = 0; i < wv.length; i++) {
+            if(wv[i] == 0) {
+                throw new IllegalArgumentException("Cannot compare the " +
+                       "zero wavevector!");
+            }
+            if (harmonicWVs != null){
                 for(int j = 0; j < harmonicWVs.length; j++){
                     if(wv[i] == harmonicWVs[j]){
                         throw new IllegalArgumentException("A compared " +
@@ -405,13 +401,13 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         System.out.println("Compared wv set");
     }
     public void setHarmonicWVs(int[] wv){
-        System.out.println("setHarmonicWVs");
-        if (comparedWVs != null){
-            for(int i = 0; i < wv.length; i++) {
-                if(wv[i] == 0) {
-                    throw new IllegalArgumentException("Cannot use the " +
-                            "zero wavevector as a harmonic wavevector!");
-                }
+//        System.out.println("setHarmonicWVs");
+        for(int i = 0; i < wv.length; i++) {
+            if(wv[i] == 0) {
+                throw new IllegalArgumentException("Cannot use the " +
+                        "zero wavevector as a harmonic wavevector!");
+            }
+            if (comparedWVs != null){
                 for(int j = 0; j < comparedWVs.length; j++){
                     if(wv[i] == comparedWVs[j]){
                         throw new IllegalArgumentException("A compared " +
