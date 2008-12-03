@@ -43,6 +43,10 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 if (lastAdjust == 5) {
                     // sixth consecutive increase.  increase adjustment step  
                     adjustStep *= 2;
+                    if (adjustStep > 0.5) {
+                        // growing by more than 150% (or shrinking by 50%) is a bit extreme
+                        adjustStep = 0.5;
+                    }
                     lastAdjust = 3;
                 }
                 stepSize *= 1.0+adjustStep;
@@ -66,6 +70,11 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 if (lastAdjust == -5) {
                     // sixth consecutive decrease.  increase adjustment step  
                     adjustStep *= 2;
+                    if (adjustStep > 0.5) {
+                        // growing by more than 150% (or shrinking by 50%) is a bit extreme
+                        // and we need to cap it so 1-adjustStep isn't negative
+                        adjustStep = 0.5;
+                    }
                     lastAdjust = -3;
                 }
                 stepSize *= 1.0-adjustStep;
