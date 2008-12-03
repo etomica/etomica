@@ -105,6 +105,7 @@ public final class Standard {
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
         return virialCluster(nBody,f,true,new FTilde(f),true);
     }
+
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, 
             boolean usePermutations, MayerFunction e, boolean uniqueOnly) {
         uniqueOnly = uniqueOnly && nBody > 3;
@@ -177,6 +178,52 @@ public final class Standard {
             return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
         }
         return new ClusterSum(clusters,weights,new MayerFunction[]{f});
+    }
+    
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction[] f, int[] bondTypes, int clusterIndex) {
+        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
+        ClusterGenerator generator = new ClusterGenerator(clusterD);
+        generator.setAllPermutations(true);
+        generator.setOnlyDoublyConnected(true);
+        generator.setExcludeArticulationPoint(false);
+        generator.setExcludeArticulationPair(false);
+        generator.setExcludeNodalPoint(false);
+        generator.setMakeReeHover(false);
+        clusterD.reset();
+        generator.reset();
+        while (clusterIndex>0) {
+            if (!generator.advance()) {
+                throw new RuntimeException("clusterIndex "+clusterIndex+" too high");
+            }
+            clusterIndex--;
+        }
+        int nBondTypes = f.length;
+        int numBonds = clusterD.getNumConnections();
+        int[][][] bondList = new int[nBondTypes][][];
+        for (int i=0; i<nBondTypes; i++) {
+            int n = 0;
+            for (int j=0; j<numBonds; j++) {
+                if (bondTypes[j] == i) {
+                    n++;
+                }
+            }
+            bondList[i] = new int[n][2];
+        }
+        int bondCount = 0;
+        int[] iBondCount = new int[nBondTypes];
+        for (int i = 0; i < nBody; i++) {
+            int[] iConnections = clusterD.mConnections[i];
+            for (int j=0; j<nBody-1 && iConnections[j] != -1; j++) {
+                if (iConnections[j] > i) {
+                    int bondType = bondTypes[bondCount];
+                    bondList[bondType][iBondCount[bondType]][0] = i;
+                    bondList[bondType][iBondCount[bondType]][1] = iConnections[j];
+                    iBondCount[bondType]++;
+                    bondCount++;
+                }
+            }
+        }
+        return new ClusterSum(new ClusterBonds[]{new ClusterBonds(nBody, bondList, false)}, new double[]{(1-nBody)/(double)SpecialFunctions.factorial(nBody)}, f);
     }
     
     public static ClusterAbstract virialClusterXS(int nBody, MayerFunction f, 
@@ -518,22 +565,44 @@ public final class Standard {
 	
     public static double B5HS(double sigma) {
         double b0 = B2HS(sigma);
-        return 0.110252*b0*b0*b0*b0;
+        // Labik, Kolafa and Malijevsky, Phys. Rev. E (71), 2005, 021105
+        // 28.22445(10)
+        return 28.22445*Math.pow(b0/4, 4);
     }
     
     public static double B6HS(double sigma) {
         double b0 = B2HS(sigma);
-        return 0.038808*b0*b0*b0*b0*b0;
+        // Labik, Kolafa and Malijevsky, Phys. Rev. E (71), 2005, 021105
+        // 39.81550(36)
+        return 39.81550*Math.pow(b0/4, 5);
     }
 
     public static double B7HS(double sigma) {
         double b0 = B2HS(sigma);
-        return 0.013046*b0*b0*b0*b0*b0*b0;
+        // Labik, Kolafa and Malijevsky, Phys. Rev. E (71), 2005, 021105
+        // 53.3413(16)
+        return 53.3413*Math.pow(b0/4, 6);
     }
     
     public static double B8HS(double sigma) {
         double b0 = B2HS(sigma);
-        return 0.004164*b0*b0*b0*b0*b0*b0*b0;
+        // Labik, Kolafa and Malijevsky, Phys. Rev. E (71), 2005, 021105
+        // 68.540(10) / 4^7
+        return 68.540*Math.pow(b0/4, 7);
+    }
+    
+    public static double B9HS(double sigma) {
+        double b0 = B2HS(sigma);
+        // Clisby and McCoy, J. Statistical Physics (122) 2006, 15
+        // 0.0013094(13)
+        return 0.0013094*Math.pow(b0,8);
+    }
+    
+    public static double B10HS(double sigma) {
+        double b0 = B2HS(sigma);
+        // Clisby and McCoy, J. Statistical Physics (122) 2006, 15
+        // 0.0004035(15)
+        return 0.0004035*Math.pow(b0,9);
     }
     
     public static double B2SW(double sigma, double lambda, double ekT) {
