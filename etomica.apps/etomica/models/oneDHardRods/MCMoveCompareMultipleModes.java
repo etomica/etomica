@@ -28,7 +28,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
-    protected double energyOld, energyNew, energyEvenLater; /* , latticeEnergy */;
+    protected double energyOld, energyEvenLater; /* , latticeEnergy */;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
@@ -39,9 +39,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     private double[] waveVectorCoefficients;
     double[] uNow;
     
+    protected double energyNew;
     int howManyChangesToHardRodModes;
- 
-    int[] affectedWVs;
+    int[] comparedWVs, harmonicWVs;
 
     int count;
 
@@ -55,9 +55,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         gaussian = new double[2];
         count = 0;
         howManyChangesToHardRodModes = 1;
+        
     }
 
     public boolean doTrial() {
+        System.out.println("Start dotrial");
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -69,7 +71,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1 / Math.sqrt(cells.length);
-        int numWV = affectedWVs.length;
+        int numWV = comparedWVs.length;
 
         /*
          * This loop looks at each wavevector, asks if that wavevector is
@@ -77,7 +79,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
          */
 // ZERO OUT A NORMAL MODE.
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
-            int comparedwv = affectedWVs[wvCount];
+
+            System.out.println("Chunk 1 count " +wvCount);
+            
+            int comparedwv = comparedWVs[wvCount];
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             // System.out.println("Real: "+ realT[0]);
@@ -140,21 +145,38 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                     "Overlap after the removal of a mode!");
         }
 
-// MOVE AN EQUIVALENT NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
+// MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
         int changedWV;
         for(int wvCount = 0; wvCount <= howManyChangesToHardRodModes; wvCount++){
+
+            System.out.println("Chunk 2 count " +wvCount);
             // Select the wave vector whose eigenvectors will be changed.
             // The zero wavevector is center of mass motion, and is rejected as
             // a possibility.
-            boolean flag = false;
+            boolean flagHarmonic = false;
             do{
-                changedWV = random.nextInt(numWV-1);
+                changedWV = random.nextInt(waveVectorCoefficients.length-1);
                 changedWV += 1;
-                for(int i = 0; i < affectedWVs.length; i++){
-                    if (changedWV != affectedWVs[i]) {flag = true;}
+//                System.out.println(changedWV);
+                changedWV = 3;
+                for(int i = 0; i < comparedWVs.length; i++){
+                    if (changedWV != comparedWVs[i]) {
+                        flagHarmonic = true;
+                        break;
+                    }
+                    System.out.println("comp "+i);
                 }
-            } while (flag/*affectedWVs.isUsed(changedWV)*/);
+                for(int i = 0; i < harmonicWVs.length; i++){
+                    if (changedWV != harmonicWVs[i]) {
+                        flagHarmonic = true;
+                        break;
+                    }
+                    System.out.println("harm "+i);
+                }
+            } while (flagHarmonic);
+            
+            System.out.println("Yes no banananananas");
             
             // calculate the new positions of the atoms.
             // loop over cells
@@ -205,14 +227,14 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         // +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
         // }
 
-// MOVE EACH THE NORMAL MODE THAT WAS ZEROED OUT.
+// MOVE EACH NORMAL MODE THAT WAS ZEROED OUT.
         // set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
         
-        //This should loop over the 
-        
+        //This should loop over the wave vectors that we are comparing.
         for(int wvCount = 0; wvCount < numWV; wvCount++){
-            int comparedWV = affectedWVs[wvCount];
+            System.out.println("Chunk 3 count " +wvCount);
+            int comparedWV = comparedWVs[wvCount];
             for (int j = 0; j < coordinateDim; j++) {
                 if (stdDev[wvCount][j] == 0)
                     continue;
@@ -272,7 +294,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         } // end wvCount loop
             
 //        energyEvenLater = energyMeter.getDataAsScalar();
-
+        System.out.println("End dotrial");
         return true;
     }
 
@@ -363,10 +385,42 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         return gaussian;
     }
 
-    public void setConvertedWaveVectors(int[] wv) {
-        affectedWVs = wv;
+    public void setComparedWVs(int[] wv){
+        System.out.println("setComparedWVs");
+        if (harmonicWVs != null){
+            for(int i = 0; i < wv.length; i++) {
+                if(wv[i] == 0) {
+                    throw new IllegalArgumentException("Cannot compare the " +
+                            "zero wavevector!");
+                }
+                for(int j = 0; j < harmonicWVs.length; j++){
+                    if(wv[i] == harmonicWVs[j]){
+                        throw new IllegalArgumentException("A compared " +
+                                "wavevector cannot equal a harmonic wavevector");
+                    }
+                }
+            }
+        }
+        comparedWVs = wv;
+        System.out.println("Compared wv set");
     }
-    public void setAffectedWV(int[] wv){
-        affectedWVs = wv;
+    public void setHarmonicWVs(int[] wv){
+        System.out.println("setHarmonicWVs");
+        if (comparedWVs != null){
+            for(int i = 0; i < wv.length; i++) {
+                if(wv[i] == 0) {
+                    throw new IllegalArgumentException("Cannot use the " +
+                            "zero wavevector as a harmonic wavevector!");
+                }
+                for(int j = 0; j < comparedWVs.length; j++){
+                    if(wv[i] == comparedWVs[j]){
+                        throw new IllegalArgumentException("A compared " +
+                                "wavevector cannot equal a harmonic wavevector");
+                    }
+                }
+            }
+        }
+        harmonicWVs = wv;
+        System.out.println("Harmonic wvs set");
     }
 }

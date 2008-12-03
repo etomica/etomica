@@ -48,10 +48,13 @@ public class TestMCMove extends Simulation {
     NormalModes1DHR nm;
     double[] locations;
     
+    MCMoveCompareMultipleModes move; 
+    
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMove(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge){
+    public TestMCMove(Space _space, int numAtoms, double density, double 
+            temperature, String filename, double harmonicFudge){
         super(_space, true);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -96,18 +99,31 @@ public class TestMCMove extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        MCMoveCompareSingleMode convert = new MCMoveCompareSingleMode(potentialMaster, random);
-        integrator.getMoveManager().addMCMove(convert);
-        convert.setWaveVectors(waveVectorFactory.getWaveVectors());
-        convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        convert.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        convert.setEigenVectors(nm.getEigenvectors(box));
-        convert.setCoordinateDefinition(coordinateDefinition);
-        convert.setTemperature(temperature);
-        convert.setBox((IBox)box);
-        convert.setStepSizeMin(0.001);
-        convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(2);
+//        MCMoveCompareSingleMode convert = new MCMoveCompareSingleMode(potentialMaster, random);
+//        integrator.getMoveManager().addMCMove(convert);
+//        convert.setWaveVectors(waveVectorFactory.getWaveVectors());
+//        convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+//        convert.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
+//        convert.setEigenVectors(nm.getEigenvectors(box));
+//        convert.setCoordinateDefinition(coordinateDefinition);
+//        convert.setTemperature(temperature);
+//        convert.setBox((IBox)box);
+//        convert.setStepSizeMin(0.001);
+//        convert.setStepSize(0.01);
+//        convert.setConvertedWaveVector(2);
+        
+        move = new MCMoveCompareMultipleModes(potentialMaster, random);
+        integrator.getMoveManager().addMCMove(move);
+        move.setWaveVectors(waveVectorFactory.getWaveVectors());
+        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(nm.getEigenvectors(box));
+        move.setCoordinateDefinition(coordinateDefinition);
+        move.setTemperature(temperature);
+        move.setBox((IBox)box);
+        move.setStepSizeMin(0.001);
+        move.setStepSize(0.01);
+        
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -141,6 +157,9 @@ public class TestMCMove extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
+
+        int[] comparedwvs = params.comparedWV;
+        int[] harmonicwvs = params.harmonicWV;
         double density = params.density;
         long numSteps = params.numSteps;
         int numAtoms = params.numAtoms;
@@ -163,6 +182,8 @@ public class TestMCMove extends Simulation {
         //instantiate simulation
         TestMCMove sim = new TestMCMove(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.move.setComparedWVs(comparedwvs);
+        sim.move.setHarmonicWVs(harmonicwvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -229,10 +250,11 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 1000000000;
+        public long numSteps = 10;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int affectedWV = 2;
+        public int[] comparedWV = {2,7};
+        public int[] harmonicWV = {6,9};
     }
 }
