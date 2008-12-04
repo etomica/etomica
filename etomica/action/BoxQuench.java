@@ -2,7 +2,7 @@ package etomica.action;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.data.meter.MeterTemperature;
 
@@ -45,7 +45,7 @@ public class BoxQuench extends BoxActionAdapter {
 		if(box == null) return;
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
 			((IAtomKinetic)leafList.getAtom(iLeaf)).getVelocity().TE(scale);

@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.ISpace;
@@ -39,21 +39,21 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Returns zero.
      */
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         return 0;
     }
 
     /**
      * Returns zero.
      */
-    public double hyperVirial(IAtomSet pair) {
+    public double hyperVirial(IAtomList pair) {
         return 0;
     }
 
     /**
      * Returns zero.
      */
-    public double virial(IAtomSet pair) {
+    public double virial(IAtomList pair) {
         return 0;
     }
 
@@ -89,13 +89,13 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Does nothing.
      */
-    public void bump(IAtomSet atom, double falseTime) {
+    public void bump(IAtomList atom, double falseTime) {
     }
 
     /**
      * Returns Double.POSITIVE_INFINITY.
      */
-    public double collisionTime(IAtomSet atom, double falseTime) {
+    public double collisionTime(IAtomList atom, double falseTime) {
         return Double.POSITIVE_INFINITY;
     }
 
@@ -109,12 +109,12 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Returns a zero vector.
      */
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         zeroVector[0].E(0.0);
         return zeroVector;
     }
     
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
         

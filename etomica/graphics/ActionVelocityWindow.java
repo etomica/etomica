@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 import etomica.api.IAction;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 
@@ -16,7 +16,7 @@ import etomica.api.IVector;
  * @author andrew
  */
 public class ActionVelocityWindow implements IAction {
-    private final IAtomSet leafList;
+    private final IAtomList leafList;
     
     public ActionVelocityWindow(IBox box) {
         leafList = box.getLeafList();

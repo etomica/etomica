@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
@@ -69,7 +69,7 @@ public final class IntegratorHardField extends IntegratorHard {
         calculateForces();
         
         double t2 = 0.5*tStep*tStep;
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -97,7 +97,7 @@ public final class IntegratorHardField extends IntegratorHard {
     private void calculateForces() {
         
         //Compute all forces
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -115,7 +115,7 @@ public final class IntegratorHardField extends IntegratorHard {
     */
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -178,7 +178,7 @@ public final class IntegratorHardField extends IntegratorHard {
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
 
-		public void doCalculation(IAtomSet atoms, IPotential potential) {
+		public void doCalculation(IAtomList atoms, IPotential potential) {
 			super.doCalculation(atoms,potential);
 			((HardFieldAgent)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).forceFree = false;
 		}

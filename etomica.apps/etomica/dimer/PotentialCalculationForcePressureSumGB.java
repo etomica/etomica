@@ -2,7 +2,7 @@ package etomica.dimer;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
@@ -48,7 +48,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 	 * Adds forces due to given potential acting on the atoms produced by the iterator.
 	 * Implemented for only 1- and 2-body potentials.
 	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		

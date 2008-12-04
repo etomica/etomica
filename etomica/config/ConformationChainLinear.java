@@ -1,6 +1,6 @@
 package etomica.config;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
@@ -60,7 +60,7 @@ public class ConformationChainLinear extends ConformationChain {
         orientation.TE(1.0/bondLength);
     }
 
-    public void initializePositions(IAtomSet atomList) {
+    public void initializePositions(IAtomList atomList) {
         int size = atomList.getAtomCount();
         if(size == 0) return;
 

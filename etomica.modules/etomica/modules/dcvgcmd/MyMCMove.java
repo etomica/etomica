@@ -3,7 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
@@ -124,7 +124,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private Vector3D position;
 	private boolean nearOrigin;
 	private final AtomArrayList activeAtoms;
-    private IAtomSet moleculeList;
+    private IAtomList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;
     protected int testMoleculeIndex;

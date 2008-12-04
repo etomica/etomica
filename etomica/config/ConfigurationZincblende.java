@@ -3,7 +3,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
@@ -57,7 +57,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     public void initializeCoordinates(IBox box) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(space));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(space));
-        IAtomSet[] lists = new IAtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
+        IAtomList[] lists = new IAtomList[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }

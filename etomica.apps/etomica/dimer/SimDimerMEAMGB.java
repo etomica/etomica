@@ -4,7 +4,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -75,7 +75,7 @@ public class SimDimerMEAMGB extends Simulation{
     public double [] positions;
     public double [] lambdas, frequencies;
     public IVector adAtomPos;
-    public IAtomSet movableSet;
+    public IAtomList movableSet;
     public int [] millerPlane;
     
 
@@ -205,7 +205,7 @@ public class SimDimerMEAMGB extends Simulation{
         distance = distance*distance;
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
+        IAtomList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getAtomCount(); i++){
             if(((IMolecule)loopSet.getAtom(i)).getType()==fixed){continue;}
         	rij.E(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
@@ -228,7 +228,7 @@ public class SimDimerMEAMGB extends Simulation{
         IVector cube = dimensions;
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
+        IAtomList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getAtomCount(); i++){
         	if(((IMolecule)loopSet.getAtom(i)).getType()==fixed){continue;}
             rij.E(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
@@ -250,8 +250,8 @@ public class SimDimerMEAMGB extends Simulation{
     public void setMovableAtomsList(){
         AtomArrayList neighborList = new AtomArrayList();
         AtomArrayList fixedList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
-        IAtomSet dimerSet = box.getMoleculeList(dimer);
+        IAtomList loopSet = box.getMoleculeList();
+        IAtomList dimerSet = box.getMoleculeList(dimer);
         for(int i=0; i<loopSet.getAtomCount(); i++){
             if(((IMolecule)loopSet.getAtom(i)).getType()==dimer){
                 continue;
@@ -293,7 +293,7 @@ public class SimDimerMEAMGB extends Simulation{
         int rmvCount = 0;
         IVector rij = space.makeVector();
         //movable species
-        IAtomSet loopSet = box.getMoleculeList(movable);
+        IAtomList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.getBoundary().nearestImage(rij);
@@ -304,7 +304,7 @@ public class SimDimerMEAMGB extends Simulation{
         }
         
         //dimer species
-        IAtomSet loopSet2 = box.getMoleculeList(dimer);
+        IAtomList loopSet2 = box.getMoleculeList(dimer);
         for (int i=0; i<loopSet2.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet2.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.getBoundary().nearestImage(rij);
@@ -439,7 +439,7 @@ public class SimDimerMEAMGB extends Simulation{
             cubeSize.setX(2, 8.0);
         }
         
-        IAtomSet list = sim.box.getLeafList();
+        IAtomList list = sim.box.getLeafList();
         IVector rij = sim.space.makeVector();
         Vector3D move = new Vector3D(0.0,0.0,5.0);
         Vector3D move2 = new Vector3D(0.0,0.0,10.0);

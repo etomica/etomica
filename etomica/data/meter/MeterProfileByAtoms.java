@@ -1,5 +1,5 @@
 package etomica.data.meter;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
@@ -99,7 +99,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
      */
     public IData getData() {
         IBoundary boundary = box.getBoundary();
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         if (species != null) {
             moleculeList = box.getMoleculeList(species);
         }

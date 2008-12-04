@@ -3,7 +3,7 @@ package etomica.threaded.atom;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
@@ -113,7 +113,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        IAtomSet list = box.getMoleculeList();
+        IAtomList list = box.getMoleculeList();
         int size = list.getAtomCount();
 			                            
             for(int i=0; i<threads.length; i++){

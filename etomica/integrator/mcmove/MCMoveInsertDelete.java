@@ -1,7 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -38,7 +38,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
 	protected boolean insert;
 	protected final AtomArrayList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
-    protected IAtomSet moleculeList;
+    protected IAtomList moleculeList;
     protected IRandom random;
 
     public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,

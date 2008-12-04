@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 
@@ -17,7 +17,7 @@ public class ConformationParacetamolOrthorhombic implements IConformation {
 		this.space = space;
 	}
 	
-	public void initializePositions(IAtomSet list){
+	public void initializePositions(IAtomList list){
 		double x = 0.0;
 		double y = 0.0;
 		double z = 0.0;

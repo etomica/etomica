@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.api.IAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 
@@ -32,7 +32,7 @@ public class BoxRandomizeMomenta implements IAction {
     
     public void actionPerformed() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));

@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in
@@ -39,7 +39,7 @@ public class CriterionMolecular extends CriterionAdapter {
      * of intraMolecular); if matches this criterion, return value will be
      * that given by any subCriterion.
      */
-    public boolean accept(IAtomSet pair) {
+    public boolean accept(IAtomList pair) {
         if (isIntraMolecular != (((IAtomLeaf)pair.getAtom(0)).getParentGroup() == ((IAtomLeaf)pair.getAtom(1)).getParentGroup())) {
             return false;
         }

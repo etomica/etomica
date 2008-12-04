@@ -6,7 +6,7 @@ package etomica.api;
  * 
  * @author Andrew Schultz
  */
-public interface IAtomSet {
+public interface IAtomList {
 
     /**
      * Returns the i-th atom, with numbering beginning from 0. 

@@ -1,7 +1,7 @@
 package etomica.models.rowley;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 
@@ -19,7 +19,7 @@ public class ConformationMethanol implements IConformation {
         this.pointCharges = pointCharges;
     }
     
-    public void initializePositions(IAtomSet list){
+    public void initializePositions(IAtomList list){
         
     	// hydrogen attached to oxygen
         IAtomPositioned alpha_hydrogen = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexaH);

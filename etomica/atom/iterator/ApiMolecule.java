@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -92,7 +92,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     /**
      * Same as nextPair.
      */
-    public IAtomSet next() {
+    public IAtomList next() {
         return iterator.next();
     }
 

@@ -2,11 +2,11 @@ package etomica.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 public class AtomToParentChildList implements AtomToAtomSet, java.io.Serializable {
 
-    public IAtomSet getAtomSet(IAtom atom) {
+    public IAtomList getAtomSet(IAtom atom) {
         return ((IAtomLeaf)atom).getParentGroup().getChildList();
     }
 

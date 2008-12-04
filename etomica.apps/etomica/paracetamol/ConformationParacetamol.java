@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.ISpace;
@@ -54,7 +54,7 @@ public class ConformationParacetamol implements IConformation {
 		iterator = new AtomIteratorArrayListSimple();	
 	}
 	
-	public void initializePositions(IAtomSet List){
+	public void initializePositions(IAtomList List){
 		
 		iterator.setList(List);
 		double x = 0.0;

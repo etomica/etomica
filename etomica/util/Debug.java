@@ -2,7 +2,7 @@ package etomica.util;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.atom.AtomPair;
@@ -95,7 +95,7 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if any of the atoms in the atoms array should be debugged
 	 */
-	public static boolean anyAtom(IAtomSet atoms) {
+	public static boolean anyAtom(IAtomList atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
 		    if (atoms.getAtom(i) instanceof IAtomLeaf) {
 		        IAtomLeaf atom = (IAtomLeaf)atoms.getAtom(i);
@@ -131,7 +131,7 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if all of the atoms in the atoms array should be debugged
 	 */
-	public static boolean allAtoms(IAtomSet atoms) {
+	public static boolean allAtoms(IAtomList atoms) {
         for (int i=0; i<atoms.getAtomCount(); i++) {
             boolean success = false;
             if (atoms.getAtom(i) instanceof IAtomLeaf) {
@@ -185,7 +185,7 @@ public final class Debug {
             debugPair = new AtomPair();
         }
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1 && MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
-            IAtomSet moleculeList = box.getMoleculeList();
+            IAtomList moleculeList = box.getMoleculeList();
             for (int i=0; i<moleculeList.getAtomCount(); i++) {
                 IMolecule molecule = (IMolecule)moleculeList.getAtom(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {

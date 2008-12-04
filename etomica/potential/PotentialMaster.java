@@ -3,7 +3,7 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -75,7 +75,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     	    }
     	    else {
     	        atomIterator.reset();
-                for (IAtomSet atoms = atomIterator.next(); atoms != null;
+                for (IAtomList atoms = atomIterator.next(); atoms != null;
                      atoms = atomIterator.next()) {
                     pc.doCalculation(atoms, potential);
                 }

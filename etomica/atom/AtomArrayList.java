@@ -1,10 +1,10 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.util.Debug;
 
-public class AtomArrayList implements IAtomSet {
+public class AtomArrayList implements IAtomList {
 
     protected float trimThreshold = 0.8f;
     protected IAtom[] atomList;
@@ -109,7 +109,7 @@ public class AtomArrayList implements IAtomSet {
         return true;
     }
 
-    public void addAll(IAtomSet atoms) {
+    public void addAll(IAtomList atoms) {
         if((itemsInList + atoms.getAtomCount()) > atomList.length) {
             IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
                                          atoms.getAtomCount()];

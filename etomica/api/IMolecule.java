@@ -33,7 +33,7 @@ public interface IMolecule extends IAtom {
     /**
      * @return the children as an AtomArrayList
      */
-    public IAtomSet getChildList();
+    public IAtomList getChildList();
 
     /**
      * @return the Atom type, holding properties held in common with other 

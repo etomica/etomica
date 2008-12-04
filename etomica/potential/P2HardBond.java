@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -80,7 +80,7 @@ public class P2HardBond extends Potential2HardSpherical {
      * Implements collision dynamics for pair attempting to separate beyond
      * tether distance
      */
-    public final void bump(IAtomSet pair, double falseTime) {
+    public final void bump(IAtomList pair, double falseTime) {
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -127,7 +127,7 @@ public class P2HardBond extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming
      * free-flight kinematics
      */
-    public final double collisionTime(IAtomSet pair, double falseTime) {
+    public final double collisionTime(IAtomList pair, double falseTime) {
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());

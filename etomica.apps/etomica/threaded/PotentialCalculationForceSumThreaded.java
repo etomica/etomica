@@ -1,7 +1,7 @@
 package etomica.threaded;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
@@ -43,7 +43,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 		
 	}
 	
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 		throw new RuntimeException("This is not the correct 'doCalculation' to call.");
 	}
 	
@@ -57,7 +57,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	public void writeData(){
        
 		IBox box = integratorAgentManager.getBox();
-        IAtomSet atomArrayList = box.getLeafList();
+        IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
             IVector force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atomArrayList.getAtom(j))).force();

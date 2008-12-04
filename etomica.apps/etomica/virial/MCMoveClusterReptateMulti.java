@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IVector;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -77,7 +77,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = random.nextInt(2) == 0;
-            IAtomSet childList = selectedMolecules[i].getChildList();
+            IAtomList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -144,7 +144,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     }
 	
     protected IAtom[] selectMolecules() {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         if (moleculeList.getAtomCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         //skip the first one
         for (int i=1; i<moleculeList.getAtomCount(); i++) {
@@ -155,7 +155,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            IAtomSet childList = selectedMolecules[i].getChildList();
+            IAtomList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             if (!forward[i]) {
                 IVector position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();

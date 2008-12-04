@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -90,7 +90,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
                 iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(null);
                 iterator.reset();
-                for  (IAtomSet bondedPair = iterator.next(); bondedPair != null;
+                for  (IAtomList bondedPair = iterator.next(); bondedPair != null;
                       bondedPair = iterator.next()) {
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
@@ -112,7 +112,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         moleculeIterator.reset();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
              molecule = moleculeIterator.nextAtom()) {
-            IAtomSet childList = ((IMolecule)molecule).getChildList();
+            IAtomList childList = ((IMolecule)molecule).getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                 ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent((IAtomLeaf)childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
@@ -157,7 +157,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
                 iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(newAtom);
                 iterator.reset();
-                for (IAtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
+                for (IAtomList bondedAtoms = iterator.next(); bondedAtoms != null;
                      bondedAtoms = iterator.next()) {
                     Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
                     bondList.add(bond);

@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -48,10 +48,10 @@ public class CheckCBMCHexane implements IAction {
         // System.out.println("NRG chk");
 
         // Check that bond lengths are 0.4;
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            IAtomSet atomList = molecule.getChildList();
+            IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -70,7 +70,7 @@ public class CheckCBMCHexane implements IAction {
         tol = 0.0000005;
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            IAtomSet atomList = molecule.getChildList();
+            IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -92,7 +92,7 @@ public class CheckCBMCHexane implements IAction {
         double makeGood;
         for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
             IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
-            IAtomSet atomList = molecule.getChildList();
+            IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());

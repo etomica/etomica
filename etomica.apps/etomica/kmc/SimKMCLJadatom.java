@@ -4,7 +4,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -49,7 +49,7 @@ public class SimKMCLJadatom extends Simulation{
     public IBox box;
     public SpeciesSpheresMono fixed, movable;
     public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
-    public IAtomSet movableSet;
+    public IAtomList movableSet;
     public IVector adAtomPos;
     
 
@@ -105,7 +105,7 @@ public class SimKMCLJadatom extends Simulation{
         //distance = distance*distance;
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
+        IAtomList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
@@ -129,7 +129,7 @@ public class SimKMCLJadatom extends Simulation{
         distance = distance*distance;
         IVector rij = space.makeVector();
         
-        IAtomSet loopSet = box.getMoleculeList(movable);
+        IAtomList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
@@ -142,7 +142,7 @@ public class SimKMCLJadatom extends Simulation{
     
     public void randomizePositions(){
         IVector workVector = space.makeVector();
-        IAtomSet loopSet3 = box.getMoleculeList(movable);
+        IAtomList loopSet3 = box.getMoleculeList(movable);
         IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){

@@ -10,20 +10,28 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
+import etomica.api.IData;
+import etomica.api.IDataInfo;
 import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -47,6 +55,8 @@ import etomica.units.Kelvin;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.HistoryScrolling;
 
@@ -61,7 +71,7 @@ public class SamGraphic extends SimulationGraphic {
     
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(9));
         sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
         getDisplayBox(sim.box).setShowBoundary(false);
         
@@ -103,7 +113,12 @@ public class SamGraphic extends SimulationGraphic {
         };
         wallButton = new DeviceButton(sim.getController(), moveWallToggle);
         wallButton.setLabel("Lower wall");
-        add(wallButton);
+        
+        JTabbedPane moreTabs = new JTabbedPane();
+        getPanel().controlPanel.add(moreTabs, SimulationPanel.getVertGBC());
+        JPanel wallTab = new JPanel(new GridBagLayout());
+        wallTab.add(wallButton.graphic(), SimulationPanel.getVertGBC());
+        moreTabs.add(wallTab, "wall");
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
         thermoSlider.setIsothermalButtonsVisibility(false);
@@ -111,7 +126,9 @@ public class SamGraphic extends SimulationGraphic {
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
         thermoSlider.setSliderPostAction(resetAction);
-        add(thermoSlider);
+        JPanel stateTab = new JPanel(new GridBagLayout());
+        moreTabs.add(stateTab, "state");
+        stateTab.add(thermoSlider.graphic(), SimulationPanel.getVertGBC());
         
         DisplayTimer timer = new DisplayTimer(sim.integrator);
         add(timer);
@@ -139,7 +156,7 @@ public class SamGraphic extends SimulationGraphic {
         }
         wallPositionSlider.setShowValues(true);
         wallPositionSlider.setPostAction(new ActionGroupSeries(new IAction[]{getPaintAction(sim.box),resetAction}));
-        add(wallPositionSlider);
+        wallTab.add(wallPositionSlider.graphic(), SimulationPanel.getVertGBC());
         
         JTabbedPane conformationTabs = new JTabbedPane();
         getPanel().controlPanel.add(conformationTabs, SimulationPanel.getVertGBC());
@@ -280,7 +297,7 @@ public class SamGraphic extends SimulationGraphic {
             }
         });
 
-        getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
+//        getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
         
         MeterWallPressure wallPressure = new MeterWallPressure(sim.forceSum);
         wallPressure.setBox(sim.box);
@@ -291,7 +308,7 @@ public class SamGraphic extends SimulationGraphic {
         fork.addDataSink(wallPressureAvg);
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setUnit(Bar.UNIT);
-        pressureDisplay.setLabel("Wall Pressure (bar)");
+        pressureDisplay.setLabel("Wall Stress (bar)");
         pressureDisplay.setAccumulator(wallPressureAvg);
         sim.integrator.addIntervalAction(pump);
         wallPressureAvg.setPushInterval(10);
@@ -304,8 +321,8 @@ public class SamGraphic extends SimulationGraphic {
         DisplayPlot pressurePlot = new DisplayPlot();
         pressurePlot.setUnit(Bar.UNIT);
         wallPressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressurePlot.setLabel("Pressure");
-        pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Pressure (bar)");
+        pressurePlot.setLabel("Stress");
+        pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Stress (bar)");
         add(pressurePlot);
         
         final MeterTilt meterTilt = new MeterTilt(space, sim.species);
@@ -313,11 +330,11 @@ public class SamGraphic extends SimulationGraphic {
         DataSplitter tiltSplitter = new DataSplitter(); 
         pump = new DataPump(meterTilt, tiltSplitter);
         getController().getDataStreamPumps().add(pump);
-        fork = new DataFork();
-        tiltSplitter.setDataSink(0, fork);
+        DataFork tiltFork = new DataFork();
+        tiltSplitter.setDataSink(0, tiltFork);
         AccumulatorAverageCollapsing tiltAvg = new AccumulatorAverageCollapsing();
         tiltAvg.setPushInterval(1);
-        fork.addDataSink(tiltAvg);
+        tiltFork.addDataSink(tiltAvg);
         DisplayTextBoxesCAE tiltDisplay = new DisplayTextBoxesCAE();
         tiltDisplay.setAccumulator(tiltAvg);
         tiltDisplay.setUnit(Degree.UNIT);
@@ -328,7 +345,7 @@ public class SamGraphic extends SimulationGraphic {
         
         AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tiltHistory.setTimeDataSource(timeCounter);
-        fork.addDataSink(tiltHistory);
+        tiltFork.addDataSink(tiltHistory);
         DisplayPlot tiltPlot = new DisplayPlot();
         tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
         tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, "net tilt");
@@ -343,19 +360,15 @@ public class SamGraphic extends SimulationGraphic {
         tiltPlot.setLegend(new DataTag[]{tilt2History.getTag()}, "avg tilt");
         add(tiltPlot);
         
-        AccumulatorHistory stressStrain = new AccumulatorHistory(new HistoryScrolling(1));
-        stressStrain.setTimeDataSource(new DataSourceScalar("Wall position", Length.DIMENSION) {
-            public double getDataAsScalar() {
-                return sim.wallPotential.wallPosition;
-            }
-        });
-        fork.addDataSink(stressStrain);
-        DisplayPlot stressStrainPlot = new DisplayPlot();
-        stressStrain.setDataSink(stressStrainPlot.getDataSet().makeDataSink());
+        AccumulatorHistogram stressStrainHistogram = new AccumulatorHistogram(new HistogramNotSoSimple(100, new DoubleRange(0, 40)));
+        DataPipe stressStrainPipe = new DataPipeStressStrain(sim);
+        fork.addDataSink(stressStrainPipe);
+        stressStrainPipe.setDataSink(stressStrainHistogram);
+        final DisplayPlot stressStrainPlot = new DisplayPlot();
+        stressStrainHistogram.setDataSink(stressStrainPlot.getDataSet().makeDataSink());
         stressStrainPlot.setLabel("Stress vs. Strain");
+        stressStrainPlot.setXLabel("Wall Position");
         stressStrainPlot.setDoLegend(false);
-        stressStrainPlot.setDoClear(false);
-        stressStrainPlot.setDoDrawLines(new DataTag[]{stressStrain.getTag()}, false);
         add(stressStrainPlot);
         
         AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryScrolling(1));
@@ -367,7 +380,7 @@ public class SamGraphic extends SimulationGraphic {
         DataPump energyTiltPump = new DataPump(meterPE, energyTilt);
         sim.integrator.addIntervalAction(energyTiltPump);
         sim.integrator.setActionInterval(energyTiltPump, 10);
-        DisplayPlot energyTiltPlot = new DisplayPlot();
+        final DisplayPlot energyTiltPlot = new DisplayPlot();
         energyTiltPlot.setXUnit(Degree.UNIT);
         energyTilt.setDataSink(energyTiltPlot.getDataSet().makeDataSink());
         energyTiltPlot.setLabel("Energy vs. Tilt");
@@ -375,6 +388,12 @@ public class SamGraphic extends SimulationGraphic {
         energyTiltPlot.setDoClear(false);
         energyTiltPlot.setDoDrawLines(new DataTag[]{energyTilt.getTag()}, false);
         add(energyTiltPlot);
+        getController().getResetAveragesButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                energyTiltPlot.getPlot().clear(false);
+                stressStrainPlot.getPlot().clear(false);
+            }
+        });
 
         DisplayPlot plot = new DisplayPlot();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());
@@ -405,25 +424,54 @@ public class SamGraphic extends SimulationGraphic {
                 catch (ConfigurationOverlapException e) {}
                 getPaintAction(sim.box).actionPerformed();
                 resetAction.actionPerformed();
-                corrugationButton.setLabel(sinusoidalEnabled ? "Harmonic corrugation" : "Sinusoidal corrugation");
+                corrugationButton.setLabel(sinusoidalEnabled ? "Use harmonic corrugation" : "Use sinusoidal corrugation");
             }
             boolean sinusoidalEnabled = false;
         };
         corrugationButton.setAction(corrugationAction);
-        add(corrugationButton);
-        corrugationButton.setLabel("Sinusoidal corrugation");
+        stateTab.add(corrugationButton.graphic(), SimulationPanel.getVertGBC());
+        corrugationButton.setLabel("Use sinusoidal corrugation");
 
         add(plot);
         
         moveWallAction = new ActionMoveWall(wallPositionSlider, sim, moveWallToggle);
         sim.integrator.addIntervalAction(moveWallAction);
-        sim.integrator.setActionInterval(moveWallAction, 100);
+        sim.integrator.setActionInterval(moveWallAction, 200);
     }
     
     public static void main(String[] args) {
         Sam sim = new Sam();
         SamGraphic graphic = new SamGraphic(sim);
         graphic.makeAndDisplayFrame();
+    }
+
+    public static class DataPipeStressStrain extends DataProcessor {
+        protected final Sam sim;
+        protected DataDoubleArray data;
+        protected DataInfoDoubleArray dataInfo;
+
+        public DataPipeStressStrain(Sam sim) {
+            super();
+            this.sim = sim;
+        }
+
+        public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+            return null;
+        }
+
+        protected IData processData(IData inputData) {
+            double[] xy = data.getData();
+            double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+            xy[0] = sim.wallPotential.wallPosition-surfacePosition;
+            xy[1] = inputData.getValue(0);
+            return data;
+        }
+
+        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            data = new DataDoubleArray(2);
+            dataInfo = new DataInfoDoubleArray("Strain and Stress", Null.DIMENSION, new int[]{2});
+            return dataInfo;
+        }
     }
 
     public class ActionMoveWall implements IAction {
@@ -470,7 +518,7 @@ public class SamGraphic extends SimulationGraphic {
 
         public void setValue(double newValue) {
             double maxAtomPos = -100;
-            IAtomSet leafList = sim.box.getLeafList();
+            IAtomList leafList = sim.box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(i);
                 double atomPos = atom.getPosition().x(1);

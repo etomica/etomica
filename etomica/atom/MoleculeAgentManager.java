@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IBoxAtomEvent;
@@ -102,7 +102,7 @@ public class MoleculeAgentManager implements IListener, Serializable {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
         for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            IAtomSet molecules = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
+            IAtomList molecules = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
             for (int j=0; i<molecules.getAtomCount(); j++) {
                 // check if atom's spot in the array even exists yet
                 IMolecule molecule = (IMolecule)molecules.getAtom(i);
@@ -129,7 +129,7 @@ public class MoleculeAgentManager implements IListener, Serializable {
                     box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
         }
         // fill in the array with agents from all the molecules
-        IAtomSet molecules = box.getMoleculeList();
+        IAtomList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getAtomCount(); i++) {
             addAgent((IMolecule)molecules.getAtom(i));
         }

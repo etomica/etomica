@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
@@ -66,7 +66,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return rCutoff;
     }
 
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -128,11 +128,11 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         }
     }
     
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
     
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -146,7 +146,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return u;
     }
     
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {

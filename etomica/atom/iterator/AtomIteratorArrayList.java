@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
@@ -75,7 +75,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
-        IAtomSet localList = atomToAtomSet.getAtomSet(startAtom);
+        IAtomList localList = atomToAtomSet.getAtomSet(startAtom);
         int firstCursor = atomToIndex.getIndex(startAtom);
  		int arraySize = localList.getAtomCount();
         if (upListNow) {

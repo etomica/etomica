@@ -23,7 +23,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
@@ -922,7 +922,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 newValue = maxDensity;
             }
             IVector boxDim = pc.box.getBoundary().getDimensions();
-            IAtomSet leafList = pc.box.getLeafList();
+            IAtomList leafList = pc.box.getLeafList();
             double yShift = 0.5*(boxDim.x(1)-sigma);
             if (D == 2) {
                 yShift = -yShift;

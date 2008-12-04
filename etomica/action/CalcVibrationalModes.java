@@ -8,7 +8,7 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -40,7 +40,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
     Matrix fC;
     double mass;
     int writeCount;
-    IAtomSet ms;
+    IAtomList ms;
     EigenvalueDecomposition eigenDecomp;
     CalcGradientDifferentiable cgd;
     
@@ -50,7 +50,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
        
         }
 
-    public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IAtomSet movableSet, ISpace _space){
+    public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IAtomList movableSet, ISpace _space){
         ms = movableSet; 
         mass = ((IMolecule)ms.getAtom(0)).getType().getChildType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);

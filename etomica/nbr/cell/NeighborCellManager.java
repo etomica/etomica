@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IEvent;
@@ -193,7 +193,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             ((Cell)allCells[i]).occupants().clear();
         }
         
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int count = leafList.getAtomCount();
         for (int i=0; i<count; i++) {
             IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(i);
@@ -277,7 +277,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                         updateCell((IAtomLeaf)atom);
                     }
                     else {
-                        IAtomSet childList = ((IMolecule)atom).getChildList();
+                        IAtomList childList = ((IMolecule)atom).getChildList();
                         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                             updateCell((IAtomLeaf)childList.getAtom(iChild));
                         }

@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
@@ -45,7 +45,7 @@ public class PotentialGroupNbr extends PotentialGroup {
             atomIterator.setBasis(atomSetSinglet);
             atomIterator.reset();
             final IPotential potential = link.potential;
-            for (IAtomSet atoms = atomIterator.next(); atoms != null;
+            for (IAtomList atoms = atomIterator.next(); atoms != null;
                  atoms = atomIterator.next()) {
                 pc.doCalculation(atoms, potential);
             }

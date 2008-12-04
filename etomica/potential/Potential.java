@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.space.ISpace;
@@ -36,7 +36,7 @@ public abstract class Potential implements java.io.Serializable, IPotential {
      * Returns the interaction energy between the given atoms.  There might be
      * 0, 1, 2 or more atoms in the AtomSet.
      */
-    public abstract double energy(IAtomSet atoms);
+    public abstract double energy(IAtomList atoms);
     
     /**
      * Informs the potential of the box on which it acts. Typically this

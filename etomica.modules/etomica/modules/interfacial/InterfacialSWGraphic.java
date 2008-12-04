@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IData;
@@ -130,7 +130,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
                 configLattice.initializeCoordinates(pretendBox);
-                IAtomSet surfactants = pretendBox.getMoleculeList(sim.surfactant);
+                IAtomList surfactants = pretendBox.getMoleculeList(sim.surfactant);
                 for (int i=0; i<numSurfactants; i++) {
                     IMolecule surfactant = (IMolecule)surfactants.getAtom(0);
                     pretendBox.removeMolecule(surfactant);
@@ -229,7 +229,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // calculate structure factor and phase angle for lowest-frequency
                 // concentration wave (delta rho (x)).
                 
-                IAtomSet leafAtoms = sim.box.getLeafList();
+                IAtomList leafAtoms = sim.box.getLeafList();
                 int nTot = leafAtoms.getAtomCount();
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;

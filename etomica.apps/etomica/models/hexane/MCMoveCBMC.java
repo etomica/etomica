@@ -2,7 +2,7 @@ package etomica.models.hexane;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -176,7 +176,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
     protected IVector[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
-    protected IAtomSet atomList;
+    protected IAtomList atomList;
 
     protected int numTrial;
 

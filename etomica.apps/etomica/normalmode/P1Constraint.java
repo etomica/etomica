@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
@@ -64,7 +64,7 @@ public class P1Constraint extends Potential1{
 	}//End of Constructor
 
 	@Override
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
 		
 		IVector posAtom = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
 		

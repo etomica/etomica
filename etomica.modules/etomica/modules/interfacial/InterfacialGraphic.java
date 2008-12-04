@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
@@ -110,7 +110,7 @@ public class InterfacialGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 double dx = 0.5;
                 int leftN1 = 0, leftP1 = 0;
-                IAtomSet leafAtoms = sim.box.getLeafList();
+                IAtomList leafAtoms = sim.box.getLeafList();
                 int nTot = leafAtoms.getAtomCount();
                 for (int i=0; i<nTot; i++) {
                     IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();

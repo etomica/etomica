@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IRandom;
@@ -50,7 +50,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         nearestImageTransformer = box.getBoundary();
     }
 
-    public double energy(IAtomSet atomSet) {
+    public double energy(IAtomList atomSet) {
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
@@ -82,7 +82,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
     
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atoms.getAtom(1);
         IAtomPositioned atom2 = (IAtomPositioned)atoms.getAtom(2);
@@ -163,11 +163,11 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         return 0;
     }
 

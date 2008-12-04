@@ -2,7 +2,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 
@@ -25,7 +25,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
      * given at construction (without regard to the order of the AtomSet), and 
      * if the wrapped criterion also accepts the AtomSet.
      */
-    public boolean accept(IAtomSet atoms) {
+    public boolean accept(IAtomList atoms) {
         final int nAtoms = atoms.getAtomCount();
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;

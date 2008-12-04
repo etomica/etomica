@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -34,7 +34,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private double length, phi;
     private Tensor rotor;
     private ConformationHexane confHex;
-    private IAtomSet childlist;
+    private IAtomList childlist;
     
     
     public CoordinateDefinitionHexane(ISimulation sim, IBox box, Primitive primitive, 
@@ -66,7 +66,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
     }
 
-    public double[] calcU(IAtomSet molecules) {
+    public double[] calcU(IAtomList molecules) {
         double tol = 0.0000000001;  //1E-10
         
         // handle center-of-mass part
@@ -248,7 +248,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         return u;
     }
 
-    public void initNominalU(IAtomSet molecules) {
+    public void initNominalU(IAtomList molecules) {
         // handle center-of-mass part
         super.initNominalU(molecules);
         IMolecule molecule = (IMolecule)molecules.getAtom(0);
@@ -289,7 +289,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         }
     }
 
-    public void setToU(IAtomSet atoms, double[] u) {
+    public void setToU(IAtomList atoms, double[] u) {
         
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup

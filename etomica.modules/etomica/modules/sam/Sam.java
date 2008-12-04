@@ -3,7 +3,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
@@ -201,7 +201,7 @@ public class Sam extends Simulation {
         p2SCH2t = new P2SoftSphericalTruncatedSwitched(space, p2SCH2, rCut);
 
         NeighborCriterion nonBondedCriterion = new NeighborCriterion() {
-            public boolean accept(IAtomSet pair) {
+            public boolean accept(IAtomList pair) {
                 int idx0 = ((IAtomLeaf)pair.getAtom(0)).getIndex();
                 int idx1 = ((IAtomLeaf)pair.getAtom(1)).getIndex();
                 int idxDiff = idx0 - idx1;
@@ -348,8 +348,8 @@ public class Sam extends Simulation {
     }
     
     public void findTetherBonds() {
-        IAtomSet polymerMolecules = box.getMoleculeList(species);
-        IAtomSet surfaceMolecules = box.getMoleculeList(speciesSurface);
+        IAtomList polymerMolecules = box.getMoleculeList(species);
+        IAtomList surfaceMolecules = box.getMoleculeList(speciesSurface);
         int nMolecules = polymerMolecules.getAtomCount();
         double maxDistance = 3.5*3.5;
         IVector dr = space.makeVector();
@@ -387,7 +387,7 @@ public class Sam extends Simulation {
             config.initializeCoordinates(box);
         }
         else {
-            IAtomSet leafList = box.getLeafList();
+            IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
                 a.getPosition().setX(2, a.getPosition().x(2) - 0.5*zShift);
@@ -395,10 +395,10 @@ public class Sam extends Simulation {
             
             box.setNMolecules(species, 2*numXCells*numZCells);
             box.setNMolecules(speciesSurface, 6*numXCells*numZCells);
-            IAtomSet molecules = box.getMoleculeList(species);
+            IAtomList molecules = box.getMoleculeList(species);
             for (int i=0; i<molecules.getAtomCount()/2; i++) {
-                IAtomSet childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
-                IAtomSet childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
+                IAtomList childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
+                IAtomList childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
                 for (int j=0; j<childList.getAtomCount(); j++) {
                     IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(j);
                     IAtomPositioned atom = (IAtomPositioned)childList.getAtom(j);
@@ -409,9 +409,9 @@ public class Sam extends Simulation {
 
             molecules = box.getMoleculeList(speciesSurface);
             for (int i=0; i<molecules.getAtomCount()/2; i++) {
-                IAtomSet childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
+                IAtomList childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
                 IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(0);
-                IAtomSet childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
+                IAtomList childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
                 IAtomPositioned atom = (IAtomPositioned)childList.getAtom(0);
                 atom.getPosition().E(atom0.getPosition());
                 atom.getPosition().setX(2, atom.getPosition().x(2) + zShift);
@@ -452,7 +452,7 @@ public class Sam extends Simulation {
             config.initializeCoordinates(box);
         }
         else {
-            IAtomSet leafList = box.getLeafList();
+            IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
                 a.getPosition().setX(0, a.getPosition().x(0) - 0.5*xShift);
@@ -460,10 +460,10 @@ public class Sam extends Simulation {
             
             box.setNMolecules(species, 2*numXCells*numZCells);
             box.setNMolecules(speciesSurface, 6*numXCells*numZCells);
-            IAtomSet molecules = box.getMoleculeList(species);
+            IAtomList molecules = box.getMoleculeList(species);
             for (int i=0; i<molecules.getAtomCount()/2; i++) {
-                IAtomSet childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
-                IAtomSet childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
+                IAtomList childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
+                IAtomList childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
                 for (int j=0; j<childList.getAtomCount(); j++) {
                     IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(j);
                     IAtomPositioned atom = (IAtomPositioned)childList.getAtom(j);
@@ -474,9 +474,9 @@ public class Sam extends Simulation {
 
             molecules = box.getMoleculeList(speciesSurface);
             for (int i=0; i<molecules.getAtomCount()/2; i++) {
-                IAtomSet childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
+                IAtomList childList0 = ((IMolecule)molecules.getAtom(i)).getChildList();
                 IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(0);
-                IAtomSet childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
+                IAtomList childList = ((IMolecule)molecules.getAtom(i+molecules.getAtomCount()/2)).getChildList();
                 IAtomPositioned atom = (IAtomPositioned)childList.getAtom(0);
                 atom.getPosition().E(atom0.getPosition());
                 atom.getPosition().setX(0, atom.getPosition().x(0) + xShift);

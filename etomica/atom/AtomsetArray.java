@@ -1,14 +1,14 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 
 /**
  * AtomSet formed by wrapping an Atom array.  Size of array
  * cannot be changed after construction.
  */
-public class AtomsetArray implements IAtomSet, java.io.Serializable {
+public class AtomsetArray implements IAtomList, java.io.Serializable {
 
     /**
      * Wraps a new atom array of the given length.
@@ -21,7 +21,7 @@ public class AtomsetArray implements IAtomSet, java.io.Serializable {
      * Makes a new instance holding the atoms in the given atom set. Makes
      * zero-body AtomSet if argument is null.
      */
-    public AtomsetArray(IAtomSet atomSet) {
+    public AtomsetArray(IAtomList atomSet) {
         this((atomSet != null) ? atomSet.getAtomCount() : 0);
         for (int i = 0; i < atoms.length; i++) {
             atoms[i] = atomSet.getAtom(i);
@@ -87,7 +87,7 @@ public class AtomsetArray implements IAtomSet, java.io.Serializable {
      * @throws NullPointerException
      *             if argument is null
      */
-    public void setAtoms(IAtomSet atomSet) {
+    public void setAtoms(IAtomList atomSet) {
         if (atomSet.getAtomCount() != atoms.length)
             throw new IllegalArgumentException("Wrong size for atomSet");
         for (int i = 0; i < atoms.length; i++) {

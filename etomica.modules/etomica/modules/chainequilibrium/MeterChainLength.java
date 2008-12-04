@@ -3,7 +3,7 @@ package etomica.modules.chainequilibrium;
 import java.io.Serializable;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IData;
@@ -83,7 +83,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         }
 
         // untag all the Atoms
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             ((AtomTag)tagManager.getAgent((IAtomLeaf)leafList.getAtom(i))).tagged = false;

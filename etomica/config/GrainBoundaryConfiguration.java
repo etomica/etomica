@@ -10,7 +10,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
@@ -117,10 +117,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-    	IAtomSet listMobileA = box.getMoleculeList(speciesAMobile);
-    	IAtomSet listMobileB = box.getMoleculeList(speciesBMobile);
-        IAtomSet listFixedA = box.getMoleculeList(speciesAFixed);
-        IAtomSet listFixedB = box.getMoleculeList(speciesBFixed);
+    	IAtomList listMobileA = box.getMoleculeList(speciesAMobile);
+    	IAtomList listMobileB = box.getMoleculeList(speciesBMobile);
+        IAtomList listFixedA = box.getMoleculeList(speciesAFixed);
+        IAtomList listFixedB = box.getMoleculeList(speciesBFixed);
     	
         indexIteratorA.setSize(iteratorDimensionsA);
         indexIteratorB.setSize(iteratorDimensionsB);

@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
@@ -54,7 +54,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
         INearestImageTransformer nearestImageTransformer = box.getBoundary();
         pairIterator.setBox(box);
         pairIterator.reset();
-        for (IAtomSet pair = pairIterator.next(); pair != null;
+        for (IAtomList pair = pairIterator.next(); pair != null;
              pair = pairIterator.next()) {
             dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
             nearestImageTransformer.nearestImage(dr);

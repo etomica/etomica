@@ -5,7 +5,7 @@ package etomica.models.hexane;
  */
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -174,7 +174,7 @@ public class TestSetToUHexane extends Simulation {
         int nsteps = chainLength * 500;
             
         //Store old positions
-        IAtomSet aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
+        IAtomList aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
         AtomsetArrayList list = new AtomsetArrayList();
         list.setAtoms(aal);
 

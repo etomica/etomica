@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 
 /**
@@ -91,7 +91,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     	return atom;
     }
     
-    public IAtomSet next() {
+    public IAtomList next() {
         atomSetSinglet.atom = nextAtom();
         if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;

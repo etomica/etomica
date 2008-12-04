@@ -7,7 +7,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
@@ -94,7 +94,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			for(int i=0; i<50; i++) {
                 integratormc.doStep();
             }
-			IAtomSet allMolecules = box.getLeafList();
+			IAtomList allMolecules = box.getLeafList();
 			for (int i=0; i<allMolecules.getAtomCount(); i++) {
 			    if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
 			        throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition());
@@ -110,7 +110,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
-            IAtomSet allMolecules = box.getLeafList();
+            IAtomList allMolecules = box.getLeafList();
             for (int i=0; i<allMolecules.getAtomCount(); i++) {
                 if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
                     throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition());

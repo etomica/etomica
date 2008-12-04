@@ -1,6 +1,6 @@
 package etomica.models.water;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 import etomica.units.Electron;
@@ -14,7 +14,7 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
         this.space = space;
     }
     
-    public void initializePositions(IAtomSet list){
+    public void initializePositions(IAtomList list){
         
         IAtomPositioned o = (IAtomPositioned)list.getAtom(SpeciesWater4P.indexO);
         o.getPosition().E(new double[] {0, 0, 0.0});

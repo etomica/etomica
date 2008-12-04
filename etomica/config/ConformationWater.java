@@ -1,7 +1,7 @@
 package etomica.config;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 
@@ -16,7 +16,7 @@ public class ConformationWater implements IConformation, java.io.Serializable {
         this.space = space;
     }
     
-    public void initializePositions(IAtomSet list) {
+    public void initializePositions(IAtomList list) {
         
         double x = 6.0;
         double y = 6.0;

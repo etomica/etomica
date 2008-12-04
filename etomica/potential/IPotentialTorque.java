@@ -1,9 +1,9 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 
 public interface IPotentialTorque extends PotentialSoft {
 
-    public IVector[][] gradientAndTorque(IAtomSet atoms);
+    public IVector[][] gradientAndTorque(IAtomList atoms);
 }

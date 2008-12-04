@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 
 import etomica.data.DataSourceScalar;
@@ -114,7 +114,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         sim.addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        IAtomSet atoms = box.getLeafList();
+        IAtomList atoms = box.getLeafList();
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 

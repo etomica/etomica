@@ -3,7 +3,7 @@ package etomica.nbr.list;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -410,7 +410,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            IAtomSet list = box.getMoleculeList();
+            IAtomList list = box.getMoleculeList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 calculate((IMolecule)list.getAtom(i), id, pc, neighborManager);//call calculate with the SpeciesAgent
@@ -472,7 +472,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 break;
             case 2:
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    IAtomSet list = neighborManager.getUpList(molecule)[i];
+                    IAtomList list = neighborManager.getUpList(molecule)[i];
                     int nNeighbors = list.getAtomCount();
                     atomPair.atom0 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
@@ -481,7 +481,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
-                    IAtomSet list = neighborManager.getDownList(molecule)[i];
+                    IAtomList list = neighborManager.getDownList(molecule)[i];
                     int nNeighbors = list.getAtomCount();
                     atomPair.atom1 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
@@ -502,7 +502,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    IAtomSet list = neighborManager.getUpList(molecule)[i];
+                    IAtomList list = neighborManager.getUpList(molecule)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
                         IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
@@ -524,7 +524,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         
         //cannot use AtomIterator field because of recursive call
-        IAtomSet list = molecule.getChildList();
+        IAtomList list = molecule.getChildList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
             calculate((IAtomLeaf)list.getAtom(i), id, pc, neighborManager);//recursive call
@@ -547,7 +547,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 break;
             case 2:
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    IAtomList list = neighborManager.getUpList(atom)[i];
                     int nNeighbors = list.getAtomCount();
                     atomPair.atom0 = atom;
                     for (int j=0; j<nNeighbors; j++) {
@@ -556,7 +556,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
-                    IAtomSet list = neighborManager.getDownList(atom)[i];
+                    IAtomList list = neighborManager.getDownList(atom)[i];
                     int nNeighbors = list.getAtomCount();
                     atomPair.atom1 = atom;
                     for (int j=0; j<nNeighbors; j++) {
@@ -576,7 +576,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    IAtomSet list = neighborManager.getUpList(atom)[i];
+                    IAtomList list = neighborManager.getUpList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
                         IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
@@ -601,7 +601,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();
         arrayList.add(atom);
-        IAtomSet[] list = neighborManager.getUpList(atom);
+        IAtomList[] list = neighborManager.getUpList(atom);
         if (potentialIndex < list.length) {
             arrayList.addAll(list[potentialIndex]);
         }

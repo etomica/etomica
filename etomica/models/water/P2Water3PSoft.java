@@ -2,7 +2,7 @@
 package etomica.models.water;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -30,7 +30,7 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
         epsilon48 = epsilon*48.0;
 	}
 
-    public IVector[][] gradientAndTorque(IAtomSet pair){
+    public IVector[][] gradientAndTorque(IAtomList pair){
 		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getAtom(0);
 		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getAtom(1);
 		
@@ -177,20 +177,20 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
 		return gradientAndTorque;
 	}
     
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         // do extra work to calculate torque
         gradientAndTorque(atoms);
         return gradient;
     }
     
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradientAndTorque(atoms);
         //FIXME
         //pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
     }
 
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         //FIXME
         return 0;
     }

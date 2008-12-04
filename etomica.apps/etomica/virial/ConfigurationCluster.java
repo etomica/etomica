@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
@@ -28,7 +28,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	public void initializeCoordinates(IBox box) {
         IVector dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getDimensions());
-		IAtomSet moleculeList = box.getMoleculeList();
+		IAtomList moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getAtomCount(); i++) {
             // initialize coordinates of child atoms
 		    IMolecule a = (IMolecule)moleculeList.getAtom(i);

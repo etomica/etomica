@@ -2,7 +2,7 @@ package etomica.modules.sam;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -34,11 +34,11 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         polymerList = box.getMoleculeList(polymerSpecies);
     }
 
-    public void setBondedSurfaceAtoms(IMolecule polymerMolecule, IAtomSet surfaceAtoms) {
+    public void setBondedSurfaceAtoms(IMolecule polymerMolecule, IAtomList surfaceAtoms) {
         bondManager.setAgent(polymerMolecule, surfaceAtoms);
     }
 
-    public boolean accept(IAtomSet pair) {
+    public boolean accept(IAtomList pair) {
         IAtomLeaf atom1 = (IAtomLeaf)pair.getAtom(0);
         IAtomLeaf atom2 = (IAtomLeaf)pair.getAtom(1);
         if (atom1.getIndex() != 0 || atom1.getParentGroup().getType() != polymerSpecies) {
@@ -52,7 +52,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         if (atom2.getType() != surfaceType) {
             return false;
         }
-        IAtomSet bondedSurfaceAtoms = ((IAtomSet)bondManager.getAgent(atom1.getParentGroup()));
+        IAtomList bondedSurfaceAtoms = ((IAtomList)bondManager.getAgent(atom1.getParentGroup()));
         if (bondedSurfaceAtoms == null) {
             return false;
         }
@@ -76,7 +76,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     }
 
     public Class getMoleculeAgentClass() {
-        return IAtomSet.class;
+        return IAtomList.class;
     }
 
     public Object makeAgent(IMolecule a) {
@@ -89,7 +89,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     protected final ISimulation sim;
     protected IBox box;
     protected final ISpecies polymerSpecies;
-    protected IAtomSet polymerList;
+    protected IAtomList polymerList;
     protected MoleculeAgentManager bondManager;
     protected int cursor;
     protected int surfaceCursor;

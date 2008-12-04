@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
@@ -41,7 +41,7 @@ public class EwaldSummation implements IPotential{
 	 */
 
 
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
 		double energy = EwaldSum();
 		System.out.println("Energy Ewald Sum: "+ energy);
 		return energy;
@@ -152,7 +152,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	public double EwaldSumReal(){
 		
-		IAtomSet moleculeList = box.getMoleculeList();
+		IAtomList moleculeList = box.getMoleculeList();
 		//
 		
 		/*
@@ -254,7 +254,7 @@ public class EwaldSummation implements IPotential{
 			 * Solve expression for S(n)*S(-n)
 			 */
 			
-			IAtomSet atomList = box.getLeafList();
+			IAtomList atomList = box.getLeafList();
 			int numAtom = atomList.getAtomCount();
 			double pl = 2*Math.PI/L;
 			
@@ -294,7 +294,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	
 	public double EwaldSumSelf(){
-		IAtomSet moleculeList = box.getMoleculeList();
+		IAtomList moleculeList = box.getMoleculeList();
 		
 		/*
 		 * molecules can be monoatomic or multiatomic
@@ -329,7 +329,7 @@ public class EwaldSummation implements IPotential{
 			iterator.setBasis(moleculeBasis);
 			iterator.reset();
 			
-			for (IAtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
+			for (IAtomList pair = iterator.next(); pair!= null; pair = iterator.next()){
 				IAtomLeaf sitea = (IAtomLeaf)pair.getAtom(0);
 				IAtomLeaf siteb = (IAtomLeaf)pair.getAtom(1);
 				

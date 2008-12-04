@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 
 /**
@@ -78,7 +78,7 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
      * null iterator will give no iterates until a proper basis is specified
      * via another call to this method.
      */
-    public void setBasis(IAtomSet basisAtoms) {
+    public void setBasis(IAtomList basisAtoms) {
         if (basisAtoms == null) {
             aiOuter.setBasis(null);
         } else {

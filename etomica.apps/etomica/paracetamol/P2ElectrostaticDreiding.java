@@ -2,7 +2,7 @@ package etomica.paracetamol;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -31,7 +31,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         super(_space, AA, BB, CC);
     }
     
-    public double energy(IAtomSet atomSet) {
+    public double energy(IAtomList atomSet) {
     	
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
@@ -50,7 +50,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         		
     }
     
-    public IVector [] gradient(IAtomSet atomSet) {
+    public IVector [] gradient(IAtomList atomSet) {
     	
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);

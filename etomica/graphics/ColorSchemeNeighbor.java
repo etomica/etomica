@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.nbr.cell.Api1ACell;
@@ -33,7 +33,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
         }
         //color blue the neighbor atoms in same group
         nbrIterator.reset();
-        for (IAtomSet pair = nbrIterator.next(); pair != null;
+        for (IAtomList pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
             IAtomLeaf atom = (IAtomLeaf)pair.getAtom(1);
             if(atom.getType() == referenceAtom.getType()) {
@@ -58,6 +58,6 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     private static final long serialVersionUID = 1L;
     private IAtomLeaf referenceAtom;
     private final Api1ACell nbrIterator;
-    private final IAtomSet leafList;
+    private final IAtomList leafList;
     private final ColorSchemeByType typeColorScheme;
 }

@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -90,7 +90,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
                 continue;
             }
             IMolecule mol = types[i].getSpecies().makeMolecule();
-            IAtomSet childList = mol.getChildList();
+            IAtomList childList = mol.getChildList();
             for (int j=0; j<childList.getAtomCount(); j++) {
                 if (((IAtomLeaf)childList.getAtom(j)).getType() == types[i]) {
                     lrcAtomsPerMolecule[i]++;

@@ -1,7 +1,7 @@
 package etomica.config;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.api.IVector;
 import etomica.space.ISpace;
@@ -36,7 +36,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
 	 * Places a set of atoms in a linearly connected fashion.
 	 * @ param atomlist a list of atoms in the order in which they are linked
 	 */
-	public void initializePositions(IAtomSet atomlist){
+	public void initializePositions(IAtomList atomlist){
 		
 		//First, check that we actually have some atoms
 		int size = atomlist.getAtomCount();

@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
@@ -31,7 +31,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * does not take into account any false positioning that the Integrator may
      * be using.
      */
-    public double energy(IAtomSet pair) {
+    public double energy(IAtomList pair) {
         IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
 

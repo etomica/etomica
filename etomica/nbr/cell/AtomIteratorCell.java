@@ -4,7 +4,7 @@ import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
@@ -89,7 +89,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         throw new RuntimeException("jfdka");
     }
     
-    public final IAtomSet next() {
+    public final IAtomList next() {
         atomSetSinglet.atom = nextAtom();
         return atomSetSinglet;
     }

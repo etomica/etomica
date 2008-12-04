@@ -1,6 +1,6 @@
 package etomica.spin;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -42,7 +42,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();

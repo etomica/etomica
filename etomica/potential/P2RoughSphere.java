@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
@@ -48,7 +48,7 @@ public class P2RoughSphere extends P2HardSphere {
      * Implements collision dynamics and updates lastCollisionVirial
      * Assumes atoms have same size and mass
      */
-    public void bump(IAtomSet pair, double falseTime) {
+    public void bump(IAtomList pair, double falseTime) {
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
         IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;

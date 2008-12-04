@@ -4,7 +4,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -182,7 +182,7 @@ public class IntegratorKMC extends IntegratorBox{
         minEnergy = energy;
         minVib = vibFreq;
         
-        IAtomSet loopSet2 = box.getMoleculeList();
+        IAtomList loopSet2 = box.getMoleculeList();
         minPosition = new IVector[loopSet2.getAtomCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
@@ -199,7 +199,7 @@ public class IntegratorKMC extends IntegratorBox{
     
     public void randomizePositions(){
         IVector workVector = space.makeVector();
-        IAtomSet loopSet3 = box.getMoleculeList(species[0]);
+        IAtomList loopSet3 = box.getMoleculeList(species[0]);
         IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){

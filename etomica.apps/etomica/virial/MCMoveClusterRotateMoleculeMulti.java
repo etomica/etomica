@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.action.AtomAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -33,7 +33,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         oldPositions = new IVector[moleculeList.getAtomCount()][];
         for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
@@ -51,10 +51,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             doRelax = true;
             trialCount = relaxInterval;
         }
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
-            IAtomSet leafAtoms = molecule.getChildList();
+            IAtomList leafAtoms = molecule.getChildList();
             r0.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
 
             double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
@@ -95,10 +95,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void rejectNotify() {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for (int i=0; i<moleculeList.getAtomCount(); i++) {
             molecule = (IMolecule)moleculeList.getAtom(i);
-            IAtomSet leafAtoms = molecule.getChildList();
+            IAtomList leafAtoms = molecule.getChildList();
             for (int j=0; j<leafAtoms.getAtomCount(); j++) {
                 ((IAtomPositioned)leafAtoms.getAtom(j)).getPosition().E(oldPositions[i][j]);
             }

@@ -3,7 +3,7 @@ package etomica.modules.sam;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -59,7 +59,7 @@ public class ApiTether implements AtomsetIteratorPDT, MoleculeAgentManager.Molec
         return 2;
     }
 
-    public IAtomSet next() {
+    public IAtomList next() {
         if (targetMolecule != null) {
             if (cursor == 0) {
                 pair.atom0 = targetMolecule.getChildList().getAtom(0);
@@ -133,7 +133,7 @@ public class ApiTether implements AtomsetIteratorPDT, MoleculeAgentManager.Molec
     protected final ISimulation sim;
     protected IBox box;
     protected final ISpecies polymerSpecies;
-    protected IAtomSet polymerList;
+    protected IAtomList polymerList;
     protected MoleculeAgentManager bondManager;
     protected int cursor;
     protected IMolecule targetMolecule;

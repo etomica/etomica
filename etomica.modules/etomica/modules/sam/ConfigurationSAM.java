@@ -3,7 +3,7 @@ package etomica.modules.sam;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -77,7 +77,7 @@ public class ConfigurationSAM implements Configuration {
         
         IVector offset = space.makeVector();
 
-        IAtomSet molecules = pretendBox.getMoleculeList(speciesMolecules);
+        IAtomList molecules = pretendBox.getMoleculeList(speciesMolecules);
         double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(0);

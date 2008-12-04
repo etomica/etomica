@@ -3,7 +3,7 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -16,7 +16,7 @@ public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Seriali
         this.species = species;
     }
     
-    public IAtomSet getAtomSet(IAtom atom) {
+    public IAtomList getAtomSet(IAtom atom) {
         return moleculeList;
     }
     
@@ -28,6 +28,6 @@ public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Seriali
         moleculeList = box.getMoleculeList(species);
     }
 
-    protected IAtomSet moleculeList;
+    protected IAtomList moleculeList;
     protected final ISpecies species;
 }

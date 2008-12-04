@@ -8,7 +8,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIteratorPDT;
@@ -88,7 +88,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         return counter.callCount();
 	}
 	
-    public IAtomSet next() {
+    public IAtomList next() {
         if (upListNow) {
             if (neighborIterator.hasNext()) {
                 pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();

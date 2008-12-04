@@ -5,7 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
@@ -297,7 +297,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         //pair
-        public void doCalculation(IAtomSet pair, IPotential potential2) {
+        public void doCalculation(IAtomList pair, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
             IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);

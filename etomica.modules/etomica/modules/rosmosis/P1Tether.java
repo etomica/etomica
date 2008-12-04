@@ -2,7 +2,7 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
@@ -40,14 +40,14 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         return epsilon;
     }
 
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
         work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
         return 0.5 * epsilon * work.squared();
     }
 
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
         work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
@@ -55,11 +55,11 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         return 0;
     }
 

@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -53,7 +53,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         double ke = 0.0;
         for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            IAtomSet moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
+            IAtomList moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
             if (moleculeList.getAtomCount() == 0) {
                 continue;
             }
@@ -81,7 +81,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
             else {
                 for (int j=0; j<moleculeList.getAtomCount(); j++) {
                     IMolecule molecule = (IMolecule)moleculeList.getAtom(j);
-                    IAtomSet children = molecule.getChildList();
+                    IAtomList children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
                         double mass = ((IAtomLeaf)a).getType().getMass();

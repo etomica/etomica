@@ -3,7 +3,7 @@ package etomica.modules.interfacial;
 import java.util.Random;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.potential.PotentialSoft;
@@ -18,11 +18,11 @@ public class P1Lrc implements PotentialSoft {
         random = new Random();
     }
     
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         return gradient(atoms, null);
     }
 
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         double binSize = forceSum.binSize;
         double[] phi = forceSum.fLrc;
         double[] xpi = forceSum.xVirialLrc;
@@ -74,11 +74,11 @@ public class P1Lrc implements PotentialSoft {
         return gradient;
     }
 
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         return 0;
     }
 
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         double binSize = forceSum.binSize;
         double[] w = forceSum.uLrc;
         double[] densityProfile = forceSum.densityProfile;

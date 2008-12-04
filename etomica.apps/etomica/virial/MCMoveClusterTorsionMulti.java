@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -169,7 +169,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
         for(int i=0; i<selectedMolecules.getAtomCount(); i++) {
             oldCenter.E(((IMolecule)selectedMolecules.getAtom(i)).getType().getPositionDefinition().position((IMolecule)selectedMolecules.getAtom(i)));
-            IAtomSet childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
+            IAtomList childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren-3);  // j=0 ==> first torsion bond (atoms 0,1,2,3)
@@ -357,7 +357,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     }
 	
     protected void selectMolecules() {
-        IAtomSet molecules = box.getMoleculeList();
+        IAtomList molecules = box.getMoleculeList();
         selectedMolecules = new AtomArrayList();
         oldPositions = new IVector[molecules.getAtomCount()][0];
     	int i=0;
@@ -378,7 +378,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.getAtomCount(); i++) {
-            IAtomSet childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
+            IAtomList childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
             for (int j=0; j<childList.getAtomCount(); j++) {
                 IAtomPositioned atomj = (IAtomPositioned)childList.getAtom(j);
                 atomj.getPosition().E(oldPositions[i][j]);

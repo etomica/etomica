@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
@@ -84,7 +84,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     }
 
     public void initializeCoordinates(int[] nCells) {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -236,7 +236,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
      * 
      */
     
-    public double[] calcU(IAtomSet molecules) {
+    public double[] calcU(IAtomList molecules) {
         
     	super.calcU(molecules);
         int j = 3;
@@ -329,7 +329,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtomSet molecules) {
+    public void initNominalU(IAtomList molecules) {
     	
     	for (int i=0; i < molecules.getAtomCount() ; i++){
     		
@@ -376,7 +376,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
  
     }
 
-    public void setToU(IAtomSet molecules, double[] newU) {
+    public void setToU(IAtomList molecules, double[] newU) {
     	
         int j=3;
         

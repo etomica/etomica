@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 
@@ -70,7 +70,7 @@ public class Molecule extends Atom implements IMolecule {
     /**
      * @return the childList
      */
-    public final IAtomSet getChildList() {
+    public final IAtomList getChildList() {
         return childList;
     }
     

@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.space.ISpace;
 
@@ -15,7 +15,7 @@ public class PotentialDLPOLY extends Potential{
 		super(0, space);
 	}
 	
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
 
 		configDLPOLY.actionPerformed();
 		

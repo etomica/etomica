@@ -2,7 +2,7 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
@@ -36,7 +36,7 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
      * Adds forces and torques due to given potential acting on the atoms produced by the iterator.
      * Implemented for 1-, 2- and N-body potentials.
      */
-    public void doCalculation(IAtomSet atoms, IPotential potential) {
+    public void doCalculation(IAtomList atoms, IPotential potential) {
         int nBody = potential.nBody();
         if (potential instanceof PotentialSoft) {
             PotentialSoft potentialSoft = (PotentialSoft)potential;

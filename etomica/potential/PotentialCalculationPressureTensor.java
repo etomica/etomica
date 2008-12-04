@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.integrator.IntegratorBox;
@@ -20,7 +20,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final ISpace space;
-    protected IAtomSet leafList;
+    protected IAtomList leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
     
@@ -34,7 +34,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 	 * Adds the pressure tensor contribution based on the forces acting on each
      * pair of atoms produced by the iterator.
 	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 		((PotentialSoft)potential).gradient(atoms, pressureTensor);
 	}
     

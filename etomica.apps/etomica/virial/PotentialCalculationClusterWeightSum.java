@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.potential.PotentialCalculation;
 
@@ -17,7 +17,7 @@ public class PotentialCalculationClusterWeightSum implements PotentialCalculatio
         return weight;
     }
 
-    public void doCalculation(IAtomSet atoms, IPotential potential) {
+    public void doCalculation(IAtomList atoms, IPotential potential) {
         // we'll also get intramolecular potentials... ignore them
         if (potential instanceof P0Cluster) {
             weight *= ((P0Cluster)potential).weight();

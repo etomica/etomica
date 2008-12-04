@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.atom.AtomPair;
@@ -240,7 +240,7 @@ public class HarmonicCrystalOrthorhombic {
 			
 			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
 			
-			IAtomSet molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
+			IAtomList molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
 			coordinateDefinitionParacetamol.setToU(molecules, u);
 			
 			AtomPair pair = new AtomPair(molecules.getAtom(indexj), molecules.getAtom(indexjp));

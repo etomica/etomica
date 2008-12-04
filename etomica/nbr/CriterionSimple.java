@@ -3,7 +3,7 @@ package etomica.nbr;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.ISimulation;
@@ -107,7 +107,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		return r2 > r2MaxSafe;
 	}
 
-	public boolean accept(IAtomSet pair) {
+	public boolean accept(IAtomList pair) {
         dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {

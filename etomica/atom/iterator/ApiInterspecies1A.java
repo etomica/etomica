@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -180,7 +180,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
         return 2;
     }
     
-    public IAtomSet next() {
+    public IAtomList next() {
         return iterator.next();
     }
     

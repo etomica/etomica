@@ -3,7 +3,7 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 
 /**
@@ -28,7 +28,7 @@ public class AtomGroupAction implements AtomAction, Serializable {
      */
     public void actionPerformed(IAtom atom) {
         if(atom instanceof IMolecule) {
-            IAtomSet atomList = ((IMolecule)atom).getChildList();
+            IAtomList atomList = ((IMolecule)atom).getChildList();
             int size = atomList.getAtomCount();
             for(int i=0; i<size; i++) {
                 this.actionPerformed(atomList.getAtom(i));

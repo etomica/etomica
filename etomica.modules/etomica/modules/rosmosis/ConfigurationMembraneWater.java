@@ -3,7 +3,7 @@ package etomica.modules.rosmosis;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -59,7 +59,7 @@ public class ConfigurationMembraneWater implements Configuration {
         ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        IAtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
+        IAtomList molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
             IMolecule atom = (IMolecule)molecules.getAtom(i);

@@ -1,6 +1,6 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 
@@ -46,7 +46,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return cutoff;
     }
 
-    public double energy(IAtomSet atom) {
+    public double energy(IAtomList atom) {
         IVector dimensions = boundary.getDimensions();
         double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
         double dzHalf = 0.5 * dimensions.x(wallDim);
@@ -73,7 +73,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return -48 * epsilon * r6 * (r6 - 0.5);
     }
 
-    public IVector[] gradient(IAtomSet atom) {
+    public IVector[] gradient(IAtomList atom) {
         IVector dimensions = boundary.getDimensions();
         double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
         double dzHalf = 0.5 * dimensions.x(wallDim);
@@ -82,11 +82,11 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return gradient;
     }
     
-    public IVector[] gradient(IAtomSet atom, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atom, Tensor pressureTensor) {
         return gradient(atom);
     }
     
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         return 0.0;
     }
 

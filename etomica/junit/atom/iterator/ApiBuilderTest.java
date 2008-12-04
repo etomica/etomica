@@ -3,7 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -92,8 +92,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         AtomPair basisPair = new AtomPair();
 
         IBox box = sim.getBox(0);
-        IAtomSet moleculeList0 = box.getMoleculeList(species0);
-        IAtomSet moleculeList1 = box.getMoleculeList(species1);
+        IAtomList moleculeList0 = box.getMoleculeList(species0);
+        IAtomList moleculeList1 = box.getMoleculeList(species1);
         
         //test 3-atom type and 4-atom type, no target
         basisPair.atom0 = moleculeList0.getAtom(2);
@@ -266,7 +266,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
-        IAtomSet moleculeList = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies(1));
+        IAtomList moleculeList = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies(1));
         parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5
         targetFirst = moleculeList.getAtom(0);//atom0 
@@ -290,7 +290,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         parent = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies(0)).getAtom(2);
-        IAtomSet childList = ((IMolecule)parent).getChildList();
+        IAtomList childList = ((IMolecule)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);
         targetLast = childList.getAtom(9);

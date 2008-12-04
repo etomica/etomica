@@ -1,6 +1,6 @@
 package etomica.threaded;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 
@@ -17,7 +17,7 @@ public class PotentialThreaded extends Potential {
 	
 	}
 
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
 		//Only the energy from one thread (a partition of atoms)
 		return potential[0].energy(atoms);
 	}

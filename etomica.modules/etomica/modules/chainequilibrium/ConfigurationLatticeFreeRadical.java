@@ -1,6 +1,6 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
@@ -36,9 +36,9 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomSet moleculeList = box.getMoleculeList();
-        IAtomSet initiatorList = box.getMoleculeList(speciesInitiator);
-        IAtomSet monomerList = box.getMoleculeList(speciesMonomer);
+        IAtomList moleculeList = box.getMoleculeList();
+        IAtomList initiatorList = box.getMoleculeList(speciesInitiator);
+        IAtomList monomerList = box.getMoleculeList(speciesMonomer);
         int sumOfMolecules = (initiatorList.getAtomCount()+1) / 2 + monomerList.getAtomCount();
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {

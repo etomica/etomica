@@ -1,6 +1,6 @@
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IIntegratorNonintervalListener;
@@ -120,7 +120,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
         int crossings = 0;
         double boxLength = box.getBoundary().getDimensions().x(dim);
         for (int i=0; i<species.length; i++) {
-            IAtomSet molecules = box.getMoleculeList(species[i]);
+            IAtomList molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 IMolecule atom = (IMolecule)molecules.getAtom(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));

@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -37,7 +37,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		return info;
 	}
     
-	public double energy(IAtomSet a) {
+	public double energy(IAtomList a) {
 		IVector dimensions = boundary.getDimensions();
 		double rx = ((IAtomPositioned)a).getPosition().x(0);
 		double ry = ((IAtomPositioned)a).getPosition().x(1);
@@ -60,7 +60,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		return -12*r6*r6/r;
 	}
 	
-	public IVector[] gradient(IAtomSet a) {
+	public IVector[] gradient(IAtomList a) {
 		IVector dimensions = boundary.getDimensions();
 		double rx = ((IAtomPositioned)a).getPosition().x(0);
 		double ry = ((IAtomPositioned)a).getPosition().x(1);
@@ -73,11 +73,11 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		return gradient;
 	}
     
-    public IVector[] gradient(IAtomSet a, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList a, Tensor pressureTensor) {
         return gradient(a);
     }
 	
-	public double virial(IAtomSet atoms) {
+	public double virial(IAtomList atoms) {
 	    return 0.0;
     }
     

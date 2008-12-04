@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtom;
 
 import etomica.atom.AtomArrayList;
@@ -18,7 +18,7 @@ public class AtomPairSet implements java.io.Serializable {
      * Constructor for AtomPairSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public AtomPairSet(IAtomSet list) {
+    public AtomPairSet(IAtomList list) {
         aPairs = new AtomPair[list.getAtomCount()-1][];
         setAtoms(list);
     }
@@ -26,12 +26,12 @@ public class AtomPairSet implements java.io.Serializable {
     /**
      * Returns atom pair for ith and jth atoms in set.
      */
-    public IAtomSet getAPair(int i, int j) {
+    public IAtomList getAPair(int i, int j) {
         if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
         return i<j ? aPairs[i][j-i-1] : aPairs[j][i-j-1];
     }
 
-    private void setAtoms(IAtomSet list) {
+    private void setAtoms(IAtomList list) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
         int N = list.getAtomCount();
         IAtom[] atoms = new IAtom[N];

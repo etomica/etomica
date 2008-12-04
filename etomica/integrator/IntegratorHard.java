@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -142,7 +142,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
         while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
-            IAtomSet atoms;
+            IAtomList atoms;
             if (colliderAgent.collisionPartner() != null) {
                 atoms = pair;
                 pair.atom0 = colliderAgent.atom();
@@ -392,7 +392,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -432,7 +432,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      */
     public void resetCollisionTimes() {
         if(!initialized) return;
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -539,7 +539,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         if (box != null) {
             // inefficient -- we could loop over molecules of type.getSpecies()
             // and then their children.  oh well.
-            IAtomSet leafList = box.getLeafList();
+            IAtomList leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
@@ -589,7 +589,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         }//end of setAtom
 
         //atom pair
-        public void doCalculation(IAtomSet atoms, IPotential potential) {
+        public void doCalculation(IAtomList atoms, IPotential potential) {
             PotentialHard pHard = (PotentialHard)potential;
             if(atoms.getAtom(0) != atom1) setAtom(atoms.getAtom(0)); //need this if doing minimum collision time calculation for more than one atom
             double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
@@ -623,7 +623,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             integratorAgentManager = newAgentManager;
         }
 
-		public void doCalculation(IAtomSet atoms, IPotential potential) {
+		public void doCalculation(IAtomList atoms, IPotential potential) {
 			if (atoms.getAtomCount() != 2) return;
             PotentialHard pHard = (PotentialHard)potential;
 
@@ -665,7 +665,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             integratorAgentManager = newAgentManager;
         }
         
-        public void doCalculation(IAtomSet pair, IPotential p) {
+        public void doCalculation(IAtomList pair, IPotential p) {
             if (pair.getAtomCount() != 2) return;
             // look for pairs in which pair[0] is the collision partner of pair[1]
             IAtom aPartner = ((Agent)integratorAgentManager.getAgent((IAtomLeaf)pair.getAtom(0))).collisionPartner();

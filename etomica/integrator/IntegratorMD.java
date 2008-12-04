@@ -4,7 +4,7 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IEvent;
@@ -201,7 +201,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    IAtomSet atomList = box.getLeafList();
+                    IAtomList atomList = box.getLeafList();
                     int atomCount = atomList.getAtomCount();
                     if (atomCount > 0) {
                         int index = random.nextInt(atomList.getAtomCount());
@@ -229,7 +229,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
@@ -254,7 +254,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      */
     protected void shiftMomenta() {
         momentum.E(0);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf == 0) return;
         if (nLeaf > 1) {
@@ -299,7 +299,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      * integrator may need to be updated after calling this method.
      */
     protected void scaleMomenta() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         currentKineticEnergy = 0;
         if (nLeaf == 0) return;

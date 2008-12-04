@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 
 /**
@@ -17,7 +17,7 @@ public interface AtomsetFilter {
     /**
      * Returns true if atom is passes test of filter.
      */
-    public boolean accept(IAtomSet a);
+    public boolean accept(IAtomList a);
 
 //------------ end of interface ---------------//
 
@@ -27,7 +27,7 @@ public interface AtomsetFilter {
      * Returns true for null atom also.
      */
     public static final AtomsetFilter ACCEPT_ALL = new AtomsetFilter() {
-        public boolean accept(IAtomSet a) {return true;}
+        public boolean accept(IAtomList a) {return true;}
     };
     
     /**
@@ -35,7 +35,7 @@ public interface AtomsetFilter {
      * Returns false for null atom also.
      */
     public static final AtomsetFilter ACCEPT_NONE = new AtomsetFilter() {
-        public boolean accept(IAtomSet a) {return false;}
+        public boolean accept(IAtomList a) {return false;}
     };
     
 }

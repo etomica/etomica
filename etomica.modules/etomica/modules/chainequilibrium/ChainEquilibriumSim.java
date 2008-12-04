@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -151,7 +151,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	}
     
     public void resetBonds() {
-        IAtomSet atoms = box.getLeafList();
+        IAtomList atoms = box.getLeafList();
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtomLeaf a = (IAtomLeaf)atoms.getAtom(i);
             agentManager.setAgent(a, makeAgent(a));

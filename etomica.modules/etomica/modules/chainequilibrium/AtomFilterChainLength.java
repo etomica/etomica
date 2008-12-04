@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
@@ -28,7 +28,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
     public void resetFilter() {
         maxChainLength = 0;
         // untag all the Atoms
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainLength = 0;

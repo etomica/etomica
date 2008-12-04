@@ -8,7 +8,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -340,9 +340,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		list2 = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-            IAtomSet molecules = box.getMoleculeList(movableSpecies[i]);
-            IAtomSet molecules1 = box1.getMoleculeList(movableSpecies[i]);
-            IAtomSet molecules2 = box2.getMoleculeList(movableSpecies[i]);
+            IAtomList molecules = box.getMoleculeList(movableSpecies[i]);
+            IAtomList molecules1 = box1.getMoleculeList(movableSpecies[i]);
+            IAtomList molecules2 = box2.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
                 list1.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
@@ -892,7 +892,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		if(saddleT<dFsq){
 		    
 		    vib = new CalcVibrationalModes();
-	        vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
+	        vib.setup(box, super.potential, (IAtomList)box.getMoleculeList(movableSpecies[0]), space);
 	        vib.actionPerformed();
 	        
 	        

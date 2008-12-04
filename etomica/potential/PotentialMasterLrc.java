@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.iterator.AtomsetIteratorPDT;
@@ -46,7 +46,7 @@ public class PotentialMasterLrc extends PotentialMaster {
             }
             else {
                 atomIterator.reset();
-                for (IAtomSet atoms = atomIterator.next(); atoms != null;
+                for (IAtomList atoms = atomIterator.next(); atoms != null;
                      atoms = atomIterator.next()) {
                     pc.doCalculation(atoms, potential);
                 }

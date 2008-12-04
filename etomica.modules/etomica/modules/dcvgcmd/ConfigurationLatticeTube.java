@@ -2,7 +2,7 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
@@ -57,7 +57,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	}
 	
     public void initializeCoordinates(IBox box) {
-        IAtomSet[] spheresLists = new IAtomSet[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
+        IAtomList[] spheresLists = new IAtomList[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
         
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
@@ -154,7 +154,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         //loop for multiple tubes.
-        IAtomSet tubeList = box.getMoleculeList(speciesTube);
+        IAtomList tubeList = box.getMoleculeList(speciesTube);
         int nTubes = tubeList.getAtomCount();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         // put them all at 0.  oops

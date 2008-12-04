@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -45,7 +45,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            IAtomSet molecules = box.getMoleculeList(species[i]);
+            IAtomList molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 moleculeList.add(molecules.getAtom(j));
             }

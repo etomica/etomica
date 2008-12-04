@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -35,7 +35,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         u = new double[coordinateDim];
     }
 
-    public double[] calcU(IAtomSet molecules) {
+    public double[] calcU(IAtomList molecules) {
         // calculates components of U related to the the center of mass of the
         // molecules
         // subclass is responsible for setting orientation or intramolecular
@@ -58,10 +58,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtomSet molecules) {
+    public void initNominalU(IAtomList molecules) {
     }
 
-    public void setToU(IAtomSet molecules, double[] newU) {
+    public void setToU(IAtomList molecules, double[] newU) {
         // sets the center of mass of the molecules to that specified by newU
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom

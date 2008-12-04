@@ -1,6 +1,6 @@
 package etomica.nbr;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 
 /**
@@ -12,7 +12,7 @@ import etomica.api.IBox;
  */
 public interface NeighborCriterion {
 
-    public boolean accept(IAtomSet pair);
+    public boolean accept(IAtomList pair);
     
     /**
      * Indicates whether the neighbor list for the given atom should

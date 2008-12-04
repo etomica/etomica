@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -67,7 +67,7 @@ public class MeterTemperature extends DataSourceScalar {
                         totalD += 6*nMolecules;
 	                }
 	                else {
-	                    IAtomSet children = molecule.getChildList();
+	                    IAtomList children = molecule.getChildList();
 	                    if (children.getAtomCount() == 0 || 
 	                        Double.isInfinite(((IAtomLeaf)children.getAtom(0)).getType().getMass())) {
 	                        continue;

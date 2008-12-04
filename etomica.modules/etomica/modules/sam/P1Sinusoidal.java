@@ -1,7 +1,7 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
@@ -47,7 +47,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         waveVectors[2].TE(2.0*Math.PI);
     }
     
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         IAtomPositioned a = (IAtomPositioned)atoms.getAtom(0);
         r.Ev1Mv2(a.getPosition(), offset);
         double sum = 0;
@@ -57,7 +57,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return b45 * (3.0 - sum);
     }
 
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         IAtomPositioned a = (IAtomPositioned)atoms.getAtom(0);
         r.Ev1Mv2(a.getPosition(), offset);
         gradient[0].E(0);
@@ -68,11 +68,11 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return gradient;
     }
 
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         return 0;
     }
 

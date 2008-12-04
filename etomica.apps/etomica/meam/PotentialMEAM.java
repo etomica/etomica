@@ -2,7 +2,7 @@ package etomica.meam;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
@@ -49,7 +49,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	double jcut = 6.0; //this may not be ideal cutoff for FCC Cu system
 	double kcut = jcut * 1.14;
 	
-	public void calcSums(IAtomSet atoms) {
+	public void calcSums(IAtomList atoms) {
 		for (int i = 0; i < sum.length; i++) {
     		sum[i] = 0;
 		}
@@ -287,7 +287,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	return ((tav1*rhoi1sq)+ (tav2*rhoi2sq) + (tav3*rhoi3sq))/(rhoi0*rhoi0);  
     }
 
-    protected double rhoi(IAtomSet atoms) {
+    protected double rhoi(IAtomList atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
 		pi = parameters[((IAtomLeaf)atoms.getAtom(0)).getType().getIndex()];
     	if (pi == pSn) {
@@ -299,7 +299,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	/* (non-Javadoc)
 	 * @see etomica.potential.Potential#energy(etomica.atom.AtomSet)
 	 */
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
 		pi = parameters[((IAtomLeaf)atoms.getAtom(0)).getType().getIndex()];
@@ -314,16 +314,16 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		nearestImageTransformer = box.getBoundary();
 	}
 
-	public double virial(IAtomSet atoms) {
+	public double virial(IAtomList atoms) {
 		return calcVirial(atoms, null);
 	}
 
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         calcVirial(atoms, null);
         return gnEi;
     }
 
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         calcVirial(atoms, pressureTensor);
         return gnEi;
     }
@@ -336,7 +336,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
      * PotentialSoft interface call this method and return what the particular
      * method wants.
      */
-	private double calcVirial(IAtomSet atoms, Tensor pressureTensor) {
+	private double calcVirial(IAtomList atoms, Tensor pressureTensor) {
         double virial = 0;
         
 		if (atoms.getAtomCount() > gnEi.length) {

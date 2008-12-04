@@ -8,7 +8,7 @@ import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.atom.AtomArrayList;
 
@@ -79,7 +79,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * @throws IllegalArgumentException 
      *              if atoms.count() is not 0 or 1
      */
-    public void setBasis(IAtomSet atoms) {
+    public void setBasis(IAtomList atoms) {
         if (atoms == null) {
             basis = null;
             littleList.clear();
@@ -213,7 +213,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                                                        // is specified
     private IAtom targetAtom;
     private IAtom basis;
-    private IAtomSet list;
+    private IAtomList list;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called
                                              // upon reset

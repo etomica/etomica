@@ -2,7 +2,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 
 /**
@@ -22,7 +22,7 @@ public class CriterionType extends CriterionAdapter {
      * Returns true if the AtomType of the atom matches the AtomType given at 
      * construction and if the wrapped criterion accept also returns true.
      */
-    public boolean accept(IAtomSet atom) {
+    public boolean accept(IAtomList atom) {
         if (((IAtomLeaf)atom.getAtom(0)).getType() == type) {
             return subCriterion.accept(atom);
         }

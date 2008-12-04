@@ -1,7 +1,7 @@
 package etomica.integrator;
 
 import etomica.action.AtomAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -36,7 +36,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             action.actionPerformed(leafList.getAtom(iLeaf));

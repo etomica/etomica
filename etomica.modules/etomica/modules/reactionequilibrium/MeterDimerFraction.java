@@ -1,7 +1,7 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.ISpecies;
@@ -52,7 +52,7 @@ public final class MeterDimerFraction implements IEtomicaDataSource {
     
     public IData getData() {
         for(int i=0; i<count.length; i++) {count[i] = 0;}
-        IAtomSet leafAtoms = box.getLeafList();
+        IAtomList leafAtoms = box.getLeafList();
         int nLeaf = leafAtoms.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             IAtomLeaf a = (IAtomLeaf)leafAtoms.getAtom(i);

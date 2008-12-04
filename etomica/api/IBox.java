@@ -45,17 +45,17 @@ public interface IBox {
      * Returns the list of molecules of the given species as an IAtomSet that
      * are in this box.
      */
-    public IAtomSet getMoleculeList(ISpecies species);
+    public IAtomList getMoleculeList(ISpecies species);
 
     /**
      * Returns a list of all molecules in this box as an IAtomSet.
      */
-    public IAtomSet getMoleculeList();
+    public IAtomList getMoleculeList();
 
     /**
      * Returns the list of atoms contained in this box.
      */
-    public IAtomSet getLeafList();
+    public IAtomList getLeafList();
 
     /**
      * Returns the leaf index of the given atom, which corresponds to its

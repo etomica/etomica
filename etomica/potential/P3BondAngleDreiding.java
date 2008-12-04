@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
@@ -35,11 +35,11 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		gradient[2] = space.makeVector();
 	}
 
-	public double virial(IAtomSet atomSet){
+	public double virial(IAtomList atomSet){
 		return 0.0;
 	}
 	
-	public IVector[] gradient(IAtomSet atomSet,  Tensor pressureTensor){
+	public IVector[] gradient(IAtomList atomSet,  Tensor pressureTensor){
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
@@ -150,7 +150,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		return gradient;
 	}
 	
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
 
         return gradient(atoms,null);
     }
@@ -159,7 +159,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		nearestImageTransformer = box.getBoundary();
 	}
 	
-	public double energy(IAtomSet atomSet){
+	public double energy(IAtomList atomSet){
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);

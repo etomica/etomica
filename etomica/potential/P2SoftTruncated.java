@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -48,7 +48,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      * @param r2 the squared distance between the atoms
      */
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -60,7 +60,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      * @param r2 the squared distance between the atoms
      */
-    public double virial(IAtomSet atoms) {
+    public double virial(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -72,7 +72,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      * @param r2 the squared distance between the atoms
      */
-    public IVector[] gradient(IAtomSet atoms) {
+    public IVector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -84,7 +84,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      * @param r2 the squared distance between the atoms
      */
-    public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -92,7 +92,7 @@ public class P2SoftTruncated extends Potential2
         return wrappedPotential.gradient(atoms, pressureTensor);
     }
     
-    public double hyperVirial(IAtomSet atoms) {
+    public double hyperVirial(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
@@ -161,19 +161,19 @@ public class P2SoftTruncated extends Potential2
             D = space.D();              //spatial dimension
         }
  
-        public double energy(IAtomSet atoms) {
+        public double energy(IAtomList atoms) {
             return uCorrection(nPairs()/box.getBoundary().volume());
         }
         
-        public double virial(IAtomSet atoms) {
+        public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
         
-        public IVector[] gradient(IAtomSet atoms) {
+        public IVector[] gradient(IAtomList atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         
-        public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+        public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
                 pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);

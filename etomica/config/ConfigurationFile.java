@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 
@@ -19,7 +19,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
     }
     
     public void initializeCoordinates(IBox box) {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
         try {

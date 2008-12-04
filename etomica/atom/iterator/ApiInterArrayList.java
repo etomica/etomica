@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 
@@ -27,7 +27,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @throws IllegalArgumentException
      *             if both lists refer to the same instance
      */
-    public ApiInterArrayList(IAtomSet outerList, IAtomSet innerList) {
+    public ApiInterArrayList(IAtomList outerList, IAtomList innerList) {
         if (outerList == innerList) {
             throw new IllegalArgumentException(
                     "ApiInterList will not work if both iterators are the same instance");
@@ -72,7 +72,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * Returns the next iterate pair. Returns null if there are no more
      * iterates.
      */
-    public IAtomSet next() {
+    public IAtomList next() {
         if (innerIndex > innerList.getAtomCount() - 2) {
             if (outerIndex > outerList.getAtomCount() - 2 || innerList.getAtomCount() == 0) {
                 return null;
@@ -121,7 +121,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setOuterList(IAtomSet newList) {
+    public void setOuterList(IAtomList newList) {
         this.outerList = newList;
         unset();
     }
@@ -133,7 +133,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setInnerList(IAtomSet newList) {
+    public void setInnerList(IAtomList newList) {
         this.innerList = newList;
         unset();
     }
@@ -141,19 +141,19 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
     /**
      * Returns the outer list used to generate the pairs.
      */
-    public IAtomSet getOuterList() {
+    public IAtomList getOuterList() {
         return outerList;
     }
 
     /**
      * Returns the inner list used to generate the pairs.
      */
-    public IAtomSet getInnerList() {
+    public IAtomList getInnerList() {
         return innerList;
     }
 
     private static final long serialVersionUID = 1L;
-    private IAtomSet outerList, innerList;
+    private IAtomList outerList, innerList;
     private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
 }

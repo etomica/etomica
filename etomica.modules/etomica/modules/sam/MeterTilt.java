@@ -1,7 +1,7 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
@@ -38,7 +38,7 @@ public class MeterTilt implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IAtomSet molecules = box.getMoleculeList(species);
+        IAtomList molecules = box.getMoleculeList(species);
         int nMolecules = molecules.getAtomCount();
         int leafCount = species.getNumLeafAtoms();
         drSum.E(0);

@@ -1,7 +1,7 @@
 package etomica.models.rowley;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 
@@ -17,7 +17,7 @@ public class ConformationEthanol implements IConformation {
         this.pointCharges = pointCharges;
     }
     
-    public void initializePositions(IAtomSet list){
+    public void initializePositions(IAtomList list){
     	
     	/*
     	 *  Standard orientation for ethanol molecule sites: 

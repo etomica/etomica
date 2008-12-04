@@ -2,7 +2,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -131,7 +131,7 @@ public class MCMoveSemigrand extends MCMoveBox {
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
   
-        IAtomSet moleculeList = box.getMoleculeList(speciesSet[iDelete]);
+        IAtomList moleculeList = box.getMoleculeList(speciesSet[iDelete]);
         deleteMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();

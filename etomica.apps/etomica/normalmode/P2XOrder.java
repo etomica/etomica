@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.potential.Potential2;
@@ -45,7 +45,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
      * Interaction energy of the pair.
      * Zero if x coordinates are ordered differently from atom indexes.
      */
-    public double energy(IAtomSet pair) {
+    public double energy(IAtomList pair) {
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
         dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
@@ -79,11 +79,11 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         wrappedPotential.setBox(newBox);
     }
 
-    public void bump(IAtomSet atom, double falseTime) {
+    public void bump(IAtomList atom, double falseTime) {
         wrappedPotential.bump(atom, falseTime);
     }
 
-    public double collisionTime(IAtomSet atom, double falseTime) {
+    public double collisionTime(IAtomList atom, double falseTime) {
         return wrappedPotential.collisionTime(atom, falseTime);
     }
 

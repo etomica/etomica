@@ -6,7 +6,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
@@ -58,7 +58,7 @@ public abstract class CoordinateDefinition {
     
     public void initializeCoordinates(int[] nCells) {
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         if (moleculeList.getAtomCount() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
@@ -142,7 +142,7 @@ public abstract class CoordinateDefinition {
      * @param molecule
      *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    public abstract double[] calcU(IAtomSet molecules);
+    public abstract double[] calcU(IAtomList molecules);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -151,7 +151,7 @@ public abstract class CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    protected abstract void initNominalU(IAtomSet molecules);
+    protected abstract void initNominalU(IAtomList molecules);
 
     /**
      * Set all the molecules in a cell to a position and orientation that corresponds to the
@@ -163,7 +163,7 @@ public abstract class CoordinateDefinition {
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecules will be set by this method.
      */
-    public abstract void setToU(IAtomSet molecules, double[] newU);
+    public abstract void setToU(IAtomList molecules, double[] newU);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given
@@ -186,7 +186,7 @@ public abstract class CoordinateDefinition {
         // sum T over atoms
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
-            IAtomSet molecules = cell.molecules;
+            IAtomList molecules = cell.molecules;
             double[] u = calcU(molecules);
             IVector latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
@@ -275,13 +275,13 @@ public abstract class CoordinateDefinition {
     }
     
     public static class BasisCell implements Serializable {
-        public BasisCell(IAtomSet molecules, IVector cellPosition) {
+        public BasisCell(IAtomList molecules, IVector cellPosition) {
             this.molecules = molecules;
             this.cellPosition = cellPosition;
         }
         
         private static final long serialVersionUID = 1L;
-        public final IAtomSet molecules;
+        public final IAtomList molecules;
         public final IVector cellPosition;
     }
 

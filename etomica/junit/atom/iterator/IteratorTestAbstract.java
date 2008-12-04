@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomsetArray;
@@ -48,7 +48,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * Returns a list from the given atoms, which can be checked against
      * the list returned by generalIteratorMethodTests.
      */
-    public LinkedList makeTestList(IAtomSet[] atoms) {
+    public LinkedList makeTestList(IAtomList[] atoms) {
         Lister lister = new Lister();
         for(int i=0; i<atoms.length; i++) {
             lister.actionPerformed(atoms[i]);
@@ -87,11 +87,11 @@ public abstract class IteratorTestAbstract extends TestCase {
         print("Testing size -- iterator.size, lister.list.size: "+iterator.size()+" "+lister[0].list.size());
         assertEquals(iterator.size(), lister[0].list.size());
 
-        IAtomSet[] atoms = new IAtomSet[lister[0].list.size()];
+        IAtomList[] atoms = new IAtomList[lister[0].list.size()];
         
         //******* test of next
         iterator.reset();
-        for (IAtomSet atomSet = iterator.next(); atomSet != null;
+        for (IAtomList atomSet = iterator.next(); atomSet != null;
              atomSet = iterator.next()) {
             lister[3].actionPerformed(atomSet);
         }
@@ -100,7 +100,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         //******* test of next
         iterator.reset();
         int j=0;
-        for (IAtomSet nextAtom = iterator.next(); nextAtom != null;
+        for (IAtomList nextAtom = iterator.next(); nextAtom != null;
                nextAtom = iterator.next()) {
             atoms[j] = new AtomsetArray(nextAtom);
             lister[1].actionPerformed(nextAtom);
@@ -134,7 +134,7 @@ public abstract class IteratorTestAbstract extends TestCase {
 
         //******* test of nBody
         iterator.reset();
-        for (IAtomSet atomSet = iterator.next(); atomSet != null;
+        for (IAtomList atomSet = iterator.next(); atomSet != null;
              atomSet = iterator.next()) {
             assertEquals(atomSet.getAtomCount(), iterator.nBody());
         }

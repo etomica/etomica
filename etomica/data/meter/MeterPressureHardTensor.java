@@ -2,7 +2,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.data.DataTag;
@@ -47,7 +47,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
 
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but works out in the end.
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

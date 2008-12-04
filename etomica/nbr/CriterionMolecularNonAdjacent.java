@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 /**
  * 
@@ -25,7 +25,7 @@ public final class CriterionMolecularNonAdjacent extends
      * 
      * @see etomica.atom.AtomPairFilter#accept(etomica.AtomPair)
      */
-    public boolean accept(IAtomSet pair) {
+    public boolean accept(IAtomList pair) {
 
         int a0 = ((IAtomLeaf)pair.getAtom(0)).getIndex();
         int a1 = ((IAtomLeaf)pair.getAtom(1)).getIndex();

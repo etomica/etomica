@@ -3,7 +3,7 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -149,7 +149,7 @@ public class PotentialGroup extends Potential {
     }
     
     //TODO this needs some work
-    public double energy(IAtomSet basisAtoms) {
+    public double energy(IAtomList basisAtoms) {
         if(basisAtoms.getAtomCount() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
@@ -159,7 +159,7 @@ public class PotentialGroup extends Potential {
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
-            for (IAtomSet atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
+            for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
                 sum += link.potential.energy(atoms);
             }
         }
@@ -216,7 +216,7 @@ public class PotentialGroup extends Potential {
             }
     	}
     	iterator.reset();//loop over atom groups affected by this potential group
-    	for (IAtomSet basisAtoms = iterator.next(); basisAtoms != null;
+    	for (IAtomList basisAtoms = iterator.next(); basisAtoms != null;
              basisAtoms = iterator.next()) {
     	    for (PotentialLinker link=first; link!= null; link=link.next) {
     	        if(!link.enabled) continue;
@@ -224,7 +224,7 @@ public class PotentialGroup extends Potential {
     	        atomIterator.setBasis(basisAtoms);
     	        atomIterator.reset();
     	        final IPotential potential = link.potential;
-    	        for (IAtomSet atoms = atomIterator.next(); atoms != null;
+    	        for (IAtomList atoms = atomIterator.next(); atoms != null;
     	             atoms = atomIterator.next()) {
     	            pc.doCalculation(atoms, potential);
     	        }

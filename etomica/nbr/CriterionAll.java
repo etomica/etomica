@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 
 /**
@@ -48,7 +48,7 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
      */
-    public boolean accept(IAtomSet pair) {
+    public boolean accept(IAtomList pair) {
         return true;
     }
     

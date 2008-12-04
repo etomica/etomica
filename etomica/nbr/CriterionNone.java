@@ -1,7 +1,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 
 public final class CriterionNone implements NeighborCriterion, java.io.Serializable {
@@ -32,5 +32,5 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
     /**
      * Always returns false, indicating that no atoms pairs are neighbors.
      */
-    public boolean accept(IAtomSet pair) {return false;}
+    public boolean accept(IAtomList pair) {return false;}
 }

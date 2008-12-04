@@ -3,7 +3,7 @@
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
@@ -27,7 +27,7 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 	
 	}
 	
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 			
 			atom0 = atoms.getAtom(0);
 			atom1 = atoms.getAtom(1);

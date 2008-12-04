@@ -1,7 +1,7 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
@@ -39,7 +39,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorB
             bitFlipper = 1;
         }
         
-        public boolean accept(IAtomSet atoms) {
+        public boolean accept(IAtomList atoms) {
             double radius = pistonPotential.getCollisionRadius()+padding;
             // always reject if both atoms are near a wall.  always accept if
             // both atoms are away from the wall.  If one is near and one not, 

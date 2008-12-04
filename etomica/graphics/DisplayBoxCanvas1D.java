@@ -8,7 +8,7 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
@@ -153,7 +153,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         if(displayBox.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
-        IAtomSet leafList = displayBox.getBox().getLeafList();
+        IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
         AtomFilter atomFilter = displayBox.getAtomFilter();
         if (atomFilter instanceof AtomFilterCollective) {

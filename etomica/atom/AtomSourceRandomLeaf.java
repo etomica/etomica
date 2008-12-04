@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.util.Debug;
@@ -40,6 +40,6 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    protected IAtomSet list = null;
+    protected IAtomList list = null;
     protected IRandom random;
 }

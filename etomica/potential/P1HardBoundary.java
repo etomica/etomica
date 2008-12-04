@@ -5,7 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.graphics.Drawable;
 import etomica.space.ISpace;
@@ -60,7 +60,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         return info;
     }
     
-    public double energy(IAtomSet a) {
+    public double energy(IAtomList a) {
         IVector dimensions = boundary.getDimensions();
         IVector pos = ((IAtomPositioned)a.getAtom(0)).getPosition();
         for (int i=0; i<work.getD(); i++) {
@@ -78,7 +78,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
      
     public double energyChange() {return 0.0;}
     
-    public double collisionTime(IAtomSet a, double falseTime) {
+    public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
         IVector v = atom.getVelocity();
@@ -117,7 +117,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                 
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
-    public void bump(IAtomSet a, double falseTime) {
+    public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
         IVector v = atom.getVelocity();

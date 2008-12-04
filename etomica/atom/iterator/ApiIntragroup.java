@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 /**
  * Returns iterates from the childList of a single basis atom.  Behavior is set
@@ -80,7 +80,7 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
 	 * array should match the value returned by setBasis, but if it
 	 * is greater no error results; only first atom in array is used.
 	 */
-	public void setBasis(IAtomSet atoms) {
+	public void setBasis(IAtomList atoms) {
 		aiOuter.setBasis(atoms);
 	}
 	
@@ -107,9 +107,9 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
         return counter.callCount();
 	}
     
-    public IAtomSet next() {
+    public IAtomList next() {
         if (upListNow) {
-            IAtomSet next = apiUp.next();
+            IAtomList next = apiUp.next();
             if (next != null || !doGoDown) {
                 return next;
             }

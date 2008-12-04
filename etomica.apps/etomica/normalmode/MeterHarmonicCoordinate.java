@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.data.DataTag;
@@ -44,7 +44,7 @@ public class MeterHarmonicCoordinate implements IEtomicaDataSource {
         BasisCell cell = coordinateDefinition.getBasisCells()[0];
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        IAtomSet molecules = cell.molecules;
+        IAtomList molecules = cell.molecules;
         double[] u = coordinateDefinition.calcU(molecules);
         double sqrtCells = Math.sqrt(coordinateDefinition.getBasisCells().length);
 

@@ -1,6 +1,6 @@
 package etomica.modules.materialfracture;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.data.DataSourceScalar;
 import etomica.units.Null;
@@ -38,7 +38,7 @@ public class MeterStrain extends DataSourceScalar {
     }
     
     protected double calcGageLength() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         if(hex){
             double sum = 0;
             for (int i=aNumber; i<aNumber+18; i+=2) {

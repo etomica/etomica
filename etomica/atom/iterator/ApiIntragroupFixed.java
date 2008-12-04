@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -86,7 +86,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
      * is not equal to 1, iterator will give no iterates until a proper basis is
      * specified via another call to this method.
      */
-    public void setBasis(IAtomSet basisAtoms) {
+    public void setBasis(IAtomList basisAtoms) {
         if (basisAtoms == null) {
             basisAtomSet.atom = null;
         } else {

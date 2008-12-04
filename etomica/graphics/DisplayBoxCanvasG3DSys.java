@@ -11,7 +11,7 @@ import org.jmol.g3d.Graphics3D;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -178,7 +178,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void removeObjectByBox(IBox p) {
 
 		// Remove old box atoms
-		IAtomSet leafList = p.getLeafList();
+		IAtomList leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 			IAtomLeaf a = (IAtomLeaf)leafList.getAtom(iLeaf);
@@ -238,7 +238,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			((ColorSchemeCollective) colorScheme).colorAllAtoms();
 		}
 
-		IAtomSet leafList = displayBox.getBox().getLeafList();
+		IAtomList leafList = displayBox.getBox().getLeafList();
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
@@ -529,7 +529,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Add a bond to the graphical display between the given pairs. The given
 	 * bondType is used to decide how the bond should be drawn.
 	 */
-	public Object makeBond(IAtomSet pair, Object bondType) {
+	public Object makeBond(IAtomList pair, Object bondType) {
 		/*
 		 * Ball objects here could be null if the bond is created before the
 		 * atoms have been added. Check for this and store atoms locally in a

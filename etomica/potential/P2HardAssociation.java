@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -35,7 +35,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
     * Implements the collision dynamics.  Does not deal with the hard cores, only the wells.  This
     * section is essentially the same as PotentialSquareWell without the hard core section.
     */
-    public void bump(IAtomSet pair, double falseTime) {
+    public void bump(IAtomList pair, double falseTime) {
         double eps = 1e-6;
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
@@ -95,7 +95,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
     * Computes the next time of collision of the given atomPair assuming free flight.  Only computes the next
     * collision of the wells.  Takes into account both separation and convergence.
     */
-    public double collisionTime(IAtomSet pair, double falseTime) {
+    public double collisionTime(IAtomList pair, double falseTime) {
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());

@@ -4,7 +4,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -76,7 +76,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public double [] positions;
     public double [] lambdas, frequencies;
     public IVector adAtomPos;
-    public IAtomSet movableSet;
+    public IAtomList movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public SimDimerMEAMadatom() {
@@ -220,7 +220,7 @@ public class SimDimerMEAMadatom extends Simulation{
         //distance = distance*distance;
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
+        IAtomList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
@@ -241,8 +241,8 @@ public class SimDimerMEAMadatom extends Simulation{
     public void setPotentialListAtoms(){
         AtomArrayList neighborList = new AtomArrayList();
         AtomArrayList fixedList = new AtomArrayList();
-        IAtomSet loopSet = box.getMoleculeList();
-        IAtomSet movableSet = box.getMoleculeList(movable);
+        IAtomList loopSet = box.getMoleculeList();
+        IAtomList movableSet = box.getMoleculeList(movable);
         for(int i=0; i<loopSet.getAtomCount(); i++){
             if(((IMolecule)loopSet.getAtom(i)).getType()==movable){
                 continue;
@@ -284,7 +284,7 @@ public class SimDimerMEAMadatom extends Simulation{
         distance = distance*distance;
         IVector rij = space.makeVector();
         
-        IAtomSet loopSet = box.getMoleculeList(movable);
+        IAtomList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
             box.getBoundary().nearestImage(rij);
@@ -396,7 +396,7 @@ public class SimDimerMEAMadatom extends Simulation{
         //sim.integratorDimer.setRotNum(0);
         sim.initializeConfiguration("0-MEAM_A_minimum");
         CalcVibrationalModes vib = new CalcVibrationalModes();
-        vib.setup(sim.box, sim.potentialMasterD, (IAtomSet)sim.box.getMoleculeList(sim.movable), sim.getSpace());
+        vib.setup(sim.box, sim.potentialMasterD, (IAtomList)sim.box.getMoleculeList(sim.movable), sim.getSpace());
         vib.actionPerformed();
         System.out.println(vib.getProductOfFrequencies());
         sim.initializeConfiguration("0-MEAM_saddle");

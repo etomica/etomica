@@ -2,7 +2,7 @@ package etomica.modules.interfacial;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;
@@ -129,7 +129,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
                     virialTensorProfile[i].E(0);
                 }
             }
-            IAtomSet leafAtoms = box.getLeafList();
+            IAtomList leafAtoms = box.getLeafList();
 
             double dV = binSize;
             for (int i=1; i<dim.getD(); i++) {
@@ -154,7 +154,7 @@ public class PotentialCalculationForcePressureBinSum extends PotentialCalculatio
 	 * Adds forces due to given potential acting on the atoms produced by the iterator.
 	 * Implemented for only 1- and 2-body potentials.
 	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		virialTensor.E(0);

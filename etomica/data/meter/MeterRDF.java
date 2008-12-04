@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
@@ -89,7 +89,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         iterator.setBox(box);
         iterator.reset();
         // iterate over all pairs
-        for (IAtomSet pair = iterator.next(); pair != null;
+        for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
             dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
             nearestImageTransformer.nearestImage(dr);

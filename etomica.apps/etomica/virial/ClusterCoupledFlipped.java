@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -57,7 +57,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         
         double vsum = wrappedCluster.value(box);
 
-        IAtomSet atomList = box.getMoleculeList();
+        IAtomList atomList = box.getMoleculeList();
         // loop through the atoms, toggling each one until we toggle one "on"
         // this should generate each combination of flipped/unflipped for all
         // the molecules
@@ -84,7 +84,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     
     private void flip(IMolecule flippedMolecule) {
         IVector COM = ((ISpecies)flippedMolecule.getType()).getPositionDefinition().position(flippedMolecule);
-		IAtomSet childAtoms = flippedMolecule.getChildList();
+		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
 			childAtomVector.ME(((IAtomPositioned)childAtoms.getAtom(i)).getPosition());

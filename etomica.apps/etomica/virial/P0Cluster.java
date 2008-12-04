@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 
 import etomica.potential.Potential0;
@@ -24,7 +24,7 @@ public class P0Cluster extends Potential0 {
 	}
 	
     // let's all pretend that the cluster weight is the energy.
-	public double energy(IAtomSet atoms) {
+	public double energy(IAtomList atoms) {
         return 0;
 	}
 

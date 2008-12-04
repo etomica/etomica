@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -80,7 +80,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     }//end of doTrial
     
     protected void doTransform() {
-        IAtomSet childList = molecule.getChildList();
+        IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
             IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
             IVector r = a.getPosition();

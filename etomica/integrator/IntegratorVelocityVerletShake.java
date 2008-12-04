@@ -3,7 +3,7 @@ package etomica.integrator;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
@@ -118,7 +118,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
     public void doStepInternal() {
         currentTime += timeStep;
 
-        IAtomSet molecules = box.getMoleculeList();
+        IAtomList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getAtomCount(); i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
@@ -133,7 +133,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
-                IAtomSet childList = molecule.getChildList();
+                IAtomList childList = molecule.getChildList();
                 IBoundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
@@ -153,7 +153,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                 }
             }
             
-            IAtomSet leafList = molecule.getChildList();
+            IAtomList leafList = molecule.getChildList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -171,7 +171,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                 v.Ea1Tv1(-1.0, temp);
             }
 
-            IAtomSet childList = molecule.getChildList();
+            IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
             IBoundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
@@ -241,7 +241,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
         
         currentKineticEnergy = 0;
         //Finish integration step
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

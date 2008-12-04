@@ -2,7 +2,7 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
@@ -68,7 +68,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	
 	public double f(double[] newU){
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
 		}
 		
@@ -86,7 +86,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		forceSum.reset();
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -114,7 +114,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
 		
-		IAtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
+		IAtomList molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
 				
@@ -129,7 +129,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 			} else {
 				
-				IAtomSet childList = ((IMolecule)molecules.getAtom(m)).getChildList();
+				IAtomList childList = ((IMolecule)molecules.getAtom(m)).getChildList();
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				

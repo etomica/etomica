@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -26,7 +26,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     }
     
 	public boolean doTrial() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
 		atom = leafList.getAtom(random.nextInt(1+leafList.getAtomCount()-1));
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube(random);

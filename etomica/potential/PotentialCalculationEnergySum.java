@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotential;
 
 /**
@@ -18,7 +18,7 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, java
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
 	    sum += potential.energy(atoms);
 	}
 	

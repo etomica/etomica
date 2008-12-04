@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -101,7 +101,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     
     public void resetBonds() {
         
-        IAtomSet initiators = box.getMoleculeList(speciesA);
+        IAtomList initiators = box.getMoleculeList(speciesA);
         for (int i=0; i<initiators.getAtomCount(); i++) {
             IAtomLeaf initiator0 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
             IAtomLeaf[] bonds0 = (IAtomLeaf[])agentManager.getAgent(initiator0);
@@ -117,7 +117,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
             }
         }
         
-        IAtomSet monomers = box.getMoleculeList(speciesB);
+        IAtomList monomers = box.getMoleculeList(speciesB);
         for (int i=0; i<monomers.getAtomCount(); i++) {
             IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent((IAtomLeaf)((IMolecule)monomers.getAtom(i)).getChildList().getAtom(0));
             bonds[0] = null;

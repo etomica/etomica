@@ -4,7 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomToAtomSetFixed;
@@ -123,7 +123,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         throw new RuntimeException("bam");
     }
     
-    public IAtomSet next() {
+    public IAtomList next() {
         IAtom innerAtom = aiInner.nextAtom();
         if (innerAtom == null) {
             innerAtom = advanceLists();

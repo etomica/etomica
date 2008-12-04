@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IVector;
@@ -67,7 +67,7 @@ public class PotentialCalculationTorqueSum implements PotentialCalculation {
 	 * Adds forces and torques due to given potential acting on the atoms produced by the iterator.
 	 * Implemented for 1-, 2- and N-body potentials.
 	 */
-	public void doCalculation(IAtomSet atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotential potential) {
         int nBody = potential.nBody();
         if (atoms.getAtom(0) instanceof IMolecule) {
             if (potential instanceof IPotentialTorque) {

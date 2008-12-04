@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverage;
@@ -278,12 +278,12 @@ public class VirialRowleyAlcohol {
              
     		sim.integrators[1].addIntervalAction(dataPumpDistance); // measure data at each step
     		
-    		IAtomSet moleculeList = targetBox.getMoleculeList();
+    		IAtomList moleculeList = targetBox.getMoleculeList();
     		IMolecule monomerA = (IMolecule)moleculeList.getAtom(0);
     		IMolecule monomerB = (IMolecule)moleculeList.getAtom(1);
     		 
-    		IAtomSet atomSetA = monomerA.getChildList();
-    		IAtomSet atomSetB = monomerB.getChildList();
+    		IAtomList atomSetA = monomerA.getChildList();
+    		IAtomList atomSetB = monomerB.getChildList();
     		    
     		IAtomPositioned atom_aC_A = (IAtomPositioned) atomSetA.getAtom(1);
     		IAtomPositioned atom_aC_B = (IAtomPositioned) atomSetB.getAtom(1);

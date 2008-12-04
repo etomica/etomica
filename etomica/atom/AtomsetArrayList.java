@@ -1,13 +1,13 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 
 /**
  * AtomSet formed by wrapping an AtomArrayList.  ArrayList can be 
  */
-public class AtomsetArrayList implements IAtomSet, java.io.Serializable {
+public class AtomsetArrayList implements IAtomList, java.io.Serializable {
 
     /**
      * Wraps a new atom array of the given length.
@@ -20,7 +20,7 @@ public class AtomsetArrayList implements IAtomSet, java.io.Serializable {
      * Makes a new instance holding the atoms in the given atom set. Makes
      * zero-body AtomSet if argument is null.
      */
-    public AtomsetArrayList(IAtomSet atomSet) {
+    public AtomsetArrayList(IAtomList atomSet) {
         this();
         atoms.ensureCapacity(atomSet.getAtomCount());
         for (int i = 0; i < atoms.getAtomCount(); i++) {
@@ -59,7 +59,7 @@ public class AtomsetArrayList implements IAtomSet, java.io.Serializable {
      * @throws NullPointerException
      *             if argument is null
      */
-    public void setAtoms(IAtomSet atomSet) {
+    public void setAtoms(IAtomList atomSet) {
         atoms.clear();
         atoms.ensureCapacity(atomSet.getAtomCount());
         for (int i = 0; i < atomSet.getAtomCount(); i++) {

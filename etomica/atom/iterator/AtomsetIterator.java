@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits
@@ -25,7 +25,7 @@ public interface AtomsetIterator {
 	/**
 	 * Returns the next AtomSet iterate, or null if hasNext() is false.
 	 */
-    public IAtomSet next();
+    public IAtomList next();
     
     /**
      * Performs given action over all the iterates of this iterator in its

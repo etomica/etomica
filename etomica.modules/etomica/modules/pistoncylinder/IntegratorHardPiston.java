@@ -2,7 +2,7 @@ package etomica.modules.pistoncylinder;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.atom.AtomSetSinglet;
@@ -70,7 +70,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     public void updatePiston() {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nAtoms = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
             IAtomLeaf atom1 = (IAtomLeaf)leafList.getAtom(iLeaf);

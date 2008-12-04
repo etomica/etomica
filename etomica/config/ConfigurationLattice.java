@@ -1,7 +1,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
@@ -85,7 +85,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getAtomCount();
         if (sumOfMolecules == 0) {
             return;

@@ -1,6 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
@@ -61,7 +61,7 @@ public class P2HardAssociationCone extends Potential2 {
     /**
      * Returns the pair potential energy.
      */
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
         dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());

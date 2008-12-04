@@ -2,7 +2,7 @@
 package etomica.models.water;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -38,7 +38,7 @@ public class P2Water4P extends Potential2 {
         boundary = box.getBoundary();
     }
 
-    public double energy(IAtomSet pair){
+    public double energy(IAtomList pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 

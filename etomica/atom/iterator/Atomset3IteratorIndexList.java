@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.atom.AtomsetArray;
 
@@ -55,7 +55,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
     }
                                 
 
-	public void setBasis(IAtomSet parent) {
+	public void setBasis(IAtomList parent) {
 	    if (parent == null) {
 	        parentGroup = null;
 	    }
@@ -92,7 +92,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
      * Returns true if the given atom set has the same two atoms passed to the
      * last call to setAtom(Atom).  Returns false if any relevant atoms are null.
      */
-    public boolean contains(IAtomSet a) { //T: a equals the set
+    public boolean contains(IAtomList a) { //T: a equals the set
     	
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
     		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
@@ -164,7 +164,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
     /**
      * Same as nextSet().
      */
-    public IAtomSet next() {
+    public IAtomList next() {
         return nextSet();
     }
 

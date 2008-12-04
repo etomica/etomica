@@ -1,7 +1,7 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
@@ -28,7 +28,7 @@ public class PotentialCalculationForceSumWall extends
         return wallForceSum;
     }
     
-    public void doCalculation(IAtomSet atoms, IPotential potential) {
+    public void doCalculation(IAtomList atoms, IPotential potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
         IVector[] f = potentialSoft.gradient(atoms);
@@ -41,6 +41,7 @@ public class PotentialCalculationForceSumWall extends
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).force().ME(f[0]);
                 if (potential == wallPotential) {
                     wallForceSum += f[0].x(wallPotential.getWallDim());
+//                    System.out.println(f[0].x(wallPotential.getWallDim()));
                 }
                 break;
             case 2:

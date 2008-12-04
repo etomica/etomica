@@ -1,7 +1,7 @@
 package etomica.models.traPPE;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 
@@ -18,7 +18,7 @@ public class ConformationMethanol implements IConformation {
         this.space = space;
     }
     
-    public void initializePositions(IAtomSet list){
+    public void initializePositions(IAtomList list){
     	
     	double bondCH3O = 1.43; // Angstroms
     	double bondOH = 0.95; // Angstroms

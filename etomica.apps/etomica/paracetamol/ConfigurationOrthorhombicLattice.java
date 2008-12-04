@@ -2,7 +2,7 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
@@ -75,7 +75,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getAtomCount();
         if (sumOfMolecules == 0) {
             return;

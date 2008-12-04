@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.ISpace;
@@ -81,7 +81,7 @@ public class WriteConfiguration implements IAction {
         }
         try {
             IVector writePosition = space.makeVector();
-            IAtomSet leafList = box.getLeafList();
+            IAtomList leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

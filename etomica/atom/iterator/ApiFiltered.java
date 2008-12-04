@@ -4,7 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -43,8 +43,8 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 * Returns the next atom from the iterator that meets the 
 	 * filter's criteria.
 	 */
-	public IAtomSet next() {
-        IAtomSet next = iterator.next();
+	public IAtomList next() {
+        IAtomList next = iterator.next();
         while (next != null && !filter.accept(next)) {
             next = iterator.next();
         }
@@ -87,7 +87,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
     /**
      * Passes call on to wrapped iterator, if it implements AtomsetIteratorBasisDependent.
      */
-    public void setBasis(IAtomSet atoms) {
+    public void setBasis(IAtomList atoms) {
         ((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);
     }
     
@@ -133,7 +133,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 */
 	private static AtomsetAction actionWrapper(final AtomsetFilter filter, final AtomsetAction action) {
 		return new AtomsetActionAdapter() {
-			public void actionPerformed(IAtomSet atom) {
+			public void actionPerformed(IAtomList atom) {
 				if(filter.accept(atom)) action.actionPerformed(atom);
 			}
 		};

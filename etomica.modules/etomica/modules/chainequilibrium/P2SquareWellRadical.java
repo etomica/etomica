@@ -3,7 +3,7 @@ package etomica.modules.chainequilibrium;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
@@ -124,7 +124,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * Computes next time of collision of the two atoms, assuming free-flight
      * kinematics.
      */
-    public double collisionTime(IAtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomList atoms, double falseTime) {
 
         if (ignoreOverlap) {
 
@@ -149,7 +149,7 @@ public class P2SquareWellRadical extends P2SquareWell {
         return super.collisionTime(atoms, falseTime);
     }
 
-    public void bump(IAtomSet pair, double falseTime) {
+    public void bump(IAtomList pair, double falseTime) {
 
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);

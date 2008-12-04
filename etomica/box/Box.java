@@ -2,7 +2,7 @@ package etomica.box;
 
 import etomica.action.BoxInflate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IEventManager;
@@ -102,7 +102,7 @@ public class Box implements java.io.Serializable, IBox {
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
 
-        IAtomSet childList = molecule.getChildList();
+        IAtomList childList = molecule.getChildList();
         int nLeafAtoms = leafList.getAtomCount();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
             IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
@@ -139,7 +139,7 @@ public class Box implements java.io.Serializable, IBox {
         allMoleculeList.setMoleculeLists(moleculeLists);
 
         eventManager.fireEvent(new BoxAtomRemovedEvent(this, molecule));
-        IAtomSet childList = molecule.getChildList();
+        IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
             IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
             int leafIndex = childAtom.getLeafIndex();
@@ -182,11 +182,11 @@ public class Box implements java.io.Serializable, IBox {
         return moleculeLists[speciesIndex].getAtomCount();
     }
     
-    public IAtomSet getMoleculeList(ISpecies species) {
+    public IAtomList getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
 
-    public IAtomSet getMoleculeList() {
+    public IAtomList getMoleculeList() {
         return allMoleculeList;
     }
   
@@ -219,7 +219,7 @@ public class Box implements java.io.Serializable, IBox {
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
-    public IAtomSet getLeafList() {
+    public IAtomList getLeafList() {
         return leafList;
     }
     

@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.space.Tensor;
 
@@ -30,14 +30,14 @@ public interface PotentialHard extends IPotential {
      * according to the action of the collision. Extensions can be defined to
      * instead implement other, perhaps unphysical changes.
      */
-    public void bump(IAtomSet atom, double falseTime);
+    public void bump(IAtomList atom, double falseTime);
 
     /**
      * Computes the time of collision of the given atom(s) with the hard
      * potential, assuming no intervening collisions. Usually assumes
      * free-flight between collisions.
      */
-    public double collisionTime(IAtomSet atom, double falseTime);
+    public double collisionTime(IAtomList atom, double falseTime);
 
     /**
      * returns change in potential energy due to the last collision

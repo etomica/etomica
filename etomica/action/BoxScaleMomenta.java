@@ -4,7 +4,7 @@ import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
@@ -39,7 +39,7 @@ public class BoxScaleMomenta implements IAction {
     
     public void actionPerformed() {
         momentum.E(0);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf == 0) return;
         if (nLeaf > 1) {

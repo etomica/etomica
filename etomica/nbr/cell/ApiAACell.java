@@ -2,7 +2,7 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.ApiInterArrayList;
@@ -90,8 +90,8 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         return counter.callCount();
 	}
 	
-    public IAtomSet nextPair() {
-        IAtomSet nextPair = listIterator.next();
+    public IAtomList nextPair() {
+        IAtomList nextPair = listIterator.next();
         if (nextPair == null) {
             return advanceLists();
         }
@@ -121,14 +121,14 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     
     // Moves to next pair of lists that can provide an iterate
     // This should be invoked only if listIterator.hasNext is false
-    private IAtomSet advanceLists() {
+    private IAtomList advanceLists() {
         do {
               //advance neighbor cell
             if(neighborIterator.hasNext()) {
                 interListIterator.setInnerList(((Cell)neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
-                IAtomSet pair = listIterator.next();
+                IAtomList pair = listIterator.next();
                 if (pair != null) {
                     return pair;
                 }
@@ -147,7 +147,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
                     listIterator = intraListIterator;
                     intraListIterator.reset();
                         
-                    IAtomSet pair = listIterator.next();
+                    IAtomList pair = listIterator.next();
                     if (pair != null) {
                         return pair;
                     }

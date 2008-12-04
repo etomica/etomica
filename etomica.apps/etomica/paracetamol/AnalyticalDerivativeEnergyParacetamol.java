@@ -3,7 +3,7 @@ package etomica.paracetamol;
 import java.io.Serializable;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -79,7 +79,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			forceSum.reset();
 
 			for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-				IAtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+				IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 				coordinateDefinition.setToU(molecules, u);
 			}
 			
@@ -88,13 +88,13 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			 * 	where we have 6 generalized coordinates: 3 modes on translation and 3 on rotation for each molecule
 			 *  
 			 */
-			IAtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
+			IAtomList molecules = coordinateDefinition.getBasisCells()[0].molecules;
 			
 			int j=3;
 			
 			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 molecules in the basis cell
 				
-				IAtomSet molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
+				IAtomList molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol

@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IVector;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -68,9 +68,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         uOld = energyMeter.getDataAsScalar();
         wOld = weightMeter.getDataAsScalar();
 
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for(int i=0; i<moleculeList.getAtomCount(); i++) {
-            IAtomSet childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
+            IAtomList childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren);
@@ -199,9 +199,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
     
     public void rejectNotify() {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
-            IAtomSet childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
+            IAtomList childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.getAtomCount());
             for (int k=0; k<childList.getAtomCount(); k++) {

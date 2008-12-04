@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -39,7 +39,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public double[] calcU(IAtomSet atoms) {
+    public double[] calcU(IAtomList atoms) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
@@ -54,14 +54,14 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         return u;
     }
 
-    public void initNominalU(IAtomSet molecules) {
+    public void initNominalU(IAtomList molecules) {
         //nothing to do -- lattice site is all information needed for u
     }
 
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(IAtomSet atoms, double[] newU) {
+    public void setToU(IAtomList atoms, double[] newU) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);

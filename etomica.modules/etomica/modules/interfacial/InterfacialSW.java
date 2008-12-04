@@ -3,7 +3,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -76,7 +76,7 @@ public class InterfacialSW extends Simulation {
         surfactant.setTotalChildren(2);
         surfactant.setPositionDefinition(new IAtomPositionDefinition() {
             public IVector position(IAtom atom) {
-                IAtomSet children = ((IMolecule)atom).getChildList();
+                IAtomList children = ((IMolecule)atom).getChildList();
                 IVector pos0 = ((IAtomPositioned)children.getAtom(0)).getPosition();
                 IVector pos1 = ((IAtomPositioned)children.getAtom(1)).getPosition();
                 dr.Ev1Mv2(pos1, pos0);

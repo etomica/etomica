@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -86,7 +86,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
 
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         if (targetAtom != null) {
             IAtomLeaf leafAtom = null;
             if (targetAtom instanceof IMolecule) {
@@ -119,7 +119,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         }
     }
     
-    protected void calculate(IAtomLeaf leafAtom, IAtomSet leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
+    protected void calculate(IAtomLeaf leafAtom, IAtomList leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
         
         IPotential[] potentials = potentialArray.getPotentials();
         int leafCount = leafList.getAtomCount();

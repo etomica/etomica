@@ -3,7 +3,7 @@ package etomica.atom;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.util.Debug;
@@ -27,7 +27,7 @@ public class AtomPositionFirstAtom implements IAtomPositionDefinition, java.io.S
         if (!(atom instanceof IMolecule)) {
             return (IAtomPositioned)atom;
         }
-        IAtomSet childList = ((IMolecule)atom).getChildList();
+        IAtomList childList = ((IMolecule)atom).getChildList();
         for (int i = 0; i < childList.getAtomCount(); i++) {
             IAtomPositioned a1 = getFirstChildLeafAtom(childList.getAtom(i));
             if(a1 != null) return a1;

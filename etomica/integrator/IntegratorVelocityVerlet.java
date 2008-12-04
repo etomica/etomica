@@ -6,7 +6,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -77,14 +77,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public void doStepInternal() {
         super.doStepInternal();
         if (Debug.ON && Debug.DEBUG_NOW) {
-            IAtomSet pair = Debug.getAtoms(box);
+            IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -140,7 +140,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
         super.reset();
         if (Debug.ON && Debug.DEBUG_NOW) {
-            IAtomSet pair = Debug.getAtoms(box);
+            IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());

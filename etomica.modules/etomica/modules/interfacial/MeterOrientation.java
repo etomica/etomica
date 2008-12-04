@@ -2,7 +2,7 @@ package etomica.modules.interfacial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
@@ -39,7 +39,7 @@ public class MeterOrientation implements DataSourceAtomic {
     }
     
     public IData getData(IAtom atom) {
-        IAtomSet children = ((IMolecule)atom).getChildList();
+        IAtomList children = ((IMolecule)atom).getChildList();
         dr.Ev1Mv2(((IAtomPositioned)children.getAtom(children.getAtomCount()-1)).getPosition(),
                   ((IAtomPositioned)children.getAtom(0)).getPosition());
         transformer.nearestImage(dr);

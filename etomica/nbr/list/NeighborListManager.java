@@ -7,7 +7,7 @@ import etomica.action.BoxImposePbc;
 import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
@@ -90,7 +90,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     }
     
     public void updateLists() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
             IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(j);
@@ -159,7 +159,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         }
 
         
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
             neighborCheck.actionPerformed((IAtomLeaf)leafList.getAtom(j));
@@ -244,7 +244,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
      */
     protected void neighborSetup() {
 
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
             neighborReset.actionPerformed(leafList.getAtom(j));
@@ -257,7 +257,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
-        for (IAtomSet pair = cellNbrIterator.nextPair(); pair != null;
+        for (IAtomList pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
             IAtomLeaf atom0 = (IAtomLeaf)pair.getAtom(0);
             IAtomLeaf atom1 = (IAtomLeaf)pair.getAtom(1);
@@ -298,7 +298,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         cell1ANbrIterator.setBox(box);
         cell1ANbrIterator.setTarget(atom);
         cell1ANbrIterator.reset();
-        for (IAtomSet pair = cell1ANbrIterator.next(); pair != null;
+        for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
             IAtomLeaf atom0 = (IAtomLeaf)pair.getAtom(0);
             IAtomLeaf atom1 = (IAtomLeaf)pair.getAtom(1);
@@ -352,11 +352,11 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         this.quiet = quiet;
     }
     
-    public IAtomSet[] getUpList(IAtom atom) {
+    public IAtomList[] getUpList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getUpList();
     }
 
-    public IAtomSet[] getDownList(IAtom atom) {
+    public IAtomList[] getDownList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getDownList();
     }
 
@@ -494,7 +494,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     public void releaseAgent(Object agent, IAtomLeaf atom) {
         // we need to remove this atom from the neighbor lists of its neighbors.
         AtomNeighborLists nbrLists = (AtomNeighborLists)agent;
-        IAtomSet[] upDnLists = nbrLists.getUpList();
+        IAtomList[] upDnLists = nbrLists.getUpList();
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {

@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVector;
@@ -130,19 +130,19 @@ public class P2SoftSphericalTruncatedBox extends Potential2SoftSpherical
             D = space.D();              //spatial dimension
         }
  
-        public double energy(IAtomSet atoms) {
+        public double energy(IAtomList atoms) {
             return uCorrection(nPairs()/box.getBoundary().volume());
         }
         
-        public double virial(IAtomSet atoms) {
+        public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
         
-        public IVector[] gradient(IAtomSet atoms) {
+        public IVector[] gradient(IAtomList atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         
-        public IVector[] gradient(IAtomSet atoms, Tensor pressureTensor) {
+        public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
             double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
                 pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);

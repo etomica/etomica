@@ -2,7 +2,7 @@ package etomica.nbr.site;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -165,14 +165,14 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //no target atoms specified
             //call calculate with each molecule
             for (int j=0; j<simulation.getSpeciesManager().getSpeciesCount(); j++) {
-                IAtomSet moleculeList = box.getMoleculeList();
+                IAtomList moleculeList = box.getMoleculeList();
                 int size = moleculeList.getAtomCount();
                 PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpeciesManager().getSpecies(j));
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
                 for (int i=0; i<size; i++) {
                     IMolecule molecule = (IMolecule)moleculeList.getAtom(i);
 
-                    IAtomSet atomList = molecule.getChildList();
+                    IAtomList atomList = molecule.getChildList();
                     int numChildren = atomList.getAtomCount();
                     for (int k=0; k<numChildren; k++) {
                         calculate((IAtomLeaf)atomList.getAtom(k), pc);
@@ -209,7 +209,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                     allPotentials[i].setBox(box);
                 }
                 
-                IAtomSet atomList = ((IMolecule)targetAtom).getChildList();
+                IAtomList atomList = ((IMolecule)targetAtom).getChildList();
                 int numChildren = atomList.getAtomCount();
                 for (int k=0; k<numChildren; k++) {
                     calculate((IAtomLeaf)atomList.getAtom(k), pc);
@@ -249,7 +249,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
-                for (IAtomSet pair = neighborIterator.next(); pair != null;
+                for (IAtomList pair = neighborIterator.next(); pair != null;
                      pair = neighborIterator.next()) {
                     if (nbrCriterion.accept(pair)) {
                         pc.doCalculation(pair, p2);

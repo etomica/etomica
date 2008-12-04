@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
@@ -98,7 +98,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     /**
      * Same as nextAtom.
      */
-    public IAtomSet next() {
+    public IAtomList next() {
         atomSetSinglet.atom = nextAtom();
         if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;
@@ -149,7 +149,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     private int firstCursor;
     private final Direction direction;
     private boolean upListNow, dnListNow;
-    private IAtomSet list;
+    private IAtomList list;
     private final AtomToIndex atomToIndex;
     private final AtomToAtomSet atomToAtomSet;
     protected final AtomSetSinglet atomSetSinglet;

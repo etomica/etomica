@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -70,7 +70,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
 
     public void colorAllAtoms() {
         // untag all the Atoms
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainNumber = -1;

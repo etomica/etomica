@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -51,7 +51,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
@@ -63,7 +63,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     }
 	
     public void rejectNotify() {
-        IAtomSet moleculeList = box.getMoleculeList();
+        IAtomList moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getAtomCount(); i++) {
             groupTranslationVector.E(translationVectors[i-1]);
             groupTranslationVector.TE(-1);

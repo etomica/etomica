@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 
 /**
@@ -16,7 +16,7 @@ public class AtomsetCount extends AtomsetActionAdapter {
     /**
      * Increments the call-counter by 1.
      */
-    public void actionPerformed(IAtomSet atom) {callCount++;}
+    public void actionPerformed(IAtomList atom) {callCount++;}
 
     /**
 	 * Sets the callCount to zero.

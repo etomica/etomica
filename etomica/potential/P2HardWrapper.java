@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -18,7 +18,7 @@ import etomica.units.Dimension;
         wrappedPotential = potential;
     }
 
-    public double energy(IAtomSet atoms) {
+    public double energy(IAtomList atoms) {
         return wrappedPotential.energy(atoms);
     }
 
@@ -42,11 +42,11 @@ import etomica.units.Dimension;
         return wrappedPotential.getRange();
     }
     
-    public void bump(IAtomSet atoms, double falseTime) {
+    public void bump(IAtomList atoms, double falseTime) {
         wrappedPotential.bump(atoms, falseTime);
     }
 
-    public double collisionTime(IAtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomList atoms, double falseTime) {
         return wrappedPotential.collisionTime(atoms, falseTime);
     }
 

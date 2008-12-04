@@ -2,7 +2,7 @@ package etomica.species;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
@@ -27,7 +27,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     protected void init() {
         // make a pretend molecule and calculate its moment of inertia
         IMolecule molecule = makeMolecule();
-        IAtomSet children = molecule.getChildList();
+        IAtomList children = molecule.getChildList();
         conformation.initializePositions(children);
         IVector com = space.makeVector();
         com.E(positionDefinition.position(molecule));

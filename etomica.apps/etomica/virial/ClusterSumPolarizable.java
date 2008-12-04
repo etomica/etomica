@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.potential.PotentialPolarizable;
 
@@ -41,7 +41,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
-        IAtomSet atomSet = box.getMoleculeList();
+        IAtomList atomSet = box.getMoleculeList();
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;

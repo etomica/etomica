@@ -1,7 +1,7 @@
 package etomica.dimer;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -44,7 +44,7 @@ public class PotentialMasterListDimer extends PotentialMasterList{
         //no target atoms specified
         //call calculate with each SpeciesAgent
         for(int j=0; j<species.length; j++){    
-            IAtomSet list = box.getMoleculeList(species[j]);
+            IAtomList list = box.getMoleculeList(species[j]);
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 calculate((IMolecule)list.getAtom(i), id, pc, neighborManager);//call calculate with the SpeciesAgent

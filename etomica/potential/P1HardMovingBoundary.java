@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomSetSinglet;
@@ -122,7 +122,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         return Mass.DIMENSION;
     }
     
-    public double energy(IAtomSet a) {
+    public double energy(IAtomList a) {
         double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().x(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
@@ -132,7 +132,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      
     public double energyChange() {return 0.0;}
     
-    public double collisionTime(IAtomSet atoms, double falseTime) {
+    public double collisionTime(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double dr = atom.getPosition().x(wallD) - wallPosition;
         double dv = atom.getVelocity().x(wallD) - wallVelocity;
@@ -196,7 +196,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         return t + falseTime;
     }
                 
-    public void bump(IAtomSet atoms, double falseTime) {
+    public void bump(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().x(wallD);
         IVector v = atom.getVelocity();

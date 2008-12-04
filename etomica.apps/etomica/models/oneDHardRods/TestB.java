@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
@@ -120,7 +120,7 @@ public class TestB extends Simulation {
         potentialMaster.getNeighborManager(box).reset();
         
         locations = new double[numAtoms];
-        IAtomSet leaflist = box.getLeafList();
+        IAtomList leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
             locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );

@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 /**
  * Interface for an AtomIterator that can be conditioned with
@@ -16,7 +16,7 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
 	 * condition the iterator to give no iterates until a valid basis
 	 * is specified via another call to this method.
 	 */
-    public void setBasis(IAtomSet atoms);
+    public void setBasis(IAtomList atoms);
     
     /**
      * Indicates the size of the basis needed to set the iterator.

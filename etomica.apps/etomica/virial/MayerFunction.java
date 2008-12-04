@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 
@@ -16,7 +16,7 @@ public interface MayerFunction {
      * returns Mayer function between atoms in the pair at temperature
      * 1/beta
      */
-	public double f(IAtomSet pair, double beta);
+	public double f(IAtomList pair, double beta);
 
 	/**
 	 * @return

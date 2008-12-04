@@ -8,7 +8,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -252,8 +252,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         listMin = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-            IAtomSet molecules = box.getMoleculeList(movableSpecies[i]);
-            IAtomSet molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
+            IAtomList molecules = box.getMoleculeList(movableSpecies[i]);
+            IAtomList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
                 listMin.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
@@ -445,7 +445,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public void quitSearch(){
 
         vib = new CalcVibrationalModes();
-        vib.setup(box, super.potential, (IAtomSet)box.getMoleculeList(movableSpecies[0]), space);
+        vib.setup(box, super.potential, (IAtomList)box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
         System.out.println("energy: "+energyBox0.getDataAsScalar()+"    Vib: "+vib.getProductOfFrequencies());

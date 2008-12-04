@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -308,9 +308,9 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected IVector newOriginB;
     protected IVector translationVector;
     
-    protected IAtomSet moleculeList; // List of monomers in box.
-    protected IAtomSet atomSetA; // List of sites in monomer A.
-    protected IAtomSet atomSetB; // List of sites in monomer B
+    protected IAtomList moleculeList; // List of monomers in box.
+    protected IAtomList atomSetA; // List of sites in monomer A.
+    protected IAtomList atomSetB; // List of sites in monomer B
     
 	protected IMolecule monomerA;
 	protected IMolecule monomerB;

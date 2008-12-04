@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import etomica.api.IAction;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -137,7 +137,7 @@ public class XYZWriter implements IAction, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType;
-    private final IAtomSet leafList;
+    private final IAtomList leafList;
     private boolean doAppend;
     
     private static final class ElementLinker implements Serializable {

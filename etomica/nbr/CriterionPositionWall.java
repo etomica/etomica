@@ -3,7 +3,7 @@ package etomica.nbr;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
@@ -163,7 +163,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 		return dr > rMaxSafe;
 	}
 
-	public boolean accept(IAtomSet atom) {
+	public boolean accept(IAtomList atom) {
 		dr = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -68,7 +68,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
 
         iterator.setBox(box);
         iterator.reset();
-        for (IAtomSet atom = iterator.next(); atom != null; atom = iterator.next()) {
+        for (IAtomList atom = iterator.next(); atom != null; atom = iterator.next()) {
             System.out.println(atom.toString());
         }
         System.out.println();

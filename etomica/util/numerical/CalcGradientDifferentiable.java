@@ -2,7 +2,7 @@ package etomica.util.numerical;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -37,11 +37,11 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     PotentialCalculationForceSum force;
     AtomLeafAgentManager atomAgent;
     int gradDcomponent, startAtom, stopAtom;
-    IAtomSet movableSet;
+    IAtomList movableSet;
     private final ISpace space;
     
     
-    public CalcGradientDifferentiable(IBox aBox, IPotentialMaster aPotentialMaster, IAtomSet movableSet, ISpace _space){
+    public CalcGradientDifferentiable(IBox aBox, IPotentialMaster aPotentialMaster, IAtomList movableSet, ISpace _space){
         this.box = aBox;
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;

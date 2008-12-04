@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IVector;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 
 import etomica.space.ISpace;
@@ -24,7 +24,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairLeafSet(IAtomSet list, ISpace space) {
+    public CoordinatePairLeafSet(IAtomList list, ISpace space) {
         positions = new IVector[list.getAtomCount()];
         numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];
@@ -40,7 +40,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         return r2[i*numAtoms+j];
     }
 
-    private void setAtoms(IAtomSet list) {
+    private void setAtoms(IAtomList list) {
         for (int i=0; i<list.getAtomCount(); i++) {
             positions[i] = ((IAtomPositioned)list.getAtom(i)).getPosition();
         }

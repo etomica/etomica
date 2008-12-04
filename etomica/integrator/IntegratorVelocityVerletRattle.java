@@ -3,7 +3,7 @@ package etomica.integrator;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -42,7 +42,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     public void doStepInternal() {
         currentTime += timeStep;
 
-        IAtomSet molecules = box.getMoleculeList();
+        IAtomList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getAtomCount(); i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
@@ -60,7 +60,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 numBondedMolecules++;
-                IAtomSet childList = molecule.getChildList();
+                IAtomList childList = molecule.getChildList();
                 IBoundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
@@ -80,7 +80,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 }
             }
             
-            IAtomSet leafList = molecule.getChildList();
+            IAtomList leafList = molecule.getChildList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -94,7 +94,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             }
 
-            IAtomSet childList = molecule.getChildList();
+            IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
             IBoundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
@@ -173,7 +173,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         potential.calculate(box, allAtoms, forceSum);
         
         //Finish integration step
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -195,7 +195,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 continue;
             }
             
-            IAtomSet childList = molecule.getChildList();
+            IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
             IBoundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
@@ -265,7 +265,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         /*
          * Rattle Part I
          */
-        IAtomSet molecules = box.getMoleculeList();
+        IAtomList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getAtomCount(); i++) {
             IMolecule molecule = (IMolecule)molecules.getAtom(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
@@ -273,7 +273,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 continue;
             }
             
-            IAtomSet childList = molecule.getChildList();
+            IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
             IBoundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;

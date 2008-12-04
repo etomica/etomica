@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IBoxAtomEvent;
@@ -106,7 +106,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
     public void dispose() {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
@@ -127,7 +127,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 box.getLeafList().getAtomCount()+1+reservoirSize);
         // fill in the array with agents from all the atoms
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
@@ -142,7 +142,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
             if (evt instanceof IBoxAtomAddedEvent) {
                 if (a instanceof IMolecule) {
                     // add all leaf atoms below this atom
-                    IAtomSet childList = ((IMolecule)a).getChildList();
+                    IAtomList childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                         addAgent((IAtomLeaf)childList.getAtom(iChild));
                     }
@@ -155,7 +155,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
             else if (evt instanceof IBoxAtomRemovedEvent) {
                 if (a instanceof IMolecule) {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
-                    IAtomSet childList = ((IMolecule)a).getChildList();
+                    IAtomList childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                         IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
                         int index = box.getLeafIndex(childAtom);

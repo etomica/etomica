@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -54,7 +54,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     }
     
     public void selectAtoms() {
-        IAtomSet leafList = box.getLeafList();
+        IAtomList leafList = box.getLeafList();
         int total = leafList.getAtomCount();
     	for(int i=1; i<total; i++) {
     		selectedAtoms[i-1] = (IAtomOriented)leafList.getAtom(i);

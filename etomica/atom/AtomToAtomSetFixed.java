@@ -3,7 +3,7 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializable {
 
@@ -22,7 +22,7 @@ public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializa
         }
     }
     
-    public IAtomSet getAtomSet(IAtom atom) {
+    public IAtomList getAtomSet(IAtom atom) {
         return atomArrayList;
     }
     

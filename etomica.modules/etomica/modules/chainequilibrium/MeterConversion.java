@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -40,7 +40,7 @@ public class MeterConversion extends DataSourceScalar {
         return ((double)(nReacted))/total;
     }
     
-    protected void calcConversion(IAtomSet monomerList) {
+    protected void calcConversion(IAtomList monomerList) {
         for (int i=0; i<monomerList.getAtomCount(); i++) {
             IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent((IAtomLeaf)((IMolecule)monomerList.getAtom(i)).getChildList().getAtom(0));
             total += bonds.length;

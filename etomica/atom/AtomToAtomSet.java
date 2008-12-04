@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 
 
 /**
@@ -13,5 +13,5 @@ public interface AtomToAtomSet {
      * Returns the ArrayList that this instance associates with the given atom.
      * Should return null if the atom is null.
      */
-    public IAtomSet getAtomSet(IAtom atom);
+    public IAtomList getAtomSet(IAtom atom);
 }

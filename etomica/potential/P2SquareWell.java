@@ -2,7 +2,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomSet;
+import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -60,7 +60,7 @@ public class P2SquareWell extends Potential2HardSpherical {
      * Includes all possibilities involving collision of hard cores, and collision of wells
      * both approaching and diverging
      */
-    public void bump(IAtomSet pair, double falseTime) {
+    public void bump(IAtomList pair, double falseTime) {
         IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -139,7 +139,7 @@ public class P2SquareWell extends Potential2HardSpherical {
      * Collision may occur when cores collides, or when wells first encounter each other on
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
-    public double collisionTime(IAtomSet pair, double falseTime) {
+    public double collisionTime(IAtomList pair, double falseTime) {
         IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
         IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
