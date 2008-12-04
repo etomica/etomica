@@ -138,7 +138,6 @@ public class DisplayPlot extends Display implements DataSetListener {
         int oldColumnCount = units.length;
         int newDataCount = dataSet.getDataCount();
         if(newDataCount > oldColumnCount) {
-            String xLabel = "";
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
@@ -147,7 +146,9 @@ public class DisplayPlot extends Display implements DataSetListener {
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
                 }
-                xLabel = xDataInfo.getLabel();
+                if (xLabel == null) {
+                    xLabel = xDataInfo.getLabel();
+                }
                 plot.setXLabel(xLabel);
             }
             for(int i=oldColumnCount; i<units.length; i++) {
@@ -341,6 +342,11 @@ public class DisplayPlot extends Display implements DataSetListener {
         }
     }
     
+    public void setXLabel(String newXLabel) {
+        xLabel = newXLabel;
+        plot.setXLabel(xLabel);
+    }
+
     public void setUnit(DataTag[] dataTags, Unit newUnit) {
         DataTagBag bag = DataTagBag.getDataTagBagExact(unitList, dataTags);
         if (bag != null) {
@@ -385,6 +391,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     private boolean doLegend = true;
     protected boolean doClear = true;
     private Unit xUnit = Null.UNIT;
+    protected String xLabel;
     private Unit[] units;
     private Unit defaultUnit;
 
