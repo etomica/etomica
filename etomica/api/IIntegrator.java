@@ -14,7 +14,7 @@ public interface IIntegrator {
      * Returns the number of steps performed by the integrator since it was
      * initialized.
      */
-    public int getStepCount();
+    public long getStepCount();
 
     /**
      * Defines the actions taken by the integrator to reset itself, such as

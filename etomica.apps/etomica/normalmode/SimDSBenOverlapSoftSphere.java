@@ -580,7 +580,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         
         IAction outputActionOverlap = new IAction(){
         	public void actionPerformed(){
-        		int idStep = sim.integratorOverlap.getStepCount();
+        		long idStep = sim.integratorOverlap.getStepCount();
      
 		        /*
 		         * Histogram
@@ -885,7 +885,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         IAction outputActionTarget = new IAction(){
         	public void actionPerformed(){
 
-        		int idStep = sim.integrators[1].getStepCount()/sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
+        		long idStep = sim.integrators[1].getStepCount()/sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
      
 		        /*
 		         * Histogram

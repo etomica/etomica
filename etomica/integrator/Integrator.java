@@ -27,7 +27,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
     protected int interval;
     private int iieCount;
-    protected int stepCount;
+    protected long stepCount;
 
     public Integrator() {
         setEventInterval(1);
@@ -72,7 +72,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * Returns the number of steps performed by the integrator since it was
      * initialized.
      */
-    public int getStepCount() {
+    public long getStepCount() {
         return stepCount;
     }
     

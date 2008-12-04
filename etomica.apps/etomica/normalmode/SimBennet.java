@@ -234,7 +234,7 @@ public class SimBennet extends Simulation {
         
         IAction outputAction = new IAction(){
         	public void actionPerformed(){
-        		int idStep = sim.integrator.getStepCount();
+        		long idStep = sim.integrator.getStepCount();
         		 //Target
         		DataLogger dataLogger1 = new DataLogger();
         		DataTableWriter dataTableWriter1 = new DataTableWriter();

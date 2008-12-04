@@ -505,7 +505,7 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         
         IAction outputAction = new IAction(){
         	public void actionPerformed(){
-        		int idStep = sim.integratorOverlap.getStepCount();
+        		long idStep = sim.integratorOverlap.getStepCount();
         		
 		        /*
 		         * Histogram

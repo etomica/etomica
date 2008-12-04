@@ -213,7 +213,7 @@ public class SimHarmonicUmbrella extends Simulation {
         
         IAction outputAction = new IAction(){
         	public void actionPerformed(){
-        		int idStep = sim.integrator.getStepCount();
+        		long idStep = sim.integrator.getStepCount();
 		        /*
 		         * Histogram
 		         */
