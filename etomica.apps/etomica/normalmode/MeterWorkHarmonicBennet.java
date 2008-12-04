@@ -44,9 +44,11 @@ public class MeterWorkHarmonicBennet implements IEtomicaDataSource {
     	double e0 = Math.exp( -mcMoveHarmonic.getLastTotalEnergy()/ temperature);
     	double e1 = Math.exp( -(meterEnergy.getDataAsScalar() - latticeEnergy)/ temperature);
     	
-    	double ratio = e0*e1/(e1+refPref*e0);
+    	double ratio = e0/(1+refPref*(e0/e1));     //e0*e1/(e1+refPref*e0);
     	double overlapEnergy = -Math.log(ratio);
         data.x = overlapEnergy - mcMoveHarmonic.getLastTotalEnergy()/temperature;
+      	//System.out.println("uHarmonic: "+ mcMoveHarmonic.getLastTotalEnergy()+" uTarget: "+meterEnergy.getDataAsScalar()
+      	//					+" ,ratio: "+ratio+ " ,overlapEnergy: "+overlapEnergy);
       	
     	denomSum += ratio/e0;
     	numSum += data.x*(ratio/e0);

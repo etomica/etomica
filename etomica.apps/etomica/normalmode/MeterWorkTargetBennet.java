@@ -36,12 +36,13 @@ public class MeterWorkTargetBennet implements IEtomicaDataSource {
     	double e0 = Math.exp(-meterHarmonicEnergy.getDataAsScalar()/integrator.getTemperature());
     	double e1 = Math.exp(-(meterEnergy.getDataAsScalar()-latticeEnergy)/integrator.getTemperature());
     		
-    	double ratio = e1*e0/(e1+refPref*e0);
+    	double ratio = e0/(1+refPref*(e0/e1)); //e1*e0/(e1+refPref*e0);
     	double overlapEnergy = - Math.log(ratio);
         data.x = overlapEnergy - (meterEnergy.getDataAsScalar()-latticeEnergy)/integrator.getTemperature();
-        
-    	denomSum += ratio/e1;
-    	numSum += data.x*(ratio/e1);
+      	//System.out.println("uHarmonic: "+ meterHarmonicEnergy.getDataAsScalar()+" uTarget: "+meterEnergy.getDataAsScalar()
+		//			+" ,ratio: "+ratio+ " ,overlapEnergy: "+overlapEnergy);
+    	denomSum += e0/(e1+refPref*e0);                //ratio/e1;
+    	numSum +=   data.x*(e0/(e1+refPref*e0));      //data.x*(ratio/e1);
     	
         return data;
     }
