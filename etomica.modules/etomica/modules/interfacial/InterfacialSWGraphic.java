@@ -101,7 +101,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
     	this.sim = simulation;
 
@@ -178,7 +178,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         };
         expandButton.setAction(expandAction);
         expandButton.setLabel("Expand");
-        add(expandButton);
+        ((JPanel)getController().graphic()).add(expandButton.graphic());
 
         // the reinitialize's preAction halts the integrator 
         final IAction oldPreAction = getController().getReinitButton().getPreAction();
@@ -221,44 +221,45 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         
         IAction recenterAction = new IAction() {
             public void actionPerformed() {
-                double dx = 0.5;
-                int leftN1 = 0, leftP1 = 0;
-                int left0 = 0;
+                if (!isExpanded) {
+                    return;
+                }
+                double L = sim.box.getBoundary().getDimensions().x(0);
+
+                // calculate structure factor and phase angle for lowest-frequency
+                // concentration wave (delta rho (x)).
+                
                 IAtomSet leafAtoms = sim.box.getLeafList();
                 int nTot = leafAtoms.getAtomCount();
+                double sumCos = 0, sumSin = 0;
+                double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
                     IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
-                    if (pos.x(0) < 0) {
-                        left0++;
-                    }
-                    if (pos.x(0) < -dx) {
-                        leftN1++;
-                        leftP1++;
-                    }
-                    else if (pos.x(0) < dx) {
-                        leftP1++;
-                    }
+                    double sinx = Math.sin(q*pos.x(0));
+                    double cosx = Math.cos(q*pos.x(0));
+                    sumCos += cosx;
+                    sumSin += sinx;
                 }
-                double target = 0.5 * nTot; 
-                // interpolate to find median
-                double median = -dx + (target - leftN1) * (2*dx) / (leftP1 - leftN1);
-                // make sure we didn't extrapolate
-                if (median < -dx) {
-                    median = -dx;
+                double amplitude = (2*Math.sqrt((sumCos*sumCos+sumSin*sumSin))/nTot);
+                // concentration wave amplitude must be large enough to correspond
+                // to a substantial segregation (phase separation).
+                if (amplitude < 0.75) {
+//                    System.out.println("not centering "+amplitude);
+                    return;
                 }
-                else if (median > dx) {
-                    median = dx;
+//                System.out.println("centering "+amplitude);
+                // phase angle = atan(sumCos/sumSin), where delta rho = 0
+                double center = -(Math.atan2(sumCos, sumSin)/q-0.25*L);
+                if (center > 1) {
+                    center = 1;
                 }
-
-                int newLeft0 = 0;
+                else if (center < -1) {
+                    center = -1;
+                }
                 for (int i=0; i<nTot; i++) {
                     IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
-                    pos.setX(0, pos.x(0) - median);
-                    if (pos.x(0) < 0) {
-                        newLeft0++;
-                    }
+                    pos.setX(0, pos.x(0) - center);
                 }
-//                System.out.println((left0-target)+" "+(newLeft0-target));
                 ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
