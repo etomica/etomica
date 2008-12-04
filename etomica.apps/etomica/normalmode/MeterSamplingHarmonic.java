@@ -4,6 +4,7 @@ import etomica.api.IData;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -19,8 +20,8 @@ import etomica.units.Null;
  */
 public class MeterSamplingHarmonic implements IEtomicaDataSource {
     
-    public MeterSamplingHarmonic(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonic) {
-        meterTarget= new MeterPotentialEnergyFromIntegrator(integrator);
+    public MeterSamplingHarmonic(IntegratorBox integrator, MeterPotentialEnergy meterEnergy, MeterHarmonicEnergy meterHarmonic) {
+        this.meterTarget= meterEnergy;
         this.integrator = integrator;
     	this.meterHarmonic = meterHarmonic;
     	
@@ -72,7 +73,7 @@ public class MeterSamplingHarmonic implements IEtomicaDataSource {
 		this.refPref = refPref;
 	}
     
-    protected final MeterPotentialEnergyFromIntegrator meterTarget;
+    protected final MeterPotentialEnergy meterTarget;
     protected final MeterHarmonicEnergy meterHarmonic;
     protected final IntegratorBox integrator;
     protected final DataDouble data;

@@ -133,6 +133,9 @@ public class SimUmbrella extends Simulation {
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         meterHarmonicEnergy.setBox(box);
         
+        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic);
+        meterEnergy.setBox(box);
+        
     }
 
 
@@ -185,7 +188,7 @@ public class SimUmbrella extends Simulation {
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
       // Umbrella Sampling ---> Harmonic
-        final MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
         meterWorkUmbrellaHarmonic.setRefPref(sim.refPref);
         meterWorkUmbrellaHarmonic.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkUmbrellaHarmonic;
@@ -203,7 +206,7 @@ public class SimUmbrella extends Simulation {
         dataForkHarmonic.addDataSink(histogramHarmonic);
         
       // Umbrella Sampling ---> Target
-        final MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
         meterWorkUmbrellaTarget.setRefPref(sim.refPref);
         meterWorkUmbrellaTarget.setLatticeEnergy(sim.latticeEnergy);
         workMeters[1] = meterWorkUmbrellaTarget;
@@ -226,7 +229,7 @@ public class SimUmbrella extends Simulation {
         
         // Harmonic Sampling
         
-        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
         meterSamplingHarmonic.setRefPref(sim.refPref);
         meterSamplingHarmonic.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[0] = meterSamplingHarmonic;
@@ -238,7 +241,7 @@ public class SimUmbrella extends Simulation {
         
         // Target Sampling
         
-        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterHarmonicEnergy);
+        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
         meterSamplingTarget.setRefPref(sim.refPref);
         meterSamplingTarget.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[1] = meterSamplingTarget;
@@ -443,6 +446,7 @@ public class SimUmbrella extends Simulation {
     public PotentialMasterMonatomic potentialMasterMonatomic;
     public double latticeEnergy;
     public MeterHarmonicEnergy meterHarmonicEnergy;
+    public MeterPotentialEnergy meterEnergy;
     public double refPref;
     
     public static class SimBennetParam extends ParameterBase {

@@ -4,6 +4,7 @@ import etomica.api.IData;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -18,8 +19,8 @@ import etomica.units.Null;
  */
 public class MeterWorkUmbrellaHarmonic implements IEtomicaDataSource {
     
-    public MeterWorkUmbrellaHarmonic(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonic) {
-        meterTarget= new MeterPotentialEnergyFromIntegrator(integrator);
+    public MeterWorkUmbrellaHarmonic(IntegratorBox integrator, MeterPotentialEnergy meterEnergy, MeterHarmonicEnergy meterHarmonic) {
+        this.meterTarget= meterEnergy;
         this.integrator = integrator;
     	this.meterHarmonic = meterHarmonic;
     	
@@ -41,18 +42,17 @@ public class MeterWorkUmbrellaHarmonic implements IEtomicaDataSource {
     	
     	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
     	double umbrellaEnergy = -Math.log(gamma)*integrator.getTemperature();
-        
-//    	System.out.println("\nBennetHarmonic");
+    	//System.out.println("Harmonic gamma: "+gamma+ " uTarget: "+ uTarget+" uHarmonic: "+ uHarmonic);
+    	//if (Double.isInfinite(uTarget)){
+    	//	System.out.println("Harmonic");
+    	//   	}
 //    	System.out.println("uTarget-ulattice: "+ (uTarget - latticeEnergy));
 //    	System.out.println("uHarmonic: "+ uHarmonic);
-//    	System.out.println("uOverlap: "+overlapEnergy);
-//    	System.out.println("uBennetHarmonic: "+(uHarmonic - overlapEnergy));
     	
     	data.x = (uHarmonic- umbrellaEnergy)/integrator.getTemperature();
         
     	denomSum += exp_uHarmonic/gamma;
     	numSum += data.x*(exp_uHarmonic/gamma);    	
-        
     	return data;
     }
 
@@ -80,7 +80,7 @@ public class MeterWorkUmbrellaHarmonic implements IEtomicaDataSource {
 		this.refPref = refPref;
 	}
     
-    protected final MeterPotentialEnergyFromIntegrator meterTarget;
+    protected final MeterPotentialEnergy meterTarget;
     protected final MeterHarmonicEnergy meterHarmonic;
     protected final IntegratorBox integrator;
     protected final DataDouble data;
