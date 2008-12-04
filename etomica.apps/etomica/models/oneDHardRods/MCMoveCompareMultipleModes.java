@@ -136,10 +136,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         energyOld = energyMeter.getDataAsScalar();
         if (energyOld != 0.0) {
             for (int k = 0; k < waveVectors.length; k++) {
-                System.out.println(k
-                        + " "
-                        + ((IAtomPositioned) coordinateDefinition.getBox()
-                                .getLeafList().getAtom(k)).getPosition());
+                System.out.println(k + " " + ((IAtomPositioned) 
+                        coordinateDefinition.getBox().getLeafList().getAtom(k))
+                        .getPosition());
             }
             throw new IllegalStateException(
                     "Overlap after the removal of a mode!");
@@ -154,22 +153,22 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             // Select the wave vector whose eigenvectors will be changed.
             // The zero wavevector is center of mass motion, and is rejected as
             // a possibility.
-            boolean flagHarmonic = false;
+            boolean flagHarmonic = true;
             do{
+                flagHarmonic = true;
                 changedWV = random.nextInt(waveVectorCoefficients.length-1);
                 changedWV += 1;
 //                System.out.println(changedWV);
-                for(int i = 0; i < comparedWVs.length; i++){
-                    if (changedWV != comparedWVs[i]) {
-                        flagHarmonic = true;
-                    }
-                }
+//                for(int i = 0; i < comparedWVs.length; i++){
+//                    if (changedWV != comparedWVs[i]) {
+//                        flagHarmonic = true;
+//                    }
+//                }
                 for(int i = 0; i < harmonicWVs.length; i++){
-                    if (changedWV != harmonicWVs[i]) {
-                        flagHarmonic = true;
+                    if (changedWV == harmonicWVs[i]) {
+                        flagHarmonic = flagHarmonic && false;
                     }
                 }
-                System.out.println("torge");
             } while (!flagHarmonic);
             
             System.out.println("Yes no banananananas");
@@ -388,35 +387,43 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 throw new IllegalArgumentException("Cannot compare the " +
                        "zero wavevector!");
             }
-            if (harmonicWVs != null){
-                for(int j = 0; j < harmonicWVs.length; j++){
-                    if(wv[i] == harmonicWVs[j]){
-                        throw new IllegalArgumentException("A compared " +
-                                "wavevector cannot equal a harmonic wavevector");
-                    }
-                }
-            }
+//            if (harmonicWVs != null){
+//                for(int j = 0; j < harmonicWVs.length; j++){
+//                    if(wv[i] == harmonicWVs[j]){
+//                        throw new IllegalArgumentException("A compared " +
+//                                "wavevector cannot equal a harmonic wavevector");
+//                    }
+//                }
+//            }
         }
         comparedWVs = wv;
-        System.out.println("Compared wv set");
+//        System.out.println("Compared wv set");
     }
     public void setHarmonicWVs(int[] wv){
 //        System.out.println("setHarmonicWVs");
+        if(comparedWVs == null){ 
+            throw new IllegalStateException("Must set comparedWVs before " +
+                    "harmonicWVs");
+            }
+        harmonicWVs = new int[wv.length + comparedWVs.length];
+        
         for(int i = 0; i < wv.length; i++) {
             if(wv[i] == 0) {
                 throw new IllegalArgumentException("Cannot use the " +
                         "zero wavevector as a harmonic wavevector!");
             }
-            if (comparedWVs != null){
-                for(int j = 0; j < comparedWVs.length; j++){
-                    if(wv[i] == comparedWVs[j]){
-                        throw new IllegalArgumentException("A compared " +
-                                "wavevector cannot equal a harmonic wavevector");
-                    }
+            for(int j = 0; j < comparedWVs.length; j++){
+                if(wv[i] == comparedWVs[j]){
+                    throw new IllegalArgumentException("A compared " +
+                            "wavevector cannot be a harmonic wavevector");
                 }
             }
+            harmonicWVs[i] = wv[i];
         }
-        harmonicWVs = wv;
+
+        for(int i = wv.length; i < harmonicWVs.length; i++){
+            harmonicWVs[i] = comparedWVs[i-wv.length];
+        }
         System.out.println("Harmonic wvs set");
     }
 }
