@@ -64,13 +64,12 @@ public class MCMoveAtom extends MCMoveBoxStep {
         if (atom == null) return false;
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        if(uOld > 1e10 && !fixOverlap) {
-            throw new RuntimeException(new ConfigurationOverlapException(box));
+        if(uOld > 1e8 && !fixOverlap) {
+            throw new RuntimeException("atom "+atom+" has an overlap", new ConfigurationOverlapException(box));
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         ((IAtomPositioned)atom).getPosition().PE(translationVector);
-        uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
     
@@ -90,6 +89,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
      * doTrial.
      */
     public double getB() {
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld);
     }
     
