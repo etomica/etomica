@@ -111,6 +111,13 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         return random;
     }
     
+    /**
+     * Set the simulation's random number generator to the given one.
+     */
+    public void setRandom(IRandom newRandom) {
+        random = newRandom;
+    }
+
     public IEventManager getEventManager() {
         return eventManager;
     }
@@ -124,7 +131,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     protected final IEventManager eventManager;
     private IBox[] boxList;
     private final ISpeciesManager speciesManager;
-    protected final IRandom random;
+    protected IRandom random;
     protected final boolean dynamic;
     private Controller controller;
 }
