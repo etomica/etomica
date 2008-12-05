@@ -254,7 +254,7 @@ public class TestMCMove extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {5};
-        public int[] harmonicWV = {15, 16};
+        public int[] comparedWV = {1, 16};
+        public int[] harmonicWV = {5};
     }
 }

@@ -222,7 +222,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         
         //This should loop over the wave vectors that we are comparing.
         for(int wvCount = 0; wvCount < numWV; wvCount++){
-            int comparedWV = comparedWVs[wvCount];
             for (int j = 0; j < coordinateDim; j++) {
                 if (stdDev[wvCount][j] == 0)
                     continue;
@@ -282,7 +281,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         } // end wvCount loop
             
 //        energyEvenLater = energyMeter.getDataAsScalar();
-        System.out.println("End dotrial");
+//        System.out.println("End dotrial");
         return true;
     }
 
