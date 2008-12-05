@@ -250,11 +250,11 @@ public class TestMCMove extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 10;
+        public long numSteps = 1000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {2,7};
-        public int[] harmonicWV = {6,9};
+        public int[] comparedWV = {5};
+        public int[] harmonicWV = {15, 16};
     }
 }

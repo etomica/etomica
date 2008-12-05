@@ -59,7 +59,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
-        System.out.println("Start dotrial");
+//        System.out.println("Start dotrial");
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -79,9 +79,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
          */
 // ZERO OUT A NORMAL MODE.
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
-
-            System.out.println("Chunk 1 count " +wvCount);
-            
             int comparedwv = comparedWVs[wvCount];
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
@@ -149,7 +146,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         int changedWV;
         for(int wvCount = 0; wvCount <= howManyChangesToHardRodModes; wvCount++){
 
-            System.out.println("Chunk 2 count " +wvCount);
             // Select the wave vector whose eigenvectors will be changed.
             // The zero wavevector is center of mass motion, and is rejected as
             // a possibility.
@@ -170,8 +166,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                     }
                 }
             } while (!flagHarmonic);
-            
-            System.out.println("Yes no banananananas");
             
             // calculate the new positions of the atoms.
             // loop over cells
@@ -228,7 +222,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         
         //This should loop over the wave vectors that we are comparing.
         for(int wvCount = 0; wvCount < numWV; wvCount++){
-            System.out.println("Chunk 3 count " +wvCount);
             int comparedWV = comparedWVs[wvCount];
             for (int j = 0; j < coordinateDim; j++) {
                 if (stdDev[wvCount][j] == 0)
