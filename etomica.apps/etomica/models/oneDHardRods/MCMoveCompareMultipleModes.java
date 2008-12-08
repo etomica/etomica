@@ -55,11 +55,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         gaussian = new double[2];
         count = 0;
         howManyChangesToHardRodModes = 1;
-        
+        count = 0;
     }
 
     public boolean doTrial() {
-//        System.out.println("Start dotrial");
+        System.out.println("Start dotrial " + count);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -73,6 +73,14 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         double normalization = 1 / Math.sqrt(cells.length);
         int numWV = comparedWVs.length;
 
+        
+        System.out.println("Start");
+        for (int k = 0; k < 32; k++) {
+            System.out.println(k + " " + ((IAtomPositioned) 
+                    coordinateDefinition.getBox().getLeafList().getAtom(k))
+                    .getPosition());
+        }
+        
         /*
          * This loop looks at each wavevector, asks if that wavevector is
          * removed, and calculates what happens if it is.
@@ -84,6 +92,14 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             // System.out.println("Real: "+ realT[0]);
             // System.out.println("Imag: "+ imagT[0]);
+            
+            System.out.println("just after calcT");
+            for (int k = 0; k < 32; k++) {
+                System.out.println(k + " " + ((IAtomPositioned) 
+                        coordinateDefinition.getBox().getLeafList().getAtom(k))
+                        .getPosition());
+            }
+            
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 // store old positions.
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -92,7 +108,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 // rezero deltaU
                 for (int j = 0; j < coordinateDim; j++) {
                     deltaU[j] = 0.0;
-                    // System.out.println(uNow[j]);
+//                     System.out.println(uNow[j]);
                 }
 
                 // Calculate the contributions to the current position of
@@ -123,7 +139,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                    // System.out.println("1-unow " + uNow[i]);
+//                     System.out.println("1-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
 
@@ -132,7 +148,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
         energyOld = energyMeter.getDataAsScalar();
         if (energyOld != 0.0) {
-            for (int k = 0; k < waveVectors.length; k++) {
+            for (int k = 0; k < waveVectors.length*2; k++) {
                 System.out.println(k + " " + ((IAtomPositioned) 
                         coordinateDefinition.getBox().getLeafList().getAtom(k))
                         .getPosition());
@@ -280,6 +296,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 
         } // end wvCount loop
             
+        count++;
+        
 //        energyEvenLater = energyMeter.getDataAsScalar();
 //        System.out.println("End dotrial");
         return true;
@@ -296,7 +314,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     public void acceptNotify() {
         // System.out.println(count + " accept old: " +energyOld +" new:
         // "+energyNew +" later " + energyEvenLater);
-        count++;
     }
 
     public double energyChange() {
@@ -416,6 +433,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         for(int i = wv.length; i < harmonicWVs.length; i++){
             harmonicWVs[i] = comparedWVs[i-wv.length];
         }
-        System.out.println("Harmonic wvs set");
+//        System.out.println("Harmonic wvs set");
     }
 }
