@@ -1,5 +1,6 @@
 package etomica.normalmode;
 
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -8,6 +9,9 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.units.Temperature;
 
@@ -37,16 +41,20 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
-            	int n = (int)nSlider.getValue();
+                int n = (int)nSlider.getValue();
                 if(n == 0) {
                 	sim.integrator.setThermostatInterval(50);
                 }
                 else {
-                  sim.integrator.setThermostatInterval(50/n);
+                	sim.integrator.setThermostatInterval(50/n);
                 }
                 
                 if (oldN < n) {
-                	 coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
+                	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), n/sim.density);
+                	System.out.println("numAtom: "+ n);
+                	sim.box.setBoundary(boundary);
+                	CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(sim, sim.box, sim.primitive, sim.getSpace());
+                    coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
                 }
                 oldN = n;
                 try {
@@ -58,12 +66,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 resetAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-            
-           // Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), n/sim.density);
-        	//IBox box = new Box(sim, sim.getSpace());
-            //sim.box.setBoundary(boundary);
-        	CoordinateDefinition coordinateDefinition = sim.coordinateDefinition;
-               
+                      
             int oldN = sim.box.getMoleculeList().getAtomCount();
            
         });
@@ -115,7 +118,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	private DeviceThermoSlider temperatureSetter; 
 	private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
-	private static final int REPAINT_INTERVAL = 20;
+	private static final int REPAINT_INTERVAL = 10;
 	protected NormalModeAnalysisDisplay1D sim;
 	protected final IAction resetAction;
 
