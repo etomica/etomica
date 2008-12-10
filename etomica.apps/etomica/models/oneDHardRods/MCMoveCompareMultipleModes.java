@@ -28,7 +28,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
-    protected double energyOld, energyEvenLater; /* , latticeEnergy */;
+    protected double energyOld,energyNew, energyEvenLater; /* , latticeEnergy */;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
@@ -38,8 +38,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     double[] uNow;
-    
-    protected double energyNew;
+
     int howManyChangesToHardRodModes;
     int[] comparedWVs, harmonicWVs;
 
@@ -60,6 +59,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
     public boolean doTrial() {
         System.out.println("Start dotrial " + count);
+        energyOld = energyMeter.getDataAsScalar();
+        System.out.println("Energy at start " + energyOld);
+        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -73,10 +75,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         double normalization = 1 / Math.sqrt(cells.length);
         int numWV = comparedWVs.length;
 
-        
-        System.out.println("Start");
         for (int k = 0; k < 32; k++) {
-            System.out.println(k + " " + ((IAtomPositioned) 
+            System.out.println(((IAtomPositioned) 
                     coordinateDefinition.getBox().getLeafList().getAtom(k))
                     .getPosition());
         }
@@ -92,13 +92,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             // System.out.println("Real: "+ realT[0]);
             // System.out.println("Imag: "+ imagT[0]);
-            
-            System.out.println("just after calcT");
-            for (int k = 0; k < 32; k++) {
-                System.out.println(k + " " + ((IAtomPositioned) 
-                        coordinateDefinition.getBox().getLeafList().getAtom(k))
-                        .getPosition());
-            }
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 // store old positions.
@@ -147,12 +140,24 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }// end of wvCount loop
 
         energyOld = energyMeter.getDataAsScalar();
+        
+        
+        System.out.println(" ");
+        System.out.println("after chunk 1");
+        System.out.println("EnergyOld " + energyOld);   
+        for (int k = 0; k < 32; k++) {
+            System.out.println(((IAtomPositioned) 
+                    coordinateDefinition.getBox().getLeafList().getAtom(k))
+                    .getPosition());
+        }
+        
+
         if (energyOld != 0.0) {
-            for (int k = 0; k < waveVectors.length*2; k++) {
-                System.out.println(k + " " + ((IAtomPositioned) 
-                        coordinateDefinition.getBox().getLeafList().getAtom(k))
-                        .getPosition());
-            }
+//            for (int k = 0; k < 32; k++) {
+//                System.out.println(k + " " + ((IAtomPositioned) 
+//                        coordinateDefinition.getBox().getLeafList().getAtom(k))
+//                        .getPosition());
+//            }
             throw new IllegalStateException(
                     "Overlap after the removal of a mode!");
         }
@@ -225,13 +230,18 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }//end wvCount loop
         
         energyNew = energyMeter.getDataAsScalar();
-        // System.out.println("youNou " + energyNew);
 
-        // for(int k = 0; k < 32; k++){
-        // System.out.println(k + " "
-        // +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
-        // }
+        
+        System.out.println(" ");
+        System.out.println("after chunk 2");
 
+        System.out.println("youNou " + energyNew);
+        for (int k = 0; k < 32; k++) {
+            System.out.println(((IAtomPositioned) 
+                    coordinateDefinition.getBox().getLeafList().getAtom(k))
+                    .getPosition());
+        }
+        
 // MOVE EACH NORMAL MODE THAT WAS ZEROED OUT.
         // set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
@@ -296,9 +306,20 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 
         } // end wvCount loop
             
+        System.out.println(" ");
+        System.out.println("after chunk 3");
+        energyEvenLater = energyMeter.getDataAsScalar();
+        System.out.println("Last energy " + energyEvenLater);
+        for (int k = 0; k < 32; k++) {
+            System.out.println(((IAtomPositioned) 
+                    coordinateDefinition.getBox().getLeafList().getAtom(k))
+                    .getPosition());
+        }
+        System.out.println(" ");
+        System.out.println(" ");
         count++;
         
-//        energyEvenLater = energyMeter.getDataAsScalar();
+
 //        System.out.println("End dotrial");
         return true;
     }
@@ -312,8 +333,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void acceptNotify() {
-        // System.out.println(count + " accept old: " +energyOld +" new:
-        // "+energyNew +" later " + energyEvenLater);
+        System.out.println(" ");
+         System.out.println(count + " accept old: " +energyOld +" new: " +energyNew +" later " + energyEvenLater);
+         System.out.println(" ");
     }
 
     public double energyChange() {
@@ -321,7 +343,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void rejectNotify() {
-        // System.out.println("reject " + energyNew);
+
+        System.out.println(" ");
+         System.out.println("reject " + energyNew);
+         System.out.println(" ");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell < cells.length; iCell++) {
