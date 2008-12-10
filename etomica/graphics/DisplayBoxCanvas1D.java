@@ -32,6 +32,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
     private final ISpace space;
+    private final int[] atomOrigin;
     
     public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box, Controller _controller) {
         super(_controller);
@@ -40,6 +41,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
+        atomOrigin = new int[2];
     }
         
     /**
@@ -148,7 +150,11 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             Drawable obj = (Drawable)iter.next();
             obj.draw(g, displayBox.getOrigin(), displayBox.getToPixels());
         }
-            
+           
+        int [] origin = displayBox.getOrigin();
+        atomOrigin[0] =origin[0] + (int)(0.5*displayBox.getToPixels()*displayBox.getBox().getBoundary().getDimensions().x(0));
+        atomOrigin[1] =origin[1];
+        
         //Draw all atoms
         if(displayBox.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
@@ -162,7 +168,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
             if(atomFilter != null && atomFilter.accept(a)) continue;
-            drawAtom(g, displayBox.getOrigin(), a);
+            drawAtom(g, atomOrigin, a);
         }
             
         //Draw overflow images if so indicated
