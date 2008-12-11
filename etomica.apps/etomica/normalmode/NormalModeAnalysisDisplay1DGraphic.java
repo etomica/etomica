@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,11 +8,9 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.units.Temperature;
 
 /**
  * 
@@ -31,31 +28,28 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		resetAction = getController().getSimRestart().getDataResetAction();
 		
 		final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
-        nSlider.setMinimum(0);
+        nSlider.setSpecies(sim.species);
+        nSlider.setMinimum(2);
         nSlider.setMaximum(40);
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
         
         nSlider.setPostAction(new IAction() {
-            public void actionPerformed() {
-                int n = (int)nSlider.getValue();
-                if(n == 0) {
-                	sim.integrator.setThermostatInterval(50);
-                }
-                else {
-                	sim.integrator.setThermostatInterval(50/n);
-                }
-                
-                if (oldN < n) {
+        	
+       	  	public void actionPerformed() {
+       	  		int n = (int)nSlider.getValue(); 
+       	  		System.out.println("n: "+n);     	  		
+         
+                if (oldN != n) {
                 	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), n/sim.density);
-                	System.out.println("numAtom: "+ n);
                 	sim.box.setBoundary(boundary);
-                	CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(sim, sim.box, sim.primitive, sim.getSpace());
-                    coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
-                }
+                	sim.waveVectorFactory.makeWaveVectors(sim.box);
+                	
+                	sim.coordinateDefinition.initializeCoordinates(new int[]{n});
+                }            
+                
                 oldN = n;
                 try {
                     sim.integrator.reset();
@@ -66,33 +60,32 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 resetAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-                      
-            int oldN = sim.box.getMoleculeList().getAtomCount();
-           
+       	  	int oldN = sim.box.getMoleculeList().getAtomCount();
         });
         
         add(nSlider);
-       
-		/*
+        /*
 		 * Temperature Slider
 		 */
 		temperatureSetter = new DeviceThermoSlider(sim.getController());
 		temperatureSetter.setPrecision(1);
-		temperatureSetter.setIsothermal();
 		temperatureSetter.setMinimum(0.0);
-		temperatureSetter.setMaximum(5.0);
-		temperatureSetter.setTemperature(0.0);
-		temperatureSetter.setSliderMajorValues(4);
-		temperatureSetter.setUnit(Temperature.SIM_UNIT);
+		temperatureSetter.setMaximum(10.0);
+		temperatureSetter.setSliderMajorValues(5);
 		temperatureSetter.setIntegrator(sim.integrator);
+		temperatureSetter.setIsothermal();
+		temperatureSetter.setTemperature(sim.temperature);
 		
-        final IAction temperatureAction = new IAction() {
+		
+		final IAction temperatureAction = new IAction() {
             public void actionPerformed() {
-                resetAction.actionPerformed();
 		    }
 		};
+		
 		ActionListener isothermalListener = new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
+		        // we can't tell if we're isothermal here...  :(
+		        // if we're adiabatic, we'll re-set the temperature elsewhere
 		        temperatureAction.actionPerformed();
 		    }
 		};
@@ -105,15 +98,25 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	}
 	
 	public static void main(String[] args){
-		
-		NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D();
-		NormalModeAnalysisDisplay1DGraphic simGraphic = new NormalModeAnalysisDisplay1DGraphic(sim, Space.getInstance(1));
+		Space sp = Space.getInstance(1);
+		NormalModeAnalysisDisplay1DGraphic simGraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(sp), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
 	
+	public static class Applet extends javax.swing.JApplet {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 
-
+		public void init(){
+			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
+			Space sp = Space.getInstance(1);
+			NormalModeAnalysisDisplay1DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(sp), sp);
+			getContentPane().add(nm1Dgraphic.getPanel());
+		}
+	}
 	
 	private DeviceThermoSlider temperatureSetter; 
 	private static final long serialVersionUID = 1L;

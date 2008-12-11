@@ -23,34 +23,31 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
 
-	public NormalModeAnalysisDisplay1D(){
-        super(Space.getInstance(1), true);
+	public NormalModeAnalysisDisplay1D(Space space){
+        super(space, true);
      
-        //Default
-        double temperature = 0.1;
-        int numAtoms = 20;
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, getSpace());
+        species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this, getSpace());
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         
-        primitive = new PrimitiveCubic(getSpace(), 1.0/density);
-        boundary = new BoundaryRectangularPeriodic(getSpace(), getRandom(), numAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0/density);
+        boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
         nCells = new int[]{numAtoms};
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, getSpace());
+        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        nm = new NormalModes1DHR(getSpace().D());
+        nm = new NormalModes1DHR(space.D());
         nm.setTemperature(temperature);
         
-        WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
+        waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        integrator = new IntegratorHarmonic(random, 0.001, temperature, getSpace());
+        integrator = new IntegratorHarmonic(random, 0.01, temperature, space);
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -58,14 +55,14 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         integrator.setEigenVectors(nm.getEigenvectors(box));
         integrator.setTemperature(temperature);
         
+        
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(0);
+        activityIntegrate.setSleepPeriod(1);
         
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
         
 	}
-
 	
 	/**
 	 * @param args
@@ -73,9 +70,10 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	public static void main(String[] args) {
  
         //instantiate simulation
-        NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D();
+		Space sp = Space.getInstance(1);
+        NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D(sp);
         
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, Space.getInstance(1), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sp, sim.getController());
         simGraphic.makeAndDisplayFrame(APP_NAME);
         
 	}
@@ -103,7 +101,12 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	protected SpeciesSpheresMono species;
 	protected NormalModes1DHR nm;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
+	protected WaveVectorFactory waveVectorFactory;
+	//Default:
 	protected double density = 0.5;
+	protected double temperature = 1.0;
+	protected int numAtoms = 10;
+
 
 
 
