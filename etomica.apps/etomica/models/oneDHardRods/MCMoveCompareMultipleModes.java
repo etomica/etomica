@@ -59,8 +59,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
     public boolean doTrial() {
         System.out.println("Start dotrial " + count);
-//        energyOld = energyMeter.getDataAsScalar();
-//        System.out.println("Energy at start " + energyOld);
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -74,12 +72,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1 / Math.sqrt(cells.length);
         int numWV = comparedWVs.length;
-
-//        for (int k = 0; k < 32; k++) {
-//            System.out.println(((IAtomPositioned) 
-//                    coordinateDefinition.getBox().getLeafList().getAtom(k))
-//                    .getPosition());
-//        }
         
         /*
          * This loop looks at each wavevector, asks if that wavevector is
@@ -102,12 +94,12 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 // rezero deltaU
                 for (int j = 0; j < coordinateDim; j++) {
                     deltaU[j] = 0.0;
-//                     System.out.println("in chunk 1, uNow before changes; " + uNow[j]);
                 }
 
                 // Calculate the contributions to the current position of
                 // the zeroed mode, and subtract it from the overall position
                 double kR = waveVectors[comparedwv].dot(cell.cellPosition);
+                System.out.println("kr;"+kR);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < coordinateDim; i++) {
@@ -115,15 +107,12 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                     double realCoord = 0, imagCoord = 0;
                     for (int j = 0; j < coordinateDim; j++) {
                         realCoord += eigenVectors[comparedwv][i][j] * realT[j];
-//                         System.out.println("realcoord; " + realCoord);
                         imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
-//                         System.out.println("imagcoord; ;" + imagCoord);
                     }
                     for (int j = 0; j < coordinateDim; j++) {
                         deltaU[j] -= waveVectorCoefficients[comparedwv] * eigenVectors[comparedwv][i][j]
                                 * 2.0
                                 * (realCoord * coskR - imagCoord * sinkR);
-//                         System.out.println("delta 1; " + deltaU[j]);
                     }
                 }
                 for (int i = 0; i < coordinateDim; i++) {
@@ -132,7 +121,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                     System.out.println("chunk 1-unow; " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
 
@@ -144,13 +132,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         
         System.out.println(" ");
         System.out.println("after chunk 1");
-//        System.out.println("EnergyOld; " + energyOld);   
-//        for (int k = 0; k < 32; k++) {
-//            System.out.println(((IAtomPositioned) 
-//                    coordinateDefinition.getBox().getLeafList().getAtom(k))
-//                    .getPosition());
-//        }
-        
 
         if (energyOld != 0.0) {
 //            for (int k = 0; k < 32; k++) {
@@ -175,12 +156,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 flagHarmonic = true;
                 changedWV = random.nextInt(waveVectorCoefficients.length-1);
                 changedWV += 1;
-//                System.out.println(changedWV);
-//                for(int i = 0; i < comparedWVs.length; i++){
-//                    if (changedWV != comparedWVs[i]) {
-//                        flagHarmonic = true;
-//                    }
-//                }
                 for(int i = 0; i < harmonicWVs.length; i++){
                     if (changedWV == harmonicWVs[i]) {
                         flagHarmonic = flagHarmonic && false;
@@ -193,7 +168,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             // loop over cells
             double delta1 = (2 * random.nextDouble() - 1) * stepSize;
             double delta2 = (2 * random.nextDouble() - 1) * stepSize;
-             delta1 = 0.2; delta2 = 0.5; //nork
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
@@ -207,9 +181,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 double kR = waveVectors[changedWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                 System.out.println("icell; " +iCell);
-                 System.out.println("sinkR; " + sinkR);
-                 System.out.println("coskR; "+ coskR);
                 for (int i = 0; i < coordinateDim; i++) {
                     for (int j = 0; j < coordinateDim; j++) {
                         deltaU[j] += waveVectorCoefficients[changedWV]
@@ -219,11 +190,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 }
                  for(int i = 0; i < coordinateDim; i++){
                      deltaU[i] *= normalization;
-//                     System.out.println("chunk2, delta u, normalized;"+deltaU[i]);
                  }
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                     System.out.println("chunk 2 unow; " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
@@ -234,13 +203,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         
         System.out.println(" ");
         System.out.println("after chunk 2");
-
-//        System.out.println("youNou " + energyNew);
-//        for (int k = 0; k < 32; k++) {
-//            System.out.println(((IAtomPositioned) 
-//                    coordinateDefinition.getBox().getLeafList().getAtom(k))
-//                    .getPosition());
-//        }
         
 // MOVE EACH NORMAL MODE THAT WAS ZEROED OUT.
         // set up the gaussian values
@@ -255,9 +217,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 // coordinate Q
                 double realGauss = random.nextGaussian() * sqrtT;
                 double imagGauss = random.nextGaussian() * sqrtT;
-    
-                // realGauss = 0.6; //nork
-                // imagGauss = 0.3; //nork
     
                 // XXX we know that if c(k) = 0.5, one of the gaussians will be
                 // ignored, but
@@ -299,7 +258,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-//                     System.out.println("chunk 3-unow ;" + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
@@ -308,19 +266,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             
         System.out.println(" ");
         System.out.println("after chunk 3");
-        energyEvenLater = energyMeter.getDataAsScalar();
-        System.out.println("Last energy ;" + energyEvenLater);
-//        for (int k = 0; k < 32; k++) {
-//            System.out.println(((IAtomPositioned) 
-//                    coordinateDefinition.getBox().getLeafList().getAtom(k))
-//                    .getPosition());
-//        }
         System.out.println(" ");
         System.out.println(" ");
         count++;
-        
 
-//        System.out.println("End dotrial");
         return true;
     }
 
