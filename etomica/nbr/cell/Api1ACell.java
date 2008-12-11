@@ -5,7 +5,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomToAtomSetFixed;
-import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -47,7 +46,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         atomToAtomSetFixed = new AtomToAtomSetFixed();
         aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToAtomSetFixed, atomToAtomSetFixed);
         aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToAtomSetFixed, atomToAtomSetFixed);
-        nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
         latticeIndex = new int[D];
 
         neighborIterator.setDirection(null);
@@ -144,7 +142,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     public void setDirection(Direction direction) {
         this.direction = direction;
         neighborIterator.setDirection(direction);
-        nbrCellListIteratorInner.setDirection(direction);
     }
 
     /**
@@ -206,7 +203,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     }
    
     private static final long serialVersionUID = 1L;
-    private final ApiSequence1A nbrCellListIteratorInner;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
     private final AtomIteratorArrayList aiSeqDirectableUp, aiSeqDirectableDn;
     private final AtomIteratorArrayListSimple aiSeq;
