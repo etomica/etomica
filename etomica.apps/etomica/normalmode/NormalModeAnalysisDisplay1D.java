@@ -105,7 +105,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	//Default:
 	protected double density = 0.5;
 	protected double temperature = 1.0;
-	protected int numAtoms = 10;
+	protected int numAtoms = 40;
 
 
 

@@ -27,6 +27,10 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		
 		resetAction = getController().getSimRestart().getDataResetAction();
 		
+		
+		/*
+		 * N atom Slider
+		 */
 		final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setBox(sim.box);
         nSlider.setSpecies(sim.species);
@@ -41,22 +45,35 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
        	  	public void actionPerformed() {
        	  		int n = (int)nSlider.getValue(); 
        	  		System.out.println("n: "+n);     	  		
-         
+                if(n == 0) {
+                	sim.integrator.setThermostatInterval(100);
+                }
+                else {
+                	sim.integrator.setThermostatInterval(100/n);
+                }
+                
                 if (oldN != n) {
                 	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), n/sim.density);
                 	sim.box.setBoundary(boundary);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
-                	
-                	sim.coordinateDefinition.initializeCoordinates(new int[]{n});
+                	sim.coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
                 }            
                 
                 oldN = n;
                 try {
-                    sim.integrator.reset();
+                	sim.integrator.reset();
+                    sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
+                    sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
+                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                   
                 }
+                
                 catch (ConfigurationOverlapException e) {
                     throw new RuntimeException(e);
-                }
+                }   	    
+                
+                
                 resetAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
@@ -64,6 +81,8 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         });
         
         add(nSlider);
+        //end of N Slider
+ 
         /*
 		 * Temperature Slider
 		 */
@@ -95,6 +114,9 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		
 		add(temperatureSetter);
 		// end of Temperature Slider
+		
+		
+		
 	}
 	
 	public static void main(String[] args){
