@@ -5,9 +5,9 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -73,8 +73,8 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
-        int sumOfMolecules = atomIterator.size();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -105,13 +105,13 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         }
 
         // Place molecules
-        atomIterator.reset();
         indexIterator.reset();
         IVector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getDimensions());
         IVector destinationVector = atomActionTranslateTo.getDestination();
-        for (IMolecule a = atomIterator.nextMolecule(); a != null;
-             a = atomIterator.nextMolecule()) {
+        int nMolecules = moleculeList.getMoleculeCount();
+        for (int i=0; i<nMolecules; i++) {
+            IMolecule a = moleculeList.getMolecule(i);
             // initialize coordinates of child atoms
             IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
