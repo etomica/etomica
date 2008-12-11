@@ -4,9 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.api.IAction;
+import etomica.data.IDataSink;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -40,6 +44,29 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
         
+        int m = sim.numAtoms/2;
+        
+        double[] omega2 = new double[m];
+        for (int i=0; i<m; i++){
+        	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+        	System.out.println("omega2["+i+"]: "+omega2[i]);
+        }
+        
+        DataDoubleArray[] data = new DataDoubleArray[1];
+        data[0].E(omega2);
+        
+        for (int i=0; i<m; i++){
+
+        	System.out.println("values: "+data[0].getValue(i));
+        }
+        omega2Table = new DataTable(1,m);
+        //omega2Table.assignTo(omega2);
+        
+        for (int i=0; i<m; i++){
+        	System.out.println("values: "+omega2Table.getValue(i));
+        }
+        
+        
         nSlider.setPostAction(new IAction() {
         	
        	  	public void actionPerformed() {
@@ -62,17 +89,36 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 oldN = n;
                 try {
                 	sim.integrator.reset();
-                    sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
+     
+                	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
                     sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
                     sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
                     sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                   
+                    
+                    int m = n/2;
+                    
+                    double[] omega2 = new double[m];
+                    
+                    for (int i=0; i<m; i++){
+                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    }
+                    
+                    
+                    DataDoubleArray[] data = new DataDoubleArray[1];
+                    data[0].assignColumnTo(0, omega2);
+                    
+                    for (int i=0; i<m; i++){
+                    	System.out.println("values: "+data[0].getValue(i));
+                    }
+                    omega2Table = new DataTable(data);
+                    
+                    
+                    
                 }
                 
                 catch (ConfigurationOverlapException e) {
                     throw new RuntimeException(e);
                 }   	    
-                
                 
                 resetAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
@@ -83,6 +129,18 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         add(nSlider);
         //end of N Slider
  
+        //
+        DisplayTable displayTable = new DisplayTable();
+        IDataSink sink = displayTable.getDataTable().makeDataSink();
+        sink.putData(omega2Table);
+        
+        
+        getPanel().tabbedPane.add("omega", displayTable.graphic());
+        
+        //
+        
+        
+        
         /*
 		 * Temperature Slider
 		 */
@@ -146,5 +204,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	private static final int REPAINT_INTERVAL = 10;
 	protected NormalModeAnalysisDisplay1D sim;
 	protected final IAction resetAction;
+	protected DataTable omega2Table;
 
 }
