@@ -36,7 +36,7 @@ public class Swmd extends Simulation {
     
     public Swmd(Space _space) {
         super(_space);
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this, space); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
         
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
         

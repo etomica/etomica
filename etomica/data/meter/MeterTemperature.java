@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -59,7 +58,7 @@ public class MeterTemperature extends DataSourceScalar {
 	        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
 	            int nMolecules = box.getNMolecules(sim.getSpeciesManager().getSpecies(i));
 	            if (nMolecules > 0) {
-	                IMolecule molecule = (IMolecule)box.getMoleculeList(sim.getSpeciesManager().getSpecies(i)).getAtom(0);
+	                IMolecule molecule = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i)).getMolecule(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
 	                    if (Double.isInfinite(((ISpeciesOriented)sim.getSpeciesManager().getSpecies(i)).getMass())) {
 	                        continue;
@@ -69,10 +68,10 @@ public class MeterTemperature extends DataSourceScalar {
 	                else {
 	                    IAtomList children = molecule.getChildList();
 	                    if (children.getAtomCount() == 0 || 
-	                        Double.isInfinite(((IAtomLeaf)children.getAtom(0)).getType().getMass())) {
+	                        Double.isInfinite(children.getAtom(0).getType().getMass())) {
 	                        continue;
 	                    }
-	                    if (((IAtomLeaf)children.getAtom(0)).getType() instanceof AtomTypeOrientedSphere) {
+	                    if (children.getAtom(0).getType() instanceof AtomTypeOrientedSphere) {
 	                        // oriented sphere at this point corresponds to cylindrical symmetry
 	                        if (dim == 3) {
 	                            totalD += 5*nMolecules*children.getAtomCount();

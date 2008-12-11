@@ -1,11 +1,11 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -26,7 +26,7 @@ import etomica.space3d.Vector3D;
 public class ConfigurationZincblende extends ConfigurationLattice {
     
     private static final long serialVersionUID = 2L;
-    private AtomGroupAction translator0, translator1;
+    private MoleculeChildAtomAction translator0, translator1;
     protected ISpecies[] species;
     
     public ConfigurationZincblende(double latticeConstant, ISpace space) {
@@ -55,17 +55,17 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
     public void initializeCoordinates(IBox box) {
-        translator0 = new AtomGroupAction(new AtomActionTranslateBy(space));
-        translator1 = new AtomGroupAction(new AtomActionTranslateBy(space));
-        IAtomList[] lists = new IAtomList[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
+        translator0 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
+        translator1 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
+        IMoleculeList[] lists = new IMoleculeList[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
-        if(lists[0].getAtomCount() != lists[1].getAtomCount()) {
+        if(lists[0].getMoleculeCount() != lists[1].getMoleculeCount()) {
             System.err.println("Warning: different numbers of molecules for two species in ConfigurationZincBlende");
         }
         
-        int nCells = (int) Math.ceil(lists[0].getAtomCount() / 4.0);
+        int nCells = (int) Math.ceil(lists[0].getMoleculeCount() / 4.0);
 
         // determine scaled shape of simulation volume
         IVector shape = space.makeVector();
@@ -90,10 +90,10 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         Vector3D shift = new Vector3D();
         shift.Ea1Tv1(-0.5,box.getBoundary().getDimensions());
         shift.PE(0.125*((LatticeCubicFcc)lattice).getLatticeConstant());
-        ((AtomActionTranslateBy)translator0.getAction()).setTranslationVector(shift);
+        ((AtomActionTranslateBy)translator0.getAtomAction()).setTranslationVector(shift);
 
         shift.PE(0.25*((LatticeCubicFcc)lattice).getLatticeConstant());
-        ((AtomActionTranslateBy)translator1.getAction()).setTranslationVector(shift);
+        ((AtomActionTranslateBy)translator1.getAtomAction()).setTranslationVector(shift);
 
         // Place molecules
         indexIterator.reset();
@@ -103,8 +103,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
             IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
-            IAtom a0 = lists[0].getAtom(i);
-            IAtom a1 = lists[1].getAtom(i);
+            IMolecule a0 = lists[0].getMolecule(i);
+            IMolecule a1 = lists[1].getMolecule(i);
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 

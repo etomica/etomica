@@ -1,13 +1,11 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomsetArrayList;
+import etomica.atom.AtomListWrapper;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
@@ -19,7 +17,8 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  * This class is designed to work and conform to the API... not to be efficient 
  * or pleasant to look at!  Use neighbor lists. 
  */
-public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Serializable {
+public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
+                AtomsetIteratorDirectable, AtomsetIteratorTargetable, java.io.Serializable {
 
     /**
      * @param species species for which molecules are returned as iterates. Only
@@ -27,7 +26,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
      */
     public AtomIteratorAllLeafType(IAtomTypeLeaf[] atomType) {
     	this.atomType = atomType;
-        next = new AtomsetArrayList();
+        next = new AtomListWrapper();
     }
 
     /**
@@ -45,7 +44,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
      * Sets the target of iteration... has no actual effect since all iterates
      * contain all Atoms.
      */
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
     }
 
     /** 
@@ -62,7 +61,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
         IAtomList leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
         	for (int j=0; j<atomType.length; j++) {
-        		if(((IAtomLeaf)leafList.getAtom(i)).getType()==atomType[j]){
+        		if(leafList.getAtom(i).getType()==atomType[j]){
         			arrayList.add(leafList.getAtom(i));
         		}
         	}
@@ -84,7 +83,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
             return next;
         }
         AtomArrayList arrayList = next.getArrayList();
-        IAtom oldFirst = arrayList.getAtom(0);
+        IAtomLeaf oldFirst = arrayList.getAtom(0);
         arrayList.set(0,arrayList.getAtom(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         nextCursor++;
@@ -93,13 +92,6 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
     
     public int nBody() {
         return Integer.MAX_VALUE;
-    }
-    
-    public void allAtoms(AtomsetAction action) {
-        reset();
-        for (IAtomList atoms = next(); atoms != null; atoms = next()) {
-            action.actionPerformed(atoms);
-        }
     }
 
     /**
@@ -114,5 +106,5 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorPDT, java.io.Seri
     private final IAtomTypeLeaf[] atomType;
     private IBox box;
     private int nextCursor;
-    private final AtomsetArrayList next;
+    private final AtomListWrapper next;
 }

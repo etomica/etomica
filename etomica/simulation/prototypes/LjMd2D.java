@@ -35,7 +35,7 @@ public class LjMd2D extends Simulation {
 
     public LjMd2D() {
         super(Space2D.getInstance(), false);
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

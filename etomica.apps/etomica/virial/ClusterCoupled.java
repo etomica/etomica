@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IMoleculeList;
 
 public class ClusterCoupled implements ClusterAbstract {
 
@@ -67,9 +67,9 @@ public class ClusterCoupled implements ClusterAbstract {
     private double invert(BoxCluster box) {
         double minmax = -1;
         IAtomPositioned minMaxAtom = null;
-        IAtomList atomList = box.getMoleculeList();
-        for (int i=1; i<atomList.getAtomCount(); i++) {
-            IAtomPositioned atom = (IAtomPositioned)atomList.getAtom(i);
+        IMoleculeList atomList = box.getMoleculeList();
+        for (int i=1; i<atomList.getMoleculeCount(); i++) {
+            IAtomPositioned atom = (IAtomPositioned)atomList.getMolecule(i);
             double r = atom.getPosition().squared(); // sqrt
             if (r == 1.0) {
                 return 1.0;

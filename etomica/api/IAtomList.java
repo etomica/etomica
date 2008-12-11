@@ -12,7 +12,7 @@ public interface IAtomList {
      * Returns the i-th atom, with numbering beginning from 0. 
      * If i is greater than count-1, throws an IllegalArgumentException.
      */
-    public IAtom getAtom(int i);
+    public IAtomLeaf getAtom(int i);
 
     /**
      * @return the number of atoms in the set

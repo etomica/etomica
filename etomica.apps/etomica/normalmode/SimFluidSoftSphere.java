@@ -39,7 +39,7 @@ public class SimFluidSoftSphere extends Simulation {
         super(_space, true);
 
 
-        potentialMaster = new PotentialMaster(_space);
+        potentialMaster = new PotentialMaster();
 
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

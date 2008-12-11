@@ -84,7 +84,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
   
     public MCParacetamolMonoclinicDLMULTI(Space _space, int numMolecules, double temperature, int simType, int[] cellDim) {
     	super(_space, true);
-    	potentialMaster = new PotentialMaster(space);
+    	potentialMaster = new PotentialMaster();
     	this.simType = simType;
     	this.cellDim = cellDim;
     	

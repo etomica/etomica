@@ -1,6 +1,6 @@
 package etomica.nbr.list;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 
@@ -29,7 +29,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * @param a the new downlist neighbor atom
      * @param index the of the potential between the atoms
      */
-    public void addUpNbr(IAtom a, int index) {
+    public void addUpNbr(IAtomLeaf a, int index) {
         upList[index].add(a);
     }
 
@@ -39,7 +39,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * @param a the new downlist neighbor atom
      * @param index the of the potential between the atoms
      */
-    public void addDownNbr(IAtom a, int index) {
+    public void addDownNbr(IAtomLeaf a, int index) {
         downList[index].add(a);
     }
 

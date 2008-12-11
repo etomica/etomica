@@ -1,6 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
@@ -10,7 +9,7 @@ import etomica.atom.AtomPair;
  * Incorrect behavior will result if both lists refer to the same instance.
  *  
  */
-public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable {
+public class ApiInterArrayList implements AtomLeafsetIterator, java.io.Serializable {
 
     /**
      * Construct iterator with an empty lists. No iterates will be given until
@@ -84,20 +83,6 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
         innerIndex++;
         atoms.atom1 = innerList.getAtom(innerIndex);
         return atoms;
-    }
-
-    /**
-     * Performs given action on all pairs that can be formed from the current
-     * list.
-     */
-    public void allAtoms(AtomsetAction action) {
-        for (int i=0; i<outerList.getAtomCount(); i++) {
-            atoms.atom0 = outerList.getAtom(i);
-            for (int j=0; j<innerList.getAtomCount(); j++) {
-                atoms.atom1 = innerList.getAtom(j);
-                action.actionPerformed(atoms);
-            }
-        }
     }
 
     /**

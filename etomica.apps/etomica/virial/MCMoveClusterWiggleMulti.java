@@ -1,19 +1,19 @@
 package etomica.virial;
 
-import etomica.api.IVector;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
-import etomica.api.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the 
@@ -42,7 +42,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      */
     public MCMoveClusterWiggleMulti(IPotentialMaster potentialMaster, 
             IRandom random, double stepSize, int nAtoms, ISpace _space) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY,false);
+        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
@@ -54,8 +54,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
     public void setBox(IBox p) {
         super.setBox(p);
-        selectedAtoms = new IAtomPositioned[box.getMoleculeList().getAtomCount()];
-        translationVectors = new Vector3D[box.getMoleculeList().getAtomCount()];
+        selectedAtoms = new IAtomPositioned[box.getMoleculeList().getMoleculeCount()];
+        translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = (IVector3D)space.makeVector();
         }
@@ -68,9 +68,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         uOld = energyMeter.getDataAsScalar();
         wOld = weightMeter.getDataAsScalar();
 
-        IAtomList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getAtomCount(); i++) {
-            IAtomList childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
+            IAtomList childList = moleculeList.getMolecule(i).getChildList();
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren);
@@ -199,9 +199,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
     
     public void rejectNotify() {
-        IAtomList moleculeList = box.getMoleculeList();
+        IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
-            IAtomList childList = ((IMolecule)moleculeList.getAtom(i)).getChildList();
+            IAtomList childList = moleculeList.getMolecule(i).getChildList();
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.getAtomCount());
             for (int k=0; k<childList.getAtomCount(); k++) {

@@ -1,10 +1,9 @@
 package etomica.virial;
 
-import etomica.action.AtomAction;
-import etomica.api.IAtomPositioned;
+import etomica.action.MoleculeAction;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -25,9 +24,9 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        molecule = (IMolecule)moleculeSource.getAtom();
+        molecule = moleculeSource.getMolecule();
         while (molecule.getIndex() == 0) {
-            molecule = (IMolecule)moleculeSource.getAtom();
+            molecule = moleculeSource.getMolecule();
         }
         uOld = weightMeter.getDataAsScalar();
         
@@ -67,12 +66,12 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         ((BoxCluster)box).rejectNotify();
     }
     
-    public void setRelaxAction(AtomAction action) {
+    public void setRelaxAction(MoleculeAction action) {
         relaxAction = action;
     }
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     protected int trialCount, relaxInterval = 100;
-    protected AtomAction relaxAction;
+    protected MoleculeAction relaxAction;
 }

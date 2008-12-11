@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.action.AtomActionTranslateTo;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -33,7 +33,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         setResidual(true);
-        atomTranslator = new AtomActionTranslateTo(space); 
+        atomTranslator = new MoleculeActionTranslateTo(space); 
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -149,7 +149,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private IMolecule testMolecule;// prototype insertion molecule
     private boolean residual; // flag to specify if total or residual chemical
                               // potential evaluated. Default true
-    private AtomActionTranslateTo atomTranslator;
+    private MoleculeActionTranslateTo atomTranslator;
 
     private MeterPotentialEnergy energyMeter;
 }

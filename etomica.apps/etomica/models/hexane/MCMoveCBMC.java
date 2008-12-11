@@ -1,18 +1,17 @@
 package etomica.models.hexane;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculeSource;
+import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -31,15 +30,15 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         beta = 1.0 / integrator.getTemperature() / Constants.BOLTZMANN_K;
         atomList = new AtomArrayList(maxAtomsPerMolecule);
-        affectedAtomIterator = new AtomIteratorSinglet();
+        affectedAtomIterator = new AtomIteratorArrayListSimple();
 
         externalMeter = new MeterPotentialEnergy(potentialMaster);
 
         box = p;
 
-        moleculeSource = new AtomSourceRandomMolecule();
+        moleculeSource = new MoleculeSourceRandomMolecule();
         moleculeSource.setBox(box);
-        ((AtomSourceRandomMolecule) moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule) moleculeSource).setRandom(random);
         setMoleculeSource(moleculeSource);
 
         positionOld = new IVector[maxAtomsPerMolecule];
@@ -51,14 +50,14 @@ public abstract class MCMoveCBMC extends MCMoveBox {
     /**
      * Sets the AtomSource used to select molecules acted on by MC trials.
      */
-    public void setMoleculeSource(AtomSource newMoleculeSource) {
+    public void setMoleculeSource(MoleculeSource newMoleculeSource) {
         moleculeSource = newMoleculeSource;
     }
 
     /**
      * Returns the AtomSource used to select Atoms acted on by MC trials.
      */
-    public AtomSource getMoleculeSource() {
+    public MoleculeSource getMoleculeSource() {
         return moleculeSource;
     }
 
@@ -77,15 +76,15 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 //        System.out.println("doTrial() CBMC called"); 
 
         // pick a molecule & get its childlist
-        atom = moleculeSource.getAtom();
+        atom = moleculeSource.getMolecule();
         if (atom == null){
             return false;
         }
-        affectedAtomIterator.setAtom(atom);
+        affectedAtomIterator.setList(atom.getChildList());
 
         // we assume that that atoms that make the molecule are children of the
         // molecule.
-        atomList = ((IMolecule) atom).getChildList();
+        atomList = atom.getChildList();
         chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.
@@ -96,14 +95,15 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         return calcRosenbluthFactors(); // this means we were able to propose a move.
     }
 
-    public boolean doTrial(IAtom atom){
+    public boolean doTrial(IMolecule atom){
+        // who calls me?
         if (atom == null)
             return false;
-        affectedAtomIterator.setAtom(atom);
+        affectedAtomIterator.setList(atom.getChildList());
 
         // we assume that that atoms that make the molecule are children of the
         // molecule.
-        atomList = ((IMolecule) atom).getChildList();
+        atomList = atom.getChildList();
         chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.
@@ -167,7 +167,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     protected double beta;
 
-    protected IAtom atom;
+    protected IMolecule atom;
 
     protected double uOld;
 
@@ -180,9 +180,9 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     protected int numTrial;
 
-    protected AtomSource moleculeSource;
+    protected MoleculeSource moleculeSource;
 
-    private AtomIteratorSinglet affectedAtomIterator;
+    private AtomIteratorArrayListSimple affectedAtomIterator;
 
     protected final IRandom random;
 

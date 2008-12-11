@@ -55,7 +55,7 @@ public class SimOverlapSoftSphere extends Simulation {
     public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
 
-        PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this, space);
+        PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IEtomicaDataSource[2];
@@ -205,7 +205,7 @@ public class SimOverlapSoftSphere extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getAtomCount());
+                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {

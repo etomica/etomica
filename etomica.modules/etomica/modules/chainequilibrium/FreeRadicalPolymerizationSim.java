@@ -2,12 +2,11 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -101,13 +100,13 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     
     public void resetBonds() {
         
-        IAtomList initiators = box.getMoleculeList(speciesA);
-        for (int i=0; i<initiators.getAtomCount(); i++) {
-            IAtomLeaf initiator0 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
+        IMoleculeList initiators = box.getMoleculeList(speciesA);
+        for (int i=0; i<initiators.getMoleculeCount(); i++) {
+            IAtomLeaf initiator0 = initiators.getMolecule(i).getChildList().getAtom(0);
             IAtomLeaf[] bonds0 = (IAtomLeaf[])agentManager.getAgent(initiator0);
-            if (i<initiators.getAtomCount()-1) {
+            if (i<initiators.getMoleculeCount()-1) {
                 i++;
-                IAtomLeaf initiator1 = (IAtomLeaf)((IMolecule)initiators.getAtom(i)).getChildList().getAtom(0);
+                IAtomLeaf initiator1 = initiators.getMolecule(i).getChildList().getAtom(0);
                 IAtomLeaf[] bonds1 = (IAtomLeaf[])agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
@@ -117,9 +116,9 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
             }
         }
         
-        IAtomList monomers = box.getMoleculeList(speciesB);
-        for (int i=0; i<monomers.getAtomCount(); i++) {
-            IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent((IAtomLeaf)((IMolecule)monomers.getAtom(i)).getChildList().getAtom(0));
+        IMoleculeList monomers = box.getMoleculeList(speciesB);
+        for (int i=0; i<monomers.getMoleculeCount(); i++) {
+            IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
             bonds[0] = null;
             bonds[1] = null;
         }

@@ -1,11 +1,9 @@
 package etomica.atom.iterator;
 import java.io.Serializable;
 
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -29,12 +27,12 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         }
     }
 
-    public void setBasis(IAtomList atoms) {
+    public void setBasis(IMoleculeList atoms) {
         if (atoms == null) {
             childList = null;
         }
         else {
-            childList = ((IMolecule)atoms.getAtom(0)).getChildList();
+            childList = atoms.getMolecule(0).getChildList();
         }
     }
 
@@ -42,7 +40,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return 1;
     }
 
-    public boolean haveTarget(IAtom target) {
+    public boolean haveTarget(IAtomLeaf target) {
         if (childList == null) {
             return false;
         }
@@ -55,7 +53,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return false;
     }
 
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -141,25 +139,17 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return next;
     }
 
-    public void allAtoms(AtomsetAction action) {
-        reset();
-        for (IAtomList atoms = next(); atoms != null; atoms = next()) {
-            action.actionPerformed(atoms);
-        }
-    }
-
     public int size() {
         if (childList == null) {
             return 0;
         }
         
-        if(counter == null) {
-            counter = new AtomsetCount();
-        } else {
-            counter.reset();
+        int count = 0;
+        reset();
+        for (Object a = next(); a != null; a = next()) {
+            count++;
         }
-        allAtoms(counter);
-        return counter.callCount();
+        return count;
     }
 
     public int nBody() {
@@ -170,10 +160,9 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     protected int stateUpDown; // 0 = up, 1 = middle, 2 = down, 3 = all done
     protected boolean doGoUp, doGoDown;
     protected IAtomList childList;
-    protected IAtom targetAtom;
+    protected IAtomLeaf targetAtom;
     protected int cursor;
     protected final AtomsetArray next;
-    protected final IAtom[] atomArray;
-    protected AtomsetCount counter;
+    protected final IAtomLeaf[] atomArray;
     private static final long serialVersionUID = 1L;
 }

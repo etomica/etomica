@@ -2,7 +2,6 @@ package etomica.modules.chainequilibrium;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
@@ -30,7 +29,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     }
 
     public Color getAtomColor(IAtomLeaf atom) {
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(atom);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(atom);
         if (nbrs == null) {
             return ColorScheme.DEFAULT_ATOM_COLOR;
         }
@@ -73,12 +72,12 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainNumber = -1;
+            ((LengthAgent)chainLengthManager.getAgent(leafList.getAtom(i))).chainNumber = -1;
         }
 
         int chainNumber = 0;
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
+            IAtomLeaf a = leafList.getAtom(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
             if (((LengthAgent)chainLengthManager.getAgent(a)).chainNumber > 0) continue;

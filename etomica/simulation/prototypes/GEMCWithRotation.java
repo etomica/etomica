@@ -34,7 +34,7 @@ public class GEMCWithRotation extends Simulation {
     public GEMCWithRotation(Space _space) {
         super(_space, false);
         double sigma = 1.2;
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorGEMC(getRandom(), space);
         integrator.setEventInterval(400);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

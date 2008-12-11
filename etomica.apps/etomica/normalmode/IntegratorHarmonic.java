@@ -3,7 +3,7 @@ package etomica.normalmode;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.integrator.IntegratorMD;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
@@ -19,7 +19,7 @@ public class IntegratorHarmonic extends IntegratorMD {
 
     public IntegratorHarmonic(IRandom random, double timeStep, double temperature, ISpace _space) {
         super(null,random, timeStep, temperature, _space);
-        iterator = new AtomIteratorAllMolecules();
+        iterator = new MoleculeIteratorAllMolecules();
     }
     
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -119,7 +119,7 @@ public class IntegratorHarmonic extends IntegratorMD {
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    private final AtomIteratorAllMolecules iterator;
+    private final MoleculeIteratorAllMolecules iterator;
     private double[][] omega;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;

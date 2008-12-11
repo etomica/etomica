@@ -1,16 +1,16 @@
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -45,7 +45,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
      */
     public MCMoveClusterTorsionMulti(IPotentialMaster potentialMaster, ISpace space,
             IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
-        super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY,false);
+        super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
@@ -167,9 +167,9 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         wOld = weightMeter.getDataAsScalar();
         bias = 1;
 
-        for(int i=0; i<selectedMolecules.getAtomCount(); i++) {
-            oldCenter.E(((IMolecule)selectedMolecules.getAtom(i)).getType().getPositionDefinition().position((IMolecule)selectedMolecules.getAtom(i)));
-            IAtomList childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
+        for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
+            oldCenter.E(selectedMolecules.getMolecule(i).getType().getPositionDefinition().position(selectedMolecules.getMolecule(i)));
+            IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren-3);  // j=0 ==> first torsion bond (atoms 0,1,2,3)
@@ -337,7 +337,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                     }
                 }
             }
-            oldCenter.ME(((IMolecule) selectedMolecules.getAtom(i)).getType().getPositionDefinition().position(selectedMolecules.getAtom(i)));
+            oldCenter.ME(selectedMolecules.getMolecule(i).getType().getPositionDefinition().position(selectedMolecules.getMolecule(i)));
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change
@@ -357,13 +357,12 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     }
 	
     protected void selectMolecules() {
-        IAtomList molecules = box.getMoleculeList();
-        selectedMolecules = new AtomArrayList();
-        oldPositions = new IVector[molecules.getAtomCount()][0];
+        IMoleculeList molecules = box.getMoleculeList();
+        selectedMolecules = new MoleculeArrayList();
+        oldPositions = new IVector[molecules.getMoleculeCount()][0];
     	int i=0;
-        for (int k=0; k < molecules.getAtomCount();k++)
-              {
-        	IMolecule a = (IMolecule)molecules.getAtom(k);
+        for (int k=0; k < molecules.getMoleculeCount();k++) {
+        	IMolecule a = molecules.getMolecule(k);
         	int numChildren = a.getChildList().getAtomCount();
             if (numChildren<4) {
             	continue;
@@ -377,8 +376,8 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
       }
 
     public void rejectNotify() {
-        for(int i=0; i<selectedMolecules.getAtomCount(); i++) {
-            IAtomList childList = ((IMolecule)selectedMolecules.getAtom(i)).getChildList();
+        for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
+            IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
             for (int j=0; j<childList.getAtomCount(); j++) {
                 IAtomPositioned atomj = (IAtomPositioned)childList.getAtom(j);
                 atomj.getPosition().E(oldPositions[i][j]);
@@ -407,7 +406,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;
-    protected AtomArrayList selectedMolecules;
+    protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
     protected final IVector3D work1, work2, work3;
     protected final IVector3D dr21, dr23, dr34;

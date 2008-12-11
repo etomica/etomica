@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
@@ -14,10 +13,8 @@ import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
@@ -27,7 +24,6 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySiepmannSpheres;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -94,9 +90,9 @@ public class VirialAlkaneMix {
         
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
-        PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2, space);
-        PotentialGroup pMethaneEthaneGroup = new PotentialGroup(2, space);
-        PotentialGroup pEthaneEthaneGroup = new PotentialGroup(2, space);
+        PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2);
+        PotentialGroup pMethaneEthaneGroup = new PotentialGroup(2);
+        PotentialGroup pEthaneEthaneGroup = new PotentialGroup(2);
         
         System.out.println("Siepman "+nSpheres1+ nSpheres2+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);

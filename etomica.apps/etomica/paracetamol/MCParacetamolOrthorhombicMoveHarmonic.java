@@ -67,7 +67,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
     	super(Space3D.getInstance(), false);
     	
-        potentialMaster = new PotentialMaster(space);
+        potentialMaster = new PotentialMaster();
     	
     	/*
     	 * Orthorhombic Crystal

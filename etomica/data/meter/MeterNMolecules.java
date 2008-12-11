@@ -1,12 +1,11 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.data.DataSourceAtomic;
+import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataInfo;
 import etomica.units.Quantity;
@@ -14,7 +13,7 @@ import etomica.units.Quantity;
 /**
  * Meter for recording the total number of molecules in the box
  */
-public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic {
+public class MeterNMolecules extends DataSourceScalar implements DataSourceMolecular {
     
     private static final long serialVersionUID = 1L;
     private ISpecies species;
@@ -33,15 +32,15 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
 
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
-        return (species == null) ? box.getMoleculeList().getAtomCount(): box.getNMolecules(species);
+        return (species == null) ? box.getMoleculeList().getMoleculeCount(): box.getNMolecules(species);
     }
     
-    public IData getData(IAtom atom) {
-        data.x = (species == null || (((IMolecule)atom).getType() == species)) ? 1 : 0;
+    public IData getData(IMolecule atom) {
+        data.x = (species == null || (atom.getType() == species)) ? 1 : 0;
         return data;
     }
     
-    public IEtomicaDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getMoleculeDataInfo() {
         return dataInfo;
     }
     

@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 
 /**
@@ -19,5 +19,5 @@ public interface AtomSource {
      * Returns an atom.  Will return null if there are no appropriate atoms in 
      * the given box.
      */
-    public IAtom getAtom();
+    public IAtomLeaf getAtom();
 }

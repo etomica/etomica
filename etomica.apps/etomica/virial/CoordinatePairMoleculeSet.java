@@ -1,8 +1,7 @@
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -23,9 +22,9 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairMoleculeSet(IAtomList list, ISpace space) {
-        atoms = new IMolecule[list.getAtomCount()];
-        numAtoms = list.getAtomCount();
+    public CoordinatePairMoleculeSet(IMoleculeList list, ISpace space) {
+        numAtoms = list.getMoleculeCount();
+        atoms = new IMolecule[numAtoms];
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
         dr = space.makeVector();
@@ -40,19 +39,19 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         return r2[i*numAtoms+j];
     }
 
-    private void setAtoms(IAtomList list) {
-        for (int i=0; i<list.getAtomCount(); i++) {
-            atoms[i] = (IMolecule)list.getAtom(i);
+    private void setAtoms(IMoleculeList list) {
+        for (int i=0; i<list.getMoleculeCount(); i++) {
+            atoms[i] = list.getMolecule(i);
         }
     }
     
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
-            IAtom iAtom = atoms[i];
-            iPosition.E(((IMolecule)iAtom).getType().getPositionDefinition().position(iAtom));
+            IMolecule iAtom = atoms[i];
+            iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
-                IAtom jAtom = atoms[j];
-                IVector jPosition = ((IMolecule)jAtom).getType().getPositionDefinition().position(jAtom);
+                IMolecule jAtom = atoms[j];
+                IVector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }

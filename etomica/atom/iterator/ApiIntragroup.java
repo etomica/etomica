@@ -2,10 +2,9 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
 
 /**
  * Returns iterates from the childList of a single basis atom.  Behavior is set
@@ -40,12 +39,12 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
         return 2;
     }
     
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
         targetAtom = newTargetAtom;
         aiOuter.setTarget(targetAtom);
 	}
     
-    public boolean haveTarget(IAtom target) {
+    public boolean haveTarget(IAtomLeaf target) {
         return aiOuter.haveTarget(target);
     }
 	
@@ -80,7 +79,7 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
 	 * array should match the value returned by setBasis, but if it
 	 * is greater no error results; only first atom in array is used.
 	 */
-	public void setBasis(IAtomList atoms) {
+	public void setBasis(IMoleculeList atoms) {
 		aiOuter.setBasis(atoms);
 	}
 	
@@ -98,13 +97,12 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
 	 * reset and iterated in its present state.
 	 */
 	public int size() {
-        if(counter == null) {
-            counter = new AtomsetCount();
-        } else {
-            counter.reset();
-        }
-        allAtoms(counter);
-        return counter.callCount();
+	    int count = 0;
+	    reset();
+	    for (Object a = next(); a != null; a = next()) {
+	        count++;
+	    }
+	    return count;
 	}
     
     public IAtomList next() {
@@ -119,20 +117,6 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
         return apiDown.next();
     }
     
-    /**
-     * Performs action on all iterates for iterator as currently
-     * conditioned (basis, target, direction).  Clobbers
-     * iteration state.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if (targetAtom == null || direction != IteratorDirective.Direction.DOWN) {
-            apiUp.allAtoms(action);
-        }
-        if (targetAtom != null && direction != IteratorDirective.Direction.UP) {
-            apiDown.allAtoms(action);
-        }
-    }
-	
 	/**
 	 * Returns 1, indicating the the array given to the setBasis method
 	 * should have only one element.
@@ -143,9 +127,8 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
     
     private static final long serialVersionUID = 2L;
 	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
-	private IAtom targetAtom;
+	private IAtomLeaf targetAtom;
     private IteratorDirective.Direction direction;
-    private AtomsetCount counter;
     private final ApiInnerVariable apiUp, apiDown;
     private boolean doGoDown, upListNow;
 }

@@ -8,9 +8,8 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.space.ISpace;
 import etomica.util.numerical.CalcGradientDifferentiable;
@@ -40,7 +39,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
     Matrix fC;
     double mass;
     int writeCount;
-    IAtomList ms;
+    IMoleculeList ms;
     EigenvalueDecomposition eigenDecomp;
     CalcGradientDifferentiable cgd;
     
@@ -50,11 +49,11 @@ public class CalcVibrationalModes implements IAction, Serializable {
        
         }
 
-    public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IAtomList movableSet, ISpace _space){
+    public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
         ms = movableSet; 
-        mass = ((IMolecule)ms.getAtom(0)).getType().getChildType(0).getMass();
+        mass = ms.getMolecule(0).getType().getChildType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);
-        d = new int[movableSet.getAtomCount()*3];
+        d = new int[movableSet.getMoleculeCount()*3];
         positions = new double[d.length];
         dForces = new double[positions.length][positions.length];
         modeSigns = new int[3];
@@ -62,9 +61,9 @@ public class CalcVibrationalModes implements IAction, Serializable {
     
     public void actionPerformed() {
         // setup position array
-        for(int i=0; i<ms.getAtomCount(); i++){
+        for(int i=0; i<ms.getMoleculeCount(); i++){
             for(int j=0; j<3; j++){
-                positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)ms.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
+                positions[(3*i)+j] = ((IAtomPositioned)ms.getMolecule(i).getChildList().getAtom(0)).getPosition().x(j);
             }
         }
         // fill dForces array

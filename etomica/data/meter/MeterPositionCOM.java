@@ -4,8 +4,8 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVector;

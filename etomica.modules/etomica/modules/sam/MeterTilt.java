@@ -1,10 +1,10 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.data.DataTag;
@@ -38,13 +38,13 @@ public class MeterTilt implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IAtomList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getAtomCount();
+        IMoleculeList molecules = box.getMoleculeList(species);
+        int nMolecules = molecules.getMoleculeCount();
         int leafCount = species.getNumLeafAtoms();
         drSum.E(0);
         double thetaSum = 0;
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = (IMolecule)molecules.getAtom(i);
+            IMolecule molecule = molecules.getMolecule(i);
             dr.E(((IAtomPositioned)molecule.getChildList().getAtom(leafCount-1)).getPosition());
             dr.ME(((IAtomPositioned)molecule.getChildList().getAtom(1)).getPosition());
             thetaSum += Math.acos(dr.x(1)/Math.sqrt(dr.squared()));

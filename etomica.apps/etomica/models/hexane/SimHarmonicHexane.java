@@ -58,7 +58,7 @@ public class SimHarmonicHexane extends Simulation {
     public SimHarmonicHexane(Space _space, double dens, int xCells, int yCells, 
             int zCells, String filename, double harmonicFudge) {
         super(_space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;
@@ -171,7 +171,7 @@ public class SimHarmonicHexane extends Simulation {
         //Add hard potentials for FEP calculation.  With de novo sampling
         // potential is not otherwise used.
         Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
-        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        PotentialMaster potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(p2, new IAtomTypeLeaf[]
                {((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType(),
                 ((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType()});

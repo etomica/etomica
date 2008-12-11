@@ -1,11 +1,9 @@
 package etomica.modules.junit.crystalviewer;
 
 import junit.framework.TestCase;
-
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 
 

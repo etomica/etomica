@@ -34,7 +34,7 @@ public class SimCalcSMorse extends Simulation {
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
         super(_space, true);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

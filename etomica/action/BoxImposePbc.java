@@ -1,15 +1,12 @@
 package etomica.action;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.ISpace;
 
 /**
@@ -44,10 +41,11 @@ public class BoxImposePbc extends BoxActionAdapter {
 
 	public void actionPerformed() {
 		IBoundary boundary = box.getBoundary();
-		iterator.reset();
         if (applyToMolecules) {
-            for (IAtom molecule = iterator.nextAtom(); molecule != null;
-                 molecule = iterator.nextAtom()) {
+            IMoleculeList molecules = box.getMoleculeList();
+            
+            for (int i=0; i<molecules.getMoleculeCount(); i++) {
+                IMolecule molecule = molecules.getMolecule(i);
                 IVector shift;
                 if (molecule instanceof IAtomPositioned) {
                     IVector position = ((IAtomPositioned)molecule).getPosition();
@@ -55,7 +53,7 @@ public class BoxImposePbc extends BoxActionAdapter {
                     position.PE(shift);
                 }
                 else {
-                    shift = boundary.centralImage(((IMolecule)molecule).getType().getPositionDefinition().position(molecule));
+                    shift = boundary.centralImage(molecule.getType().getPositionDefinition().position(molecule));
                 }
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
@@ -64,47 +62,15 @@ public class BoxImposePbc extends BoxActionAdapter {
             }
         }
         else {
-            for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
-                 atom = (IAtomPositioned)iterator.nextAtom()) {
+            IAtomList atoms = box.getLeafList();
+            for (int i=0; i<atoms.getAtomCount(); i++) {
+                IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(i);
                 IVector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);
                 }
             }
         }
-	}
-
-	public void setBox(IBox box) {
-		super.setBox(box);
-		iterator.setBox(box);
-        if (space.D() != box.getBoundary().getDimensions().getD()) {
-            throw new IllegalArgumentException("Cannot change dimension of BoxImosePbc");
-        }
-	}
-
-	/**
-	 * Returns the iterator that gives the atoms to which central imaging is
-	 * applied.
-	 * 
-	 * @return AtomIteratorList
-	 */
-	public AtomIterator getIterator() {
-		return iterator;
-	}
-
-	/**
-	 * Sets the iterator the gives the atoms for central imaging. Normally this
-	 * does not need to be set, but if central imaging scheme is desired for
-	 * application at a level other than the molecules or the leaf atoms, or if
-	 * it is to be applied only to a subet of the atoms in a box, this can be
-	 * invoked by setting this iterator appropriately.
-	 * 
-	 * @param iterator
-	 *            The iterator to set
-	 */
-	public void setIterator(AtomIteratorBoxDependent iterator) {
-		this.iterator = iterator;
-		iterator.setBox(box);
 	}
 
 	/**
@@ -131,22 +97,14 @@ public class BoxImposePbc extends BoxActionAdapter {
 	public void setApplyToMolecules(boolean applyToMolecules) {
 		this.applyToMolecules = applyToMolecules;
 		if (applyToMolecules) {
-			iterator = new AtomIteratorAllMolecules();
 	        translator = new AtomActionTranslateBy(space);
-	        moleculeTranslator = new AtomGroupAction(translator);
+	        moleculeTranslator = new MoleculeChildAtomAction(translator);
 		}
-		else {
-			iterator = new AtomIteratorLeafAtoms();
-		}
-        if (box != null) {
-            iterator.setBox(box);
-        }
 	}
 
     private static final long serialVersionUID = 1L;
-	private AtomIteratorBoxDependent iterator;
     private AtomActionTranslateBy translator;
-    private AtomGroupAction moleculeTranslator;
+    private MoleculeChildAtomAction moleculeTranslator;
     private ISpace space;
 
 	private boolean applyToMolecules;

@@ -3,11 +3,11 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.action.AtomAction;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -29,37 +29,24 @@ import etomica.space.ISpace;
 public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
 
     public AtomPositionCOM(ISpace space) {
-        vectorSum = space.makeVector();
         center = space.makeVector();
-        myAction = new MyAction(vectorSum);
-        groupWrapper = new AtomGroupAction(myAction);
     }
     
-    public IVector position(IAtom atom) {
-        vectorSum.E(0);
-        myAction.massSum = 0;
-        groupWrapper.actionPerformed(atom);
-        center.Ea1Tv1(1.0 / myAction.massSum, vectorSum);
+    public IVector position(IMolecule atom) {
+        double massSum = 0;
+        center.E(0.0);
+        IAtomList children = atom.getChildList();
+        int nAtoms = children.getAtomCount();
+        for (int i=0; i<nAtoms; i++) {
+            IAtomLeaf a = children.getAtom(i);
+            double mass = a.getType().getMass();
+            center.PEa1Tv1(mass, ((IAtomPositioned)a).getPosition());
+            massSum += mass;
+        }
+        center.TE(1.0 / massSum);
         return center;
     }
 
-    private static class MyAction implements AtomAction, Serializable {
-        public MyAction(IVector sum) {
-            vectorSum = sum;
-        }
-        public void actionPerformed(IAtom a) {
-            double mass = ((IAtomLeaf)a).getType().getMass();
-            vectorSum.PEa1Tv1(mass, ((IAtomPositioned)a).getPosition());
-            massSum += mass;
-        }
-        private static final long serialVersionUID = 1L;
-        private IVector vectorSum;
-        public double massSum;
-    }
-    
     private static final long serialVersionUID = 1L;
-    private final IVector vectorSum;
     private final IVector center;
-    private AtomGroupAction groupWrapper;
-    private MyAction myAction;
 }

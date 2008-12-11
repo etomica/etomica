@@ -1,6 +1,6 @@
 package etomica.modules.materialfracture;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.data.DataSourceScalar;
 import etomica.units.Null;

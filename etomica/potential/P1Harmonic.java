@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;

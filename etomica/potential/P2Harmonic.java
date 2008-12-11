@@ -40,8 +40,8 @@ public class P2Harmonic extends Potential2SoftSpherical {
 
     public double u(double r2) {
     	if(r0Zero) return 0.5*w*r2;
-    	double dr = Math.sqrt(r2) - r0;
-    	return 0.5*w*dr*dr;
+    	double dx = Math.sqrt(r2) - r0;
+    	return 0.5*w*dx*dx;
     }
 
     /**

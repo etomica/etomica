@@ -9,14 +9,14 @@
  */
 package etomica.config;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomPositionDefinitionSimple;
+import etomica.atom.AtomPositionFirstAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -52,8 +52,8 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             throw new IllegalArgumentException(
             		"Dimension of index iterator and lattice are incompatible");
         }
-        atomActionTranslateTo = new AtomActionTranslateTo(latticeA.getSpace());
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionDefinitionSimple());
+        atomActionTranslateTo = new MoleculeActionTranslateTo(latticeA.getSpace());
+        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionFirstAtom());
     }
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 
@@ -117,10 +117,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-    	IAtomList listMobileA = box.getMoleculeList(speciesAMobile);
-    	IAtomList listMobileB = box.getMoleculeList(speciesBMobile);
-        IAtomList listFixedA = box.getMoleculeList(speciesAFixed);
-        IAtomList listFixedB = box.getMoleculeList(speciesBFixed);
+    	IMoleculeList listMobileA = box.getMoleculeList(speciesAMobile);
+    	IMoleculeList listMobileB = box.getMoleculeList(speciesBMobile);
+        IMoleculeList listFixedA = box.getMoleculeList(speciesAFixed);
+        IMoleculeList listFixedB = box.getMoleculeList(speciesBFixed);
     	
         indexIteratorA.setSize(iteratorDimensionsA);
         indexIteratorB.setSize(iteratorDimensionsB);
@@ -154,11 +154,11 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz, because of 
         	//how setSize method works
             if (ii[2] > ((nCellsAz - 2) - 1)) {
-            	a = (IMolecule)listFixedA.getAtom(iFixedA);
+            	a = listFixedA.getMolecule(iFixedA);
             	iFixedA++;
             }
             else {
-            	a = (IMolecule)listMobileA.getAtom(iMobileA);
+            	a = listMobileA.getMolecule(iMobileA);
             	iMobileA++;
             	//System.out.println(ii[2] + "  |  " + a);
             }
@@ -180,12 +180,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         	int[] ii = indexIteratorB.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz
             if (ii[2] < 2) {
-            	a = (IMolecule)listFixedB.getAtom(iFixedB);
-            	
+            	a = listFixedB.getMolecule(iFixedB);
             }
             else {
-            	a = (IMolecule)listMobileB.getAtom(iMobileB);
-            	
+            	a = listMobileB.getMolecule(iMobileB);
             }
             // initialize coordinates of child atoms
             IConformation config = a.getType().getConformation();
@@ -257,7 +255,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
     private final BravaisLatticeCrystal latticeA, latticeB;
     private ISpecies speciesAFixed, speciesBFixed, speciesAMobile, speciesBMobile;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
-    private final AtomActionTranslateTo atomActionTranslateTo;
+    private final MoleculeActionTranslateTo atomActionTranslateTo;
     int[] iteratorDimensionsA = new int[4];
     int[] iteratorDimensionsB = new int[4];
     //int[] indexIteratorA = new int[4];

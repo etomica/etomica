@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomPair;
 
@@ -20,7 +19,7 @@ import etomica.atom.AtomPair;
  * afterwards.  Default behavior has outer loop atoms as atom0, and inner loop atoms
  * as atom1.
  */
-public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
+public class ApiInnerVariable implements AtomLeafsetIterator, java.io.Serializable {
 
     /**
      * Construct a pair iterator using the given atom iterators. Requires call
@@ -89,7 +88,7 @@ public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
     public int size() {
         int sum = 0;
         aiOuter.reset();
-        for (IAtom a = aiOuter.nextAtom(); a != null; a = aiOuter.nextAtom()) {
+        for (IAtomLeaf a = aiOuter.nextAtom(); a != null; a = aiOuter.nextAtom()) {
             aiInner.setAtom(a);
             sum += aiInner.size();
         }
@@ -101,7 +100,7 @@ public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
      */
     public void reset() {
         aiOuter.reset();
-        IAtom nextOuter = aiOuter.nextAtom();
+        IAtomLeaf nextOuter = aiOuter.nextAtom();
         if (nextOuter == null) {
             aiInner.unset();
             return;
@@ -122,9 +121,9 @@ public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
      * iterate.
      */
     public IAtomList next() {
-        IAtom nextInner = aiInner.nextAtom();
+        IAtomLeaf nextInner = aiInner.nextAtom();
         while (nextInner == null) {
-            IAtom nextOuter = aiOuter.nextAtom();
+            IAtomLeaf nextOuter = aiOuter.nextAtom();
             if (nextOuter == null) {
                 return null;
             }
@@ -154,36 +153,6 @@ public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
         }
         
         return pair;
-    }
-
-    /**
-     * Performs the given action on all pairs returned by this iterator.
-     */
-    public void allAtoms(AtomsetAction act) {
-        aiOuter.reset();
-        for (IAtom outerAtom = aiOuter.nextAtom(); outerAtom != null;
-             outerAtom = aiOuter.nextAtom()) {
-            if (doSwap) {
-                pair.atom1 = outerAtom;
-                aiInner.setAtom(outerAtom);
-                aiInner.reset();
-                for (IAtom innerAtom = aiInner.nextAtom(); innerAtom != null;
-                     innerAtom = aiInner.nextAtom()) {
-                    pair.atom0 = innerAtom;
-                    act.actionPerformed(pair);
-                }
-            }
-            else {
-                pair.atom0 = outerAtom;
-                aiInner.setAtom(pair.atom0);
-                aiInner.reset();
-                for (IAtom innerAtom = aiInner.nextAtom(); innerAtom != null;
-                     innerAtom = aiInner.nextAtom()) {
-                    pair.atom1 = innerAtom;
-                    act.actionPerformed(pair);
-                }
-            }
-        }
     }
 
     public final int nBody() {

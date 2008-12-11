@@ -1,6 +1,5 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
@@ -73,10 +72,10 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
-    public IData getData(IAtom atom) {
+    public IData getData(IAtomLeaf atom) {
         IVector vel = ((IAtomKinetic)atom).getVelocity();
         atomData.x.Ev1v2(vel, vel);
-        atomData.TE(((IAtomLeaf)atom).getType().rm());
+        atomData.TE(atom.getType().rm());
         return atomData;
     }
 

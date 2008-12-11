@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
@@ -38,7 +37,7 @@ public class SimulationVirial extends Simulation {
 	 */
 	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		box = new BoxCluster(this,sampleCluster, space);
@@ -56,7 +55,8 @@ public class SimulationVirial extends Simulation {
 		ai = new ActivityIntegrate(integrator);
 		getController().addAction(ai);
 		
-        if (((IMolecule)box.getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 1) {
+		
+        if (species.getNumLeafAtoms() == 1) {
             mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, space);
         }
         else {

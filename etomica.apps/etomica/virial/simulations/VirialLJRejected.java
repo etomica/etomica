@@ -178,9 +178,9 @@ public class VirialLJRejected {
      * Inner class for parameters
      */
     public static class VirialLJParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 3;
         public double temperature = 1.3;
-        public long numSteps = 1000000;
+        public long numSteps = 10000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
     }

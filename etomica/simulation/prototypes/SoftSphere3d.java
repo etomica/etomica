@@ -46,7 +46,7 @@ public class SoftSphere3d extends Simulation {
 
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
-        potentialMaster = new PotentialMasterMonatomic(this, space);
+        potentialMaster = new PotentialMasterMonatomic(this);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.setTemperature(temperature);
 	    

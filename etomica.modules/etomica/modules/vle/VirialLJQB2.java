@@ -30,7 +30,7 @@ public class VirialLJQB2 {
 		
         Space space = Space3D.getInstance();
         
-        PotentialGroup pTargetGroup = new PotentialGroup(2, space);
+        PotentialGroup pTargetGroup = new PotentialGroup(2);
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         P2LJQ pTarget = new P2LJQ(space);

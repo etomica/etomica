@@ -3,7 +3,6 @@ package etomica.spin;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
 

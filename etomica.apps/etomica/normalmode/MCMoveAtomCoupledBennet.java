@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -14,7 +14,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.Potential2;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -34,7 +33,7 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
     protected final MeterPotentialEnergy energyMeter;
     protected final MeterHarmonicEnergy harmonicEnergyMeter;
     protected final IVectorRandom translationVector;
-    protected IAtom atom0, atom1;
+    protected IAtomLeaf atom0, atom1;
     protected double uOld, uNew;
     protected double gamma_Old, gamma_New;
     protected AtomSource atomSource;

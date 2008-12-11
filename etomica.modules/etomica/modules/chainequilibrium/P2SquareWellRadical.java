@@ -4,7 +4,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
@@ -58,7 +57,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * it has only one unreacted site).
      */
     protected boolean isRadical(IAtomLeaf a) {
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
         for(int i=0; i < nbrs.length-1; ++i){
             if (nbrs[i] == null) {
                 return false;
@@ -68,7 +67,7 @@ public class P2SquareWellRadical extends P2SquareWell {
     }
 
     protected boolean isEmpty(IAtomLeaf a) {
-        return ((IAtom[])agentManager.getAgent(a))[0] == null;
+        return ((IAtomLeaf[])agentManager.getAgent(a))[0] == null;
     }
 
     /**
@@ -116,8 +115,8 @@ public class P2SquareWellRadical extends P2SquareWell {
     protected void disproportionate(IAtomLeaf a, IAtomLeaf b){
         int i = lowest(a);
         int j = lowest(b);
-        ((IAtom[])agentManager.getAgent(a))[i] = a;
-        ((IAtom[])agentManager.getAgent(b))[j] = b;
+        ((IAtomLeaf[])agentManager.getAgent(a))[i] = a;
+        ((IAtomLeaf[])agentManager.getAgent(b))[j] = b;
     }
 
     /**

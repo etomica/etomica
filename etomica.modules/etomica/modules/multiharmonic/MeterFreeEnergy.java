@@ -2,10 +2,9 @@ package etomica.modules.multiharmonic;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
+import etomica.data.IEtomicaDataSource;
 import etomica.potential.P1Harmonic;
 import etomica.units.Energy;
 

@@ -1,11 +1,10 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -25,8 +24,8 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
     }
 
     public void initializeCoordinates(IBox box) {
-        IAtomList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getAtomCount();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -112,7 +111,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            IMolecule a = (IMolecule)moleculeList.getAtom(i);
+            IMolecule a = moleculeList.getMolecule(i);
             int[] ii = indexIterator.next();
             siteCount++;
             // add voidFrac for each /site/ (not molecule)
@@ -126,8 +125,8 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
                 siteCount++;
             }
             // initialize coordinates of child atoms
-            atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
-            IConformation config = ((ISpecies)a.getType()).getConformation();
+            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));

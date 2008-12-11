@@ -2,9 +2,8 @@ package etomica.util.numerical;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -14,7 +13,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
-import etomica.util.numerical.FiniteDifferenceDerivative;
 
 /**
  * Uses finite difference methods to determine the second order differential of the potential (i.e. dF/dx).
@@ -37,11 +35,11 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     PotentialCalculationForceSum force;
     AtomLeafAgentManager atomAgent;
     int gradDcomponent, startAtom, stopAtom;
-    IAtomList movableSet;
+    IMoleculeList movableSet;
     private final ISpace space;
     
     
-    public CalcGradientDifferentiable(IBox aBox, IPotentialMaster aPotentialMaster, IAtomList movableSet, ISpace _space){
+    public CalcGradientDifferentiable(IBox aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
         this.box = aBox;
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;
@@ -72,14 +70,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         for(int i=0; i<position.length/3; i++){
            for(int j=0; j<3; j++){
-        	   ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition().setX(j, position[(3*i)+j]);
+        	   ((IAtomPositioned)movableSet.getMolecule(i).getChildList().getAtom(0)).getPosition().setX(j, position[(3*i)+j]);
            }
         }
         force.reset();
         potentialMaster.calculate(box, allAtoms, force);
         
         //not used
-        return ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent((IAtomLeaf)((IMolecule)movableSet.getAtom(gradDcomponent/3)).getChildList().getAtom(0))).force().x(gradDcomponent%3);
+        return ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().getAtom(0))).force().x(gradDcomponent%3);
 
     }
     
@@ -112,14 +110,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent((IAtomLeaf)((IMolecule)movableSet.getAtom(j/3)).getChildList().getAtom(0))).force.x(j%3);
+            forceRow[j] = -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force.x(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent((IAtomLeaf)((IMolecule)movableSet.getAtom(j/3)).getChildList().getAtom(0))).force().x(j%3);
+            forceRow[j] -= -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force().x(j%3);
             forceRow[j] /= (2.0*newH);
         }
         

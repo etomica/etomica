@@ -2,18 +2,16 @@ package etomica.nbr.list;
 
 import java.io.Serializable;
 
-import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
 import etomica.api.IAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorNonintervalEvent;
@@ -48,7 +46,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
-        neighborCheck = new NeighborCheck(this);
         setPriority(200);
         pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
@@ -58,10 +55,10 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
         agentManager2Body = new AtomLeafAgentManager(this, box);
         agentManager1Body = new AtomLeafAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
-        neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
         boxEvent = new BoxEventNeighborsUpdated(box);
         initialized = false;
         doApplyPBC = true;
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     public void setDoApplyPBC(boolean newDoApplyPBC) {
@@ -93,7 +90,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
-            IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(j);
+            IAtomLeaf atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
 
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(potentials.length);
@@ -146,7 +143,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
      * by given integrator.
      */
     public void updateNbrsIfNeeded() {
-        neighborCheck.reset();
+
         NeighborCriterion[] criteriaArray = potentialMaster.getNeighborCriteria();
         if (oldCriteria != criteriaArray) {
             // if the array of criteria is different, a potential was added or
@@ -158,20 +155,36 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
             criteriaArray[j].setBox(box);
         }
 
-        
+        boolean needUpdate = false;
+        boolean unsafe = false;
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
-            neighborCheck.actionPerformed((IAtomLeaf)leafList.getAtom(j));
+            IAtomLeaf atom = leafList.getAtom(j);
+            final NeighborCriterion[] criterion = potentialMaster.getRangedPotentials(atom.getType()).getCriteria();
+            for (int i = 0; i < criterion.length; i++) {
+                if (criterion[i].needUpdate(atom)) {
+                    needUpdate = true;
+                    if (quiet && (!Debug.ON || !Debug.DEBUG_NOW)) {
+                        break;
+                    }
+                    if (criterion[i].unsafe()) {
+                        if (Debug.ON && Debug.DEBUG_NOW) {
+                            System.out.println("atom " + atom
+                                    + " exceeded safe limit");
+                        }
+                        unsafe = true;
+                    }
+                }
+            }
         }
         
-        if (neighborCheck.needUpdate) {
+        if (needUpdate) {
             if (Debug.ON && Debug.DEBUG_NOW) {
                 System.out.println("Updating neighbors");
             }
-            if (neighborCheck.unsafe && !quiet) {
-                System.err
-                        .println("Atoms exceeded the safe neighbor limit");
+            if (unsafe) {
+                System.err.println("Atoms exceeded the safe neighbor limit");
             }
             if (doApplyPBC) {
                 pbcEnforcer.actionPerformed();
@@ -246,8 +259,26 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
 
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
+        // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            neighborReset.actionPerformed(leafList.getAtom(j));
+            IAtomLeaf atom = leafList.getAtom(j);
+            final NeighborCriterion[] criterion = getCriterion(atom.getType());
+            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
+            for (int i = 0; i < criterion.length; i++) {
+                criterion[i].reset(atom);
+            }
+
+            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
+            IPotential[] potentials = potentialArray.getPotentials();
+            NeighborCriterion[] criteria = potentialArray.getCriteria();
+
+            for (int i = 0; i < potentials.length; i++) {
+                if (potentials[i].nBody() != 1) {
+                    continue;
+                }
+                atomSetSinglet.atom = atom;
+                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+            }
         }
         
         NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
@@ -259,8 +290,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
         for (IAtomList pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
-            IAtomLeaf atom0 = (IAtomLeaf)pair.getAtom(0);
-            IAtomLeaf atom1 = (IAtomLeaf)pair.getAtom(1);
+            IAtomLeaf atom0 = pair.getAtom(0);
+            IAtomLeaf atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -300,8 +331,8 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         cell1ANbrIterator.reset();
         for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
-            IAtomLeaf atom0 = (IAtomLeaf)pair.getAtom(0);
-            IAtomLeaf atom1 = (IAtomLeaf)pair.getAtom(1);
+            IAtomLeaf atom0 = pair.getAtom(0);
+            IAtomLeaf atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -352,16 +383,16 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         this.quiet = quiet;
     }
     
-    public IAtomList[] getUpList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getUpList();
+    public IAtomList[] getUpList(IAtomLeaf atom) {
+        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
-    public IAtomList[] getDownList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).getDownList();
+    public IAtomList[] getDownList(IAtomLeaf atom) {
+        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 
-    public AtomPotentialList getPotential1BodyList(IAtom atom) {
-        return (AtomPotentialList)agentManager1Body.getAgent((IAtomLeaf)atom);
+    public AtomPotentialList getPotential1BodyList(IAtomLeaf atom) {
+        return (AtomPotentialList)agentManager1Body.getAgent(atom);
     }
     
     public void dispose() {
@@ -372,8 +403,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     private static final long serialVersionUID = 1L;
     private int updateInterval;
     private int iieCount;
-    private final NeighborCheck neighborCheck;
-    private final NeighborReset neighborReset;
+    protected final AtomSetSinglet atomSetSinglet;
     private final ApiAACell cellNbrIterator;
     private final Api1ACell cell1ANbrIterator;
     protected final PotentialMasterList potentialMaster;
@@ -388,90 +418,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     protected boolean initialized;
     protected boolean doApplyPBC;
 
-    /**
-     * Atom action class that checks if any criteria indicate that the given
-     * atom needs to update its neighbor list.
-     */
-    public static class NeighborCheck implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-        protected boolean needUpdate = false, unsafe = false;
-        private NeighborListManager neighborListManager;
-
-        public NeighborCheck(NeighborListManager manager) {
-            neighborListManager = manager;
-        }
-        
-        public void actionPerformed(IAtomLeaf atom) {
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());
-            for (int i = 0; i < criterion.length; i++) {
-                if (criterion[i].needUpdate(atom)) {
-                    needUpdate = true;
-                    if (criterion[i].unsafe()) {
-                        if (Debug.ON && Debug.DEBUG_NOW) {
-                            System.out.println("atom " + atom
-                                    + " exceeded safe limit");
-                        }
-                        unsafe = true;
-                    }
-                }
-            }
-        }
-
-        /**
-         * Sets class to condition that indicates that no atoms need to have
-         * their neighbor list updated.
-         */
-        public void reset() {
-            needUpdate = false;
-            unsafe = false;
-        }
-
-    }
-
-    /**
-     * Atom action class that clears neighbor list of given atom and loops
-     * through all neighbor criteria applying to atom (as given by its type),
-     * and resets the criteria as it applies to the atom (e.g., sets its
-     * previous-position vector to its current position).
-     */
-    private static class NeighborReset implements AtomAction, Serializable {
-        private static final long serialVersionUID = 1L;
-
-        public NeighborReset(NeighborListManager manager, AtomLeafAgentManager agentManager2Body,
-                AtomLeafAgentManager agentManager1Body) {
-            neighborListManager = manager;
-            this.agentManager2Body = agentManager2Body;
-            this.agentManager1Body = agentManager1Body;
-            atomSetSinglet = new AtomSetSinglet();
-        }
-        
-        public void actionPerformed(IAtom atom) {
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(((IAtomLeaf)atom).getType());
-            ((AtomNeighborLists)agentManager2Body.getAgent((IAtomLeaf)atom)).clearNbrs();
-            for (int i = 0; i < criterion.length; i++) {
-                criterion[i].reset(atom);
-            }
-
-            PotentialArray potentialArray = neighborListManager.potentialMaster.getRangedPotentials(((IAtomLeaf)atom).getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
-
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() != 1) {
-                    continue;
-                }
-                atomSetSinglet.atom = atom;
-                ((AtomPotentialList)agentManager1Body.getAgent((IAtomLeaf)atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
-            }
-        }
-        
-        private NeighborListManager neighborListManager;
-        private AtomLeafAgentManager agentManager2Body;
-        private AtomLeafAgentManager agentManager1Body;
-        protected final AtomSetSinglet atomSetSinglet;
-    }
-    
     public Class getAgentClass() {
         return AtomNeighborLists.class;
     }
@@ -498,7 +444,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
-                IAtomLeaf jAtom = (IAtomLeaf)upDnLists[i].getAtom(j);
+                IAtomLeaf jAtom = upDnLists[i].getAtom(j);
                 AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jDnLists = jNbrLists.downList;
                 for (int k=0; k<jDnLists.length; k++) {
@@ -513,7 +459,7 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
-                IAtomLeaf jAtom = (IAtomLeaf)upDnLists[i].getAtom(j);
+                IAtomLeaf jAtom = upDnLists[i].getAtom(j);
                 AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jUpLists = jNbrLists.upList;
                 for (int k=0; k<jUpLists.length; k++) {

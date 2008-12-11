@@ -18,8 +18,8 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDoubleArray;
@@ -65,7 +65,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
     public SimDSBenOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
 
-        potentialMasterTarget = new PotentialMasterMonatomic(this, space);
+        potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IEtomicaDataSource[2];
@@ -221,16 +221,16 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
             if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getAtomCount()==32){
+            	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
             		
             		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 500);
             	
-            	} else if (boxTarget.getMoleculeList().getAtomCount()==108){
+            	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
                 
             		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1000);
             	} else 
             		
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getAtomCount());
+            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {

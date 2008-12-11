@@ -41,7 +41,7 @@ public class LjMd3D extends Simulation {
 
     public LjMd3D() {
         super(Space3D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);

@@ -37,7 +37,7 @@ public class Multiharmonic extends Simulation {
 
     public Multiharmonic() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double x0 = 1;
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

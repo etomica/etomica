@@ -1,10 +1,10 @@
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -120,9 +120,9 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
         int crossings = 0;
         double boxLength = box.getBoundary().getDimensions().x(dim);
         for (int i=0; i<species.length; i++) {
-            IAtomList molecules = box.getMoleculeList(species[i]);
-            for (int j=0; j<molecules.getAtomCount(); j++) {
-                IMolecule atom = (IMolecule)molecules.getAtom(j);
+            IMoleculeList molecules = box.getMoleculeList(species[i]);
+            for (int j=0; j<molecules.getMoleculeCount(); j++) {
+                IMolecule atom = molecules.getMolecule(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
                 IVector newPosition = atom.getType().getPositionDefinition().position(atom);
@@ -169,11 +169,11 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
     }
 
     public Object makeAgent(IMolecule a) {
-        ISpecies thisSpecies = (ISpecies)a.getType();
+        ISpecies thisSpecies = a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
                 IVector vec = space.makeVector();
-                vec.E(((ISpecies)a.getType()).getPositionDefinition().position(a));
+                vec.E(a.getType().getPositionDefinition().position(a));
                 return vec;
             }
         }

@@ -219,10 +219,10 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     		this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
     		this.dW = dW;
     		singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
-  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getAtomCount();
+  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getMoleculeCount();
     		tag = new DataTag();
     		tensorDoubleArray = new DataDoubleArray(new int[]{singleMolDim, singleMolDim});
-    		dataInfo = new DataDoubleArray.DataInfoDoubleArray("",Dimension.MIXED.MIXED, new int[]{singleMolDim, singleMolDim});
+    		dataInfo = new DataDoubleArray.DataInfoDoubleArray("",Dimension.MIXED, new int[]{singleMolDim, singleMolDim});
   	
     	}
     	

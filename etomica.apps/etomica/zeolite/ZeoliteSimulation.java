@@ -2,9 +2,9 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -157,9 +157,9 @@ public class ZeoliteSimulation extends Simulation {
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
         
         
-        potentialMaster.addPotential(MM,new ISpecies[]{species[2],species[2]});
-        potentialMaster.addPotential(MO,new ISpecies[]{species[0],species[2]});
-        potentialMaster.addPotential(potentialMS,new ISpecies[]{species[1],species[2]});
+        potentialMaster.addPotential(MM,new IAtomTypeLeaf[]{species[2].getLeafType(),species[2].getLeafType()});
+        potentialMaster.addPotential(MO,new IAtomTypeLeaf[]{species[0].getLeafType(),species[2].getLeafType()});
+        potentialMaster.addPotential(potentialMS,new IAtomTypeLeaf[]{species[1].getLeafType(),species[2].getLeafType()});
         
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
@@ -178,8 +178,7 @@ public class ZeoliteSimulation extends Simulation {
         //      Adding coordinate writer by Mike Sellars
      
         filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
-        sp = new ISpecies[1];
-        sp[0] = species[2];
+        sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
         coordWriter.setBox(this.box);
@@ -197,10 +196,10 @@ public class ZeoliteSimulation extends Simulation {
     String getFileName(){
     	return filename;
     }
-    ISpecies[] getSpeciesRMS(){
+    SpeciesSpheresMono getSpeciesRMS(){
     	return sp;
     }
-    private ISpecies[] sp;
+    private SpeciesSpheresMono sp;
     private String filename;
     public static void Converter(String inputFile) {
 		// TODO Auto-generated method stub

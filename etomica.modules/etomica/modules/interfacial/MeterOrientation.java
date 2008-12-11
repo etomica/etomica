@@ -1,14 +1,13 @@
 package etomica.modules.interfacial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.data.DataSourceAtomic;
+import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
@@ -21,7 +20,7 @@ import etomica.units.Angle;
  * returned is cos(theta), where theta is the angle the dimer makes with the
  * x axis.
  */
-public class MeterOrientation implements DataSourceAtomic {
+public class MeterOrientation implements DataSourceMolecular {
     
     public MeterOrientation(ISpace space) {
         dataInfo = new DataInfoDouble("orientation", Angle.DIMENSION);
@@ -38,8 +37,8 @@ public class MeterOrientation implements DataSourceAtomic {
         transformer = newBox.getBoundary();
     }
     
-    public IData getData(IAtom atom) {
-        IAtomList children = ((IMolecule)atom).getChildList();
+    public IData getData(IMolecule atom) {
+        IAtomList children = atom.getChildList();
         dr.Ev1Mv2(((IAtomPositioned)children.getAtom(children.getAtomCount()-1)).getPosition(),
                   ((IAtomPositioned)children.getAtom(0)).getPosition());
         transformer.nearestImage(dr);
@@ -47,7 +46,7 @@ public class MeterOrientation implements DataSourceAtomic {
         return data;
     }
     
-    public IEtomicaDataInfo getAtomDataInfo() {
+    public IEtomicaDataInfo getMoleculeDataInfo() {
         return dataInfo;
     }
     

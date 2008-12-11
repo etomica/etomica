@@ -1,13 +1,8 @@
-/**
- * 
- */
 package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 
 /**
@@ -19,13 +14,9 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
     // prevent instantiation.  Consumers should use the INSTANCE field.
     private AtomIteratorNull() {}
     
-    public void allAtoms(AtomsetAction action) {}
-
-    public void allAtoms(AtomAction action) {}
-
     public IAtomList next() {return null;}
 
-    public IAtom nextAtom() {return null;}
+    public IAtomLeaf nextAtom() {return null;}
 
     public void reset() {}
 

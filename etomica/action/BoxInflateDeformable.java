@@ -1,7 +1,8 @@
 package etomica.action;
 
-import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
@@ -46,14 +47,14 @@ public class BoxInflateDeformable extends BoxInflate{
          * into coordinates based on the edge vectors, scale, 
          * convert back, and scale the molecule
          */
-        moleculeIterator.reset();
         IVector translationVector = translator.getTranslationVector();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1.0);
-                
-        for(IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
-                molecule = moleculeIterator.nextAtom()){
+
+        IMoleculeList molecules = box.getMoleculeList();
+        for(int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
             translationVector.E(moleculeCenter.position(molecule));
             tempTensInv.transform(translationVector);
             translationVector.TE(scaleVector);

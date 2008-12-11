@@ -1,14 +1,6 @@
 package etomica.dimer;
 
-import etomica.action.XYZWriter;
-import etomica.api.IAtom;
-import etomica.api.IAtomLeaf;
 import etomica.api.IVector;
-import etomica.atom.AtomFilterTypeInstance;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorFiltered;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 

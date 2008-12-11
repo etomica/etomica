@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
+import etomica.api.IMolecule;
 import etomica.api.IPotential;
 
 /**
@@ -14,6 +15,11 @@ public interface IPotential0Lrc extends IPotential {
      * Informs the potential of a target atom.  Null target atom indicates no
      * target atom.
      */
-    public void setTargetAtoms(IAtom targetAtom);
+    public void setTargetAtom(IAtomLeaf targetAtom);
 
+    /**
+     * Informs the potential of a target atom.  Null target atom indicates no
+     * target atom.
+     */
+    public void setTargetMolecule(IMolecule targetMolecule);
 }

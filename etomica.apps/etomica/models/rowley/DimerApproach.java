@@ -1,6 +1,7 @@
 package etomica.models.rowley;
 
 import java.awt.Color;
+
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
@@ -88,7 +89,7 @@ public class DimerApproach extends Simulation {
 		// The Species & Potential
 		// *************************
 		
-		PotentialGroup U_a_b = new PotentialGroup(2, space);
+		PotentialGroup U_a_b = new PotentialGroup(2);
 		if (ethanol) {
 			species = new SpeciesEthanol(space, pointCharges);
 			speciesEthanol = (SpeciesEthanol) species;
@@ -104,7 +105,7 @@ public class DimerApproach extends Simulation {
 		getSpeciesManager().addSpecies(species);
 		box.setNMolecules(species, 2); // 2 molecules in box...
 		U_a_b.setBox(box);
-		potentialMaster = new PotentialMaster(space);
+		potentialMaster = new PotentialMaster();
 		potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
 		
 		// *********************

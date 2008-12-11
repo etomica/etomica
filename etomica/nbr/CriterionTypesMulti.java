@@ -3,7 +3,6 @@ package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 
 /**
@@ -30,7 +29,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;
             for (int j=0; j<nAtoms; j++) {
-                if (((IAtomLeaf)atoms.getAtom(j)).getType() == types[i]) {
+                if (atoms.getAtom(j).getType() == types[i]) {
                     accepted = true;
                 }
             }

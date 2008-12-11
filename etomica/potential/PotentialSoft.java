@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.space.Tensor;
 
@@ -11,7 +11,7 @@ import etomica.space.Tensor;
  *
  * @author David Kofke
  */
-public interface PotentialSoft extends IPotential {
+public interface PotentialSoft extends IPotentialAtomic {
 
     public double virial(IAtomList atoms);
 

@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.ISpace;

@@ -1,12 +1,16 @@
 package etomica.potential;
 
+import java.util.ArrayList;
+
 import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.atom.iterator.AtomsetIteratorPDT;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
+import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.space.ISpace;
 
 /**
  * Collects potentials used for long-range correction.
@@ -18,10 +22,13 @@ import etomica.space.ISpace;
  * @author David Kofke
  */
  
-public class PotentialMasterLrc extends PotentialMaster {
+public class PotentialMasterLrc {
 
-    protected PotentialMasterLrc(ISpace space) {
-        super(space);
+    protected PotentialMasterLrc() {
+        atomicPotentials = new ArrayList<IPotentialAtomic>();
+        molecularPotentials = new ArrayList<IPotentialMolecular>();
+        list0 = new MoleculeArrayList(0);
+        listLeaf0 = new AtomArrayList(0);
     }
     
     /**
@@ -33,26 +40,50 @@ public class PotentialMasterLrc extends PotentialMaster {
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if(!link.enabled) continue;
-            final IPotential potential = link.potential;
-            final AtomsetIteratorPDT atomIterator = link.iterator;
-            atomIterator.setBox(box);
-            potential.setBox(box);
-            atomIterator.setTarget(targetAtom);
-            ((IPotential0Lrc)potential).setTargetAtoms(targetAtom);
-            if (potential instanceof PotentialGroup) {
-                ((PotentialGroup)potential).calculate(atomIterator, id, pc);
-            }
-            else {
-                atomIterator.reset();
-                for (IAtomList atoms = atomIterator.next(); atoms != null;
-                     atoms = atomIterator.next()) {
-                    pc.doCalculation(atoms, potential);
-                }
+        if (pc instanceof PotentialCalculationMolecular && !(targetAtom instanceof IAtomLeaf)) {
+            int numMolecularPotentials = molecularPotentials.size();
+            for (int i=0; i<numMolecularPotentials; i++) {
+                final IPotentialMolecular potential = molecularPotentials.get(i);
+                potential.setBox(box);
+                ((IPotential0MoleculeLrc)potential).setTargetMolecule((IMolecule)targetAtom);
+                ((PotentialCalculationMolecular)pc).doCalculation(list0, potential);
             }
         }
+        int numAtomicPotentials = atomicPotentials.size();
+        for (int i=0; i<numAtomicPotentials; i++) {
+            final IPotentialAtomic potential = atomicPotentials.get(i);
+            potential.setBox(box);
+            if (targetAtom instanceof IMolecule) {
+                ((IPotential0Lrc)potential).setTargetMolecule((IMolecule)targetAtom);
+            }
+            else {
+                ((IPotential0Lrc)potential).setTargetAtom((IAtomLeaf)targetAtom);
+            }
+            pc.doCalculation(listLeaf0, potential);
+        }
     }
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+    public void addPotential(IPotentialMolecular potential) {
+        molecularPotentials.add(potential);
+    }
+
+    public void addPotential(IPotentialAtomic potential) {
+        atomicPotentials.add(potential);
+    }
+
+    protected final ArrayList<IPotentialMolecular> molecularPotentials;
+    protected final ArrayList<IPotentialAtomic> atomicPotentials;
+    protected boolean enabled = true;
+    protected final MoleculeArrayList list0;
+    protected final AtomArrayList listLeaf0;
     
     private static final long serialVersionUID = 1L;
 }

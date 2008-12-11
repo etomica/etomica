@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.atom.AtomSetSinglet;
@@ -152,7 +152,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double a = -force/wallMass;   // atom acceleration - wall acceleration
         dv += a*falseTime;
         dr += 0.5*a*falseTime*falseTime;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)atom))) {
             System.out.println(dr+" "+dv+" "+falseTime+" "+atom);
             System.out.println(atom.getVelocity().x(wallD));
             System.out.println(atom.getPosition().x(wallD));
@@ -189,7 +189,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             }
         }
         if (ignoreOverlap && t<0.0) t = 0.0;
-        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom)))) {
+        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)atom)))) {
             System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.getPosition().x(wallD)+atom.getVelocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }

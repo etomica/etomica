@@ -294,7 +294,7 @@ public class LjmdGraphic extends SimulationGraphic {
             }
             
             ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
-            int oldN = sim.box.getMoleculeList().getAtomCount();
+            int oldN = sim.box.getMoleculeList().getMoleculeCount();
         });
 
         //************* Lay out components ****************//

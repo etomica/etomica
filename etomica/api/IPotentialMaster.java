@@ -44,7 +44,7 @@ public interface IPotentialMaster {
 	 * intra-species potential, defining the iteractions between molecules of the
 	 * same species).
 	 */
-	public void addPotential(IPotential potential, ISpecies[] species);
+	public void addPotential(IPotentialMolecular potential, ISpecies[] species);
 
 	/**
 	 * Indicates to the PotentialMaster that the given potential should apply to 
@@ -58,7 +58,7 @@ public interface IPotentialMaster {
 	 * method of AtomType) before doing anything else.
 	 * 
 	 */
-	public void addPotential(IPotential potential,
+	public void addPotential(IPotentialAtomic potential,
 			IAtomTypeLeaf[] atomTypes);
 
 	/**
@@ -68,7 +68,7 @@ public interface IPotentialMaster {
 	 * This method is called by PotentialGroup and should not be called in
 	 * other circumstances.
 	 */
-	public void potentialAddedNotify(IPotential subPotential,
+	public void potentialAddedNotify(IPotentialAtomic subPotential,
 			PotentialGroup pGroup);
 
 	/**
@@ -81,7 +81,13 @@ public interface IPotentialMaster {
 	 * Removes given potential from the group.  No error is generated if
 	 * potential is not in group.
 	 */
-	public void removePotential(IPotential potential);
+	public void removePotential(IPotentialMolecular potential);
+
+    /**
+     * Removes given potential from the group.  No error is generated if
+     * potential is not in group.
+     */
+    public void removePotential(IPotentialAtomic potential);
 
 	/**
 	 * @return Returns enabled flag.
@@ -98,17 +104,29 @@ public interface IPotentialMaster {
 	 * Indicates that the specified potential should not contribute to potential
 	 * calculations. If potential is not in this group, no action is taken.
 	 */
-	public void setEnabled(IPotential potential, boolean enabled);
+	public void setEnabled(IPotentialMolecular potential, boolean enabled);
 
 	/**
 	 * Returns true if the potential is in this group and has not been disabled
 	 * via a previous call to setEnabled; returns false otherwise.
 	 */
-	public abstract boolean isEnabled(IPotential potential);
+	public abstract boolean isEnabled(IPotentialMolecular potential);
+
+    /**
+     * Indicates that the specified potential should not contribute to potential
+     * calculations. If potential is not in this group, no action is taken.
+     */
+    public void setEnabled(IPotentialAtomic potential, boolean enabled);
+
+    /**
+     * Returns true if the potential is in this group and has not been disabled
+     * via a previous call to setEnabled; returns false otherwise.
+     */
+    public abstract boolean isEnabled(IPotentialAtomic potential);
 
 	/**
 	 * Returns an array containing all molecular Potentials.
 	 */
-	public IPotential[] getPotentials();
+	public IPotentialMolecular[] getPotentials();
 
 }

@@ -1,10 +1,10 @@
 package etomica.paracetamol;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeActionTranslateTo;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -66,8 +66,8 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         this.space = _space;
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
-        atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
+        atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
+        atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
     /**
@@ -75,8 +75,8 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getAtomCount();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -154,8 +154,8 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
     	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
 
-    	for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
-    	    IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+    	for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
+    	    IMolecule molecule = moleculeList.getMolecule(iMolecule);
     		    
             int[] ii = indexIterator.next();
             
@@ -184,7 +184,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
             	break;
             }
       
-      	  ((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
+      	  ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(t);
           atomGroupAction.actionPerformed(molecule);
  
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
@@ -250,8 +250,8 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
     protected boolean rescalingToFitVolume = true;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
-    protected final AtomGroupAction atomGroupAction;
+    protected final MoleculeActionTranslateTo atomActionTranslateTo;
+    protected final MoleculeChildAtomAction atomGroupAction;
     protected MyLattice myLat;
     private static final long serialVersionUID = 2L;
     

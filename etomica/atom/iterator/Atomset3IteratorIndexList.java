@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomsetArray;
 
 /**
@@ -14,7 +14,7 @@ import etomica.atom.AtomsetArray;
  */
 
 
-public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent, AtomsetIterator {
+public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent {
 
 	/**
      * Constructs iterator without defining set of atoms.
@@ -29,7 +29,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
     	return 1;
     }
     
-    public boolean haveTarget(IAtom a){
+    public boolean haveTarget(IAtomLeaf a){
         if (parentGroup == null) {
             return false;
         }
@@ -49,60 +49,24 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
     	return false;
     }
     
-    public void setTarget(IAtom a){
+    public void setTarget(IAtomLeaf a){
     	target = a;
     	unset();
     }
                                 
 
-	public void setBasis(IAtomList parent) {
+	public void setBasis(IMoleculeList parent) {
 	    if (parent == null) {
 	        parentGroup = null;
 	    }
 	    else {
-	        parentGroup = (IMolecule)parent.getAtom(0);
+	        parentGroup = parent.getMolecule(0);
 	    }
 		unset();
 	}
 
     public int size() {
         return index.length;
-    }
-
-    /**
-     * Performs the given action on an AtomPair containing the three atoms last
-     * identified via setSet. Does nothing if either such atom is null.
-     * Unaffected by and has no effect on the reset/unset state.
-     */
-    public void allAtoms(AtomsetAction action) {
-    	if (parentGroup == null) {
-    	    return;
-    	}
-    	
-    	for(int i =0; i < index.length; i++){   //index.length = number of sets
-    		
-    		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().getAtom(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().getAtom(index[i][2]);
-    		action.actionPerformed(atomset);
-    	}
-    }
-
-    /**
-     * Returns true if the given atom set has the same two atoms passed to the
-     * last call to setAtom(Atom).  Returns false if any relevant atoms are null.
-     */
-    public boolean contains(IAtomList a) { //T: a equals the set
-    	
-    	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().getAtom(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().getAtom(index[i][2]);
-    		if (atomset.equals(a)){
-    			return true;
-    		}
-    	}
-    	return false;
     }
 
     /**
@@ -178,10 +142,10 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent,
     private int [][]index;
     private int cursor;
     private IMolecule parentGroup;
-    private IAtom target;
+    private IAtomLeaf target;
     
     private AtomsetArray atomset;
-    private IAtom[] atoms;
+    private IAtomLeaf[] atoms;
     
 	private static final long serialVersionUID = 1L;
 

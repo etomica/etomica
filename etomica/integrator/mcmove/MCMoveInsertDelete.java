@@ -1,17 +1,17 @@
 package etomica.integrator.mcmove;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSetSinglet;
+import etomica.atom.MoleculeArrayList;
+import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -31,14 +31,14 @@ public class MCMoveInsertDelete extends MCMoveBox {
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
 	protected ISpecies species;
-	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+	protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
 	protected IMolecule testMolecule;
 	protected double uOld;
 	protected double uNew = Double.NaN;
 	protected boolean insert;
-	protected final AtomArrayList reservoir;
-    protected final AtomActionTranslateTo atomTranslator;
-    protected IAtomList moleculeList;
+	protected final MoleculeArrayList reservoir;
+    protected final MoleculeActionTranslateTo atomTranslator;
+    protected IMoleculeList moleculeList;
     protected IRandom random;
 
     public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
@@ -47,8 +47,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
         energyMeter.setIncludeLrc(true);
-        atomTranslator = new AtomActionTranslateTo(_space);
-        reservoir = new AtomArrayList();
+        atomTranslator = new MoleculeActionTranslateTo(_space);
+        reservoir = new MoleculeArrayList();
         this.random = random;
     }
     
@@ -78,7 +78,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
+            if(!reservoir.isEmpty()) testMolecule = (IMolecule)reservoir.remove(reservoir.getMoleculeCount()-1);
             else testMolecule = species.makeMolecule();
             box.addMolecule(testMolecule);
 
@@ -89,7 +89,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
+            testMolecule = moleculeList.getMolecule(random.nextInt(moleculeList.getMoleculeCount()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();
@@ -114,7 +114,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
     
     public void acceptNotify() {
-        if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new AtomSetSinglet(testMolecule))) System.out.println("accepted insertion of "+testMolecule);
+        if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new MoleculeSetSinglet(testMolecule))) System.out.println("accepted insertion of "+testMolecule);
         if(!insert) {
             // accepted deletion - remove from box and add to reservoir
             box.removeMolecule(testMolecule);
@@ -141,7 +141,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
      */
     public final AtomIterator affectedAtoms() {
         if(testMolecule == null) return AtomIteratorNull.INSTANCE;
-        affectedAtomIterator.setAtom(testMolecule);
+        affectedAtomIterator.setList(testMolecule.getChildList());
         return affectedAtomIterator;
     }
 

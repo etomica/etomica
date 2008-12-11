@@ -1,11 +1,11 @@
 package etomica.spin;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -84,7 +84,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @see etomica.integrator.MCMove#affectedAtoms(etomica.Box)
      */
     public AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom(atom);
+        affectedAtomIterator.setAtom((IAtomLeaf)atom);
         return affectedAtomIterator;
     }
 

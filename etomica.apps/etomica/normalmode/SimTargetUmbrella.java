@@ -71,7 +71,7 @@ public class SimTargetUmbrella extends Simulation {
         
         int D = space.D();
         
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this,space);
+        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
        
         species = new SpeciesSpheresMono(this, space);

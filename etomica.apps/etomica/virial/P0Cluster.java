@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
-
-import etomica.potential.Potential0;
+import etomica.api.IMoleculeList;
+import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
 /**
@@ -12,7 +11,7 @@ import etomica.space.ISpace;
  * Pair potential given according to the Mayer bonds in a cluster integral.
  * Does not require that the value of the cluster is non-negative.
  */
-public class P0Cluster extends Potential0 {
+public class P0Cluster extends PotentialMolecular {
 
     private static final long serialVersionUID = 1L;
     private BoxCluster boxCluster;
@@ -20,11 +19,11 @@ public class P0Cluster extends Potential0 {
 	 * Constructor for P0Cluster.
 	 */
 	public P0Cluster(ISpace space) {
-		super(space);
+		super(0,space);
 	}
 	
     // let's all pretend that the cluster weight is the energy.
-	public double energy(IAtomList atoms) {
+	public double energy(IMoleculeList atoms) {
         return 0;
 	}
 
@@ -34,5 +33,9 @@ public class P0Cluster extends Potential0 {
 
     public void setBox(IBox box) {
     	boxCluster = (BoxCluster)box;
+    }
+
+    public double getRange() {
+        return 0;
     }
 }

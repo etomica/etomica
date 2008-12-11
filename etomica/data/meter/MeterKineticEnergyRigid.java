@@ -6,6 +6,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.IAtomOrientedKinetic;
@@ -53,14 +54,14 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         double ke = 0.0;
         for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            IAtomList moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
-            if (moleculeList.getAtomCount() == 0) {
+            IMoleculeList moleculeList = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
+            if (moleculeList.getMoleculeCount() == 0) {
                 continue;
             }
-            IMolecule molecule0 = (IMolecule)moleculeList.getAtom(0);
+            IMolecule molecule0 = moleculeList.getMolecule(0);
             if (molecule0 instanceof MoleculeOrientedDynamic) {
-                for (int j=0; j<moleculeList.getAtomCount(); j++) {
-                    IAtomOrientedKinetic moleculeOrientedKinetic = (IAtomOrientedKinetic)moleculeList.getAtom(j);
+                for (int j=0; j<moleculeList.getMoleculeCount(); j++) {
+                    IAtomOrientedKinetic moleculeOrientedKinetic = (IAtomOrientedKinetic)moleculeList.getMolecule(j);
                     double mass = ((ISpeciesOriented)molecule0.getType()).getMass();
                     if (Double.isInfinite(mass)) {
                         continue;
@@ -79,8 +80,8 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                 }
             }
             else {
-                for (int j=0; j<moleculeList.getAtomCount(); j++) {
-                    IMolecule molecule = (IMolecule)moleculeList.getAtom(j);
+                for (int j=0; j<moleculeList.getMoleculeCount(); j++) {
+                    IMolecule molecule = moleculeList.getMolecule(j);
                     IAtomList children = molecule.getChildList();
                     for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);

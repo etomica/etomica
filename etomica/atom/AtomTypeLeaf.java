@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Element;
@@ -18,15 +17,7 @@ import etomica.units.Mass;
 public class AtomTypeLeaf extends AtomType implements IAtomTypeLeaf {
 
     public AtomTypeLeaf(Element element) {
-        this(element, new AtomPositionDefinitionSimple());
-    }
-    
-    /**
-     * Invokes parent constructor with and sets the mass to the given value.
-     */
-    public AtomTypeLeaf(Element element,
-            IAtomPositionDefinition positionDefinition) {
-        super(positionDefinition);
+        super();
         this.element = element;
         index = -1;
     }

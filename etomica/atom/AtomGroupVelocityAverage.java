@@ -2,11 +2,10 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomList;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -22,37 +21,26 @@ public class AtomGroupVelocityAverage implements Serializable {
 
     public AtomGroupVelocityAverage(ISpace space) {
         vectorSum = space.makeVector();
-        myAction = new MyAction(vectorSum);
-        groupWrapper = new AtomGroupAction(myAction);
     }
     
     /**
      * Returns the mass-average velocity of the given Atom and 
      * all its children.
      */
-    public IVector getVelocityAverage(IAtom a) {
+    public IVector getVelocityAverage(IMolecule molecule) {
         vectorSum.E(0.0);
-        myAction.massSum = 0;
-        groupWrapper.actionPerformed(a);
-        vectorSum.TE(1.0 / myAction.massSum);
-        return vectorSum;
-    }
-
-    private static class MyAction implements AtomAction {
-        public MyAction(IVector sum) {
-            vectorSum = sum;
-        }
-        public void actionPerformed(IAtom a) {
+        double massSum = 0;
+        IAtomList children = molecule.getChildList();
+        int nAtoms = children.getAtomCount();
+        for (int i=0; i<nAtoms; i++) {
+            IAtomLeaf a = children.getAtom(i);
             vectorSum.PE(((IAtomKinetic)a).getVelocity());
-            massSum += ((IAtomLeaf)a).getType().getMass();
+            massSum += a.getType().getMass();
         }
-        private static final long serialVersionUID = 1L;
-        private final IVector vectorSum;
-        public double massSum;
+        vectorSum.TE(1.0 / massSum);
+        return vectorSum;
     }
 
     private static final long serialVersionUID = 1L;
     private final IVector vectorSum;
-    private MyAction myAction;
-    private AtomGroupAction groupWrapper;
 }

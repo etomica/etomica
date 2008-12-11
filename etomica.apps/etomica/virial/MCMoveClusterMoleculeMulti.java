@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -35,15 +35,15 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      */
     public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
             IRandom random, ISpace _space, double stepSize) {
-        super(potentialMaster,random, _space, stepSize,Double.POSITIVE_INFINITY,false);
+        super(potentialMaster,random, _space, stepSize,Double.POSITIVE_INFINITY);
         weightMeter = new MeterClusterWeight(potential);
     }
 
     public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
-        translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
-        for (int i=0; i<box.getMoleculeList().getAtomCount()-1; i++) {
+        translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()-1];
+        for (int i=0; i<box.getMoleculeList().getMoleculeCount()-1; i++) {
             translationVectors[i] = (IVectorRandom)space.makeVector();
         }
     }
@@ -51,23 +51,23 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
-        IAtomList moleculeList = box.getMoleculeList();
-        for(int i=1; i<moleculeList.getAtomCount(); i++) {
+        IMoleculeList moleculeList = box.getMoleculeList();
+        for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
             groupTranslationVector.E(translationVectors[i-1]);
-            moveMoleculeAction.actionPerformed(moleculeList.getAtom(i));
+            moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
         }
         ((BoxCluster)box).trialNotify();
         return true;
     }
 	
     public void rejectNotify() {
-        IAtomList moleculeList = box.getMoleculeList();
-        for(int i=1; i<moleculeList.getAtomCount(); i++) {
+        IMoleculeList moleculeList = box.getMoleculeList();
+        for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
             groupTranslationVector.E(translationVectors[i-1]);
             groupTranslationVector.TE(-1);
-            moveMoleculeAction.actionPerformed(moleculeList.getAtom(i));
+            moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
         }
         ((BoxCluster)box).rejectNotify();
         if (weightMeter.getDataAsScalar() == 0) {

@@ -4,7 +4,7 @@
  */
 package etomica.nbr;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 
@@ -49,7 +49,7 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
      * 
      * @return true if the atom's list should be updated.
      */
-    public boolean needUpdate(IAtom atom) {
+    public boolean needUpdate(IAtomLeaf atom) {
         return subCriterion.needUpdate(atom);
     }
 
@@ -77,7 +77,7 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
      * been updated, and that properties (e.g., record of atom's position) used
      * by needUpdate and unsafe() methods should be reset.
      */
-    public void reset(IAtom atom) {
+    public void reset(IAtomLeaf atom) {
         subCriterion.reset(atom);
     }
 

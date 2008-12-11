@@ -14,7 +14,7 @@ public class CalcJacobian {
 
     public double[][] getJacobian() {
         BasisCell[] cells = coordinateDefinition.getBasisCells();
-        int basisSize = cells[0].molecules.getAtomCount();
+        int basisSize = cells[0].molecules.getMoleculeCount();
         int l = coordinateDim * cells.length;
         double[][] jacobian = new double[l][l];
         // # of spatial dimensions

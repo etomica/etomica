@@ -1,9 +1,7 @@
 package etomica.virial;
 
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-
 import etomica.space.ISpace;
 
 /**
@@ -24,9 +22,8 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
      */
     public abstract double f(double r2, double beta);
 
-    public double f(IAtomList pair, double beta) {
-        dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
-        return f(dr.squared(), beta);
+    public double f(IMoleculeList pair, double beta) {
+        throw new RuntimeException("I was really hoping you wouldn't call me");
     }
     
     protected final IVector dr;

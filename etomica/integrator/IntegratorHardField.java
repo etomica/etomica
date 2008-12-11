@@ -7,6 +7,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -100,8 +101,8 @@ public final class IntegratorHardField extends IntegratorHard {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            ((HardFieldAgent)agentManager.getAgent((IAtomLeaf)atom)).forceFree = true;
+            IAtomLeaf atom = leafList.getAtom(iLeaf);
+            ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
         }
         //zero forces on all atoms
         forceSum.reset();
@@ -128,9 +129,9 @@ public final class IntegratorHardField extends IntegratorHard {
  //                               a.coord.momentum().squared());
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)a);
             if(!iagent.forceFree) updateAtom((IAtomLeaf)a);//update because not force free
-            IAtom partner = iagent.collisionPartner();
+            IAtomLeaf partner = iagent.collisionPartner();
             if(partner == null) continue;
-            HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)partner);
+            HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent(partner);
             if(!iagent.forceFree) {
                 updateAtom((IAtomLeaf)partner);//update because partner not force free
                 continue;
@@ -152,7 +153,7 @@ public final class IntegratorHardField extends IntegratorHard {
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtomLeaf a) {
         return new HardFieldAgent(a,this);
     }
      
@@ -163,7 +164,7 @@ public final class IntegratorHardField extends IntegratorHard {
     
         public final IVector force;
         public boolean forceFree = true;
-        public HardFieldAgent(IAtom a, IntegratorHardField integrator) {
+        public HardFieldAgent(IAtomLeaf a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.space.makeVector();
         }
@@ -178,9 +179,9 @@ public final class IntegratorHardField extends IntegratorHard {
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
 
-		public void doCalculation(IAtomList atoms, IPotential potential) {
+		public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 			super.doCalculation(atoms,potential);
-			((HardFieldAgent)integratorAgentManager.getAgent((IAtomLeaf)atoms.getAtom(0))).forceFree = false;
+			((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
 		}
     }
 }

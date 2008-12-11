@@ -1,13 +1,13 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.space.Tensor;
 
 /**
  * Interface for hard potentials, having impulsive forces.
  */
-public interface PotentialHard extends IPotential {
+public interface PotentialHard extends IPotentialAtomic {
 
     /**
      * Value of the virial from the most recent collision.

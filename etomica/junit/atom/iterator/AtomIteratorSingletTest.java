@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSetSinglet;
@@ -52,7 +52,7 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorSinglet singletIterator;
-    private IAtom testAtom1, testAtom2;
+    private IAtomLeaf testAtom1, testAtom2;
     private LinkedList list1, list2;
 
 }

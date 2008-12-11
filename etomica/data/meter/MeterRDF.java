@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
@@ -116,7 +116,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         }
         
         final double[] y = data.getData();
-	    double norm = 0.5 * callCount * (box.getMoleculeList().getAtomCount() / box.getBoundary().volume())*(box.getLeafList().getAtomCount()-1);
+	    double norm = 0.5 * callCount * (box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume())*(box.getLeafList().getAtomCount()-1);
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {

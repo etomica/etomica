@@ -1,21 +1,20 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomActionTranslateTo;
-import etomica.action.AtomGroupAction;
+import etomica.action.MoleculeActionTranslateTo;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculeSource;
+import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
@@ -36,12 +35,12 @@ public class MCMoveMoleculeExchange extends MCMove {
     protected IBox box2;
     protected final IntegratorBox integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final AtomActionTranslateTo moleculeTranslator;
-    private final AtomGroupAction moleculeReplacer;
+    private final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
+    private final MoleculeActionTranslateTo moleculeTranslator;
+    private final MoleculeChildAtomAction moleculeReplacer;
     private final IVector translationVector;
     private final IRandom random;
-    private AtomSource moleculeSource;
+    private MoleculeSource moleculeSource;
     
     private transient IMolecule molecule;
     private transient IBox iBox, dBox;
@@ -57,16 +56,16 @@ public class MCMoveMoleculeExchange extends MCMove {
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
-        moleculeReplacer = new AtomGroupAction(new AtomActionTranslateBy(_space));
-        moleculeTranslator = new AtomActionTranslateTo(_space);
+        moleculeReplacer = new MoleculeChildAtomAction(new AtomActionTranslateBy(_space));
+        moleculeTranslator = new MoleculeActionTranslateTo(_space);
         translationVector = moleculeTranslator.getTranslationVector();
         setAtomPositionDefinition(new AtomPositionCOM(_space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         box1 = integrator1.getBox();
         box2 = integrator2.getBox();
-        moleculeSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
+        moleculeSource = new MoleculeSourceRandomMolecule();
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
     }
     
     public boolean doTrial() {
@@ -78,13 +77,13 @@ public class MCMoveMoleculeExchange extends MCMove {
             iBox = box2;
             dBox = box1;
         }
-        if(dBox.getMoleculeList().getAtomCount() == 0) { //no molecules to delete; trial is over
+        if(dBox.getMoleculeList().getMoleculeCount() == 0) { //no molecules to delete; trial is over
             uNew = uOld = 0.0;
             return false;
         }
 
         moleculeSource.setBox(dBox);
-        molecule = (IMolecule)moleculeSource.getAtom();  //select random molecule to delete
+        molecule = moleculeSource.getMolecule();  //select random molecule to delete
 
         energyMeter.setBox(dBox);
         energyMeter.setTarget(molecule);
@@ -101,14 +100,14 @@ public class MCMoveMoleculeExchange extends MCMove {
     /**
      * Sets the AtomSource this class uses to pick molecules to delete.
      */
-    public void setMoleculeSource(AtomSource newMoleculeSource) {
+    public void setMoleculeSource(MoleculeSource newMoleculeSource) {
         moleculeSource = newMoleculeSource;
     }
     
     /**
      * Returns the AtomSource this class uses to pick molecules to delete.
      */
-    public AtomSource getMoleculeSource() {
+    public MoleculeSource getMoleculeSource() {
         return moleculeSource;
     }
     
@@ -121,8 +120,8 @@ public class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.exp(B/T) * (dBox.getNMolecules((ISpecies)molecule.getType())+1)/dBox.getBoundary().volume()
-               * iBox.getBoundary().volume()/iBox.getNMolecules((ISpecies)molecule.getType()); 
+        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType())+1)/dBox.getBoundary().volume()
+               * iBox.getBoundary().volume()/iBox.getNMolecules(molecule.getType()); 
     }
     
     public double getB() {
@@ -164,15 +163,14 @@ public class MCMoveMoleculeExchange extends MCMove {
     public void rejectNotify() {
         iBox.removeMolecule(molecule);
         translationVector.TE(-1);
-        ((AtomActionTranslateBy)moleculeReplacer.getAction()).setTranslationVector(translationVector);
+        ((AtomActionTranslateBy)moleculeReplacer.getAtomAction()).setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
         dBox.addMolecule(molecule);
     }
 
     public final AtomIterator affectedAtoms(IBox box) {
         if(this.box1 != box && this.box2 != box) return AtomIteratorNull.INSTANCE;
-        affectedAtomIterator.setAtom(molecule);
-        affectedAtomIterator.reset();
+        affectedAtomIterator.setList(molecule.getChildList());
         return affectedAtomIterator;
     }
     

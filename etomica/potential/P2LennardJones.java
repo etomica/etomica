@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;

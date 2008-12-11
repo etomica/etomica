@@ -2,20 +2,19 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
-import etomica.action.AtomGroupAction;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomsetArrayList;
 import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeArrayList;
+import etomica.atom.MoleculeListWrapper;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
@@ -80,11 +79,11 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         t = lattice.getSpace().makeTensor();
         
         orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
-        atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
+        atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
     public void initializeCoordinates(int[] nCells) {
-        IAtomList moleculeList = box.getMoleculeList();
+        IMoleculeList moleculeList = box.getMoleculeList();
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -113,16 +112,16 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         // Place molecules
         indexIterator.reset();
         IVector position = lattice.getSpace().makeVector();
-        AtomArrayList currentList = null;
+        MoleculeArrayList currentList = null;
 		if (configuration != null){
         	configuration.initializeCoordinates(box);
         }
 
-        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
-            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
+            IMolecule molecule = moleculeList.getMolecule(iMolecule);
             if (configuration == null) {
                 // initialize coordinates of child atoms
-                IConformation config = ((ISpecies)molecule.getType()).getConformation();
+                IConformation config = molecule.getType().getConformation();
                 config.initializePositions(molecule.getChildList());
             }
             
@@ -136,7 +135,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	            /*
 	             * Take out these 2 lines for MCMoveHarmonic
 	             */
-	        	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
+	        	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(t);
 	            atomGroupAction.actionPerformed(molecule);
             }
             
@@ -157,8 +156,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
                 }
                 // new cell
                 iCell++;
-                currentList = new AtomArrayList(basisSize);
-                cells[iCell] = new BasisCell(new AtomsetArrayList(currentList), lattice.getSpace().makeVector());
+                currentList = new MoleculeArrayList(basisSize);
+                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);
@@ -236,13 +235,13 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
      * 
      */
     
-    public double[] calcU(IAtomList molecules) {
+    public double[] calcU(IMoleculeList molecules) {
         
     	super.calcU(molecules);
         int j = 3;
         
-        for (int i=0; i < molecules.getAtomCount() ; i++){
-        	IMolecule molecule = (IMolecule)molecules.getAtom(i);
+        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+        	IMolecule molecule = molecules.getMolecule(i);
         	IVector3D [] siteOrientation = (IVector3D [])orientationManager.getAgent(molecule);
         	
 	    	/*
@@ -321,7 +320,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 		    	u[j+2] = -u[j+2];  
 	    	}
 	        
-	    	j += coordinateDim/molecules.getAtomCount();
+	    	j += coordinateDim/molecules.getMoleculeCount();
         }
         return u;
      }
@@ -329,16 +328,16 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtomList molecules) {
+    public void initNominalU(IMoleculeList molecules) {
     	
-    	for (int i=0; i < molecules.getAtomCount() ; i++){
+    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
     		IVector3D[] orientation = new IVector3D[3];
     		
     		orientation[0] = (IVector3D)space.makeVector();
     		orientation[1] = (IVector3D)space.makeVector();
     		orientation[2] = (IVector3D)space.makeVector();
-    		IMolecule molecule = (IMolecule)molecules.getAtom(i);
+    		IMolecule molecule = molecules.getMolecule(i);
     		
     	    	/*
     	    	 * Determine the Orientation of Each Molecule
@@ -376,13 +375,13 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
  
     }
 
-    public void setToU(IAtomList molecules, double[] newU) {
+    public void setToU(IMoleculeList molecules, double[] newU) {
     	
         int j=3;
         
-        for (int i=0; i < molecules.getAtomCount() ; i++){
+        for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	
-        	IMolecule molecule = (IMolecule)molecules.getAtom(i);
+        	IMolecule molecule = molecules.getMolecule(i);
             IVector3D[] siteOrientation = (IVector3D[])orientationManager.getAgent(molecule);
 	    	
 	    	/*
@@ -502,9 +501,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	for (int a=0; a<3; a++){
 	      		t.setComponent(a, a, basisOrientation[i][a]);
 	      	}
-            IConformation config = ((ISpecies)molecule.getType()).getConformation();
+            IConformation config = molecule.getType().getConformation();
             config.initializePositions(molecule.getChildList());
-	      	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
+	      	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(t);
 	      	atomGroupAction.actionPerformed(molecule);
 
 	        
@@ -597,7 +596,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    		System.out.println(rotationM);
 	    		throw new RuntimeException();
 	    	}
-	    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationM);
+	    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotationM);
 	        atomGroupAction.actionPerformed(molecule);
 	    	
 	    	/*
@@ -691,10 +690,10 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 		    		System.out.println(rotationN);
 		    		throw new RuntimeException();
 		    	}
-		    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationN);
+		    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotationN);
 		        atomGroupAction.actionPerformed(molecule);
 	        }
-	    	j += coordinateDim/molecules.getAtomCount();
+	    	j += coordinateDim/molecules.getMoleculeCount();
 	    	
         }
         super.setToU(molecules, newU);
@@ -715,7 +714,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     
     
     protected MoleculeAgentManager orientationManager; 
-    protected final AtomGroupAction atomGroupAction;
+    protected final MoleculeChildAtomAction atomGroupAction;
 	private Tensor t;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {

@@ -1,7 +1,7 @@
 package etomica.models.rowley;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IConformation;
 import etomica.space.ISpace;
 

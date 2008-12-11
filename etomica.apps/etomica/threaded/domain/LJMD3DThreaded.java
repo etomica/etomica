@@ -3,20 +3,20 @@ package etomica.threaded.domain;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
 import etomica.threaded.PotentialThreaded;
@@ -24,6 +24,9 @@ import etomica.threaded.PotentialThreaded;
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
+ * 
+ * XXX this stuff probably worked when monatomic molecules were leaf atoms.
+ * XXX it still compiles but probably doesn't work
  */
  
 public class LJMD3DThreaded extends Simulation {
@@ -92,7 +95,7 @@ public class LJMD3DThreaded extends Simulation {
         ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
         ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
         ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(box).setQuiet(true);
-        potentialMaster.addPotential(potentialThreaded, new ISpecies[] {species, species});
+        potentialMaster.addPotential(potentialThreaded, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
        
         //--------------------------------------\\
         

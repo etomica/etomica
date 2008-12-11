@@ -1,21 +1,21 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.INearestImageTransformer;
-import etomica.api.IPotential;
+import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.DipoleSource;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
-public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, IPotentialTorque {
+public class P2ReactionFieldDipole extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularTorque {
 
     public P2ReactionFieldDipole(ISpace space) {
-        super(space);
+        super(2, space);
         iDipole = (IVector3D)space.makeVector();
         cavityDipole = (IVector3D)space.makeVector();
         dr = space.makeVector();
@@ -71,17 +71,17 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         nearestImageTransformer = box.getBoundary();
     }
 
-    public double energy(IAtomList atoms) {
-        iDipole.E(dipoleSource.getDipole((IMolecule)atoms.getAtom(0)));
-        double idotj = iDipole.dot(dipoleSource.getDipole((IMolecule)atoms.getAtom(1)));
+    public double energy(IMoleculeList atoms) {
+        iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
+        double idotj = iDipole.dot(dipoleSource.getDipole(atoms.getMolecule(1)));
 
         return -fac*idotj;
     }
     
-    public IVector[][] gradientAndTorque(IAtomList atoms) {
-        iDipole.E(dipoleSource.getDipole((IMolecule)atoms.getAtom(0)));
+    public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+        iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
 
-        iDipole.XE((IVector3D)dipoleSource.getDipole((IMolecule)atoms.getAtom(1)));
+        iDipole.XE((IVector3D)dipoleSource.getDipole(atoms.getMolecule(1)));
         iDipole.TE(fac);
         gradientAndTorque[0][0].E(0);
         gradientAndTorque[0][1].E(0);
@@ -91,15 +91,15 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         return gradientAndTorque;
     }
 
-    public IVector[] gradient(IAtomList atoms) {
+    public IVector[] gradient(IMoleculeList atoms) {
         return gradientAndTorque[0];
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
+    public double virial(IMoleculeList atoms) {
         return 0;
     }
 
@@ -107,7 +107,7 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
      * Returns a 0-body potential that should be added along with this
      * potential.
      */
-    public IPotential makeP0() {
+    public IPotentialMolecular makeP0() {
         return new P0ReactionField(this.space, this);
     }
 
@@ -129,15 +129,15 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
      * potential does not result in a gradient or torque on the molecule and is
      * independent of position or orientation.
      */
-    public static class P0ReactionField extends Potential0 implements IPotential0Lrc, PotentialSoft {
+    public static class P0ReactionField extends PotentialMolecular implements IPotential0Lrc, PotentialMolecularSoft {
 
         public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
-            super(space);
+            super(0,space);
             this.potential = p;
             gradient = new IVector[0];
         }
         
-        public double energy(IAtomList atoms) {
+        public double energy(IMoleculeList atoms) {
             double epsilon = potential.getDielectric();
             double cutoff = potential.getRange();
             DipoleSource dipoleSource = potential.getDipoleSource();
@@ -148,9 +148,9 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
                 u = -0.5 * fac * iDipole.squared();
             }
             else {
-                IAtomList moleculeList = box.getMoleculeList();
-                for (int i=0; i<moleculeList.getAtomCount(); i++) {
-                    IVector iDipole = dipoleSource.getDipole((IMolecule)moleculeList.getAtom(i));
+                IMoleculeList moleculeList = box.getMoleculeList();
+                for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
+                    IVector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
                     u += -0.5 * fac * iDipole.squared();
                 }
             }
@@ -161,23 +161,31 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
             box = newBox;
         }
         
-        public void setTargetAtoms(IAtom atom) {
-            if (atom == null || !(atom instanceof IMolecule)) {
+        public void setTargetMolecule(IMolecule atom) {
+            if (atom == null) {
                 targetAtom = null;
                 return;
             }
-            targetAtom = (IMolecule)atom;
+            targetAtom = atom;
         }
         
-        public IVector[] gradient(IAtomList atoms) {
+        public void setTargetAtom(IAtomLeaf targetAtom) {
+            throw new RuntimeException("Can't provide correction for an individual atom");
+        }
+
+        public double getRange() {
+            return 0;
+        }
+
+        public IVector[] gradient(IMoleculeList atoms) {
             return gradient;
         }
         
-        public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
             return gradient(atoms);
         }
         
-        public double virial(IAtomList atoms) {
+        public double virial(IMoleculeList atoms) {
             return 0;
         }
 
@@ -186,5 +194,6 @@ public class P2ReactionFieldDipole extends Potential2 implements PotentialSoft, 
         protected final IVector[] gradient;
         protected IMolecule targetAtom;
         protected IBox box;
+
     }
 }

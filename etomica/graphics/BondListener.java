@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
@@ -13,8 +12,8 @@ import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.iterator.AtomIteratorMolecule;
+import etomica.atom.MoleculeSetSinglet;
+import etomica.atom.iterator.MoleculeIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -52,7 +51,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
         atomAgentManager = new AtomLeafAgentManager(this, box, isBackend);
         this.bondManager = bondManager;
-        atomSetSinglet = new AtomSetSinglet();
+        atomSetSinglet = new MoleculeSetSinglet();
     }
 
     /**
@@ -69,11 +68,11 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
 
         // now find bonds for atoms that already exist
         // the ArrayLists (agents) for the Atoms will already exist
-        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
+        MoleculeIteratorMolecule moleculeIterator = new MoleculeIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();
-        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
-             molecule = moleculeIterator.nextAtom()) {
+        for (IMolecule molecule = moleculeIterator.nextMolecule(); molecule != null;
+             molecule = moleculeIterator.nextMolecule()) {
             // we have an molecule, now grab all of its bonds
 
             for (int i=0; i<bondIterators.length; i++) {
@@ -95,7 +94,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 
-                    ((ArrayList<Object>)atomAgentManager.getAgent((IAtomLeaf)bondedPair.getAtom(0))).add(bond);
+                    ((ArrayList<Object>)atomAgentManager.getAgent(bondedPair.getAtom(0))).add(bond);
                 }
             }
         }
@@ -107,14 +106,14 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
      */
     public void removeModel(Model model) {
         ISpecies species = model.getSpecies();
-        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
+        MoleculeIteratorMolecule moleculeIterator = new MoleculeIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();
-        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
-             molecule = moleculeIterator.nextAtom()) {
-            IAtomList childList = ((IMolecule)molecule).getChildList();
+        for (IMolecule molecule = moleculeIterator.nextMolecule(); molecule != null;
+             molecule = moleculeIterator.nextMolecule()) {
+            IAtomList childList = molecule.getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent((IAtomLeaf)childList.getAtom(iChild));
+                ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent(childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
                 }
@@ -184,5 +183,5 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
     protected final AtomLeafAgentManager atomAgentManager;
     protected final HashMap<ISpecies,Model.PotentialAndIterator[]> bondIteratorsHash;
     protected BondManager bondManager;
-    protected final AtomSetSinglet atomSetSinglet;
+    protected final MoleculeSetSinglet atomSetSinglet;
 }

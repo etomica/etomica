@@ -3,10 +3,11 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorRatioAverage;
@@ -35,7 +36,6 @@ import etomica.units.Kelvin;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
@@ -168,7 +168,7 @@ public class VirialRowleyAlcohol {
         
         // U_a_b is a pairwise potential (2 molecules, a and b, are involved).
         // The directives for calculation of U_a_b are provided later.
-        PotentialGroup U_a_b = new PotentialGroup(2, space);
+        PotentialGroup U_a_b = new PotentialGroup(2);
         
         MayerGeneral fTarget = new MayerGeneral(U_a_b);
         MayerEGeneral eTarget = new MayerEGeneral(U_a_b);
@@ -205,7 +205,7 @@ public class VirialRowleyAlcohol {
         System.out.println(steps*1000+" total attempted MC moves ("+steps+" blocks of 1000)");
         
         final SimulationVirialOverlap sim;
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         
         if(ethanol) {
         	sim = new SimulationVirialOverlap (space,new SpeciesFactoryEthanol(pointCharges),
@@ -278,9 +278,9 @@ public class VirialRowleyAlcohol {
              
     		sim.integrators[1].addIntervalAction(dataPumpDistance); // measure data at each step
     		
-    		IAtomList moleculeList = targetBox.getMoleculeList();
-    		IMolecule monomerA = (IMolecule)moleculeList.getAtom(0);
-    		IMolecule monomerB = (IMolecule)moleculeList.getAtom(1);
+    		IMoleculeList moleculeList = targetBox.getMoleculeList();
+    		IMolecule monomerA = moleculeList.getMolecule(0);
+    		IMolecule monomerB = moleculeList.getMolecule(1);
     		 
     		IAtomList atomSetA = monomerA.getChildList();
     		IAtomList atomSetB = monomerB.getChildList();

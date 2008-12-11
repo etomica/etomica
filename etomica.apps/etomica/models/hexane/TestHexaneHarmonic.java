@@ -68,7 +68,7 @@ public class TestHexaneHarmonic extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);
@@ -95,7 +95,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        config.initializeCoordinates(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
-        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), space, 1.0, 15.0, false);
+        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), space, 1.0, 15.0);
 //        moveVolume = new MCMoveVolume(potentialMaster, box.space(), sim.getDefaults().pressure);
 //        moveVolume.setBox(box);
 //        crank = new MCMoveCrankshaft();

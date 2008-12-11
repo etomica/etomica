@@ -4,6 +4,8 @@ import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IEventManager;
 import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
@@ -13,14 +15,13 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
     protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager boxAgentManager, ISpace _space) {
-        super(_space);
+            BoxAgentManager boxAgentManager) {
+        super();
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
@@ -37,17 +38,17 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupNbr(nBody, space);
+        return new PotentialGroupNbr(nBody);
     }
     
-    public void addPotential(IPotential potential, ISpecies[] species) {
+    public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
         if (!(potential instanceof PotentialGroup)) {
             System.err.println("You gave me a concrete molecule potential and I'm very confused now.  I'll pretend like that's OK but don't hold your breath.");
         }
         super.addPotential(potential, species);
     }
 
-    public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
+    public void potentialAddedNotify(IPotentialAtomic subPotential, PotentialGroup pGroup) {
         super.potentialAddedNotify(subPotential, pGroup);
         IAtomTypeLeaf[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
@@ -81,9 +82,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
 
-    protected abstract void addRangedPotentialForTypes(IPotential subPotential, IAtomTypeLeaf[] atomTypes);
+    protected abstract void addRangedPotentialForTypes(IPotentialAtomic subPotential, IAtomTypeLeaf[] atomTypes);
     
-    protected void addRangedPotential(IPotential potential, IAtomTypeLeaf atomType) {
+    protected void addRangedPotential(IPotentialAtomic potential, IAtomTypeLeaf atomType) {
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
@@ -98,7 +99,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         }
     }
     
-    public void removePotential(IPotential potential) {
+    public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
             rangedPotentialIterator.reset();

@@ -2,10 +2,10 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 
-public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializable {
+public class AtomToAtomSetFixed implements AtomToAtomLeafList, AtomToIndex, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,19 +14,14 @@ public class AtomToAtomSetFixed implements AtomToAtomSet, AtomToIndex, Serializa
     }
     
     public void setArrayList(AtomArrayList list) {
-        if (list == null) {
-            atomArrayList = new AtomArrayList();
-        }
-        else {
-            atomArrayList = list;
-        }
+        atomArrayList = list;
     }
     
-    public IAtomList getAtomSet(IAtom atom) {
+    public IAtomList getAtomList(IAtomLeaf atom) {
         return atomArrayList;
     }
     
-    public int getIndex(IAtom atom) {
+    public int getIndex(IAtomLeaf atom) {
         return atomArrayList.indexOf(atom);
     }
 

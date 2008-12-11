@@ -6,10 +6,9 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
@@ -79,7 +78,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			forceSum.reset();
 
 			for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-				IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+				IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 				coordinateDefinition.setToU(molecules, u);
 			}
 			
@@ -88,13 +87,13 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			 * 	where we have 6 generalized coordinates: 3 modes on translation and 3 on rotation for each molecule
 			 *  
 			 */
-			IAtomList molecules = coordinateDefinition.getBasisCells()[0].molecules;
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[0].molecules;
 			
 			int j=3;
 			
-			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 molecules in the basis cell
+			for (int p=0; p<molecules.getMoleculeCount(); p++){ //loop over the 8 molecules in the basis cell
 				
-				IAtomList molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
+				IAtomList molecule = molecules.getMolecule(p).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
@@ -216,7 +215,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 					
 				 }
 				
-				 j += coordinateDefinition.getCoordinateDim()/molecules.getAtomCount();
+				 j += coordinateDefinition.getCoordinateDim()/molecules.getMoleculeCount();
 			}
 		
 		return fPrimeRotation[index];

@@ -1,9 +1,9 @@
 package etomica.potential;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
@@ -13,14 +13,14 @@ import etomica.space.ISpace;
  *
  * @author Jayant K. Singh
  */
-public class P22CLJQ extends Potential2 {
+public class P22CLJQ extends PotentialMolecular {
 
     public P22CLJQ(ISpace space) {
         this(space, 1, 1, 1);
     }
 
     public P22CLJQ(ISpace space, double sigma, double epsilon,  double moment) {
-        super(space);
+        super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(moment);
@@ -44,11 +44,11 @@ public class P22CLJQ extends Potential2 {
         return Double.POSITIVE_INFINITY;
     }
 
-    public double energy(IAtomList pair){
+    public double energy(IMoleculeList pair){
         double ener=0.0;
 
-        IAtomList mol1 = ((IMolecule)pair.getAtom(0)).getChildList(); 
-        IAtomList mol2 = ((IMolecule)pair.getAtom(1)).getChildList(); 
+        IAtomList mol1 = pair.getMolecule(0).getChildList(); 
+        IAtomList mol2 = pair.getMolecule(1).getChildList(); 
         IAtomPositioned bead11 = (IAtomPositioned)mol1.getAtom(0);
         IAtomPositioned bead12 = (IAtomPositioned)mol1.getAtom(1);
 

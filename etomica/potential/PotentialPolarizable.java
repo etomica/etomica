@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
 
 /**
  * Interface for a polarizable potential.  The interface includes only a method
@@ -20,5 +20,5 @@ public interface PotentialPolarizable {
 	 * Returns the polarization contribution (non pairwise-additive) to the
 	 * energy for the given AtomSet.
 	 */
-	public double getPolarizationEnergy(IAtomList atoms);
+	public double getPolarizationEnergy(IMoleculeList atoms);
 }

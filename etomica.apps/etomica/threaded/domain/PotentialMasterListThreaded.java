@@ -89,14 +89,14 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
-                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id,pc);
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id.direction(),(IAtomLeaf)targetAtom,pc);
                 }
                 potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
                 potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IAtomLeaf)targetAtom, id, pc, neighborManager);
+                calculate((IAtomLeaf)targetAtom, id.direction(), pc, neighborManager);
             }
             else {
                 PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
@@ -104,7 +104,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IMolecule)targetAtom, id, pc, neighborManager);
+                calculate((IMolecule)targetAtom, id.direction(), pc, neighborManager);
             }
         }
        

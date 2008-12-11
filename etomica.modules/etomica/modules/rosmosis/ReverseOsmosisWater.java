@@ -10,7 +10,6 @@ import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sodium;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
@@ -54,7 +53,7 @@ public class ReverseOsmosisWater extends Simulation {
     
     public ReverseOsmosisWater(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
         
         //controller and integrator
 	    integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), space);

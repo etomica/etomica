@@ -117,7 +117,7 @@ public class TestA extends Simulation {
         change.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         change.setEigenVectors(nm.getEigenvectors(box));
         change.setCoordinateDefinition(coordinateDefinition);
-        change.setBox((IBox)box);
+        change.setBox(box);
         change.setStepSizeMin(0.001);
         change.setStepSize(0.01);
         

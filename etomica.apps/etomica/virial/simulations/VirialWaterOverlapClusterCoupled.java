@@ -7,7 +7,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.models.water.PNWaterGCPM;
-import etomica.potential.Potential;
+import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -73,7 +73,7 @@ public class VirialWaterOverlapClusterCoupled {
 	//P2WaterTIP4P pTarget = new P2WaterTIP4P(space);
 //        PotentialWaterPPC2 pTarget = new PotentialWaterPPC2(space);
 //        PotentialWaterPPC9forB3 pTarget = new PotentialWaterPPC9forB3(space);
-        final Potential pTarget = new PNWaterGCPM(space);
+        final PotentialMolecular pTarget = new PNWaterGCPM(space);
         
         // kmb added the code below; 9/23/05
         ClusterWeight sampleCluster1 = null;

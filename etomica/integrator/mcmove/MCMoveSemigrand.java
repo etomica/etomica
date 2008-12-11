@@ -1,15 +1,15 @@
 package etomica.integrator.mcmove;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
+import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -29,13 +29,12 @@ public class MCMoveSemigrand extends MCMoveBox {
     
     private static final long serialVersionUID = 2L;
     private ISpecies[] speciesSet;
-    private AtomArrayList[] reservoirs;
+    private MoleculeArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
-    private final AtomArrayList affectedAtomList;
     private final AtomIteratorArrayListSimple affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
-    private final AtomActionTranslateTo moleculeTranslator;
+    private final MoleculeActionTranslateTo moleculeTranslator;
     private IAtomPositionDefinition atomPositionDefinition;
     private final IRandom random;
     
@@ -49,12 +48,10 @@ public class MCMoveSemigrand extends MCMoveBox {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        affectedAtomList = new AtomArrayList(2);
-        affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
-        affectedAtomIterator.setList(affectedAtomList);
+        affectedAtomIterator = new AtomIteratorArrayListSimple();
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
-        moleculeTranslator = new AtomActionTranslateTo(_space);
+        moleculeTranslator = new MoleculeActionTranslateTo(_space);
         setAtomPositionDefinition(new AtomPositionCOM(_space));
     }
     
@@ -74,11 +71,11 @@ public class MCMoveSemigrand extends MCMoveBox {
         if(nSpecies < 2) throw new IllegalArgumentException("Wrong size of species array in MCMoveSemigrand");
         speciesSet = new ISpecies[nSpecies];
         fugacityFraction = new double[nSpecies];
-        reservoirs = new AtomArrayList[nSpecies];
+        reservoirs = new MoleculeArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
             fugacityFraction[i] = 1.0/nSpecies;
-            reservoirs[i] = new AtomArrayList();
+            reservoirs[i] = new MoleculeArrayList();
         }
     }
     
@@ -131,15 +128,15 @@ public class MCMoveSemigrand extends MCMoveBox {
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
   
-        IAtomList moleculeList = box.getMoleculeList(speciesSet[iDelete]);
-        deleteMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
+        IMoleculeList moleculeList = box.getMoleculeList(speciesSet[iDelete]);
+        deleteMolecule = moleculeList.getMolecule(random.nextInt(moleculeList.getMoleculeCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
         box.removeMolecule(deleteMolecule);
         
-        int size = reservoirs[iInsert].getAtomCount();
+        int size = reservoirs[iInsert].getMoleculeCount();
         if(size>0) {
-            insertMolecule = (IMolecule)reservoirs[iInsert].remove(size-1);
+            insertMolecule = reservoirs[iInsert].remove(size-1);
             box.addMolecule(insertMolecule);
         }
         else {
@@ -182,11 +179,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     public double energyChange() {return uNew - uOld;}
     
     public final AtomIterator affectedAtoms() {
-        
-        affectedAtomList.clear();
-        affectedAtomList.add(insertMolecule);
-        affectedAtomList.add(deleteMolecule);
-        affectedAtomIterator.reset();
+        affectedAtomIterator.setList(insertMolecule.getChildList());
         return affectedAtomIterator;
     }
 
@@ -196,6 +189,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     public IAtomPositionDefinition geAtomPositionDefinition() {
         return atomPositionDefinition;
     }
+
     /**
      * @param positionDefinition The positionDefinition to set.
      */

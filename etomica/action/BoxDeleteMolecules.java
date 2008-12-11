@@ -1,8 +1,8 @@
 package etomica.action;
 
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomFilter;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 
 /**
  * Deletes molecules from a box as determined by an AtomFilter. Atoms deleted
@@ -20,7 +20,6 @@ public class BoxDeleteMolecules extends BoxActionAdapter {
      */
     public BoxDeleteMolecules(AtomFilter filter) {
         this.filter = filter;
-        iterator = new AtomIteratorAllMolecules();
     }
 
     /**
@@ -29,10 +28,9 @@ public class BoxDeleteMolecules extends BoxActionAdapter {
      * no action is performed and method returns quietly.
      */
     public void actionPerformed() {
-        iterator.setBox(box);
-        iterator.reset();
-        for (IMolecule molecule = (IMolecule)iterator.nextAtom(); molecule != null;
-             molecule = (IMolecule)iterator.nextAtom()) {
+        IMoleculeList molecules = box.getMoleculeList();
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
             if (!filter.accept(molecule)) {
                 box.removeMolecule(molecule);
             }
@@ -41,5 +39,4 @@ public class BoxDeleteMolecules extends BoxActionAdapter {
 
     private static final long serialVersionUID = 1L;
     private final AtomFilter filter;
-    private final AtomIteratorAllMolecules iterator;
-}
+} 

@@ -1,8 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
@@ -54,7 +52,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public IAtom nextAtom() {
+ 	public IAtomLeaf nextAtom() {
         if (cursor < list.getAtomCount()) {
             return list.getAtom(cursor++);
         }
@@ -65,7 +63,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Same as nextAtom().
      */
  	public IAtomList next() {
-        IAtom atom = nextAtom();
+        IAtomLeaf atom = nextAtom();
         if (atom == null) return null;
         atomSetSinglet.atom = atom;
  		return atomSetSinglet;
@@ -78,24 +76,6 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  	public int size() {
  		return list.getAtomCount();
  	}
-
-    /**
-     * Performs action on all elements of current list.
-     */
- 	public void allAtoms(AtomsetAction act) {
- 		int arraySize = list.getAtomCount();
- 		for (int i=0; i<arraySize; i++) {
-            atomSetSinglet.atom = list.getAtom(i);
- 			act.actionPerformed(atomSetSinglet);
- 		}
- 	}
-    
-    public void allAtoms(AtomAction action) {
-        int arraySize = list.getAtomCount();
-        for (int i=0; i<arraySize; i++) {
-            action.actionPerformed(list.getAtom(i));
-        }
-    }
 
     /**
      * Puts iterator in state ready to begin iteration.

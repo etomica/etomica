@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 3, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 

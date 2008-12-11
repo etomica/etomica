@@ -41,7 +41,7 @@ public class SimulationVirialPT extends Simulation {
 			double[] temperature, ClusterWeight.Factory sampleClusterFactory, 
 			ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this, space);//SpheresMono(this,AtomLinker.FACTORY);
         getSpeciesManager().addSpecies(species);
@@ -89,7 +89,7 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (((IMolecule)box[iTemp].getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 0) {
+            if (species.getNumLeafAtoms() == 0) {
                 mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }

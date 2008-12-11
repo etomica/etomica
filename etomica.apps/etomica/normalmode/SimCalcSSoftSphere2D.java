@@ -26,7 +26,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.space2d.Vector2D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -41,7 +40,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         super(_space, true);
 
 
-        potentialMaster = new PotentialMasterMonatomic(this, space);
+        potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

@@ -42,7 +42,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 	
 	TestEwaldTIP4PWater(Space space){
 		super(space, true);
-		potentialMaster = new PotentialMaster(space);
+		potentialMaster = new PotentialMaster();
 		
 		LatticeCubicFcc lattice = new LatticeCubicFcc(space);
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);

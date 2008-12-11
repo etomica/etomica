@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -23,7 +22,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     public MCMoveClusterMolecule(IPotentialMaster potentialMaster, IRandom random,
     		                     ISpace _space, double stepSize) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY,false);
+        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         weightMeter = new MeterClusterWeight(potential);
     }
     
@@ -33,17 +32,17 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     }
     
     public boolean doTrial() {
-        if(box.getMoleculeList().getAtomCount()==1) return false;
+        if(box.getMoleculeList().getMoleculeCount()==1) return false;
         
-        atom = atomSource.getAtom();
-        while (((IMolecule)atom).getIndex() == 0) {
-            atom = atomSource.getAtom();
+        molecule = moleculeSource.getMolecule();
+        while (molecule.getIndex() == 0) {
+            molecule = moleculeSource.getMolecule();
         }
         
         uOld = weightMeter.getDataAsScalar();
         groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
-        moveMoleculeAction.actionPerformed(atom);
+        moveMoleculeAction.actionPerformed(molecule);
         uNew = Double.NaN;
 //        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)boxs[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
         ((BoxCluster)box).trialNotify();

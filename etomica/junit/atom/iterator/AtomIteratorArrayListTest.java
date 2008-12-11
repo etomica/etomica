@@ -5,8 +5,8 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTestUtil;
 import etomica.space3d.Space3D;

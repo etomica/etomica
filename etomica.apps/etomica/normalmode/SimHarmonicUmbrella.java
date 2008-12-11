@@ -16,8 +16,8 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -71,7 +71,7 @@ public class SimHarmonicUmbrella extends Simulation {
         
         int D = space.D();
         
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this,space);
+        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
        
         species = new SpeciesSpheresMono(this, space);

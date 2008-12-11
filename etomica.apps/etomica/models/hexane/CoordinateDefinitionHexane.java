@@ -1,9 +1,10 @@
 package etomica.models.hexane;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
@@ -34,7 +35,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private double length, phi;
     private Tensor rotor;
     private ConformationHexane confHex;
-    private IAtomList childlist;
     
     
     public CoordinateDefinitionHexane(ISimulation sim, IBox box, Primitive primitive, 
@@ -66,14 +66,14 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
     }
 
-    public double[] calcU(IAtomList molecules) {
+    public double[] calcU(IMoleculeList molecules) {
         double tol = 0.0000000001;  //1E-10
         
         // handle center-of-mass part
         // super.calcU fills in the first 3 elements of |u|
         super.calcU(molecules);
         
-        IMolecule molecule = (IMolecule)molecules.getAtom(0);
+        IMolecule molecule = molecules.getMolecule(0);
 
         // Now we play with the molecule we are measuring.
 
@@ -248,10 +248,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         return u;
     }
 
-    public void initNominalU(IAtomList molecules) {
+    public void initNominalU(IMoleculeList molecules) {
         // handle center-of-mass part
         super.initNominalU(molecules);
-        IMolecule molecule = (IMolecule)molecules.getAtom(0);
+        IMolecule molecule = molecules.getMolecule(0);
         // assume they're all oriented the same way.
         
         // Set up all the axes based on the molecule atom0, the reference
@@ -289,12 +289,12 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         }
     }
 
-    public void setToU(IAtomList atoms, double[] u) {
+    public void setToU(IMoleculeList atoms, double[] u) {
         
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
-        childlist = ((IMolecule)atoms.getAtom(0)).getChildList();
+        IAtomList childlist = atoms.getMolecule(0).getChildList();
         confHex.initializePositions(childlist);
         
         /*

@@ -1,6 +1,6 @@
 package etomica.models.hexane;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -366,7 +366,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         return vex;
     }
 
-    protected abstract double calcExternalEnergy(IAtom a);
+    protected abstract double calcExternalEnergy(IAtomLeaf a);
 
     // uub in algorithm 45, 46
     protected abstract double calcBondAngleEnergy(double dub);

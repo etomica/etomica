@@ -3,13 +3,13 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -203,9 +203,9 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 		    latticeDimensions[side] = calculateLatticeDimensions(maxMolecules[side], halfShape);
         }
 
-        AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
+        MoleculeIteratorArrayListSimple[] atomIterator = new MoleculeIteratorArrayListSimple[numSpecies];
         for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList(species.get(i)));
+            atomIterator[i] = new MoleculeIteratorArrayListSimple(box.getMoleculeList(species.get(i)));
             atomIterator[i].reset();
         }
 
@@ -245,7 +245,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	        // Place molecules
 	        for (int i = 0; i < numSpecies; i++) {
 	        	for (int y = 0; y < molecules[side][i]; y++) {
-	                IAtom a = atomIterator[i].nextAtom();
+	                IMolecule a = atomIterator[i].nextMolecule();
 
 			        int[] idx = indexIterator.next();
 
@@ -261,7 +261,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        IPotentialMaster potentialMaster = new PotentialMaster();
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);

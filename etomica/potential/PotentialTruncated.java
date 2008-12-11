@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 
 
 /**
@@ -16,7 +16,7 @@ import etomica.api.IPotential;
  * @see PotentialMaster
  * @see PotentialGroup
  */
-public interface PotentialTruncated extends IPotential {
+public interface PotentialTruncated extends IPotentialAtomic {
 
     /**
      * Returns a class that calculates the long-range contribution to the potential

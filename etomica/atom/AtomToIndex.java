@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 
 
 /**
@@ -12,5 +12,5 @@ public interface AtomToIndex {
      * Returns an integer that this instance associates with the given atom.
      * Should return -1 if an appropriate index can not be determined.
      */
-    public int getIndex(IAtom atom);
+    public int getIndex(IAtomLeaf atom);
 }

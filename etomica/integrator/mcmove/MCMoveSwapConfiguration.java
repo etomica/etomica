@@ -1,7 +1,7 @@
 package etomica.integrator.mcmove;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;

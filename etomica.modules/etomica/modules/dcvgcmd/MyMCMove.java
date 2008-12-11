@@ -1,14 +1,13 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space.ISpace;
@@ -33,7 +32,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		setZFraction(zFraction);
         this.integrator = integrator;
         randomizer = new AtomActionRandomizeVelocity(0, random);
-        activeAtoms = new AtomArrayList();
+        activeAtoms = new MoleculeArrayList();
 	}
 
     public void setBox(IBox p) {
@@ -50,7 +49,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		if(insert) {
 			uOld = 0.0;
 			if(!reservoir.isEmpty()) {
-			    testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
+			    testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
 			}
 			else {
 			    testMolecule = species.makeMolecule();
@@ -68,12 +67,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
 		} else {//delete
-			if(activeAtoms.getAtomCount() == 0) {
+			if(activeAtoms.getMoleculeCount() == 0) {
 				testMolecule = null;//added this line 09/19/02
 				return false;
 			}
-            testMoleculeIndex = random.nextInt(activeAtoms.getAtomCount());
-			testMolecule = (IMolecule)activeAtoms.getAtom(testMoleculeIndex);
+            testMoleculeIndex = random.nextInt(activeAtoms.getMoleculeCount());
+			testMolecule = activeAtoms.getMolecule(testMoleculeIndex);
 			energyMeter.setTarget(testMolecule);
 			uOld = energyMeter.getDataAsScalar();
 		} 
@@ -82,8 +81,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}//end of doTrial
 
 	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? zFraction*box.getBoundary().volume()/(activeAtoms.getAtomCount()+1) 
-					  : activeAtoms.getAtomCount()/zFraction/box.getBoundary().volume();        
+		return insert ? zFraction*box.getBoundary().volume()/(activeAtoms.getMoleculeCount()+1) 
+					  : activeAtoms.getMoleculeCount()/zFraction/box.getBoundary().volume();        
 	}
 
 	public void acceptNotify() {
@@ -104,11 +103,11 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zBoundary = box.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
-        int nMolecules = moleculeList.getAtomCount();
+        int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
-            IAtom molecule = moleculeList.getAtom(i);
+            IMolecule molecule = moleculeList.getMolecule(i);
 
-    		double z = ((IAtomPositioned)((IMolecule)molecule).getChildList().getAtom(0)).getPosition().x(2);
+    		double z = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition().x(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(molecule);
     	}
@@ -123,8 +122,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private int deltaN = 0;
 	private Vector3D position;
 	private boolean nearOrigin;
-	private final AtomArrayList activeAtoms;
-    private IAtomList moleculeList;
+	private final MoleculeArrayList activeAtoms;
+    private IMoleculeList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;
     protected int testMoleculeIndex;

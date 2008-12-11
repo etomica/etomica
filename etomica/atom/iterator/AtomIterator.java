@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits
@@ -10,13 +9,11 @@ import etomica.api.IAtom;
  * action to iterator).
  */
 
-public interface AtomIterator extends AtomsetIterator {
+public interface AtomIterator extends AtomLeafsetIterator {
                     
 	/**
 	 * Returns the next atom in the iteration sequence, or
      * null if hasNext() is false.
 	 */
-    public IAtom nextAtom();
-    
-    public void allAtoms(AtomAction action);
+    public IAtomLeaf nextAtom();
 }

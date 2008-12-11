@@ -15,7 +15,6 @@ import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
@@ -111,7 +110,7 @@ public class TestB extends Simulation {
         convert.setEigenVectors(nm.getEigenvectors(box));
         convert.setCoordinateDefinition(coordinateDefinition);
         convert.setTemperature(temperature);
-        convert.setBox((IBox)box);
+        convert.setBox(box);
         convert.setStepSizeMin(0.001);
         convert.setStepSize(0.01);
         convert.setConvertedWaveVector(affectedWV);

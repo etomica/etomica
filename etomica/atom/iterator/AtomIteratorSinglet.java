@@ -1,8 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 
@@ -30,7 +28,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomIteratorSinglet(IAtom a) {
+    public AtomIteratorSinglet(IAtomLeaf a) {
         this();
         setAtom(a);
     }
@@ -40,7 +38,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * Call to reset() must be performed before beginning iteration.
      * If atom is null, hasNext will remain false on reset.
      */
-    public void setAtom(IAtom a) {
+    public void setAtom(IAtomLeaf a) {
     	atom = a;
     	unset();
     }
@@ -48,7 +46,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * @return the atom given by this iterator as its single iterate
      */
-    public IAtom getAtom() {
+    public IAtomLeaf getAtom() {
         return atom;
     }
     
@@ -57,19 +55,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      */
     public int size() {return atom != null ? 1 : 0;}
 
-	public void allAtoms(AtomsetAction action) {
-		if (atom != null) {
-            atomSetSinglet.atom = atom;
-            action.actionPerformed(atomSetSinglet);
-        }
-	}
-        
-    public void allAtoms(AtomAction action) {
-        if (atom != null) {
-            action.actionPerformed(atom);
-        }
-    }
-        
     /**
      * Sets iterator to a state where hasNext() returns false.
      */
@@ -85,7 +70,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public IAtom nextAtom() {
+    public IAtomLeaf nextAtom() {
     	if (!hasNext) return null;
     	hasNext = false;
     	return atom;
@@ -101,6 +86,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     
     private static final long serialVersionUID = 1L;
     private boolean hasNext = false;
-    private IAtom atom;
+    private IAtomLeaf atom;
     protected final AtomSetSinglet atomSetSinglet;
 }

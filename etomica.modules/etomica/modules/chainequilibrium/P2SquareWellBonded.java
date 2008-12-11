@@ -1,10 +1,8 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
@@ -125,7 +123,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             return;
         }
         int bondCount = 1;
-        IAtom prev = a;
+        IAtomLeaf prev = a;
         while (true) {
             IAtomLeaf[] nextNbrs = ((IAtomLeaf[])agentManager.getAgent(next));
             if (nextNbrs.length == 3) {
@@ -293,7 +291,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 //    		        System.out.println("checkRing "+atom0+" "+atom1+" linker0 "+ringResult.linker);
     //                System.out.println(atom0+" "+atom1+" "+ringBonds);
     		        if (ringResult.linker != null) {
-    		            IAtom linker0 = ringResult.linker;
+    		            IAtomLeaf linker0 = ringResult.linker;
     		            int ringBonds0 = ringResult.bondCount;
     		            checkRing(atomLeaf1, atomLeaf0, maxRingBonds - ringBonds0);
 //    	                System.out.println("checkRing "+atom0+" "+atom1+" linker1 "+ringResult.linker);
@@ -357,7 +355,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     protected final RingResult ringResult;
     
     protected static class RingResult {
-        public IAtom linker;
+        public IAtomLeaf linker;
         public int bondCount;
         public boolean foundRing;
     }

@@ -22,8 +22,8 @@ import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
@@ -32,11 +32,11 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
+import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
@@ -902,11 +902,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return pc.box.getMoleculeList().getAtomCount() / pc.box.getBoundary().volume();
+            return pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
         }
 
         public void setValue(double newValue) {
-            double oldDensity = pc.box.getMoleculeList().getAtomCount() / pc.box.getBoundary().volume();
+            double oldDensity = pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
             double maxDensity;
             int D = pc.getSpace().D();
             if (D == 2) {

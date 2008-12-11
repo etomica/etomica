@@ -40,7 +40,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         super(_space, true);
 
 
-        potentialMaster = new PotentialMasterMonatomic(this, space);
+        potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

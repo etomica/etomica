@@ -1,7 +1,7 @@
 package etomica.modules.sam;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IVector;

@@ -2,13 +2,13 @@
 package etomica.models.water;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
-import etomica.potential.Potential2;
+import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
 /** 
@@ -17,10 +17,10 @@ import etomica.space.ISpace;
  * 
  * @author David Kofke, Andrew Schultz
  */
-public class P2Water3P extends Potential2 {
+public class P2Water3P extends PotentialMolecular {
 
 	public P2Water3P(ISpace space, double sigma, double epsilon, double chargeO, double chargeH) {
-		super(space);
+		super(2, null);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
 		work = (IVector3D)space.makeVector();
@@ -38,12 +38,12 @@ public class P2Water3P extends Potential2 {
         boundary = box.getBoundary();
     }
 
-    public double energy(IAtomList pair){
+    public double energy(IMoleculeList pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 
-		IMolecule water1 = (IMolecule)pair.getAtom(0);
-		IMolecule water2 = (IMolecule)pair.getAtom(1);
+		IMolecule water1 = pair.getMolecule(0);
+		IMolecule water2 = pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
         IVector O1r = ((IAtomPositioned)water1.getChildList().getAtom(2)).getPosition();

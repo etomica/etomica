@@ -33,7 +33,7 @@ public class SwMd2D extends Simulation {
 
     public SwMd2D() {
         super(Space2D.getInstance());
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
         integrator = new IntegratorHard(this, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

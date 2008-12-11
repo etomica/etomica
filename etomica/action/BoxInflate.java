@@ -1,10 +1,10 @@
 package etomica.action;
 
-import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.space.ISpace;
 
 /**
@@ -21,8 +21,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     public BoxInflate(ISpace space) {
 
         translator = new AtomActionTranslateBy(space);
-        groupScaler = new AtomGroupAction(translator);
-        moleculeIterator = new AtomIteratorAllMolecules();
+        groupScaler = new MoleculeChildAtomAction(translator);
         moleculeCenter = new AtomPositionGeometricCenter(space);
         scaleVector = space.makeVector();
         setScale(1.0);
@@ -77,19 +76,11 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     }
     
     /**
-     * Sets the box to which the action will be applied.
-     */
-    public void setBox(IBox box) {
-        super.setBox(box);
-        moleculeIterator.setBox(box);
-    }
-
-    /**
      * Sets the action to change the box dimensions isotropically to achieve
      * the given density.
      */
     public void setTargetDensity(double newTargetDensity) {
-        double vNew = box.getMoleculeList().getAtomCount()/newTargetDensity;
+        double vNew = box.getMoleculeList().getMoleculeCount()/newTargetDensity;
         double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/scaleVector.getD());
         setScale(scale);
     }
@@ -98,7 +89,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * Returns the target density of the action.
      */
     public double getTargetDensity() {
-        double rho = box.getMoleculeList().getAtomCount()/box.getBoundary().volume();
+        double rho = box.getMoleculeList().getMoleculeCount()/box.getBoundary().volume();
         for (int i=0; i<scaleVector.getD(); i++) {
             rho *= scaleVector.x(i);
         }
@@ -110,14 +101,14 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      */
     public void actionPerformed() {
         if(box == null) return;
-        moleculeIterator.reset();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
         IVector translationVector = translator.getTranslationVector();
-        
-        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
-             molecule = moleculeIterator.nextAtom()) {
+
+        IMoleculeList molecules = box.getMoleculeList();
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);
@@ -151,9 +142,8 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final AtomIteratorAllMolecules moleculeIterator;
     protected final AtomActionTranslateBy translator;
-    protected final AtomGroupAction groupScaler;
+    protected final MoleculeChildAtomAction groupScaler;
     protected final IVector scaleVector;
     protected final AtomPositionGeometricCenter moleculeCenter;
     

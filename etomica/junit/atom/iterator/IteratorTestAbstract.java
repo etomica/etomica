@@ -3,13 +3,13 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.AtomLeafsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
 
@@ -72,31 +72,21 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @return a list of Lister instances for the atoms given by the iterator
      */
     protected java.util.LinkedList generalIteratorMethodTests(
-            AtomsetIterator iterator) {
-        Lister[] lister = Lister.listerArray(5);
+            AtomLeafsetIterator iterator) {
+        Lister[] lister = Lister.listerArray(2);
 
-        //******* test of allAtoms
-        iterator.allAtoms(lister[0]);
-        iterator.allAtoms(lister[2]);
-
-        printLists(lister);
-        print("Just printed the lists at the beginning of generalIteratorMethodTests");
-        assertEquals(lister[0].list, lister[2].list);
-
+        //******* test of next
+        iterator.reset();
+        for (IAtomList atomSet = iterator.next(); atomSet != null;
+             atomSet = iterator.next()) {
+            lister[0].actionPerformed(atomSet);
+        }
         //******* test of size
         print("Testing size -- iterator.size, lister.list.size: "+iterator.size()+" "+lister[0].list.size());
         assertEquals(iterator.size(), lister[0].list.size());
 
         IAtomList[] atoms = new IAtomList[lister[0].list.size()];
         
-        //******* test of next
-        iterator.reset();
-        for (IAtomList atomSet = iterator.next(); atomSet != null;
-             atomSet = iterator.next()) {
-            lister[3].actionPerformed(atomSet);
-        }
-        assertEquals(lister[0].list, lister[3].list);
-
         //******* test of next
         iterator.reset();
         int j=0;
@@ -111,17 +101,13 @@ public abstract class IteratorTestAbstract extends TestCase {
         if(iterator instanceof AtomIterator) {
             iterator.reset();
             int i = 0;
-            for (IAtom next = ((AtomIterator)iterator).nextAtom(); next != null;
+            for (IAtomLeaf next = ((AtomIterator)iterator).nextAtom(); i<atoms.length;
                  next = ((AtomIterator)iterator).nextAtom()) {
                 assertEquals(next, atoms[i++].getAtom(0));
             }
+            assertNull(((AtomIterator)iterator).nextAtom());
         }
         
-        //******* test that allAtoms and hasNext/next give same set of iterates
-        assertEquals(lister[0].list, lister[1].list);
-        print("Just tested for allAtoms and hasNext/next");
-        printLists(lister);
-
         //******* test of unset
         iterator.reset();
         iterator.unset();
@@ -156,7 +142,7 @@ public abstract class IteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives no iterates
      */
-    protected void testNoIterates(AtomsetIterator iterator) {
+    protected void testNoIterates(AtomLeafsetIterator iterator) {
         LinkedList list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
     }
@@ -167,7 +153,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param partners array of expected iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testIterates(AtomIterator iterator, IAtom[] iterates) {
+    protected LinkedList testIterates(AtomIterator iterator, IAtomLeaf[] iterates) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<iterates.length; i++) {
@@ -185,8 +171,8 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param partners array of atom1 expected in the pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomsetIterator iterator, IteratorDirective.Direction direction,
-            IAtom iterate, IAtom[] partners) {
+    protected LinkedList testApiIterates(AtomLeafsetIterator iterator, IteratorDirective.Direction direction,
+            IAtomLeaf iterate, IAtomLeaf[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
@@ -204,7 +190,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * Same as testApiIterates, but with atom1 the same in all pair iterates, while
      * atom0 varies.
      */
-    protected LinkedList testApiIteratesSwap(AtomsetIterator iterator, IAtom iterate, IAtom[] partners) {
+    protected LinkedList testApiIteratesSwap(AtomLeafsetIterator iterator, IAtomLeaf iterate, IAtomLeaf[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
@@ -218,7 +204,7 @@ public abstract class IteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives two particular iterates
      */
-    protected LinkedList testApiTwoIterates(AtomsetIterator iterator, AtomPair pair0, AtomPair pair1) {
+    protected LinkedList testApiTwoIterates(AtomLeafsetIterator iterator, AtomPair pair0, AtomPair pair1) {
         if((pair0.atom1 == null || pair0.atom0 == null) && (pair1.atom0 == null || pair1.atom1 == null)) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -234,7 +220,7 @@ public abstract class IteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives a single particular iterate.
      */
-    protected LinkedList testApiOneIterate(AtomsetIterator iterator, AtomPair pair) {
+    protected LinkedList testApiOneIterate(AtomLeafsetIterator iterator, AtomPair pair) {
         if(pair.atom0 == null || pair.atom1 == null) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -252,7 +238,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param n the number of iterates it should give
      * @return the Lister list of iterates
      */
-    protected LinkedList countTest(AtomsetIterator api, int n) {
+    protected LinkedList countTest(AtomLeafsetIterator api, int n) {
         LinkedList list = generalIteratorMethodTests(api);
         assertEquals(list.size(), n);
         return list;
@@ -267,7 +253,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param dn array of atom1 expected in the dnlist pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomsetIterator iterator, IAtom iterate, IAtom[] up, IAtom[] dn) {
+    protected LinkedList testApiIterates(AtomLeafsetIterator iterator, IAtomLeaf iterate, IAtomLeaf[] up, IAtomLeaf[] dn) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<up.length; i++) {

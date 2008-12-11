@@ -1,12 +1,11 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * @author kofke
@@ -55,9 +54,9 @@ public class BoxCluster extends Box {
         // increase ID to notify clusters to recalculate value
         if(cPairSet == null) {
             // assume 1 species
-            IAtomList molecules = getMoleculeList();
+            IMoleculeList molecules = getMoleculeList();
             IAtomList leafAtoms = getLeafList();
-            if (molecules.getAtomCount() == leafAtoms.getAtomCount()) {
+            if (molecules.getMoleculeCount() == leafAtoms.getAtomCount()) {
                 cPairSet = new CoordinatePairLeafSet(leafAtoms,space);
                 cPairTrialSet = new CoordinatePairLeafSet(leafAtoms,space);
             }

@@ -1,7 +1,7 @@
 package etomica.junit.atom;
 
 import junit.framework.TestCase;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomsetArray;
@@ -18,7 +18,7 @@ public class AtomArrayListTest extends TestCase {
 		ISpace space = Space.getInstance(3);
 		final int size = 40;
 		AtomArrayList arrayList = new AtomArrayList(size + 10);
-		IAtom[] listOfAtoms = new AtomLeaf[size];
+		IAtomLeaf[] listOfAtoms = new AtomLeaf[size];
 		for(int i = 0; i < size; i++) {
 			listOfAtoms[i] = new AtomLeaf(space);
 		    arrayList.add(listOfAtoms[i]);
@@ -28,7 +28,7 @@ public class AtomArrayListTest extends TestCase {
 		assertEquals(40, arrayList.sizeOfArray());
 
 		for(int i = 0; i < size; i++) {
-			IAtom atom = arrayList.getAtom(i);
+			IAtomLeaf atom = arrayList.getAtom(i);
 			assertSame(listOfAtoms[i], atom);
 		}
 	}
@@ -85,7 +85,7 @@ public class AtomArrayListTest extends TestCase {
 		// test case where capacity is already large enough.
 		// Verify atoms in list are not changed.
 		AtomArrayList arrayList = new AtomArrayList(size);
-		IAtom[] atomList = new IAtom[5];
+		IAtomLeaf[] atomList = new IAtomLeaf[5];
 		for(int i = 0; i < 5; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
@@ -101,7 +101,7 @@ public class AtomArrayListTest extends TestCase {
 		// test case where capacity needs to be increased.
 		// Verify atoms in list are not changed.
 		arrayList = new AtomArrayList(size);
-		atomList = new IAtom[5];
+		atomList = new IAtomLeaf[5];
 		for(int i = 0; i < 5; i++) {
 			atomList[i] = new AtomLeaf(space);
 			arrayList.add(atomList[i]);
@@ -139,10 +139,10 @@ public class AtomArrayListTest extends TestCase {
 		int size = 20;
 
 		AtomArrayList arrayList = new AtomArrayList(size);
-		IAtom notInList = new AtomLeaf(space);
+		IAtomLeaf notInList = new AtomLeaf(space);
 		assertEquals(-1, arrayList.indexOf(notInList));
 		
-		IAtom inList = new AtomLeaf(space);
+		IAtomLeaf inList = new AtomLeaf(space);
 		arrayList.add(inList);
 		assertEquals(0, arrayList.indexOf(inList));
 		
@@ -160,15 +160,15 @@ public class AtomArrayListTest extends TestCase {
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		
-		assertEquals(0, arrayList.toArray().length);
+		assertEquals(0, arrayList.toAtomLeafArray().length);
 
-		IAtom[] atomList = new IAtom[numElems];
+		IAtomLeaf[] atomList = new IAtomLeaf[numElems];
         for(int i = 0; i < numElems; i++) {
         	atomList[i] = new AtomLeaf(space);
         	arrayList.add(atomList[i]);
         }
 
-        IAtom[] aList = arrayList.toArray();
+        IAtomLeaf[] aList = arrayList.toAtomLeafArray();
         assertEquals(numElems, aList.length);
         for(int i = 0; i < numElems; i++) {
         	assertSame(atomList[i], aList[i]);
@@ -182,10 +182,10 @@ public class AtomArrayListTest extends TestCase {
 		ISpace space = Space.getInstance(3);
 		int size = 20;
 		int numElems = 5;
-        IAtom newElem = new AtomLeaf(space);
+        IAtomLeaf newElem = new AtomLeaf(space);
 
 		AtomArrayList arrayList = new AtomArrayList(size);
-        IAtom resultAtom = null;
+        IAtomLeaf resultAtom = null;
 
 		try {
 		    resultAtom = arrayList.set(10, newElem);
@@ -196,7 +196,7 @@ public class AtomArrayListTest extends TestCase {
 		catch (IndexOutOfBoundsException e) {
 		}
 
-		IAtom[] atomList = new IAtom[numElems];
+		IAtomLeaf[] atomList = new IAtomLeaf[numElems];
 
         for(int i = 0; i < numElems; i++) {
         	atomList[i] = new AtomLeaf(space);
@@ -206,7 +206,7 @@ public class AtomArrayListTest extends TestCase {
         // Replace first element in list
 		try {
 			resultAtom = arrayList.set(0, newElem);
-			IAtom a = arrayList.getAtom(0);
+			IAtomLeaf a = arrayList.getAtom(0);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -218,7 +218,7 @@ public class AtomArrayListTest extends TestCase {
         // Replace last element in list
 		try {
 			resultAtom = arrayList.set(4, newElem);
-			IAtom a = arrayList.getAtom(4);
+			IAtomLeaf a = arrayList.getAtom(4);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -252,7 +252,7 @@ public class AtomArrayListTest extends TestCase {
 		ISpace space = Space.getInstance(3);
 		int size = 10;
         boolean addResult;
-        IAtom[] atomList = new IAtom[size];
+        IAtomLeaf[] atomList = new IAtomLeaf[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
@@ -266,7 +266,7 @@ public class AtomArrayListTest extends TestCase {
 		}
 
 		// Storage array is now full (10).  Add another atom
-		IAtom overTheTop = new AtomLeaf(space);
+		IAtomLeaf overTheTop = new AtomLeaf(space);
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.getAtom(size));
@@ -290,8 +290,8 @@ public class AtomArrayListTest extends TestCase {
 	public void testAddAll() {
 		ISpace space = Space.getInstance(3);
 		int size = 10;
-        IAtom[] atomList = new IAtom[size];
-        IAtom[] atomsetList = new IAtom[size];
+        IAtomLeaf[] atomList = new IAtomLeaf[size];
+        IAtomLeaf[] atomsetList = new IAtomLeaf[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
@@ -321,7 +321,7 @@ public class AtomArrayListTest extends TestCase {
 	public void testRemove() {
 		ISpace space = Space.getInstance(3);
 		int size = 5;
-        IAtom[] atomList = new IAtom[size];
+        IAtomLeaf[] atomList = new IAtomLeaf[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
@@ -329,7 +329,7 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 
-		IAtom preRemove = null;
+		IAtomLeaf preRemove = null;
 		try {
             preRemove = arrayList.remove(2);
 		}
@@ -340,12 +340,12 @@ public class AtomArrayListTest extends TestCase {
 			assertNotNull(null);
 		}
 
-        IAtom postRemove = arrayList.getAtom(2);
+        IAtomLeaf postRemove = arrayList.getAtom(2);
 
     	assertNotSame(preRemove, postRemove);
 
     	if (Debug.ON) {
-    	    // AtomArrayList.getAtom only does a range check if Debug is ON
+    	    // AtomLeafArrayList.getAtom only does a range check if Debug is ON
         	try {
         		arrayList.getAtom(size-1);
         		// If an exception is not thrown, then the test
@@ -366,7 +366,7 @@ public class AtomArrayListTest extends TestCase {
 	public void testRemoveAndReplace() {
 		ISpace space = Space.getInstance(3);
 		int size = 5;
-        IAtom[] atomList = new IAtom[size];
+        IAtomLeaf[] atomList = new IAtomLeaf[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
@@ -374,12 +374,12 @@ public class AtomArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 
-        IAtom removeAtom = arrayList.removeAndReplace(2);
+        IAtomLeaf removeAtom = arrayList.removeAndReplace(2);
 		assertSame(atomList[2], removeAtom);
 		assertSame(atomList[size-1], arrayList.getAtom(2));
 
         if (Debug.ON) {
-            // AtomArrayList.getAtom only does a range check if Debug is ON
+            // AtomLeafArrayList.getAtom only does a range check if Debug is ON
             try {
                 arrayList.getAtom(size-1);
                 // If an exception is not thrown, then the test
@@ -402,9 +402,9 @@ public class AtomArrayListTest extends TestCase {
 		assertSame(atomList[3], removeAtom);
 
         if (Debug.ON) {
-            // AtomArrayList.getAtom only does a range check if Debug is ON
+            // AtomLeafArrayList.getAtom only does a range check if Debug is ON
     		try {
-    			IAtom atom = arrayList.getAtom(3);
+    			IAtomLeaf atom = arrayList.getAtom(3);
     			// Exception not thrown which indicates failure.
     			// Fail test with any assertion that will fail.
     			assertNotNull(null);
@@ -421,7 +421,7 @@ public class AtomArrayListTest extends TestCase {
 	public void testClear() {
 		ISpace space = Space.getInstance(3);
 		int size = 5;
-        IAtom[] atomList = new IAtom[size];
+        IAtomLeaf[] atomList = new IAtomLeaf[size];
 
 		AtomArrayList arrayList = new AtomArrayList(size);
 		for(int i = 0; i < size; i++) {
@@ -434,9 +434,9 @@ public class AtomArrayListTest extends TestCase {
 		assertEquals(size, arrayList.sizeOfArray());
 		assertTrue(arrayList.isEmpty());
 		if (Debug.ON) {
-            // AtomArrayList.getAtom only does a range check if Debug is ON
+            // AtomLeafArrayList.getAtom only does a range check if Debug is ON
     		try {
-    			IAtom atom = arrayList.getAtom(0);
+    			IAtomLeaf atom = arrayList.getAtom(0);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.

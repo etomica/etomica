@@ -1,16 +1,16 @@
 package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.ISpace;
@@ -27,10 +27,10 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
 
     protected MCMoveCBMC cbmcMove;
     protected double uNew, uOld;
-    protected IAtom molecule;
-    protected AtomSourceRandomMolecule moleculeSource;
-    private AtomIteratorSinglet affectedAtomIterator;
-    protected AtomGroupAction moveAction;
+    protected IMolecule molecule;
+    protected MoleculeSourceRandomMolecule moleculeSource;
+    private AtomIteratorArrayListSimple affectedAtomIterator;
+    protected MoleculeChildAtomAction moveAction;
     protected IVector oldGeo, newGeo, temp, transVect;
     protected AtomPositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
@@ -44,15 +44,15 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         this.random = nRandom;
         this.space = _space;
         
-        moleculeSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
+        moleculeSource = new MoleculeSourceRandomMolecule();
+        moleculeSource.setRandom(random);
         energyMeter = new MeterPotentialEnergy(pm);
         
-        affectedAtomIterator = new AtomIteratorSinglet();
+        affectedAtomIterator = new AtomIteratorArrayListSimple();
         
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         transVect = translator.getTranslationVector();
-        moveAction = new AtomGroupAction(translator);
+        moveAction = new MoleculeChildAtomAction(translator);
         centerer = new AtomPositionGeometricCenter(space);
         
         oldGeo = space.makeVector();
@@ -86,9 +86,9 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveCombinedCbmcTranslation called");
         
-        molecule = moleculeSource.getAtom();
+        molecule = moleculeSource.getMolecule();
         if(molecule == null) {return false;}
-        affectedAtomIterator.setAtom(molecule);
+        affectedAtomIterator.setList(molecule.getChildList());
         
         //save the old position, and apply the cbmc move.
         oldGeo.E(centerer.position(molecule));

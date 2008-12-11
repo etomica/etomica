@@ -6,15 +6,13 @@ package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomsetArrayList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -98,11 +96,11 @@ public class TestSetToUHexane extends Simulation {
         iterator = new AtomIteratorLeafAtoms(box);
         iterator.reset();
         
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
-                    space, 0.1, 1, false);
+                    space, 0.1, 1);
         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
         moveMolecule.setStepSize(0.024);        
         integrator.getMoveManager().addMCMove(moveMolecule);
@@ -174,14 +172,12 @@ public class TestSetToUHexane extends Simulation {
         int nsteps = chainLength * 500;
             
         //Store old positions
-        IAtomList aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
-        AtomsetArrayList list = new AtomsetArrayList();
-        list.setAtoms(aal);
+        IAtomList aal = box.getMoleculeList().getMolecule(0).getChildList();
 
-        IVector site = cdHex.getLatticePosition(box.getMoleculeList().getAtom(0));
+        IVector site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
         
         for(int i = 0; i < chainLength; i++){
-            oldX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
+            oldX[i].E(((IAtomPositioned)aal.getAtom(i)).getPosition());
         }
            
         for(int counter = 0; counter < nsteps; counter++){    
@@ -198,7 +194,7 @@ public class TestSetToUHexane extends Simulation {
             
             //Store the current positions for later use.
             for(int i = 0; i < chainLength; i++){
-                newX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
+                newX[i].E(((IAtomPositioned)aal.getAtom(i)).getPosition());
 //                System.out.println("newX  " + newX[i]);
             }
             
@@ -217,7 +213,7 @@ public class TestSetToUHexane extends Simulation {
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
-                newX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
+                newX[i].E(((IAtomPositioned)aal.getAtom(i)).getPosition());
                 newX[i].ME(oldX[i]);
                 double test = Math.sqrt(newX[i].squared());
 //                System.out.println(test);

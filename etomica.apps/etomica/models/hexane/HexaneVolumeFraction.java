@@ -4,9 +4,11 @@ package etomica.models.hexane;
  * Class to calculate the volume of a single hexane molecule
  */
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomLeaf;
+import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -32,7 +34,7 @@ public class HexaneVolumeFraction extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(_space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = 6;
@@ -81,7 +83,7 @@ public class HexaneVolumeFraction extends Simulation {
             IVector rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
-            AtomLeaf atom = new AtomLeaf(sim.getSpace());
+            IAtomLeaf atom = new AtomLeaf(sim.getSpace());
             
             time1 = System.currentTimeMillis();
             for(int count = 0; count < numberOfTests; count++){
@@ -111,10 +113,10 @@ public class HexaneVolumeFraction extends Simulation {
 //                }
                                 
                 //THIRD METHOD OF LOOPING
-                AtomArrayList list = (AtomArrayList)sim.box.getLeafList();
+                IAtomList list = sim.box.getLeafList();
                 for(int i = 0; i < list.getAtomCount(); i++){
-                    atom = (AtomLeaf)list.getAtom(i);
-                    temp.E(((AtomLeaf)atom).getPosition());
+                    atom = list.getAtom(i);
+                    temp.E(((IAtomPositioned)atom).getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));
                     if(length <= 0.5){

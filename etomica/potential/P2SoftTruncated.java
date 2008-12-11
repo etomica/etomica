@@ -1,8 +1,7 @@
 package etomica.potential;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
@@ -155,7 +154,7 @@ public class P2SoftTruncated extends Potential2
         
         public P0Lrc(ISpace space, Potential2Soft truncatedPotential, 
                 Potential2Soft potential, IAtomTypeLeaf[] types) {
-            super(space, types, (Potential)truncatedPotential);
+            super(space, types, truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension

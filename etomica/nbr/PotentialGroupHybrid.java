@@ -3,7 +3,6 @@ package etomica.nbr;
 import etomica.api.IPotentialMaster;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 
 /**
  * A PotentialGroup class to work with PotentialMasterHybrid.  Holds a reference
@@ -13,8 +12,8 @@ import etomica.space.ISpace;
  */
 public class PotentialGroupHybrid extends PotentialGroupNbr {
 
-    public PotentialGroupHybrid(int nBody, ISpace space) {
-        super(nBody, space);
+    public PotentialGroupHybrid(int nBody) {
+        super(nBody);
     }
 
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {

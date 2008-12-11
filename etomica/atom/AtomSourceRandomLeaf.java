@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -32,7 +32,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     /**
      * returns a random atom from the box's leaf atom list
      */
-    public IAtom getAtom() {
+    public IAtomLeaf getAtom() {
         if (Debug.ON && list== null) throw new IllegalStateException("must set the box before calling getAtom");
         int n = list.getAtomCount();
         if (n == 0) return null;

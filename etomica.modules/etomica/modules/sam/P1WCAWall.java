@@ -1,10 +1,9 @@
 package etomica.modules.sam;
 
+import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-
-import etomica.EtomicaInfo;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;

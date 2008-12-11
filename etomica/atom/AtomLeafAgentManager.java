@@ -112,7 +112,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
             // leaf index corresponds to the position in the leaf list
             Object agent = agents[i];
             if (agent != null) {
-                agentSource.releaseAgent(agent, (IAtomLeaf)leafList.getAtom(i));
+                agentSource.releaseAgent(agent, leafList.getAtom(i));
             }
         }
         agents = null;
@@ -132,7 +132,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
             // that up again.
-           addAgent((IAtomLeaf)leafList.getAtom(i), i);
+           addAgent(leafList.getAtom(i), i);
         }
     }
     
@@ -144,7 +144,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     // add all leaf atoms below this atom
                     IAtomList childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        addAgent((IAtomLeaf)childList.getAtom(iChild));
+                        addAgent(childList.getAtom(iChild));
                     }
                 }
                 else {
@@ -157,7 +157,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
                     IAtomList childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                        IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
+                        IAtomLeaf childAtom = childList.getAtom(iChild);
                         int index = box.getLeafIndex(childAtom);
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.

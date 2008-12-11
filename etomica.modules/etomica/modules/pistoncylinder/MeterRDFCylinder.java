@@ -2,7 +2,6 @@ package etomica.modules.pistoncylinder;
 
 import etomica.api.IData;
 import etomica.api.IVector;
-import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P1HardMovingBoundary;
@@ -34,7 +33,7 @@ public class MeterRDFCylinder extends MeterRDF {
         super.reset();
         // make a new iterator with a new filter.  xMax might have changed
         AtomFilterInCylinder filter = new AtomFilterInCylinder(box.getBoundary(), pistonPotential, xDataSource.getXMax());
-        iterator = new ApiFilteredCylinder(new ApiLeafAtoms(), filter);
+        iterator = new ApiFilteredCylinder(filter);
     }
 
     public IData getData() {

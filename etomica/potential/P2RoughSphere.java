@@ -1,10 +1,8 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomOrientedKinetic;
@@ -49,8 +47,8 @@ public class P2RoughSphere extends P2HardSphere {
      * Assumes atoms have same size and mass
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtomLeaf atom0 = pair.getAtom(0);
+        IAtomLeaf atom1 = pair.getAtom(1);
         IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;
         IAtomOrientedKinetic coord1 = (IAtomOrientedKinetic)atom1;
         IVector v1 = coord0.getVelocity();
@@ -63,9 +61,9 @@ public class P2RoughSphere extends P2HardSphere {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((IAtomLeaf)atom0).getType().rm();
-        double rm1 = ((IAtomLeaf)atom1).getType().rm();
-        double kappa = 4*((AtomType.Rotator)((IAtomLeaf)atom0).getType()).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
+        double kappa = 4*((AtomType.Rotator)atom0.getType()).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
         omegaSum.E(coord0.getAngularVelocity());
         omegaSum.PE(coord1.getAngularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
@@ -83,7 +81,7 @@ public class P2RoughSphere extends P2HardSphere {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(((IAtomLeaf)atom0).getType().getMass());
+        impulse.TE(atom0.getType().getMass());
         
         coord0.getVelocity().PEa1Tv1( rm0,impulse);
         coord1.getVelocity().PEa1Tv1(-rm1,impulse);

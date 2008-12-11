@@ -4,7 +4,7 @@ import etomica.action.Activity;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -68,7 +68,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	
 	public double f(double[] newU){
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
 		}
 		
@@ -86,7 +86,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		forceSum.reset();
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -114,9 +114,9 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
 		
-		IAtomList molecules = coordinateDefinition.getBasisCells()[0].molecules;
+		IMoleculeList molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
-		for (int m=0; m<molecules.getAtomCount(); m++){
+		for (int m=0; m<molecules.getMoleculeCount(); m++){
 				
 			if (m==0){
 				for (int k=0; k<3; k++){
@@ -129,7 +129,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 			} else {
 				
-				IAtomList childList = ((IMolecule)molecules.getAtom(m)).getChildList();
+				IAtomList childList = molecules.getMolecule(m).getChildList();
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				
@@ -147,7 +147,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					}
 				}
 			}
-			j += coordinateDefinition.getCoordinateDim() /molecules.getAtomCount();
+			j += coordinateDefinition.getCoordinateDim() /molecules.getMoleculeCount();
 		}
 		
 		return fPrime[index];

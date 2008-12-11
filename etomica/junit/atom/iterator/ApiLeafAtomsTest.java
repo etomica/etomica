@@ -1,6 +1,5 @@
 package etomica.junit.atom.iterator;
 
-import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;

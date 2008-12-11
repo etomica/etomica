@@ -4,6 +4,7 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.api.ISimulation;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.site.PotentialMasterSite;
@@ -49,7 +50,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
             BoxAgentManager agentManager, ISpace _space) {
-        super(sim, boxAgentSource, agentManager, new Api1ACell(_space.D(),range,agentManager), _space);
+        super(sim, boxAgentSource, agentManager, new Api1ACell(_space.D(),range,agentManager));
         setRange(range);
     }
     
@@ -121,14 +122,14 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotential potential, IAtomTypeLeaf[] atomType) {
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomTypeLeaf[] atomType) {
         super.addRangedPotentialForTypes(potential, atomType);
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
         }
     }
 
-    public void removePotential(IPotential potential) {
+    public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         
         maxPotentialRange = 0;

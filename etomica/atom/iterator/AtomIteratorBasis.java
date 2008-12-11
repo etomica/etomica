@@ -4,12 +4,10 @@
  */
 package etomica.atom.iterator;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomArrayList;
 
 /**
@@ -39,7 +37,7 @@ import etomica.atom.AtomArrayList;
  *
  * </ul>
  */
-public final class AtomIteratorBasis extends AtomIteratorAdapter implements
+public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
         AtomsetIteratorBasisDependent {
 
     /**
@@ -47,10 +45,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * beginning iteration.
      */
     public AtomIteratorBasis() {
-        super(new AtomIteratorArrayListSimple());
-        listIterator = (AtomIteratorArrayListSimple) iterator;
+        super();
         littleList.clear();
-        list = littleList;
+        myList = littleList;
     }
 
     /**
@@ -60,11 +57,11 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * of the basis-set atoms. Call to this method leaves iterator unset; call to reset is
      * required before beginning iteration.
      */
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
         targetAtom = newTargetAtom;
         needSetupIterator = (basis != null);//flag to setup iterator only if
                                             // presently has a non-null basis
-        listIterator.unset();
+        unset();
     }
 
     /**
@@ -79,21 +76,21 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * @throws IllegalArgumentException 
      *              if atoms.count() is not 0 or 1
      */
-    public void setBasis(IAtomList atoms) {
+    public void setBasis(IMoleculeList atoms) {
         if (atoms == null) {
             basis = null;
             littleList.clear();
-            list = littleList;
-            listIterator.setList(list);
+            myList = littleList;
+            setList(myList);
             needSetupIterator = false;
-        } else if (atoms.getAtomCount() == 1) {
-            basis = atoms.getAtom(0);
+        } else if (atoms.getMoleculeCount() == 1) {
+            basis = atoms.getMolecule(0);
             needSetupIterator = true;
         } else {
             throw new IllegalArgumentException(
                     "Inappropriate number of atoms given in basis");
         }
-        listIterator.unset();
+        unset();
     }
 
     /**
@@ -101,19 +98,12 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * yield an iterate. Assumes that the basis -- if it is a group -- 
      * has child atoms. 
      */
-    public boolean haveTarget(IAtom target) {
+    public boolean haveTarget(IAtomLeaf target) {
         if(basis == null) return false;
         if (target == null) {
             return true;
         }
-        if (basis == target) return true;
-        if (target instanceof IMolecule && basis instanceof IAtomLeaf) {
-            return ((IAtomLeaf)basis).getParentGroup() == target;
-        }
-        if (basis instanceof IMolecule && target instanceof IAtomLeaf) {
-            return ((IAtomLeaf)target).getParentGroup() == basis;
-        }
-        return false;
+        return target.getParentGroup() == basis;
     }
 
     /**
@@ -126,38 +116,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         if (needSetupIterator) {
             setupIterator();
         }
-        listIterator.setList(list);
-        listIterator.reset();
-    }
-
-    /**
-     * Performs action on all iterates given by iterator in its present condition.
-     * Unaffected by reset status, but will clobber iteration state.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if (basis == null) {
-            return;
-        }
-        if (needSetupIterator) {
-            setupIterator();
-        }
-        listIterator.setList(list);
-        super.allAtoms(action);
-    }
-
-    /**
-     * Performs action on all iterates given by iterator in its present condition.
-     * Unaffected by reset status, but will clobber iteration state.
-     */
-    public void allAtoms(AtomAction action) {
-        if (basis == null) {
-            return;
-        }
-        if (needSetupIterator) {
-            setupIterator();
-        }
-        listIterator.setList(list);
-        super.allAtoms(action);
+        setList(myList);
+        super.reset();
     }
 
     /**
@@ -175,16 +135,12 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     private void setupIterator() {
         needSetupIterator = false;
         littleList.clear();
-        list = littleList;
+        myList = littleList;
         if (basis != null) {
             if (targetAtom == null) {
                 setupBasisIteration();
             }
-            else if(basis == targetAtom || (basis instanceof IAtomLeaf && ((IAtomLeaf)basis).getParentGroup() == targetAtom)) {
-                // target is the basis atom or is a parent atom of the basis atom
-                setupBasisIteration();
-            }
-            else if (targetAtom instanceof IAtomLeaf && ((IAtomLeaf)targetAtom).getParentGroup() == basis) {
+            else if (targetAtom.getParentGroup() == basis) {
                 //targetAtom is the child of the basis atom
                 littleList.add(targetAtom);
             }
@@ -195,25 +151,16 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Convenience method used by setupIterator
      */
     private void setupBasisIteration() {
-        if (!(basis instanceof IMolecule)) {
-            //if the basis is a leaf atom, we define the iterates to be just
-            //the basis atom itself
-            littleList.clear();
-            littleList.add(basis);
-            list = littleList;
-        } else {
-            list = ((IMolecule)basis).getChildList();
-        }
+        myList = basis.getChildList();
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorArrayListSimple listIterator;//the wrapped iterator
     private final AtomArrayList littleList = new AtomArrayList(1);//used to form a list of
                                                        // one iterate if target
                                                        // is specified
-    private IAtom targetAtom;
-    private IAtom basis;
-    private IAtomList list;
+    private IAtomLeaf targetAtom;
+    private IMolecule basis;
+    private IAtomList myList;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called
                                              // upon reset

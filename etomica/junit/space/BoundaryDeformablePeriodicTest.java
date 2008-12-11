@@ -1,7 +1,6 @@
 package etomica.junit.space;
 
 import junit.framework.TestCase;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
@@ -141,10 +140,10 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         BoundaryDeformablePeriodicTest test = new BoundaryDeformablePeriodicTest();
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
-        IAtomList list = test.sim.getBox(0).getMoleculeList(test.sim.getSpeciesManager().getSpecies(0));
-        test.atom0 = (AtomLeaf)list.getAtom(0);
-        test.atom1 = (AtomLeaf)list.getAtom(1);
-        test.atom2 = (AtomLeaf)list.getAtom(2);
+//        IMoleculeList list = test.sim.getBox(0).getMoleculeList(test.sim.getSpeciesManager().getSpecies(0));
+//        test.atom0 = (AtomLeaf)list.getAtom(0);
+//        test.atom1 = (AtomLeaf)list.getAtom(1);
+//        test.atom2 = (AtomLeaf)list.getAtom(2);
         test.display = ((DisplayBox)test.simGraphic.displayList().getFirst());
         test.interactive = true;
         test.testNearestImage();

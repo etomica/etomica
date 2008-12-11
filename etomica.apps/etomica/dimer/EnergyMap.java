@@ -49,7 +49,7 @@ public class EnergyMap extends Simulation{
     public EnergyMap(double height, String fileTail) {
     	super(Space3D.getInstance(), true);
     	
-    	potentialMaster = new PotentialMaster(space);
+    	potentialMaster = new PotentialMaster();
         
     	// Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);

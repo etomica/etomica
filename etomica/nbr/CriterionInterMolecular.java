@@ -1,6 +1,5 @@
 package etomica.nbr;
 
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 
 /**
@@ -34,7 +33,7 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     public boolean accept(IAtomList pair) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if ((((IAtomLeaf)pair.getAtom(0)).getParentGroup() == ((IAtomLeaf)pair.getAtom(1)).getParentGroup()) && (intraCriterion == null ||
+        if ((pair.getAtom(0).getParentGroup() == pair.getAtom(1).getParentGroup()) && (intraCriterion == null ||
                 !intraCriterion.accept(pair))) {
             return false;
         }

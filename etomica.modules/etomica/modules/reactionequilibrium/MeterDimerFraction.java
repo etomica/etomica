@@ -55,7 +55,7 @@ public final class MeterDimerFraction implements IEtomicaDataSource {
         IAtomList leafAtoms = box.getLeafList();
         int nLeaf = leafAtoms.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = (IAtomLeaf)leafAtoms.getAtom(i);
+            IAtomLeaf a = leafAtoms.getAtom(i);
         	IAtomLeaf partner = (IAtomLeaf)agentManager.getAgent(a);
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
             if(a.getType().getSpecies() == speciesA) {

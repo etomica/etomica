@@ -1,11 +1,11 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.space.ISpace;
 
@@ -63,10 +63,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
     
     protected final IAtomTypeLeaf[] types;
     protected final boolean interType;
-    protected final Potential truncatedPotential;
+    protected final IPotentialAtomic truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
     
-    public Potential0Lrc(ISpace space, IAtomTypeLeaf[] types, Potential truncatedPotential) {
+    public Potential0Lrc(ISpace space, IAtomTypeLeaf[] types, IPotentialAtomic truncatedPotential) {
         super(space);
         this.types = types.clone();
         if(types.length != 2) {
@@ -80,7 +80,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
     /**
      * Returns the potential whose truncation this lrcPotential exists to correct. 
      */
-    public Potential getTruncatedPotential() {
+    public IPotentialAtomic getTruncatedPotential() {
         return truncatedPotential;
     }
 
@@ -92,7 +92,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
             IMolecule mol = types[i].getSpecies().makeMolecule();
             IAtomList childList = mol.getChildList();
             for (int j=0; j<childList.getAtomCount(); j++) {
-                if (((IAtomLeaf)childList.getAtom(j)).getType() == types[i]) {
+                if (childList.getAtom(j).getType() == types[i]) {
                     lrcAtomsPerMolecule[i]++;
                 }
             }
@@ -100,18 +100,36 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         box = b;
     }
     
-    public void setTargetAtoms(IAtom targetAtom) {
+    public void setTargetAtom(IAtomLeaf targetAtom) {
         if (targetAtom == null) {
             divisor = 1;
             return;
         }
         int typeIndex = 1;
-        if ((targetAtom instanceof IAtomLeaf && types[0] == ((IAtomLeaf)targetAtom).getType()) ||
-            (targetAtom instanceof IMolecule && types[0].getSpecies() == ((IMolecule)targetAtom).getType())) {
+        if (types[0] == targetAtom.getType()) {
             typeIndex = 0;
         }
-        else if (!(targetAtom instanceof IAtomLeaf && types[1] == ((IAtomLeaf)targetAtom).getType()) || 
-                  (targetAtom instanceof IMolecule && types[1].getSpecies() == ((IMolecule)targetAtom).getType())) {
+        else if (types[1] != targetAtom.getType()) {
+            divisor = 0;
+            return;
+        }
+        ISpecies species = types[typeIndex].getSpecies();
+        divisor = box.getNMolecules(species) * lrcAtomsPerMolecule[typeIndex];
+        if (!interType) {
+            divisor = divisor/2.0;
+        }
+    }
+     
+    public void setTargetMolecule(IMolecule targetAtom) {
+        if (targetAtom == null) {
+            divisor = 1;
+            return;
+        }
+        int typeIndex = 1;
+        if (types[0].getSpecies() == targetAtom.getType()) {
+            typeIndex = 0;
+        }
+        else if (types[1].getSpecies() != targetAtom.getType()) {
             divisor = 0;
             return;
         }

@@ -1,7 +1,7 @@
 package etomica.dimer;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;

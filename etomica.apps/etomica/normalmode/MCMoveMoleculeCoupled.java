@@ -1,15 +1,15 @@
 package etomica.normalmode;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculePair;
+import etomica.atom.MoleculeSource;
+import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -28,36 +28,36 @@ import etomica.space.IVectorRandom;
 public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
-    protected final AtomGroupAction moveMoleculeAction;
+    protected final MoleculeChildAtomAction moveMoleculeAction;
     protected final IVectorRandom groupTransVect;
-    protected IAtom molecule0, molecule1;
+    protected IMolecule molecule0, molecule1;
     protected final MeterPotentialEnergy energyMeter;
-    protected AtomSource moleculeSource;
+    protected MoleculeSource moleculeSource;
     protected double uOld, uNew;
     protected final IRandom random;
     protected final AtomIteratorArrayListSimple affectedMoleculeIterator;
     protected final AtomArrayList affectedMoleculeList;
     protected final AtomActionTranslateBy singleAction;
-    protected final AtomPair pair;
+    protected final MoleculePair pair;
     protected PotentialGroup potential;
     
     public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
     		                     ISpace _space){
         super(potentialMaster);
         this.random = nRandom;
-        moleculeSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
+        moleculeSource = new MoleculeSourceRandomMolecule();
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         
-        affectedMoleculeList = new AtomArrayList(2);
+        affectedMoleculeList = new AtomArrayList();
         affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
         
         singleAction = new AtomActionTranslateBy(_space);
         groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
         
-        moveMoleculeAction = new AtomGroupAction(singleAction);
+        moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
         
-        pair = new AtomPair();
+        pair = new MoleculePair();
         
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
@@ -75,8 +75,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     
     public AtomIterator affectedAtoms() {
         affectedMoleculeList.clear();
-        affectedMoleculeList.add(molecule0);
-        affectedMoleculeList.add(molecule1);
+        affectedMoleculeList.addAll(molecule0.getChildList());
+        affectedMoleculeList.addAll(molecule1.getChildList());
         return affectedMoleculeIterator;
     }
 
@@ -89,8 +89,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveMoleculeCoupled called");
         
-        molecule0 = moleculeSource.getAtom();
-        molecule1 = moleculeSource.getAtom();
+        molecule0 = moleculeSource.getMolecule();
+        molecule1 = moleculeSource.getMolecule();
         if(molecule0==null || molecule1==null || molecule0==molecule1) return false;
         
         //make sure we don't double count the molecule0-molecule1 interaction

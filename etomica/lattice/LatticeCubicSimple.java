@@ -1,7 +1,6 @@
 package etomica.lattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * A simple cubic lattice, with one site per cubic unit cell.
@@ -24,9 +23,6 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
      */
     public LatticeCubicSimple(ISpace space, double latticeConstant) {
         super(new PrimitiveCubic(space));
-        if(space.D() != 3) {
-            throw new IllegalArgumentException("LatticeCubicSimple requires a 3-D space");
-        }
         this.primitive = (PrimitiveCubic)getPrimitive();
         primitive.setSizeABC(latticeConstant);
     }

@@ -1,20 +1,20 @@
 package etomica.normalmode;
 
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.api.IRandom;
 
 public class MCMoveHarmonic extends MCMoveBox {
 
     public MCMoveHarmonic(IRandom random) {
         super(null, new MCMoveTracker());
         this.random = random;
-        iterator = new AtomIteratorAllMolecules();
+        iterator = new AtomIteratorLeafAtoms();
     }
 
     public void setRejectable(boolean newIsRejectable) {
@@ -173,7 +173,7 @@ public class MCMoveHarmonic extends MCMoveBox {
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    private final AtomIteratorAllMolecules iterator;
+    protected final AtomIteratorLeafAtoms iterator;
     private double[][] stdDev;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;

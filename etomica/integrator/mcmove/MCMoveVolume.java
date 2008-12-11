@@ -6,7 +6,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
@@ -25,8 +25,9 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected final BoxInflate inflate;
     private final int D;
     private IRandom random;
+    protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
-    private transient double uOld, hOld, vNew, vScale;
+    private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
 
     public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
@@ -50,12 +51,14 @@ public class MCMoveVolume extends MCMoveBoxStep {
         setStepSize(0.10);
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
+        affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);
+        affectedAtomIterator.setBox(p);
     }
     
     public boolean doTrial() {
@@ -73,7 +76,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     }//end of doTrial
     
     public double getA() {
-        return Math.exp((box.getMoleculeList().getAtomCount()+1)*vScale);
+        return Math.exp((box.getMoleculeList().getMoleculeCount()+1)*vScale);
     }
     
     public double getB() {
@@ -89,14 +92,10 @@ public class MCMoveVolume extends MCMoveBoxStep {
     public double energyChange() {return uNew - uOld;}
     
     public AtomIterator affectedAtoms() {
-        return new AtomIteratorAllMolecules(box);
+        return affectedAtomIterator;
     }
 
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}
-    public final double pressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
-    public final void setLogPressure(int lp) {setPressure(Math.pow(10.,lp));}
-    private double hNew;
-    
 }

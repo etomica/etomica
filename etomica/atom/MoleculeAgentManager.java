@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomAddedEvent;
 import etomica.api.IBoxAtomEvent;
@@ -12,10 +11,10 @@ import etomica.api.IBoxAtomRemovedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.box.BoxMoleculeIndexChangedEvent;
 import etomica.box.BoxNumMoleculesEvent;
-import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationSpeciesAddedEvent;
 import etomica.simulation.SimulationSpeciesEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
@@ -102,10 +101,10 @@ public class MoleculeAgentManager implements IListener, Serializable {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
         for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            IAtomList molecules = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
-            for (int j=0; i<molecules.getAtomCount(); j++) {
+            IMoleculeList molecules = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
+            for (int j=0; i<molecules.getMoleculeCount(); j++) {
                 // check if atom's spot in the array even exists yet
-                IMolecule molecule = (IMolecule)molecules.getAtom(i);
+                IMolecule molecule = molecules.getMolecule(i);
                 if (molecule.getIndex() < agents[i].length) {
                     Object agent = agents[i][molecule.getIndex()];
                     if (agent != null) {
@@ -129,9 +128,9 @@ public class MoleculeAgentManager implements IListener, Serializable {
                     box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
         }
         // fill in the array with agents from all the molecules
-        IAtomList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getAtomCount(); i++) {
-            addAgent((IMolecule)molecules.getAtom(i));
+        IMoleculeList molecules = box.getMoleculeList();
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            addAgent(molecules.getMolecule(i));
         }
     }
     

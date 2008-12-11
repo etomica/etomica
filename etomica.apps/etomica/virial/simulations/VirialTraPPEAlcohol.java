@@ -121,7 +121,7 @@ public class VirialTraPPEAlcohol {
         
         // U_a_b is a pairwise potential (2 molecules, a and b, are involved).
         // The directives for calculation of U_a_b are provided later.
-        PotentialGroup U_a_b = new PotentialGroup(2, space);
+        PotentialGroup U_a_b = new PotentialGroup(2);
         
         
         

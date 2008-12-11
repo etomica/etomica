@@ -2,10 +2,10 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Basis;
@@ -39,12 +39,12 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public double[] calcU(IAtomList atoms) {
+    public double[] calcU(IMoleculeList atoms) {
         int j = 0;
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
+        for (int i=0; i<atoms.getMoleculeCount(); i++) {
+            IAtomPositioned a = (IAtomPositioned)atoms.getMolecule(i).getChildList().getAtom(0);
             IVector pos = a.getPosition();
-            IVector site = getLatticePosition(a);
+            IVector site = getLatticePosition((IAtomLeaf)a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
                 u[j+k] = workVector.x(k);
@@ -54,23 +54,23 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         return u;
     }
 
-    public void initNominalU(IAtomList molecules) {
+    public void initNominalU(IMoleculeList molecules) {
         //nothing to do -- lattice site is all information needed for u
     }
 
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(IAtomList atoms, double[] newU) {
+    public void setToU(IMoleculeList atoms, double[] newU) {
         int j = 0;
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
+        for (int i=0; i<atoms.getMoleculeCount(); i++) {
+            IAtomPositioned a = (IAtomPositioned)atoms.getMolecule(i).getChildList().getAtom(0);
             IVector pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);
             }
             j += workVector.getD();
-            pos.PE(getLatticePosition(a));
+            pos.PE(getLatticePosition((IAtomLeaf)a));
         }
     }
 

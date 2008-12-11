@@ -1,14 +1,13 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.space.ISpace;
 import etomica.units.Length;
@@ -22,7 +21,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
 
     public MeterRadiusGyration(ISpace space) {
         super("Radius of Gyration", Length.DIMENSION);
-        iterator = new AtomIteratorAllMolecules();
+        iterator = new MoleculeIteratorAllMolecules();
         cm = space.makeVector();
         realPos = space.makeVector();
         dr = space.makeVector();
@@ -42,7 +41,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
      * 
      * @param iter
      */
-    public void setIterator(AtomIteratorAllMolecules iter) {
+    public void setIterator(MoleculeIteratorAllMolecules iter) {
         iterator = iter;
     }
 
@@ -52,7 +51,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
      * 
      * @return
      */
-    public AtomIteratorAllMolecules getIterator() {
+    public MoleculeIteratorAllMolecules getIterator() {
         return iterator;
     }
 
@@ -65,10 +64,10 @@ public class MeterRadiusGyration extends DataSourceScalar {
         iterator.reset();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
+        for (IMolecule atom = iterator.nextMolecule(); atom != null;
+             atom = iterator.nextMolecule()) {
             // loop over molecules
-            IAtomList childList = ((IMolecule)iterator.nextAtom()).getChildList();
+            IAtomList childList = atom.getChildList();
             if (childList.getAtomCount() < 2) {
                 // a monatomic molecule
                 continue;
@@ -135,7 +134,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     private IBox box;
-    private AtomIteratorAllMolecules iterator;
+    private MoleculeIteratorAllMolecules iterator;
     private final IVector cm, realPos;
     private final IVector dr;
 

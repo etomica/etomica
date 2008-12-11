@@ -1,6 +1,6 @@
 package etomica.nbr.site;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
@@ -17,9 +17,9 @@ public class AtomSite {
         this.latticeArrayIndex = latticeArrayIndex;
     }
     
-    public IAtom getAtom() {return atom;}
+    public IAtomLeaf getAtom() {return atom;}
     
-    public void setAtom(IAtom atom) {
+    public void setAtom(IAtomLeaf atom) {
         this.atom = atom;
     }
     
@@ -27,7 +27,7 @@ public class AtomSite {
         return latticeArrayIndex;
     }
     
-    private IAtom atom;
+    private IAtomLeaf atom;
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new SiteFactory() {

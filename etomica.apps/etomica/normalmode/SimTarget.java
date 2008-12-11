@@ -45,7 +45,7 @@ public class SimTarget extends Simulation {
     public SimTarget(Space _space, int numAtoms, double density) {
         super(_space, true);
 
-        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this, space));
+        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

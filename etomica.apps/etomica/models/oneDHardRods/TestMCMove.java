@@ -10,7 +10,6 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
-import etomica.data.DataPump;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
@@ -120,7 +119,7 @@ public class TestMCMove extends Simulation {
         move.setEigenVectors(nm.getEigenvectors(box));
         move.setCoordinateDefinition(coordinateDefinition);
         move.setTemperature(temperature);
-        move.setBox((IBox)box);
+        move.setBox(box);
         move.setStepSizeMin(0.001);
         move.setStepSize(0.01);
         

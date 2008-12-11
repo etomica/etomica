@@ -40,7 +40,7 @@ public class CriterionMolecular extends CriterionAdapter {
      * that given by any subCriterion.
      */
     public boolean accept(IAtomList pair) {
-        if (isIntraMolecular != (((IAtomLeaf)pair.getAtom(0)).getParentGroup() == ((IAtomLeaf)pair.getAtom(1)).getParentGroup())) {
+        if (isIntraMolecular != (pair.getAtom(0).getParentGroup() == pair.getAtom(1).getParentGroup())) {
             return false;
         }
         return subCriterion.accept(pair);

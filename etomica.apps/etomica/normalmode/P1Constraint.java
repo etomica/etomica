@@ -1,8 +1,7 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
@@ -68,7 +67,7 @@ public class P1Constraint extends Potential1{
 		
 		IVector posAtom = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
 		
-		int atomIndex = ((IAtomLeaf)atoms.getAtom(0)).getLeafIndex();
+		int atomIndex = atoms.getAtom(0).getLeafIndex();
 		double d = posAtom.Mv1Squared(latticeSite[atomIndex]);
 				
 		if (d < radiusInner){

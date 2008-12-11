@@ -1,11 +1,11 @@
 package etomica.action;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
@@ -45,10 +45,10 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		 * *****************************************************************
 		 */
 		
-        IConformation configA = ((ISpecies)monomerA.getType()).getConformation();
+        IConformation configA = monomerA.getType().getConformation();
         configA.initializePositions(monomerA.getChildList());
         
-        IConformation configB = ((ISpecies)monomerB.getType()).getConformation();
+        IConformation configB = monomerB.getType().getConformation();
         configB.initializePositions(monomerB.getChildList());
         
         /* *****************************************************************
@@ -74,7 +74,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		double roll  =   routeParams[2][0]*Math.PI/180;
 	
         atomActionRotateBy.setAngles(roll,pitch,yaw);
-        atomGroupActionRotateBy = new AtomGroupAction(atomActionRotateBy);
+        atomGroupActionRotateBy = new MoleculeChildAtomAction(atomActionRotateBy);
 		atomGroupActionRotateBy.actionPerformed(monomerB);
 		
 		printKeyAtomPositions();
@@ -210,7 +210,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	public void translateMonomerB() {
 		
 		atomActionTranslateBy.setTranslationVector(translationVector);
-		atomGroupActionTranslateBy = new AtomGroupAction(atomActionTranslateBy);
+		atomGroupActionTranslateBy = new MoleculeChildAtomAction(atomActionTranslateBy);
         atomGroupActionTranslateBy.actionPerformed(monomerB);
         
         // Update r for next call 
@@ -228,8 +228,8 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	
 	public void setMolecules() {
 		moleculeList = box.getMoleculeList();
-		monomerA = (IMolecule)moleculeList.getAtom(0);
-		monomerB = (IMolecule)moleculeList.getAtom(1);
+		monomerA = moleculeList.getMolecule(0);
+		monomerB = moleculeList.getMolecule(1);
 	}
 	
 	public void setImportantAtoms() {
@@ -299,8 +299,8 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected AtomActionTranslateBy atomActionTranslateBy;
     protected final AtomActionRotateBy atomActionRotateBy;
    
-    protected AtomGroupAction atomGroupActionRotateBy;
-    protected AtomGroupAction atomGroupActionTranslateBy;
+    protected MoleculeChildAtomAction atomGroupActionRotateBy;
+    protected MoleculeChildAtomAction atomGroupActionTranslateBy;
    
     protected IPotentialMaster potentialMaster;
     
@@ -308,7 +308,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected IVector newOriginB;
     protected IVector translationVector;
     
-    protected IAtomList moleculeList; // List of monomers in box.
+    protected IMoleculeList moleculeList; // List of monomers in box.
     protected IAtomList atomSetA; // List of sites in monomer A.
     protected IAtomList atomSetB; // List of sites in monomer B
     

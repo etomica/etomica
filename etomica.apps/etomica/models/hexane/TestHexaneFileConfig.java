@@ -76,7 +76,7 @@ public class TestHexaneFileConfig extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;
@@ -97,7 +97,7 @@ public class TestHexaneFileConfig extends Simulation {
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
-                space, 0.1, 1, false);
+                space, 0.1, 1);
         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
         moveMolecule.setStepSize(0.024);        
         integrator.getMoveManager().addMCMove(moveMolecule);

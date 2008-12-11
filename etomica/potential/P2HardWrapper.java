@@ -4,7 +4,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
 
 /**
  * Hard potential class that wraps another hard potential.

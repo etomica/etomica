@@ -19,7 +19,8 @@ public abstract class Species extends AtomType implements ISpecies {
      * Simple invokes parent constructor with same arguments.
      */
     public Species(IAtomPositionDefinition positionDefinition) {
-        super(positionDefinition);
+        super();
+        this.positionDefinition = positionDefinition;
     }
 
     /* (non-Javadoc)
@@ -80,8 +81,24 @@ public abstract class Species extends AtomType implements ISpecies {
      * @see etomica.atom.IAtomTypeMolecule#getConformation()
      */
     public IConformation getConformation() {return conformation;}
+ 
     
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#getPositionDefinition()
+     */
+    public IAtomPositionDefinition getPositionDefinition() {
+        return positionDefinition;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#setPositionDefinition(etomica.atom.AtomPositionDefinition)
+     */
+    public void setPositionDefinition(IAtomPositionDefinition newPositionDefinition) {
+        positionDefinition = newPositionDefinition;
+    }
+
     private static final long serialVersionUID = 2L;
     protected IConformation conformation;
+    protected IAtomPositionDefinition positionDefinition;
     protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
 }

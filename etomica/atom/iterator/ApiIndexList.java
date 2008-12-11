@@ -1,10 +1,9 @@
 package etomica.atom.iterator;
 
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtom;
 import etomica.api.IMolecule;
-
-import etomica.action.AtomsetAction;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
 
 /**
@@ -15,8 +14,6 @@ import etomica.atom.AtomPair;
  * 
  * @author Tai Tan
  */
-
-
 public class ApiIndexList implements AtomsetIteratorBasisDependent {
 
 	/**
@@ -31,7 +28,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     	return 1;
     }
     
-    public boolean haveTarget(IAtom a){
+    public boolean haveTarget(IAtomLeaf a){
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
     		
     		if (a == parentGroup.getChildList().getAtom(index[i][0])){
@@ -45,18 +42,18 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     	return false;
     }
     
-    public void setTarget(IAtom a){
+    public void setTarget(IAtomLeaf a){
     	target = a;
     	unset();
     }
                                 
 
-	public void setBasis(IAtomList parent) {
+	public void setBasis(IMoleculeList parent) {
 	    if (parent == null) {
 	        parentGroup = null;
 	    }
 	    else {
-	        parentGroup = (IMolecule)parent.getAtom(0);
+	        parentGroup = parent.getMolecule(0);
 	    }
 		unset();
 	}
@@ -64,23 +61,6 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     public int size() {
         return index.length;
     }
-
-    /**
-     * Performs the given action on an AtomPair containing the two atoms last
-     * identified via setPair. Does nothing if either such atom is null.
-     * Unaffected by and has no effect on the reset/unset state.
-     */
-    public void allAtoms(AtomsetAction action) {
-    	
-    	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		pair.atom0 = parentGroup.getChildList().getAtom(index[i][0]);
-    		pair.atom1 = parentGroup.getChildList().getAtom(index[i][1]);
-    		
-    		action.actionPerformed(pair);
-    	}
-    }
-
-
 
     /**
      * Sets iterator to a state where hasNext() returns false.
@@ -134,7 +114,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     private int [][]index;
     private int cursor;
     private IMolecule parentGroup;
-    private IAtom target;
+    private IAtomLeaf target;
     
     private final AtomPair pair;
     

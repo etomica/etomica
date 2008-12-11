@@ -34,7 +34,7 @@ public class MaterialFracture extends Simulation {
 
     public MaterialFracture() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         box = new Box(this, space);
         box.setBoundary(new BoundaryRectangularSlit(this, 0, space));
         box.getBoundary().setDimensions(space.makeVector(new double[]{90,30}));

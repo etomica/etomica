@@ -1,13 +1,13 @@
 package etomica.data.meter;
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceIndependent;
+import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
@@ -61,13 +61,13 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     /**
      * The meter that defines the profiled quantity
      */
-    public DataSourceAtomic getDataSource() {return meter;}
+    public DataSourceMolecular getDataSource() {return meter;}
     
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setDataSource(DataSourceAtomic m) {
-        if (!(m.getAtomDataInfo() instanceof DataInfoDouble)) {
+    public void setDataSource(DataSourceMolecular m) {
+        if (!(m.getMoleculeDataInfo() instanceof DataInfoDouble)) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
         meter = m;
@@ -97,13 +97,13 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         IBoundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        IAtomList moleculeList = box.getMoleculeList();
+        IMoleculeList moleculeList = box.getMoleculeList();
         if (species != null) {
             moleculeList = box.getMoleculeList(species);
         }
-        int nMolecules = moleculeList.getAtomCount();
+        int nMolecules = moleculeList.getMoleculeCount();
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule a = (IMolecule)moleculeList.getAtom(iMolecule);
+            IMolecule a = moleculeList.getMolecule(iMolecule);
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.getType().getPositionDefinition().position(a));
             position.PE(boundary.centralImage(position));
@@ -161,7 +161,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
         
         if (meter != null) {
             data = new DataFunction(new int[] {xDataSource.getNValues()});
-            dataInfo = new DataInfoFunction(meter.getAtomDataInfo().getLabel()+" Profile", meter.getAtomDataInfo().getDimension(), this);
+            dataInfo = new DataInfoFunction(meter.getMoleculeDataInfo().getLabel()+" Profile", meter.getMoleculeDataInfo().getDimension(), this);
             dataInfo.addTag(meter.getTag());
             dataInfo.addTag(tag);
         }
@@ -185,7 +185,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     /**
      * Meter that defines the property being profiled.
      */
-    protected DataSourceAtomic meter;
+    protected DataSourceMolecular meter;
     protected final DataTag tag;
     protected ISpecies species;
 }

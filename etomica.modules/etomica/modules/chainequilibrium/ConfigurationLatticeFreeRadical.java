@@ -1,9 +1,9 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -36,10 +36,10 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomList moleculeList = box.getMoleculeList();
-        IAtomList initiatorList = box.getMoleculeList(speciesInitiator);
-        IAtomList monomerList = box.getMoleculeList(speciesMonomer);
-        int sumOfMolecules = (initiatorList.getAtomCount()+1) / 2 + monomerList.getAtomCount();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        IMoleculeList initiatorList = box.getMoleculeList(speciesInitiator);
+        IMoleculeList monomerList = box.getMoleculeList(speciesMonomer);
+        int sumOfMolecules = (initiatorList.getMoleculeCount()+1) / 2 + monomerList.getMoleculeCount();
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
@@ -122,11 +122,11 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            if (i < (initiatorList.getAtomCount()+1)/2) {
+            if (i < (initiatorList.getMoleculeCount()+1)/2) {
                 i *= 2;
             }
             else {
-                i += initiatorList.getAtomCount()/2;
+                i += initiatorList.getMoleculeCount()/2;
             }
             int[] ii = indexIterator.next();
             siteCount++;
@@ -141,9 +141,9 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 siteCount++;
             }
             // initialize coordinates of child atoms
-            IMolecule a = (IMolecule)moleculeList.getAtom(i);
-        	atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
-            IConformation config = ((ISpecies)a.getType()).getConformation();
+            IMolecule a = moleculeList.getMolecule(i);
+        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
@@ -152,9 +152,9 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 dest.setX(0, dest.x(0)-0.4);
             }
             atomActionTranslateTo.actionPerformed(a);
-            if (a.getType() == speciesInitiator && i<initiatorList.getAtomCount()-1) {
+            if (a.getType() == speciesInitiator && i<initiatorList.getMoleculeCount()-1) {
                 i++;
-                a = (IMolecule)moleculeList.getAtom(i);
+                a = moleculeList.getMolecule(i);
                 IVector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.x(0)+0.8);
                 atomActionTranslateTo.actionPerformed(a);

@@ -1,9 +1,8 @@
  package etomica.normalmode;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
@@ -88,12 +87,12 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     	randomNumber0 = random.nextInt(8);
     	BasisCell randomCell0 = boxCells[0][randomNumber0];
     	randomAtom0 = random.nextInt(4);
-    	atom0 = ((IMolecule)randomCell0.molecules.getAtom(randomAtom0)).getChildList().getAtom(0);
+    	atom0 = randomCell0.molecules.getMolecule(randomAtom0).getChildList().getAtom(0);
     	
     	randomNumber1 = random.nextInt(8);
     	BasisCell randomCell1 = boxCells[0][randomNumber1];
     	randomAtom1 = random.nextInt(4);
-    	atom1 = ((IMolecule)randomCell1.molecules.getAtom(randomAtom1)).getChildList().getAtom(0);
+    	atom1 = randomCell1.molecules.getMolecule(randomAtom1).getChildList().getAtom(0);
         
         if (atom0 == null || atom1 == null || atom0 == atom1) return false;
         energyMeter.setTarget(atom0);
@@ -121,8 +120,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         
         for (int i=0; i<27;i++){
         
-        	((IAtomPositioned)((IMolecule)boxCells[i][randomNumber0].molecules.getAtom(randomAtom0)).getChildList().getAtom(0)).getPosition().PE(translationVector);
-        	((IAtomPositioned)((IMolecule)boxCells[i][randomNumber1].molecules.getAtom(randomAtom1)).getChildList().getAtom(0)).getPosition().ME(translationVector);
+        	((IAtomPositioned)boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0)).getPosition().PE(translationVector);
+        	((IAtomPositioned)boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0)).getPosition().ME(translationVector);
  
         }
         
@@ -171,8 +170,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     	
         for (int i=0; i<27;i++){
             
-        	((IAtomPositioned)((IMolecule)boxCells[i][randomNumber0].molecules.getAtom(randomAtom0)).getChildList().getAtom(0)).getPosition().ME(translationVector);
-        	((IAtomPositioned)((IMolecule)boxCells[i][randomNumber1].molecules.getAtom(randomAtom1)).getChildList().getAtom(0)).getPosition().PE(translationVector);
+        	((IAtomPositioned)boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0)).getPosition().ME(translationVector);
+        	((IAtomPositioned)boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0)).getPosition().PE(translationVector);
  
         }
     }
@@ -198,7 +197,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
     protected final IVectorRandom translationVector;
-    protected IAtom atom0, atom1;
+    protected IAtomLeaf atom0, atom1;
     protected double uOld;
     protected double uNew;
     protected final IRandom random;

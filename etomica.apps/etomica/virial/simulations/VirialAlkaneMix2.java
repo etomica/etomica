@@ -98,9 +98,9 @@ public class VirialAlkaneMix2 {
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);//Mayer e-function of HS potential
         //PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2, space);//CH4-CH4 potential group
         //PotentialGroup pMethaneMethylGroup = new PotentialGroup(2, space);//CH4-CH3 potential group
-        PotentialGroup pComp1Comp1Group = new PotentialGroup(2, space);//comp1-comp1 potential group
-        PotentialGroup pComp1Comp2Group = new PotentialGroup(2, space);//comp1-comp2 potential group
-        PotentialGroup pComp2Comp2Group = new PotentialGroup(2, space);//comp2-comp2 potential group
+        PotentialGroup pComp1Comp1Group = new PotentialGroup(2);//comp1-comp1 potential group
+        PotentialGroup pComp1Comp2Group = new PotentialGroup(2);//comp1-comp2 potential group
+        PotentialGroup pComp2Comp2Group = new PotentialGroup(2);//comp2-comp2 potential group
         
         System.out.println("Mixture:"+"C"+nSpheres1+ "+ C"+nSpheres2+"  B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);

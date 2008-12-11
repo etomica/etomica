@@ -52,7 +52,7 @@ public class OsmosisSim extends Simulation {
     public OsmosisSim(Space _space) {
 
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         final double sigma = 1.0;
 

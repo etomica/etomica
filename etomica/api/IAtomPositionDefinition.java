@@ -14,5 +14,5 @@ public interface IAtomPositionDefinition {
      * Returns the defined position for the given atom, which 
      * may be an atom group.
      */
-    public IVector position(IAtom atom);
+    public IVector position(IMolecule atom);
 }

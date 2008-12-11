@@ -2,23 +2,19 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtom;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomsetArrayList;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.MoleculeArrayList;
+import etomica.atom.MoleculeListWrapper;
+import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -53,13 +49,13 @@ public abstract class CoordinateDefinition {
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
     }
     
     public void initializeCoordinates(int[] nCells) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        IAtomList moleculeList = box.getMoleculeList();
-        if (moleculeList.getAtomCount() == 0) {
+        MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
+        IMoleculeList moleculeList = box.getMoleculeList();
+        if (moleculeList.getMoleculeCount() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -91,11 +87,11 @@ public abstract class CoordinateDefinition {
         atomIterator.reset();
         indexIterator.reset();
         IVector position = lattice.getSpace().makeVector();
-        AtomArrayList currentList = null;
-        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
-            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+        MoleculeArrayList currentList = null;
+        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
+            IMolecule molecule = moleculeList.getMolecule(iMolecule);
             // initialize coordinates of child atoms
-            IConformation config = ((ISpecies)molecule.getType()).getConformation();
+            IConformation config = molecule.getType().getConformation();
             config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();
@@ -111,8 +107,8 @@ public abstract class CoordinateDefinition {
                 }
                 // new cell
                 iCell++;
-                currentList = new AtomArrayList(basisSize);
-                cells[iCell] = new BasisCell(new AtomsetArrayList(currentList), lattice.getSpace().makeVector());
+                currentList = new MoleculeArrayList(basisSize);
+                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);
@@ -120,7 +116,6 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space));
         siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
 
@@ -142,7 +137,7 @@ public abstract class CoordinateDefinition {
      * @param molecule
      *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    public abstract double[] calcU(IAtomList molecules);
+    public abstract double[] calcU(IMoleculeList molecules);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -151,7 +146,7 @@ public abstract class CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    protected abstract void initNominalU(IAtomList molecules);
+    protected abstract void initNominalU(IMoleculeList molecules);
 
     /**
      * Set all the molecules in a cell to a position and orientation that corresponds to the
@@ -163,7 +158,7 @@ public abstract class CoordinateDefinition {
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecules will be set by this method.
      */
-    public abstract void setToU(IAtomList molecules, double[] newU);
+    public abstract void setToU(IMoleculeList molecules, double[] newU);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given
@@ -186,7 +181,7 @@ public abstract class CoordinateDefinition {
         // sum T over atoms
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
-            IAtomList molecules = cell.molecules;
+            IMoleculeList molecules = cell.molecules;
             double[] u = calcU(molecules);
             IVector latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
@@ -210,10 +205,10 @@ public abstract class CoordinateDefinition {
         return box;
     }
 
-    public IVector getLatticePosition(IAtom atom) {
+    public IVector getLatticePosition(IAtomLeaf atom) {
         // this impl only handles leaf atoms.  subclasses might override this
         // method and handle IMolecules.
-        return (IVector)siteManager.getAgent((IAtomLeaf)atom);
+        return (IVector)siteManager.getAgent(atom);
     }
     
     public BasisCell[] getBasisCells() {
@@ -224,34 +219,12 @@ public abstract class CoordinateDefinition {
     protected final int coordinateDim;
     protected final IBox box;
     protected AtomLeafAgentManager siteManager;
-    protected MoleculeAgentManager moleculeSiteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
     protected final Basis basis;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
+    protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected BasisCell[] cells;
     protected final ISpace space;
-    
-    protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
-        
-        public MoleculeSiteSource(ISpace space) {
-            this.space = space;
-        }
-        public Class getMoleculeAgentClass() {
-            return IVector.class;
-        }
-        public Object makeAgent(IMolecule molecule) {
-            IVector vector = space.makeVector();
-            vector.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
-            return vector;
-        }
-        public void releaseAgent(Object agent, IMolecule molecule) {
-            //nothing to do
-        }
-
-        private final ISpace space;
-        private static final long serialVersionUID = 1L;
-    }
     
     protected static class SiteSource implements AtomLeafAgentManager.AgentSource, Serializable {
         
@@ -275,13 +248,13 @@ public abstract class CoordinateDefinition {
     }
     
     public static class BasisCell implements Serializable {
-        public BasisCell(IAtomList molecules, IVector cellPosition) {
+        public BasisCell(IMoleculeList molecules, IVector cellPosition) {
             this.molecules = molecules;
             this.cellPosition = cellPosition;
         }
         
         private static final long serialVersionUID = 1L;
-        public final IAtomList molecules;
+        public final IMoleculeList molecules;
         public final IVector cellPosition;
     }
 

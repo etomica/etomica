@@ -1,10 +1,10 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.atom.AtomPair;
+import etomica.api.IMoleculeList;
+import etomica.atom.MoleculePair;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
@@ -228,7 +228,7 @@ public class HarmonicCrystalOrthorhombic {
     		
     		this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
     		singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
-  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getAtomCount();
+  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getMoleculeCount();
     		dataInfo = new DataInfoDouble("Lattice Energy", Energy.DIMENSION);
     		pairEnergy = new DataDouble();
     		tag = new DataTag();
@@ -240,10 +240,10 @@ public class HarmonicCrystalOrthorhombic {
 			
 			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
 			
-			IAtomList molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
+			IMoleculeList molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
 			coordinateDefinitionParacetamol.setToU(molecules, u);
 			
-			AtomPair pair = new AtomPair(molecules.getAtom(indexj), molecules.getAtom(indexjp));
+			MoleculePair pair = new MoleculePair(molecules.getMolecule(indexj), molecules.getMolecule(indexjp));
 			
 			pairEnergy.x = potential.energy(pair);
 			

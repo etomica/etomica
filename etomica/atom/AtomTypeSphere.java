@@ -29,7 +29,7 @@ public class AtomTypeSphere extends AtomTypeLeaf implements IAtomTypeSphere {
     }
     
     public AtomTypeSphere(Element element, double d) {
-        super(element, new AtomPositionDefinitionSimple());
+        super(element);
         setDiameter(d);
     }
                 

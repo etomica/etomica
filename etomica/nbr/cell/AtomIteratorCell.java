@@ -1,12 +1,8 @@
 package etomica.nbr.cell;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -41,48 +37,17 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         unset();
 	}
     
-    /**
-     * Performs action on all iterates.
-     */
-    public void allAtoms(AtomsetAction action) {
-        cellIterator.reset();
-        while(cellIterator.hasNext()) {//outer loop over all cells
-            Cell cell = (Cell)cellIterator.next();
-            AtomArrayList list = cell.occupants();
-            
-            //consider pairs formed from molecules in cell
-            if(!list.isEmpty()) {
-                atomIterator.setList(list);
-                atomIterator.allAtoms(action);
-            }
-        }//end of outer loop over cells
-    }//end of allAtoms
-    
-    /**
-     * Performs action on all iterates.
-     */
-    public void allAtoms(AtomAction action) {
-        cellIterator.reset();
-        while(cellIterator.hasNext()) {//outer loop over all cells
-            Cell cell = (Cell)cellIterator.next();
-            AtomArrayList list = cell.occupants();
-            
-            //consider pairs formed from molecules in cell
-            if(!list.isEmpty()) {
-                atomIterator.setList(list);
-                atomIterator.allAtoms(action);
-            }
-        }//end of outer loop over cells
-    }//end of allAtoms
-    
 	/**
      * Returns the number of atoms the iterator will return if reset and
      * iterated in its present state.
      */
 	public int size() {
-        AtomsetCount counter = new AtomsetCount();
-        allAtoms(counter);
-        return counter.callCount();
+        int count = 0;
+        reset();
+        for (Object a = next(); a != null; a = next()) {
+            count++;
+        }
+        return count;
 	}
 	
     public boolean hasNext() {
@@ -94,12 +59,11 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         return atomSetSinglet;
     }
     
-    public IAtom nextAtom() {
-        IAtom nextAtom = atomIterator.nextAtom();
+    public IAtomLeaf nextAtom() {
+        IAtomLeaf nextAtom = atomIterator.nextAtom();
         while (nextAtom == null) {
             if(cellIterator.hasNext()) {
-                AtomArrayList list = ((Cell)cellIterator.next()).occupants();
-                atomIterator.setList(list);
+                atomIterator.setList(((Cell)cellIterator.next()).occupants());
                 atomIterator.reset();
             } else {//no more cells at all
                 break;

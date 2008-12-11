@@ -58,7 +58,7 @@ public class SimDimerLJgb extends Simulation{
     
     public SimDimerLJgb() {
     	super(Space3D.getInstance(), true);
-    	potentialMaster = new PotentialMasterMonatomic(this, space);
+    	potentialMaster = new PotentialMasterMonatomic(this);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(random, 2, 5, space), space);

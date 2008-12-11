@@ -23,7 +23,7 @@ public class EntropyLottery extends Simulation {
     
     public EntropyLottery(Space _space) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster();
         
         final int N = 30;  //number of atoms
         

@@ -1,11 +1,10 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomsetArrayList;
+import etomica.atom.AtomListWrapper;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate
@@ -23,18 +22,18 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
      * species[0] is relevant, and must not be null.
      */
     public AtomsetIteratorAllLeafAtoms() {
-        next = new AtomsetArrayList();
+        next = new AtomListWrapper();
     }
 
     /**
      * Sets the target of iteration... has no actual effect since all iterates
      * contain all Atoms.
      */
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
     }
 
     public void reset() {
-    	AtomArrayList atomList = next.getArrayList();
+        AtomArrayList atomList = next.getArrayList();
     	atomList.clear();
     }
     
@@ -46,8 +45,8 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
     	if(next.getArrayList().getAtomCount()>0){
     		return null;
     	}
-        for (int i=0; i<basis.getAtomCount(); i++){
-        	next.getArrayList().add(((IMolecule)basis.getAtom(i)).getChildList().getAtom(0));
+        for (int i=0; i<basis.getMoleculeCount(); i++){
+        	next.getArrayList().add(basis.getMolecule(i).getChildList().getAtom(0));
         }
         return next;
     }
@@ -56,14 +55,6 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
         return Integer.MAX_VALUE;
     }
     
-    public void allAtoms(AtomsetAction action) {
-        reset();
-        for (int i=0; i<basis.getAtomCount(); i++){
-        	next.getArrayList().add(((IMolecule)basis.getAtom(i)).getChildList().getAtom(0));
-        }
-        action.actionPerformed(next);
-    }
-
     /**
      * Returns the number of iterates given by this iterator, if iterated after
      * a call to reset().
@@ -73,22 +64,22 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomsetArrayList next;
-	private IAtomList basis;
+    private final AtomListWrapper next;
+	private IMoleculeList basis;
 	public int basisSize() {
 		return Integer.MAX_VALUE;
 	}
 
-	public boolean haveTarget(IAtom target) {
-		for (int i=0; i<basis.getAtomCount(); i++){
-			if(((IMolecule)basis.getAtom(i)).getChildList().getAtom(0) == target){
+	public boolean haveTarget(IAtomLeaf target) {
+		for (int i=0; i<basis.getMoleculeCount(); i++){
+			if(basis.getMolecule(i).getChildList().getAtom(0) == target){
 				return true;
 			}
         }
 		return false;
 	}
 
-	public void setBasis(IAtomList atoms) {
+	public void setBasis(IMoleculeList atoms) {
 		basis = atoms;		
 	}
 }

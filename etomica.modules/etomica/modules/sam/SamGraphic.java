@@ -9,11 +9,9 @@ import javax.swing.JTabbedPane;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IData;
-import etomica.api.IDataInfo;
-import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
@@ -145,7 +143,7 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setShowBorder(true);
         wallPositionSlider.setLabel("Wall position");
         wallPositionSlider.setMinimum(15);
-        double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+        double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
         double sliderValue = sim.wallPotential.getWallPosition()-surfacePosition;
         if (sliderValue < 30) {
             wallPositionSlider.setMaximum(30);
@@ -461,7 +459,7 @@ public class SamGraphic extends SimulationGraphic {
 
         protected IData processData(IData inputData) {
             double[] xy = data.getData();
-            double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
             xy[0] = sim.wallPotential.wallPosition-surfacePosition;
             xy[1] = inputData.getValue(0);
             return data;
@@ -495,7 +493,7 @@ public class SamGraphic extends SimulationGraphic {
             double position = sim.wallPotential.getWallPosition()-0.1;
             sim.wallPotential.setWallPosition(position);
             wallPositionSlider.doUpdate();
-            double surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
             if (position-surfacePosition < 15.01) {
                 // turn ourselves off
                 moveWallToggle.actionPerformed();
@@ -513,7 +511,7 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         public void update() {
-            surfacePosition = ((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.speciesSurface).getAtom(0)).getChildList().getAtom(0)).getPosition().x(1);
+            surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
         }
 
         public void setValue(double newValue) {

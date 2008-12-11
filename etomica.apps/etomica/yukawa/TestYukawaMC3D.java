@@ -1,13 +1,12 @@
 package etomica.yukawa;
 
-import etomica.api.IAction;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IAction;
+import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -73,7 +72,7 @@ public class TestYukawaMC3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange());
-		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});
+		potentialMaster.addPotential(potentialTruncated, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
 			
 		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 		

@@ -1,12 +1,12 @@
 package etomica.potential;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;

@@ -1,32 +1,16 @@
 package etomica.integrator.mcmove;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IAtomPositioned;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 
 
-public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
+public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     private static final long serialVersionUID = 2L;
-    private final MeterPotentialEnergy energyMeter;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final IRandom random;
-    protected AtomSource moleculeSource;
-    
-    protected transient double uOld;
-    protected transient double uNew = Double.NaN;
-    protected transient IMolecule molecule;
     protected transient IVector r0;
     protected transient RotationTensor rotationTensor;
     public int count;
@@ -36,32 +20,17 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     
     public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
     		                      ISpace _space) {
-        super(potentialMaster);
-        this.random = random;
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-       
-        setStepSizeMax(Math.PI);
-        setStepSizeMin(0.0);
-        setStepSize(Math.PI/2.0);
-        perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
-        moleculeSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
-        //TODO enable this
-        //set directive to exclude intramolecular contributions to the energy
-//        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
-//            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
-//        });
     }
      
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
-        if(box.getMoleculeList().getAtomCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
             
-        molecule = (IMolecule)moleculeSource.getAtom();
+        molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {
@@ -71,13 +40,12 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-        r0.E(((ISpecies)molecule.getType()).getPositionDefinition().position(molecule));
+        r0.E(molecule.getType().getPositionDefinition().position(molecule));
         doTransform();
         
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar();
         return true;
-    }//end of doTrial
+    }
     
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
@@ -91,40 +59,8 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         }
     }
     
-    public double getA() {return 1.0;}
-    
-    public double getB() {
-
-        return -(uNew - uOld);
-    }
-    
-    public void acceptNotify() {  /* do nothing */
-            
-    }
-    
     public void rejectNotify() {
         rotationTensor.invert();
         doTransform();
-    }
-    
-    public double energyChange() {
-        return uNew - uOld;
-    }
-
- 
-    public final AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom(molecule);
-        affectedAtomIterator.reset();
-        return affectedAtomIterator;
-    }
-
-
-    /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#setBox(etomica.Box[])
-     */
-    public void setBox(IBox p) {
-        super.setBox(p);
-        energyMeter.setBox(p);
-        moleculeSource.setBox(p);
     }
 }

@@ -1,17 +1,18 @@
 package etomica.threaded.atom;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.ISpecies;
+import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomListWrapper;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.AtomsetArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
@@ -70,21 +71,21 @@ public class PotentialMasterListWorker extends Thread {
            threadCalculate = System.currentTimeMillis(); 
             // Thread completes objective
             for(int i=startAtom; i<stopAtom; i++){
-                IMolecule molecule = (IMolecule)threadList.getAtom(i-startAtom);
+                IMolecule molecule = threadList.getMolecule(i-startAtom);
                 PotentialArray potentialArray = pmlt.getIntraPotentials(molecule.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int j=0; j<potentials.length; j++) {
                 
                     // Extracts thread-specific potential for intra-molecular atoms
                     IPotential potentialIntraThread = ((PotentialThreaded)potentials[j]).getPotentials()[threadNumber];
-                    ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent(molecule,id,pc);
+                    ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent(molecule,id.direction(),null,pc);
                 }
                 
                 //cannot use AtomIterator field because of recursive call
                 IAtomList list = molecule.getChildList();
                 int size = list.getAtomCount();
                 for (int j=0; j<size; j++) {
-                    IAtomLeaf a = (IAtomLeaf)list.getAtom(j);
+                    IAtomLeaf a = list.getAtom(j);
                     calculate(a, id, pc);//recursive call
                 }
             }
@@ -118,7 +119,7 @@ public class PotentialMasterListWorker extends Thread {
 		
 		for(int i=0; i<potentials.length; i++) {
             
-            IPotential potentialThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
+            IPotentialAtomic potentialThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
             
             
             switch (potentialThread.nBody()) {
@@ -131,8 +132,7 @@ public class PotentialMasterListWorker extends Thread {
                 break;
             case 2:
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    // XXX hahaha, pretend this is a molecule.
-                    IAtomList list = neighborLists[((IMolecule)atom).getIndex()-startAtom][i];
+                    IAtomList list = neighborLists[atom.getIndex()-startAtom][i];
                     atomPair.atom0 = atom;
                     for (int j=0; j<list.getAtomCount(); j++) {
                         atomPair.atom1 = list.getAtom(j);
@@ -158,15 +158,14 @@ public class PotentialMasterListWorker extends Thread {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    //XXX hahahaha, pretend this is a molecule
-                    IAtomList list = neighborLists[((IMolecule)atom).getIndex()+startAtom][i];
+                    IAtomList list = neighborLists[atom.getIndex()+startAtom][i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtom otherAtom = list.getAtom(j);
+                        IAtomLeaf otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
                     list = neighborManager.getDownList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtom otherAtom = list.getAtom(j);
+                        IAtomLeaf otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
                 }
@@ -175,7 +174,7 @@ public class PotentialMasterListWorker extends Thread {
         }//end of for
 	}
 	
-	protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, IPotential potential) {
+	protected void doNBodyStuff(IAtomLeaf atom, PotentialCalculation pc, int potentialIndex, IPotentialAtomic potential) {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();
         arrayList.add(atom);
@@ -194,21 +193,21 @@ public class PotentialMasterListWorker extends Thread {
     public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, IBox box){
         
         // Make reference to neighbor lists
-        IAtomList list = box.getMoleculeList();
-        int size = list.getAtomCount();
+        IMoleculeList list = box.getMoleculeList();
+        int size = list.getMoleculeCount();
         
         int startAtom = (threadNumber*size)/numThreads;
         int stopAtom = ((threadNumber+1)*size)/numThreads;
         
-        threadList = new AtomArrayList();
+        threadList = new MoleculeArrayList();
         
         this.neighborManager = nm;
         neighborManager.updateLists();
         neighborLists = new IAtomList[stopAtom-startAtom][];
                 
         for(int i=0; i<(stopAtom-startAtom); i++){
-            threadList.add(list.getAtom(i+startAtom));
-            neighborLists[i] = neighborManager.getUpList(list.getAtom(i+startAtom));
+            threadList.add(list.getMolecule(i+startAtom));
+            neighborLists[i] = neighborManager.getUpList(list.getMolecule(i+startAtom).getChildList().getAtom(0));
             
         }
             
@@ -228,7 +227,7 @@ public class PotentialMasterListWorker extends Thread {
     public double threadCalculate;
    // public double threadCalculate2;
     
-    public AtomArrayList threadList;
+    public MoleculeArrayList threadList;
     public int startAtom;
     public int stopAtom;
     protected final int threadNumber;
@@ -238,7 +237,7 @@ public class PotentialMasterListWorker extends Thread {
     public IAtomList[][] neighborLists;
     
 	//	 things needed for N-body potentials
-	protected AtomsetArrayList atomsetArrayList;
+	protected AtomListWrapper atomsetArrayList;
 		
 	
 }

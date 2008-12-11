@@ -4,6 +4,8 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective;
@@ -50,13 +52,13 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     
     private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
             BoxAgentManager agentManager, ISpace _space) {
-        super(sim, boxAgentSource, agentManager, _space);
-        potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, space);
-        potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, space);
+        super(sim, boxAgentSource, agentManager);
+        potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, _space);
+        potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, _space);
 	}
     
     public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupHybrid(nBody,space);
+        return new PotentialGroupHybrid(nBody);
     }
     
     public PotentialMasterList getPotentialMasterList() {
@@ -108,7 +110,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         useNbrLists = flag;
     }
     
-    public void addPotential(IPotential potential, ISpecies[] species) {
+    public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
         potentialMasterList.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
         if (potential instanceof PotentialGroup) {
@@ -119,10 +121,10 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         }
     }
     
-    protected void addRangedPotentialForTypes(IPotential potential, IAtomTypeLeaf[] atomTypes) {
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomTypeLeaf[] atomTypes) {
     }
     
-    public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
+    public void potentialAddedNotify(IPotentialAtomic subPotential, PotentialGroup pGroup) {
         potentialMasterList.potentialAddedNotify(subPotential, pGroup);
         potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
@@ -131,7 +133,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         return potentialMasterList.getNeighborManager(box);
     }
 
-    public void removePotential(IPotential potential) {
+    public void removePotential(IPotentialAtomic potential) {
         potentialMasterList.removePotential(potential);
         potentialMasterCell.removePotential(potential);
     }

@@ -5,7 +5,9 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
+import etomica.atom.MoleculePair;
 
 /**
  * Class holding static fields that determine whether debugging is on, how
@@ -16,6 +18,7 @@ import etomica.atom.AtomPair;
 public final class Debug {
 
     protected static AtomPair debugPair = null;
+    protected static MoleculePair debugMoleculePair = null;
     
 	/**
 	 * true if any debugging should be done
@@ -97,33 +100,41 @@ public final class Debug {
 	 */
 	public static boolean anyAtom(IAtomList atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
-		    if (atoms.getAtom(i) instanceof IAtomLeaf) {
-		        IAtomLeaf atom = (IAtomLeaf)atoms.getAtom(i);
-		        if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
-		            atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
-		            atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
-		            return true;
-		        }
-                if ((atom.getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
-                    atom.getParentGroup().getIndex() == MOLECULE2_INDEX &&
-                    atom.getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
-                    return true;
-                }
-		    }
-		    else {
-		        IMolecule molecule = (IMolecule)atoms.getAtom(i);
-                if (molecule.getIndex() == MOLECULE1_INDEX &&
-                    molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    return true;
-                }
-                if (molecule.getIndex() == MOLECULE2_INDEX &&
-                    molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    return true;
-                }
-		    }
+	        IAtomLeaf atom = atoms.getAtom(i);
+	        if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
+	            atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
+	            atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
+	            return true;
+	        }
+            if ((atom.getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
+                atom.getParentGroup().getIndex() == MOLECULE2_INDEX &&
+                atom.getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
+                return true;
+            }
 		}
 		return false;
 	}
+
+    /**
+     * determines whether any of the atoms in the given array are set to be debugged
+     * (via ATOMx_NUM)
+     * @param atoms array of atoms to be checked for debugging status
+     * @return true if any of the atoms in the atoms array should be debugged
+     */
+    public static boolean anyMolecule(IMoleculeList atoms) {
+        for (int i=0; i<atoms.getMoleculeCount(); i++) {
+            IMolecule molecule = atoms.getMolecule(i);
+            if (molecule.getIndex() == MOLECULE1_INDEX &&
+                molecule.getType().getIndex() == SPECIES1_INDEX) {
+                return true;
+            }
+            if (molecule.getIndex() == MOLECULE2_INDEX &&
+                molecule.getType().getIndex() == SPECIES2_INDEX) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * determines if all of the atoms in the given array are set to be debugged
@@ -133,37 +144,37 @@ public final class Debug {
 	 */
 	public static boolean allAtoms(IAtomList atoms) {
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            boolean success = false;
-            if (atoms.getAtom(i) instanceof IAtomLeaf) {
-                IAtomLeaf atom = (IAtomLeaf)atoms.getAtom(i);
-                if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
-                    atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
-                    atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
-                    success = true;
-                }
-                if ((atom.getIndex() == ATOM2_INDEX || ATOM1_INDEX == -1) &&
-                    atom.getParentGroup().getIndex() == MOLECULE2_INDEX &&
-                    atom.getParentGroup().getType().getIndex() == SPECIES2_INDEX) {
-                    success = true;
-                }
-            }
-            else {
-                IMolecule molecule = (IMolecule)atoms.getAtom(i);
-                if (molecule.getIndex() == MOLECULE1_INDEX &&
-                    molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    success = true;
-                }
-                if (molecule.getIndex() == MOLECULE2_INDEX &&
-                    molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    success = true;
-                }
-            }
-            if (!success) {
+            IAtomLeaf atom = atoms.getAtom(i);
+            if (((atom.getIndex() != ATOM1_INDEX && ATOM1_INDEX != -1) ||
+                 atom.getParentGroup().getIndex() != MOLECULE1_INDEX ||
+                 atom.getParentGroup().getType().getIndex() != SPECIES1_INDEX) ||
+                ((atom.getIndex() != ATOM2_INDEX && ATOM1_INDEX != -1) ||
+                 atom.getParentGroup().getIndex() != MOLECULE2_INDEX ||
+                 atom.getParentGroup().getType().getIndex() != SPECIES2_INDEX)) {
                 return false;
             }
         }
 		return true;
 	}
+
+    /**
+     * determines if all of the atoms in the given array are set to be debugged
+     * (via ATOMx_NUM and setAtoms(box)).
+     * @param atoms array of atoms to be checked for debugging status
+     * @return true if all of the atoms in the atoms array should be debugged
+     */
+    public static boolean allAtoms(IMoleculeList atoms) {
+        for (int i=0; i<atoms.getMoleculeCount(); i++) {
+            IMolecule molecule = atoms.getMolecule(i);
+            if ((molecule.getIndex() != MOLECULE1_INDEX ||
+                 molecule.getType().getIndex() != SPECIES1_INDEX) ||
+                (molecule.getIndex() != MOLECULE2_INDEX ||
+                 molecule.getType().getIndex() != SPECIES2_INDEX)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Checks whether the given box is of debugging interest
@@ -185,9 +196,9 @@ public final class Debug {
             debugPair = new AtomPair();
         }
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1 && MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
-            IAtomList moleculeList = box.getMoleculeList();
-            for (int i=0; i<moleculeList.getAtomCount(); i++) {
-                IMolecule molecule = (IMolecule)moleculeList.getAtom(i);
+            IMoleculeList moleculeList = box.getMoleculeList();
+            for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
+                IMolecule molecule = moleculeList.getMolecule(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
                     debugPair.atom0 = molecule.getChildList().getAtom(ATOM1_INDEX);
                 }
@@ -206,7 +217,33 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static IAtom getAtomLeaf1(IBox box) {
+    public static MoleculePair getMolecules(IBox box) {
+        if (debugMoleculePair == null) {
+            debugMoleculePair = new MoleculePair();
+        }
+        if (MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
+            IMoleculeList moleculeList = box.getMoleculeList();
+            for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
+                IMolecule molecule = moleculeList.getMolecule(i);
+                if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
+                    debugMoleculePair.atom0 = molecule;
+                }
+                else if (molecule.getIndex() == MOLECULE2_INDEX && molecule.getType().getIndex() == SPECIES2_INDEX) {
+                    debugMoleculePair.atom1 = molecule;
+                }
+            }
+        }
+        if (debugMoleculePair.atom0 == null || debugMoleculePair.atom1 == null) return null;
+        return debugMoleculePair;
+    }
+    
+    /**
+     * Returns an AtomPair containing the two atoms with global indices
+     * ATOM1_INDEX and ATOM2_INDEX within the given box.  The atom in
+     * the AtomPair will be null if the box does not contain an Atom 
+     * with the proper global index.
+     */
+    public static IAtomLeaf getAtomLeaf1(IBox box) {
         if (ATOM1_INDEX > -1 && ATOM1_INDEX < box.getLeafList().getAtomCount()) {
             return box.getLeafList().getAtom(ATOM1_INDEX);
         }

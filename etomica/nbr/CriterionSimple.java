@@ -1,9 +1,8 @@
 package etomica.nbr;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
 import etomica.api.ISimulation;
@@ -78,17 +77,17 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         return Length.DIMENSION;
     }
 	
-	public boolean needUpdate(IAtom atom) {
+	public boolean needUpdate(IAtomLeaf atom) {
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent((IAtomLeaf)atom));
+		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
-			System.out.println("old position "+agentManager.getAgent((IAtomLeaf)atom));
+			System.out.println("old position "+agentManager.getAgent(atom));
 			System.out.println("new position "+((IAtomPositioned)atom).getPosition());
 //            throw new RuntimeException("stop that");
 		}
@@ -122,8 +121,8 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		return dr.squared() < neighborRadius2;
 	}
 	
-	public void reset(IAtom atom) {
-        ((IVector)agentManager.getAgent((IAtomLeaf)atom)).E(((IAtomPositioned)atom).getPosition());
+	public void reset(IAtomLeaf atom) {
+        ((IVector)agentManager.getAgent(atom)).E(((IAtomPositioned)atom).getPosition());
 	}
 
     public Class getAgentClass() {

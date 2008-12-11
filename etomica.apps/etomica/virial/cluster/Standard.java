@@ -102,10 +102,6 @@ public final class Standard {
 		return array;
 	}
 
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
-        return virialCluster(nBody,f,true,new FTilde(f),true);
-    }
-
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, 
             boolean usePermutations, MayerFunction e, boolean uniqueOnly) {
         uniqueOnly = uniqueOnly && nBody > 3;

@@ -1,15 +1,13 @@
 package etomica.nbr.cell;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IListener;
-import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
@@ -196,7 +194,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         IAtomList leafList = box.getLeafList();
         int count = leafList.getAtomCount();
         for (int i=0; i<count; i++) {
-            IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(i);
+            IAtomLeaf atom = leafList.getAtom(i);
             assignCell(atom);
         }
     }
@@ -272,16 +270,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                 MCMoveBox move = ((MCMoveBox)((MCMoveEvent)evt).getMCMove());
                 AtomIterator iterator = move.affectedAtoms();
                 iterator.reset();
-                for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
-                    if (atom instanceof IAtomLeaf) {
-                        updateCell((IAtomLeaf)atom);
-                    }
-                    else {
-                        IAtomList childList = ((IMolecule)atom).getChildList();
-                        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                            updateCell((IAtomLeaf)childList.getAtom(iChild));
-                        }
-                    }
+                for (IAtomLeaf atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
+                    updateCell(atom);
                 }
             }
         }

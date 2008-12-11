@@ -1,11 +1,9 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomToAtomSet;
+import etomica.atom.AtomToAtomLeafList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
@@ -32,7 +30,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     }
     
     public AtomIteratorArrayListAdjacent(IteratorDirective.Direction direction,
-            AtomToIndex atomToIndex, AtomToAtomSet atomToAtomSet) {
+            AtomToIndex atomToIndex, AtomToAtomLeafList atomToAtomSet) {
         super();
         this.direction = direction;
         this.atomToIndex = atomToIndex;
@@ -58,37 +56,6 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     }
 
     /**
-     * Performs action on all iterates for current condition of iterator.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if(direction != IteratorDirective.Direction.DOWN) {
-            if (firstCursor < list.getAtomCount()-1) {
-                atomSetSinglet.atom = list.getAtom(firstCursor+1);
-                action.actionPerformed(atomSetSinglet);
-            }
-        }
-        if (direction != IteratorDirective.Direction.UP) {
-            if (firstCursor > 0) {
-                atomSetSinglet.atom = list.getAtom(firstCursor-1);
-                action.actionPerformed(atomSetSinglet);
-            }
-        }
-    }
-
-    public void allAtoms(AtomAction action) {
-        if(direction != IteratorDirective.Direction.DOWN) {
-            if (firstCursor < list.getAtomCount()-1) {
-                action.actionPerformed(list.getAtom(firstCursor+1));
-            }
-        }
-        if (direction != IteratorDirective.Direction.UP) {
-            if (firstCursor > 0) {
-                action.actionPerformed(list.getAtom(firstCursor-1));
-            }
-        }
-    }
-
-    /**
      * Returns 1, indicating that this is an atom AtomSet iterator.
      */
     public int nBody() {
@@ -107,7 +74,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     /**
      * Returns the next iterator, or null if hasNext is false.
      */
-    public IAtom nextAtom() {
+    public IAtomLeaf nextAtom() {
         if(upListNow) {
             upListNow = false;
             return list.getAtom(firstCursor+1);
@@ -140,8 +107,8 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * and/or down the list, depending on how iterator was configured at
      * construction.
      */
-    public void setAtom(IAtom atom) {
-        list = atomToAtomSet.getAtomSet(atom);
+    public void setAtom(IAtomLeaf atom) {
+        list = atomToAtomSet.getAtomList(atom);
         firstCursor = atomToIndex.getIndex(atom);
     }
 
@@ -151,6 +118,6 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     private boolean upListNow, dnListNow;
     private IAtomList list;
     private final AtomToIndex atomToIndex;
-    private final AtomToAtomSet atomToAtomSet;
+    private final AtomToAtomLeafList atomToAtomSet;
     protected final AtomSetSinglet atomSetSinglet;
 }

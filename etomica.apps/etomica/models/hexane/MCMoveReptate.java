@@ -1,22 +1,20 @@
 package etomica.models.hexane;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculeSource;
+import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
-import etomica.api.IRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
@@ -29,8 +27,8 @@ public class MCMoveReptate extends MCMoveBoxStep {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
-        atomSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)atomSource).setRandom(random);
+        atomSource = new MoleculeSourceRandomMolecule();
+        ((MoleculeSourceRandomMolecule)atomSource).setRandom(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
 //        conf = con;
 //        if(!(conf instanceof ConformationChainZigZag)){
@@ -53,7 +51,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
      * method to perform a trial move.
      */
     public boolean doTrial(){
-       atom = atomSource.getAtom();
+       atom = atomSource.getMolecule();
        if(atom == null) return false;
        energyMeter.setTarget(atom);
        uOld = energyMeter.getDataAsScalar();
@@ -87,7 +85,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = random.nextInt(2) == 0;
-       IAtomList childlist = ((IMolecule)atom).getChildList();
+       IAtomList childlist = atom.getChildList();
        int numChildren = childlist.getAtomCount();
        
        if(forward){
@@ -134,7 +132,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     }
     
     public void rejectNotify(){
-        IAtomList childlist = ((IMolecule)atom).getChildList();
+        IAtomList childlist = atom.getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
             IVector position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
@@ -175,13 +173,13 @@ public class MCMoveReptate extends MCMoveBoxStep {
     /**
      * @return Returns the atomSource.
      */
-    public AtomSource getAtomSource() {
+    public MoleculeSource getAtomSource() {
         return atomSource;
     }
     /**
      * @param atomSource The atomSource to set.
      */
-    public void setAtomSource(AtomSource source) {
+    public void setAtomSource(MoleculeSource source) {
         atomSource = source;
     }
     
@@ -192,10 +190,10 @@ public class MCMoveReptate extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
 //    protected final Vector translationVector;
-    private IAtom atom;
+    private IMolecule atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-    protected AtomSource atomSource;
+    protected MoleculeSource atomSource;
     protected boolean fixOverlap;
     private IVectorRandom tempV;
     private IVector positionOld;

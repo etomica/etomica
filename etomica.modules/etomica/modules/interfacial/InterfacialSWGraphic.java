@@ -9,12 +9,13 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -130,9 +131,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
                 configLattice.initializeCoordinates(pretendBox);
-                IAtomList surfactants = pretendBox.getMoleculeList(sim.surfactant);
+                IMoleculeList surfactants = pretendBox.getMoleculeList(sim.surfactant);
                 for (int i=0; i<numSurfactants; i++) {
-                    IMolecule surfactant = (IMolecule)surfactants.getAtom(0);
+                    IMolecule surfactant = surfactants.getMolecule(0);
                     pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.x(0);
                     if (((IAtomPositioned)surfactant.getChildList().getAtom(0)).getPosition().x(0) < 0) {
@@ -559,7 +560,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 getDisplayBox(sim.box).repaint();
             }
             
-            int oldN = sim.box.getMoleculeList().getAtomCount();
+            int oldN = sim.box.getMoleculeList().getMoleculeCount();
         });
 
         nSurfactantSlider = new DeviceSlider(null);

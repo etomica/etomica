@@ -1,23 +1,23 @@
 package etomica.atom;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.util.Debug;
 
 public class AtomArrayList implements IAtomList {
 
     protected float trimThreshold = 0.8f;
-    protected IAtom[] atomList;
+    protected IAtomLeaf[] atomList;
     protected static int DEFAULT_INIT_SIZE = 20;
     protected static float SIZE_INCREASE_RATIO = 0.3f;
     protected int itemsInList = 0;
 
     public AtomArrayList() {
-        atomList = new IAtom[DEFAULT_INIT_SIZE];
+        atomList = new IAtomLeaf[DEFAULT_INIT_SIZE];
     }
 
     public AtomArrayList(int initialSize) {
-        atomList = new IAtom[initialSize];
+        atomList = new IAtomLeaf[initialSize];
     }
 
     public static float getSizeIncreaseRatio() {
@@ -26,7 +26,7 @@ public class AtomArrayList implements IAtomList {
 
     public void trimToSize() {
         if(itemsInList < atomList.length) {
-            IAtom[] tempList = toArray();
+            IAtomLeaf[] tempList = toArray();
             itemsInList = tempList.length;
             atomList = tempList;
         }
@@ -34,7 +34,7 @@ public class AtomArrayList implements IAtomList {
 
     public void maybeTrimToSize() {
         if(itemsInList < trimThreshold * atomList.length) {
-            IAtom[] tempList = toArray();
+            IAtomLeaf[] tempList = toArray();
             itemsInList = tempList.length;
             atomList = tempList;
         }
@@ -50,7 +50,7 @@ public class AtomArrayList implements IAtomList {
 
     public void ensureCapacity(int minCapacity) {
         if(minCapacity > atomList.length) {
-            IAtom[] tempList = new IAtom[minCapacity];
+            IAtomLeaf[] tempList = new IAtomLeaf[minCapacity];
             for(int i = 0; i < itemsInList; i++) {
                 tempList[i] = atomList[i];
             }
@@ -63,7 +63,27 @@ public class AtomArrayList implements IAtomList {
         return itemsInList == 0;
     }
 
-    public int indexOf(IAtom elem) {
+    protected IAtomLeaf[] toArray() {
+        IAtomLeaf[] tempList = new IAtomLeaf[itemsInList];
+
+        for(int i = 0; i < itemsInList; i++) {
+            tempList[i] = atomList[i];
+        }
+        return tempList;
+    }
+
+    public void clear() {
+        for(int i = 0; i < itemsInList; i++) {
+            atomList[i] = null;
+        }
+        itemsInList = 0;
+    }
+
+    public int sizeOfArray() {
+        return atomList.length;
+    }
+
+    public int indexOf(IAtomLeaf elem) {
         for(int i = 0; i < itemsInList; i++) {
             if(elem == atomList[i]) {
                 return i;
@@ -72,8 +92,8 @@ public class AtomArrayList implements IAtomList {
         return -1;
     }
 
-    public IAtom[] toArray() {
-        IAtom[] tempList = new IAtom[itemsInList];
+    public IAtomLeaf[] toAtomLeafArray() {
+        IAtomLeaf[] tempList = new IAtomLeaf[itemsInList];
 
         for(int i = 0; i < itemsInList; i++) {
             tempList[i] = atomList[i];
@@ -81,10 +101,10 @@ public class AtomArrayList implements IAtomList {
         return tempList;
     }
 
-    public IAtom set(int index, IAtom element) {
-        IAtom oldAtom = null;
+    public IAtomLeaf set(int index, IAtomLeaf element) {
+        IAtomLeaf oldAtom = null;
         if(index < 0 || index >= itemsInList) {
-            throw new IndexOutOfBoundsException("AtomArrayList.set index out of bounds");
+            throw new IndexOutOfBoundsException("AtomLeafArrayList.set index out of bounds");
         }
 
         oldAtom = atomList[index];
@@ -93,10 +113,10 @@ public class AtomArrayList implements IAtomList {
         return oldAtom;
     }
 
-    public boolean add(IAtom atom) {
+    public boolean add(IAtomLeaf atom) {
 
         if(itemsInList == atomList.length) {
-            IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
+            IAtomLeaf[] tempList = new IAtomLeaf[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
 
             for(int i = 0; i < atomList.length; i++) {
                 tempList[i] = atomList[i];
@@ -111,7 +131,7 @@ public class AtomArrayList implements IAtomList {
 
     public void addAll(IAtomList atoms) {
         if((itemsInList + atoms.getAtomCount()) > atomList.length) {
-            IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
+            IAtomLeaf[] tempList = new IAtomLeaf[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
                                          atoms.getAtomCount()];
             for(int i = 0; i < atomList.length; i++) {
                 tempList[i] = atomList[i];
@@ -124,11 +144,11 @@ public class AtomArrayList implements IAtomList {
         }
     }
 
-    public IAtom remove(int index) {
-        IAtom atom = null;
+    public IAtomLeaf remove(int index) {
+        IAtomLeaf atom = null;
 
         if(index < 0 || index >= itemsInList) {
-            throw new IndexOutOfBoundsException("AtomArrayList.remove invalid index");
+            throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
         }
 
         atom = atomList[index];
@@ -141,11 +161,11 @@ public class AtomArrayList implements IAtomList {
         return atom;
     }
 
-    public IAtom removeAndReplace(int index) {
-        IAtom atom = null;
+    public IAtomLeaf removeAndReplace(int index) {
+        IAtomLeaf atom = null;
 
         if(index < 0 || index >= itemsInList) {
-            throw new IndexOutOfBoundsException("AtomArrayList.remove invalid index");
+            throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
         }
 
         atom = atomList[index];
@@ -161,24 +181,13 @@ public class AtomArrayList implements IAtomList {
         return atom;
     }
 
-    public void clear() {
-        for(int i = 0; i < itemsInList; i++) {
-            atomList[i] = null;
-        }
-        itemsInList = 0;
-    }
-
-    public int sizeOfArray() {
-        return atomList.length;
-    }
-
     public int getAtomCount() {
         return itemsInList;
     }
-	
-    public IAtom getAtom(int index) {
+    
+    public IAtomLeaf getAtom(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
-            throw new IndexOutOfBoundsException("AtomArrayList.remove invalid index");
+            throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
         }
         return atomList[index];
     }

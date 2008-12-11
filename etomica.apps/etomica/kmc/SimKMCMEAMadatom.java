@@ -3,14 +3,14 @@ package etomica.kmc;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -62,7 +62,7 @@ public class SimKMCMEAMadatom extends Simulation{
     public double [] positions;
     public double [] lambdas, frequencies;
     public IVector adAtomPos;
-    public IAtomList movableSet;
+    public IMoleculeList movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public SimKMCMEAMadatom() {
@@ -200,74 +200,74 @@ public class SimKMCMEAMadatom extends Simulation{
     public void setMovableAtoms(double distance, IVector center){
         //distance = distance*distance;
         IVector rij = space.makeVector();
-        AtomArrayList movableList = new AtomArrayList();
-        IAtomList loopSet = box.getMoleculeList();
-        for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+        MoleculeArrayList movableList = new MoleculeArrayList();
+        IMoleculeList loopSet = box.getMoleculeList();
+        for (int i=0; i<loopSet.getMoleculeCount(); i++){
+            rij.Ev1Mv2(center,((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
             if(rij.x(0) > (box.getBoundary().getDimensions().x(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               movableList.add(loopSet.getAtom(i));
+               movableList.add(loopSet.getMolecule(i));
             } 
         }
-        for (int i=0; i<movableList.getAtomCount(); i++){
+        for (int i=0; i<movableList.getMoleculeCount(); i++){
             IMolecule newMolecule = movable.makeMolecule();
             box.addMolecule(newMolecule);
-            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            box.removeMolecule((IMolecule)movableList.getAtom(i));
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)movableList.getMolecule(i).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule(movableList.getMolecule(i));
         }
         movableSet = box.getMoleculeList(movable);
     }
     
     public void setPotentialListAtoms(){
-        AtomArrayList neighborList = new AtomArrayList();
-        AtomArrayList fixedList = new AtomArrayList();
-        IAtomList loopSet = box.getMoleculeList();
-        IAtomList movableSet = box.getMoleculeList(movable);
-        for(int i=0; i<loopSet.getAtomCount(); i++){
-            if(((IMolecule)loopSet.getAtom(i)).getType()==movable){
+        MoleculeArrayList neighborList = new MoleculeArrayList();
+        MoleculeArrayList fixedList = new MoleculeArrayList();
+        IMoleculeList loopSet = box.getMoleculeList();
+        IMoleculeList movableSet = box.getMoleculeList(movable);
+        for(int i=0; i<loopSet.getMoleculeCount(); i++){
+            if(loopSet.getMolecule(i).getType()==movable){
                 continue;
             }
-            if(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(0) < -4.0){continue;}
+            if(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition().x(0) < -4.0){continue;}
             boolean fixedFlag = true;
-            for(int j=0; j<movableSet.getAtomCount(); j++){
+            for(int j=0; j<movableSet.getMoleculeCount(); j++){
                 IVector dist = space.makeVector();
-                dist.Ev1Mv2(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)((IMolecule)movableSet.getAtom(j)).getChildList().getAtom(0)).getPosition());
+                dist.Ev1Mv2(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)movableSet.getMolecule(j).getChildList().getAtom(0)).getPosition());
                 box.getBoundary().nearestImage(dist);
                 if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
-                    neighborList.add(loopSet.getAtom(i));
+                    neighborList.add(loopSet.getMolecule(i));
                     fixedFlag = false;
                     break;
                 }               
             
             }
             if(fixedFlag){
-                fixedList.add(loopSet.getAtom(i));
+                fixedList.add(loopSet.getMolecule(i));
             }
         }
-        for (int i=0; i<neighborList.getAtomCount(); i++){
+        for (int i=0; i<neighborList.getMoleculeCount(); i++){
             IMolecule newMolecule = potentialSpecies.makeMolecule();
             box.addMolecule(newMolecule);
-            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)neighborList.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            box.removeMolecule((IMolecule)neighborList.getAtom(i));
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)neighborList.getMolecule(i).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule(neighborList.getMolecule(i));
          }
-        for (int i=0; i<fixedList.getAtomCount(); i++){
+        for (int i=0; i<fixedList.getMoleculeCount(); i++){
             IMolecule newMolecule = fixed.makeMolecule();
             box.addMolecule(newMolecule);
-            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)fixedList.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            box.removeMolecule((IMolecule)fixedList.getAtom(i));
+            ((IAtomPositioned)newMolecule.getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)fixedList.getMolecule(i).getChildList().getAtom(0)).getPosition());
+            box.removeMolecule(fixedList.getMolecule(i));
          }
         
     }
     
     public void randomizePositions(){
         IVector workVector = space.makeVector();
-        IAtomList loopSet3 = box.getMoleculeList(movable);
-        IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
+        IMoleculeList loopSet3 = box.getMoleculeList(movable);
+        IVector [] currentPos = new IVector [loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (((IAtomPositioned)((IMolecule)loopSet3.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            currentPos[i] = (((IAtomPositioned)loopSet3.getMolecule(i).getChildList().getAtom(0)).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}
@@ -282,12 +282,12 @@ public class SimKMCMEAMadatom extends Simulation{
         distance = distance*distance;
         IVector rij = space.makeVector();
         
-        IAtomList loopSet = box.getMoleculeList(movable);
-        for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(center,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+        IMoleculeList loopSet = box.getMoleculeList(movable);
+        for (int i=0; i<loopSet.getMoleculeCount(); i++){
+            rij.Ev1Mv2(center,((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               box.removeMolecule((IMolecule)loopSet.getAtom(i));
+               box.removeMolecule(loopSet.getMolecule(i));
             } 
         }   
     }

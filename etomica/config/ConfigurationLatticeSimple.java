@@ -1,13 +1,13 @@
 package etomica.config;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -65,7 +65,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         this.space = space;
         this.lattice = lattice;
         this.indexIterator = indexIterator;
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
     }
 
     /**
@@ -73,7 +73,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
+        MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
             return;
@@ -110,8 +110,8 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         IVector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getDimensions());
         IVector destinationVector = atomActionTranslateTo.getDestination();
-        for (IMolecule a = (IMolecule)atomIterator.nextAtom(); a != null;
-             a = (IMolecule)atomIterator.nextAtom()) {
+        for (IMolecule a = atomIterator.nextMolecule(); a != null;
+             a = atomIterator.nextMolecule()) {
             // initialize coordinates of child atoms
             IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
@@ -159,7 +159,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
+    protected final MoleculeActionTranslateTo atomActionTranslateTo;
     private final ISpace space;
     private static final long serialVersionUID = 2L;
 
@@ -168,7 +168,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
 
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        IPotentialMaster potentialMaster = new PotentialMaster();
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);

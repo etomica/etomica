@@ -11,8 +11,8 @@ import javax.swing.border.TitledBorder;
 import etomica.action.AtomAction;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
+import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
@@ -22,10 +22,10 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterTemperature;
@@ -359,7 +359,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomAction() {
-            public void actionPerformed(IAtom a) {((ElementSimple)((IAtomLeaf)a).getType().getElement()).setMass(currentMass);}
+            public void actionPerformed(IAtomLeaf a) {((ElementSimple)a.getType().getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         private final ISpace space;
@@ -425,8 +425,16 @@ public class JouleThomson extends SimulationGraphic {
                 Configuration config = new ConfigurationLattice(lattice, space);
                 config.initializeCoordinates(sim.box);
             }
-            if(speciesName.equals("Ideal gas")) sim.integrator.getPotential().setEnabled(sim.potential,false);
-            else sim.integrator.getPotential().setEnabled(sim.potential,true);
+            if(speciesName.equals("Ideal gas")) {
+                if (sim.integrator.getPotential().getPotentials().length > 0) {
+                    sim.integrator.getPotential().removePotential(sim.potential);
+                }
+            }
+            else {
+                if (sim.integrator.getPotential().getPotentials().length == 0) {
+                    sim.integrator.getPotential().addPotential(sim.potential, new IAtomTypeLeaf[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                }
+            }
             simRestart.actionPerformed();
         }
     }

@@ -1,23 +1,21 @@
 package etomica.dimer;
 
 import java.io.FileWriter;
-import java.io.IOException;
 
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -30,7 +28,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
-import etomica.units.ElectronVolt;
 
 
 /**
@@ -180,7 +177,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		super.setup();     
         movableAtoms = 0;
         for(int i=0; i<movableSpecies.length; i++){
-            movableAtoms += box.getMoleculeList(movableSpecies[i]).getAtomCount();
+            movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
         }
         N = new IVectorRandom [movableAtoms];
         F0 = new IVector [movableAtoms];
@@ -252,11 +249,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         listMin = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-            IAtomList molecules = box.getMoleculeList(movableSpecies[i]);
-            IAtomList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
-            for (int j=0; j<molecules.getAtomCount(); j++) {
-                list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
-                listMin.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
+            IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
+            IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
+            for (int j=0; j<molecules.getMoleculeCount(); j++) {
+                list.add(molecules.getMolecule(j).getChildList().getAtom(0));
+                listMin.add(molecules1.getMolecule(j).getChildList().getAtom(0));
             }
 		}  
 		
@@ -445,7 +442,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public void quitSearch(){
 
         vib = new CalcVibrationalModes();
-        vib.setup(box, super.potential, (IAtomList)box.getMoleculeList(movableSpecies[0]), space);
+        vib.setup(box, super.potential, box.getMoleculeList(movableSpecies[0]), space);
         vib.actionPerformed();
         
         System.out.println("energy: "+energyBox0.getDataAsScalar()+"    Vib: "+vib.getProductOfFrequencies());

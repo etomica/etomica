@@ -92,7 +92,7 @@ public class VirialAlkane {
         
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
-        PotentialGroup pTargetGroup = new PotentialGroup(2, space);
+        PotentialGroup pTargetGroup = new PotentialGroup(2);
         System.out.println("Siepman "+nSpheres+"-mer chains B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
         double epsilonCH2 = Kelvin.UNIT.toSim(46.0);

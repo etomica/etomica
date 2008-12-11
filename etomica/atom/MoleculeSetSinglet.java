@@ -1,0 +1,34 @@
+package etomica.atom;
+
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
+
+
+/**
+ * Data structure that contains a single mutable atom instance.
+ */
+public class MoleculeSetSinglet implements IMoleculeList, java.io.Serializable {
+
+    public MoleculeSetSinglet() {
+    }
+    
+    public MoleculeSetSinglet(IMolecule atom) {
+        this.atom = atom;
+    }
+    
+    public final IMolecule getMolecule(int i) {
+        if(i == 0) return atom;
+        throw new IllegalArgumentException();
+    }
+
+    public final int getMoleculeCount() {
+        return 1;
+    }
+    
+    public String toString() {
+        return "["+atom+"]";
+    }
+
+    private static final long serialVersionUID = 1L;
+    public IMolecule atom;
+}

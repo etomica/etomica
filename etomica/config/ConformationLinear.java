@@ -1,6 +1,6 @@
 package etomica.config;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IConformation;
 import etomica.api.IVector;
 import etomica.space.ISpace;

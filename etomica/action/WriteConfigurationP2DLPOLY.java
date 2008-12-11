@@ -214,7 +214,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
 		            	}
 	            	}
 	            	
-	            		IMolecule molecule = (IMolecule)box.getMoleculeList().getAtom(iMolec);
+	            		IMolecule molecule = box.getMoleculeList().getMolecule(iMolec);
 	            		for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
 	            			IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
 	            			String atomName = (String)elementHash.get(((IAtomLeaf)atom).getType().getElement());

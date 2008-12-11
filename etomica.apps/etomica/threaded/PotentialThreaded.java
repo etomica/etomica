@@ -2,16 +2,15 @@ package etomica.threaded;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IPotential;
-
+import etomica.api.IPotentialAtomic;
 import etomica.potential.Potential;
 import etomica.space.ISpace;
 
 public class PotentialThreaded extends Potential {
 
-	final protected IPotential[] potential;
+	final protected IPotentialAtomic[] potential;
 	
-	public PotentialThreaded(ISpace space, IPotential[] potential) {
+	public PotentialThreaded(ISpace space, IPotentialAtomic[] potential) {
 		super(potential[0].nBody(), space);
 		this.potential = potential;
 	
@@ -35,7 +34,7 @@ public class PotentialThreaded extends Potential {
 
 	}
 	
-	public IPotential[] getPotentials(){
+	public IPotentialAtomic[] getPotentials(){
 		return potential;
 	}
 

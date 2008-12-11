@@ -1,7 +1,9 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IPotential;
+import etomica.api.IMoleculeList;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -12,16 +14,24 @@ import etomica.api.IPotential;
  *
  * @author David Kofke
  */
-public class PotentialCalculationEnergySum implements PotentialCalculation, java.io.Serializable {
+public class PotentialCalculationEnergySum implements PotentialCalculation, PotentialCalculationMolecular, java.io.Serializable {
 
     /**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
-	public void doCalculation(IAtomList atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 	    sum += potential.energy(atoms);
 	}
 	
+    /**
+     * Adds to the energy sum the energy values obtained from application of the given potential to the
+     * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
+     */
+    public void doCalculation(IMoleculeList atoms, IPotentialMolecular potential) {
+        sum += potential.energy(atoms);
+    }
+    
 	/**
 	 * Sets the energy sum to zero, typically to begin a new energy-sum calculation.
 	 */

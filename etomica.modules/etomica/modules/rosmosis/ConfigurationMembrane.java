@@ -2,11 +2,11 @@ package etomica.modules.rosmosis;
 
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -35,7 +35,7 @@ public class ConfigurationMembrane implements Configuration {
     public void initializeCoordinates(IBox box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(space);
         IVector translationVector = translateBy.getTranslationVector();
-        AtomGroupAction translator = new AtomGroupAction(translateBy);
+        MoleculeChildAtomAction translator = new MoleculeChildAtomAction(translateBy);
         translationVector.E(0);
         
         box.setNMolecules(speciesSolute, 0);
@@ -59,10 +59,10 @@ public class ConfigurationMembrane implements Configuration {
         ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        IAtomList molecules = pretendBox.getMoleculeList(speciesSolvent);
+        IMoleculeList molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
-            IMolecule atom = (IMolecule)molecules.getAtom(i);
+            IMolecule atom = molecules.getMolecule(i);
             pretendBox.removeMolecule(atom);
             box.addMolecule(atom);
         }
@@ -76,12 +76,12 @@ public class ConfigurationMembrane implements Configuration {
         ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute, speciesSolvent};
         for (int iSpecies=0; iSpecies<2; iSpecies++) {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
-            for (int i=molecules.getAtomCount()-1; i>-1; i--) {
+            for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule atom = (IMolecule)molecules.getAtom(i);
+                IMolecule atom = molecules.getMolecule(i);
                 pretendBox.removeMolecule(atom);
                 // we need to translate the molecules into the proper chamber
-                double x = ((ISpecies)atom.getType()).getPositionDefinition().position(atom).x(membraneDim);
+                double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
                 if (x < 0) {
                     translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
                 }
@@ -140,9 +140,9 @@ public class ConfigurationMembrane implements Configuration {
             double membraneShift = shifts[iShift]*boxDimensions.x(membraneDim) - membraneCenter;
             // move molecules over to the real box
             molecules = pretendBox.getMoleculeList(speciesMembrane);
-            for (int i=molecules.getAtomCount()-1; i>-1; i--) {
+            for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = (IMolecule)molecules.getAtom(i);
+                IMolecule molecule = molecules.getMolecule(i);
                 IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(0);
                 double x = atom.getPosition().x(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {

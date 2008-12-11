@@ -3,7 +3,6 @@ package etomica.integrator;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -91,7 +90,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         //Advance velocities from T-Dt/2 to T without constraint
         double Free=0.0;
         //degrees of freedom
-        Free=((box.getMoleculeList().getAtomCount()-1)*dim); 
+        Free=((box.getMoleculeList().getMoleculeCount()-1)*dim); 
 
         double k=0.0;
         double chi;

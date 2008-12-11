@@ -1,14 +1,10 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
 import etomica.api.IVector;
-
-import etomica.atom.AtomsetFilter;
-import etomica.atom.iterator.ApiFiltered;
-import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.potential.P1HardMovingBoundary;
 
@@ -16,21 +12,38 @@ import etomica.potential.P1HardMovingBoundary;
 /**
  * Our own ApiFiltered that's box-dependent
  */
-public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorBoxDependent {
-    public ApiFilteredCylinder(AtomsetIterator iterator, AtomsetFilter filter) {
-        super(iterator, filter);
+public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIteratorBoxDependent {
+    public ApiFilteredCylinder(AtomFilterInCylinder filter) {
+        super();
+        this.filter = filter;
     }
 
-    public void setBox(IBox newBox) {
-        ((AtomsetIteratorBoxDependent)iterator).setBox(newBox);
+    public IAtomList next() {
+        IAtomList list = super.next();
+        while (list != null && !filter.accept(list)) {
+            list = super.next();
+        }
+        return list;
     }
+    
+    public int size() {
+        int count = 0;
+        reset();
+        for (Object a = next(); a != null; a = next()) {
+            count++;
+        }
+        return count;
+    }
+        
+    
     private static final long serialVersionUID = 1L;
+    protected final AtomFilterInCylinder filter;
 
     /**
      * Filter to expclude any pair with an atom within some distance from a 
      * wall. 
      */
-    public static class AtomFilterInCylinder implements AtomsetFilter {
+    public static class AtomFilterInCylinder {
         public AtomFilterInCylinder(IBoundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
             dimensions = boundary.getDimensions();
             this.pistonPotential = pistonPotential;

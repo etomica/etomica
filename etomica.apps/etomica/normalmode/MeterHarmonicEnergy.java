@@ -1,14 +1,13 @@
 package etomica.normalmode;
 
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-
+import etomica.api.IBox;
+import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;

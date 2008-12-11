@@ -2,10 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Length;
 
 /**
  * Superclass for all Potential classes, which define how the atoms in the
@@ -14,7 +12,7 @@ import etomica.units.Length;
  * @author David Kofke
  */
  
-public abstract class Potential implements java.io.Serializable, IPotential {
+public abstract class Potential implements java.io.Serializable, IPotentialAtomic {
     
 	private final int nBody;
 	protected final ISpace space;

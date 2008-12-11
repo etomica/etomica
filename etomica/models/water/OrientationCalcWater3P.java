@@ -1,7 +1,7 @@
 package etomica.models.water;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVector3D;

@@ -1,14 +1,14 @@
 package etomica.models.water;
 
 import Jama.Matrix;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.atom.AtomPair;
+import etomica.atom.MoleculePair;
 import etomica.math.SpecialFunctions;
-import etomica.potential.PotentialN;
+import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -24,11 +24,11 @@ import etomica.util.Arrays;
  * 
  * @author Ken
  */
-public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
+public class PNWaterGCPM extends PotentialMolecular implements PotentialPolarizable {
 
     public PNWaterGCPM(ISpace space) {
-	    super(space);
-	    pair = new AtomPair();
+	    super(Integer.MAX_VALUE, space);
+	    pair = new MoleculePair();
         sigma = 3.69;
         epsilon = Kelvin.UNIT.toSim(110);
         gamma = 12.75;
@@ -59,12 +59,12 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
         A = new Matrix[0];
 	}   
 
-    public double energy(IAtomList atoms){
+    public double energy(IMoleculeList atoms){
         double sum = 0;
-        for (int i=0; i<atoms.getAtomCount()-1; i++) {
-            pair.atom0 = atoms.getAtom(i);
-            for (int j=i+1; j<atoms.getAtomCount(); j++) {
-                pair.atom1 = atoms.getAtom(j);
+        for (int i=0; i<atoms.getMoleculeCount()-1; i++) {
+            pair.atom0 = atoms.getMolecule(i);
+            for (int j=i+1; j<atoms.getMoleculeCount(); j++) {
+                pair.atom1 = atoms.getMolecule(j);
                 sum += getNonPolarizationEnergy(pair);
                 if (Double.isInfinite(sum)) {
                     return sum;
@@ -80,9 +80,9 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
-    public double getNonPolarizationEnergy(IAtomList atoms) {
-        IAtomList water1Atoms = ((IMolecule)atoms.getAtom(0)).getChildList();
-        IAtomList water2Atoms = ((IMolecule)atoms.getAtom(1)).getChildList();
+    public double getNonPolarizationEnergy(IMoleculeList atoms) {
+        IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
+        IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
         IVector O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
         IVector O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
@@ -142,9 +142,9 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
      * This returns the polarizable portion of the GCPM potential for any
      * number of atoms.
      */
-    public double getPolarizationEnergy(IAtomList atoms) {
+    public double getPolarizationEnergy(IMoleculeList atoms) {
         
-        final int atomCount = atoms.getAtomCount();
+        final int atomCount = atoms.getMoleculeCount();
         if (Eq.length < atomCount+1) {
             Eq = (Matrix[])Arrays.resizeArray(Eq, atomCount+1);
             A = (Matrix[])Arrays.resizeArray(A, atomCount+1);
@@ -168,8 +168,8 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
          * kmb, 8/7/06
          */
 
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomList iLeafAtoms = ((IMolecule)atoms.getAtom(i)).getChildList();
+        for (int i=0; i<atoms.getMoleculeCount(); i++) {
+            IAtomList iLeafAtoms = atoms.getMolecule(i).getChildList();
             IVector O1r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
             IVector H11r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
             IVector H12r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
@@ -179,9 +179,9 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
             comWi.PEa1Tv1(massH, H12r);
             comWi.TE(1.0/totalMass);
             
-            for (int j=0; j<atoms.getAtomCount(); j++) {
+            for (int j=0; j<atoms.getMoleculeCount(); j++) {
                 if  (i == j) continue;
-                IAtomList jLeafAtoms = ((IMolecule)atoms.getAtom(j)).getChildList();
+                IAtomList jLeafAtoms = atoms.getMolecule(j).getChildList();
                 IVector Mjr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexM)).getPosition();
                 IVector Ojr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
                 IVector Hj1r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
@@ -315,7 +315,7 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final AtomPair pair;
+    protected final MoleculePair pair;
     private final double sigma;
     private final double epsilon, gamma;
     private final double chargeH, chargeM;

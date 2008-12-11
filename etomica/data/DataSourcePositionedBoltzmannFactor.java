@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
@@ -26,7 +26,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         data = new DataDouble();
         dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
         tag = new DataTag();
-        atomTranslator = new AtomActionTranslateTo(space);
+        atomTranslator = new MoleculeActionTranslateTo(space);
     }
 
     /**
@@ -82,7 +82,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
     }
 
     protected IMolecule testMolecule;// prototype insertion molecule
-    protected AtomActionTranslateTo atomTranslator;
+    protected MoleculeActionTranslateTo atomTranslator;
     protected MeterPotentialEnergy energyMeter;
     protected final DataInfoDouble dataInfo;
     protected final DataDouble data;

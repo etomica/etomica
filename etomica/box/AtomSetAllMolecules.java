@@ -1,35 +1,35 @@
 package etomica.box;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 
-public class AtomSetAllMolecules implements IAtomList {
+public class AtomSetAllMolecules implements IMoleculeList {
 
     public AtomSetAllMolecules() {
         moleculeTotals = new int[1];
     }
 
-    public IAtom getAtom(int i) {
-        if(i >= getAtomCount() || i < 0) 
+    public IMolecule getMolecule(int i) {
+        if(i >= getMoleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
-                                                ", Number of molecules: "+getAtomCount());
+                                                ", Number of molecules: "+getMoleculeCount());
         int nSpecies = moleculeLists.length;
         if (moleculeTotals[0] > i) {
-            return moleculeLists[0].getAtom(i);
+            return moleculeLists[0].getMolecule(i);
         }
         for (int iSpecies=1; iSpecies<nSpecies; iSpecies++) {
             if (moleculeTotals[iSpecies] > i) {
-                return moleculeLists[iSpecies].getAtom(i-moleculeTotals[iSpecies-1]);
+                return moleculeLists[iSpecies].getMolecule(i-moleculeTotals[iSpecies-1]);
             }
         }
         throw new IllegalStateException("how can this be?!?!?!");
     }
 
-    public int getAtomCount() {
+    public int getMoleculeCount() {
         return moleculeTotals[moleculeTotals.length-1];
     }
 
-    public void setMoleculeLists(IAtomList[] newMoleculeLists) {
+    public void setMoleculeLists(IMoleculeList[] newMoleculeLists) {
         moleculeLists = newMoleculeLists;
         if (moleculeTotals.length - 1 != moleculeLists.length) {
             moleculeTotals = new int[moleculeLists.length+1];
@@ -37,14 +37,14 @@ public class AtomSetAllMolecules implements IAtomList {
         if (moleculeLists.length == 0) {
             return;
         }
-        moleculeTotals[0] = moleculeLists[0].getAtomCount();
+        moleculeTotals[0] = moleculeLists[0].getMoleculeCount();
         for (int i=1; i<moleculeTotals.length-1; i++) {
-            moleculeTotals[i] = moleculeTotals[i-1] + moleculeLists[i].getAtomCount();
+            moleculeTotals[i] = moleculeTotals[i-1] + moleculeLists[i].getMoleculeCount();
         }
         moleculeTotals[moleculeTotals.length-1] = moleculeTotals[moleculeTotals.length-2];
     }
     
     private static final long serialVersionUID = 1L;
-    protected IAtomList[] moleculeLists;
+    protected IMoleculeList[] moleculeLists;
     protected int[] moleculeTotals;
 }

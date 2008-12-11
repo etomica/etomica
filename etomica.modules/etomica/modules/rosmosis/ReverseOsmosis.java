@@ -40,7 +40,7 @@ public class ReverseOsmosis extends Simulation {
     
     public ReverseOsmosis(Space _space) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space); //List(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
         
         //controller and integrator
 	    integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), space);

@@ -5,7 +5,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
@@ -22,7 +22,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    private final AtomIteratorAllMolecules iterator;
+    private final AtomIteratorLeafAtoms iterator;
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
@@ -37,7 +37,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         super(potentialMaster);
         
         this.random = random;
-        iterator = new AtomIteratorAllMolecules();
+        iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
     }
 

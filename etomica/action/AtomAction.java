@@ -1,11 +1,11 @@
 package etomica.action;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 
 /**
  * Interface for a class that can perform an action on an atom.
  */
 public interface AtomAction {
 
-    public void actionPerformed(IAtom atom);
+    public void actionPerformed(IAtomLeaf atom);
 }

@@ -2,27 +2,23 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterTypeInstance;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.AtomIteratorBasis;
-import etomica.atom.iterator.AtomIteratorFiltered;
-import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.AtomIteratorBasisFilteredType;
 import etomica.atom.iterator.AtomsetIteratorAllLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.MoleculesetIterator;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
-import etomica.potential.PotentialMaster.AtomIterator0;
-import etomica.space.ISpace;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -31,7 +27,7 @@ import etomica.space.ISpace;
  * instructing these sub-potentials to perform their calculations over the atoms
  * relevant to them in the groups.
  */
-public class PotentialGroup extends Potential {
+public class PotentialGroup extends PotentialMolecular {
     
 
     /**
@@ -39,8 +35,8 @@ public class PotentialGroup extends Potential {
      * This constructor should only be called by the PotentialMaster.  Use 
      * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
-    public PotentialGroup(int nBody, ISpace space) {
-        super(nBody, space);
+    public PotentialGroup(int nBody) {
+        super(nBody, null);
     }
     
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
@@ -58,7 +54,7 @@ public class PotentialGroup extends Potential {
 	 * @param potential the potential in question
 	 * @return boolean true if potential has been added to this group
 	 */
-    public boolean contains(IPotential potential) {
+    public boolean contains(IPotentialAtomic potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential.equals(potential)) return true;
         }//end for
@@ -78,21 +74,18 @@ public class PotentialGroup extends Potential {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(IPotential potential, IAtomTypeLeaf[] types) {
+    public void addPotential(IPotentialAtomic potential, IAtomTypeLeaf[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
         else { 
         	switch(types.length) {
 	            case 1:
-	                AtomFilter filter = new AtomFilterTypeInstance(types[0]);
-	                addPotential(potential, 
-	                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter),types);
+	                addPotential(potential, new AtomIteratorBasisFilteredType(types[0]),types);
 	                break;
 	            case 2:
 	                if(this.nBody() == 1) {
-	                    addPotential(potential,
-	                            ApiBuilder.makeIntragroupTypeIterator(types),types);
+	                    throw new RuntimeException("It doesn't make sense to have type-based pair iteration within a molecule");
 	                }
 	                else if(this.nBody() == 2) {
 	                    addPotential(potential,
@@ -104,7 +97,7 @@ public class PotentialGroup extends Potential {
         if(potential instanceof PotentialTruncated) {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
             if(lrc != null) {
-                potentialMaster.lrcMaster().addPotential(lrc, new AtomIterator0(), null);
+                potentialMaster.lrcMaster().addPotential(lrc);
             }
         }
     }
@@ -113,11 +106,11 @@ public class PotentialGroup extends Potential {
      * Adds the given potential to this group, defining it to apply to the atoms
      * provided by the given basis-dependent iterator.  
      */
-    public synchronized void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator) {
+    public synchronized void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator) {
         addPotential(potential,iterator,null);
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -149,8 +142,8 @@ public class PotentialGroup extends Potential {
     }
     
     //TODO this needs some work
-    public double energy(IAtomList basisAtoms) {
-        if(basisAtoms.getAtomCount() != this.nBody()) {
+    public double energy(IMoleculeList basisAtoms) {
+        if(basisAtoms.getMoleculeCount() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;
@@ -184,7 +177,7 @@ public class PotentialGroup extends Potential {
      * potential is not in group.  Returns true if the given Potential was
      * found and removed.
      */
-    public boolean removePotential(IPotential potential) {
+    public boolean removePotential(IPotentialAtomic potential) {
         PotentialLinker previous = null;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {//found it
@@ -202,9 +195,7 @@ public class PotentialGroup extends Potential {
      * using the directive to set up the iterators for the sub-potentials of this group.
      */
     //TODO consider what to do with sub-potentials after target atoms are reached
-    public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-    	IAtom targetAtom = id.getTargetAtom();
-    	IteratorDirective.Direction direction = id.direction();
+    public void calculate(MoleculesetIterator iterator, IteratorDirective.Direction direction, IAtomLeaf targetAtom , PotentialCalculation pc) {
     	//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable
     	for (PotentialLinker link=first; link!= null; link=link.next) {
@@ -215,15 +206,15 @@ public class PotentialGroup extends Potential {
                 ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
             }
     	}
-    	iterator.reset();//loop over atom groups affected by this potential group
-    	for (IAtomList basisAtoms = iterator.next(); basisAtoms != null;
+    	iterator.reset();//loop over molecules affected by this potential group
+    	for (IMoleculeList basisAtoms = iterator.next(); basisAtoms != null;
              basisAtoms = iterator.next()) {
     	    for (PotentialLinker link=first; link!= null; link=link.next) {
     	        if(!link.enabled) continue;
     	        final AtomsetIteratorBasisDependent atomIterator = link.iterator;
     	        atomIterator.setBasis(basisAtoms);
     	        atomIterator.reset();
-    	        final IPotential potential = link.potential;
+    	        final IPotentialAtomic potential = link.potential;
     	        for (IAtomList atoms = atomIterator.next(); atoms != null;
     	             atoms = atomIterator.next()) {
     	            pc.doCalculation(atoms, potential);
@@ -243,7 +234,7 @@ public class PotentialGroup extends Potential {
      * Indicates that the specified potential should not contribute to potential
      * calculations. If potential is not in this group, no action is taken.
      */
-    public void setEnabled(IPotential potential, boolean enabled) {
+    public void setEnabled(IPotentialAtomic potential, boolean enabled) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 link.enabled = enabled;
@@ -256,7 +247,7 @@ public class PotentialGroup extends Potential {
      * Returns true if the potential is in this group and has not been disabled
      * via a previous call to setEnabled; returns false otherwise.
      */
-    public boolean isEnabled(IPotential potential) {
+    public boolean isEnabled(IPotentialAtomic potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 return link.enabled;
@@ -286,13 +277,13 @@ public class PotentialGroup extends Potential {
 
     protected static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        public final IPotential potential;
+        public final IPotentialAtomic potential;
         public final AtomsetIteratorBasisDependent iterator;
         public final IAtomTypeLeaf[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, IAtomTypeLeaf[] t, PotentialLinker l) {
+        public PotentialLinker(IPotentialAtomic a, AtomsetIteratorBasisDependent i, IAtomTypeLeaf[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

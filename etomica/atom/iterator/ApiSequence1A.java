@@ -1,7 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 /**
@@ -26,10 +24,6 @@ public class ApiSequence1A implements AtomsetIteratorDirectable, java.io.Seriali
 
     public int nBody() {
         return 2;
-    }
-    
-    public void setAtom(IAtom atom) {
-        aiOuter.setAtom(atom);
     }
     
     /**
@@ -93,20 +87,6 @@ public class ApiSequence1A implements AtomsetIteratorDirectable, java.io.Seriali
         return apiDown.next();
     }
     
-    /**
-     * Performs action on all iterates for iterator as currently
-     * conditioned (basis, target, direction).  Clobbers
-     * iteration state.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if (direction != IteratorDirective.Direction.DOWN) {
-            apiUp.allAtoms(action);
-        }
-        if (direction != IteratorDirective.Direction.UP) {
-            apiDown.allAtoms(action);
-        }
-    }
-	
     private static final long serialVersionUID = 1L;
     private final AtomIteratorSinglet aiOuter;
     private IteratorDirective.Direction direction;

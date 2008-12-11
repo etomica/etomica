@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 
 
@@ -15,8 +14,8 @@ public class AtomToIndexChild implements AtomToIndex, Serializable {
     /**
      * @throws NullPointerException if the atom is null.
      */
-    public int getIndex(IAtom atom) {
-        return ((IAtomLeaf)atom).getIndex();
+    public int getIndex(IAtomLeaf atom) {
+        return atom.getIndex();
     }
     
     private static final long serialVersionUID = 1L;

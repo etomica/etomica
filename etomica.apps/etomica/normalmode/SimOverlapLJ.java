@@ -52,7 +52,7 @@ public class SimOverlapLJ extends Simulation {
     public SimOverlapLJ(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(_space, true);
 
-        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IEtomicaDataSource[2];
@@ -212,7 +212,7 @@ public class SimOverlapLJ extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getAtomCount());
+                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {

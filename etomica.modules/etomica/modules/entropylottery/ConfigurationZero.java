@@ -1,11 +1,10 @@
 package etomica.modules.entropylottery;
 
-import etomica.api.IAtom;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
-
-import etomica.action.AtomActionTranslateTo;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.space.ISpace;
 
@@ -24,7 +23,7 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
     }
 
     public void initializeCoordinates(IBox box) {
-        AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(space);
+        MoleculeActionTranslateTo atomActionTranslateTo = new MoleculeActionTranslateTo(space);
         IVector work = space.makeVector();
         work.E(0.0);
         int intD = (int)Math.round(box.getBoundary().getDimensions().x(0));
@@ -33,10 +32,10 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
         }
         atomActionTranslateTo.setDestination(work);
 
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
+        MoleculeIteratorAllMolecules iterator = new MoleculeIteratorAllMolecules(box);
         iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
-           atomActionTranslateTo.actionPerformed(iterator.nextAtom());
+        for (IMolecule a = iterator.nextMolecule(); a != null; a = iterator.nextMolecule()) {
+           atomActionTranslateTo.actionPerformed(iterator.nextMolecule());
         }
     }
 

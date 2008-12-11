@@ -2,7 +2,6 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -25,7 +24,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
 		//color all atoms according to their type
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomLeaf atom = (IAtomLeaf)leafList.getAtom(iLeaf);
+            IAtomLeaf atom = leafList.getAtom(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {
@@ -35,7 +34,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
         nbrIterator.reset();
         for (IAtomList pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
-            IAtomLeaf atom = (IAtomLeaf)pair.getAtom(1);
+            IAtomLeaf atom = pair.getAtom(1);
             if(atom.getType() == referenceAtom.getType()) {
                 agentManager.setAgent(atom, Color.blue);
             } else {

@@ -2,11 +2,10 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.action.AtomAction;
-import etomica.action.AtomGroupAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -21,38 +20,21 @@ import etomica.space.ISpace;
 public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Serializable {
 
     public AtomPositionGeometricCenter(ISpace space) {
-        vectorSum = space.makeVector();
         center = space.makeVector();
-        myAction = new MyAction(vectorSum);
-        groupWrapper = new AtomGroupAction(myAction);
     }
 
-    public IVector position(IAtom atom) {
-        vectorSum.E(0.0);
-        myAction.nAtoms = 0;
-        groupWrapper.actionPerformed(atom);
-        center.Ea1Tv1(1.0 / myAction.nAtoms, vectorSum);
+    public IVector position(IMolecule atom) {
+        center.E(0.0);
+        IAtomList children = atom.getChildList();
+        int nAtoms = children.getAtomCount();
+        for (int i=0; i<nAtoms; i++) {
+            center.PE(((IAtomPositioned)children.getAtom(i)).getPosition());
+        }
+        center.TE(1.0 / nAtoms);
         return center;
     }
 
-    private static class MyAction implements AtomAction, Serializable {
-        public MyAction(IVector v) {
-            vectorSum = v;
-            nAtoms = 0;
-        }
-        
-        public void actionPerformed(IAtom a) {
-            vectorSum.PE(((IAtomPositioned)a).getPosition());
-            nAtoms++;
-        }
-        
-        private static final long serialVersionUID = 1L;
-        private IVector vectorSum;
-        public int nAtoms;
-    }
-
+    private static final long serialVersionUID = 1L;
     private final IVector center;
-    private final IVector vectorSum;
-    private AtomGroupAction groupWrapper;
-    private MyAction myAction;
 }
+ 

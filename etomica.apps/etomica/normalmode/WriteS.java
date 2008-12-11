@@ -95,7 +95,7 @@ public class WriteS implements IAction {
         NormalModeEigenGetter.doit(thisFilename);
 
         BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
-        lastA = CalcHarmonicA.doit(thisFilename, space.D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
+        lastA = CalcHarmonicA.doit(thisFilename, space.D(), 1.0, temperature, cells[0].molecules.getMoleculeCount(), cells.length);
     }
     
     public double getLastA() {

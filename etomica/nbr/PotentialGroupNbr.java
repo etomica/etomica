@@ -1,23 +1,22 @@
 package etomica.nbr;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
-import etomica.api.IPotential;
-import etomica.atom.AtomSetSinglet;
+import etomica.api.IPotentialAtomic;
+import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
 
 public class PotentialGroupNbr extends PotentialGroup {
 
-    protected PotentialGroupNbr(int nBody, ISpace space) {
-        super(nBody, space);
-        atomSetSinglet = new AtomSetSinglet();
+    protected PotentialGroupNbr(int nBody) {
+        super(nBody);
+        atomSetSinglet = new MoleculeSetSinglet();
     }
 
     /**
@@ -25,9 +24,7 @@ public class PotentialGroupNbr extends PotentialGroup {
      * using the directive to set up the iterators for the sub-potentials of this group.
      */
     //TODO consider what to do with sub-potentials after target atoms are reached
-    public void calculateRangeIndependent(IMolecule atom, IteratorDirective id, PotentialCalculation pc) {
-        IAtom targetAtom = id.getTargetAtom();
-        IteratorDirective.Direction direction = id.direction();
+    public void calculateRangeIndependent(IMolecule atom, IteratorDirective.Direction direction, IAtomLeaf targetAtom, PotentialCalculation pc) {
         //loop over sub-potentials
         //TODO consider separate loops for targetable and directable
         for (PotentialLinker link=firstRangeIndependent; link!= null; link=link.next) {
@@ -44,7 +41,7 @@ public class PotentialGroupNbr extends PotentialGroup {
             AtomsetIteratorBasisDependent atomIterator = link.iterator;
             atomIterator.setBasis(atomSetSinglet);
             atomIterator.reset();
-            final IPotential potential = link.potential;
+            final IPotentialAtomic potential = link.potential;
             for (IAtomList atoms = atomIterator.next(); atoms != null;
                  atoms = atomIterator.next()) {
                 pc.doCalculation(atoms, potential);
@@ -52,14 +49,14 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
     }
     
-    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
         super.addPotential(potential, iterator, types);
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);
         }
     }
     
-    public boolean removePotential(IPotential potential) {
+    public boolean removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         
         PotentialLinker previous = null;
@@ -77,5 +74,5 @@ public class PotentialGroupNbr extends PotentialGroup {
     
     private static final long serialVersionUID = 1L;
     protected PotentialLinker firstRangeIndependent;
-    protected final AtomSetSinglet atomSetSinglet;
+    protected final MoleculeSetSinglet atomSetSinglet;
 }

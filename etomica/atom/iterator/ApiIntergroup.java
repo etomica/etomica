@@ -1,24 +1,23 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.atom.AtomSetSinglet;
+import etomica.api.IMoleculeList;
+import etomica.atom.AtomPair;
+import etomica.atom.MoleculeSetSinglet;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
  * the iterates are taken from two different groups.
  */
-public class ApiIntergroup extends AtomsetIteratorAdapter implements
-        AtomsetIteratorBasisDependent, ApiComposite {
+public class ApiIntergroup implements AtomsetIteratorBasisDependent {
 
     /**
      * Default iterator is an ApiInnerFixed formed from two AtomIteratorBasis
      * instances.
      */
     public ApiIntergroup() {
-        this(new ApiInnerFixed(new AtomIteratorBasis(),
-                  new AtomIteratorBasis()));
+        this(new AtomIteratorBasis(), new AtomIteratorBasis());
     }
 
     /**
@@ -26,25 +25,94 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
      * pairIterator, which is expected to contain two basis-dependent 
      * iterators.
      */
-    public ApiIntergroup(ApiComposite pairIterator) {
-        super(pairIterator);
-        aiOuter = (AtomsetIteratorBasisDependent) pairIterator
-                .getOuterIterator();
-        aiInner = (AtomsetIteratorBasisDependent) pairIterator
-                .getInnerIterator();
-        atomSetSinglet = new AtomSetSinglet();
+    public ApiIntergroup(AtomIteratorBasis outer, AtomIteratorBasis inner) {
+        super();
+        aiOuter = outer;
+        aiInner = inner;
+        unset();
+        atomSetSinglet = new MoleculeSetSinglet();
+    }
+
+    /**
+     * Accessor method for the outer-loop atom iterator.
+     * 
+     * @return the current outer-loop iterator
+     */
+    public AtomIteratorBasis getOuterIterator() {
+        return aiOuter;
+    }
+
+    /**
+     * Accessor method for the inner-loop atom iterator.
+     * 
+     * @return the current inner-loop iterator
+     */
+    public AtomIteratorBasis getInnerIterator() {
+        return aiInner;
+    }
+
+    /**
+     * Sets the iterator such that hasNext is false.
+     */
+    public void unset() {
+        aiInner.unset();
+        aiOuter.unset();
+    }
+
+    /**
+     * Returns the number of pairs given by this iterator. Not dependent on
+     * state of hasNext.
+     */
+    public int size() {
+        return aiOuter.size() * aiInner.size();
+    }
+
+    public final int nBody() {
+        return 2;
+    }
+
+    /**
+     * Returns the next pair of atoms. The same AtomPair instance is returned
+     * every time, but the Atoms it holds are (of course) different for each
+     * iterate.
+     */
+    public IAtomList next() {
+        //Advance the inner loop, if it is not at its end.
+        IAtomLeaf nextInner = aiInner.nextAtom();
+        if (nextInner != null) {
+            pair.atom1 = nextInner;
+        }
+        //Advance the outer loop, if the inner loop has reached its end.
+        else {
+            IAtomLeaf nextOuter = aiOuter.nextAtom();
+            if (nextOuter == null) {
+                return null;
+            }
+            aiInner.reset();
+            nextInner = aiInner.nextAtom();
+            if (nextInner == null) {
+                return null;
+            }
+
+            pair.atom0 = nextOuter;
+            pair.atom1 = nextInner;
+        }
+        if (pair.atom0 == pair.atom1) {
+            throw new RuntimeException("wow! "+pair);
+        }
+        return pair;
     }
 
     /**
      * Specifies a target atom, which should appear in all iterates. A
      * null value removes any restriction on the iterates.
      */
-    public void setTarget(IAtom newTargetAtom) {
+    public void setTarget(IAtomLeaf newTargetAtom) {
         targetAtom = newTargetAtom;
         needSetupIterators = true;
     }
 
-    public boolean haveTarget(IAtom target) {
+    public boolean haveTarget(IAtomLeaf target) {
         if (target == null) {
             return true;
         }
@@ -78,13 +146,13 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
      * null iterator will give no iterates until a proper basis is specified
      * via another call to this method.
      */
-    public void setBasis(IAtomList basisAtoms) {
+    public void setBasis(IMoleculeList basisAtoms) {
         if (basisAtoms == null) {
             aiOuter.setBasis(null);
         } else {
-            atomSetSinglet.atom = basisAtoms.getAtom(0);
+            atomSetSinglet.atom = basisAtoms.getMolecule(0);
             aiOuter.setBasis(atomSetSinglet);
-            atomSetSinglet.atom = basisAtoms.getAtom(1);
+            atomSetSinglet.atom = basisAtoms.getMolecule(1);
             aiInner.setBasis(atomSetSinglet);
         }
         needSetupIterators = true;
@@ -94,7 +162,16 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
         if (needSetupIterators) {
             setupIterators();
         }
-        super.reset();
+
+        aiOuter.reset();
+        aiInner.reset();
+        IAtomLeaf nextOuter = aiOuter.nextAtom();
+        if (nextOuter == null) {
+            aiInner.unset();
+            return;
+        }
+
+        pair.atom0 = nextOuter;
     }
 
     /**
@@ -105,38 +182,11 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
         return 2;
     }
 
-    /**
-     * Returns the (basis-dependent) iterator instance used for the inner-loop
-     * iteration.
-     */
-    public AtomIterator getInnerIterator() {
-        return (AtomIterator) aiInner;
-    }
-
-    /**
-     * Returns the (basis-dependent) iterator instance used for the outer-loop
-     * iteration.
-     */
-    public AtomIterator getOuterIterator() {
-        return (AtomIterator) aiOuter;
-    }
-    
-    /**
-     * Sets up atom iterators (if needed) and performs action on all 
-     * pair iterates.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if(needSetupIterators) {
-            setupIterators();
-        }
-        super.allAtoms(action);
-    }
-
     private static final long serialVersionUID = 1L;
-    protected final AtomsetIteratorBasisDependent aiOuter;
-    protected final AtomsetIteratorBasisDependent aiInner;
-    protected IAtom targetAtom;
+    protected final AtomPair pair = new AtomPair();
+    protected final AtomIteratorBasis aiInner, aiOuter;
+    protected IAtomLeaf targetAtom;
     protected boolean needSetupIterators = true;
-    protected final AtomSetSinglet atomSetSinglet;
+    protected final MoleculeSetSinglet atomSetSinglet;
 
 }

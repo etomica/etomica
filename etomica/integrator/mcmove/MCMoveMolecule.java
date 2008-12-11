@@ -1,11 +1,17 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
+import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.MoleculeSource;
+import etomica.atom.MoleculeSourceRandomMolecule;
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -14,24 +20,46 @@ import etomica.space.IVectorRandom;
  *
  * @author David Kofke
  */
-public class MCMoveMolecule extends MCMoveAtom {
+public class MCMoveMolecule extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 1L;
-    protected final AtomGroupAction moveMoleculeAction;
+    protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
+    protected final MeterPotentialEnergy energyMeter;
+    protected final IVectorRandom translationVector;
+    protected double uOld;
+    protected double uNew = Double.NaN;
+    protected final IRandom random;
+    protected ISpace space;
+
+    protected final MoleculeChildAtomAction moveMoleculeAction;
     protected final IVectorRandom groupTranslationVector;
+    protected MoleculeSource moleculeSource;
+    protected IMolecule molecule;
 
     public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster,
     		              ISpace _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
+        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
     }
     
     public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random,
     		              ISpace _space, double stepSize,
-                          double stepSizeMax, boolean ignoreOverlap) {
-        super(potentialMaster, random, _space, stepSize,stepSizeMax,ignoreOverlap);
+                          double stepSizeMax) {
+        super(potentialMaster);
+        this.random = random;
+        this.space = _space;
+        moleculeSource = new MoleculeSourceRandomMolecule();
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        translationVector = (IVectorRandom)space.makeVector();
+        setStepSizeMax(stepSizeMax);
+        setStepSizeMin(0.0);
+        setStepSize(stepSize);
+        perParticleFrequency = true;
+        energyMeter.setIncludeLrc(false);
+
         AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
         groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
-        moveMoleculeAction = new AtomGroupAction(translator);
+        moveMoleculeAction = new MoleculeChildAtomAction(translator);
         
         //set directive to exclude intramolecular contributions to the energy
 
@@ -39,32 +67,81 @@ public class MCMoveMolecule extends MCMoveAtom {
         //       iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
  //           public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
  //       });
-        AtomSourceRandomMolecule randomMoleculeSource = new AtomSourceRandomMolecule();
+        MoleculeSourceRandomMolecule randomMoleculeSource = new MoleculeSourceRandomMolecule();
         randomMoleculeSource.setRandom(random);
-        setAtomSource(randomMoleculeSource);
+        setMoleculeSource(randomMoleculeSource);
     }
     
 
     public boolean doTrial() {
-        if(box.getMoleculeList().getAtomCount()==0) return false;
+        if(box.getMoleculeList().getMoleculeCount()==0) return false;
         
-        atom = atomSource.getAtom();
+        molecule = moleculeSource.getMolecule();
 
-        energyMeter.setTarget(atom);
+        energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {
             throw new RuntimeException("Started with overlap");
         }
         groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
-        moveMoleculeAction.actionPerformed(atom);
-        uNew = energyMeter.getDataAsScalar();
+        moveMoleculeAction.actionPerformed(molecule);
         return true;
+    }
+    
+    /**
+     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
+     * states encountered before (i) and after (j) the most recent call to doTrial(). 
+     * Tij is the probability that this move would generate state j from state i, and
+     * Tji is the probability that a subsequent call to doTrial would return to state i
+     * from state j.
+     */
+    public double getA() {return 1.0;}
+    
+    /**
+     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
+     * for the states encountered before (i) and after (j) the most recent call to 
+     * doTrial.
+     */
+    public double getB() {
+        uNew = energyMeter.getDataAsScalar();
+        return -(uNew - uOld);
+    }
+    
+    public double energyChange() {return uNew - uOld;}
+    
+    /**
+     * Method called by IntegratorMC in the event that the most recent trial is accepted.
+     */
+    public void acceptNotify() {  /* do nothing */
     }
     
     public void rejectNotify() {
         groupTranslationVector.TE(-1);
-        moveMoleculeAction.actionPerformed(atom);
+        moveMoleculeAction.actionPerformed(molecule);
     }
-        
+
+    public void setBox(IBox p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
+        moleculeSource.setBox(p);
+    }
+
+    public AtomIterator affectedAtoms() {
+        affectedAtomIterator.setList(molecule.getChildList());
+        return affectedAtomIterator;
+    }
+    
+    /**
+     * @return Returns the atomSource.
+     */
+    public MoleculeSource getAtomSource() {
+        return moleculeSource;
+    }
+    /**
+     * @param atomSource The atomSource to set.
+     */
+    public void setMoleculeSource(MoleculeSource source) {
+        moleculeSource = source;
+    }
 }

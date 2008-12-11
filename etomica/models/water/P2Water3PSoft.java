@@ -2,11 +2,11 @@
 package etomica.models.water;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.MoleculeOrientedDynamic;
-import etomica.potential.IPotentialTorque;
+import etomica.potential.IPotentialMolecularTorque;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -14,7 +14,7 @@ import etomica.space.Tensor;
  * 3-point potential for water that can calculate gradient and torque (for the
  * center of mass of the water molecule).
  */
-public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
+public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorque {
 
 	public P2Water3PSoft(ISpace space, double sigma, double epsilon,
 	        double chargeO, double chargeH) {
@@ -30,9 +30,9 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
         epsilon48 = epsilon*48.0;
 	}
 
-    public IVector[][] gradientAndTorque(IAtomList pair){
-		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getAtom(0);
-		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getAtom(1);
+    public IVector[][] gradientAndTorque(IMoleculeList pair){
+		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getMolecule(0);
+		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
 		
 		//compute O-O distance to consider truncation	
 		IVector O1r = ((IAtomPositioned)water1.getChildList().getAtom(2)).getPosition();
@@ -177,20 +177,20 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialTorque {
 		return gradientAndTorque;
 	}
     
-    public IVector[] gradient(IAtomList atoms) {
+    public IVector[] gradient(IMoleculeList atoms) {
         // do extra work to calculate torque
         gradientAndTorque(atoms);
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         gradientAndTorque(atoms);
         //FIXME
         //pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
     }
 
-    public double virial(IAtomList atoms) {
+    public double virial(IMoleculeList atoms) {
         //FIXME
         return 0;
     }

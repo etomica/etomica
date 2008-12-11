@@ -1,6 +1,5 @@
 package etomica.nbr.site;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
@@ -71,17 +70,6 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         throw new RuntimeException("Cell assignments are made automagically.  This method isn't here.  Really.");
     }
 
-    /**
-     * Should not be called, because cell assignments are made as atoms are created.
-     * 
-     * @throws RuntimeException
-     *             if invoked
-     */
-    public void assignCell(IAtom atom) {
-        throw new RuntimeException(
-                "Cell assignments are made automagically.  This method isn't here.  Really.");
-    }
-    
     public AtomSite getSite(IAtomLeaf atom) {
         return (AtomSite)agentManager.getAgent(atom);
     }

@@ -34,7 +34,7 @@ public class HSMD3DNoNbr extends Simulation {
     
     public HSMD3DNoNbr() {
         super(Space3D.getInstance(), true);
-        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         int numAtoms = 256;
         double sigma = 1.0;

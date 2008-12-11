@@ -1,14 +1,14 @@
 package etomica.virial;
 
-import etomica.api.IVector;
 import etomica.api.IAtomList;
-import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -143,14 +143,13 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         bondLength = b;
     }
 	
-    protected IAtom[] selectMolecules() {
-        IAtomList moleculeList = box.getMoleculeList();
-        if (moleculeList.getAtomCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
+    protected void selectMolecules() {
+        IMoleculeList moleculeList = box.getMoleculeList();
+        if (moleculeList.getMoleculeCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         //skip the first one
-        for (int i=1; i<moleculeList.getAtomCount(); i++) {
-            selectedMolecules[i++] = (IMolecule)moleculeList.getAtom(i);
+        for (int i=1; i<moleculeList.getMoleculeCount(); i++) {
+            selectedMolecules[i++] = moleculeList.getMolecule(i);
         }
-        return selectedMolecules;
     }
 	
     public void rejectNotify() {

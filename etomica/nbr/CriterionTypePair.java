@@ -1,7 +1,6 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 
@@ -25,8 +24,8 @@ public class CriterionTypePair extends CriterionAdapter {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(IAtomList pair) {
-        IAtomTypeLeaf atom0Type = ((IAtomLeaf)pair.getAtom(0)).getType();
-        IAtomTypeLeaf atom1Type = ((IAtomLeaf)pair.getAtom(1)).getType();
+        IAtomTypeLeaf atom0Type = pair.getAtom(0).getType();
+        IAtomTypeLeaf atom1Type = pair.getAtom(1).getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);

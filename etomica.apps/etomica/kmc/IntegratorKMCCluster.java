@@ -10,17 +10,16 @@ import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorFiltered;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.dimer.IntegratorDimerMin;
@@ -233,8 +232,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
         imposePbc = new BoxImposePbc(box, space);
         rates = new double[totalSearches];
         beta = 1.0/(temperature*1.3806503E-023);
-        currentSaddle = new IVector[box.getMoleculeList().getAtomCount()];
-        previousSaddle = new IVector[box.getMoleculeList().getAtomCount()];
+        currentSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
+        previousSaddle = new IVector[box.getMoleculeList().getMoleculeCount()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -248,25 +247,25 @@ public class IntegratorKMCCluster extends IntegratorBox{
         minEnergy = energy;
         minVib = vibFreq;
         
-        IAtomList loopSet2 = box.getMoleculeList();
-        minPosition = new IVector[loopSet2.getAtomCount()];
+        IMoleculeList loopSet2 = box.getMoleculeList();
+        minPosition = new IVector[loopSet2.getMoleculeCount()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
         
-        for(int i=0; i<loopSet2.getAtomCount(); i++){
-            minPosition[i].E(((IAtomPositioned)((IMolecule)loopSet2.getAtom(i)).getChildList().getAtom(0)).getPosition());
+        for(int i=0; i<loopSet2.getMoleculeCount(); i++){
+            minPosition[i].E(((IAtomPositioned)((IMolecule)loopSet2.getMolecule(i)).getChildList().getAtom(0)).getPosition());
         }  
     }
     
     public void randomizePositions(){
         IVector workVector = space.makeVector();
-        IAtomList loopSet3 = box.getMoleculeList(species[0]);
-        IVector [] currentPos = new IVector [loopSet3.getAtomCount()];
+        IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
+        IVector [] currentPos = new IVector [loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (((IAtomPositioned)((IMolecule)loopSet3.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            currentPos[i] = (((IAtomPositioned)loopSet3.getMolecule(i).getChildList().getAtom(0)).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}
@@ -343,14 +342,14 @@ public class IntegratorKMCCluster extends IntegratorBox{
     }
     
     private boolean checkUniqueSaddle(){    
-        for(int p=0; p<box.getMoleculeList().getAtomCount(); p++){
-            currentSaddle[p].E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(p)).getChildList().getAtom(0)).getPosition());
+        for(int p=0; p<box.getMoleculeList().getMoleculeCount(); p++){
+            currentSaddle[p].E(((IAtomPositioned)box.getMoleculeList().getMolecule(p).getChildList().getAtom(0)).getPosition());
         }
         for(int i=0; i<searchNum; i++){
             double positionDiff = 0;
             loadConfiguration("s_"+i+"_saddle");
-            for(int j=0; j<box.getMoleculeList().getAtomCount(); j++){
-                previousSaddle[j].E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(j)).getChildList().getAtom(0)).getPosition());
+            for(int j=0; j<box.getMoleculeList().getMoleculeCount(); j++){
+                previousSaddle[j].E(((IAtomPositioned)box.getMoleculeList().getMolecule(j).getChildList().getAtom(0)).getPosition());
                 previousSaddle[j].ME(currentSaddle[j]);
                 positionDiff += previousSaddle[j].squared();
             }
@@ -366,8 +365,8 @@ public class IntegratorKMCCluster extends IntegratorBox{
     public boolean checkMin(){
         IVector workVector = space.makeVector();
         double positionDiff=0;
-        for(int i=0; i<box.getMoleculeList().getAtomCount(); i++){
-            workVector.Ev1Mv2(minPosition[i],((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
+        for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
+            workVector.Ev1Mv2(minPosition[i],((IAtomPositioned)box.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition());
             positionDiff += workVector.squared();
         }
         if(positionDiff > 0.5){return true;}
@@ -413,7 +412,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin2.setActionInterval(imposePbc, 1);
         
         //Limit MSD calculation to a specific species
-        AtomIteratorFiltered aif = AtomIteratorFiltered.makeIterator(new AtomIteratorLeafAtoms(box),new AtomFilterTypeInstance(species[0].getChildType(0)));
+        AtomIterator aif = new AtomIteratorLeafFilteredType(box, species[0].getChildType(0));
         msd1 = new MeterMeanSquareDisplacement(space, integratorMin1);
         msd2 = new MeterMeanSquareDisplacement(space, integratorMin2);
         msd1.setIterator((AtomIteratorBoxDependent)aif);

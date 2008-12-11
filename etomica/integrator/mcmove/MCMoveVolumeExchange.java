@@ -5,7 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -34,8 +34,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private transient double uNew1 = Double.NaN;
     private transient double uNew2 = Double.NaN;
     private final double ROOT;
-    private final AtomIteratorAllMolecules box1AtomIterator;
-    private final AtomIteratorAllMolecules box2AtomIterator;
+    private final AtomIteratorLeafAtoms box1AtomIterator;
+    private final AtomIteratorLeafAtoms box2AtomIterator;
     private final IRandom random;
     
     private transient double hOld, v1Scale, v2Scale;
@@ -51,8 +51,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.1);
-        box1AtomIterator = new AtomIteratorAllMolecules();
-        box2AtomIterator = new AtomIteratorAllMolecules();
+        box1AtomIterator = new AtomIteratorLeafAtoms();
+        box2AtomIterator = new AtomIteratorLeafAtoms();
         energyMeter.setIncludeLrc(true);
         inflate1 = new BoxInflate(_space);
         inflate2 = new BoxInflate(_space);
@@ -80,9 +80,10 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         v2Scale = v2New/v2Old;
         inflate1.setScale(Math.pow(v1Scale,ROOT));
         inflate2.setScale(Math.pow(v2Scale,ROOT));
+        // for cell-listing, this will trigger NeighborCellManager notification
+        // (as a box listener)
         inflate1.actionPerformed();
         inflate2.actionPerformed();
-        uNew1 = uNew2 = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -95,8 +96,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
         double T = integrator1.getTemperature();
-        return Math.exp(B/T) * Math.pow(v1Scale,(firstBox.getMoleculeList().getAtomCount()+1))
-                * Math.pow(v2Scale,(secondBox.getMoleculeList().getAtomCount()+1));
+        return Math.exp(B/T) * Math.pow(v1Scale,(firstBox.getMoleculeList().getMoleculeCount()+1))
+                * Math.pow(v2Scale,(secondBox.getMoleculeList().getMoleculeCount()+1));
     }
         
     public double getB() {
@@ -150,4 +151,4 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         }
     }
 
-}//end of MCMoveVolumeExchange
+}

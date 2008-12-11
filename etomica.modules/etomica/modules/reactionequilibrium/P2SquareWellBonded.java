@@ -4,7 +4,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
@@ -73,7 +72,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
-            IAtom a0Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom0);
+            IAtomLeaf a0Partner = (IAtomLeaf)agentManager.getAgent((IAtomLeaf)atom0);
             if (a0Partner != atom1) {
 
                 dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -102,8 +101,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// *** Data Declaration Section
 
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtomLeaf atom0 = pair.getAtom(0);
+        IAtomLeaf atom1 = pair.getAtom(1);
         IAtomKinetic coord0 = (IAtomKinetic)atom0;
         IAtomKinetic coord1 = (IAtomKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
@@ -118,14 +117,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-        double rm0 = ((IAtomLeaf)atom0).getType().rm();
-        double rm1 = ((IAtomLeaf)atom1).getType().rm();
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
 //		System.out.println("Bumping "+pair.toString());
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		IAtom a0Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom0);
-		IAtom a1Partner = (IAtom)agentManager.getAgent((IAtomLeaf)atom1);
+		IAtomLeaf a0Partner = (IAtomLeaf)agentManager.getAgent(atom0);
+		IAtomLeaf a1Partner = (IAtomLeaf)agentManager.getAgent(atom1);
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);
@@ -159,8 +158,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 					if(a0Partner == atom1)
 					{	
-					    agentManager.setAgent((IAtomLeaf)atom0, null);
-                        agentManager.setAgent((IAtomLeaf)atom1, null);
+					    agentManager.setAgent(atom0, null);
+                        agentManager.setAgent(atom1, null);
 					}
 
 					nudge = eps;
@@ -182,8 +181,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
                 lastEnergyChange = -epsilon;
-                agentManager.setAgent((IAtomLeaf)atom0, (IAtomLeaf)atom1);
-                agentManager.setAgent((IAtomLeaf)atom1, (IAtomLeaf)atom0);
+                agentManager.setAgent(atom0, atom1);
+                agentManager.setAgent(atom1, atom0);
 				nudge = -eps;
 				//System.out.println("bonded");
 			}

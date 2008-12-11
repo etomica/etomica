@@ -1,10 +1,8 @@
 package etomica.paracetamol;
 
-import etomica.action.AtomGroupAction;
 import etomica.api.IData;
 import etomica.api.IDataInfo;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -27,9 +25,6 @@ public class LatticeSumCrystalParacetamol {
 //        dr = lattice.getSpace().makeVector();
         siteIndex = new int[lattice.D()];//lattice.D() should be spaceDim+1
 
-        atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
-        atomArrayList = new AtomArrayList();
-        
         //get coordinates of basis at the origin
         System.out.println("At  LatticeSumCrystalParacetamol Constructor");
         basisDim = lattice.getBasis().getScaledCoordinates().length;
@@ -57,7 +52,7 @@ public class LatticeSumCrystalParacetamol {
         }
         
         int singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
-        				  /coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getAtomCount();
+        				  /coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getMoleculeCount();
         DataDoubleArray u = new DataDoubleArray(singleMolDim);
         
         /*
@@ -175,8 +170,6 @@ public class LatticeSumCrystalParacetamol {
     private final int spaceDim;
     private int maxLatticeShell;
     protected double[][] basisOrientation;
-    protected final AtomGroupAction atomGroupAction;
-    protected final AtomArrayList atomArrayList;
     
     /**
      * Helper class that encapsulates the complex basis-basis data in a manner that

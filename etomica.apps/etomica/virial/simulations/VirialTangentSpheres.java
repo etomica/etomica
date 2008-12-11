@@ -66,7 +66,7 @@ public class VirialTangentSpheres {
         
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
-        PotentialGroup pTargetGroup = new PotentialGroup(2, space);
+        PotentialGroup pTargetGroup = new PotentialGroup(2);
         Potential2 p2 = null;
         if (model.equals("hard")) {
             if (temperature == 0) {

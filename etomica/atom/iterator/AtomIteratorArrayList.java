@@ -1,10 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.atom.AtomToAtomSet;
+import etomica.api.IAtomLeaf;
+import etomica.atom.AtomToAtomLeafList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
@@ -31,7 +28,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     }
     
     public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip, 
-            AtomToIndex atomToIndex, AtomToAtomSet atomToAtomSet) {
+            AtomToIndex atomToIndex, AtomToAtomLeafList atomToAtomSet) {
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
@@ -45,7 +42,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public IAtom nextAtom() {
+ 	public IAtomLeaf nextAtom() {
         if (upListNow) {
             if (cursor > list.getAtomCount()-2) {
                 return null;
@@ -66,37 +63,19 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * if reset with the current list.
      */
     public int size() {
-        counter.reset();
-        allAtoms(counter);
-        return counter.callCount();
+        int count = 0;
+        reset();
+        for (Object a = next(); a != null; a = next()) {
+            count++;
+        }
+        return count;
     }
-
-    /**
-     * Performs action on all elements of current list.
-     */
- 	public void allAtoms(AtomsetAction act) {
-        IAtomList localList = atomToAtomSet.getAtomSet(startAtom);
-        int firstCursor = atomToIndex.getIndex(startAtom);
- 		int arraySize = localList.getAtomCount();
-        if (upListNow) {
-            for (int i=firstCursor+numToSkip; i<arraySize; i++) {
-                atomSetSinglet.atom = localList.getAtom(i);
-                act.actionPerformed(atomSetSinglet);
-            }
-        }
-        else {
-            for (int i=firstCursor-numToSkip; i>-1; i--) {
-                atomSetSinglet.atom = localList.getAtom(i);
-                act.actionPerformed(atomSetSinglet);
-            }
-        }
- 	}
 
     /**
      * Puts iterator in state ready to begin iteration.
      */
  	public void reset() {
-        list = atomToAtomSet.getAtomSet(startAtom);
+        list = atomToAtomSet.getAtomList(startAtom);
  		cursor = atomToIndex.getIndex(startAtom);
         if (upListNow) {
             cursor--;
@@ -122,15 +101,14 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * and/or down the list, depending on how iterator was configured at
      * construction.
      */
-    public void setAtom(IAtom atom) {
+    public void setAtom(IAtomLeaf atom) {
         startAtom = atom;
     }
 
     private static final long serialVersionUID = 1L;
     protected final boolean upListNow;
-    private final AtomsetCount counter = new AtomsetCount();
     private final int numToSkip;
-    private IAtom startAtom;
+    private IAtomLeaf startAtom;
     private final AtomToIndex atomToIndex;
-    private final AtomToAtomSet atomToAtomSet;
+    private final AtomToAtomLeafList atomToAtomSet;
  }

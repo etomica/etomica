@@ -2,13 +2,14 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
 
@@ -56,8 +57,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         Lister testLister = new Lister();
         LinkedList list = null;
         IMolecule basis = null;
-        IAtom target = null;
-        IAtom iterate = null;
+        IAtomLeaf target = null;
+        IAtomLeaf iterate = null;
         AtomArrayList iterates = null;
         
         assertEquals(basisIterator.basisSize(), 1);
@@ -68,9 +69,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         IBox box = sim.getBox(0);
-        IAtomList moleculeList0 = box.getMoleculeList(sim.getSpeciesManager().getSpecies(0));
-        IAtomList moleculeList1 = box.getMoleculeList(sim.getSpeciesManager().getSpecies(1));
-        basis = (IMolecule)moleculeList0.getAtom(0);
+        IMoleculeList moleculeList0 = box.getMoleculeList(sim.getSpeciesManager().getSpecies(0));
+        basis = moleculeList0.getMolecule(0);
         target = null;
         iterates = new AtomArrayList();
         iterates.addAll(basis.getChildList());
@@ -84,8 +84,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
 //        testOneIterate(basis, target, iterate);
         
         //test target is a child of the basis
-        basis = (IMolecule)moleculeList0.getAtom(0);
-        target = ((IMolecule)moleculeList0.getAtom(0)).getChildList().getAtom(1);
+        basis = moleculeList0.getMolecule(0);
+        target = moleculeList0.getMolecule(0).getChildList().getAtom(1);
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -97,33 +97,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         testLister.addEachToList(basis.getChildList());
         assertEquals(list, testLister.list);
 
-        //test target is the basis, both not a leaf; should be same as target==null
-        basis = (IMolecule)moleculeList0.getAtom(0);
-        target = basis;
-        iterates.clear();
-        iterates.addAll(basis.getChildList());
-        list = testListIterates(basis, target, iterates);
-        assertEquals(list.size(), nAtoms);
-
-        //test target is the basis, both a monatomic molecule
-        basis = (IMolecule)moleculeList1.getAtom(0);
-        target = basis;
-        iterate = basis.getChildList().getAtom(0);
-        testOneIterate(basis, target, iterate);
-
-        //test target is in hierarchy above basis, a leaf; should be same as target==null
-//        basis = ((IMolecule)moleculeList0.getAtom(0)).getChildList().getAtom(0);
-//        target = moleculeList0.getAtom(0);
-//        iterate = basis;
-//        testOneIterate(basis, target, iterate);
-
-        //test target is in hierarchy apart from basis; should return no iterates
-//        basis = ((IMolecule)moleculeList0.getAtom(0)).getChildList().getAtom(0);
-//        target = moleculeList1.getAtom(0);
-//        testNoIterates(basis, target);
-
         //test specifying null target
-        basis = (IMolecule)moleculeList0.getAtom(0);
+        basis = moleculeList0.getMolecule(0);
         target = null;
         iterates.clear();
         iterates.addAll(basis.getChildList());
@@ -131,7 +106,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test null basis
         basis = null;
-        target = moleculeList1.getAtom(0);
+        target = moleculeList0.getMolecule(0).getChildList().getAtom(1);
         testNoIterates(basis, target);
         
         //test null basis with null target
@@ -142,8 +117,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //int[] {box (0), species (0,1,2), molecule etc}
     }
     
-    private LinkedList testOneIterate(IMolecule basis, IAtom target, IAtom iterate) {
-        basisIterator.setBasis(new AtomSetSinglet(basis));
+    private LinkedList testOneIterate(IMolecule basis, IAtomLeaf target, IAtomLeaf iterate) {
+        basisIterator.setBasis(new MoleculeSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
@@ -154,8 +129,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(IMolecule basis, IAtom target, AtomArrayList iterates) {
-        basisIterator.setBasis(new AtomSetSinglet(basis));
+    private LinkedList testListIterates(IMolecule basis, IAtomLeaf target, AtomArrayList iterates) {
+        basisIterator.setBasis(new MoleculeSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
@@ -166,8 +141,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private void testNoIterates(IMolecule basis, IAtom target) {
-        basisIterator.setBasis(basis == null ? null : new AtomSetSinglet(basis));
+    private void testNoIterates(IMolecule basis, IAtomLeaf target) {
+        basisIterator.setBasis(basis == null ? null : new MoleculeSetSinglet(basis));
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);

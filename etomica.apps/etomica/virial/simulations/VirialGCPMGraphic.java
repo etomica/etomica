@@ -8,7 +8,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
-import etomica.potential.Potential;
+import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -50,7 +50,7 @@ public class VirialGCPMGraphic {
         Space space = Space3D.getInstance();
 
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        final Potential pTarget = new PNWaterGCPM(space);
+        final PotentialMolecular pTarget = new PNWaterGCPM(space);
         
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);

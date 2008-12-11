@@ -1,11 +1,10 @@
 	package etomica.normalmode;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IPotential;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
@@ -27,7 +26,7 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 	
 	}
 	
-	public void doCalculation(IAtomList atoms, IPotential potential) {
+	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 			
 			atom0 = atoms.getAtom(0);
 			atom1 = atoms.getAtom(1);
@@ -77,7 +76,7 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 	
     private static final long serialVersionUID = 1L;
 	protected  double sum = 0.0;
-	public IAtom atom0, atom1;
+	public IAtomLeaf atom0, atom1;
 	protected IVector[] initialLatticePosition;
 	protected IVector latticeDistance, dr;
 	protected IBox box;

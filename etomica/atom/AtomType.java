@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 
@@ -25,11 +24,11 @@ import etomica.api.ISpecies;
  * atoms represented only once.
  */
 
-public abstract class AtomType implements java.io.Serializable, Comparable, IAtomType {
+public abstract class AtomType implements java.io.Serializable, Comparable<AtomType>, IAtomType {
+
+    private static final long serialVersionUID = 1L;
 
     protected int index;
-
-    protected IAtomPositionDefinition positionDefinition;
 
     private boolean isInteracting = false;
 
@@ -46,10 +45,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
      *            used by many classes as default choice for defining the
      *            spatial position of an instance of an atom(group) of this type
      */
-    public AtomType(IAtomPositionDefinition positionDefinition) {
-        this.positionDefinition = positionDefinition;
+    public AtomType() {
         index = -1;
-//        setParentType(null);
     }
 
     /* (non-Javadoc)
@@ -70,20 +67,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
 	 * @see etomica.atom.IAtomType#getSpecies()
 	 */
     public abstract ISpecies getSpecies();
-    
-    /* (non-Javadoc)
-	 * @see etomica.atom.IAtomType#getPositionDefinition()
-	 */
-    public IAtomPositionDefinition getPositionDefinition() {
-        return positionDefinition;
-    }
-
-    /* (non-Javadoc)
-	 * @see etomica.atom.IAtomType#setPositionDefinition(etomica.atom.AtomPositionDefinition)
-	 */
-    public void setPositionDefinition(IAtomPositionDefinition newPositionDefinition) {
-        positionDefinition = newPositionDefinition;
-    }
 
     /* (non-Javadoc)
 	 * @see etomica.atom.IAtomType#setInteracting(boolean)
@@ -102,7 +85,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable, IAto
     /* (non-Javadoc)
 	 * @see etomica.atom.IAtomType#compareTo(java.lang.Object)
 	 */
-    public int compareTo(Object otherAtomType) {
+    public int compareTo(AtomType otherAtomType) {
         int otherIndex = ((IAtomType)otherAtomType).getIndex();
         return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }

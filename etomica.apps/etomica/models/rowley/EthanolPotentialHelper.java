@@ -1,9 +1,7 @@
 package etomica.models.rowley;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.IPotential;
-import etomica.api.ISpecies;
+import etomica.api.IPotentialAtomic;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ModifiedMorse;
 import etomica.potential.P2Morse;
@@ -19,27 +17,27 @@ public class EthanolPotentialHelper {
 	
 	public static void initPotential(ISpace space, SpeciesEthanol species, PotentialGroup U_a_b, boolean pointCharges) {
 		
-		IPotential u_O_O;
-		IPotential u_O_aC;
-		IPotential u_O_C;
-		IPotential u_O_aH;
-		IPotential u_O_H;
+		IPotentialAtomic u_O_O;
+		IPotentialAtomic u_O_aC;
+		IPotentialAtomic u_O_C;
+		IPotentialAtomic u_O_aH;
+		IPotentialAtomic u_O_H;
 	        
-		IPotential u_aC_aC;
-		IPotential u_aC_C;
-		IPotential u_aC_aH;
-		IPotential u_aC_H;
+		IPotentialAtomic u_aC_aC;
+		IPotentialAtomic u_aC_C;
+		IPotentialAtomic u_aC_aH;
+		IPotentialAtomic u_aC_H;
 		
-		IPotential u_C_aH;
+		IPotentialAtomic u_C_aH;
 	        
-		IPotential u_aH_aH;
-		IPotential u_aH_H;
-		IPotential u_aH_X;
+		IPotentialAtomic u_aH_aH;
+		IPotentialAtomic u_aH_H;
+		IPotentialAtomic u_aH_X;
 		
-		IPotential u_C_C;
-		IPotential u_C_H;
+		IPotentialAtomic u_C_C;
+		IPotentialAtomic u_C_H;
 	        
-		IPotential u_H_H;
+		IPotentialAtomic u_H_H;
 
 		P2RepRowley u_X_X;
 	    

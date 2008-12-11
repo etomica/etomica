@@ -1,10 +1,11 @@
 package etomica.atom.iterator;
 
 
-import etomica.action.AtomsetAction;
 import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.atom.AtomsetArray;
 
 /**
@@ -14,9 +15,7 @@ import etomica.atom.AtomsetArray;
  */
 
 
-public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent, AtomsetIterator {
-
-	
+public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent {
 	
 	/**
      * Constructs iterator without defining set of atoms.
@@ -31,7 +30,7 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     	return 1;
     }
     
-    public boolean haveTarget(IAtom a) {
+    public boolean haveTarget(IAtomLeaf a) {
         if (parentGroup == null) {
             return false;
         }
@@ -54,18 +53,18 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     	return false;
     }
     
-    public void setTarget(IAtom a){
+    public void setTarget(IAtomLeaf a){
     	target = a;
     	unset();
     }
                                 
 
-	public void setBasis(IAtomList parent) {
+	public void setBasis(IMoleculeList parent) {
 	    if (parent == null) {
 	        parentGroup = null;
 	    }
 	    else {
-	        parentGroup = (IMolecule)parent.getAtom(0);
+	        parentGroup = parent.getMolecule(0);
 	    }
 		unset();
 	}
@@ -75,30 +74,10 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     }
 
     /**
-     * Performs the given action on an AtomPair containing the three atoms last
-     * identified via setSet. Does nothing if either such atom is null.
-     * Unaffected by and has no effect on the reset/unset state.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if (parentGroup == null) {
-            return;
-        }
-        
-    	for(int i =0; i < index.length; i++){   //index.length = number of sets
-    		
-    		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().getAtom(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().getAtom(index[i][2]);
-    		atoms[3] = parentGroup.getChildList().getAtom(index[i][3]);
-    		action.actionPerformed(atomset);
-    	}
-    }
-
-    /**
      * Returns true if three non-null atoms have set and a call to reset() has
      * been performed, without any subsequent calls to next() or nextPair().
      */
-    public boolean hasNext() {
+    protected boolean hasNext() {
 
     	if (target != null){
         	for(; cursor < index.length; cursor++){   //index.length = number of pairs
@@ -140,26 +119,16 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     	cursor = 0;
     }
 
-    /**
-     * Returns the iterator's pair and unsets iterator.
-     */
-    public AtomsetArray nextSet() {
+    public IAtomList next() {
         if (!hasNext())
             return null;
-		atoms[0] = parentGroup.getChildList().getAtom(index[cursor][0]);
-		atoms[1] = parentGroup.getChildList().getAtom(index[cursor][1]);
-		atoms[2] = parentGroup.getChildList().getAtom(index[cursor][2]);
-		atoms[3] = parentGroup.getChildList().getAtom(index[cursor][3]);
-		
-		cursor++;
+        atoms[0] = parentGroup.getChildList().getAtom(index[cursor][0]);
+        atoms[1] = parentGroup.getChildList().getAtom(index[cursor][1]);
+        atoms[2] = parentGroup.getChildList().getAtom(index[cursor][2]);
+        atoms[3] = parentGroup.getChildList().getAtom(index[cursor][3]);
+        
+        cursor++;
         return atomset;
-    }
-
-    /**
-     * Same as nextSet().
-     */
-    public IAtomList next() {
-        return nextSet();
     }
 
     /**
@@ -172,10 +141,10 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     private int [][]index;
     private int cursor;
     private IMolecule parentGroup;
-    private IAtom target;
+    private IAtomLeaf target;
     
     private AtomsetArray atomset;
-    private IAtom[] atoms;
+    private IAtomLeaf[] atoms;
     
 	private static final long serialVersionUID = 1L;
 

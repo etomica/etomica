@@ -2,7 +2,6 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
-import etomica.units.Electron;
 import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.util.Constants;
@@ -81,11 +80,8 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
         } 
     	*/
     		
-	    } else {
-	    	return morseTerm + chargeTerm;
 	    }
-    	
-    	
+    	return morseTerm + chargeTerm;
     }
 
     /**

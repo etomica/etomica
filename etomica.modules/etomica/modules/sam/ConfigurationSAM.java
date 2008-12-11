@@ -1,11 +1,11 @@
 package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomGroupAction;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -73,14 +73,14 @@ public class ConfigurationSAM implements Configuration {
         
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         translator.getTranslationVector().E(moleculeOffset);
-        AtomGroupAction groupTranslator = new AtomGroupAction(translator);
+        MoleculeChildAtomAction groupTranslator = new MoleculeChildAtomAction(translator);
         
         IVector offset = space.makeVector();
 
-        IAtomList molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = ((IAtomPositioned)((IMolecule)molecules.getAtom(0)).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
+        IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
+        double y0 = ((IAtomPositioned)molecules.getMolecule(0).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = (IMolecule)molecules.getAtom(0);
+            IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             groupTranslator.actionPerformed(molecule);
             box.addMolecule(molecule);
@@ -121,7 +121,7 @@ public class ConfigurationSAM implements Configuration {
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = (IMolecule)molecules.getAtom(0);
+            IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
             IVector pos = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();

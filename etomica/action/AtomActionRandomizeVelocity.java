@@ -2,7 +2,6 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IRandom;
@@ -33,9 +32,9 @@ public class AtomActionRandomizeVelocity implements AtomAction, Serializable {
      * distribution with temperature most recently set for the action.  If atom 
      * mass is infinite, assigns a zero velocity.
      */
-    public void actionPerformed(IAtom a) {
+    public void actionPerformed(IAtomLeaf a) {
         IVector velocity = ((IAtomKinetic)a).getVelocity();
-        double mass = ((IAtomLeaf)a).getType().getMass();
+        double mass = a.getType().getMass();
         if(Double.isInfinite(mass)) {
             velocity.E(0.0);
             return;

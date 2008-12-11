@@ -1,13 +1,13 @@
 package etomica.normalmode;
 
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
  * MCMove that performs random displacements in the harmonic coordinates for
@@ -23,7 +23,7 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
         super(potentialMaster);
         
         this.random = random;
-        iterator = new AtomIteratorAllMolecules();
+        iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
     }
     
@@ -118,7 +118,7 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    private final AtomIteratorAllMolecules iterator;
+    protected final AtomIteratorLeafAtoms iterator;
     protected double[] uOld, u;
     private double[][] eigenVectors;
     protected final IRandom random;

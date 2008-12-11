@@ -1,8 +1,8 @@
 package etomica.meam;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.INearestImageTransformer;
@@ -289,7 +289,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
     protected double rhoi(IAtomList atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
-		pi = parameters[((IAtomLeaf)atoms.getAtom(0)).getType().getIndex()];
+		pi = parameters[atoms.getAtom(0).getType().getIndex()];
     	if (pi == pSn) {
     		return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	}
@@ -302,7 +302,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public double energy(IAtomList atoms) {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
-		pi = parameters[((IAtomLeaf)atoms.getAtom(0)).getType().getIndex()];
+		pi = parameters[atoms.getAtom(0).getType().getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}

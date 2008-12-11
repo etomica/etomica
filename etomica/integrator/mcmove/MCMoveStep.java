@@ -6,7 +6,7 @@ import etomica.units.Length;
 
 public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
 
-    public MCMoveStep(IPotentialMaster potentialMaster, int nBoxs) {
+    public MCMoveStep(IPotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveStepTracker());
     }
 

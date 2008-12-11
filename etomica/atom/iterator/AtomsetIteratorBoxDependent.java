@@ -6,7 +6,7 @@ import etomica.api.IBox;
  * Interface indicating that an iterator can determine appropriate
  * atoms for iteration given an arbitrary box.  
  */
-public interface AtomsetIteratorBoxDependent extends AtomsetIterator {
+public interface AtomsetIteratorBoxDependent extends AtomLeafsetIterator {
 
     /**
      * Sets the Box to pull iterates from

@@ -2,13 +2,13 @@ package etomica.integrator;
 
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -118,9 +118,9 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
     public void doStepInternal() {
         currentTime += timeStep;
 
-        IAtomList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getAtomCount(); i++) {
-            IMolecule molecule = (IMolecule)molecules.getAtom(i);
+        IMoleculeList molecules = box.getMoleculeList();
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -129,8 +129,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
         }
 
         // SHAKE
-        for (int i=0; i<molecules.getAtomCount(); i++) {
-            IMolecule molecule = (IMolecule)molecules.getAtom(i);
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 IAtomList childList = molecule.getChildList();
@@ -160,7 +160,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
                 MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
                 IVector r = a.getPosition();
                 IVector v = a.getVelocity();
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
                 v.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),agent.force);  // p += f(old)*dt/2
@@ -261,7 +261,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
         }
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getAtomCount();
+            int moleculeCount = box.getMoleculeList().getMoleculeCount();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+Kelvin.UNIT.fromSim(2*currentKineticEnergy/moleculeCount/6)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));

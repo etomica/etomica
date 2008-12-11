@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -24,7 +24,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 		
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
@@ -45,7 +45,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	public double df(int[] d, double[] u){
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IAtomList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);
 		}
 		

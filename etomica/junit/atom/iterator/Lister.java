@@ -4,8 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.action.AtomAction;
-import etomica.action.AtomsetActionAdapter;
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
@@ -18,20 +17,19 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
  * 
  * @author aawalker
  */
-class Lister extends AtomsetActionAdapter implements AtomAction {
+class Lister implements AtomAction {
 
-	public final LinkedList list;
-	public IAtomList atoms;
+	public final LinkedList<String> list;
 	
 	public Lister() {
-		list = new LinkedList();
+		list = new LinkedList<String>();
 	}
     
     public void clear() {
         list.clear();
     }
 
-	public void actionPerformed(IAtom atom) {
+	public void actionPerformed(IAtomLeaf atom) {
 		list.add(atom.toString());
 	}
 
@@ -58,14 +56,14 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
     public void addEachToList(AtomArrayList atomList) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(atomList);
         iterator.reset();
-        for (IAtom atom = iterator.nextAtom(); atom != null;
+        for (IAtomLeaf atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
             actionPerformed(new AtomSetSinglet(atom));
         }
     }
     
 	public String toString() {
-	    Iterator iter = list.iterator();
+	    Iterator<String> iter = list.iterator();
         String string = "{";
         while(iter.hasNext()) {
             string += iter.next().toString();

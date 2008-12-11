@@ -1,13 +1,11 @@
 package etomica.nbr.cell;
 
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiIntraArrayList;
-import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.AtomLeafsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -34,7 +32,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
-        interListIterator = new ApiInterArrayList();
+        interListIterator = new ApiInterArrayList(new AtomArrayList(), new AtomArrayList());
         intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;
         this.box = box;
@@ -46,48 +44,17 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         unset();
 	}
     
-    /**
-     * Performs action on all iterates.
-     */
-    public void allAtoms(AtomsetAction action) {
-        cellIterator.reset();
-        neighborIterator.checkDimensions();
-        while(cellIterator.hasNext()) {//outer loop over all cells
-            //get cell without advancing -- advance is done via nextIndex,
-            // below
-            Cell cell = (Cell)cellIterator.peek();
-            AtomArrayList list = cell.occupants();
-            
-            //no molecules of species in cell
-            if(list.isEmpty()) {
-                cellIterator.nextIndex();
-                continue;
-            }
-            
-            //consider pairs formed from molecules in cell
-            intraListIterator.setList(list);
-            intraListIterator.allAtoms(action);
-
-            //loop over neighbor cells
-            interListIterator.setOuterList(list);
-            neighborIterator.setSite(cellIterator.nextIndex());
-            neighborIterator.reset();
-            while(neighborIterator.hasNext()) {
-                Cell neighborCell = (Cell)neighborIterator.next(); 
-                interListIterator.setInnerList(neighborCell.occupants());
-                if(neighborCell.occupants().getAtomCount() > 0) interListIterator.allAtoms(action);
-            }
-        }//end of outer loop over cells
-    }//end of allAtoms
-    
 	/**
      * Returns the number of atom pairs the iterator will return if reset and
      * iterated in its present state.
      */
 	public int size() {
-        AtomsetCount counter = new AtomsetCount();
-        allAtoms(counter);
-        return counter.callCount();
+        int count = 0;
+        reset();
+        for (Object a = nextPair(); a != null; a = nextPair()) {
+            count++;
+        }
+        return count;
 	}
 	
     public IAtomList nextPair() {
@@ -169,7 +136,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     }
    
     private static final long serialVersionUID = 1L;
-    private AtomsetIterator listIterator;
+    private AtomLeafsetIterator listIterator;
     private final IBox box;
     private final ApiIntraArrayList intraListIterator;
     private final ApiInterArrayList interListIterator;

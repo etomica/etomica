@@ -1,101 +1,41 @@
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
-public class MCMoveRotate extends MCMoveBoxStep {
+public class MCMoveRotate extends MCMoveAtom {
     
     private static final long serialVersionUID = 2L;
-    private MeterPotentialEnergy energyMeter;
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final IOrientation oldOrientation;
-    private AtomSource atomSource;
 
-    private transient IAtomOriented molecule;
-    private transient double uOld;
-    private transient double uNew = Double.NaN;
     private transient IOrientation iOrientation;
-    
-    protected final IRandom random;
 
     public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random,
     		            ISpace _space) {
-        super(potentialMaster);
-        this.random = random;
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
         oldOrientation = _space.makeOrientation();
-        setStepSizeMax(Math.PI);
-        setStepSizeMin(0.0);
-        setStepSize(Math.PI/2.0);
-        perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
-        atomSource = new AtomSourceRandomMolecule();
-        ((AtomSourceRandomMolecule)atomSource).setRandom(random);
     }
     
-    /**
-     * Sets the AtomSource used to select Atoms acted on by MC trials.
-     */
-    public void setAtomSource(AtomSource newAtomSource) {
-        atomSource = newAtomSource;
-    }
-     
-    /**
-     * Returns the AtomSource used to select Atoms acted on by MC trials.
-     */
-    public AtomSource getAtomSource() {
-        return atomSource;
-    }
-     
     public boolean doTrial() {
-        if(box.getMoleculeList().getAtomCount()==0) {return false;}
-        molecule = (IAtomOriented)((IMolecule)atomSource.getAtom()).getChildList().getAtom(0);
+        if(box.getMoleculeList().getMoleculeCount()==0) {return false;}
+        atom = atomSource.getAtom();
 
-        energyMeter.setTarget(molecule);
+        energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        iOrientation = molecule.getOrientation(); 
+        iOrientation = ((IAtomOriented)atom).getOrientation(); 
         oldOrientation.E(iOrientation);  //save old orientation
         iOrientation.randomRotation(random, stepSize);
         uNew = energyMeter.getDataAsScalar();
         return true;
-    }//end of doTrial
-    
-    public double getA() {return 1.0;}
-    
-    public double getB() {
-        return -(uNew - uOld);
     }
-    
-    public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {
         iOrientation.E(oldOrientation);
-    }
-
-    public double energyChange() {return uNew - uOld;}
-    
-    public final AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom(molecule);
-        affectedAtomIterator.reset();
-        return affectedAtomIterator;
-    }
-    
-    public void setBox(IBox p) {
-        super.setBox(p);
-        energyMeter.setBox(p);
-        atomSource.setBox(p);
     }
 }

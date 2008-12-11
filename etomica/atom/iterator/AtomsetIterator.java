@@ -1,7 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomsetAction;
-import etomica.api.IAtomList;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits
@@ -22,20 +20,6 @@ public interface AtomsetIterator {
 	 */
     public void unset();
     
-	/**
-	 * Returns the next AtomSet iterate, or null if hasNext() is false.
-	 */
-    public IAtomList next();
-    
-    /**
-     * Performs given action over all the iterates of this iterator in its
-     * current state.  The state of hasNext() is not relevant to this method,
-     * and no call to reset() is needed beforehand. The set of atoms encountered 
-     * in the allAtoms call are the same set that would be returned by 
-     * looping using hasNext/next.
-     */
-    public void allAtoms(AtomsetAction action);
-
     /**
      * The number of iterates returned by this iterator in its current state.
      */

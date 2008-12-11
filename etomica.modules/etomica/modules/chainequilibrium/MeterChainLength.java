@@ -86,11 +86,11 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((AtomTag)tagManager.getAgent((IAtomLeaf)leafList.getAtom(i))).tagged = false;
+            ((AtomTag)tagManager.getAgent(leafList.getAtom(i))).tagged = false;
         }
 
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
+            IAtomLeaf a = leafList.getAtom(i);
             if (a.getType() == ignoredAtomType) continue;
             // if an Atom is tagged, it was already counted as part of 
             // another chain

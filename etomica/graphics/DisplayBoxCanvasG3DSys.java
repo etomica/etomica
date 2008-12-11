@@ -10,8 +10,8 @@ import org.jmol.g3d.Graphics3D;
 
 import etomica.action.activity.Controller;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -181,7 +181,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		IAtomList leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomLeaf a = (IAtomLeaf)leafList.getAtom(iLeaf);
+			IAtomLeaf a = leafList.getAtom(iLeaf);
 			if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -537,8 +537,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		 */
 		// bondType is a potential right now
 		// best to ignore it for now; all bonds are equal
-		Ball ball0 = (Ball) aam.getAgent((IAtomLeaf)pair.getAtom(0));
-		Ball ball1 = (Ball) aam.getAgent((IAtomLeaf)pair.getAtom(1));
+		Ball ball0 = (Ball) aam.getAgent(pair.getAtom(0));
+		Ball ball1 = (Ball) aam.getAgent(pair.getAtom(1));
 		if (ball0 == null || ball1 == null) {
 			System.out.println("NULL!!!");
 			pendingBonds.add(new Object[] { ball0, ball1, bondType });

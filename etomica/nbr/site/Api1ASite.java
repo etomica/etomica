@@ -4,9 +4,6 @@
  */
 package etomica.nbr.site;
 
-import etomica.action.AtomsetAction;
-import etomica.action.AtomsetCount;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -49,43 +46,17 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
 	}
     
-    /**
-     * Performs action on all iterates.
-     */
-    public void allAtoms(AtomsetAction action) {
-        if(targetAtom == null) return;
-        lattice.latticeIndex(neighborSiteManager.getSite(targetAtom).getLatticeArrayIndex(),latticeIndex);
-        
-        //loop over neighbor cells
-        neighborIterator.setSite(latticeIndex);
-        if (direction != IteratorDirective.Direction.DOWN) {
-            pair.atom0 = targetAtom;
-            neighborIterator.setDirection(IteratorDirective.Direction.UP);
-            neighborIterator.reset();
-            while(neighborIterator.hasNext()) {
-                pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
-                action.actionPerformed(pair);
-            }
-        }
-        if (direction != IteratorDirective.Direction.UP) {
-            pair.atom1 = targetAtom;
-            neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
-            neighborIterator.reset();
-            while(neighborIterator.hasNext()) {
-                pair.atom0 = ((AtomSite)neighborIterator.next()).getAtom();
-                action.actionPerformed(pair);
-            }
-        }
-    }//end of allAtoms
-    
 	/**
 	 * Returns the number of atom pairs the iterator will return if
 	 * reset and iterated in its present state.
 	 */
 	public int size() {
-        AtomsetCount counter = new AtomsetCount();
-        allAtoms(counter);
-        return counter.callCount();
+        int count = 0;
+        reset();
+        for (Object a = next(); a != null; a = next()) {
+            count++;
+        }
+        return count;
 	}
 	
     public IAtomList next() {
@@ -158,8 +129,8 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(IAtom newTargetAtom) {
-        targetAtom = (IAtomLeaf)newTargetAtom;
+    public void setTarget(IAtomLeaf newTargetAtom) {
+        targetAtom = newTargetAtom;
     }
 
     

@@ -7,9 +7,11 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IEventManager;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
@@ -61,7 +63,7 @@ public class Box implements java.io.Serializable, IBox {
         eventManager = new BoxEventManager();
         setBoundary(boundary);
         
-        moleculeLists = new AtomArrayList[0];
+        moleculeLists = new MoleculeArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
         leafList = new AtomArrayList();
@@ -92,29 +94,29 @@ public class Box implements java.io.Serializable, IBox {
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
-            for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
-                if (moleculeLists[speciesIndex].getAtom(i) == molecule) {
+            for (int i=0; i<moleculeLists[speciesIndex].getMoleculeCount(); i++) {
+                if (moleculeLists[speciesIndex].getMolecule(i) == molecule) {
                     throw new RuntimeException("you bastard!");
                 }
             }
         }
-        molecule.setIndex(moleculeLists[speciesIndex].getAtomCount());
+        molecule.setIndex(moleculeLists[speciesIndex].getMoleculeCount());
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
 
         IAtomList childList = molecule.getChildList();
         int nLeafAtoms = leafList.getAtomCount();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
+            IAtomLeaf childAtom = childList.getAtom(iChild);
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
         eventManager.fireEvent(new BoxAtomAddedEvent(this, molecule));
 
         if (Debug.ON) {
-            for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
-                if (((IMolecule)moleculeLists[speciesIndex].getAtom(i)).getIndex() != i) {
-                    throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getAtom(i)+" "+i);
+            for (int i=0; i<moleculeLists[speciesIndex].getMoleculeCount(); i++) {
+                if (moleculeLists[speciesIndex].getMolecule(i).getIndex() != i) {
+                    throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getMolecule(i)+" "+i);
                 }
             }
         }
@@ -122,15 +124,15 @@ public class Box implements java.io.Serializable, IBox {
 
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
-        AtomArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (Debug.ON && moleculeList.getAtom(moleculeIndex) != molecule) {
+        MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
+        if (Debug.ON && moleculeList.getMolecule(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find "+molecule);
         }
-        if (moleculeIndex < moleculeList.getAtomCount()-1) {
+        if (moleculeIndex < moleculeList.getMoleculeCount()-1) {
             moleculeList.removeAndReplace(moleculeIndex);
-            IMolecule replacingMolecule = (IMolecule)moleculeList.getAtom(moleculeIndex);
+            IMolecule replacingMolecule = moleculeList.getMolecule(moleculeIndex);
             replacingMolecule.setIndex(moleculeIndex);
-            BoxMoleculeIndexChangedEvent event = new BoxMoleculeIndexChangedEvent(this, replacingMolecule, moleculeList.getAtomCount());
+            BoxMoleculeIndexChangedEvent event = new BoxMoleculeIndexChangedEvent(this, replacingMolecule, moleculeList.getMoleculeCount());
             eventManager.fireEvent(event);
         }
         else {
@@ -141,11 +143,11 @@ public class Box implements java.io.Serializable, IBox {
         eventManager.fireEvent(new BoxAtomRemovedEvent(this, molecule));
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
+            IAtomLeaf childAtom = childList.getAtom(iChild);
             int leafIndex = childAtom.getLeafIndex();
             leafList.removeAndReplace(leafIndex);
             if (leafList.getAtomCount() > leafIndex) {
-                IAtomLeaf movedAtom = (IAtomLeaf)leafList.getAtom(leafIndex);
+                IAtomLeaf movedAtom = leafList.getAtom(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, movedLeafIndex);
                 movedAtom.setLeafIndex(leafIndex);
@@ -157,8 +159,8 @@ public class Box implements java.io.Serializable, IBox {
     
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
-        AtomArrayList moleculeList = moleculeLists[speciesIndex];
-        int currentNMolecules = moleculeList.getAtomCount();
+        MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
+        int currentNMolecules = moleculeList.getMoleculeCount();
         notifyNewMolecules(species, (n-currentNMolecules));
         if(n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
@@ -172,21 +174,21 @@ public class Box implements java.io.Serializable, IBox {
         }
         else {
             for (int i=currentNMolecules; i>n; i--) {
-                removeMolecule((IMolecule)moleculeList.getAtom(i-1));
+                removeMolecule(moleculeList.getMolecule(i-1));
             }
         }
     }
     
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
-        return moleculeLists[speciesIndex].getAtomCount();
+        return moleculeLists[speciesIndex].getMoleculeCount();
     }
     
-    public IAtomList getMoleculeList(ISpecies species) {
+    public IMoleculeList getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
 
-    public IAtomList getMoleculeList() {
+    public IMoleculeList getMoleculeList() {
         return allMoleculeList;
     }
   
@@ -198,7 +200,7 @@ public class Box implements java.io.Serializable, IBox {
     public final IBoundary getBoundary() {return boundary;}
     
     public void setDensity(double rho) {
-        double vNew = getMoleculeList().getAtomCount()/rho;
+        double vNew = getMoleculeList().getMoleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
@@ -210,12 +212,12 @@ public class Box implements java.io.Serializable, IBox {
     }
 
     public void addSpeciesNotify(ISpecies species) {
-        moleculeLists = (AtomArrayList[])Arrays.addObject(moleculeLists, new AtomArrayList());
+        moleculeLists = (MoleculeArrayList[])Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
     
     public void removeSpeciesNotify(ISpecies species) {
-        moleculeLists = (AtomArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
+        moleculeLists = (MoleculeArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
@@ -240,7 +242,7 @@ public class Box implements java.io.Serializable, IBox {
             BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(this, maxIndex + numNewMolecules + numNewLeafAtoms - reservoirCount);
             eventManager.fireEvent(event);
         }
-        BoxNumMoleculesEvent event = new BoxNumMoleculesEvent(this, species, moleculeLists[species.getIndex()].getAtomCount() + numNewMolecules);
+        BoxNumMoleculesEvent event = new BoxNumMoleculesEvent(this, species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
         eventManager.fireEvent(event);
         if (numNewLeafAtoms > 1) {
             BoxGlobalAtomLeafIndexEvent leafEvent = new BoxGlobalAtomLeafIndexEvent(this, leafList.getAtomCount() + numNewLeafAtoms);
@@ -265,7 +267,7 @@ public class Box implements java.io.Serializable, IBox {
     private static final long serialVersionUID = 2L;
     private IBoundary boundary;;
     private final IEventManager eventManager;
-    protected AtomArrayList[] moleculeLists;
+    protected MoleculeArrayList[] moleculeLists;
     private int index;
     private final ISpace space;
     protected final AtomSetAllMolecules allMoleculeList;

@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -15,10 +15,10 @@ import etomica.space3d.Space3D;
  * Wraps a soft-spherical potential to apply a truncation to it.  The energy
  * is switched from fully-on to 0 over a short range (i.e. from 0.95*rC to rC).
  */
-public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPotentialTorque {
+public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implements IPotentialMolecularTorque {
     
-    public P2MoleculeSoftTruncatedSwitched(IPotentialTorque potential, double truncationRadius, ISpace _space) {
-        super(_space);
+    public P2MoleculeSoftTruncatedSwitched(IPotentialMolecularTorque potential, double truncationRadius, ISpace _space) {
+        super(2, _space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
         zeroGradientAndTorque = new IVector[2][0];
@@ -29,7 +29,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     /**
      * Returns the wrapped potential.
      */
-    public IPotentialTorque getWrappedPotential() {
+    public IPotentialMolecularTorque getWrappedPotential() {
         return potential;
     }
 
@@ -63,8 +63,8 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         return rCutoff;
     }
 
-    public IVector[][] gradientAndTorque(IAtomList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
+    public IVector[][] gradientAndTorque(IMoleculeList atoms) {
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
@@ -86,10 +86,10 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
             }
             return gradientAndTorque;
         }
-        if (zeroGradientAndTorque[0].length < atoms.getAtomCount()) {
-            zeroGradientAndTorque[0] = new IVector[atoms.getAtomCount()];
-            zeroGradientAndTorque[1] = new IVector[atoms.getAtomCount()];
-            for (int i=0; i<atoms.getAtomCount(); i++) {
+        if (zeroGradientAndTorque[0].length < atoms.getMoleculeCount()) {
+            zeroGradientAndTorque[0] = new IVector[atoms.getMoleculeCount()];
+            zeroGradientAndTorque[1] = new IVector[atoms.getMoleculeCount()];
+            for (int i=0; i<atoms.getMoleculeCount(); i++) {
                 zeroGradientAndTorque[0][i] = space.makeVector();
                 zeroGradientAndTorque[1][i] = space.makeVector();
             }
@@ -144,16 +144,16 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         }
     }
     
-    public IVector[] gradient(IAtomList atoms) {
+    public IVector[] gradient(IMoleculeList atoms) {
         return gradientAndTorque(atoms)[0];
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         return gradientAndTorque(atoms)[0];
     }
     
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
+    public double energy(IMoleculeList atoms) {
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         if (dr.squared() > r2Cutoff) {
@@ -166,8 +166,8 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         return u;
     }
     
-    public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
+    public double virial(IMoleculeList atoms) {
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);
@@ -187,7 +187,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
-    protected final IPotentialTorque potential;
+    protected final IPotentialMolecularTorque potential;
     protected final IVector dr;
     protected INearestImageTransformer nearestImageTransformer;
     protected final IVector[][] zeroGradientAndTorque;

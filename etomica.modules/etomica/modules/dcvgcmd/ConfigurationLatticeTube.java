@@ -1,13 +1,11 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
-import etomica.api.ISpecies;
+import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.box.Box;
@@ -45,7 +43,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	    super(lattice, _space);
         this.indexIterator = indexIterator;
         this.length = length;
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
 	}
 	
 	public void setSpeciesSpheres(SpeciesSpheresMono[] speciesSpheres) {
@@ -57,13 +55,13 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	}
 	
     public void initializeCoordinates(IBox box) {
-        IAtomList[] spheresLists = new IAtomList[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
+        IMoleculeList[] spheresLists = new IMoleculeList[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
         
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
         }
-        int nCells = (int)Math.ceil((double)spheresLists[0].getAtomCount()/(double)basisSize);
+        int nCells = (int)Math.ceil((double)spheresLists[0].getMoleculeCount()/(double)basisSize);
         
         //determine scaled shape of simulation volume
         IVector shape = space.makeVector();
@@ -127,9 +125,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         indexIterator.reset();
         
         // first species (mono spheres)
-        int nSpheres = spheresLists[0].getAtomCount();
+        int nSpheres = spheresLists[0].getMoleculeCount();
         for (int i=0; i<nSpheres; i++) {
-            IAtom a = spheresLists[0].getAtom(i);
+            IMolecule a = spheresLists[0].getMolecule(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -142,10 +140,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         
-        nSpheres = spheresLists[1].getAtomCount();
+        nSpheres = spheresLists[1].getMoleculeCount();
         // second species (mono spheres)
         for (int i=0; i<nSpheres; i++) {
-            IAtom a = spheresLists[1].getAtom(i);
+            IMolecule a = spheresLists[1].getMolecule(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -154,14 +152,14 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         //loop for multiple tubes.
-        IAtomList tubeList = box.getMoleculeList(speciesTube);
-        int nTubes = tubeList.getAtomCount();
+        IMoleculeList tubeList = box.getMoleculeList(speciesTube);
+        int nTubes = tubeList.getMoleculeCount();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {
-            IMolecule a = (IMolecule)tubeList.getAtom(i);
-        	IConformation config = ((ISpecies)a.getType()).getConformation();
+            IMolecule a = tubeList.getMolecule(i);
+        	IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }
@@ -170,7 +168,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     
     private static final long serialVersionUID = 1L;
     private final IndexIteratorSizable indexIterator;
-    private final AtomActionTranslateTo atomActionTranslateTo;
+    private final MoleculeActionTranslateTo atomActionTranslateTo;
     protected SpeciesSpheresMono[] speciesSpheres;
     protected SpeciesTube speciesTube;
     private final double length;

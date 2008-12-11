@@ -3,12 +3,11 @@ package etomica.threaded.atom;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.PotentialGroupNbr;
@@ -85,7 +84,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
-                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id,pc);
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id.direction(),(IAtomLeaf)targetAtom,pc);
                 }
                 
                 potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
@@ -93,7 +92,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IAtomLeaf)targetAtom, id, pc, neighborManager);
+                calculate((IAtomLeaf)targetAtom, id.direction(), pc, neighborManager);
             }
             else {
                 PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
@@ -101,7 +100,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IMolecule)targetAtom, id, pc, neighborManager);
+                calculate((IMolecule)targetAtom, id.direction(), pc, neighborManager);
             }
         }
        
@@ -113,8 +112,8 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        IAtomList list = box.getMoleculeList();
-        int size = list.getAtomCount();
+        IMoleculeList list = box.getMoleculeList();
+        int size = list.getMoleculeCount();
 			                            
             for(int i=0; i<threads.length; i++){
                 synchronized(threads[i]){

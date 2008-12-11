@@ -1,15 +1,14 @@
 package etomica.virial.paralleltempering;
 
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
-import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMove;
 import etomica.space.ISpace;
 import etomica.virial.BoxCluster;
@@ -23,7 +22,6 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private IntegratorMC integrator1, integrator2;
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
-    private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
     private IVector r;
     private BoxCluster box1, box2;
     private double weightOld1, weightOld2;
@@ -127,12 +125,13 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     }
 
     public AtomIterator affectedAtoms(IBox p) {
-        if(p == box1 || p == box2) {
-            affectedAtomIterator.setBox(p);
-            affectedAtomIterator.reset();
-            return affectedAtomIterator;
+        if(p == box1) {
+            return iterator1;
         }
-		    return AtomIteratorNull.INSTANCE;
+        else if (p == box2) {
+            return iterator2;
+        }
+        return AtomIteratorNull.INSTANCE;
     }
 	
     public final static SwapFactory FACTORY = new SwapFactory();

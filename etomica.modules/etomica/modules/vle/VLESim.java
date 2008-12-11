@@ -70,7 +70,7 @@ public class VLESim extends Simulation {
         config.initializeCoordinates(boxVapor);
 
         double range = 15.0;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
             ((PotentialMasterCell)potentialMaster).setCellRange(2);

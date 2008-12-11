@@ -49,7 +49,7 @@ public class JouleThomsonSim extends Simulation {
     public JouleThomsonSim() {this(Space2D.getInstance());}
     public JouleThomsonSim(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this, space);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         int nAtoms = (space.D() < 3) ? 50 : 64;
         double sigma = 3.0;
         

@@ -31,11 +31,11 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)leafList.getAtom(i))).chainLength = 0;
+            ((LengthAgent)chainLengthManager.getAgent(leafList.getAtom(i))).chainLength = 0;
         }
 
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = (IAtomLeaf)leafList.getAtom(i);
+            IAtomLeaf a = leafList.getAtom(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
             if (((LengthAgent)chainLengthManager.getAgent(a)).chainLength > 0) continue;

@@ -1,13 +1,12 @@
 package etomica.config;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.api.IAtomList;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -68,7 +67,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         this.space = space;
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
         setBoundaryPadding(0);
     }
 
@@ -85,8 +84,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IAtomList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getAtomCount();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -168,7 +167,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         double voidSum = 0;
         int siteCount = 0;
         for (int i=0; i<sumOfMolecules; i++) {
-            IMolecule a = (IMolecule)moleculeList.getAtom(i);
+            IMolecule a = moleculeList.getMolecule(i);
             int[] ii = indexIterator.next();
             siteCount++;
             // add voidFrac for each /site/ (not molecule)
@@ -182,8 +181,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 siteCount++;
             }
             // initialize coordinates of child atoms
-        	atomActionTranslateTo.setAtomPositionDefinition(((ISpecies)a.getType()).getPositionDefinition());
-            IConformation config = ((ISpecies)a.getType()).getConformation();
+        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
 
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
@@ -247,7 +246,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
     protected boolean rescalingToFitVolume = true;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
+    protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     protected double boundaryPadding;
     protected final ISpace space;
@@ -256,7 +255,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IPotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
+        IPotentialMaster potentialMaster = new PotentialMaster();
         IBox box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);

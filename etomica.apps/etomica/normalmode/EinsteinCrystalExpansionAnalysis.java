@@ -1,7 +1,6 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
@@ -35,7 +34,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
         super(_space, true);
 
 
-        potentialMaster = new PotentialMasterMonatomic(this, space);
+        potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
