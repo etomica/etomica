@@ -17,14 +17,12 @@ import etomica.units.Volume;
  */
  
 public abstract class MeterLocalDensity extends DataSourceScalar {
+
     public MeterLocalDensity(IBox _box) {
         super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
-        if(!(_box.getBoundary() instanceof Boundary)) {
-        	throw new RuntimeException("The box boundary must be a subclass of etomica.space.Boundary.");
-        }
-        this.box = _box;
-        iterator.setBox(box);
-        if (shape == null) {
+        box = _box;
+        iterator = new AtomIteratorLeafAtoms(box);
+        if (box.getBoundary() instanceof Boundary) {
             setShape(((Boundary)box.getBoundary()).getShape());
         }
     }
@@ -46,7 +44,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
      * @return the current value of the local density or local mole fraction
      */
     public double getDataAsScalar() {
-        if (box == null) throw new IllegalStateException("must call setBox before using meter");
+        if (shape == null) throw new IllegalStateException("must call setShape before using meter (or use a Boundary)");
         //compute local molar density
         int nSum = 0;
         iterator.reset();
@@ -56,25 +54,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         }
         return nSum/shape.getVolume();
     }
-    
-    /**
-     * @return Returns the box.
-     */
-    public IBox getBox() {
-        return box;
-    }
-    /**
-     * @param box The box to set.
-     */
-/*
-    public void setBox(IBox box) {
-        this.box = box;
-        iterator.setBox(box);
-        if (shape == null) {
-            setShape(box.getBoundary().getShape());
-        }
-    }
-*/
+
     /**
      * @return Returns the iterator.
      */
@@ -88,10 +68,11 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         this.iterator = iterator;
     }
 
+    private static final long serialVersionUID = 1L;
     private IBox box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
-    private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
+    private AtomIteratorBoxDependent iterator;
     private Polytope shape;
 }
