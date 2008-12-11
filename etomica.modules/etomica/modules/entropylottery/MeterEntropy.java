@@ -1,12 +1,11 @@
 package etomica.modules.entropylottery;
 
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
-
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
+import etomica.data.IEtomicaDataSource;
 import etomica.units.Null;
 
 /**
@@ -19,7 +18,6 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
     public MeterEntropy() {
         super("entropy", Null.DIMENSION);
         atomCount = new int[0];
-        atomIterator = new AtomIteratorLeafAtoms();
     }
 
     public double getDataAsScalar() {
@@ -30,16 +28,15 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
         for (int i=0; i<atomCount.length; i++) {
             atomCount[i] = 0;
         }
-        atomIterator.setBox(box);
-        atomIterator.reset();
-        for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
-             a = (IAtomPositioned)atomIterator.nextAtom()) {
+        IAtomList leafList = box.getLeafList();
+        for (int i=0; i<leafList.getAtomCount(); i++) {
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
             int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
             atomCount[x]++;
         }
         
         double sum = 0;
-        double atomTotal = atomIterator.size();
+        double atomTotal = box.getLeafList().getAtomCount();
         for (int i=0; i<atomCount.length; i++) {
             if (atomCount[i] > 0) {
                 sum += atomCount[i] * Math.log(atomCount[i]/atomTotal);
@@ -60,5 +57,4 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
     private static final long serialVersionUID = 1L;
     protected IBox box;
     protected int[] atomCount;
-    protected final AtomIteratorLeafAtoms atomIterator;
 }
