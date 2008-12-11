@@ -20,7 +20,6 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataSinkTable;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterTemperature;
@@ -32,7 +31,6 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
@@ -183,13 +181,6 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         };
         getController().getResetAveragesButton().setLabel("Reset");
         getController().getResetAveragesButton().setPostAction(resetData);
-
-        DataSinkTable dataTable = new DataSinkTable();
-        accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        DisplayTable THING = new DisplayTable(dataTable);
-        THING.setTransposed(false);
-        THING.setShowingRowLabels(false);
-        THING.setPrecision(7);
 
         DisplayPlot compositionPlot = new DisplayPlot();
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
