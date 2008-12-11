@@ -5,6 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculeSetSinglet;
+import etomica.util.Debug;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
@@ -97,7 +98,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
             pair.atom0 = nextOuter;
             pair.atom1 = nextInner;
         }
-        if (pair.atom0 == pair.atom1) {
+        if (Debug.ON && pair.atom0 == pair.atom1) {
             throw new RuntimeException("wow! "+pair);
         }
         return pair;
