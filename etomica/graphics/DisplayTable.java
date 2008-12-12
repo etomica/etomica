@@ -400,7 +400,18 @@ public class DisplayTable extends Display implements DataTableListener {
             if (r < columnData.getLength()) {
                 value = units[c].fromSim(dataTable.getValue(r, c));
             }
-            return Double.isNaN(value) ? "NaN" : formatter.format(value);
+            if(Double.isInfinite(value)){
+            	if(value < 0){
+            		return "-infinity";
+            	} else {
+            		return "infinity";
+            	}
+            } 
+            
+            if (Double.isNaN(value)){
+            	return "NaN";
+            }
+            return formatter.format(value);
         }
 
         public int getRowCount() {
