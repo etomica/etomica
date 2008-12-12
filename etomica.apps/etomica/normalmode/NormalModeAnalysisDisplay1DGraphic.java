@@ -2,7 +2,13 @@ package etomica.normalmode;
 
 import etomica.api.IAction;
 import etomica.api.IData;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataFork;
 import etomica.data.DataInfo;
+import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
+import etomica.data.DataTag;
 import etomica.data.IDataSink;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -14,8 +20,10 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -36,9 +44,38 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
 		this.sim = simulation;
 		
-		
+		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 		resetAction = getController().getSimRestart().getDataResetAction();
 		
+		
+		/*
+		 * harmonic energy
+		 */
+		MeterHarmonicEnergy heMeter = new MeterHarmonicEnergy(sim.coordinateDefinition, sim.nm);
+		heMeter.setBox(sim.box);
+		
+		AccumulatorHistory heHistory = new AccumulatorHistory();
+		heHistory.setTimeDataSource(timeCounter);
+	    
+		final AccumulatorAverageCollapsing heAccumulator = new AccumulatorAverageCollapsing();
+        heAccumulator.setPushInterval(10);
+        DataFork heFork = new DataFork(new IDataSink[]{heHistory, heAccumulator});
+        DataPump hePump = new DataPump(heMeter, heFork);
+        sim.integrator.addIntervalAction(hePump);
+        sim.integrator.setActionInterval(hePump, 60);
+        heHistory.setPushInterval(5);
+		
+        DisplayPlot ePlot = new DisplayPlot();
+        heHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.setLegend(new DataTag[]{heHistory.getTag()}, "Harmonic Energy");
+        
+        ePlot.getPlot().setTitle("Energy History");
+        ePlot.setDoLegend(true);
+        ePlot.setLabel("Energy");
+        
+        final DisplayTextBoxesCAE heDisplay = new DisplayTextBoxesCAE();
+        heDisplay.setAccumulator(heAccumulator);
+        
         /*
 		 * Temperature Slider
 		 */
@@ -68,7 +105,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 omega2Table = new DataTable(data);
                
                 /*
-                 * Harmonic Energy
+                 * Harmonic Free Energy
                  */
                 AHarm = new DataDouble();
                 double AHarmonic =0;
@@ -130,9 +167,9 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         omega2Table = new DataTable(data);
         
         /*
-         * Harmonic Energy
+         * Harmonic Free Energy
          */
-        
+       
         AHarm = new DataDouble();
         double AHarmonic =0;
         
@@ -162,7 +199,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 try {
                 	sim.integrator.reset();
                 	
-                	sim.nm.setTemperature(sim.integrator.temperature);
                 	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
                     sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
                     sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
@@ -225,13 +261,12 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
         displayAHarmonic.putDataInfo(dataInfoA);
         displayAHarmonic.putData(AHarm);
-        displayAHarmonic.setLabel("Harmonic Energy");
+        displayAHarmonic.setLabel("Harmonic Free Energy");
       
         add(nSlider);
         add(temperatureSetter);
     
 		
-        
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandom(sim, sim.box,sim.getRandom()));
 			
         
@@ -252,6 +287,8 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         
         //
         add(displayAHarmonic);
+        add(ePlot);
+        add(heDisplay);
 	}
 	
 	
