@@ -1,11 +1,6 @@
-/*
- * History
- * Created on Nov 24, 2004 by kofke
- */
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
 
@@ -46,14 +41,23 @@ public class Cuboid extends Hexahedron implements Rectangular {
     }
 
     public void updateVertices() {
-        ((IVector3D)vertices[0]).E(na, nb, nc);
-        ((IVector3D)vertices[1]).E(na, nb, pc);
-        ((IVector3D)vertices[2]).E(na, pb, nc);
-        ((IVector3D)vertices[3]).E(na, pb, pc);
-        ((IVector3D)vertices[4]).E(pa, nb, nc);
-        ((IVector3D)vertices[5]).E(pa, nb, pc);
-        ((IVector3D)vertices[6]).E(pa, pb, nc);
-        ((IVector3D)vertices[7]).E(pa, pb, pc);
+        vertices[0].setX(0,-pa);
+        vertices[0].setX(1,-pb);
+        vertices[0].setX(2,-pc);
+        vertices[1].E(vertices[0]);
+        vertices[1].setX(2,pc);
+        vertices[2].E(vertices[0]);
+        vertices[2].setX(1,pb);
+        vertices[3].E(vertices[2]);
+        vertices[3].setX(2,pc);
+        vertices[4].E(vertices[0]);
+        vertices[4].setX(0,pa);
+        vertices[5].E(vertices[4]);
+        vertices[5].setX(2,pc);
+        vertices[6].E(vertices[4]);
+        vertices[6].setX(1,pc);
+        vertices[7].E(vertices[6]);
+        vertices[7].setX(2,pc);
         applyTranslationRotation();
     }
 
@@ -65,7 +69,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
         double x = v.x(0)-position.x(0);
         double y = v.x(1)-position.x(1);
         double z = v.x(2)-position.x(2);
-        return (x >= na) && (x <= pa) && (y >= nb) && (y <= pb) && (z >= nc)
+        return (x >= -pa) && (x <= pa) && (y >= -pb) && (y <= pb) && (z >= -pc)
                 && (z <= pc);
     }
     
@@ -92,19 +96,18 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * Sets the lengths of all edges of the cuboid.
      */
     public void setEdgeLengths(double a, double b, double c) {
-        edgeLengths.E(a, b, c);
-        na = -0.5 * a;
+        edgeLengths.setX(0,a);
+        edgeLengths.setX(1,b);
+        edgeLengths.setX(2,c);
         pa = +0.5 * a;
-        nb = -0.5 * b;
         pb = +0.5 * b;
-        nc = -0.5 * c;
         pc = +0.5 * c;
         updateVertices();
     }
 
-    private final IVector3D edgeLengths = new Vector3D();//used only to return edge lengths as a vector
-    private double na, pa;//na = -a/2, p = +a/2
-    private double nb, pb;//nb = -b/2, p = +a/2
-    private double nc, pc;//nc = -c/2, p = +a/2
+    private final IVector edgeLengths = new Vector3D();//used only to return edge lengths as a vector
+    private double pa;//p = +a/2
+    private double pb;//p = +a/2
+    private double pc;//p = +a/2
 
 }

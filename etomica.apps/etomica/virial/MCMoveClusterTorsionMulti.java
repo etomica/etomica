@@ -9,7 +9,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.MoleculeArrayList;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -54,12 +53,12 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        work1 = (IVector3D)space.makeVector();
-        work2 = (IVector3D)space.makeVector();
-        work3 = (IVector3D)space.makeVector();
-        dr21 = (IVector3D)space.makeVector();
-        dr23 = (IVector3D)space.makeVector();
-        dr34 = (IVector3D)space.makeVector();
+        work1 = space.makeVector();
+        work2 = space.makeVector();
+        work3 = space.makeVector();
+        dr21 = space.makeVector();
+        dr23 = space.makeVector();
+        dr34 = space.makeVector();
         oldCenter = space.makeVector();
     }
 
@@ -408,8 +407,8 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final int[] probabilityReverseMap;
     protected MoleculeArrayList selectedMolecules;
     protected double bondLength;
-    protected final IVector3D work1, work2, work3;
-    protected final IVector3D dr21, dr23, dr34;
+    protected final IVector work1, work2, work3;
+    protected final IVector dr21, dr23, dr34;
     protected IVector[][] oldPositions;
     protected final IVector oldCenter;
     protected double wOld, wNew, bias;

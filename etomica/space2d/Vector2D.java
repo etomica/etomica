@@ -3,6 +3,7 @@ package etomica.space2d;
 import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.exception.MethodNotImplementedException;
 import etomica.space.IVectorRandom;
 
 /**
@@ -208,4 +209,7 @@ public class Vector2D implements IVectorRandom, java.io.Serializable {
         y = function.f(y);
     }
 
+    public void XE(IVector u) {
+        throw new MethodNotImplementedException();
+    }
 }

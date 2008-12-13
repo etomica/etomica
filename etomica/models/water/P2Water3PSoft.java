@@ -4,7 +4,6 @@ package etomica.models.water;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.space.ISpace;
@@ -19,13 +18,13 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	public P2Water3PSoft(ISpace space, double sigma, double epsilon,
 	        double chargeO, double chargeH) {
 		super(space, sigma, epsilon, chargeO, chargeH);
-		gradient = new IVector3D[2];
-		gradient[0] = (IVector3D)space.makeVector();
-		gradient[1] = (IVector3D)space.makeVector();
-        torque = new IVector3D[2];
-        torque[0] = (IVector3D)space.makeVector();
-        torque[1] = (IVector3D)space.makeVector();
-        fWork = (IVector3D)space.makeVector();
+		gradient = new IVector[2];
+		gradient[0] = space.makeVector();
+		gradient[1] = space.makeVector();
+        torque = new IVector[2];
+        torque[0] = space.makeVector();
+        torque[1] = space.makeVector();
+        fWork = space.makeVector();
         gradientAndTorque = new IVector[][]{gradient,torque};
         epsilon48 = epsilon*48.0;
 	}
@@ -204,8 +203,8 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	public double getEpsilon() {return epsilon;}
 	
     private static final long serialVersionUID = 1L;
-	protected final IVector3D[] gradient, torque;
+	protected final IVector[] gradient, torque;
 	protected final IVector[][] gradientAndTorque;
 	protected double epsilon48;
-	protected final IVector3D fWork;
+	protected final IVector fWork;
 }

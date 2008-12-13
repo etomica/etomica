@@ -17,7 +17,7 @@ import etomica.math.geometry.Polytope;
  * by objects that enforce periodic images.
  * 
  */
-public abstract class Boundary implements INearestImageTransformer, java.io.Serializable, IBoundary {
+public abstract class Boundary implements IBoundary, java.io.Serializable {
 
     /**
      * Subclasses must invoke this constructor and provide a Space instance that

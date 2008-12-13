@@ -47,9 +47,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        work1 = (IVector3D)_space.makeVector();
-        work2 = (IVector3D)_space.makeVector();
-        work3 = (IVector3D)_space.makeVector();
+        work1 = _space.makeVector();
+        work2 = _space.makeVector();
+        work3 = _space.makeVector();
     }
 
     public void setBox(IBox p) {
@@ -57,7 +57,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         selectedAtoms = new IAtomPositioned[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<translationVectors.length; i++) {
-            translationVectors[i] = (IVector3D)space.makeVector();
+            translationVectors[i] = space.makeVector();
         }
         weightMeter.setBox(p);
         energyMeter.setBox(p);
@@ -224,8 +224,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtomPositioned[] selectedAtoms;
-    protected final IVector3D work1, work2, work3;
-    protected IVector3D[] translationVectors;
+    protected final IVector work1, work2, work3;
+    protected IVector[] translationVectors;
     protected double wOld, wNew;
     protected final ISpace space;
 }

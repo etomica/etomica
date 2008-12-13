@@ -23,8 +23,8 @@ public class P2Water4P extends PotentialMolecular {
 		super(2, space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
-		work = (IVector3D)space.makeVector();
-		shift = (IVector3D)space.makeVector();
+		work = space.makeVector();
+		shift = space.makeVector();
         this.epsilon = epsilon;
         epsilon4 = 4*epsilon;
         chargeMM = chargeM * chargeM;
@@ -154,5 +154,5 @@ public class P2Water4P extends PotentialMolecular {
 	protected final double chargeH;
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;
-	protected final IVector3D work, shift;
+	protected final IVector work, shift;
 }

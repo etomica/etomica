@@ -3,6 +3,7 @@ package etomica.space1d;
 import etomica.api.IFunction;
 import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.exception.MethodNotImplementedException;
 import etomica.space.IVectorRandom;
 
 /**
@@ -165,4 +166,7 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = function.f(x);
     }
 
+    public void XE(IVector u) {
+        throw new MethodNotImplementedException();
+    }
 }

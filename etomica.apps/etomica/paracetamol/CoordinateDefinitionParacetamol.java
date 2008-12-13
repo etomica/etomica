@@ -10,7 +10,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeArrayList;
@@ -37,40 +36,40 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     public CoordinateDefinitionParacetamol(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
     	super(sim, box, primitive, 3, basis, _space);
        
-       	axes = new IVector3D [3];
-        axes [0] = (IVector3D)space.makeVector();
-        axes [1] = (IVector3D)space.makeVector();
-        axes [2] = (IVector3D)space.makeVector();
-        com = (IVector3D)space.makeVector();
-        temp = (IVector3D)space.makeVector();
-        proj = (IVector3D)space.makeVector();
-        proja = (IVector3D)space.makeVector();
-        projb = (IVector3D)space.makeVector();
-        axisNorm = (IVector3D)space.makeVector();
-        axisNormPrime = (IVector3D)space.makeVector();
-        axis0 = (IVector3D)space.makeVector();
-        axis0Prime = (IVector3D)space.makeVector();
-        b = (IVector3D)space.makeVector();
-        bprime = (IVector3D)space.makeVector();
-        c = (IVector3D)space.makeVector();
+       	axes = new IVector [3];
+        axes [0] = space.makeVector();
+        axes [1] = space.makeVector();
+        axes [2] = space.makeVector();
+        com = space.makeVector();
+        temp = space.makeVector();
+        proj = space.makeVector();
+        proja = space.makeVector();
+        projb = space.makeVector();
+        axisNorm = space.makeVector();
+        axisNormPrime = space.makeVector();
+        axis0 = space.makeVector();
+        axis0Prime = space.makeVector();
+        b = space.makeVector();
+        bprime = space.makeVector();
+        c = space.makeVector();
         
-//        x = (IVector3D)space.makeVector();
-//        y = (IVector3D)space.makeVector();
-//        z = (IVector3D)space.makeVector();
-//        xPrime = (IVector3D)space.makeVector();
-//        zPrime = (IVector3D)space.makeVector();
+//        x = space.makeVector();
+//        y = space.makeVector();
+//        z = space.makeVector();
+//        xPrime = space.makeVector();
+//        zPrime = space.makeVector();
         
-        xNorm = (IVector3D)space.makeVector();
-        yNorm = (IVector3D)space.makeVector();
-        zNorm = (IVector3D)space.makeVector();
+        xNorm = space.makeVector();
+        yNorm = space.makeVector();
+        zNorm = space.makeVector();
         
-        yDoublePrime = (IVector3D)space.makeVector();
-        zDoublePrime = (IVector3D)space.makeVector();
+        yDoublePrime = space.makeVector();
+        zDoublePrime = space.makeVector();
         
-        xTriplePrime = (IVector3D)space.makeVector();
-        yTriplePrime = (IVector3D)space.makeVector();
-        zTriplePrime = (IVector3D)space.makeVector();
-        zQuadruplePrime = (IVector3D)space.makeVector();
+        xTriplePrime = space.makeVector();
+        yTriplePrime = space.makeVector();
+        zTriplePrime = space.makeVector();
+        zQuadruplePrime = space.makeVector();
         
         rotationL = lattice.getSpace().makeTensor();
         rotationM = lattice.getSpace().makeTensor();
@@ -242,7 +241,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	IMolecule molecule = molecules.getMolecule(i);
-        	IVector3D [] siteOrientation = (IVector3D [])orientationManager.getAgent(molecule);
+        	IVector [] siteOrientation = (IVector [])orientationManager.getAgent(molecule);
         	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
@@ -332,11 +331,11 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
-    		IVector3D[] orientation = new IVector3D[3];
+    		IVector[] orientation = new IVector[3];
     		
-    		orientation[0] = (IVector3D)space.makeVector();
-    		orientation[1] = (IVector3D)space.makeVector();
-    		orientation[2] = (IVector3D)space.makeVector();
+    		orientation[0] = space.makeVector();
+    		orientation[1] = space.makeVector();
+    		orientation[2] = space.makeVector();
     		IMolecule molecule = molecules.getMolecule(i);
     		
     	    	/*
@@ -382,7 +381,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
         	
         	IMolecule molecule = molecules.getMolecule(i);
-            IVector3D[] siteOrientation = (IVector3D[])orientationManager.getAgent(molecule);
+            IVector[] siteOrientation = (IVector[])orientationManager.getAgent(molecule);
 	    	
 	    	/*
 	    	 *   STEP 1
@@ -700,15 +699,15 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector3D [] axes;
+    protected final IVector [] axes;
     protected double [][] basisOrientation ;
-    protected final IVector3D com, temp, axis0, axis0Prime; 
-    protected final IVector3D proj, proja, projb;
-    protected final IVector3D axisNorm, axisNormPrime, b, bprime, c;
-//    protected final IVector3D x, y, z, xPrime, zPrime;
-    protected final IVector3D xNorm, yNorm, zNorm;
-    protected final IVector3D yDoublePrime, zDoublePrime;
-    protected final IVector3D xTriplePrime, yTriplePrime, zTriplePrime, zQuadruplePrime;
+    protected final IVector com, temp, axis0, axis0Prime; 
+    protected final IVector proj, proja, projb;
+    protected final IVector axisNorm, axisNormPrime, b, bprime, c;
+//    protected final IVector x, y, z, xPrime, zPrime;
+    protected final IVector xNorm, yNorm, zNorm;
+    protected final IVector yDoublePrime, zDoublePrime;
+    protected final IVector xTriplePrime, yTriplePrime, zTriplePrime, zQuadruplePrime;
     protected final Tensor rotationL, rotationM, rotationN;
     protected Configuration configuration;
     

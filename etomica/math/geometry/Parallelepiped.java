@@ -5,7 +5,6 @@
 package etomica.math.geometry;
 
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
@@ -28,12 +27,12 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
     /**
      * Constructs a parallelepiped with the given edge vectors.
      */
-    public Parallelepiped(ISpace embeddedSpace, IVector3D a, IVector3D b, IVector3D c) {
+    public Parallelepiped(ISpace embeddedSpace, IVector a, IVector b, IVector c) {
         super(embeddedSpace);
-        this.a = (IVector3D)embeddedSpace.makeVector();
-        this.b = (IVector3D)embeddedSpace.makeVector();
-        this.c = (IVector3D)embeddedSpace.makeVector();
-        work = (IVector3D)embeddedSpace.makeVector();
+        this.a = embeddedSpace.makeVector();
+        this.b = embeddedSpace.makeVector();
+        this.c = embeddedSpace.makeVector();
+        work = embeddedSpace.makeVector();
         setEdgeVectors(new IVector[] {a, b, c});
     }
 
@@ -110,7 +109,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector3D a, b, c;
-    private final IVector3D work;
+    private final IVector a, b, c;
+    private final IVector work;
 
 }

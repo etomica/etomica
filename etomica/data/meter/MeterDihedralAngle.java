@@ -3,8 +3,8 @@ import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.api.INearestImageTransformer;
+import etomica.api.IVector;
 import etomica.api.IVector3D;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
@@ -47,9 +47,9 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
         gSum = new long[phiData.getLength()];
         dataInfo = new DataInfoFunction("g(phi)", Null.DIMENSION, this);
 
-        dr1 = (IVector3D)space.makeVector();
-        dr2 = (IVector3D)space.makeVector();
-        dr3 = (IVector3D)space.makeVector();
+        dr1 = space.makeVector();
+        dr2 = space.makeVector();
+        dr3 = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -115,10 +115,10 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
                 		nearestImageTransformer.nearestImage(dr3);
             			if(dr3.squared()>rMaxSquared){continue;}
             			//compute dihedral angle
-            			IVector3D tanY = (IVector3D)space.makeVector();
+            			IVector tanY = space.makeVector();
             			tanY.Ea1Tv1(Math.sqrt(dr2.squared()),dr1);
-            			IVector3D cross12 = (IVector3D)space.makeVector();
-            			IVector3D cross23 = (IVector3D)space.makeVector();
+            			IVector cross12 = space.makeVector();
+            			IVector cross23 = space.makeVector();
             			cross12.E(dr1);
             			cross12.XE(dr2);
             			cross23.E(dr2);
@@ -201,7 +201,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector3D dr1, dr2, dr3;
+    private final IVector dr1, dr2, dr3;
     private INearestImageTransformer nearestImageTransformer;
     protected final DataSourceUniform xDataSource;
     protected double rMax;

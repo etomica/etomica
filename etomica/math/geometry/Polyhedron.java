@@ -2,7 +2,6 @@ package etomica.math.geometry;
 import java.util.LinkedList;
 
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope. Contains
@@ -30,7 +29,6 @@ public abstract class Polyhedron extends Polytope {
      * Returns all faces defined by the polyhedron.
      */
     public Polygon[] getFaces() {
-        updateVertices();
         return faces;
     }
     
@@ -38,7 +36,6 @@ public abstract class Polyhedron extends Polytope {
      * Returns all edges defined by the polyhedron.
      */
     public LineSegment[] getEdges() {
-        updateVertices();
         return edges;
     }
         
@@ -46,7 +43,6 @@ public abstract class Polyhedron extends Polytope {
      * Returns the sum of the length of the edges of the polyhedron
      */
     public double getPerimeter() {
-        updateVertices();
         double sum = 0.0;
         for(int i=0; i<edges.length; i++) {
             sum += edges[i].getLength();
@@ -58,7 +54,6 @@ public abstract class Polyhedron extends Polytope {
      * Returns the sum the area of the faces of the polyhedron
      */
     public double getSurfaceArea() {
-        updateVertices();
         double sum = 0.0;
         for(int i=0; i<faces.length; i++) {
             sum += faces[i].getArea();
@@ -74,14 +69,13 @@ public abstract class Polyhedron extends Polytope {
      * @return
      */
     public double distanceTo(IVector r) {
-        updateVertices();
         if(!contains(r)) return Double.NaN;
         double d = Double.POSITIVE_INFINITY;
         Plane plane = new Plane(embeddedSpace);
         for(int i=0; i<faces.length; i++) {
             Polygon f = faces[i];
-            plane.setThreePoints((IVector3D)f.getVertices()[0], 
-                    (IVector3D)f.getVertices()[1], (IVector3D)f.getVertices()[2]);
+            plane.setThreePoints(vertices[0], 
+                    vertices[1], vertices[2]);
             double d1 = Math.abs(plane.distanceTo(r));
             if(d1 < d) d = d1;
         }

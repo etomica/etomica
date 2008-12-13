@@ -8,7 +8,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculeSetSinglet;
@@ -109,7 +108,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			}
 		}
 		
-		nVector = new IVector3D[numNVector];
+		nVector = new IVector[numNVector];
 
 		numNVector = 0;
 		
@@ -138,7 +137,7 @@ public class EwaldSummation implements IPotentialMolecular {
 					
 					if (sq !=0 && check <= rCut){
 						//System.out.println("[i, j, k]: "+i+" " +j+" " + k);
-						nVector[numNVector] = (IVector3D)space.makeVector(new double[] {i,j,k});
+						nVector[numNVector] = space.makeVector(new double[] {i,j,k});
 						numNVector += 1;
 					}
 				}
@@ -368,7 +367,7 @@ public class EwaldSummation implements IPotentialMolecular {
 	}
 	
 	protected final AtomLeafAgentManager atomAgentManager;
-	protected final IVector3D[] nVector;
+	protected final IVector[] nVector;
 	protected final int nVectorMax;
 	protected final double alpha;
 	protected final IBox box;

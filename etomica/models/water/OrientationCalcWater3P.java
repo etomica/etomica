@@ -4,7 +4,6 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
@@ -20,9 +19,9 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
 
     public OrientationCalcWater3P(ISpace space) {
         super(space);
-        xWork = (IVector3D)space.makeVector();
-        yWork = (IVector3D)space.makeVector();
-        zWork = (IVector3D)space.makeVector();
+        xWork = space.makeVector();
+        yWork = space.makeVector();
+        zWork = space.makeVector();
         com0 = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         atomPositionCOM = new AtomPositionCOM(space);
@@ -251,7 +250,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
     
     private static final long serialVersionUID = 1L;
 
-    protected final IVector3D xWork, yWork, zWork;
+    protected final IVector xWork, yWork, zWork;
     protected final IVector com0;
     protected final RotationTensor3D rotationTensor;
     protected final AtomPositionCOM atomPositionCOM;

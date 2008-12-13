@@ -154,4 +154,11 @@ public interface IVector {
      * Applies the given function to each element of the vector.
      */
     public void map(IFunction f);
+    
+
+    /**
+     * Sets this vector equal to the cross product of this vector with the
+     * given vector (only works for 3D vectors).
+     */
+    public void XE(IVector u);
 }

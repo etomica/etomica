@@ -17,7 +17,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -62,7 +61,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
-    protected final IVector3D xWork, yWork;
+    protected final IVector xWork, yWork;
     protected final AtomTypeAgentManager typeAgentManager;
     protected final IVector tempAngularVelocity;
     protected final AtomPositionCOM atomPositionCOM;
@@ -98,8 +97,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         pressureTensor = _space.makeTensor();
         workTensor = _space.makeTensor();
         rotationTensor = (RotationTensor3D)_space.makeRotationTensor();
-        xWork = (IVector3D)_space.makeVector();
-        yWork = (IVector3D)_space.makeVector();
+        xWork = _space.makeVector();
+        yWork = _space.makeVector();
         typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         tempAngularVelocity = _space.makeVector();
         tempOrientation = new OrientationFull3D(_space);
@@ -323,7 +322,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D atomForce = (IVector3D)((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVector atomForce = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -605,7 +604,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D force = (IVector3D)((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVector force = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (force.isZero()) {
                     continue;
                 }

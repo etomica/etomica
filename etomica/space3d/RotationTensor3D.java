@@ -1,6 +1,6 @@
 package etomica.space3d;
 
-import etomica.api.IVector3D;
+import etomica.api.IVector;
 
 public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
     public RotationTensor3D() {super(); reset();}
@@ -78,8 +78,8 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
     }
 
     public void setOrientation(IOrientationFull3D orientation3D) {
-        IVector3D direction = (IVector3D)orientation3D.getDirection();
-        IVector3D secondaryDirection = (IVector3D)orientation3D.getSecondaryDirection();
+        IVector direction = orientation3D.getDirection();
+        IVector secondaryDirection = orientation3D.getSecondaryDirection();
         xx = direction.x(0);
         xy = direction.x(1);
         xz = direction.x(2);

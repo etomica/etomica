@@ -16,10 +16,10 @@ public class Orientation3D implements IOrientation3D, Serializable {
      * Default constructor sets orientation to point in the X direction.
      */
     public Orientation3D() {
-        direction = (IVector3D)Space.makeVector(3);
+        direction = Space.makeVector(3);
         direction.setX(0, 1);
-        temp = (IVector3D)Space.makeVector(3);
-        temp2 = (IVector3D)Space.makeVector(3);
+        temp = Space.makeVector(3);
+        temp2 = Space.makeVector(3);
     }
 
     /**
@@ -111,6 +111,6 @@ public class Orientation3D implements IOrientation3D, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector3D direction;
-    protected final IVector3D temp, temp2;
+    protected final IVector direction;
+    protected final IVector temp, temp2;
 }

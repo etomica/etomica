@@ -16,12 +16,12 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
      * Default constructor sets orientation to point in the X direction.
      */
     public OrientationFull3D(ISpace space) {
-        direction = (IVector3D)space.makeVector();
+        direction = space.makeVector();
         direction.setX(0, 1);
-        secondaryDirection = (IVector3D)space.makeVector();
+        secondaryDirection = space.makeVector();
         secondaryDirection.setX(1, 1);
-        v2 = (IVector3D)space.makeVector();
-        v3 = (IVector3D)space.makeVector();
+        v2 = space.makeVector();
+        v3 = space.makeVector();
         rotationTensor = (Tensor3D)space.makeTensor();
     }
 
@@ -152,7 +152,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector3D direction, secondaryDirection;
-    protected final IVector3D v2, v3;
+    protected final IVector direction, secondaryDirection;
+    protected final IVector v2, v3;
     protected final Tensor3D rotationTensor;
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;
@@ -102,7 +101,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private static Polytope makeShape(ISpace space, IVector[] vex) {
         switch(space.D()) {
             case 2: return new Parallelogram(space, vex[0], vex[1]);
-            case 3: return new Parallelepiped(space, (IVector3D)vex[0], (IVector3D)vex[1], (IVector3D)vex[2]);
+            case 3: return new Parallelepiped(space, vex[0], vex[1], vex[2]);
             default: throw new IllegalArgumentException("BoundaryDeformablePeriodic not appropriate to given space");
         }
     }

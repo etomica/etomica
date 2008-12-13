@@ -19,7 +19,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
-    private IVector3D normal, delta;
+    private IVector normal, delta;
     private ISpace space;
     private int[] millerIndices;
     private IVector origin;
@@ -34,8 +34,8 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         }
         plane = new Plane(space);
         plane.epsilon = 1.0e-2;//tolerance for defining a point to be in the plane
-        normal = (IVector3D)space.makeVector();
-        delta = (IVector3D)space.makeVector();
+        normal = space.makeVector();
+        delta = space.makeVector();
         setMillerIndices(h);
     }
     

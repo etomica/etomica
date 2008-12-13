@@ -99,7 +99,6 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * returned array will change the polytope.
      */
     public IVector[] getVertices() {
-        updateVertices();
         return vertices;
     }
 

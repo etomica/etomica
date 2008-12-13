@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.MoleculeChildAtomAction;
 import etomica.action.BoxImposePbc;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
@@ -20,7 +20,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
@@ -77,7 +76,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
     protected final RotationTensor3D tempRotationTensor;
-    protected final IVector3D xWork;
+    protected final IVector xWork;
     protected final AtomTypeAgentManager typeAgentManager;
     protected final IVector tempAngularVelocity;
     protected final AtomPositionCOM atomPositionCOM;
@@ -114,7 +113,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         workTensor = space.makeTensor();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        xWork = (IVector3D)space.makeVector();
+        xWork = space.makeVector();
         typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         tempAngularVelocity = space.makeVector();
         tempOrientation = new OrientationFull3D(space);
@@ -328,7 +327,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D atomForce = (IVector3D)((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVector atomForce = ((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -617,7 +616,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector3D force = (IVector3D)((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVector force = ((MyAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (force.isZero()) {
                     continue;
                 }

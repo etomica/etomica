@@ -7,7 +7,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.DipoleSource;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -16,8 +15,8 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
 
     public P2ReactionFieldDipole(ISpace space) {
         super(2, space);
-        iDipole = (IVector3D)space.makeVector();
-        cavityDipole = (IVector3D)space.makeVector();
+        iDipole = space.makeVector();
+        cavityDipole = space.makeVector();
         dr = space.makeVector();
         gradientAndTorque = new IVector[2][2];
         gradientAndTorque[0][0] = space.makeVector();
@@ -81,7 +80,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     public IVector[][] gradientAndTorque(IMoleculeList atoms) {
         iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
 
-        iDipole.XE((IVector3D)dipoleSource.getDipole(atoms.getMolecule(1)));
+        iDipole.XE(dipoleSource.getDipole(atoms.getMolecule(1)));
         iDipole.TE(fac);
         gradientAndTorque[0][0].E(0);
         gradientAndTorque[0][1].E(0);
@@ -112,7 +111,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector3D iDipole, cavityDipole;
+    protected final IVector iDipole, cavityDipole;
     protected final IVector dr;
     protected DipoleSource dipoleSource;
     protected INearestImageTransformer nearestImageTransformer;

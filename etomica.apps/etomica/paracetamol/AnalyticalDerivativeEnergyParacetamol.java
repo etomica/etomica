@@ -8,7 +8,6 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
@@ -18,18 +17,18 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 	
 	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, ISpace space){
 		super(box, potentialMaster, space);
-		rotationAxis = (IVector3D)space.makeVector();
-		a      = (IVector3D)space.makeVector();
-		aProj  = (IVector3D)space.makeVector();
-		v      = (IVector3D)space.makeVector();
-		deltaV = (IVector3D)space.makeVector();
-		distance = new IVector3D[20];
-		torque   = new IVector3D[20];
-		torqueF  = new IVector3D[20];
+		rotationAxis = space.makeVector();
+		a      = space.makeVector();
+		aProj  = space.makeVector();
+		v      = space.makeVector();
+		deltaV = space.makeVector();
+		distance = new IVector[20];
+		torque   = new IVector[20];
+		torqueF  = new IVector[20];
 		for (int i=0; i<20; i++){
-			distance[i] = (IVector3D)space.makeVector();
-			torque  [i] = (IVector3D)space.makeVector();
-			torqueF [i] = (IVector3D)space.makeVector();
+			distance[i] = space.makeVector();
+			torque  [i] = space.makeVector();
+			torqueF [i] = space.makeVector();
 		}
 		torqueSum = space.makeVector();
 		
@@ -224,10 +223,10 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 	
 	
 	
-	protected final IVector3D rotationAxis;
-	protected final IVector3D a, aProj;
-	protected final IVector3D v, deltaV;
-	protected final IVector3D [] distance, torque, torqueF;
+	protected final IVector rotationAxis;
+	protected final IVector a, aProj;
+	protected final IVector v, deltaV;
+	protected final IVector [] distance, torque, torqueF;
 	protected final IVector torqueSum;
 	protected double[] fPrimeRotation;
 	private static final long serialVersionUID = 1L;

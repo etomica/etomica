@@ -7,7 +7,6 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
@@ -23,8 +22,8 @@ public class P2Water3P extends PotentialMolecular {
 		super(2, null);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
-		work = (IVector3D)space.makeVector();
-		shift = (IVector3D)space.makeVector();
+		work = space.makeVector();
+		shift = space.makeVector();
         this.epsilon = epsilon;
         epsilon4 = 4*epsilon;
         chargeOO = chargeO * chargeO;
@@ -146,5 +145,5 @@ public class P2Water3P extends PotentialMolecular {
 	protected final double chargeH;
 	protected final double chargeO;
 	protected final double chargeOO, chargeOH, chargeHH;
-	protected final IVector3D work, shift;
+	protected final IVector work, shift;
 }

@@ -1,13 +1,11 @@
 package etomica.lattice.crystal;
 
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -163,7 +161,7 @@ public abstract class Primitive implements java.io.Serializable {
             return new Parallelogram(space, latticeVectors[0], latticeVectors[1]);
         }
         if (space.D() == 3) {
-            return new Parallelepiped(space, (IVector3D)latticeVectors[0], (IVector3D)latticeVectors[1], (IVector3D)latticeVectors[2]);
+            return new Parallelepiped(space, latticeVectors[0], latticeVectors[1], latticeVectors[2]);
         }
         throw new RuntimeException("I'm impressed by your ability to make a "+D+"-D space, but I really don't know how to make an appropriate unit cell");
     }

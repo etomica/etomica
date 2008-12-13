@@ -1,6 +1,5 @@
 package etomica.space3d;
 
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorRectangular;
@@ -13,7 +12,6 @@ import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.
@@ -199,7 +197,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             double multiplier = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
             for(int i=0; i<faces.length; i++) {
                 IVector[] vertices = faces[i].getVertices();
-                plane.setThreePoints((Vector3D)vertices[0], (Vector3D)vertices[1], (Vector3D)vertices[2]);
+                plane.setThreePoints(vertices[0], vertices[1], vertices[2]);
                 plane.getNormalVector(normal);
                 normal.TE(multiplier);
                 normal.assignTo(origins[i]);

@@ -20,9 +20,9 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
 
     public OrientationCalcWater4P(ISpace space) {
         super(space);
-        xWork = (IVector3D)space.makeVector();
-        yWork = (IVector3D)space.makeVector();
-        zWork = (IVector3D)space.makeVector();
+        xWork = space.makeVector();
+        yWork = space.makeVector();
+        zWork = space.makeVector();
         com0 = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         atomPositionCOM = new AtomPositionCOM(space);
@@ -251,7 +251,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
     
     private static final long serialVersionUID = 1L;
 
-    protected final IVector3D xWork, yWork, zWork;
+    protected final IVector xWork, yWork, zWork;
     protected final IVector com0;
     protected final RotationTensor3D rotationTensor;
     protected final AtomPositionCOM atomPositionCOM;

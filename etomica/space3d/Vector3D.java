@@ -243,7 +243,7 @@ public final class Vector3D implements IVectorRandom, IVector3D, java.io.Seriali
         z = 1.0 - 2.0 * zsq;
     }
 
-    public void XE(IVector3D u) {//cross product
+    public void XE(IVector u) {//cross product
         double xNew = y * u.x(2) - z * u.x(1);
         double yNew = z * u.x(0) - x * u.x(2);
         z = x * u.x(1) - y * u.x(0);
