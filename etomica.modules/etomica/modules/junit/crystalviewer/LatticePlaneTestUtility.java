@@ -125,7 +125,7 @@ public class LatticePlaneTestUtility {
         int numAtoms = size*size*size;
 
 	    // Set the dimensions for the box
-	    IVector dimensions = box.getBoundary().getDimensions();
+	    IVector dimensions = space.makeVector();
 	    dimensions.E(lattice.getPrimitive().getSize());
 	    dimensions.TE(size);
 	    box.getBoundary().setDimensions(dimensions);

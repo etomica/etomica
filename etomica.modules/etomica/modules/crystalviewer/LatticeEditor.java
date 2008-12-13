@@ -284,7 +284,7 @@ public class LatticeEditor {
         if (currentLattice instanceof BravaisLatticeCrystal) {
             numAtoms *= ((BravaisLatticeCrystal)currentLattice).getBasis().getScaledCoordinates().length;
         }
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = space.makeVector();
         dimensions.E(currentLattice.getPrimitive().getSize());
         dimensions.TE(size);
         box.getBoundary().setDimensions(dimensions);
