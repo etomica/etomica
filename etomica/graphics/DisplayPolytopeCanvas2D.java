@@ -2,9 +2,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.action.activity.Controller;
-import etomica.atom.AtomFilter;
-import etomica.exception.MethodNotImplementedException;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 
@@ -13,14 +10,12 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
     
     private DisplayPolytope displayPolytope;
 
-    public DisplayPolytopeCanvas2D(DisplayPolytope _polytope, Controller controller) {
-        super(controller);
+    public DisplayPolytopeCanvas2D(DisplayPolytope _polytope) {
+        super(null);
         displayPolytope = _polytope;
     }
     
     public void initialize() {}
-    
-    public void setAtomFilter(AtomFilter filter) {throw new MethodNotImplementedException("Homie don't play that");}
     
     /**
      * Sets the size of the display to a new value and scales the image so that
@@ -59,26 +54,6 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
         int w = getSize().width;
         int h = getSize().height;
         
-/** uncomment this section -------- commented for applet only  -------------         
-        String vers = System.getProperty("java.version");
-        if (vers.compareTo("1.2") >= 0) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                RenderingHints.VALUE_RENDER_SPEED);
-            g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            if(quality>=DRAW_QUALITY_HIGH) {
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                    RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                    RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            }
-        }
-   */         
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayPolytope.computeImageParameters2(w, h);

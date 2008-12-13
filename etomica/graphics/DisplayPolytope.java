@@ -7,7 +7,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
-import etomica.action.activity.Controller;
 import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
@@ -172,10 +171,10 @@ public class DisplayPolytope extends Display implements IAction {
 
         switch(polytope.getEmbeddedSpace().D()) {
             case 3:
-//                canvas = new DisplayPolytopeCanvasG3Dsys(this, 400, 400);
+//                canvas = new DisplayPolytopeCanvasG3DSys(this);
                 break;
             case 2:
-                canvas = new DisplayPolytopeCanvas2D(this, null);
+                canvas = new DisplayPolytopeCanvas2D(this);
                 break;
             case 1:
 //                canvas = new DisplayBoundaryCanvas1D(this);
