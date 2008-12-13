@@ -4,7 +4,6 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;

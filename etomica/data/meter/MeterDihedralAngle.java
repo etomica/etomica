@@ -5,7 +5,6 @@ import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;

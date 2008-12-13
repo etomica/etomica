@@ -7,7 +7,6 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 

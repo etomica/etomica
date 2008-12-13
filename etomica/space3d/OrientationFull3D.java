@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;

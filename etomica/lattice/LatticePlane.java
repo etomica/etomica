@@ -3,7 +3,6 @@ package etomica.lattice;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;

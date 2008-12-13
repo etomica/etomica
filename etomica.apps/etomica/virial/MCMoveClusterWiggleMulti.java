@@ -8,7 +8,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.api.IVector3D;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.ISpace;
