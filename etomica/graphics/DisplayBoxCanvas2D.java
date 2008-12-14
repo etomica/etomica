@@ -58,7 +58,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getBoundingBox();
+        IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
         double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
         double py = (dim.height - 1)/(boxDim.x(1)+displayBox.getPaddingSigma());
         if (px > py) {
@@ -153,7 +153,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayBox.computeImageParameters2(w, h);
-        boundingBox.E(displayBox.getBox().getBoundary().getBoundingBox());
+        boundingBox.E(displayBox.getBox().getBoundary().getDimensions());
         int[] origin = displayBox.getOrigin();
         double toPixels = displayBox.getScale() * pixel.toPixels();
 

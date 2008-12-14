@@ -82,7 +82,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
         half.E(0.5);
         dimensions = space.makeVector();
         dimensionsCopy = space.makeVector();
-        dimensionsHalf = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
         update();
     }
@@ -111,8 +110,17 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * edge of the boundary.
      */
 	public IVector getDimensions() {
-        dimensionsCopy.E(dimensions);
-        return dimensionsCopy;
+        IVector[] vertices = shape.getVertices();
+        temp1.E(vertices[0]);
+        temp2.E(vertices[0]);
+        for(int i=1; i<vertices.length; i++) {
+            for (int j=0; j<space.D(); j++) {
+                temp1.setX(j,Math.min(vertices[i].x(j),temp1.x(j)));
+                temp2.setX(j,Math.max(vertices[i].x(j),temp2.x(j)));
+            }
+        }
+        temp2.ME(temp1);
+        return temp2;
     }
 
     /**
@@ -135,20 +143,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return temp1;
     }
 
-    public IVector getBoundingBox() {
-        IVector[] vertices = shape.getVertices();
-        temp1.E(vertices[0]);
-        temp2.E(vertices[0]);
-        for(int i=1; i<vertices.length; i++) {
-            for (int j=0; j<space.D(); j++) {
-                temp1.setX(j,Math.min(vertices[i].x(j),temp1.x(j)));
-                temp2.setX(j,Math.max(vertices[i].x(j),temp2.x(j)));
-            }
-        }
-        temp2.ME(temp1);
-        return temp2;
-    }
-    
     public IVector centralImage(IVector r) {
         temp1.E(r);
         for(int i=0; i<edgeVectors.length; i++) {
@@ -360,8 +354,10 @@ public class BoundaryDeformablePeriodic extends Boundary {
         if(!isPositive(v)) {
             throw new IllegalArgumentException("edge lengths must be greater than zero; attempt to set to "+v.toString());
         }
+	    getDimensions();
+	    // temp2 is now current bounding box.
         temp1.E(v);
-        temp1.DE(dimensions);
+        temp1.DE(temp2);
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i].TE(temp1.x(i));
         }
@@ -397,7 +393,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
         for(int i=0; i<edgeVectors.length; i++) {
             dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
         }
-        dimensionsHalf.Ea1Tv1(0.5, dimensions);
         ((Parallelotope)shape).setEdgeVectors(edgeVectors);
         volume = shape.getVolume();
         
@@ -457,7 +452,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final IVector temp2;
     private final IVector dimensions;
     private final IVector dimensionsCopy;
-    private final IVector dimensionsHalf;
     private final IVector unit;
     private final IVector half;
     private final int D;

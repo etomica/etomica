@@ -75,10 +75,6 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return dimensionsCopy;
     }
     
-    public IVector getBoundingBox() {
-        return dimensionsCopy;
-    }
-
     /**
      * Returns a vector that describes a point selected uniformly within
      * the boundary.  The same Vector instance is returned with each call, with

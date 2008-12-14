@@ -109,11 +109,6 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
 	 */
     public abstract double[][] imageOrigins(int nShells);
 
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#getBoundingBox()
-	 */
-    public abstract IVector getBoundingBox();
-    
     private static final long serialVersionUID = 1L;
 //    protected final Space space;
     protected final Polytope shape;

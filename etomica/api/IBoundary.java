@@ -55,20 +55,23 @@ public interface IBoundary {
     public void nearestImage(IVector dr);
 
     /**
-     * Returns a copy of the dimensions, as a Vector. Manipulation of this copy
-     * will not cause any change to the boundary's dimensions.
+     * Returns the length of the sides of a rectangular box oriented in the lab
+     * frame and in which the boundary is inscribed.  For a rectangular
+     * boundary, this is simply the length of the boundary in each direction.
+     * Each element of the returned vector gives in that coordinate direction
+     * the maximum distance from one point on the boundary to another.
      * 
-     * @return a vector giving the nominal length of the boundary in each
-     *         direction. This has an obvious interpretation for rectangular
-     *         boundaries, while for others (e.g., octahedral) the definition is
-     *         particular to the boundary.
+     * Manipulation of this copy will not cause any change to the boundary's
+     * dimensions.
      */
     public IVector getDimensions();
 
     /**
-     * Sets the nominal length of the boundary in each direction. Specific
-     * interpretation of the given values (which are the elements of the given
-     * Vector) depends on the subclass.
+     * Scales the boundary dimensions such that the boundary's would be
+     * inscribed within a rectangle of the of the given size.  For a
+     * rectangular boundary, this simply sets the boundary length in each
+     * dimension.  Specific interpretation of the given values for
+     * non-rectangular shapes depends on the subclass.
      */
     public void setDimensions(IVector v);
 
@@ -77,14 +80,4 @@ public interface IBoundary {
      *         boundary.
      */
     public IVector randomPosition();
-
-    /**
-     * Returns the length of the sides of a rectangular box oriented in the lab
-     * frame and in which the boundary is inscribed.  Each element of the returned
-     * vector gives in that coordinate direction the maximum distance from one point 
-     * on the boundary to another.  Returned vector should be used immediately or
-     * copied to another vector.
-     */
-    public IVector getBoundingBox();
-
 }
