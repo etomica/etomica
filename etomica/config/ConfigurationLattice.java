@@ -2,12 +2,14 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
+import etomica.api.IVectorSimple;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -17,6 +19,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -98,7 +101,19 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
 
         // determine scaled shape of simulation volume
         IVector shape = space.makeVector();
-        shape.E(box.getBoundary().getDimensions());
+        IVector dim = space.makeVector();
+        IBoundary boundary = box.getBoundary();
+        if (boundary instanceof BoundaryDeformablePeriodic) {
+            System.out.println("def");
+            IVector[] periodicVectors = ((BoundaryDeformablePeriodic)boundary).getPeriodicVectors();
+            for (int i=0; i<periodicVectors.length; i++) {
+                dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
+            }
+        }
+        else {
+            dim.E(boundary.getDimensions());
+        }
+        shape.E(dim);
         shape.PE(-boundaryPadding);
         IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
