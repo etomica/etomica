@@ -370,6 +370,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             for (int j=0; j<numChildren; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
+            i++;
             selectedMolecules.add(a);
         } 
       }
