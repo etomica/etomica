@@ -17,7 +17,7 @@ import javax.swing.border.TitledBorder;
 import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -26,7 +26,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.box.Box;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.ISpace;
 import etomica.units.Degree;
 import etomica.units.Quantity;
@@ -279,15 +279,17 @@ public class LatticeEditor {
     }
 
     protected void update() {
+        double[]  boxSize = new double[] { size,size,size };
+
+        box.setBoundary(new BoundaryDeformableLattice
+                                             (currentLattice.getPrimitive(),
+                                              (etomica.api.IRandom)null,
+                                              boxSize));
 
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {
             numAtoms *= ((BravaisLatticeCrystal)currentLattice).getBasis().getScaledCoordinates().length;
         }
-        IVector dimensions = space.makeVector();
-        dimensions.E(currentLattice.getPrimitive().getSize());
-        dimensions.TE(size);
-        box.getBoundary().setDimensions(dimensions);
         box.setNMolecules(species, numAtoms);
         ConfigurationLattice config = new ConfigurationLattice(currentLattice, space);
         config.initializeCoordinates(box);
@@ -299,7 +301,7 @@ public class LatticeEditor {
     	IBox oldBox = box;
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
-    	box = new Box(new etomica.space.BoundaryDeformableLattice
+    	box = new Box(new BoundaryDeformableLattice
     			                             (currentLattice.getPrimitive(),
     			    	                   	  (etomica.api.IRandom)null,
     			    		                  boxSize), space);
