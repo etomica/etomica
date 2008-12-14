@@ -103,7 +103,6 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         IVector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
         if (boundary instanceof BoundaryDeformablePeriodic) {
-            System.out.println("def");
             IVector[] periodicVectors = ((BoundaryDeformablePeriodic)boundary).getPeriodicVectors();
             for (int i=0; i<periodicVectors.length; i++) {
                 dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
