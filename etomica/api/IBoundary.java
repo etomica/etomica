@@ -11,7 +11,7 @@ package etomica.api;
  * The boundary is responsible for firing inflate events when the boundary
  * dimensions change.
  */
-public interface IBoundary extends INearestImageTransformer {
+public interface IBoundary {
 
     /**
      * Sets the box that holds the IBoundary.  If no box holds the boundary,
@@ -43,6 +43,16 @@ public interface IBoundary extends INearestImageTransformer {
      *         central-image location
      */
     public IVector centralImage(IVector r);
+
+	/**
+	 * The nearest image is the pair of atom images that are closest when all
+	 * periodic-boundary images are considered.
+	 * 
+	 * If the vector passed to this method is the displacement vector between
+	 * two points, the vector will be transformed such that it corresponds to
+	 * the vector between the nearest image of those two points.
+	 */
+    public void nearestImage(IVector dr);
 
     /**
      * Returns a copy of the dimensions, as a Vector. Manipulation of this copy

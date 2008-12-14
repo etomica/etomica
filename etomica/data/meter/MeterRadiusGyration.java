@@ -3,9 +3,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
@@ -59,7 +59,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         if (box == null)
             throw new IllegalStateException(
                     "must call setBox before using meter");
-        INearestImageTransformer nearestImageTransformer = box.getBoundary();
+        IBoundary boundary = box.getBoundary();
         iterator.setBox(box);
         iterator.reset();
         int nLeafAtomsTot = 0;
@@ -88,7 +88,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
-                nearestImageTransformer.nearestImage(dr);
+                boundary.nearestImage(dr);
                 //realPos is now the effective position of a
                 realPos.PE(dr);
                 cm.PE(realPos);
@@ -104,7 +104,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
-                nearestImageTransformer.nearestImage(dr);
+                boundary.nearestImage(dr);
                 //realPos is now the effective position of a
                 realPos.PE(dr);
                 dr.Ev1Mv2(realPos, cm);// = realPos.M(cm);

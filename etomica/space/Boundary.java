@@ -3,7 +3,6 @@ package etomica.space;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IBoxEvent;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.box.BoxInflateEvent;
 import etomica.lattice.IndexIteratorSizable;
@@ -115,6 +114,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
 	 */
     public abstract IVector getBoundingBox();
     
+    private static final long serialVersionUID = 1L;
 //    protected final Space space;
     protected final Polytope shape;
     protected final ISpace space;

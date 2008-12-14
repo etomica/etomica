@@ -3,8 +3,8 @@ package etomica.nbr;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
@@ -95,7 +95,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 
 	public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
         agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
 	}
     
@@ -108,7 +108,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
 	public boolean accept(IAtomList pair) {
         dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
             throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
         }
@@ -139,7 +139,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     protected final ISpace space;
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final IVector dr;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     private AtomLeafAgentManager agentManager;

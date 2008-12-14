@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -39,7 +39,7 @@ public class P2TriangleWell extends Potential2 {
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double r2 = dr.squared();
        
@@ -62,7 +62,7 @@ public class P2TriangleWell extends Potential2 {
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double r2 = dr.squared();
         if(r2 > wellDiameterSquared){
@@ -112,7 +112,7 @@ public class P2TriangleWell extends Potential2 {
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     private static final long serialVersionUID = 1L;
@@ -123,7 +123,7 @@ public class P2TriangleWell extends Potential2 {
     private double constant;
     private final IVector force;
     private final IVector dr;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
 }
 
   

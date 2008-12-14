@@ -36,7 +36,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-    	nearestImageTransformer.nearestImage(dr01);
+    	boundary.nearestImage(dr01);
         double r2 = dr01.squared();
         
         int index0 = ((IAtomLeaf)atom0).getIndex();
@@ -55,7 +55,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-    	nearestImageTransformer.nearestImage(dr01);
+    	boundary.nearestImage(dr01);
         double r2 = dr01.squared();
         
         int index0 = ((IAtomLeaf)atom0).getIndex();

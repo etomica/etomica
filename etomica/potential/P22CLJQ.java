@@ -2,9 +2,9 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -37,7 +37,7 @@ public class P22CLJQ extends PotentialMolecular {
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public double getRange() {
@@ -58,19 +58,19 @@ public class P22CLJQ extends PotentialMolecular {
         // LJ contributation
 
         dr.Ev1Mv2(bead11.getPosition(), bead21.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         ener=ener+calculateEnergy(dr.squared());
 
         dr.Ev1Mv2(bead11.getPosition(), bead22.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         ener=ener+calculateEnergy(dr.squared());
 
         dr.Ev1Mv2(bead12.getPosition(), bead21.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         ener=ener+calculateEnergy(dr.squared());
 
         dr.Ev1Mv2(bead12.getPosition(), bead22.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         ener=ener+calculateEnergy(dr.squared());
 
         if(Q2!=0.0 && !Double.isInfinite(ener)){
@@ -81,14 +81,14 @@ public class P22CLJQ extends PotentialMolecular {
             com2.Ev1Pv2(bead21.getPosition(), bead22.getPosition());
             com2.TE(0.5);
             v12.Ev1Mv2(com1, com2);
-            nearestImageTransformer.nearestImage(v12);
+            boundary.nearestImage(v12);
             double r2=v12.squared();
 
             v12.TE(1/Math.sqrt(r2));
 
             // axis one
             dr.Ev1Mv2(bead11.getPosition(), bead12.getPosition());
-            nearestImageTransformer.nearestImage(dr);
+            boundary.nearestImage(dr);
 
             v1.E(dr);
 
@@ -96,7 +96,7 @@ public class P22CLJQ extends PotentialMolecular {
 
             //axis two
             dr.Ev1Mv2(bead21.getPosition(), bead22.getPosition());
-            nearestImageTransformer.nearestImage(dr);
+            boundary.nearestImage(dr);
 
             v2.E(dr);
 
@@ -157,7 +157,7 @@ public class P22CLJQ extends PotentialMolecular {
     private double epsilon, epsilon4;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
 
     private final IVector com1;
     private final IVector com2;

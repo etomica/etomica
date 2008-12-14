@@ -1,8 +1,8 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
@@ -27,7 +27,7 @@ public class P2HardAssociationCone extends Potential2 {
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
     private final IVector dr;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
     
     public P2HardAssociationCone(ISpace space) {
         this(space, 1.0, 1.0, 2.0);
@@ -65,7 +65,7 @@ public class P2HardAssociationCone extends Potential2 {
         IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
         dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         double eTot = 0.0;
                  
@@ -175,6 +175,6 @@ public class P2HardAssociationCone extends Potential2 {
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 }

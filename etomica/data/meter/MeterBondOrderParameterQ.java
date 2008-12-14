@@ -3,8 +3,8 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
@@ -51,13 +51,13 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        INearestImageTransformer nearestImageTransformer = box.getBoundary();
+        IBoundary boundary = box.getBoundary();
         pairIterator.setBox(box);
         pairIterator.reset();
         for (IAtomList pair = pairIterator.next(); pair != null;
              pair = pairIterator.next()) {
             dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
-            nearestImageTransformer.nearestImage(dr);
+            boundary.nearestImage(dr);
         	double r2 = dr.squared();
             if(r2 < r2Cut) {
                 nbSum += 2;

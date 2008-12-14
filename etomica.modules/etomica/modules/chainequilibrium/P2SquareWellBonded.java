@@ -215,7 +215,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             
             dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
             dr.PEa1Tv1(falseTime,dv);
-            nearestImageTransformer.nearestImage(dr);
+            boundary.nearestImage(dr);
 
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
@@ -240,7 +240,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
 		double r2 = dr.squared();
 		double bij = dr.dot(dv);

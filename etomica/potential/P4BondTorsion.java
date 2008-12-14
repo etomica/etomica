@@ -2,12 +2,12 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
@@ -47,7 +47,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public double energy(IAtomList atomSet) {
@@ -59,9 +59,9 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
         
-        nearestImageTransformer.nearestImage(dr21);
-        nearestImageTransformer.nearestImage(dr23);
-        nearestImageTransformer.nearestImage(dr34);
+        boundary.nearestImage(dr21);
+        boundary.nearestImage(dr23);
+        boundary.nearestImage(dr34);
         
         double dr23Sq = dr23.squared();
         dr21.PEa1Tv1(-dr21.dot(dr23)/dr23Sq, dr23);
@@ -91,9 +91,9 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
         
-        nearestImageTransformer.nearestImage(dr21);
-        nearestImageTransformer.nearestImage(dr23);
-        nearestImageTransformer.nearestImage(dr34);
+        boundary.nearestImage(dr21);
+        boundary.nearestImage(dr23);
+        boundary.nearestImage(dr34);
         
         double dr23Sq = dr23.squared();
         double dr23dotdr21odr23Sq = dr23.dot(dr21)/dr23Sq;
@@ -175,7 +175,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
     protected final IVector dr21, dr23, dr34;
     protected final IVector v1, v2;
     protected final IVector gtmp;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected double a0, a1, a2, a3;
     protected final IVector[] gradient;
     

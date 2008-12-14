@@ -2,11 +2,11 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.box.Box;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
@@ -37,7 +37,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public double energy(IAtomList atomSet) {
@@ -46,8 +46,8 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
         dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
-        nearestImageTransformer.nearestImage(dr12);
-        nearestImageTransformer.nearestImage(dr23);
+        boundary.nearestImage(dr12);
+        boundary.nearestImage(dr23);
         double costheta = -dr12.dot(dr23)/Math.sqrt(dr12.squared()*dr23.squared());
         double dtheta;
         // machine precision can give us numbers with magnitudes slightly greater than 1
@@ -110,8 +110,8 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         IAtomPositioned atom2 = (IAtomPositioned)atoms.getAtom(2);
         dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
-        nearestImageTransformer.nearestImage(dr12);
-        nearestImageTransformer.nearestImage(dr23);
+        boundary.nearestImage(dr12);
+        boundary.nearestImage(dr23);
         double dr12_23 = 1.0/Math.sqrt(dr12.squared()*dr23.squared());
         double costheta = -dr12.dot(dr23)*dr12_23;
         // machine precision can give us numbers with magnitudes slightly greater than 1
@@ -146,7 +146,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
     }
 
     protected final IVector dr12, dr23;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;

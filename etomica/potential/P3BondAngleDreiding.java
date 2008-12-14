@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -45,8 +45,8 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-		nearestImageTransformer.nearestImage(dr12);
-		nearestImageTransformer.nearestImage(dr23);
+		boundary.nearestImage(dr12);
+		boundary.nearestImage(dr23);
 		
 		double costheta = -dr12.dot(dr23)/Math.sqrt(dr12.squared()*dr23.squared());
 		
@@ -156,7 +156,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
     }
 	
 	public void setBox(IBox box){
-		nearestImageTransformer = box.getBoundary();
+		boundary = box.getBoundary();
 	}
 	
 	public double energy(IAtomList atomSet){
@@ -165,8 +165,8 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-		nearestImageTransformer.nearestImage(dr12);
-		nearestImageTransformer.nearestImage(dr23);
+		boundary.nearestImage(dr12);
+		boundary.nearestImage(dr23);
 		
 		double costheta = -dr12.dot(dr23)/Math.sqrt(dr12.squared()*dr23.squared());
 		
@@ -218,7 +218,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	
     protected final IVector dr12, dr23;
     protected final IVector[] gradient;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     private double gamma;
     private double thetaEq;
     private static final long serialVersionUID = 1L;

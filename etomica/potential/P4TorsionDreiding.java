@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -57,9 +57,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		dr12.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dr23.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
 		dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
-		nearestImageTransformer.nearestImage(dr12);
-		nearestImageTransformer.nearestImage(dr23);
-		nearestImageTransformer.nearestImage(dr34);
+		boundary.nearestImage(dr12);
+		boundary.nearestImage(dr23);
+		boundary.nearestImage(dr34);
 		
 		dra.E(dr12);
 		drb.E(dr34);
@@ -116,7 +116,7 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 	
 	
 	public void setBox(IBox box){
-		nearestImageTransformer = box.getBoundary();
+		boundary = box.getBoundary();
 	}
 	
 	public double energy(IAtomList atomSet){
@@ -130,9 +130,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
 		drb. Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		
-		nearestImageTransformer.nearestImage(dr12);
-		nearestImageTransformer.nearestImage(dr23);
-		nearestImageTransformer.nearestImage(dr34);
+		boundary.nearestImage(dr12);
+		boundary.nearestImage(dr23);
+		boundary.nearestImage(dr34);
 		
 		/*
 		 * To get the torsional angle
@@ -170,9 +170,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		dr12.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dr23.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
 		dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
-		nearestImageTransformer.nearestImage(dr12);
-		nearestImageTransformer.nearestImage(dr23);
-		nearestImageTransformer.nearestImage(dr34);
+		boundary.nearestImage(dr12);
+		boundary.nearestImage(dr23);
+		boundary.nearestImage(dr34);
 		
 		dra.E(dr12);
 		drb.E(dr34);
@@ -289,6 +289,6 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
     protected final IVector[] gradient;
     protected double phiEq, beta;
     protected int n;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     private static final long serialVersionUID = 1L;
 }

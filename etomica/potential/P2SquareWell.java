@@ -67,7 +67,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -146,7 +146,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);

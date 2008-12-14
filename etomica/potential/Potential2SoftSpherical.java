@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -52,7 +52,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double energy(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         return u(dr.squared());
     }
     
@@ -61,7 +61,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double virial(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         return du(dr.squared());
     }
     
@@ -70,7 +70,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double hyperVirial(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         return d2u(r2) + du(r2);
     }
@@ -80,7 +80,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public IVector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         gradient[1].Ea1Tv1(du(r2)/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
@@ -108,11 +108,11 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     protected final IVector[] gradient;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected final IVector dr;
     
 }//end of Potential2SoftSpherical

@@ -1,7 +1,7 @@
 package etomica.space3d;
 
 import etomica.EtomicaInfo;
-import etomica.api.INearestImageTransformer;
+import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
@@ -87,7 +87,7 @@ public final class Space3D extends Space {
      * to a nearest image transformation.  This method constructs a new vector that
      * is used as the work-vector input to the other r2 method.
      */
-    public static final double r2(Vector3D u1, Vector3D u2, INearestImageTransformer b) {
+    public static final double r2(Vector3D u1, Vector3D u2, IBoundary b) {
         return r2(u1, u2, b, new Vector3D());
     }
 
@@ -99,7 +99,7 @@ public final class Space3D extends Space {
      * @param b a nearest image transformation
      * @param work a work vector used for the calculation.
      */
-    public static final double r2(Vector3D u1, Vector3D u2, INearestImageTransformer b,
+    public static final double r2(Vector3D u1, Vector3D u2, IBoundary b,
             Vector3D work) {
         work.Ev1Mv2(u1, u2);
         b.nearestImage(work);

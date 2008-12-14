@@ -4,8 +4,8 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -58,7 +58,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		for(int j = 1; j < atoms.getAtomCount(); j++) {
             IAtomPositioned atomj = (IAtomPositioned)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
-			nearestImageTransformer.nearestImage(rij);
+			boundary.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 		
 			if (r > jcut){ 
 			    //System.out.println("atom j  "+j+" | rij "+r+", continue.");
@@ -74,7 +74,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				if (k == j) continue;
                 IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
 				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
-				nearestImageTransformer.nearestImage(rik);
+				boundary.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
 				double v = ( (rij.x(0) * rik.x(0)) 
@@ -84,7 +84,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				double anglekij = Math.toDegrees(Math.acos(v));
 				if (anglekij >= 90) continue;
 				rkj.Ev1Mv2(atomk.getPosition(), atomj.getPosition());
-				nearestImageTransformer.nearestImage(rkj);
+				boundary.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
 				//System.out.println("	atom k "+k);
 				//System.out.println("		rik "+ik+" | rkj "+kj+" | angle "+anglekij);
@@ -311,7 +311,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	 * @see etomica.potential.Potential#setBox(etomica.box.Box)
 	 */
 	public void setBox(IBox box) {
-		nearestImageTransformer = box.getBoundary();
+		boundary = box.getBoundary();
 	}
 
 	public double virial(IAtomList atoms) {
@@ -384,7 +384,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         for(int n = 1; n < atoms.getAtomCount(); n++) {
             IAtomPositioned atomn = (IAtomPositioned)atoms.getAtom(n);
             rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
-            nearestImageTransformer.nearestImage(rin);
+            boundary.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
             if (in > kcut) continue; //only consider n that could be j or k to i
             
@@ -425,7 +425,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
                     IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
             		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
-            		nearestImageTransformer.nearestImage(rik);
+            		boundary.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
             		double v = ( (rij.x(0) * rik.x(0)) 
@@ -435,7 +435,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		double anglekij = Math.toDegrees(Math.acos(v));
             		if (anglekij >= 90) continue;
             		rkj.Ev1Mv2(atomk.getPosition(), atomn.getPosition());
-            		nearestImageTransformer.nearestImage(rkj);
+            		boundary.nearestImage(rkj);
             		double kj = Math.sqrt(rkj.squared());
             		//from Baskes (1997)
             		double xik = (ik/ij)*(ik/ij);
@@ -888,7 +888,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	if (j == n) continue; // continue to next j atom
                 IAtomPositioned atomj = (IAtomPositioned) atoms.getAtom(j);
         		rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
-        		nearestImageTransformer.nearestImage(rij);
+        		boundary.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
         		if (ij > jcut) continue; // continue to next j atom
         		rik.E(rin); double ik = in;
@@ -900,7 +900,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double anglekij = Math.toDegrees(Math.acos(v));
 	        	if (anglekij >= 90) continue;
 	        	rkj.Ev1Mv2(atomn.getPosition(), atomj.getPosition());
-	        	nearestImageTransformer.nearestImage(rkj);
+	        	boundary.nearestImage(rkj);
 	        	double kj = Math.sqrt(rkj.squared());
 	        	//from Baskes (1997)
 	        	double xik = (ik/ij)*(ik/ij);
@@ -951,7 +951,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
                     IAtomPositioned atoml = (IAtomPositioned) atoms.getAtom(l);
 	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());
-	    			nearestImageTransformer.nearestImage(ril);
+	    			boundary.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
 	    			double w = ( (rij.x(0) * ril.x(0)) 
@@ -961,7 +961,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			double anglelij = Math.toDegrees(Math.acos(w));
 	    			if (anglelij >= 90) continue;
 	    			rlj.Ev1Mv2(atoml.getPosition(), atomj.getPosition());
-	    			nearestImageTransformer.nearestImage(rlj);
+	    			boundary.nearestImage(rlj);
 	    			double lj = Math.sqrt(rlj.squared());
 	    			//from Baskes (1997)
 	    			double xil = (il/ij)*(il/ij);
@@ -1304,7 +1304,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	private ParameterSetMEAM pSn = ParameterSetMEAM.Sn;
 	private ParameterSetMEAM pAg = ParameterSetMEAM.Ag;
 	private ParameterSetMEAM pCu = ParameterSetMEAM.Cu;
-	protected INearestImageTransformer nearestImageTransformer;
+	protected IBoundary boundary;
     
     double[] sum = new double[25];
 	public static final int RHOj0 = 0;

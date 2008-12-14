@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.api.IAtomLeaf;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
@@ -67,7 +67,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public double energy(IMoleculeList atoms) {
@@ -114,7 +114,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     protected final IVector iDipole, cavityDipole;
     protected final IVector dr;
     protected DipoleSource dipoleSource;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
     protected final IVector[][] gradientAndTorque;

@@ -1,8 +1,8 @@
 package etomica.potential;
 
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
@@ -65,7 +65,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
 
     public IVector[][] gradientAndTorque(IMoleculeList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
             IVector[][] gradientAndTorque = potential.gradientAndTorque(atoms);
@@ -154,7 +154,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     
     public double energy(IMoleculeList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (dr.squared() > r2Cutoff) {
             return 0;
@@ -168,7 +168,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     
     public double virial(IMoleculeList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);
         }
@@ -182,14 +182,14 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     
     public void setBox(IBox newBox) {
         potential.setBox(newBox);
-        nearestImageTransformer = newBox.getBoundary();
+        boundary = newBox.getBoundary();
     }
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecularTorque potential;
     protected final IVector dr;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected final IVector[][] zeroGradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;

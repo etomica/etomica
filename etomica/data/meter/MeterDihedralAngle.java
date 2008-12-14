@@ -1,9 +1,9 @@
 package etomica.data.meter;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
@@ -98,20 +98,20 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
         		IAtomPositioned atom1 = (IAtomPositioned)box.getLeafList().getAtom(j);
         		if(atom1==atom0){continue;}
         		dr1.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
-        		nearestImageTransformer.nearestImage(dr1);
+        		boundary.nearestImage(dr1);
         		if(dr1.squared()>rMaxSquared){continue;}
         		for (int k=0; k<atomCount; k++){
 
         			IAtomPositioned atom2 = (IAtomPositioned)box.getLeafList().getAtom(k);
         			if(atom2==atom1 || atom2==atom0){continue;}
             		dr2.Ev1Mv2(atom1.getPosition(),atom2.getPosition());
-            		nearestImageTransformer.nearestImage(dr2);
+            		boundary.nearestImage(dr2);
             		if(dr2.squared()>rMaxSquared){;continue;}
             		for (int l=0; l<atomCount; l++){
                			IAtomPositioned atom3 = (IAtomPositioned)box.getLeafList().getAtom(l);
                			if(atom3==atom2 || atom3==atom1 || atom3==atom0){continue;}
                 		dr3.Ev1Mv2(atom2.getPosition(),atom3.getPosition());
-                		nearestImageTransformer.nearestImage(dr3);
+                		boundary.nearestImage(dr3);
             			if(dr3.squared()>rMaxSquared){continue;}
             			//compute dihedral angle
             			IVector tanY = space.makeVector();
@@ -181,7 +181,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
      */
     public void setBox(IBox box) {
         this.box = box;
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public String getName() {
@@ -200,8 +200,8 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector dr1, dr2, dr3;
-    private INearestImageTransformer nearestImageTransformer;
+    private final IVector3D dr1, dr2, dr3;
+    private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double rMax;
     private String name;

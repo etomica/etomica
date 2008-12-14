@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -49,7 +49,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     }
 
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public double getRange() {
@@ -63,7 +63,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         // LJ contributation
 
         dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         if(r2<hsdiasq) {
             return Double.POSITIVE_INFINITY;
@@ -139,7 +139,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         // LJ contributation
 
         dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         double s2 = sigma2/r2;
         double s6 = s2*s2*s2;
@@ -211,7 +211,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         // LJ contributation
 
         dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double v = gradient[1].dot(dr);
         if (Double.isInfinite(v)) {
             throw new RuntimeException("oops "+v);
@@ -263,7 +263,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
     private final IVector dr, drunit, dcos1dr, dcos2dr;
     private final IVector[] gradient;
     protected double temperature;

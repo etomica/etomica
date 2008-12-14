@@ -2,10 +2,10 @@ package etomica.modules.interfacial;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataTag;
@@ -34,14 +34,14 @@ public class MeterOrientation implements DataSourceMolecular {
     }
     
     public void setBox(IBox newBox) {
-        transformer = newBox.getBoundary();
+        boundary = newBox.getBoundary();
     }
     
     public IData getData(IMolecule atom) {
         IAtomList children = atom.getChildList();
         dr.Ev1Mv2(((IAtomPositioned)children.getAtom(children.getAtomCount()-1)).getPosition(),
                   ((IAtomPositioned)children.getAtom(0)).getPosition());
-        transformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         data.x= dr.x(0) / Math.sqrt(dr.squared());
         return data;
     }
@@ -55,5 +55,5 @@ public class MeterOrientation implements DataSourceMolecular {
     protected final DataDouble data;
     protected final DataTag tag;
     protected final IVector dr;
-    protected INearestImageTransformer transformer;
+    protected IBoundary boundary;
 }

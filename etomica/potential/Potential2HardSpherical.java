@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -14,7 +14,7 @@ import etomica.space.ISpace;
 
 public abstract class Potential2HardSpherical extends Potential2 implements PotentialHard, Potential2Spherical {
    
-	public Potential2HardSpherical(ISpace space) {
+    public Potential2HardSpherical(ISpace space) {
 	    super(space);
         dr = space.makeVector();
 	}
@@ -36,14 +36,15 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         return u(dr.squared());
     }
     
     public void setBox(IBox box) {
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
+    private static final long serialVersionUID = 1L;
     protected final IVector dr;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
 }

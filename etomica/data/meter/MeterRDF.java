@@ -2,9 +2,9 @@ package etomica.data.meter;
 import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
@@ -92,7 +92,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
             dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
-            nearestImageTransformer.nearestImage(dr);
+            boundary.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation
             if(r2 < xMaxSquared) {
                 int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
@@ -153,7 +153,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
      */
     public void setBox(IBox box) {
         this.box = box;
-        nearestImageTransformer = box.getBoundary();
+        boundary = box.getBoundary();
     }
 
     public String getName() {
@@ -173,7 +173,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     protected DataDoubleArray rData;
     protected AtomsetIteratorBoxDependent iterator;
     private final IVector dr;
-    private INearestImageTransformer nearestImageTransformer;
+    private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
     private String name;

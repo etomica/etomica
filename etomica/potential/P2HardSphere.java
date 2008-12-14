@@ -65,7 +65,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double bij = dr.dot(dv);
         double time = Double.POSITIVE_INFINITY;
@@ -95,7 +95,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);

@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.INearestImageTransformer;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.ISpace;
@@ -68,7 +68,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
 
     public IVector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
             IVector[] gradient = potential.gradient(atoms);
@@ -134,7 +134,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     
     public double energy(IAtomList atoms) {
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (dr.squared() > r2Cutoff) {
             return 0;
@@ -148,7 +148,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     
     public double virial(IAtomList atoms) {
         dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getAtom(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getAtom(0)).getPosition());
-        nearestImageTransformer.nearestImage(dr);
+        boundary.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);
         }
@@ -162,14 +162,14 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     
     public void setBox(IBox newBox) {
         potential.setBox(newBox);
-        nearestImageTransformer = newBox.getBoundary();
+        boundary = newBox.getBoundary();
     }
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
     protected final IVector dr;
-    protected INearestImageTransformer nearestImageTransformer;
+    protected IBoundary boundary;
     protected final IVector[] zeroGradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
