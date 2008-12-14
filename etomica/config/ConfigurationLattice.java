@@ -139,7 +139,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
-            latticeScaling.E(box.getBoundary().getDimensions());
+            latticeScaling.E(dim);
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
             latticeScaling.DE(space.makeVector(latticeDimensions));
@@ -149,7 +149,6 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
 
         // determine amount to shift lattice so it is centered in volume
         IVector offset = space.makeVector();
-        offset.E(box.getBoundary().getDimensions());
         IVector vectorOfMax = space.makeVector();
         IVector vectorOfMin = space.makeVector();
         IVector site = space.makeVector();
