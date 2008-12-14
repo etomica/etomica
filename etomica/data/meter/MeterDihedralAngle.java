@@ -200,7 +200,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector3D dr1, dr2, dr3;
+    private final IVector dr1, dr2, dr3;
     private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double rMax;
