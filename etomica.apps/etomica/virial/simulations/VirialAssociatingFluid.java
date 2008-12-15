@@ -174,8 +174,8 @@ public class VirialAssociatingFluid {
 		public double temperature = 1;//reduced temperature
 		public double sigmaHSRef = 1.5;
 		public long numSteps = 10000;
-		public int rhopoint = 1;
-		public int rho0point = 2;
+		public int rhopoint = 2;
+		public int rho0point = 0;
 		public int diagramIndex = 0;
 		
 	}
