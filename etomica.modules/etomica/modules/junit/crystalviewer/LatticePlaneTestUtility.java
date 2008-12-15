@@ -110,7 +110,7 @@ public class LatticePlaneTestUtility {
 
 	    // Create a box
     	if(box != null) {
-    	 sim.removeBox(box);
+    	    sim.removeBox(box);
     	}
 	    box = new Box(
 	    		new etomica.space.BoundaryDeformableLattice(
@@ -121,14 +121,12 @@ public class LatticePlaneTestUtility {
 	}
 
 	public void setDimensions(int size) {
+        box.setBoundary(new etomica.space.BoundaryDeformableLattice(
+                      lattice.getPrimitive(),
+                      (etomica.api.IRandom)null, new int[]{size,size,size}));
+        
         // Set the number of atoms
         int numAtoms = size*size*size;
-
-	    // Set the dimensions for the box
-	    IVector dimensions = space.makeVector();
-	    dimensions.E(lattice.getPrimitive().getSize());
-	    dimensions.TE(size);
-	    box.getBoundary().setDimensions(dimensions);
 
 	    // Set the number of molecules for the box and
 	    // initialze the positions.
