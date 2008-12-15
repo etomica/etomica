@@ -73,12 +73,10 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
                 if(a.getPosition().x(1) >= spacePos-epsilon &&
                    a.getPosition().x(1) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -131,12 +129,10 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
                 if(a.getPosition().x(1) >= spacePos-epsilon &&
                    a.getPosition().x(1) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -204,12 +200,10 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -260,8 +254,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            	assertFalse(lptu.getLatticePlane().inPlane(
-            	    	(etomica.space3d.Vector3D)(a.getPosition())));
+            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
@@ -307,12 +300,10 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
                 if(a.getPosition().x(1) >= spacePos-epsilon &&
                    a.getPosition().x(1) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -365,8 +356,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
@@ -423,12 +413,10 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -482,8 +470,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
@@ -495,7 +482,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
     } // End testPlanePlusFiveHundreth()
 
-    public class DoubleTwoDArray {
+    public static class DoubleTwoDArray {
     	private double[][] array;
     	private double epsilon = 1.0E-5;
 
