@@ -34,6 +34,7 @@ public class VirialAssociatingFluid {
 	public static void main(String[] args) {
 		VirialAssociatingFluidParam params = new VirialAssociatingFluidParam();
 		Space space = Space3D.getInstance();
+		
 		int rhopoint=params.rhopoint;
 		int rho0point=params.rho0point;
 		final int nBody = rhopoint + rho0point;
@@ -44,6 +45,25 @@ public class VirialAssociatingFluid {
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
 		long numSteps = params.numSteps;
+		if (args.length == 0) {
+        	temperature = params.temperature;
+            sigmaHSRef = params.sigmaHSRef;
+            numSteps = params.numSteps;
+            rhopoint = params.rhopoint;
+            rho0point = params.rho0point;
+            diagramIndex = params.diagramIndex;
+        	
+        } else if (args.length == 6) {
+        	temperature = Double.parseDouble(args[0]);
+            sigmaHSRef = Double.parseDouble(args[1]);
+            numSteps = Long.parseLong(args[2]);
+            rhopoint = Integer.parseInt(args[3]);
+            rho0point = Integer.parseInt(args[4]);
+            diagramIndex = Integer.parseInt(args[5]);
+            
+        } else {
+        	throw new IllegalArgumentException("Wrong number of arguments");
+        }
 		final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
