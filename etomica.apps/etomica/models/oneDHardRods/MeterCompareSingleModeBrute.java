@@ -39,11 +39,13 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-    public MeterCompareSingleModeBrute(IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareSingleModeBrute(IPotentialMaster potentialMaster, 
+            CoordinateDefinition cd, IBox box){
         this("meterCompareMode", potentialMaster, cd, box);
     }
     
-    public MeterCompareSingleModeBrute(String string, IPotentialMaster potentialMaster, CoordinateDefinition cd, IBox box){
+    public MeterCompareSingleModeBrute(String string, IPotentialMaster 
+            potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];
@@ -61,7 +63,6 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         double normalization = 1/Math.sqrt(cells.length);
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
-        double energyOld = meterPE.getDataAsScalar();
         
         //get normal mode coordinate of "last" waveVector
         coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
