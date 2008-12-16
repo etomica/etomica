@@ -37,14 +37,13 @@ public class VirialAssociatingFluid {
 		
 		int rhopoint=params.rhopoint;
 		int rho0point=params.rho0point;
-		final int nBody = rhopoint + rho0point;
 		int n=12; // repulsive part
 		int diagramIndex = params.diagramIndex;
-		double sigma=1;
-		double epsilon=1;
+		final int nBody = rhopoint + rho0point;
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
 		long numSteps = params.numSteps;
+		
 		if (args.length == 0) {
         	temperature = params.temperature;
             sigmaHSRef = params.sigmaHSRef;
@@ -64,13 +63,14 @@ public class VirialAssociatingFluid {
         } else {
         	throw new IllegalArgumentException("Wrong number of arguments");
         }
+		double sigma=1;
+		double epsilon=1;
 		final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B2HS: "+HSB[2]);
         System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-		temperature = Kelvin.UNIT.toSim(temperature);
 		P2LennardJones p = new P2LennardJones(space, sigma, epsilon);//Lennard-Jones potential
 		P2SoftSphere pR = new P2SoftSphere(space, sigma, 4*epsilon, n);//repulsion potential in LJ
 		MayerGeneralSpherical fR = new MayerGeneralSpherical(space, pR);//repulsion Mayer fR function
@@ -194,8 +194,8 @@ public class VirialAssociatingFluid {
 		public double temperature = 1;//reduced temperature
 		public double sigmaHSRef = 1.5;
 		public long numSteps = 10000;
-		public int rhopoint = 2;
-		public int rho0point = 0;
+		public int rhopoint = 0;
+		public int rho0point = 2;
 		public int diagramIndex = 0;
 		
 	}
