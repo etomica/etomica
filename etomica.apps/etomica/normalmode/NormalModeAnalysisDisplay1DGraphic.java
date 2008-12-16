@@ -45,7 +45,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		this.sim = simulation;
 		
 		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-		resetAction = getController().getSimRestart().getDataResetAction();
 		
 		
 		/*
@@ -75,11 +74,13 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         
         final DisplayTextBoxesCAE heDisplay = new DisplayTextBoxesCAE();
         heDisplay.setAccumulator(heAccumulator);
+   
         
         /*
 		 * Temperature Slider
 		 */
 		temperatureSetter = new DeviceThermoSlider(sim.getController());
+		temperatureSetter.setIsothermalButtonsVisibility(false);
 		temperatureSetter.setPrecision(1);
 		temperatureSetter.setMinimum(0.0);
 		temperatureSetter.setMaximum(10.0);
@@ -91,8 +92,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		temperatureSetter.setSliderPostAction(new IAction() {
             public void actionPerformed() {
             	
-            	sim.nm.setTemperature(sim.integrator.temperature);
-                
                 int m = sim.nm.getOmegaSquared(sim.box).length;
                 double[] omega2 = new double[m];
                 
@@ -127,7 +126,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 sink.putDataInfo(dataInfo);
                 sink.putData(omega2Table);
             	                
-                resetAction.actionPerformed();
+                getController().getSimRestart().getDataResetAction().actionPerformed();
             	
 		    }
 		});
@@ -135,10 +134,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		
 		// end of Temperature Slider
 		
-		
-		
-		
-		
+	
 		
 		
 		/*
@@ -159,7 +155,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
      
         for (int i=0; i<m; i++){
         	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-        	stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+        	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
         }
         
         data = new DataDoubleArray[1];
@@ -186,6 +182,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         nSlider.setPostAction(new IAction() {
         	
        	  	public void actionPerformed() {
+       	  		
        	  		int n = (int)nSlider.getValue();                 
        	  	
                 if (oldN != n) {
@@ -193,6 +190,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 	sim.box.setBoundary(boundary);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
+                	
                 }            
                 
                 oldN = n;
@@ -203,15 +201,37 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                     sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
                     sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
                     sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                    
+                                                    
                     int m = sim.nm.getOmegaSquared(sim.box).length;
                     double[] omega2 = new double[m];
                     
-                    for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                    	stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+                    waveVectorSlider.setMaximum(m);
+                    waveVectorSlider.setIntegrator(sim.integrator);
+                    //Array
+                    if(sim.integrator.getWaveVectorNum() >= m){
+                    	waveVectorSlider.setMaximum(m);
+                    	sim.integrator.setWaveVectorNum(m-1);
                     }
                     
+                    
+                    if (sim.integrator.isOneWV()){
+                    	int wvNumUsed = sim.integrator.getWaveVectorNum();
+                    	for (int i=0; i<m; i++){
+                        	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                        	
+                        	if(i==wvNumUsed){
+                        		stringWV[i] = "<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+                        	} else {
+                        		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+                        	}
+                        }
+                    } else {
+                    
+	                    for (int i=0; i<m; i++){
+	                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+	                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+	                    }
+                    }
                     data[0] = new DataDoubleArray(new int[]{m},omega2);
                     omega2Table = new DataTable(data);
                    
@@ -240,6 +260,9 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                     DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
                     sink.putDataInfo(dataInfo);
                     sink.putData(omega2Table);
+                    
+                    
+                    
                                                         
                 }
                 
@@ -247,7 +270,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                     throw new RuntimeException(e);
                 }   	    
                 
-                resetAction.actionPerformed();
+                getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
        	  	int oldN = sim.box.getMoleculeList().getMoleculeCount();
@@ -255,7 +278,52 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         
         //end of N Slider
         
-
+        
+        /*
+         *  Wave vectors Slider
+         */
+           
+        waveVectorSlider = new DeviceWaveVectorSlider(sim.getController());
+        waveVectorSlider.setMinimum(0);
+        waveVectorSlider.setMaximum(m);
+        waveVectorSlider.setIntegrator(sim.integrator);
+        
+        waveVectorSlider.setSliderPostAction(new IAction() {
+        	
+        	public void actionPerformed() {
+        		
+                int m = sim.nm.getOmegaSquared(sim.box).length;
+                double[] omega2 = new double[m];
+                
+                int wvNumUsed = sim.integrator.getWaveVectorNum();
+                
+                for (int i=0; i<m; i++){
+                	
+                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                	if (i==wvNumUsed){
+                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+                	
+                	}
+                	
+                	stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+                }
+                
+                data[0] = new DataDoubleArray(new int[]{m},omega2);
+                omega2Table = new DataTable(data);
+                
+                DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
+                DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
+                sink.putDataInfo(dataInfo);
+                sink.putData(omega2Table);
+            	                
+                getController().getSimRestart().getDataResetAction().actionPerformed();
+                
+		    }
+		});
+        
+        // end wave vectors slider
+        
+        
         displayAHarmonic = new DisplayTextBox();
         displayAHarmonic.setPrecision(10);
         dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
@@ -263,12 +331,10 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         displayAHarmonic.putData(AHarm);
         displayAHarmonic.setLabel("Harmonic Free Energy");
       
-        add(nSlider);
-        add(temperatureSetter);
-    
-		
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandom(sim, sim.box,sim.getRandom()));
 			
+ 
+        
         
         /*
          * tabbed-pane for wavevectors with corresponding omega2
@@ -286,6 +352,25 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         getPanel().tabbedPane.add("Omega^2", displayTable.graphic());
         
         //
+        
+        
+        getController().getDataStreamPumps().add(hePump);
+        
+        IAction resetAction = new IAction(){
+        	public void actionPerformed(){
+        		heDisplay.putData(heAccumulator.getData());
+        		heDisplay.repaint();
+        		
+        		getDisplayBox(sim.box).graphic().repaint();
+        	}
+        };
+        
+        this.getController().getReinitButton().setPostAction(resetAction);
+        this.getController().getResetAveragesButton().setPostAction(resetAction);
+        
+        add(nSlider);
+        add(temperatureSetter);
+        add(waveVectorSlider);
         add(displayAHarmonic);
         add(ePlot);
         add(heDisplay);
@@ -315,11 +400,11 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	}
 	
 	private DeviceThermoSlider temperatureSetter; 
+	private DeviceWaveVectorSlider waveVectorSlider;
 	private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
 	private static final int REPAINT_INTERVAL = 10;
 	protected NormalModeAnalysisDisplay1D sim;
-	protected final IAction resetAction;
 	protected DataTable omega2Table;
 	protected DataDoubleArray[] data;
 	protected final DisplayTable displayTable;
