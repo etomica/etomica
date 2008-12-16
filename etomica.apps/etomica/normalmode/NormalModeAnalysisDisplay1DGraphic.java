@@ -1,5 +1,8 @@
 package etomica.normalmode;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import etomica.api.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -288,24 +291,25 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         waveVectorSlider.setMaximum(m);
         waveVectorSlider.setIntegrator(sim.integrator);
         
-        waveVectorSlider.setSliderPostAction(new IAction() {
+        final IAction waveVectorAction = new IAction() {
         	
         	public void actionPerformed() {
         		
                 int m = sim.nm.getOmegaSquared(sim.box).length;
                 double[] omega2 = new double[m];
                 
-                int wvNumUsed = sim.integrator.getWaveVectorNum();
+                int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
                 
                 for (int i=0; i<m; i++){
                 	
                 	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
                 	if (i==wvNumUsed){
                 		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+                		
+                	} else {
                 	
+                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
                 	}
-                	
-                	stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
                 }
                 
                 data[0] = new DataDoubleArray(new int[]{m},omega2);
@@ -319,8 +323,17 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 
 		    }
-		});
+		};
+		
+		ActionListener isOneWVListener = new ActionListener(){
+			public void actionPerformed (ActionEvent event){
+				waveVectorAction.actionPerformed();
+				
+			}
+		};
         
+		waveVectorSlider.setSliderPostAction(waveVectorAction);
+		waveVectorSlider.addRadioGroupActionListener(isOneWVListener);
         // end wave vectors slider
         
         
