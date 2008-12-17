@@ -4,6 +4,7 @@ import etomica.api.IAction;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -24,6 +25,7 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySiepmannSpheres;
+import etomica.virial.SpeciesFactorySpheres2;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.VirialAlkaneMix.VirialAlkaneMixParam;
 
@@ -131,10 +133,13 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         //speciesFactory[0] = new SpeciesFactorySiepmannSpheres(space, 1);
         //speciesFactory[1] = new SpeciesFactorySiepmannSpheres(space, 2);
         
-        SpeciesFactorySiepmannSpheres speciesFactoryEthane = new SpeciesFactorySiepmannSpheres(space,2);
+        ElementSimple CH3element = new ElementSimple("CH3",15);
+        ElementSimple CH2element = new ElementSimple("CH2",14);
+        
+        SpeciesFactorySpheres2 speciesFactoryEthane = new SpeciesFactorySpheres2(space, 2, CH3element, CH2element);
         speciesFactoryEthane.setBondL(bondL);
                 
-        SpeciesFactorySiepmannSpheres speciesFactoryMethane = new SpeciesFactorySiepmannSpheres(space,1);
+        SpeciesFactorySpheres2 speciesFactoryMethane = new SpeciesFactorySpheres2(space,1, CH3element, CH2element);
         
         SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
         
@@ -254,12 +259,12 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
      * Inner class for parameters
      */
     public static class VirialAlkaneMixParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 4;
         public int nSpheres1 = 1;   // methane
         public int nSpheres2 = 2;   // ethane 
-        public double temperature = 300;   // Kelvin
+        public double temperature = 260;   // Kelvin
         public long numSteps = 10000;
-        public int nMethane = 2;
+        public int nMethane = 4;
         public int nEthane = 0;
     }
 
