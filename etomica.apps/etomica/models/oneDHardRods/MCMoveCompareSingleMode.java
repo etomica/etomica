@@ -13,8 +13,8 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
- * A Monte Carlo move which converts one normal mode to a harmonic normal mode
- *  and then explores the phase space defined by the remaining normal modes.
+ * A Monte Carlo move which compares one hard rod normal mode to a harmonic 
+ * normal mode and explores the phase space defined by the remaining normal modes.
  * 
  * @author cribbin
  *
@@ -130,7 +130,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         if(comparedWV != 1) {
             //Select the wave vector whose eigenvectors will be changed.
             //The zero wavevector is center of mass motion, and is rejected as a 
-            //possibility, as is the converted wavevector and any wavevector
+            //possibility, as is the compared wavevector and any wavevector
             //number higher than it.
             int changedWV = random.nextInt(comparedWV-1);
             changedWV += 1;
@@ -323,12 +323,12 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     public double[] getGaussian(){
         return gaussian;
     }
-    public void setConvertedWaveVector(int wv){
+    public void setComparedWaveVector(int wv){
         if(wv == 1) {System.out.println("System is now entirely Gaussian!");};
         comparedWV = wv;
         wvc = waveVectorCoefficients[wv];
     }
-    public int getConvertedWaveVector(){
+    public int getComparedWaveVector(){
         return comparedWV;
     }
     public double[] getLastGaussian(){

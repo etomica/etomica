@@ -113,7 +113,7 @@ public class TestB extends Simulation {
         convert.setBox(box);
         convert.setStepSizeMin(0.001);
         convert.setStepSize(0.01);
-        convert.setConvertedWaveVector(affectedWV);
+        convert.setComparedWaveVector(affectedWV);
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();

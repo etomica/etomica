@@ -567,7 +567,7 @@ public class SimOverlapAB extends Simulation {
     
     
     public void setAffectedWaveVector(int awv){
-        convertMove.setConvertedWaveVector(awv);
+        convertMove.setComparedWaveVector(awv);
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);
     }
