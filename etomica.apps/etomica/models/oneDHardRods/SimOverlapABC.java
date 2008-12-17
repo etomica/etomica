@@ -62,7 +62,7 @@ public class SimOverlapABC extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeMode changeMove;
-    MCMoveCompareSingleMode convertMove;
+    MCMoveCompareSingleMode compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareSingleModeBrute meterBinA, meterBinB;
     MeterCompareTest meterTestBinA, meterTestBinB;
@@ -213,19 +213,19 @@ public class SimOverlapABC extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        convertMove = new MCMoveCompareSingleMode(potentialMasterRef, 
+        compareMove = new MCMoveCompareSingleMode(potentialMasterRef, 
                 random);
-        integratorRef.getMoveManager().addMCMove(convertMove);
-        convertMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-        convertMove.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-        convertMove.setOmegaSquared(nm.getOmegaSquared(boxRef), 
+        integratorRef.getMoveManager().addMCMove(compareMove);
+        compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
+        compareMove.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
+        compareMove.setOmegaSquared(nm.getOmegaSquared(boxRef), 
                 waveVectorFactoryRef.getCoefficients());
-        convertMove.setEigenVectors(nm.getEigenvectors(boxRef));
-        convertMove.setCoordinateDefinition(coordinateDefinitionRef);
-        convertMove.setTemperature(temperature);
-        convertMove.setBox((IBox)boxRef);
-        convertMove.setStepSizeMin(0.001);
-        convertMove.setStepSize(0.01);
+        compareMove.setEigenVectors(nm.getEigenvectors(boxRef));
+        compareMove.setCoordinateDefinition(coordinateDefinitionRef);
+        compareMove.setTemperature(temperature);
+        compareMove.setBox((IBox)boxRef);
+        compareMove.setStepSizeMin(0.001);
+        compareMove.setStepSize(0.01);
         
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);
@@ -571,7 +571,7 @@ public class SimOverlapABC extends Simulation {
     
     
     public void setAffectedWaveVector(int awv){
-        convertMove.setComparedWaveVector(awv);
+        compareMove.setComparedWaveVector(awv);
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);
     }

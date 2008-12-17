@@ -333,6 +333,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
             
             // equilibrate off the lattice to avoid anomolous contributions
             activityIntegrate.setMaxSteps(initSteps/2);
+            
+            System.out.println("initBennetParam activityIntegrate" + initSteps/2 + " steps set");
             getController().actionPerformed();
             getController().reset();
 
@@ -340,6 +342,10 @@ public class SimOverlapSingleWaveVector extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(initSteps);
+            
+
+            System.out.println("initBennetParam activityIntegrate" + initSteps + " steps set");
+
             getController().actionPerformed();
             getController().reset();
 
@@ -367,6 +373,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
         accumulators[iBox].setBlockSize(blockSize);
+        System.out.println("setAccumlator set to " + blockSize + " blocksize");
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -387,6 +394,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
+            System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
         }
         try {
             // reset the integrator so that it will re-adjust step frequency
@@ -399,6 +407,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
+
+        System.out.println("equilibrate activityIntegrate setsMaxSteps" + initSteps + " steps");
         
         integratorSim.getMoveManager().setEquilibrating(true);
         
@@ -493,7 +503,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         System.out.println("Running Nancy's 1DHR simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
-        System.out.println("temperature: ");
+        System.out.println("temperature: " + temperature);
         System.out.println("compared wave vector: " + comparedWV);
         System.out.println("Total steps: "+numSteps+" , split into blocks of "+blockSize);
         System.out.println(subBlockSize+" steps in subintegrator, per step in  main integrator");
