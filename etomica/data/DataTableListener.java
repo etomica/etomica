@@ -12,18 +12,17 @@ package etomica.data;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Apr 9, 2005 by kofke
- */
 public interface DataTableListener extends DataSetListener {
+
+    /**
+     * Method called to indicate that the row headers in the table have
+     * changed.  Method is called after the change takes place.
+     */
+    public void tableRowHeadersChanged(DataSinkTable table);
 
     /**
      * Method called to indicate that the number of rows in the
      * table has changed.  Method is called after the change takes place.
-     * @param oldCount the old number of rows
-     * @param newCount the new number of rows
      */
     public void tableRowCountChanged(DataSinkTable table);
 }

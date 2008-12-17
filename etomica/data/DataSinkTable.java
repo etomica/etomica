@@ -42,6 +42,11 @@ public class DataSinkTable extends DataSet {
         super.dataInfoChanged(dataSetSink);
         if (dataSetSink.index != -1) {
             updateRowCount();
+            for (int i = 0; i < listeners.length; i++) {
+                if (listeners[i] instanceof DataTableListener) {
+                    ((DataTableListener)listeners[i]).tableRowHeadersChanged(this);
+                }
+            }
         }
     }
 

@@ -94,6 +94,12 @@ public class DisplayTable extends Display implements DataTableListener {
         tableSource.fireTableStructureChanged();
     }
 
+    public void tableRowHeadersChanged(DataSinkTable dummyTable) {
+        for (int i=0; i<rowLabels.length; i++) {
+            rowLabels[i] = dataTable.getRowHeader(i);
+        }
+    }
+
     /**
      * Part of the DataTableListener interface.  Updates the row headers.
      */
