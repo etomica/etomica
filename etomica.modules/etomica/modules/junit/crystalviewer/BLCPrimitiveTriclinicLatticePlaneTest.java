@@ -81,12 +81,10 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
                 if(a.getPosition().x(2) >= spacePos-epsilon &&
                    a.getPosition().x(2) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -151,11 +149,11 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
                 if(a.getPosition().x(2) >= spacePos-epsilon &&
                    a.getPosition().x(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    		(a.getPosition())));
                 }
                 else {
             	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    		(a.getPosition())));
                 }
 		    }
 		}
@@ -195,7 +193,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double plane = 3.0;
     	double alpha = Math.PI * 2.0 * (100.0 / 360.0);
     	double beta = Math.PI * 2.0 * (110.0 / 360.0);
-    	double gamma = Math.PI * 2.0 * (120.0 / 360.0);
+    	double gamma = Math.PI * 2.0 * (80.0 / 360.0);
     	IAtomList leafList = null;
 
         lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
@@ -221,12 +219,10 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
                 if(a.getPosition().x(2) >= spacePos-epsilon &&
                    a.getPosition().x(2) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -269,37 +265,37 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	int itemsFound = 0;
     	double alpha = Math.PI * 2.0 * (100.0 / 360.0);
     	double beta = Math.PI * 2.0 * (100.0 / 360.0);
-    	double gamma = Math.PI * 2.0 * (100.0 / 360.0);
+    	double gamma = Math.PI * 2.0 * (80.0 / 360.0);
     	int[] millerIndices = new int[] { 2, 0, 2 };
         double actualPlane[][] =
-           { { -0.052094453300079335, -4.3523966852137566, 3.754992688589829 },
-             { -0.2604722665003958, -3.1706273815991066, 3.754992688589829 },
-             { -0.46885007970071224, -1.9888580779844571, 3.754992688589829 },
-             { -0.6772278929010282, -0.8070887743698072, 3.754992688589829 },
-             { -0.8856057061013447, 0.37468052924484274, 3.754992688589829 },
-             { -1.0939835193016612, 1.5564498328594918, 3.754992688589829 },
-             { -1.3023613325019776, 2.7382191364741417, 3.754992688589829 },
-             { 1.2736481776669302, -4.083367093757154, 2.5033284590598863 },
-             { 1.0652703644666137, -2.901597790142504, 2.5033284590598863 },
-             { 0.8568925512662973, -1.7198284865278544, 2.5033284590598863 },
-             { 0.6485147380659808, -0.5380591829132046, 2.5033284590598863 },
-             { 0.4401369248656648, 0.6437101207014453, 2.5033284590598863 },
-             { 0.23175911166534835, 1.8254794243160943, 2.5033284590598863 },
-             { 0.023381298465031897, 3.0072487279307443, 2.5033284590598863 },
-             { 2.599390808633939, -3.8143375023005515, 1.251664229529943 },
-             { 2.3910129954336226, -2.6325681986859015, 1.251664229529943 },
-             { 2.182635182233306, -1.450798895071252, 1.251664229529943 },
-             { 1.9742573690329897, -0.26902959145660255, 1.251664229529943 },
-             { 1.7658795558326732, 0.9127397121580478, 1.251664229529943 },
-             { 1.5575017426323567, 2.094509015772697, 1.251664229529943 },
-             { 1.3491239294320403, 3.2762783193873477, 1.251664229529943 },
-             { 3.925133439600949, -3.545307910843949, 0.0 },
-             { 3.7167556264006327, -2.3635386072292994, 0.0 },
-             { 3.5083778132003163, -1.1817693036146495, 0.0 },
-             { 3.3, 0.0, 0.0 },
-             { 3.0916221867996834, 1.18176930361465, 0.0 },
-             { 2.883244373599368, 2.3635386072292985, 0.0 },
-             { 2.6748665603990514, 3.5453079108439502, 0.0 } };
+           { { -1.302361332501978, -4.1135695860001675, 3.798478780989239 },
+                { -1.0939835193016618, -2.9318002823855185, 3.798478780989239 },
+                { -0.8856057061013454, -1.750030978770869, 3.798478780989239 },
+                { -0.6772278929010289, -0.56826167515622, 3.798478780989239 },
+                { -0.4688500797007116, 0.61350762845843, 3.798478780989239 },
+                { -0.2604722665003951, 1.7952769320730786, 3.798478780989239 },
+                { -0.05209445330007867, 2.9770462356877285, 3.798478780989239 },
+                { 0.023381298465031453, -3.924149027614761, 2.53231918732616 },
+                { 0.2317591116653479, -2.742379724000112, 2.53231918732616 },
+                { 0.44013692486566436, -1.5606104203854627, 2.53231918732616 },
+                { 0.6485147380659808, -0.37884111677081345, 2.53231918732616 },
+                { 0.8568925512662968, 0.802928186843836, 2.53231918732616 },
+                { 1.0652703644666133, 1.984697490458485, 2.53231918732616 },
+                { 1.2736481776669297, 3.166466794073135, 2.53231918732616 },
+                { 1.3491239294320403, -3.734728469229355, 1.2661595936630796 },
+                { 1.5575017426323567, -2.5529591656147055, 1.2661595936630796 },
+                { 1.7658795558326732, -1.3711898620000562, 1.2661595936630796 },
+                { 1.9742573690329897, -0.18942055838540695, 1.2661595936630796 },
+                { 2.182635182233306, 0.9923487452292425, 1.2661595936630796 },
+                { 2.3910129954336226, 2.1741180488438907, 1.2661595936630796 },
+                { 2.599390808633939, 3.3558873524585415, 1.2661595936630796 },
+                { 2.6748665603990505, -3.5453079108439485, 0.0 },
+                { 2.883244373599367, -2.363538607229299, 0.0 },
+                { 3.0916221867996834, -1.1817693036146497, 0.0 },
+                { 3.3, -4.440892098500626E-16, 0.0 },
+                { 3.5083778132003163, 1.1817693036146482, 0.0 },
+                { 3.7167556264006327, 2.363538607229297, 0.0 },
+                { 3.925133439600949, 3.545307910843947, 0.0 } };
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
@@ -319,19 +315,16 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
     	leafList = lptu.getBox().getLeafList();
 
-
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -399,8 +392,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
@@ -491,12 +483,10 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
@@ -563,8 +553,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(etomica.space3d.Vector3D)(a.getPosition())));
+            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
