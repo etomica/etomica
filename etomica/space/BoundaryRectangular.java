@@ -3,7 +3,6 @@ package etomica.space;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -119,8 +118,8 @@ public abstract class BoundaryRectangular extends Boundary {
         return shape.getVolume();
     }
 
-    public IVector[] getEdgeVectors() {
-        return edgeVectors;
+    public IVector getEdgeVector(int d) {
+        return edgeVectors[d];
     }
 
     /**

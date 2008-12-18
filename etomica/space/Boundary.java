@@ -65,34 +65,10 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     }
 
     /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#centralImage(etomica.api.IVector)
-	 */
-    public abstract IVector centralImage(IVector r);
-
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#nearestImage(etomica.api.IVector)
-	 */
-    public abstract void nearestImage(IVector dr);
-
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#getDimensions()
-	 */
-    public abstract IVector getDimensions();
-
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#setDimensions(etomica.api.IVector)
-	 */
-    public abstract void setDimensions(IVector v);
-
-    /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#randomPosition()
 	 */
     public abstract IVector randomPosition();
 
-    /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#getPeriodicVectors()
-	 */
-    public abstract IVector[] getEdgeVectors();
     /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getIndexIterator()
 	 */

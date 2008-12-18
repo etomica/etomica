@@ -412,8 +412,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
     }
 
-    public IVector[] getEdgeVectors() {
-        return edgeVectors;
+    public IVector getEdgeVector(int d) {
+        return edgeVectors[d];
     }
     
     public boolean getPeriodicity(int i) {

@@ -76,10 +76,11 @@ public interface IBoundary {
     public void setDimensions(IVector v);
 
     /**
-     * Returns an array vectors that define three edges of this boundary, all
-     * of which originate from one corner.
+     * Returns the vector that defines the edge of this boundary for the given
+     * dimension.  All vectors returned by this method can be considered to
+     * originate from one corner.
      */
-    public IVector[] getEdgeVectors();
+    public IVector getEdgeVector(int d);
     
     /**
      * @return a point selected uniformly within the volume enclosed by the

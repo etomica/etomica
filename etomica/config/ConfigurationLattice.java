@@ -100,9 +100,9 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         // determine scaled shape of simulation volume
         IVector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
-        IVector[] periodicVectors = boundary.getEdgeVectors();
-        for (int i=0; i<periodicVectors.length; i++) {
-            dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
+        for (int i=0; i<space.D(); i++) {
+            IVector edgeVector = boundary.getEdgeVector(i);
+            dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
 
         IVector shape = space.makeVector();

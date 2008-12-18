@@ -163,9 +163,9 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         	
         
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
-        	
-        	IVector[] cell = boundary.getEdgeVectors();
-        	for (int i=0; i<cell.length; i++){
+
+        	for (int i=0; i<3; i++){
+                IVector cell = boundary.getEdgeVector(i);
         		for (int j=0; j<3; j++){
         			/*
         			 * 1. times the elements in each vector by 500
@@ -174,7 +174,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         			 * 2. dl_multi does not run ewald sum with non-periodic boundary condition
         			 * 
         			 */
-        			formatter.format("%20f",new Object[]{cell[i].x(j)*500});
+        			formatter.format("%20f",new Object[]{cell.x(j)*500});
         		}
         		formatter.format("\n");
         	}

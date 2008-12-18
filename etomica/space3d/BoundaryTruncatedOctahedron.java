@@ -60,8 +60,8 @@ public class BoundaryTruncatedOctahedron extends Boundary {
 
     public IndexIteratorSizable getIndexIterator(){
         if (vecs == null) {
-            //initialize edge vectors
-            getEdgeVectors();
+            //initialize periodic vectors
+            getEdgeVector(0);
         }
         return new IndexIteratorRectangularFiltered(vecs.length,vecs);
     }
@@ -168,22 +168,21 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         updateDimensions();
     }
     
-    public IVector[] getEdgeVectors() {
-      //throw new RuntimeException("Not yet.  Gimme a break!");
-      double x = dimensions.x(0)*.5;
-      if(vecs == null || vecs[0].x(0) == 0) {
-        vecs = new IVector[] {
-            space.makeVector(new double[]{-x,x,x}),
-            space.makeVector(new double[]{x,-x,x}),
-            space.makeVector(new double[]{x,x,-x}) };
-      }
-      else if(vecs[1].x(0) != x) {
-        double ratio = x/vecs[1].x(0);
-        vecs[0].TE(ratio);
-        vecs[1].TE(ratio);
-        vecs[2].TE(ratio);
-      }
-      return vecs;
+    public IVector getEdgeVector(int d) {
+        double x = dimensions.x(0)*.5;
+        if(vecs == null || vecs[0].x(0) == 0) {
+          vecs = new IVector[] {
+              space.makeVector(new double[]{-x,x,x}),
+              space.makeVector(new double[]{x,-x,x}),
+              space.makeVector(new double[]{x,x,-x}) };
+        }
+        else if(vecs[1].x(0) != x) {
+          double ratio = x/vecs[1].x(0);
+          vecs[0].TE(ratio);
+          vecs[1].TE(ratio);
+          vecs[2].TE(ratio);
+        }
+        return vecs[d];
     }
 
     public double[][] imageOrigins(int nShells) {
