@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.math.geometry.Cuboid;
@@ -19,15 +18,15 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation. 
      */
-    public BoundaryRectangular(IRandom _random, ISpace _space) {
-        this(_space, _random, 10.0);
+    public BoundaryRectangular(ISpace _space) {
+        this(_space, 10.0);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(ISpace space, IRandom random, double boxSize) {
-        this(space, random, makeArray(space.D(), boxSize));
+    public BoundaryRectangular(ISpace space, double boxSize) {
+        this(space, makeArray(space.D(), boxSize));
     }
     
     private static final double[] makeArray(int n, double d) {
@@ -42,13 +41,11 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(ISpace space, IRandom random, double[] boxSize) {
+    public BoundaryRectangular(ISpace space, double[] boxSize) {
         super(space, makeShape(space));
-        this.random = random;
         dimensions = space.makeVector();
         dimensions.E(boxSize);
         
-        temp = (IVectorRandom)space.makeVector();
         dimensionsCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
         edgeVectors = new IVector[space.D()];
@@ -77,17 +74,6 @@ public abstract class BoundaryRectangular extends Boundary {
         return dimensionsCopy;
     }
     
-    /**
-     * Returns a vector that describes a point selected uniformly within
-     * the boundary.  The same Vector instance is returned with each call, with
-     * a new random point each time.
-     */
-    public IVector randomPosition() {
-        temp.setRandomCube(random);
-        temp.TE(dimensions);
-        return temp;
-    }
-
     protected void updateDimensions() {
         dimensionsCopy.E(dimensions);
         ((Rectangular)shape).setEdgeLengths(dimensions);
@@ -149,11 +135,9 @@ public abstract class BoundaryRectangular extends Boundary {
     }
     
     private static final long serialVersionUID = 1L;
-    private final IVectorRandom temp;
     protected final IVector dimensions;
     protected final IVector dimensionsCopy;
     private final IndexIteratorRectangular indexIterator;
     protected final float[][] shift0 = new float[0][0];
-    protected final IRandom random;
     protected final IVector[] edgeVectors;
 }

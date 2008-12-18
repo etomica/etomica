@@ -9,6 +9,7 @@ import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -183,7 +184,9 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         Space space = Space3D.getInstance();
         P4BondTorsion potential = new P4BondTorsion(space, 0, 10, 20, 30);
         IRandom random = new RandomNumberGenerator();
-        Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
+        positionSource.setBox(box);
         potential.setBox(box);
         AtomLeaf atom0 = new AtomLeaf(space);
         AtomLeaf atom1 = new AtomLeaf(space);
@@ -198,10 +201,10 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         IVector gradient = space.makeVector();
         IVectorRandom dr = (IVectorRandom)space.makeVector();
         for (int i=0; i<n; i++) {
-            atom0.getPosition().E(box.getBoundary().randomPosition());
-            atom1.getPosition().E(box.getBoundary().randomPosition());
-            atom2.getPosition().E(box.getBoundary().randomPosition());
-            atom3.getPosition().E(box.getBoundary().randomPosition());
+            atom0.getPosition().E(positionSource.randomPosition());
+            atom1.getPosition().E(positionSource.randomPosition());
+            atom2.getPosition().E(positionSource.randomPosition());
+            atom3.getPosition().E(positionSource.randomPosition());
             
             double U = potential.energy(atoms);
 

@@ -43,7 +43,7 @@ public class LjMd2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);

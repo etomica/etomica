@@ -77,7 +77,7 @@ public class Sim1DHR extends Simulation {
         
         //TARGET - 1DHR system
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
-        boxTarget = new Box(this, space);
+        boxTarget = new Box(space);
         boxTarget.setNMolecules(species, numAtoms);
         
         IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
@@ -92,8 +92,7 @@ public class Sim1DHR extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(),
-                numAtoms/density);
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
         integratorTarget.setNullPotential(new P1HardPeriodic(space), species.getLeafType());
         nCells = new int[]{numAtoms};
         boxTarget.setBoundary(boundaryTarget);
@@ -111,8 +110,7 @@ public class Sim1DHR extends Simulation {
         
         
         //ORIGINAL
-        boundaryOriginal = new BoundaryRectangularPeriodic(space, getRandom(), 
-                numAtoms/density);
+        boundaryOriginal = new BoundaryRectangularPeriodic(space, numAtoms/density);
         boxOriginal = new Box(boundaryOriginal, space);
         addBox(boxOriginal);
         boxOriginal.setNMolecules(species,numAtoms);

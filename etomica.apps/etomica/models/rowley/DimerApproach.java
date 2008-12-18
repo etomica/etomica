@@ -82,7 +82,7 @@ public class DimerApproach extends Simulation {
 	
 		super(Space3D.getInstance());
 		
-		box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+		box = new Box(new BoundaryRectangularNonperiodic(space), space);
 		addBox(box);
 		
 		// *************************

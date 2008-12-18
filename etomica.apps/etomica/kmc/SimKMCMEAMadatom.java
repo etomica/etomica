@@ -71,7 +71,7 @@ public class SimKMCMEAMadatom extends Simulation{
         potentialMasterD = new PotentialMasterListDimer(this, space);
         
       //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
+        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
         addBox(box);
      
       //SPECIES

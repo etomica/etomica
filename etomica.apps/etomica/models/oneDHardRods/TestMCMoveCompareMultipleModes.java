@@ -61,7 +61,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         
@@ -72,8 +72,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundary = new BoundaryRectangularPeriodic(space, getRandom(),
-                numAtoms/density);
+        boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
         nCells = new int[]{numAtoms};
         box.setBoundary(boundary);
         

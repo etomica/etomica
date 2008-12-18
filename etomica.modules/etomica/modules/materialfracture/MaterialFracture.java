@@ -15,7 +15,6 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -35,8 +34,8 @@ public class MaterialFracture extends Simulation {
     public MaterialFracture() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
-        box = new Box(this, space);
-        box.setBoundary(new BoundaryRectangularSlit(this, 0, space));
+        box = new Box(space);
+        box.setBoundary(new BoundaryRectangularSlit(0, space));
         box.getBoundary().setDimensions(space.makeVector(new double[]{90,30}));
         addBox(box);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);

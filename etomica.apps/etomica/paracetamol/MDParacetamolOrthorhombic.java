@@ -121,7 +121,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this, space);
@@ -374,7 +374,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialOO)).setIntraMolecularCriterion(new CriterionNone());
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
         
-        bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
+        bdry =  new BoundaryRectangularPeriodic(space, 1); //unit cell
         bdry.setDimensions(space.makeVector(new double []{2*17.248, 2*12.086, 4*7.382}));
         box.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(box);

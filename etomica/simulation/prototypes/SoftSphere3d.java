@@ -60,7 +60,7 @@ public class SoftSphere3d extends Simulation {
         //species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         //getSpeciesManager().addSpecies(species2);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);

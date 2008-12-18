@@ -42,7 +42,7 @@ public class Multiharmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();

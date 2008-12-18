@@ -151,7 +151,7 @@ outer:              for (int i=0; i<3; i++){
         int [] nCells = new int []{2,3,4};
         Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim, sp);
+        IBox box = new Box(sp);
         sim.addBox(box);
         box.getBoundary().setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);

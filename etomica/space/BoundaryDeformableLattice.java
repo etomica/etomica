@@ -1,7 +1,6 @@
 
 package etomica.space;
 
-import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 
@@ -16,8 +15,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * number of cells for each dimension.  Changes to the primitive after
      * creating this instance will not affect the boundary.
      */
-    public BoundaryDeformableLattice(Primitive primitive, IRandom random, int[] nCells){
-        super(primitive.getSpace(), random, makeDimensionVectors(primitive, nCells));
+    public BoundaryDeformableLattice(Primitive primitive, int[] nCells){
+        super(primitive.getSpace(), makeDimensionVectors(primitive, nCells));
     }
 
     /**
@@ -25,8 +24,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * number of cells for each dimension.  Changes to the primitive after
      * creating this instance will not affect the boundary.
      */
-    public BoundaryDeformableLattice(Primitive primitive, IRandom random, double[] nCells){
-        super(primitive.getSpace(), random, makeDimensionVectors(primitive, nCells));
+    public BoundaryDeformableLattice(Primitive primitive, double[] nCells){
+        super(primitive.getSpace(), makeDimensionVectors(primitive, nCells));
     }
 
     /**

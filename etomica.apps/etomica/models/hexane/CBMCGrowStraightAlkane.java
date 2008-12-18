@@ -7,6 +7,8 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.integrator.IntegratorMC;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -58,6 +60,23 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         tempCloser = _space.makeVector();
         tempFarther = _space.makeVector();
 
+        positionSource = new RandomPositionSourceRectangular(_space, random);
+    }
+
+    public void setBox(IBox newBox) {
+        super.setBox(newBox);
+        positionSource.setBox(box);
+    }
+
+    public void setPositionSource(RandomPositionSource newPositionSource) {
+        positionSource = newPositionSource;
+        if (box != null) {
+            positionSource.setBox(box);
+        }
+    }
+    
+    public RandomPositionSource getPositionSource() {
+        return positionSource;
     }
 
     /**
@@ -95,8 +114,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 // trials
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(box
-                            .getBoundary().randomPosition());
+                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(
+                            positionSource.randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
                     ((IAtomPositioned) atomList.getAtom(i)).getPosition().E(
@@ -190,8 +209,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(box
-                            .getBoundary().randomPosition());
+                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(
+                            positionSource.randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
                     ((IAtomPositioned) atomList.getAtom(i)).getPosition().E(
@@ -395,5 +414,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     IVector tempCloser;
 
     IVector tempFarther;
+    
+    protected RandomPositionSource positionSource;
 
 }

@@ -73,7 +73,6 @@ public class CrystalViewer extends SimulationPanel {
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
         
         box  = new Box(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
-        		                                         (etomica.api.IRandom)null,
         		                                         boxSize), space);
         sim.addBox(box);
 

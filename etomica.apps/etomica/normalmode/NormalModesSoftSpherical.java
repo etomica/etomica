@@ -42,7 +42,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         setPotential(potential);
         
         int nSites = nCells[0]*nCells[1]*nCells[2];
-        Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
+        Boundary boundary = new BoundaryDeformableLattice(primitive, nCells);
         
         IBox box = new Box(boundary, space);
 

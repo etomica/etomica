@@ -121,7 +121,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this, space);
@@ -375,7 +375,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
         
         
-        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int []{2, 3, 4});
+        bdry =  new BoundaryDeformableLattice(primitive, new int []{2, 3, 4});
         // bdry.setDimensions(Space.makeVector(new double []{3*12.119, 4*8.944, 4*7.278}));
         box.setBoundary(bdry);
         configMonoLattice.initializeCoordinates(box);

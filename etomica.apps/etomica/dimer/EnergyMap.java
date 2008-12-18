@@ -89,7 +89,7 @@ public class EnergyMap extends Simulation{
         ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(2.5561);
          */
         
-        box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
+        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
         addBox(box);
             	
 		// Sn

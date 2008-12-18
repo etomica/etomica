@@ -149,7 +149,7 @@ outer:              for (int i=0; i<2; i++){
         int [] nCells = new int []{2,2};
         Space sp = Space2D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim, sp);
+        IBox box = new Box(sp);
         sim.addBox(box);
         Primitive primitive = new PrimitiveOrthorhombicHexagonal(sim.getSpace(), 1);
         box.getBoundary().setDimensions(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));

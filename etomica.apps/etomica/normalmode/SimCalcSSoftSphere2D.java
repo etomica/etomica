@@ -45,7 +45,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -65,7 +65,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         for(int i=0; i<space.D(); i++){
         	dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);	
         }
-        boundary = new BoundaryDeformablePeriodic(space, random, dimension);
+        boundary = new BoundaryDeformablePeriodic(space, dimension);
         basis = new BasisOrthorhombicHexagonal();
         
         Potential2SoftSpherical potential = new P2SoftSphere(space);

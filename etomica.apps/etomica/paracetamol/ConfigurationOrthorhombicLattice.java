@@ -280,7 +280,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim, sp);
+        IBox box = new Box(sp);
         sim.addBox(box);
         SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);

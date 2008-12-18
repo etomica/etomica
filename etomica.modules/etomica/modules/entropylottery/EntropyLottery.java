@@ -38,7 +38,7 @@ public class EntropyLottery extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //construct box
-	    box = new Box(new BoundaryRectangularNonperiodic(space, getRandom()), space);
+	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.setNMolecules(species, N);
         IVector dimensions = space.makeVector();

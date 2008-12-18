@@ -263,7 +263,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
         IPotentialMaster potentialMaster = new PotentialMaster();
-        IBox box = new Box(sim, sp);
+        IBox box = new Box(sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);

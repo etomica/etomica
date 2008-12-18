@@ -1,7 +1,5 @@
 package etomica.space;
 
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -18,9 +16,9 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularPore(ISimulation sim, Space space) {
+    public BoundaryRectangularPore(Space space) {
         //consumer can set appropriate slit dim later
-        this(sim,space,0);
+        this(space,0);
     }
     
     /**
@@ -32,8 +30,8 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularPore(ISimulation sim, Space space, int poreDim) {
-        this(space, sim.getRandom(), poreDim, 10.0);
+    public BoundaryRectangularPore(Space space, int poreDim) {
+        this(space, poreDim, 10.0);
     }
     
     /**
@@ -42,8 +40,8 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * @param space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularPore(Space space, IRandom random, int slitDim, double boxSize) {
-        super(space,random,boxSize);
+    public BoundaryRectangularPore(Space space, int slitDim, double boxSize) {
+        super(space,boxSize);
         pDim = slitDim;
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();

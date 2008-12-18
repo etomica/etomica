@@ -682,10 +682,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         boolean periodic = true;
         Box box;
         if (periodic) {
-            box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), 10), space);
+            box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         }
         else {
-            box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace(), sim.getRandom()), space);
+            box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         }
         sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);

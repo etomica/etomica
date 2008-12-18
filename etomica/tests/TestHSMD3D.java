@@ -60,7 +60,7 @@ public class TestHSMD3D extends Simulation {
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomTypeLeaf[]{type2, type2});
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms/100);

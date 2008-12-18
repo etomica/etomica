@@ -216,7 +216,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         nAImpurity = 0; nAVacancy = 0;
         nBImpurity = 0; nBVacancy = 0;
         
-        box = new Box(new BoundaryRectangularSlit(this, 2, space), space);
+        box = new Box(new BoundaryRectangularSlit(2, space), space);
         addBox(box);
         
         // beta-Sn box

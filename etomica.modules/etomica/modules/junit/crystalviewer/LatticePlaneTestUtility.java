@@ -3,8 +3,7 @@ package etomica.modules.junit.crystalviewer;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
-
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -15,12 +14,11 @@ import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeHcp;
 import etomica.lattice.LatticePlane;
 import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
+import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -114,16 +112,14 @@ public class LatticePlaneTestUtility {
     	}
 	    box = new Box(
 	    		new etomica.space.BoundaryDeformableLattice(
-	                  lattice.getPrimitive(),
-	              	  (etomica.api.IRandom)null, boxSize), space);
+	                  lattice.getPrimitive(), boxSize), space);
 	    sim.addBox(box);
 
 	}
 
 	public void setDimensions(int size) {
         box.setBoundary(new etomica.space.BoundaryDeformableLattice(
-                      lattice.getPrimitive(),
-                      (etomica.api.IRandom)null, new int[]{size,size,size}));
+                      lattice.getPrimitive(), new int[]{size,size,size}));
         
         // Set the number of atoms
         int numAtoms = size*size*size;

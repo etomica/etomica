@@ -51,7 +51,7 @@ public class LjMd3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);

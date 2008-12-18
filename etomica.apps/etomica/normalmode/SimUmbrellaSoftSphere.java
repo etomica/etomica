@@ -75,7 +75,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         getSpeciesManager().addSpecies(species);
 
         //Target        
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -86,7 +86,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         primitive = new PrimitiveCubic(space, L);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, getRandom(), n*L);
+        boundary = new BoundaryRectangularPeriodic(space, n*L);
         basis = new BasisCubicFcc();
         
         box.setBoundary(boundary);

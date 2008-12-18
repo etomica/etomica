@@ -58,7 +58,7 @@ public class MoleculeIteratorAllMolecules extends MoleculeIteratorArrayListSimpl
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);
-        IBox box = new Box(sim, space);
+        IBox box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(species0, 3);
         box.setNMolecules(species1, 2);

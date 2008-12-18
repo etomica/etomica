@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -17,8 +16,8 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Make a boundary with unit volume.
      */
-    public BoundaryRectangularNonperiodic(ISpace space, IRandom random) {
-        super(space, random, 1.0);//boolean elements will all be false
+    public BoundaryRectangularNonperiodic(ISpace space) {
+        super(space, 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }
 

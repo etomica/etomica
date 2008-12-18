@@ -4,7 +4,10 @@ import etomica.EtomicaInfo;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IRandom;
 import etomica.api.ISpecies;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
@@ -29,11 +32,12 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertion extends DataSourceScalar {
 
-    public MeterWidomInsertion(ISpace space) {
+    public MeterWidomInsertion(ISpace space, IRandom random) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         setResidual(true);
-        atomTranslator = new MoleculeActionTranslateTo(space); 
+        atomTranslator = new MoleculeActionTranslateTo(space);
+        positionSource = new RandomPositionSourceRectangular(space, random);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -104,7 +108,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
-            atomTranslator.setDestination(box.getBoundary().randomPosition());
+            atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-u / integrator.getTemperature());
@@ -135,6 +139,25 @@ public class MeterWidomInsertion extends DataSourceScalar {
         integrator = newIntegrator;
         energyMeter = new MeterPotentialEnergy(integrator.getPotential());
         energyMeter.setBox(integrator.getBox());
+        positionSource.setBox(integrator.getBox());
+    }
+    
+    /**
+     * Sets a new RandomPositionSource for this meter to use.  By default, a
+     * position source is used which assumes rectangular boundaries.
+     */
+    public void setPositionSource(RandomPositionSource newPositionSource) {
+        positionSource = newPositionSource;
+        if (integrator != null) {
+            positionSource.setBox(integrator.getBox());
+        }
+    }
+    
+    /**
+     * Returns the RandomPositionSource used by this meter.
+     */
+    public RandomPositionSource getPositionSource() {
+        return positionSource;
     }
 
     private static final long serialVersionUID = 1L;
@@ -150,6 +173,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private boolean residual; // flag to specify if total or residual chemical
                               // potential evaluated. Default true
     private MoleculeActionTranslateTo atomTranslator;
-
+    protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeter;
 }

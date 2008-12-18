@@ -67,7 +67,7 @@ public class Swmd extends Simulation {
         potentialMaster.addPotential(potentialWrapper,new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
-	    box = new Box(this, space);
+	    box = new Box(space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);

@@ -74,7 +74,7 @@ public class SimHarmonicHexane extends Simulation {
         lattice = new BravaisLattice(primitive);
 
         int[] nCells = new int[]{xCells, yCells, zCells};
-        bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
+        bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);

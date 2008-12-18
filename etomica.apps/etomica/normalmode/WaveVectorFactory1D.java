@@ -65,7 +65,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         int nCells = 6;
         Space sp = Space1D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim, sim.getSpace());
+        IBox box = new Box(sim.getSpace());
         sim.addBox(box);
         box.getBoundary().setDimensions(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);

@@ -12,6 +12,8 @@ import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -40,6 +42,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected final MoleculeActionTranslateTo atomTranslator;
     protected IMoleculeList moleculeList;
     protected IRandom random;
+    protected RandomPositionSource positionSource;
 
     public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
     		                  ISpace _space) {
@@ -50,6 +53,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         atomTranslator = new MoleculeActionTranslateTo(_space);
         reservoir = new MoleculeArrayList();
         this.random = random;
+        positionSource = new RandomPositionSourceRectangular(_space, random);
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
@@ -67,8 +71,27 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(species != null) {
             moleculeList = box.getMoleculeList(species);
         }
+        positionSource.setBox(box);
     }
     
+    /**
+     * Sets a new RandomPositionSource for this move to use.  By default, a
+     * position source is used which assumes rectangular boundaries.
+     */
+    public void setPositionSource(RandomPositionSource newPositionSource) {
+        positionSource = newPositionSource;
+        if (box != null) {
+            positionSource.setBox(box);
+        }
+    }
+    
+    /**
+     * Returns the RandomPositionSource used by this move.
+     */
+    public RandomPositionSource getPositionSource() {
+        return positionSource;
+    }
+
     /**
      * Chooses and performs with equal probability an elementary molecule insertion
      * or deletion.
@@ -78,11 +101,11 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = (IMolecule)reservoir.remove(reservoir.getMoleculeCount()-1);
+            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
             else testMolecule = species.makeMolecule();
             box.addMolecule(testMolecule);
 
-            atomTranslator.setDestination(box.getBoundary().randomPosition());
+            atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(box.getNMolecules(species) == 0) {

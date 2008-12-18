@@ -12,6 +12,8 @@ import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -43,7 +45,7 @@ public class HexaneVolumeFraction extends Simulation {
         SpeciesHexane species = new SpeciesHexane(this, _space);
         getSpeciesManager().addSpecies(species);
 
-        bdry = new BoundaryRectangularPeriodic(getRandom(), _space);
+        bdry = new BoundaryRectangularPeriodic(_space);
         box = new Box(bdry, _space);
         addBox(box);        
         box.getBoundary().setDimensions(space.makeVector(new double[] {3.8, 3.8, 3.8}));
@@ -68,6 +70,8 @@ public class HexaneVolumeFraction extends Simulation {
         double numberOfTests = 1000000000;
         
         HexaneVolumeFraction sim = new HexaneVolumeFraction(Space3D.getInstance());
+        RandomPositionSource positionSource = new RandomPositionSourceRectangular(sim.space, sim.getRandom());
+        positionSource.setBox(sim.box);
         
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
@@ -87,7 +91,7 @@ public class HexaneVolumeFraction extends Simulation {
             
             time1 = System.currentTimeMillis();
             for(int count = 0; count < numberOfTests; count++){
-                rand = ((BoundaryRectangularPeriodic)sim.box.getBoundary()).randomPosition();
+                rand = positionSource.randomPosition();
                 ail.reset();
 
 //                //FIRST METHOD OF LOOPING

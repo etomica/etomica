@@ -109,7 +109,7 @@ public class ReverseOsmosis extends Simulation {
         ((IAtomTypeSphere)speciesMembrane.getLeafType()).setDiameter(sigMembrane);
 
         //construct box
-	    box = new Box(this, space);
+	    box = new Box(space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});

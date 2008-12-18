@@ -168,8 +168,8 @@ public class DCVGCMD extends Simulation {
         potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
-        box = new Box(this, space);
-        box.setBoundary(new BoundaryRectangularSlit(this, 2, space));
+        box = new Box(space);
+        box.setBoundary(new BoundaryRectangularSlit(2, space));
         box.getBoundary().setDimensions(new Vector3D(40, 40, 80));
         addBox(box);
         box.setNMolecules(species1, 20);

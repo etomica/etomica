@@ -65,7 +65,7 @@ public class DensityOfState extends Simulation{
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this, space);
 		box.setNMolecules(species, numAtoms);
-		box = new Box(this, space);
+		box = new Box(space);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();

@@ -125,7 +125,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.box.getBoundary().setDimensions(dim);
                 
                 int numSurfactants = (int)nSurfactantSlider.getValue();
-                Box pretendBox = new Box(sim, space);
+                Box pretendBox = new Box(space);
                 dim.setX(0, dim.x(0)/expansionFac);
                 pretendBox.getBoundary().setDimensions(dim);
                 sim.addBox(pretendBox);
@@ -484,7 +484,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(pullParams, 10);
         
         DisplayPlot muPlot = new DisplayPlot();
-        muProfileMeter = new MeterProfile(space);
+        muProfileMeter = new MeterProfile(space, sim.getRandom());
         muProfileMeter.setBox(sim.box);
         DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
         meterChemicalPotential.setIntegrator(sim.integrator);

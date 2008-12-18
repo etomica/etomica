@@ -213,7 +213,7 @@ public class ReverseOsmosisWater extends Simulation {
         mType.setDiameter(sigMembrane);
 
         //construct box
-	    box = new Box(new BoundaryRectangularPeriodic(space, random, 15), space);
+	    box = new Box(new BoundaryRectangularPeriodic(space, 15), space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});

@@ -53,7 +53,7 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear)model.getConformation()).setBondLength(1.0);
         ((ConformationLinear)model.getConformation()).setAngle(1,0.35);
         
-        box = new Box(this, space);
+        box = new Box(space);
         double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         addBox(box);

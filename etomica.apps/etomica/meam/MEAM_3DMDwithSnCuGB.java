@@ -205,7 +205,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //        getSpeciesManager().addSpecies(agB);
         getSpeciesManager().addSpecies(cuB);
         
-        box = new Box(new BoundaryRectangularSlit(this, 2, space), space);
+        box = new Box(new BoundaryRectangularSlit(2, space), space);
         addBox(box);
         
         

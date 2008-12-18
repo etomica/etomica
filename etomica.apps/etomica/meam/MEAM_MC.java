@@ -121,7 +121,7 @@ public class MEAM_MC extends Simulation {
         
         ((IAtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
         
-	    box = new Box(this, space);
+	    box = new Box(space);
         addBox(box);
         box.setNMolecules(sn, 216);
         box.setNMolecules(ag, 0);

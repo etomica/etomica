@@ -280,7 +280,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false);
-        IBox box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+        IBox box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         sim.getSpeciesManager().addSpecies(species);

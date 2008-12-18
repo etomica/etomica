@@ -2,7 +2,6 @@ package etomica.space;
 
 import java.io.Serializable;
 
-import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -21,15 +20,15 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Make a cubic boundary with edges of length equal to the default boxSize and
      * periodic in every direction.
      */
-	public BoundaryDeformablePeriodic(IRandom _random, ISpace _space) {
-		this(_space, _random, 10.0);
+	public BoundaryDeformablePeriodic(ISpace _space) {
+		this(_space, 10.0);
 	}
 
     /**
      * Make a cubic boundary of specified edge length and periodicity.
      */
-	public BoundaryDeformablePeriodic(ISpace space, IRandom random, double boxSize) {
-	    this(space, random, makeVectors(space, boxSize));
+	public BoundaryDeformablePeriodic(ISpace space, double boxSize) {
+	    this(space, makeVectors(space, boxSize));
 	}
 	
     /**
@@ -41,9 +40,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *  @throws IllegalArgumentException if the dimension of space is not 2 or 3
      *  @throws IllegalArgumentException if the vex.length is not equal to the dimension of the space
      */
-	public BoundaryDeformablePeriodic(ISpace space, IRandom random, IVector[] vex) {
+	public BoundaryDeformablePeriodic(ISpace space, IVector[] vex) {
         super(space, makeShape(space, vex));
-        this.random = random;
         D = space.D();
         if(D != 2 && D != 3) {
             throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
@@ -132,18 +130,9 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * returned tensor does not affect the state of the boundary. Shape-changing methods
      * (e.g., deform()) must be used to affect the boundary shape.
      */
-    public etomica.space.Tensor boundaryTensor() {
+    public Tensor getBoundaryTensor() {
         hCopy.E(h);
         return hCopy;
-    }
-
-    /**
-     * Returns a point selected randomly from within the boundary region.
-     */
-    public IVector randomPosition() {
-        temp1.setRandomCube(random);
-        h.transform(temp1);
-        return temp1;
     }
 
     public IVector centralImage(IVector r) {
@@ -467,7 +456,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final PeriodicTransform3[] edgeTripletTransforms;
     private final IndexIteratorRectangular indexIterator;
     private double[][] origins = new double[0][];
-    protected final IRandom random;
     private final static double halfTol = 0.50000000001;
 
     private static final long serialVersionUID = 1L;

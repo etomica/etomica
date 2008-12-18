@@ -88,7 +88,7 @@ public class SimOverlapABC extends Simulation {
         //Set up target system   - A - 1
         PotentialMasterList potentialMasterTarget = new 
             PotentialMasterList(this, space);
-        boxTarget = new Box(this, space);
+        boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
         
@@ -99,8 +99,7 @@ public class SimOverlapABC extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(),
-                numAtoms/density);
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
         nCells = new int[]{numAtoms};
         boxTarget.setBoundary(boundaryTarget);
         
@@ -174,7 +173,7 @@ public class SimOverlapABC extends Simulation {
         //Set up REFERENCE system - System B - 0 - hybrid system
         PotentialMasterList potentialMasterRef = new 
             PotentialMasterList(this, space);
-        boxRef = new Box(this, space);
+        boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
@@ -186,8 +185,7 @@ public class SimOverlapABC extends Simulation {
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryRef = new BoundaryRectangularPeriodic(space, getRandom(),
-                numAtoms/density);
+        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms/density);
         nCells = new int[]{numAtoms};
         boxRef.setBoundary(boundaryRef);
         

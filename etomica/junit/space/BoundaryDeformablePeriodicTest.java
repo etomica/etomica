@@ -23,7 +23,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     public BoundaryDeformablePeriodicTest() {
 //        space = Space2D.getInstance();
         space = Space3D.getInstance();
-        boundary = new BoundaryDeformablePeriodic(space, new RandomNumberGenerator(), 1.0);
+        boundary = new BoundaryDeformablePeriodic(space, 1.0);
 //        Tensor2D deformation = new Tensor2D(new double[] {1.0, -0.5, 
 //                                                          0.8, 1.0});
 //        Tensor2D deformation = new Tensor2D(new double[] {1.0, 12.0,
@@ -48,7 +48,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     public void testNearestImage() {
         if(interactive) display.setPixelUnit(new Pixel(2));
         edgeVectors = space.makeVectorArray(space.D());  
-        boundary.boundaryTensor().assignTo(edgeVectors);
+        boundary.getBoundaryTensor().assignTo(edgeVectors);
         positionIndexIterator = new IndexIteratorRectangular(space.D());
         positionIndexIterator.setSize(iMax);
         positionIndexIterator.reset();
@@ -62,7 +62,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
             dr.TE(2.0/(double)iMax);
             dr.PE(-(1-1./iMax));
             dr1.E(dr);
-            boundary.boundaryTensor().transform(dr);
+            boundary.getBoundaryTensor().transform(dr);
             //System.out.println("dots: "+dr.dot(edgeVectors[0])/edgeVectors[0].squared()
             //                      +", "+dr.dot(edgeVectors[1])/edgeVectors[1].squared());
             dr1.E(dr);

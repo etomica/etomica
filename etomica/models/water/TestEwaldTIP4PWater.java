@@ -73,7 +73,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         activityIntegrate.setMaxSteps(6000);
         getController().addAction(activityIntegrate);
         
-		box = new Box(this, space);
+		box = new Box(space);
 		addBox(box);
 		box.getBoundary().setDimensions(space.makeVector(new double[] {25, 25, 25}));
 		box.setNMolecules(species, 125);
@@ -98,7 +98,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		BoxImposePbc imposePBC = new BoxImposePbc(box, space);
 		
-        boundary = new BoundaryRectangularPeriodic(space, getRandom(), 20);
+        boundary = new BoundaryRectangularPeriodic(space, 20);
         boundary.setDimensions(space.makeVector(new double[] {20, 20, 20}));
         box.setBoundary(boundary);
         

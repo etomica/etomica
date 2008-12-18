@@ -283,7 +283,6 @@ public class LatticeEditor {
 
         box.setBoundary(new BoundaryDeformableLattice
                                              (currentLattice.getPrimitive(),
-                                              (etomica.api.IRandom)null,
                                               boxSize));
 
         int numAtoms = size*size*size;
@@ -303,7 +302,6 @@ public class LatticeEditor {
 
     	box = new Box(new BoundaryDeformableLattice
     			                             (currentLattice.getPrimitive(),
-    			    	                   	  (etomica.api.IRandom)null,
     			    		                  boxSize), space);
     	if(oldBox != null) {
     	    viewer.sim.removeBox(oldBox);

@@ -7,11 +7,11 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space.ISpace;
-import etomica.space3d.Vector3D;
 
 /**
  * @author kofke
@@ -28,7 +28,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public MyMCMove(IntegratorBox integrator, IRandom random,
 			        ISpace space, double zFraction) {
 		super(integrator.getPotential(), random, space);
-		position =  (Vector3D)space.makeVector();
+		position = space.makeVector();
 		setZFraction(zFraction);
         this.integrator = integrator;
         randomizer = new AtomActionRandomizeVelocity(0, random);
@@ -55,7 +55,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			    testMolecule = species.makeMolecule();
 			}
             box.addMolecule(testMolecule);
-			position = (Vector3D)box.getBoundary().randomPosition();
+			position.E(positionSource.randomPosition());
 			double z = position.x(2);
             z *= zFraction;
 			if(nearOrigin) {
@@ -120,7 +120,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     private static final long serialVersionUID = 1L;
 	private double zFraction;
 	private int deltaN = 0;
-	private Vector3D position;
+	private IVector position;
 	private boolean nearOrigin;
 	private final MoleculeArrayList activeAtoms;
     private IMoleculeList moleculeList;

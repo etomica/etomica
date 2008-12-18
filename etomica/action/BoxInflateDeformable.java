@@ -37,9 +37,9 @@ public class BoxInflateDeformable extends BoxInflate{
         //First scale the locations of the molecules.
         
         //get the edge vectors, and invert the tensor with them in it.
-        tempTensInv.E(((BoundaryDeformablePeriodic)box.getBoundary()).boundaryTensor());
+        tempTensInv.E(((BoundaryDeformablePeriodic)box.getBoundary()).getBoundaryTensor());
         tempTensInv.invert();
-        tempTens.E(((BoundaryDeformablePeriodic)box.getBoundary()).boundaryTensor());        
+        tempTens.E(((BoundaryDeformablePeriodic)box.getBoundary()).getBoundaryTensor());        
         
         
         /*

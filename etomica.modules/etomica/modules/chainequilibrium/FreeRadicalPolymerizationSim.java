@@ -59,7 +59,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, random, space.D() == 2 ? 60 : 20), space);
+        box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
         addBox(box);
         integratorHard.setBox(box);
         integratorHard.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));

@@ -77,7 +77,7 @@ public class TestSetToUHexane extends Simulation {
         
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
-        bdry = new BoundaryDeformableLattice(prim, getRandom(), nCells);
+        bdry = new BoundaryDeformableLattice(prim, nCells);
         box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);

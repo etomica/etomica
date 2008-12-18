@@ -29,12 +29,12 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+        boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
         nCells = new int[]{numAtoms};
         box.setBoundary(boundary);
 

@@ -37,7 +37,7 @@ public class SimCalcS extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -60,7 +60,7 @@ public class SimCalcS extends Simulation {
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             nCells = numAtoms;
-            bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
             ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
             basis = new BasisMonatomic(space);
         } else {
@@ -68,7 +68,7 @@ public class SimCalcS extends Simulation {
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density/4,-1.0/3.0));
             nCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
+            bdry = new BoundaryDeformableLattice(primitive, new int[]{nCells,nCells,nCells});
             basis = new BasisCubicFcc();
         }
         box.setBoundary(bdry);

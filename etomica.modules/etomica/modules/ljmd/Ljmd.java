@@ -52,7 +52,7 @@ public class Ljmd extends Simulation {
 	    potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
-	    box = new Box(this, space);
+	    box = new Box(space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(15);

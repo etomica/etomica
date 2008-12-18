@@ -32,7 +32,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         
@@ -40,7 +40,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         primitive = new PrimitiveCubic(space, L);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, getRandom(), n*L);
+        boundary = new BoundaryRectangularPeriodic(space, n*L);
         Basis basis = new BasisCubicFcc();
         box.setBoundary(boundary);
 

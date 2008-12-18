@@ -52,7 +52,7 @@ public class HSMD3DNoNbr extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));

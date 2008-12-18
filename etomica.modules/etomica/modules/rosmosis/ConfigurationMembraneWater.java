@@ -47,7 +47,7 @@ public class ConfigurationMembraneWater implements Configuration {
         double chamberLength = 0.5 * boxLength - membraneTotalThickness;
         
         // solventChamber (middle, solvent-only)
-        Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, null, 1), space);
+        Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, 1), space);
         sim.addBox(pretendBox);
         IVector pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);

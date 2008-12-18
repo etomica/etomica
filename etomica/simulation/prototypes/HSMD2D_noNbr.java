@@ -57,7 +57,7 @@ public class HSMD2D_noNbr extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-	    box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[]{10,10}));
         box.setNMolecules(species, 64);

@@ -121,7 +121,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
     	Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        final IBox box = new Box(sim, space);
+        final IBox box = new Box(space);
         box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addBox(box);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim, space);

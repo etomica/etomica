@@ -8,7 +8,6 @@ import etomica.api.IBox;
 import etomica.api.IEventManager;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
@@ -51,8 +50,8 @@ public class Box implements java.io.Serializable, IBox {
     /**
      * Constructs box with default rectangular periodic boundary.
      */
-    public Box(ISimulation sim, ISpace _space) {
-        this(new BoundaryRectangularPeriodic(sim.getRandom(), _space), _space);
+    public Box(ISpace _space) {
+        this(new BoundaryRectangularPeriodic(_space), _space);
     }
     
     /**

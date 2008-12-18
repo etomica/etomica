@@ -66,7 +66,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
         // TARGET
         
-        boxTarget = new Box(this, space);
+        boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
@@ -81,7 +81,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
@@ -89,7 +89,7 @@ public class SimOverlapSoftSphere extends Simulation {
             primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             nCells = new int[]{n,n,n};
-            boundaryTarget = new BoundaryRectangularPeriodic(space, random, n * L);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
         boxTarget.setBoundary(boundaryTarget);
@@ -122,7 +122,7 @@ public class SimOverlapSoftSphere extends Simulation {
         
     
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(random, space);
+        boundaryHarmonic = new BoundaryRectangularPeriodic(space);
         boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
@@ -134,11 +134,11 @@ public class SimOverlapSoftSphere extends Simulation {
         integrators[0] = integratorHarmonic;
         
         if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, random, n * L);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 

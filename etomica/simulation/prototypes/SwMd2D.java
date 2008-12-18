@@ -45,7 +45,7 @@ public class SwMd2D extends Simulation {
         getSpeciesManager().addSpecies(species);
         AtomTypeSphere leafType = (AtomTypeSphere)species.getLeafType();
         leafType.setDiameter(sigma);
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);

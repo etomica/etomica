@@ -116,7 +116,7 @@ public class MEAMMd3DThreaded extends Simulation {
         ((IAtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
         
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(sn, 0);
         box.setNMolecules(ag, numAtoms);

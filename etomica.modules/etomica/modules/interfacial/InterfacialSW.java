@@ -114,7 +114,7 @@ public class InterfacialSW extends Simulation {
         potentialMaster.addPotential(p1Surfactant, new ISpecies[]{surfactant});
 
         //construct box
-	    box = new Box(this, space);
+	    box = new Box(space);
         addBox(box);
         IVector dim = space.makeVector();
         if (space.D() == 2) {

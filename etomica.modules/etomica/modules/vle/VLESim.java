@@ -59,9 +59,9 @@ public class VLESim extends Simulation {
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
-        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
+        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);
         addBox(boxLiquid);
-        boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
+        boxVapor = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);
         addBox(boxVapor);
         boxLiquid.setNMolecules(species, initNumMolecules);
         boxVapor.setNMolecules(species, initNumMolecules);

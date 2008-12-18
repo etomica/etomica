@@ -1,0 +1,45 @@
+package etomica.box;
+
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.api.IRandom;
+import etomica.api.IVector;
+import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.ISpace;
+import etomica.space.IVectorRandom;
+
+/**
+ * Implementation of RandomPositionSource that can handle
+ * BoundaryDeformablePeriodic.  If the boundary is not
+ * BoundaryDeformablePeriodic, this class falls back to assuming rectangular
+ * boundary.
+ * 
+ * @author Andrew Schultz
+ */
+public class RandomPositionSourceDeformable implements RandomPositionSource {
+    
+    public RandomPositionSourceDeformable(ISpace space, IRandom random) {
+        p = (IVectorRandom)space.makeVector();
+        this.random = random;
+    }
+
+    public IVector randomPosition() {
+        p.setRandomCube(random);
+        IBoundary boundary = box.getBoundary();
+        if (boundary instanceof BoundaryDeformablePeriodic) {
+            ((BoundaryDeformablePeriodic)boundary).getBoundaryTensor().transform(p);
+        }
+        else {
+            p.TE(boundary.getDimensions());
+        }
+        return p;
+    }
+
+    public void setBox(IBox newBox) {
+        box = newBox;
+    }
+
+    protected final IRandom random;
+    protected IBox box;
+    protected final IVectorRandom p;
+}

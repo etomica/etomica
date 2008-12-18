@@ -45,7 +45,7 @@ public class GEMCWithRotation extends Simulation {
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getChildType(0)).setDiameter(sigma);
 
-	    box1 = new Box(this, space);
+	    box1 = new Box(space);
         addBox(box1);
         box1.setNMolecules(species, 200);
         
@@ -58,7 +58,7 @@ public class GEMCWithRotation extends Simulation {
         integrator.addIntegrator(integratorMC1);
         
 
-	    box2 = new Box(this, space);
+	    box2 = new Box(space);
         addBox(box2);
         box2.setNMolecules(species, 200);
         IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);

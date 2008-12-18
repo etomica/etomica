@@ -73,7 +73,7 @@ public class SWMD3D extends Simulation {
     getController().addAction(activityIntegrate);
 
 
-    box = new Box(this, space);
+    box = new Box(space);
     addBox(box);
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(lambda);

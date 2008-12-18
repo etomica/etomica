@@ -67,7 +67,7 @@ public class HSMD2D extends Simulation {
 
         potentialMaster.addPotential(potential22,new IAtomTypeLeaf[]{leafType1, leafType2});
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);

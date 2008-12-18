@@ -49,7 +49,7 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -63,7 +63,7 @@ public class SimHarmonic extends Simulation {
         
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
             nCells = new int[]{numAtoms};
         } else {
             primitive = new PrimitiveFcc(space, 1);
@@ -71,7 +71,7 @@ public class SimHarmonic extends Simulation {
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
             int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
             nCells = new int[]{n,n,n};
-            boundary = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
+            boundary = new BoundaryDeformableLattice(primitive, nCells);
         }
         box.setBoundary(boundary);
 

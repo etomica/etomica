@@ -98,7 +98,7 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType, leafType});
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

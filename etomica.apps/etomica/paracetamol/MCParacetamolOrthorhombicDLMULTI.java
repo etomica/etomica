@@ -97,12 +97,12 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         species.setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numMolecules);        
 
-        bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
+        bdry =  new BoundaryRectangularPeriodic(space, 1); //unit cell
         bdry.setDimensions(space.makeVector(new double []{cellDim[0]*17.248, cellDim[1]*12.086, cellDim[2]*7.382}));
         box.setBoundary(bdry);
 

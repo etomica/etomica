@@ -83,12 +83,6 @@ public interface IBoundary {
     public IVector getEdgeVector(int d);
     
     /**
-     * @return a point selected uniformly within the volume enclosed by the
-     *         boundary.
-     */
-    public IVector randomPosition();
-    
-    /**
      * Returns true if the boundary is periodic in the given direction.
      */
    public boolean getPeriodicity(int d);

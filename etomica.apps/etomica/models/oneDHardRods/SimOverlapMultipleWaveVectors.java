@@ -74,7 +74,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         // Set up target system - A, 1, hard rod
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(
                 this, space);
-        boxTarget = new Box(this, space);
+        boxTarget = new Box(space);
         boxTarget.setNMolecules(species, numAtoms);
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
@@ -84,8 +84,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                 species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), 
-                numAtoms/density);
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
         nCells = new int[]{numAtoms};
         boxTarget.setBoundary(boundaryTarget);
         

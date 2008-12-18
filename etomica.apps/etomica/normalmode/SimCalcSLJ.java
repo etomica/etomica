@@ -37,7 +37,7 @@ public class SimCalcSLJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -54,7 +54,7 @@ public class SimCalcSLJ extends Simulation {
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
@@ -62,7 +62,7 @@ public class SimCalcSLJ extends Simulation {
             primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             nCells = new int[]{n,n,n};
-            boundary = new BoundaryRectangularPeriodic(space, random, n * L);
+            boundary = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
 

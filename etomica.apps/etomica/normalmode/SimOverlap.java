@@ -61,7 +61,7 @@ public class SimOverlap extends Simulation {
 
         // TARGET
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
-        boxTarget = new Box(this, space);
+        boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
@@ -81,7 +81,7 @@ public class SimOverlap extends Simulation {
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
             integratorTarget.setNullPotential(new P1HardPeriodic(space), species.getLeafType());
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
@@ -90,7 +90,7 @@ public class SimOverlap extends Simulation {
             primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             nCells = new int[]{n,n,n};
-            boundaryTarget = new BoundaryRectangularPeriodic(space, random, n * L);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
         boxTarget.setBoundary(boundaryTarget);
@@ -117,11 +117,11 @@ public class SimOverlap extends Simulation {
     
         // HARMONIC
         if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, random, n * L);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         }
         boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);

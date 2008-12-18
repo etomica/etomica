@@ -259,7 +259,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
     public static void main(String[] args) {
     	Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim, sp);
+        IBox box = new Box(sp);
         sim.addBox(box);
         SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
         PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);

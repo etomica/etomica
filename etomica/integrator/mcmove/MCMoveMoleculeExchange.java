@@ -15,6 +15,8 @@ import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
@@ -41,6 +43,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     private final IVector translationVector;
     private final IRandom random;
     private MoleculeSource moleculeSource;
+    protected RandomPositionSource positionSource;
     
     private transient IMolecule molecule;
     private transient IBox iBox, dBox;
@@ -66,6 +69,7 @@ public class MCMoveMoleculeExchange extends MCMove {
         box2 = integrator2.getBox();
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        positionSource = new RandomPositionSourceRectangular(_space, random);
     }
     
     public boolean doTrial() {
@@ -90,12 +94,28 @@ public class MCMoveMoleculeExchange extends MCMove {
         uOld = energyMeter.getDataAsScalar();
         dBox.removeMolecule(molecule);
 
-        moleculeTranslator.setDestination(iBox.getBoundary().randomPosition());         //place at random in insertion box
+        positionSource.setBox(iBox);
+        moleculeTranslator.setDestination(positionSource.randomPosition());         //place at random in insertion box
         moleculeTranslator.actionPerformed(molecule);
         iBox.addMolecule(molecule);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
+
+    /**
+     * Sets a new RandomPositionSource for this move to use.  By default, a
+     * position source is used which assumes rectangular boundaries.
+     */
+    public void setPositionSource(RandomPositionSource newPositionSource) {
+        positionSource = newPositionSource;
+    }
+    
+    /**
+     * Returns the RandomPositionSource used by this move.
+     */
+    public RandomPositionSource getPositionSource() {
+        return positionSource;
+    }
 
     /**
      * Sets the AtomSource this class uses to pick molecules to delete.

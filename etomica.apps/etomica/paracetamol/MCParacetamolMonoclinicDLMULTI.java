@@ -112,12 +112,12 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         species.setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[] {35,35,35}));
         box.setNMolecules(species, numMolecules);        
         
-        bdry =  new BoundaryDeformableLattice( primitive, getRandom(), new int []{cellDim[0], cellDim[1], cellDim[2]});
+        bdry =  new BoundaryDeformableLattice( primitive, new int []{cellDim[0], cellDim[1], cellDim[2]});
         //bdry.setDimensions(space.makeVector(new double []{cellDim[0]*12.119, cellDim[1]*8.944, cellDim[2]*7.278}));
         box.setBoundary(bdry);
         

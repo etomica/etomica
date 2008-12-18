@@ -176,7 +176,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	public static void main(String[] args) {
 		Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-		IBox box = new Box(sim, sp);
+		IBox box = new Box(sp);
         sim.addBox(box);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim, sp);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim, sp);

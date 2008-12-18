@@ -3,7 +3,6 @@ package etomica.space;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IBoxEvent;
-import etomica.api.IVector;
 import etomica.box.BoxInflateEvent;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -65,11 +64,6 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     }
 
     /* (non-Javadoc)
-	 * @see etomica.space.IBoundary#randomPosition()
-	 */
-    public abstract IVector randomPosition();
-
-    /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getIndexIterator()
 	 */
     public abstract IndexIteratorSizable getIndexIterator();
@@ -86,7 +80,6 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     public abstract double[][] imageOrigins(int nShells);
 
     private static final long serialVersionUID = 1L;
-//    protected final Space space;
     protected final Polytope shape;
     protected final ISpace space;
     protected IBox box;

@@ -1,9 +1,11 @@
 package etomica.data.meter;
 
-import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
+import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourcePositioned;
 import etomica.data.DataSourceUniform;
@@ -34,12 +36,12 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
      * Default constructor sets profile along the x-axis, with 100 points in
      * the profile.
      */
-    public MeterProfile(ISpace space) {
+    public MeterProfile(ISpace space, IRandom random) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
-        position = space.makeVector();
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
+        positionSource = new RandomPositionSourceRectangular(space, random);
     }
     
     public IEtomicaDataInfo getDataInfo() {
@@ -89,14 +91,13 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        IBoundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
         IData xData = xDataSource.getData();
         
         for (int i=0; i<y.length; i++) {
             double x = xData.getValue(i);
-            IVector pos = boundary.randomPosition();
+            IVector pos = positionSource.randomPosition();
             pos.setX(profileDim, x);
             y[i] += meter.getData(pos).getValue(0);
         }
@@ -129,6 +130,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
         if (meter != null) {
             meter.setBox(box);
         }
+        positionSource.setBox(box);
     }
     
     public void reset() {
@@ -146,17 +148,33 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
         }
     }
 
+    /**
+     * Sets a new RandomPositionSource for this meter to use.  By default, a
+     * position source is used which assumes rectangular boundaries.
+     */
+    public void setPositionSource(RandomPositionSource newPositionSource) {
+        positionSource = newPositionSource;
+        positionSource.setBox(box);
+    }
+
+    /**
+     * Returns the RandomPositionSource used by this meter.
+     */
+    public RandomPositionSource getPositionSource() {
+        return positionSource;
+    }
+
     private static final long serialVersionUID = 1L;
     private IBox box;
     private DataSourceUniform xDataSource;
     private DataFunction data;
     private IEtomicaDataInfo dataInfo;
+    protected RandomPositionSource positionSource;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
      */
     protected int profileDim;
-    protected final IVector position;
     /**
      * Meter that defines the property being profiled.
      */

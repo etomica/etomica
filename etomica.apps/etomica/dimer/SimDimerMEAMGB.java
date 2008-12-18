@@ -88,7 +88,7 @@ public class SimDimerMEAMGB extends Simulation{
     	potentialMasterD = new PotentialMasterListDimer(this, space);
         
       //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(random, 2, 5, space), space);
+        box = new Box(new BoundaryRectangularSlit(2, 5, space), space);
         addBox(box);
      
       //SPECIES

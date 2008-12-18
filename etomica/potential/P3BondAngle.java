@@ -8,6 +8,7 @@ import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -158,7 +159,9 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         P3BondAngle potential = new P3BondAngle(space);
         potential.setEpsilon(1.0);
         potential.setAngle(Math.PI/2.0);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
+        positionSource.setBox(box);
         potential.setBox(box);
         AtomLeaf atom0 = new AtomLeaf(space);
         atom0.getPosition().setX(0, 1);
@@ -195,9 +198,9 @@ public class P3BondAngle extends Potential implements PotentialSoft {
 
         System.out.println("all random");
         for (int i=0; i<n; i++) {
-            atom0.getPosition().E(box.getBoundary().randomPosition());
-            atom1.getPosition().E(box.getBoundary().randomPosition());
-            atom2.getPosition().E(box.getBoundary().randomPosition());
+            atom0.getPosition().E(positionSource.randomPosition());
+            atom1.getPosition().E(positionSource.randomPosition());
+            atom2.getPosition().E(positionSource.randomPosition());
             
             U = potential.energy(atoms);
 

@@ -73,7 +73,7 @@ public class UnitTestUtil {
             nBox = n1.length;
         }
         for (int i = 0; i < nBox; i++) {
-            IBox box = new Box(sim, space);
+            IBox box = new Box(space);
             sim.addBox(box);
             if (species0 != null)
                 box.setNMolecules(species0, n0[i]);
@@ -112,7 +112,7 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         ISimulation sim = new Simulation(space, false);
         //        new SpeciesSpheres(sim);
-        IBox box = new Box(sim, space);
+        IBox box = new Box(space);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeSphere[] leafTypes = new AtomTypeSphere[nAtoms[i].length];

@@ -54,9 +54,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         integratorHard1.setIsothermal(true);
 
         //construct box
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30.0));
+        box.setBoundary(new BoundaryRectangularPeriodic(space, 30.0));
         integratorHard1.setBox(box);
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
