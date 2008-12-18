@@ -90,7 +90,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         // determine scaled shape of simulation volume
         IVector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
-        IVector[] periodicVectors = ((BoundaryDeformablePeriodic)boundary).getEdgeVectors();
+        IVector[] periodicVectors = boundary.getEdgeVectors();
         for (int i=0; i<periodicVectors.length; i++) {
             dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
         }

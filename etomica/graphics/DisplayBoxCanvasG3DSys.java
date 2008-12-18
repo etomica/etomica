@@ -349,7 +349,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 
 			// set boundary vectors for image shell
-			IVector[] vecs = ((Boundary)boundary).getEdgeVectors();
+			IVector[] vecs = boundary.getEdgeVectors();
 			double[] dvecs = new double[vecs.length * 3]; // assuming
 															// 3-dimensional vectors
 			for (int i = 0; i < vecs.length; i++) {

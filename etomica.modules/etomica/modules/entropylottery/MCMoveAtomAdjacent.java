@@ -10,7 +10,6 @@ import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.BoundaryPeriodic;
 import etomica.space.ISpace;
 
 
@@ -58,7 +57,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      * doTrial.
      */
     public double getB() {
-        boolean[] periodicity = ((BoundaryPeriodic)box.getBoundary()).getPeriodicity();
+        boolean[] periodicity = box.getBoundary().getPeriodicity();
         IVector position = ((IAtomPositioned)atom).getPosition();
         IVector dimensions = box.getBoundary().getDimensions();
         for (int i=0; i<position.getD(); i++) {

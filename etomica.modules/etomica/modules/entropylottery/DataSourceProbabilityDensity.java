@@ -14,7 +14,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.space.BoundaryPeriodic;
 import etomica.units.Quantity;
 
 public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction, IIntegratorNonintervalListener {
@@ -44,7 +43,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;
-        if (((BoundaryPeriodic)box.getBoundary()).getPeriodicity()[0]) {
+        if (box.getBoundary().getPeriodicity()[0]) {
             // with PBC, let balls drift around the boundary
             newData[0] += ((oldData[nBin-1]+oldData[1])/2 - oldData[0])/totalAtomCount;
             newData[nBin-1] += ((oldData[nBin-1]+oldData[0])/2 - oldData[nBin-1])/totalAtomCount;

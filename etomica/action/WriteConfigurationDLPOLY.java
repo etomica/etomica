@@ -146,7 +146,7 @@ public class WriteConfigurationDLPOLY implements IAction {
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
         	
         	
-        	IVector[] cell = ((Boundary)boundary).getEdgeVectors();
+        	IVector[] cell = boundary.getEdgeVectors();
         	for (int i=0; i<cell.length; i++){
         		for (int j=0; j<3; j++){
         			formatter.format("%20f",new Object[]{cell[i].x(j)});
