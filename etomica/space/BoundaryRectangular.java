@@ -14,7 +14,7 @@ import etomica.math.geometry.Rectangular;
  * Boundary that is in the shape of a rectangular parallelepiped.  
  * Periodicity in each direction is specified by subclass.
  */
-public abstract class BoundaryRectangular extends Boundary implements BoundaryPeriodic {
+public abstract class BoundaryRectangular extends Boundary {
 
     /**
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
@@ -53,6 +53,10 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         temp = (IVectorRandom)space.makeVector();
         dimensionsCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
+        edgeVectors = new IVector[space.D()];
+        for (int i=0; i<space.D(); i++) {
+            edgeVectors[i] = space.makeVector();
+        }
         updateDimensions();
     }
     
@@ -89,6 +93,9 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     protected void updateDimensions() {
         dimensionsCopy.E(dimensions);
         ((Rectangular)shape).setEdgeLengths(dimensions);
+        for (int i=0; i<space.D(); i++) {
+            edgeVectors[i].setX(i, dimensions.x(i));
+        }
     }
 
     /**
@@ -123,23 +130,8 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return isPeriodic;
     }
 
-    public IVector[] getPeriodicVectors() {
-        int n = 0;
-        for (int i=0; i<isPeriodic.length; i++) {
-            if (isPeriodic[i]) {
-                n++;
-            }
-        }
-        IVector[] vectors = new IVector[n];
-        int d = 0;
-        for  (int i=0; i<isPeriodic.length; i++) {
-            if (isPeriodic[i]) {
-                vectors[d] = space.makeVector();
-                vectors[d].setX(i,dimensions.x(i));
-                d++;
-            }
-        }
-        return vectors;
+    public IVector[] getEdgeVectors() {
+        return edgeVectors;
     }
     public IndexIteratorSizable getIndexIterator() {
       int n = 0;
@@ -174,6 +166,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return origins;
     }
     
+    private static final long serialVersionUID = 1L;
     private final IVectorRandom temp;
     protected final IVector dimensions;
     protected final IVector dimensionsCopy;
@@ -181,5 +174,5 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected final IRandom random;
-
+    protected final IVector[] edgeVectors;
 }

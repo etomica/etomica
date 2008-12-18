@@ -10,7 +10,6 @@ import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
-import etomica.space.BoundaryPeriodic;
 import etomica.space.ISpace;
 
 /**
@@ -26,8 +25,7 @@ import etomica.space.ISpace;
  * this class because nonperiodic boundary conditions are not applicable for
  * truncated octahedrons.
  */
-public class BoundaryTruncatedOctahedron extends Boundary implements
-        BoundaryPeriodic {
+public class BoundaryTruncatedOctahedron extends Boundary {
 
     public BoundaryTruncatedOctahedron(ISpace _space) {
         this(_space, 30.0);
@@ -64,7 +62,11 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
 
     public IndexIteratorSizable getIndexIterator(){
-      return new IndexIteratorRectangularFiltered(vecs.length,vecs);
+        if (vecs == null) {
+            //initialize edge vectors
+            getEdgeVectors();
+        }
+        return new IndexIteratorRectangularFiltered(vecs.length,vecs);
     }
     
     private static class IndexIteratorRectangularFiltered
@@ -169,8 +171,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         updateDimensions();
     }
     
-    private IVector[] vecs; 
-    public IVector[] getPeriodicVectors() {
+    public IVector[] getEdgeVectors() {
       //throw new RuntimeException("Not yet.  Gimme a break!");
       double x = dimensions.x(0)*.5;
       if(vecs == null || vecs[0].x(0) == 0) {
@@ -300,4 +301,5 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected float[][] shift;
     private final Plane plane;
     private final Vector3D normal = new Vector3D();
+    private IVector[] vecs; 
 }

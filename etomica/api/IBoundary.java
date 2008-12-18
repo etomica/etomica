@@ -76,8 +76,22 @@ public interface IBoundary {
     public void setDimensions(IVector v);
 
     /**
+     * Returns an array vectors that define three edges of this boundary, all
+     * of which originate from one corner.
+     */
+    public IVector[] getEdgeVectors();
+    
+    /**
      * @return a point selected uniformly within the volume enclosed by the
      *         boundary.
      */
     public IVector randomPosition();
+    
+    /**
+     * Returns a boolean array that indicates whether the boundary is periodic
+     * in the corresponding directions.  Normally the array returned here
+     * is the internal representation of the periodicity, so changing the
+     * values in it will affect the periodicity properties of the boundary.
+     */
+   public boolean[] getPeriodicity();
 }

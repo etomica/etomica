@@ -15,7 +15,6 @@ import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.space.BoundaryPeriodic;
 
 /**
  * Iteration is performed using site lists.
@@ -43,7 +42,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(box);
         lattice = neighborSiteManager.getLattice();
         neighborIterator.setLattice(lattice);
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
 	}
     
 	/**

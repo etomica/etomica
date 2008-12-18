@@ -9,7 +9,6 @@ import etomica.atom.iterator.AtomLeafsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.space.BoundaryPeriodic;
 
 /**
  * Returns iterates formed from all cell-based neighbor pairs.
@@ -78,7 +77,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     
     public void reset() {
         neighborIterator.setPeriod(box.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
         cellIterator.reset();
         neighborIterator.checkDimensions();
         neighborIterator.unset();

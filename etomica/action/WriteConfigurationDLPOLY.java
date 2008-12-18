@@ -20,7 +20,6 @@ import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.BoundaryPeriodic;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 
 
@@ -125,8 +124,8 @@ public class WriteConfigurationDLPOLY implements IAction {
         		boundaryType = 4;
         	} else if(boundary instanceof BoundaryDeformablePeriodic){
         		boundaryType = 3;
-        	} else if (boundary instanceof BoundaryPeriodic){
-        		boolean[] periodicity = ((BoundaryPeriodic)boundary).getPeriodicity();
+        	} else {
+        		boolean[] periodicity = boundary.getPeriodicity();
         		
         		/*
         		 * This handles: 
@@ -142,14 +141,12 @@ public class WriteConfigurationDLPOLY implements IAction {
         		} else {
         			boundaryType = 6;
         		}
-        	} else {
-        		throw new RuntimeException("Input a correct boundary type");
         	}
         	
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
         	
         	
-        	IVector[] cell = ((Boundary)boundary).getPeriodicVectors();
+        	IVector[] cell = ((Boundary)boundary).getEdgeVectors();
         	for (int i=0; i<cell.length; i++){
         		for (int j=0; j<3; j++){
         			formatter.format("%20f",new Object[]{cell[i].x(j)});

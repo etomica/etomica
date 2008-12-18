@@ -297,8 +297,6 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			Polytope polytope = ((Boundary)boundary).getShape();
 			if (polytope != oldPolytope) {
 	
-				// force trunc. oct. to make vecs else null pointer exception
-				((Boundary)boundary).getPeriodicVectors();
 				// send iterator to g3dsys
 				gsys.setBoundaryVectorsIterator(wrapIndexIterator((((Boundary)boundary)
 						.getIndexIterator())));
@@ -351,7 +349,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 
 			// set boundary vectors for image shell
-			IVector[] vecs = ((Boundary)boundary).getPeriodicVectors();
+			IVector[] vecs = ((Boundary)boundary).getEdgeVectors();
 			double[] dvecs = new double[vecs.length * 3]; // assuming
 															// 3-dimensional vectors
 			for (int i = 0; i < vecs.length; i++) {

@@ -99,18 +99,14 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = space.makeVector();
         IVector dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
-        if (boundary instanceof BoundaryDeformablePeriodic) {
-            IVector[] periodicVectors = ((BoundaryDeformablePeriodic)boundary).getPeriodicVectors();
-            for (int i=0; i<periodicVectors.length; i++) {
-                dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
-            }
+        IVector[] periodicVectors = boundary.getEdgeVectors();
+        for (int i=0; i<periodicVectors.length; i++) {
+            dim.setX(i,Math.sqrt(periodicVectors[i].squared()));
         }
-        else {
-            dim.E(boundary.getDimensions());
-        }
+
+        IVector shape = space.makeVector();
         shape.E(dim);
         shape.PE(-boundaryPadding);
         IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());

@@ -92,7 +92,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getPeriodicVectors()
 	 */
-    public abstract IVector[] getPeriodicVectors();
+    public abstract IVector[] getEdgeVectors();
     /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getIndexIterator()
 	 */

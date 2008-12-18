@@ -13,7 +13,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
-import etomica.space.BoundaryPeriodic;
 
 /**
  * Generates pairs that are cell-based neighbors of a specific Atom. Iteration is
@@ -57,7 +56,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         lattice = cellManager.getLattice();
         neighborIterator.setLattice(lattice);
         neighborIterator.setPeriod(box.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
 	}
 
 	/**

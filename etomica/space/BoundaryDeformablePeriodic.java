@@ -81,8 +81,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
         half = space.makeVector();
         half.E(0.5);
         dimensions = space.makeVector();
-        dimensionsCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
+        periodicity = new boolean[space.D()];
+        for (int i=0; i<periodicity.length; i++) {
+            periodicity[i] = true;
+        }
         update();
     }
     
@@ -409,9 +412,14 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
     }
 
-    public IVector[] getPeriodicVectors() {
+    public IVector[] getEdgeVectors() {
         return edgeVectors;
     }
+    
+    public boolean[] getPeriodicity() {
+        return periodicity;
+    }
+    
     public IndexIteratorSizable getIndexIterator() {
       return new IndexIteratorRectangular(edgeVectors.length);
     }
@@ -451,7 +459,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final IVectorRandom temp1;
     private final IVector temp2;
     private final IVector dimensions;
-    private final IVector dimensionsCopy;
+    private final boolean[] periodicity;
     private final IVector unit;
     private final IVector half;
     private final int D;
