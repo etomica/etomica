@@ -88,10 +88,7 @@ public interface IBoundary {
     public IVector randomPosition();
     
     /**
-     * Returns a boolean array that indicates whether the boundary is periodic
-     * in the corresponding directions.  Normally the array returned here
-     * is the internal representation of the periodicity, so changing the
-     * values in it will affect the periodicity properties of the boundary.
+     * Returns true if the boundary is periodic in the given direction.
      */
-   public boolean[] getPeriodicity();
+   public boolean getPeriodicity(int d);
 }

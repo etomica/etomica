@@ -33,9 +33,6 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     public BoundaryTruncatedOctahedron(ISpace _space, double boxSize) {
         super(_space, new TruncatedOctahedron(_space));
         plane = new Plane(space);
-        isPeriodic = new boolean[space.D()];
-        for (int i = 0; i < space.D(); i++)
-            isPeriodic[i] = true;
         dimensions = space.makeVector();
         dimensions.E(boxSize);
         rrounded = space.makeVector();
@@ -47,8 +44,8 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         updateDimensions();
     }
 
-    public boolean[] getPeriodicity() {
-        return isPeriodic;
+    public boolean getPeriodicity(int i) {
+        return true;
     }
 
     public final IVector getDimensions() {
@@ -296,7 +293,6 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     protected final IVector dimensionsHalf;
     protected final IVector dimensionsHalfCopy;
     private final IndexIteratorRectangular indexIterator;
-    protected final boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
     private final Plane plane;

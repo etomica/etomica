@@ -33,6 +33,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         neighborIterator = new RectangularLatticeNbrIteratorAdjacent(D);
         
         latticeIndex = new int[D];
+        periodicity = new boolean[D];
         
         neighborIterator.setDirection(null);
         boxAgentManager = agentManager;
@@ -42,7 +43,10 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(box);
         lattice = neighborSiteManager.getLattice();
         neighborIterator.setLattice(lattice);
-        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
+        for (int i=0; i<periodicity.length; i++) {
+            periodicity[i] = box.getBoundary().getPeriodicity(i);
+        }
+        neighborIterator.setPeriodicity(periodicity);
 	}
     
 	/**
@@ -136,6 +140,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final RectangularLatticeNbrIterator neighborIterator;
     private final AtomPair pair = new AtomPair();
+    protected final boolean[] periodicity;
     private final int[] latticeIndex;
     private boolean doGoDown;
     private boolean upListNow;

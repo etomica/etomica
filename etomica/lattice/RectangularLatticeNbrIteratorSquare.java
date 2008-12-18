@@ -5,11 +5,9 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
-import etomica.space.Space;
 
 
 /**
@@ -25,7 +23,6 @@ public class RectangularLatticeNbrIteratorSquare extends
     private static final long serialVersionUID = 1L;
     protected final int[] range;
     protected int furthestNeighborDelta;
-    private final IVector period;
     protected int halfNeighborCount;
 
     /**
@@ -34,10 +31,6 @@ public class RectangularLatticeNbrIteratorSquare extends
     public RectangularLatticeNbrIteratorSquare(int D) {
         super(D);
         range = new int[D];
-        IVector newPeriod = Space.makeVector(D);
-        newPeriod.E(1.0);
-        period = Space.makeVector(D);
-        setPeriod(newPeriod);
     }
 
     /**
@@ -194,42 +187,6 @@ public class RectangularLatticeNbrIteratorSquare extends
      */
     public int[] getRange() {
         return (int[])range.clone();
-    }
-
-    /**
-     * Sets the magnitude of the elements of the pbc array.  Normally
-     * this would be the dimensions of the box boundary.  This quantity
-     * has no effect on the selection of the neighbor cells; it affects only
-     * the vector returned by the currentPbc method.
-     * @param newPeriod values of new period are copied to internal vector
-     */
-    public void setPeriod(IVector newPeriod) {
-        if(period.equals(newPeriod)) return;
-        
-        period.E(newPeriod);
-    
-        int[] idx = new int[D];
-        for (int i=0; i<D; i++) {
-            idx[i] = -1;
-        }
-        double[] vectorElements = new double[D];
-        // increments the last dimension first, starting at {-1,-1,-1}
-        cursorJump[D-1] = 1;
-        for (int i=D-2; i>-1; i--) {
-            cursorJump[i] = cursorJump[i+1]*3;
-        }
-        while (idx[0] < 2) {
-            for(int j=0; j<D; j++) {
-                vectorElements[j] = idx[j]*period.x(j);
-            }
-            int i=D-1;
-            idx[i]++;
-            while (idx[i] > 1 && i > 0) {
-                idx[i] = -1;
-                idx[--i]++;
-            }
-        }
-    
     }
 
 //  private void gatherAllNeighbors(int d, int startIndex) {

@@ -43,7 +43,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;
-        if (box.getBoundary().getPeriodicity()[0]) {
+        if (box.getBoundary().getPeriodicity(0)) {
             // with PBC, let balls drift around the boundary
             newData[0] += ((oldData[nBin-1]+oldData[1])/2 - oldData[0])/totalAtomCount;
             newData[nBin-1] += ((oldData[nBin-1]+oldData[0])/2 - oldData[nBin-1])/totalAtomCount;

@@ -34,6 +34,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         interListIterator = new ApiInterArrayList(new AtomArrayList(), new AtomArrayList());
         intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;
+        periodicity = new boolean[D];
         this.box = box;
 	}
 
@@ -76,8 +77,10 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     }
     
     public void reset() {
-        neighborIterator.setPeriod(box.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
+        for (int i=0; i<periodicity.length; i++) {
+            periodicity[i] = box.getBoundary().getPeriodicity(i);
+        }
+        neighborIterator.setPeriodicity(periodicity);
         cellIterator.reset();
         neighborIterator.checkDimensions();
         neighborIterator.unset();
@@ -141,4 +144,5 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
+    protected final boolean[] periodicity;
 }

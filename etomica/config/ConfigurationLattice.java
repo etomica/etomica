@@ -18,7 +18,6 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

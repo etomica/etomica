@@ -46,6 +46,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToAtomSetFixed, atomToAtomSetFixed);
         aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToAtomSetFixed, atomToAtomSetFixed);
         latticeIndex = new int[D];
+        periodicity = new boolean[D];
 
         neighborIterator.setDirection(null);
         boxAgentManager = agentManager;
@@ -55,8 +56,10 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         cellManager = (NeighborCellManager)boxAgentManager.getAgent(box);
         lattice = cellManager.getLattice();
         neighborIterator.setLattice(lattice);
-        neighborIterator.setPeriod(box.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(box.getBoundary().getPeriodicity());
+        for (int i=0; i<periodicity.length; i++) {
+            periodicity[i] = box.getBoundary().getPeriodicity(i);
+        }
+        neighborIterator.setPeriodicity(periodicity);
 	}
 
 	/**
@@ -214,6 +217,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private IAtomLeaf targetAtom;
     private final BoxAgentManager boxAgentManager;
     private NeighborCellManager cellManager;
+    protected final boolean[] periodicity;
     
     private CellLattice lattice;
     

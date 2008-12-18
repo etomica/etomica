@@ -3,7 +3,8 @@ package etomica.space;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
-import etomica.space.Space;
+import etomica.lattice.IndexIteratorRectangular;
+import etomica.lattice.IndexIteratorSizable;
 
 /**
  * Class for implementing slit periodic boundary conditions, in which
@@ -42,7 +43,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
     public BoundaryRectangularSlit(IRandom random, int slitDim, double boxSize, ISpace _space) {
-        super(_space,random,makePeriodicity(_space.D(),slitDim),boxSize);
+        super(_space,random,boxSize);
         sDim = slitDim;
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
@@ -57,7 +58,6 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
     public void setSlitDim(int slitDim) {
-        isPeriodic = makePeriodicity(space.D(),slitDim);
         sDim = slitDim;
     }
     
@@ -91,17 +91,14 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         return tempImage;
     }
 
-    private static boolean[] makePeriodicity(int D, int slitDim) {
-        if(slitDim >= D || slitDim < 0) { 
-            throw new IllegalArgumentException("Indicated dimension ("+slitDim+") is not valid for the space");
-        }
-        boolean[] isPeriodic = new boolean[D];
-        for (int i=0; i<D; i++) {
-            isPeriodic[i] = slitDim != i;
-        }
-        return isPeriodic;
+    public IndexIteratorSizable getIndexIterator() {
+        return new IndexIteratorRectangular(space.D()-1);
     }
-    
+
+    public boolean getPeriodicity(int d) {
+        return d != sDim;
+    }
+
     private int sDim;
     private static final long serialVersionUID = 1L;
     protected final IVector dimensionsHalf;

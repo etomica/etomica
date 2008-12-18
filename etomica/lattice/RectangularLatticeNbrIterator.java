@@ -33,7 +33,6 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
         this.D = D;
         centralSite = new int[D];
         cursor = Integer.MAX_VALUE;
-        cursorJump = new int[D];
         isPeriodic = new boolean[D];
         for (int i=0; i<D; i++) {
             isPeriodic[i] = true;
@@ -176,7 +175,6 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
     protected int neighborCount;
     protected boolean doUp, doDown;
     private IteratorDirective.Direction direction;
-    protected final int[] cursorJump;
     protected final boolean[] isPeriodic;
     private final int[] latticeIndex;
 }

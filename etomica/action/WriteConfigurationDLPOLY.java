@@ -125,8 +125,6 @@ public class WriteConfigurationDLPOLY implements IAction {
         	} else if(boundary instanceof BoundaryDeformablePeriodic){
         		boundaryType = 3;
         	} else {
-        		boolean[] periodicity = boundary.getPeriodicity();
-        		
         		/*
         		 * This handles: 
         		 *  0: non-periodic
@@ -134,9 +132,9 @@ public class WriteConfigurationDLPOLY implements IAction {
         		 *  6: slit boundary with periodicity in x and y
         		 */
         		
-        		if (periodicity[2]){
+        		if (boundary.getPeriodicity(2)){
         			boundaryType = 2;
-        		} else if (!periodicity[0]){
+        		} else if (!boundary.getPeriodicity(0)){
         			boundaryType = 0;
         		} else {
         			boundaryType = 6;

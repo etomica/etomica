@@ -3,6 +3,8 @@ package etomica.space;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
+import etomica.lattice.IndexIteratorRectangular;
+import etomica.lattice.IndexIteratorSizable;
 
 /**
  * Class for implementing pore periodic boundary conditions, in which
@@ -41,7 +43,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
     public BoundaryRectangularPore(Space space, IRandom random, int slitDim, double boxSize) {
-        super(space,random,makePeriodicity(space.D(),slitDim),boxSize);
+        super(space,random,boxSize);
         pDim = slitDim;
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
@@ -56,7 +58,6 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
     public void setPoreDim(int poreDim) {
-        isPeriodic = makePeriodicity(space.D(),pDim);
         pDim = poreDim;
     }
     
@@ -94,17 +95,15 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
         return tempImage;
     }
 
-    private static boolean[] makePeriodicity(int D, int poreDim) {
-        if(poreDim >= D || poreDim < 0) { 
-            throw new IllegalArgumentException("Indicated dimension ("+poreDim+") is not valid for the space");
-        }
-        boolean[] isPeriodic = new boolean[D];
-        for (int i=0; i<D; i++) {
-            isPeriodic[i] = poreDim == i;
-        }
-        return isPeriodic;
+
+    public IndexIteratorSizable getIndexIterator() {
+        return new IndexIteratorRectangular(1);
     }
-    
+
+    public boolean getPeriodicity(int d) {
+        return d == pDim;
+    }
+
     private int pDim;
     private static final long serialVersionUID = 1L;
     protected final IVector dimensionsHalf;

@@ -20,15 +20,15 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation. 
      */
-    public BoundaryRectangular(IRandom _random, ISpace _space, boolean[] periodicity) {
-        this(_space, _random, periodicity, 10.0);
+    public BoundaryRectangular(IRandom _random, ISpace _space) {
+        this(_space, _random, 10.0);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(ISpace space, IRandom random, boolean[] periodicity, double boxSize) {
-        this(space, random, periodicity, makeArray(space.D(), boxSize));
+    public BoundaryRectangular(ISpace space, IRandom random, double boxSize) {
+        this(space, random, makeArray(space.D(), boxSize));
     }
     
     private static final double[] makeArray(int n, double d) {
@@ -43,10 +43,9 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(ISpace space, IRandom random, boolean[] periodicity, double[] boxSize) {
+    public BoundaryRectangular(ISpace space, IRandom random, double[] boxSize) {
         super(space, makeShape(space));
         this.random = random;
-        isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(boxSize);
         
@@ -120,26 +119,10 @@ public abstract class BoundaryRectangular extends Boundary {
         return shape.getVolume();
     }
 
-    /**
-     * Returns the array that defines the directions of periodicity.  A true value
-     * for each element indicates that the boundary is periodic in the correspoinding
-     * direction.  The returned array is the internal representation, not a copy, so
-     * changing it will affect the periodicity of the boundary.
-     */
-    public boolean[] getPeriodicity() {
-        return isPeriodic;
-    }
-
     public IVector[] getEdgeVectors() {
         return edgeVectors;
     }
-    public IndexIteratorSizable getIndexIterator() {
-      int n = 0;
-      for(int i=0; i<isPeriodic.length; i++)
-        if(isPeriodic[i]) n++;
-      return new IndexIteratorRectangular(n);
-    }
-    
+
     /**
      * Returns a set of image origins for a set of periodic image shells.  
      * The returned array is of dimension [(2*nShells+1)^D][D], where D
@@ -171,7 +154,6 @@ public abstract class BoundaryRectangular extends Boundary {
     protected final IVector dimensions;
     protected final IVector dimensionsCopy;
     private final IndexIteratorRectangular indexIterator;
-    protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected final IRandom random;
     protected final IVector[] edgeVectors;

@@ -2,6 +2,8 @@ package etomica.space;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.lattice.IndexIteratorRectangular;
+import etomica.lattice.IndexIteratorSizable;
 
 /**
  * Boundary that is not periodic in any direction.  Volume is specified,
@@ -16,7 +18,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      * Make a boundary with unit volume.
      */
     public BoundaryRectangularNonperiodic(ISpace space, IRandom random) {
-        super(space, random, new boolean[space.D()], 1.0);//boolean elements will all be false
+        super(space, random, 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }
 
@@ -39,6 +41,14 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      */
     public double[][] imageOrigins(int nShells) {
         return origins;
+    }
+
+    public IndexIteratorSizable getIndexIterator() {
+        return new IndexIteratorRectangular(0);
+    }
+
+    public boolean getPeriodicity(int d) {
+        return false;
     }
 
     private final IVector zero;

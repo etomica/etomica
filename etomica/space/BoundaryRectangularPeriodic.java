@@ -2,6 +2,8 @@ package etomica.space;
 
 import etomica.api.IRandom;
 import etomica.api.IVector;
+import etomica.lattice.IndexIteratorRectangular;
+import etomica.lattice.IndexIteratorSizable;
 
 /**
  * Rectangular boundary that is periodic in every dimension.
@@ -19,7 +21,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
     public BoundaryRectangularPeriodic(ISpace _space, IRandom _random, double boxSize) {
-        super(_space, _random, makePeriodicity(_space.D()), boxSize);
+        super(_space, _random, boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = (IVectorRandom)space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated
@@ -47,14 +49,15 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         return tempImage;
     }
 
-    private static boolean[] makePeriodicity(int D) {
-        boolean[] isPeriodic = new boolean[D];
-        for (int i=0; i<D; i++) {
-            isPeriodic[i] = true;
-        }
-        return isPeriodic;
+
+    public IndexIteratorSizable getIndexIterator() {
+        return new IndexIteratorRectangular(space.D());
     }
-    
+
+    public boolean getPeriodicity(int d) {
+        return true;
+    }
+
     private static final long serialVersionUID = 1L;
     protected final IVector dimensionsHalf;
     protected final IVectorRandom tempImage;
