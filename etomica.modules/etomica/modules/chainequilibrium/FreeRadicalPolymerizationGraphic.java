@@ -72,6 +72,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
     public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, ISpace _space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+		getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
         
         int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());
