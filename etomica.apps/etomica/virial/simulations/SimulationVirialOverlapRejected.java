@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IListener;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -89,7 +88,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = new BoxCluster(this,sampleClusters[iBox], space);
+            box[iBox] = new BoxCluster(sampleClusters[iBox], space);
             addBox(box[iBox]);
             box[iBox].setNMolecules(species, nMolecules);
             

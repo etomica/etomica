@@ -1,13 +1,13 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
+import etomica.data.IEtomicaDataSource;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
@@ -16,7 +16,6 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.api.ISpecies;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -78,7 +77,7 @@ public class SimulationVirialPT extends Simulation {
 
             sampleCluster[iTemp] = sampleClusterFactory.makeWeightCluster(allValueClusters[iTemp]);
             sampleCluster[iTemp].setTemperature(temperature[iTemp]);
-            box[iTemp] = new BoxCluster(this,sampleCluster[iTemp], space);
+            box[iTemp] = new BoxCluster(sampleCluster[iTemp], space);
             box[iTemp].setNMolecules(species, nMolecules);
             
             integrator[iTemp] = new IntegratorMC(this, potentialMaster);

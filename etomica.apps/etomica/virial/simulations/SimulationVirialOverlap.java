@@ -13,7 +13,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -87,7 +86,7 @@ public class SimulationVirialOverlap extends Simulation {
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = new BoxCluster(this,sampleClusters[iBox], space);
+            box[iBox] = new BoxCluster(sampleClusters[iBox], space);
             addBox(box[iBox]);
             box[iBox].setNMolecules(species, nMolecules);
             

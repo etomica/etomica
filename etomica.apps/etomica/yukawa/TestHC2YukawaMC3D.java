@@ -57,7 +57,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-		box = new Box(this, space);
+		box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

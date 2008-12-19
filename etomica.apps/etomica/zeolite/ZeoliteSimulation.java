@@ -115,7 +115,7 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
-        box = new Box(this, space);
+        box = new Box(space);
         addBox(box);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);

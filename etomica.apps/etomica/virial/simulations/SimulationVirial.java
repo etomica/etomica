@@ -40,7 +40,7 @@ public class SimulationVirial extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
-		box = new BoxCluster(this,sampleCluster, space);
+		box = new BoxCluster(sampleCluster, space);
         box.getBoundary().setDimensions(space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this, space);
         getSpeciesManager().addSpecies(species);
