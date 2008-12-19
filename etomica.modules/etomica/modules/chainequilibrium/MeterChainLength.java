@@ -89,6 +89,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
             ((AtomTag)tagManager.getAgent(leafList.getAtom(i))).tagged = false;
         }
 
+        int totalAtoms = 0;
         for (int i=0; i<nLeaf; i++) {
             IAtomLeaf a = leafList.getAtom(i);
             if (a.getType() == ignoredAtomType) continue;
@@ -103,10 +104,11 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
                 histogram = data.getData();
             }
             histogram[chainLength-1] += chainLength;
+            totalAtoms += chainLength;
         }
 
         for (int i=0; i<histogram.length; i++) {
-            histogram[i] /= box.getLeafList().getAtomCount();
+            histogram[i] /= totalAtoms;
         }
         
         return data;
