@@ -61,7 +61,7 @@ import etomica.util.Constants.CompassDirection;
  */
 public class ChainEquilibriumGraphic extends SimulationGraphic {
 
-	private static final String APP_NAME = "Chain Reaction Equilibrium";
+	private static final String APP_NAME = "Stepwise Growth Polymerization";
 	private static final int REPAINT_INTERVAL = 2;
 
     protected ChainEquilibriumSim sim;

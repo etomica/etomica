@@ -64,7 +64,7 @@ import etomica.util.Constants.CompassDirection;
  */
 public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
-	private static final String APP_NAME = "Free Radical Polymerization";
+	private static final String APP_NAME = "Free Radical Chain Addition Polymerization";
 	private static final int REPAINT_INTERVAL = 2;
 
     protected final FreeRadicalPolymerizationSim sim;
