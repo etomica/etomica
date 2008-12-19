@@ -4,10 +4,10 @@
  */
 package etomica.math.geometry;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
-import etomica.space2d.Vector2D;
 
 /**
  * A quadrilateral with opposite sides parallel
@@ -21,7 +21,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * Default constructor makes a square of unit size
      */
     public Parallelogram(ISpace embeddedSpace) {
-        this(embeddedSpace, new Vector2D(1,0), new Vector2D(0,1));
+        this(embeddedSpace, embeddedSpace.makeVector(new double[]{1,0}), embeddedSpace.makeVector(new double[]{0,1}));
     }
 
     /**
@@ -79,6 +79,6 @@ public class Parallelogram extends Polygon implements Parallelotope {
         updateVertices();
     }
 
-    private final IVector a, b;
+    private final IVectorMutable a, b;
     private static final long serialVersionUID = 1L;
 }

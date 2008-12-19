@@ -7,6 +7,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -47,7 +48,7 @@ public final class SceneManager {
         boolean needUpdate = false;
         IVector[] newVertices = shape.getVertices();
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
-            boundaryVertices = new IVector[newVertices.length];
+            boundaryVertices = new IVectorMutable[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
                 boundaryVertices[i] = space.makeVector();
                 boundaryVertices[i].E(newVertices[i]);
@@ -69,7 +70,7 @@ public final class SceneManager {
             }
             
             LineSegment[] edges = shape.getEdges();
-            IVector shift = space.makeVector();
+            IVectorMutable shift = space.makeVector();
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
@@ -86,7 +87,7 @@ public final class SceneManager {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
             IAtomPositioned a = wrapper.atom;
             int c = colorScheme.atomColor((IAtomLeaf)a);
-            IVector r = a.getPosition();
+            IVectorMutable r = a.getPosition();
 
             Renderable.Shape shp = wrapper.shape;
             shp.setPosition( r );
@@ -181,8 +182,8 @@ public final class SceneManager {
     protected AtomFilter atomFilter;
     protected double scale;
     protected IBox box;
-    protected IVector[] boundaryVertices;
-    protected IVector from, to;
+    protected IVectorMutable[] boundaryVertices;
+    protected IVectorMutable from, to;
     
     protected ColorScheme colorScheme;
     protected IAtom[] selectedAtoms = new IAtom[1];

@@ -10,12 +10,11 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -27,7 +26,6 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 
 
 /**
@@ -46,21 +44,20 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public AtomLeafAgentManager atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
-	public IRandom random;
 	public FileWriter fileWriter;
 	public MeterPotentialEnergy energyBox0, energyBoxMin;
 	public ActivityIntegrate activityIntegrate;
 
-	public IVectorRandom [] N, Nstar;
-	public IVector NDelta, NstarDelta;
-	public IVector workVector1;
-	public IVector workVector2;
-	public IVector [] saddle;
-	public IVector [] F0, Fmin, Fmin2;
-	public IVector [] THETA, THETAstar;
-	public IVector [] Fperp, Fminperp, Fmin2perp;
-	public IVector [] Fstar, Fminstar, Fmin2star, Fstarperp;
-	public IVector [] Fpara;
+	public IVectorMutable [] N, Nstar;
+	public IVectorMutable NDelta, NstarDelta;
+	public IVectorMutable workVector1;
+	public IVectorMutable workVector2;
+	public IVectorMutable [] saddle;
+	public IVectorMutable [] F0, Fmin, Fmin2;
+	public IVectorMutable [] THETA, THETAstar;
+	public IVectorMutable [] Fperp, Fminperp, Fmin2perp;
+	public IVectorMutable [] Fstar, Fminstar, Fmin2star, Fstarperp;
+	public IVectorMutable [] Fpara;
 	public ISpecies [] movableSpecies;
 	public AtomArrayList list, listMin;
 	public int movableAtoms;
@@ -84,14 +81,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public IntegratorDimerMin(ISimulation sim, IPotentialMaster potentialMaster,
 			                  ISpecies[] species,
 			                  Boolean normalDir, ISpace _space) {
-		this(sim, potentialMaster, sim.getRandom(), 1.0, species, normalDir, _space);
+		this(sim, potentialMaster, 1.0, species, normalDir, _space);
 	}
 	
 	public IntegratorDimerMin(ISimulation aSim, IPotentialMaster potentialMaster,
-			                  IRandom arandom, double temperature,
+			                  double temperature,
 			                  ISpecies[] aspecies, Boolean normalDir, ISpace _space) {
 		super(potentialMaster, temperature);
-		this.random = arandom;
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();
 		this.forceMin = new PotentialCalculationForceSum();
@@ -179,29 +175,29 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         for(int i=0; i<movableSpecies.length; i++){
             movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
         }
-        N = new IVectorRandom [movableAtoms];
-        F0 = new IVector [movableAtoms];
-        Fmin = new IVector [movableAtoms];
-        Fmin2 = new IVector [movableAtoms];
-        Nstar = new IVectorRandom [movableAtoms];
-        THETA = new IVector [movableAtoms];
-        THETAstar = new IVector [movableAtoms];
-        Fperp = new IVector [movableAtoms];
-        Fminperp = new IVector [movableAtoms];
-        Fmin2perp = new IVector [movableAtoms];
-        Fstar = new IVector [movableAtoms];
-        Fminstar = new IVector [movableAtoms];
-        Fmin2star = new IVector [movableAtoms];
-        Fstarperp = new IVector [movableAtoms];
-        Fpara = new IVector [movableAtoms];
+        N = new IVectorMutable [movableAtoms];
+        F0 = new IVectorMutable [movableAtoms];
+        Fmin = new IVectorMutable [movableAtoms];
+        Fmin2 = new IVectorMutable [movableAtoms];
+        Nstar = new IVectorMutable [movableAtoms];
+        THETA = new IVectorMutable [movableAtoms];
+        THETAstar = new IVectorMutable [movableAtoms];
+        Fperp = new IVectorMutable [movableAtoms];
+        Fminperp = new IVectorMutable [movableAtoms];
+        Fmin2perp = new IVectorMutable [movableAtoms];
+        Fstar = new IVectorMutable [movableAtoms];
+        Fminstar = new IVectorMutable [movableAtoms];
+        Fmin2star = new IVectorMutable [movableAtoms];
+        Fstarperp = new IVectorMutable [movableAtoms];
+        Fpara = new IVectorMutable [movableAtoms];
         
         for (int i=0; i<movableAtoms; i++){
-            N[i] = (IVectorRandom)space.makeVector();
-            Nstar[i] = (IVectorRandom)space.makeVector();
+            N[i] = space.makeVector();
+            Nstar[i] = space.makeVector();
             F0[i] = space.makeVector();
             Fmin[i] = space.makeVector();
             Fmin2[i] = space.makeVector();
-            Nstar[i] = (IVectorRandom)space.makeVector();
+            Nstar[i] = space.makeVector();
             NDelta = space.makeVector();
             NstarDelta = space.makeVector();
             THETA[i] = space.makeVector();
@@ -334,7 +330,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             cosDtheta = Math.cos(dTheta);
             
 			// Find Nstar and THETAstar after dTheta rotation
-	        IVector workVectorN1 = space.makeVector();
+	        IVectorMutable workVectorN1 = space.makeVector();
 			for(int i=0; i<N.length; i++){
 				workVectorN1.Ea1Tv1(cosDtheta, N[i]);
 				workVectorN1.PEa1Tv1(sinDtheta, THETA[i]);
@@ -345,7 +341,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			}
                         
             // Use Nstar to offset(rotate) replicas
-            IVector workVector1 = space.makeVector();
+            IVectorMutable workVector1 = space.makeVector();
             for(int i=0; i<Nstar.length; i++){
                 workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
                 workVector1.PEa1Tv1(deltaR, Nstar[i]);
@@ -394,7 +390,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             double cosdeltaTheta = Math.cos(deltaTheta);
             
             // Find N**
-            IVector workVectorN2 = space.makeVector();
+            IVectorMutable workVectorN2 = space.makeVector();
             for(int i=0; i<N.length; i++){               
                 workVectorN2.Ea1Tv1(cosdeltaTheta, Nstar[i]);
                 workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
@@ -402,7 +398,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }
                         
             // Use new N to offset(rotate) replica
-            IVector workVector2 = space.makeVector();
+            IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
                 workVector2.E(((IAtomPositioned)list.getAtom(i)).getPosition());
                 workVector2.PEa1Tv1(deltaR, N[i]);
@@ -423,7 +419,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 */
 	public void walkDimer(){
 	    //System.out.println(e0);
-		IVector workvector;
+		IVectorMutable workvector;
 		workvector = space.makeVector();
 		
 		for(int i=0; i<N.length; i++){
@@ -460,7 +456,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 */
 	protected void dimerNormal(){
         double mag=0;
-        IVector workvector;
+        IVectorMutable workvector;
         workvector = space.makeVector();
         
         // N =  (Rmin - R0) / (deltaR)
@@ -486,7 +482,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 * @param aF Array of vectors holding the forces in box 0
 	 * @param aF2 Array of vectors holding the forces in virtual box 2
 	 */
-	protected void dimerForces(IVector [] aF1, IVector [] aF, IVector [] aF2){
+	protected void dimerForces(IVectorMutable [] aF1, IVectorMutable [] aF, IVectorMutable [] aF2){
 		force0.reset();
 		forceMin.reset();
 		
@@ -513,7 +509,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 * @param aF2star Array of vectors holding the forces in virtual box 2
 	 * @param aF Array of vectors holding the forces in box 0
 	 */
-	protected void dimerForcesStar(IVector [] aF1star, IVector [] aF2star, IVector [] aF){
+	protected void dimerForcesStar(IVectorMutable [] aF1star, IVectorMutable [] aF2star, IVectorMutable [] aF){
         forceMin.reset();
         potential.calculate(boxMin, allatoms, forceMin);
         
@@ -532,7 +528,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	 * @param aF1 Array of vectors holding the forces in box min
 	 * @param aFperp Array of vectors that create an n-dimensional vector perpendicular to the orientation of the dimer.
 	 */
-	protected void dimerForcePerp(IVectorRandom [] aN, IVector [] aF1, IVector [] aFperp){
+	protected void dimerForcePerp(IVectorMutable [] aN, IVectorMutable [] aF1, IVectorMutable [] aFperp){
 		
 		double mag1 = 0;
 		

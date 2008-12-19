@@ -1,6 +1,7 @@
 package etomica.space;
 
 import etomica.api.IFunction;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 
 
@@ -25,7 +26,7 @@ public interface Tensor extends Cloneable {
      * of vectors must equal the dimension of the tensor, and the vector
      * dimensions must equal the tensor dimension.
      */
-    public abstract void assignTo(IVector[] v);
+    public abstract void assignTo(IVectorMutable[] v);
     
     /**
      * Sets this equal to the dyadic or outer product of the given vectors.
@@ -65,7 +66,7 @@ public interface Tensor extends Cloneable {
      * Applies the given tensor transformation to this vector, replaced its
      * elements with the transformed values.
      */
-    public void transform(IVector A);
+    public void transform(IVectorMutable A);
 
     /**
      * Fills the given array with the elements of this tensor.

@@ -3,6 +3,7 @@ package etomica.action;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.ISpace;
@@ -24,6 +25,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         groupScaler = new MoleculeChildAtomAction(translator);
         moleculeCenter = new AtomPositionGeometricCenter(space);
         scaleVector = space.makeVector();
+        dimVector = space.makeVector();
         setScale(1.0);
     }
 
@@ -104,7 +106,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
-        IVector translationVector = translator.getTranslationVector();
+        IVectorMutable translationVector = translator.getTranslationVector();
 
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -121,9 +123,9 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         // triggers cell reassignment, which would fail if we shrink before
         // shifting atoms.  If we grow first, cell assignment would succeed,
         // but we'd need to reassign again after scaling the atom positions.
-        IVector dimensions = box.getBoundary().getDimensions();
-        dimensions.TE(scaleVector);
-        box.getBoundary().setDimensions(dimensions);
+        dimVector.E(box.getBoundary().getDimensions());
+        dimVector.TE(scaleVector);
+        box.getBoundary().setDimensions(dimVector);
     }
 
     /**
@@ -144,7 +146,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     private static final long serialVersionUID = 1L;
     protected final AtomActionTranslateBy translator;
     protected final MoleculeChildAtomAction groupScaler;
-    protected final IVector scaleVector;
+    protected final IVectorMutable scaleVector, dimVector;
     protected final AtomPositionGeometricCenter moleculeCenter;
     
 }

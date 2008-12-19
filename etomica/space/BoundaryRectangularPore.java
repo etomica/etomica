@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -74,7 +75,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
         }
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(IVectorMutable dr) {
         double x = dr.x(pDim);
         if (x < -dimensionsHalf.x(pDim)) {
             x += dimensions.x(pDim);
@@ -104,6 +105,6 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
 
     private int pDim;
     private static final long serialVersionUID = 1L;
-    protected final IVector dimensionsHalf;
-    protected final IVector tempImage;
+    protected final IVectorMutable dimensionsHalf;
+    protected final IVectorMutable tempImage;
 }

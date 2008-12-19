@@ -1,11 +1,8 @@
-/*
- * History
- * Created on Nov 24, 2004 by kofke
- */
 package etomica.math.geometry;
 
 import java.util.LinkedList;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -52,10 +49,10 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Constructor used for the Point subclass
      */
-    Polytope(ISpace embeddedSpace, IVector vertex) {
+    Polytope(ISpace embeddedSpace, IVectorMutable vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
-        this.vertices = new IVector[] { vertex };
+        this.vertices = new IVectorMutable[] { vertex };
         position = vertex;
         this.hyperPlanes = new Polytope[0];
     }
@@ -163,17 +160,17 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * polytopes.  Each vertex appears in the list only once.  Used
      * by constructor.
      */
-    private static IVector[] allVertices(Polytope[] hyperPlanes) {
+    private static IVectorMutable[] allVertices(Polytope[] hyperPlanes) {
         LinkedList list = new LinkedList();
         for (int i = 0; i < hyperPlanes.length; i++) {
-            IVector[] vertices = hyperPlanes[i].vertices;
+            IVectorMutable[] vertices = hyperPlanes[i].vertices;
             for (int j = 0; j < vertices.length; j++) {
                 if (!list.contains(vertices[j])) {
                     list.add(vertices[j]);
                 }
             }
         }
-        return (IVector[]) list.toArray(new IVector[0]);
+        return (IVectorMutable[]) list.toArray(new IVectorMutable[0]);
     }
     
     public abstract LineSegment[] getEdges();
@@ -196,8 +193,8 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * These vertices are used in all external representations of the polygon.
      * Changes to them do not necessarily change the state of the polygon.
      */
-    protected final IVector[] vertices;
-    protected final IVector position;
+    protected final IVectorMutable[] vertices;
+    protected final IVectorMutable position;
     protected final Polytope[] hyperPlanes;
     private boolean noTranslation = true;
     //    protected final Orientation orientation;

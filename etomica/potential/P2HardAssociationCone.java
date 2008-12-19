@@ -3,6 +3,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
@@ -26,7 +27,7 @@ public class P2HardAssociationCone extends Potential2 {
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private double ec2;
-    private final IVector dr;
+    private final IVectorMutable dr;
     private IBoundary boundary;
     
     public P2HardAssociationCone(ISpace space) {

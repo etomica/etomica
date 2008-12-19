@@ -3,6 +3,7 @@
  */
 package etomica.config;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -14,7 +15,7 @@ public class ConformationChain2D extends ConformationChain {
 	
     public ConformationChain2D(ISpace space, IVector[] vex){
 		super(space);
-		vectors = new IVector[vex.length];
+		vectors = new IVectorMutable[vex.length];
 		for (int i=0; i<vex.length; i++) {
 		    vectors[i] = space.makeVector();
 		}
@@ -35,16 +36,14 @@ public class ConformationChain2D extends ConformationChain {
 	 * @see etomica.ConformationChain#nextVector()
 	 */
 	public IVector nextVector() {
-		if(tracker<vectors.length){
-			tracker += 1;
-			return vectors[tracker-1];
+		if(tracker>=vectors.length){
+		    reset();
 		}
-	    reset();
 	    tracker += 1;
 	    return vectors[tracker-1];
 	}
 
     private static final long serialVersionUID = 1L;
-	protected final IVector[] vectors;
+	protected final IVectorMutable[] vectors;
 	protected int tracker;			//Tracker is used to track which vector the counter is on.
 }

@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Space2D;
@@ -54,7 +54,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
     /* (non-Javadoc)
 	 * @see etomica.space.ISpace#makeVector()
 	 */
-    public abstract IVector makeVector();
+    public abstract IVectorMutable makeVector();
 
     /* (non-Javadoc)
 	 * @see etomica.space.ISpace#makeOrientation()
@@ -90,27 +90,13 @@ public abstract class Space implements java.io.Serializable, ISpace {
 	 */
     public abstract double sphereArea(double r);
     
-    /**
-     * Returns the square distance between the two vectors, using the given boundary condition.
-     * 
-     * @throws IllegalArgumentException if u1.D() is not equal to u2.D().
-     * @throws UnsupportedOperationException if the u1.D is not 1, 2, or 3.
-     */
-    public static double r2(IVector u1, IVector u2, Boundary b) { //square distance between two vectors, subject to boundary b
-        if(u1.getD() != u2.getD()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
-        switch(u1.getD()) {
-            case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b, new Vector1D());
-            case 2: return Space2D.r2((Vector2D)u1, (Vector2D)u2, b, new Vector2D());
-            case 3: return Space3D.r2((Vector3D)u1, (Vector3D)u2, b, new Vector3D());
-            default: throw new UnsupportedOperationException("Unsupported Space dimension");
-        }
-    }
+
     /**
      * Returns a Vector from the space of the given dimension.
      * 
      * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
-    public static IVector makeVector(int D) {
+    public static IVectorMutable makeVector(int D) {
         switch(D) {
             case 1:  return new Vector1D();
             case 2:  return new Vector2D();
@@ -124,7 +110,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public IVector makeVector(double[] a) {
+    public IVectorMutable makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -137,7 +123,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * Returns a Vector initialized to the given set of values in the array (cast to double).
      * Spatial dimension of the Vector is determined by the length of a.
      */
-    public IVector makeVector(int[] k) {
+    public IVectorMutable makeVector(int[] k) {
         double[] a = new double[k.length];
         for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);
@@ -146,8 +132,8 @@ public abstract class Space implements java.io.Serializable, ISpace {
     /* (non-Javadoc)
 	 * @see etomica.space.ISpace#makeVectorArray(int)
 	 */
-    public IVector[] makeVectorArray(int n) {
-        IVector[] vectors = new IVector[n];
+    public IVectorMutable[] makeVectorArray(int n) {
+        IVectorMutable[] vectors = new IVectorMutable[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }

@@ -8,6 +8,7 @@ import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -98,17 +99,17 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector dim = space.makeVector();
+        IVectorMutable dim = space.makeVector();
         IBoundary boundary = box.getBoundary();
         for (int i=0; i<space.D(); i++) {
             IVector edgeVector = boundary.getEdgeVector(i);
             dim.setX(i,Math.sqrt(edgeVector.squared()));
         }
 
-        IVector shape = space.makeVector();
+        IVectorMutable shape = space.makeVector();
         shape.E(dim);
         shape.PE(-boundaryPadding);
-        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -129,7 +130,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine lattice constant
-        IVector latticeScaling = space.makeVector();
+        IVectorMutable latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -142,10 +143,10 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = space.makeVector();
-        IVector vectorOfMax = space.makeVector();
-        IVector vectorOfMin = space.makeVector();
-        IVector site = space.makeVector();
+        IVectorMutable offset = space.makeVector();
+        IVectorMutable vectorOfMax = space.makeVector();
+        IVectorMutable vectorOfMin = space.makeVector();
+        IVectorMutable site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -155,7 +156,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVector) lattice.site(indexIterator.next()));
+            site.E((IVectorMutable) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
@@ -192,7 +193,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             IConformation config = a.getType().getConformation();
             config.initializePositions(a.getChildList());
 
-            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
+            atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
         }
         if (nSites - siteCount > Math.ceil(1.0/(1.0-voidFrac))) {
@@ -338,7 +339,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
          * Returns the same instance of IVector with each call.
          */
         public Object site(int[] index) {
-            site.E((IVector) lattice.site(index));
+            site.E((IVectorMutable) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -356,7 +357,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         final SpaceLattice lattice;
         final public IVector latticeScaling;
         final IVector offset;
-        final IVector site;
+        final IVectorMutable site;
 
     }
 

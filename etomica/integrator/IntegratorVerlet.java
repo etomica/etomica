@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -26,7 +26,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    IVector work;
+    IVectorMutable work;
 
     protected AtomLeafAgentManager agentManager;
 
@@ -86,13 +86,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
-            IVector v = a.getVelocity();
+            IVectorMutable v = a.getVelocity();
             workTensor.Ev1v2(v,v);
             workTensor.TE(((IAtomLeaf)a).getType().getMass());
             pressureTensor.PE(workTensor);
             
             Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
-            IVector r = a.getPosition();
+            IVectorMutable r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(((IAtomLeaf)a).getType().rm()*t2);
@@ -159,15 +159,15 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     public void releaseAgent(Object agent, IAtomLeaf atom) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVector force;
-        public IVector rMrLast;  //r - rLast
+        public IVectorMutable force;
+        public IVectorMutable rMrLast;  //r - rLast
 
         public Agent(ISpace space) {
             force = space.makeVector();
             rMrLast = space.makeVector();
         }
         
-        public IVector force() {return force;}
+        public IVectorMutable force() {return force;}
     }//end of Agent
     
 }//end of IntegratorVerlet

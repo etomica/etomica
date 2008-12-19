@@ -2,6 +2,7 @@ package etomica.dimer;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
@@ -16,7 +17,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 	
     private static final long serialVersionUID = 1L;
 
-    private final IVector[] force;
+    private final IVectorMutable[] force;
 	
     //LEPS Potential Parameters
     public double alpha = 1.942;
@@ -45,7 +46,7 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
     
 	public P1LepsHarmonic(ISpace space){
 		super(space);
-	    force = new IVector[]{space.makeVector()};
+	    force = new IVectorMutable[]{space.makeVector()};
 	}
 	
 	public double energy(IAtomList atom) {

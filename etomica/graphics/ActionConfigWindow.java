@@ -9,7 +9,7 @@ import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 /**
  * Action that opens a new window and dumps the coordinates into the window.
@@ -31,7 +31,7 @@ public class ActionConfigWindow implements IAction {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-            IVector pos = a.getPosition();
+            IVectorMutable pos = a.getPosition();
             String str = Double.toString(pos.x(0));
             for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.x(i));

@@ -11,7 +11,7 @@ import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
@@ -334,7 +334,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                IVector vel = atom.getVelocity(); 
+                IVectorMutable vel = atom.getVelocity(); 
                 vel.setX(i, vel.x(i)*s); //scale momentum
             }
         }
@@ -392,7 +392,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     protected DataSourceScalar meterKE;
     protected AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     protected MeterTemperature meterTemperature;
-    protected final IVector momentum;
+    protected final IVectorMutable momentum;
     protected double currentTime;
     protected final ISpace space;
 }

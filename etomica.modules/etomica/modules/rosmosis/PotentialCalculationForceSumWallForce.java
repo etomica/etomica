@@ -1,6 +1,5 @@
 package etomica.modules.rosmosis;
 
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IPotential;

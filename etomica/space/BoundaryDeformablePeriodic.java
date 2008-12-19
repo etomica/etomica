@@ -3,6 +3,7 @@ package etomica.space;
 import java.io.Serializable;
 
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;
@@ -47,7 +48,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
             throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
         }
         
-        edgeVectors = new IVector[vex.length];
+        edgeVectors = new IVectorMutable[vex.length];
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i] = space.makeVector();
             edgeVectors[i].E(vex[i]);
@@ -72,13 +73,12 @@ public class BoundaryDeformablePeriodic extends Boundary {
         hCopy = space.makeTensor();
         hInv = space.makeTensor();
 
-        temp1 = (IVectorRandom)space.makeVector();
+        temp1 = space.makeVector();
         temp2 = space.makeVector();
         unit = space.makeVector();
         unit.E(1.0);
         half = space.makeVector();
         half.E(0.5);
-        dimensions = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
         periodicity = new boolean[space.D()];
         for (int i=0; i<periodicity.length; i++) {
@@ -88,8 +88,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
     
     //used by constructor
-    private static IVector[] makeVectors(ISpace space, double boxSize) {
-        IVector[] vectors = new IVector[space.D()];
+    private static IVectorMutable[] makeVectors(ISpace space, double boxSize) {
+        IVectorMutable[] vectors = new IVectorMutable[space.D()];
         for(int i=0; i<vectors.length; i++) {
             vectors[i] = space.makeVector();
             vectors[i].setX(i, boxSize);
@@ -157,7 +157,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 
     //needs work to improve efficiency; may be incorrect for extremely deformed boundaries
-	public void nearestImage(IVector dr) { 
+	public void nearestImage(IVectorMutable dr) { 
 	    
         boolean transformed = false;
        // temp1.E(dr);
@@ -382,9 +382,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
         hInv.E(h);
         hInv.invert(); // to get point s in edgeVector frame, do hInv times r
         
-        for(int i=0; i<edgeVectors.length; i++) {
-            dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
-        }
         ((Parallelotope)shape).setEdgeVectors(edgeVectors);
         volume = shape.getVolume();
         
@@ -444,13 +441,12 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private Tensor h;
     private Tensor hCopy;
     private final Tensor hInv;
-    private final IVector[] edgeVectors;
-    private final IVectorRandom temp1;
-    private final IVector temp2;
-    private final IVector dimensions;
+    private final IVectorMutable[] edgeVectors;
+    private final IVectorMutable temp1;
+    private final IVectorMutable temp2;
     private final boolean[] periodicity;
-    private final IVector unit;
-    private final IVector half;
+    private final IVectorMutable unit;
+    private final IVectorMutable half;
     private final int D;
     private final PeriodicTransform2[] edgePairTransforms;
     private final PeriodicTransform3[] edgeTripletTransforms;
@@ -466,7 +462,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
             transformVector = Space.makeVector(D);
         }
         
-        boolean transform(IVector dr) {
+        boolean transform(IVectorMutable dr) {
             double dot = dr.dot(transformVector)/t2;
             if(dot > halfTol) {
                 do {
@@ -489,14 +485,14 @@ public class BoundaryDeformablePeriodic extends Boundary {
         
         abstract void update();
         
-        protected final IVector transformVector;
+        protected final IVectorMutable transformVector;
         protected double t2;
         protected int n;
    }
     
     private static class PeriodicTransform2 extends PeriodicTransform {
         
-        PeriodicTransform2(IVector[] edgeVectors, int k0, int k1) {
+        PeriodicTransform2(IVectorMutable[] edgeVectors, int k0, int k1) {
             super(edgeVectors.length);
             edge0 = edgeVectors[k0];
             edge1 = edgeVectors[k1];
@@ -512,13 +508,13 @@ public class BoundaryDeformablePeriodic extends Boundary {
             t2 = transformVector.squared();
         }
         
-        private final IVector edge0, edge1;
+        private final IVectorMutable edge0, edge1;
         private static final long serialVersionUID = 1L;
     }
 
     private static class PeriodicTransform3 extends PeriodicTransform {
         
-        PeriodicTransform3(IVector[] edgeVectors, boolean getFirst) {
+        PeriodicTransform3(IVectorMutable[] edgeVectors, boolean getFirst) {
             super(edgeVectors.length);
             edge0 = edgeVectors[0];
             edge1 = edgeVectors[1];
@@ -581,9 +577,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
             if(sum != 0) throw new RuntimeException("i really shouldn't be here");
         }
         
-        private final IVector edge0, edge1, edge2;
+        private final IVectorMutable edge0, edge1, edge2;
         private final boolean getFirst;
         private static final long serialVersionUID = 1L;
     }
-
 }//end of BoundaryDeformablePeriodic

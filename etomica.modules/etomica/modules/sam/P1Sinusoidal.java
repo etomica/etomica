@@ -4,6 +4,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
@@ -16,17 +17,17 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         setB(1);
         this.offset = space.makeVector();
         r = space.makeVector();
-        waveVectors = new IVector[3];
+        waveVectors = new IVectorMutable[3];
         setCellSize(1,1);
-        gradient = new IVector[1];
+        gradient = new IVectorMutable[1];
         gradient[0] = space.makeVector();
     }
     
-    public void setOffset(IVector newOffset) {
+    public void setOffset(IVectorMutable newOffset) {
         offset.E(newOffset);
     }
     
-    public IVector getOffset() {
+    public IVectorMutable getOffset() {
         return offset;
     }
     
@@ -88,8 +89,8 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
 
     protected final ISpace space;
     protected double b45;
-    protected final IVector offset;
-    protected final IVector r;
-    protected final IVector[] waveVectors;
-    protected final IVector[] gradient;
+    protected final IVectorMutable offset;
+    protected final IVectorMutable r;
+    protected final IVectorMutable[] waveVectors;
+    protected final IVectorMutable[] gradient;
 }

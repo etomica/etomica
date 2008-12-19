@@ -7,7 +7,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.MoleculeSetSinglet;
@@ -108,7 +108,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			}
 		}
 		
-		nVector = new IVector[numNVector];
+		nVector = new IVectorMutable[numNVector];
 
 		numNVector = 0;
 		
@@ -163,8 +163,8 @@ public class EwaldSummation implements IPotentialMolecular {
 		int numNVector = nVector.length;
 		double uReal = 0.0;
 		
-		IVector rij = space.makeVector();
-		IVector rijNv = space.makeVector();
+		IVectorMutable rij = space.makeVector();
+		IVectorMutable rijNv = space.makeVector();
 		
 		for (int vecCounter=-1; vecCounter<numNVector; vecCounter++){
 			
@@ -181,7 +181,7 @@ public class EwaldSummation implements IPotentialMolecular {
 					
 				for (int a=0; a<numSites; a++){
 					IAtomLeaf sitea = moleculei.getChildList().getAtom(a);
-					IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
+					IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
 					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 					atomPair.atom0 = sitea;
 					
@@ -190,7 +190,7 @@ public class EwaldSummation implements IPotentialMolecular {
 						
 						for (int b=0; b<numSites; b++){
 							IAtomLeaf siteb = moleculej.getChildList().getAtom(b);
-							IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
+							IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();
 							double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
 							atomPair.atom1 = siteb;
 						
@@ -265,7 +265,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			
 			for (int i=0; i<numAtom; i++){
 				IAtomLeaf atomi = atomList.getAtom(i);
-				IVector posAtomi = ((IAtomPositioned)atomi).getPosition();
+				IVectorMutable posAtomi = ((IAtomPositioned)atomi).getPosition();
 				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
 				
 				double Sn = pl*(nVector[vecCounter].dot(posAtomi));
@@ -313,7 +313,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			 * Multi atomic
 			 */
 			
-			IVector dabVector = space.makeVector();
+			IVectorMutable dabVector = space.makeVector();
 			int numSites = molecule.getChildList().getAtomCount();
 		
 			// cancel-Term
@@ -333,8 +333,8 @@ public class EwaldSummation implements IPotentialMolecular {
 				IAtomLeaf sitea = pair.getAtom(0);
 				IAtomLeaf siteb = pair.getAtom(1);
 				
-				IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
-				IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
+				IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
+				IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();
 				
 				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 				double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
@@ -367,7 +367,7 @@ public class EwaldSummation implements IPotentialMolecular {
 	}
 	
 	protected final AtomLeafAgentManager atomAgentManager;
-	protected final IVector[] nVector;
+	protected final IVectorMutable[] nVector;
 	protected final int nVectorMax;
 	protected final double alpha;
 	protected final IBox box;

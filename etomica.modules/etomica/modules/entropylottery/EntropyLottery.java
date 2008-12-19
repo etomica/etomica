@@ -1,7 +1,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorMC;
@@ -41,7 +41,7 @@ public class EntropyLottery extends Simulation {
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.setNMolecules(species, N);
-        IVector dimensions = space.makeVector();
+        IVectorMutable dimensions = space.makeVector();
         dimensions.E(10);
         box.getBoundary().setDimensions(dimensions);
         new ConfigurationZero(space).initializeCoordinates(box);

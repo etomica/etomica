@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.models.water.P2WaterSPCSoft;
@@ -21,7 +22,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         super(2, _space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        zeroGradientAndTorque = new IVector[2][0];
+        gradientAndTorque = new IVectorMutable[2][0];
         dr = space.makeVector();
         setSwitchFac(0.95);
     }
@@ -68,7 +69,11 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
-            IVector[][] gradientAndTorque = potential.gradientAndTorque(atoms);
+            IVector[][] gradientAndTorqueUnswitched = potential.gradientAndTorque(atoms);
+            gradientAndTorque[0][0].E(gradientAndTorqueUnswitched[0][0]);
+            gradientAndTorque[0][1].E(gradientAndTorqueUnswitched[0][0]);
+            gradientAndTorque[1][0].E(gradientAndTorqueUnswitched[1][0]);
+            gradientAndTorque[1][1].E(gradientAndTorqueUnswitched[1][0]);
             if (r2 > r2Switch) {
                 double r = Math.sqrt(r2);
                 double fac = getF(r);
@@ -84,17 +89,21 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
                 gradientAndTorque[0][0].PEa1Tv1(-fac*u, dr);
                 gradientAndTorque[0][1].PEa1Tv1(+fac*u, dr);
             }
-            return gradientAndTorque;
+            return gradientAndTorqueUnswitched;
         }
-        if (zeroGradientAndTorque[0].length < atoms.getMoleculeCount()) {
-            zeroGradientAndTorque[0] = new IVector[atoms.getMoleculeCount()];
-            zeroGradientAndTorque[1] = new IVector[atoms.getMoleculeCount()];
+        if (gradientAndTorque[0].length < atoms.getMoleculeCount()) {
+            gradientAndTorque[0] = new IVectorMutable[atoms.getMoleculeCount()];
+            gradientAndTorque[1] = new IVectorMutable[atoms.getMoleculeCount()];
             for (int i=0; i<atoms.getMoleculeCount(); i++) {
-                zeroGradientAndTorque[0][i] = space.makeVector();
-                zeroGradientAndTorque[1][i] = space.makeVector();
+                gradientAndTorque[0][i] = space.makeVector();
+                gradientAndTorque[1][i] = space.makeVector();
             }
         }
-        return zeroGradientAndTorque;
+        gradientAndTorque[0][0].E(0);
+        gradientAndTorque[0][1].E(0);
+        gradientAndTorque[1][0].E(0);
+        gradientAndTorque[1][1].E(0);
+        return gradientAndTorque;
     }
     
     protected double getF(double r) {
@@ -188,9 +197,9 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final IPotentialMolecularTorque potential;
-    protected final IVector dr;
+    protected final IVectorMutable dr;
     protected IBoundary boundary;
-    protected final IVector[][] zeroGradientAndTorque;
+    protected final IVectorMutable[][] gradientAndTorque;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 }

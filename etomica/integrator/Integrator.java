@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import etomica.api.IAction;
 import etomica.api.IIntegrator;
 import etomica.api.IIntegratorNonintervalListener;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.exception.ConfigurationOverlapException;
 
 /**
@@ -308,13 +308,13 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * could be under the influence of a force.
      */
     public interface Forcible {
-        public IVector force();
+        public IVectorMutable force();
     }
 
     /**
      * Integrator agent that holds a torque vector.
      */
     public interface Torquable {
-        public IVector torque();
+        public IVectorMutable torque();
     }
 }

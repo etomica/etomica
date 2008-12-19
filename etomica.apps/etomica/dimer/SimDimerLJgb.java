@@ -6,7 +6,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
@@ -49,7 +49,7 @@ public class SimDimerLJgb extends Simulation{
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IBox box;
-    public IVector [] saddle;
+    public IVectorMutable [] saddle;
     public SpeciesSpheresMono fixed, movable;
     public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;

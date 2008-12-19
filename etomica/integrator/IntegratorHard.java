@@ -14,7 +14,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
@@ -156,8 +156,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVector dr = space.makeVector();
-                    IVector dv = space.makeVector();
+                    IVectorMutable dr = space.makeVector();
+                    IVectorMutable dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
@@ -190,8 +190,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
                     }
                 }
                 if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
-                    IVector dr = space.makeVector();
-                    IVector dv = space.makeVector();
+                    IVectorMutable dr = space.makeVector();
+                    IVectorMutable dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;

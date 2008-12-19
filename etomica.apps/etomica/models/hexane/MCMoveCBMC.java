@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -41,7 +41,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandom(random);
         setMoleculeSource(moleculeSource);
 
-        positionOld = new IVector[maxAtomsPerMolecule];
+        positionOld = new IVectorMutable[maxAtomsPerMolecule];
         for (int i = 0; i < maxAtomsPerMolecule; i++) {
             positionOld[i] = _space.makeVector();
         }
@@ -173,7 +173,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     protected double uNew = Double.NaN;
 
-    protected IVector[] positionOld; // Used to store the position of the
+    protected IVectorMutable[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
     protected IAtomList atomList;

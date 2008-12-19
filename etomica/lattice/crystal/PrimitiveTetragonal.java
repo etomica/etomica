@@ -3,7 +3,6 @@ import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * Primitive group for a tetragonal system.  All primitive

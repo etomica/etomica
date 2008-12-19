@@ -9,7 +9,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -61,7 +61,7 @@ public class SimKMCMEAMadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    public IVector adAtomPos;
+    public IVectorMutable adAtomPos;
     public IMoleculeList movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
@@ -174,7 +174,7 @@ public class SimKMCMEAMadatom extends Simulation{
         adAtomPos.setX(0, 9.8);
         adAtomPos.setX(1, 0.2);
         adAtomPos.setX(2, -1.0);
-        IVector newBoxLength = space.makeVector();
+        IVectorMutable newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
         newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
         box.getBoundary().setDimensions(newBoxLength);
@@ -197,9 +197,9 @@ public class SimKMCMEAMadatom extends Simulation{
         */
     }
     
-    public void setMovableAtoms(double distance, IVector center){
+    public void setMovableAtoms(double distance, IVectorMutable center){
         //distance = distance*distance;
-        IVector rij = space.makeVector();
+        IVectorMutable rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -231,7 +231,7 @@ public class SimKMCMEAMadatom extends Simulation{
             if(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition().x(0) < -4.0){continue;}
             boolean fixedFlag = true;
             for(int j=0; j<movableSet.getMoleculeCount(); j++){
-                IVector dist = space.makeVector();
+                IVectorMutable dist = space.makeVector();
                 dist.Ev1Mv2(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)movableSet.getMolecule(j).getChildList().getAtom(0)).getPosition());
                 box.getBoundary().nearestImage(dist);
                 if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
@@ -261,9 +261,9 @@ public class SimKMCMEAMadatom extends Simulation{
     }
     
     public void randomizePositions(){
-        IVector workVector = space.makeVector();
+        IVectorMutable workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        IVector [] currentPos = new IVector [loopSet3.getMoleculeCount()];
+        IVectorMutable [] currentPos = new IVectorMutable [loopSet3.getMoleculeCount()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
@@ -278,9 +278,9 @@ public class SimKMCMEAMadatom extends Simulation{
     }
     
     //Must be run after setMovableAtoms
-    public void removeAtoms(double distance, IVector center){
+    public void removeAtoms(double distance, IVectorMutable center){
         distance = distance*distance;
-        IVector rij = space.makeVector();
+        IVectorMutable rij = space.makeVector();
         
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -329,7 +329,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
     public static void main(String[] args){
        
         final SimKMCMEAMadatom sim = new SimKMCMEAMadatom();
-        IVector vect = sim.getSpace().makeVector();
+        IVectorMutable vect = sim.getSpace().makeVector();
         vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);

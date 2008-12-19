@@ -6,7 +6,7 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.models.water.SpeciesWater3P;
 import etomica.space.ISpace;
 
@@ -23,10 +23,10 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
         IAtomPositioned H1 = (IAtomPositioned)molecule.getChildList().getAtom(SpeciesWater3P.indexH1);
         IAtomPositioned H2 = (IAtomPositioned)molecule.getChildList().getAtom(SpeciesWater3P.indexH2);
         // normalize OH1
-        IVector p1 = H1.getPosition();
+        IVectorMutable p1 = H1.getPosition();
         p1.ME(O.getPosition());
         p1.TE(1/Math.sqrt(p1.squared()));
-        IVector p2 = H2.getPosition();
+        IVectorMutable p2 = H2.getPosition();
         p2.ME(O.getPosition());
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
@@ -43,6 +43,6 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector work;
+    private final IVectorMutable work;
     private final double sinAngle, cosAngle, distance;
 }

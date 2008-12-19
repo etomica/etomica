@@ -4,7 +4,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -31,7 +31,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     protected double energyOld,energyNew, energyEvenLater;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
-    private IVector[] waveVectors;
+    private IVectorMutable[] waveVectors;
     private double[] gaussian;
     protected double temperature;
     private double[][] stdDev;
@@ -297,8 +297,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
      * 
      * @param wv
      */
-    public void setWaveVectors(IVector[] wv){
-        waveVectors = new IVector[wv.length];
+    public void setWaveVectors(IVectorMutable[] wv){
+        waveVectors = new IVectorMutable[wv.length];
         waveVectors = wv;
     }
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {

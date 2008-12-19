@@ -8,7 +8,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -83,8 +83,8 @@ public class HexaneVolumeFraction extends Simulation {
             long time1;
             long time2;
 
-            IVector temp = sim.space.makeVector();
-            IVector rand = sim.space.makeVector();
+            IVectorMutable temp = sim.space.makeVector();
+            IVectorMutable rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
             IAtomLeaf atom = new AtomLeaf(sim.getSpace());

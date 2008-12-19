@@ -2,7 +2,7 @@ package etomica.data.types;
 
 import etomica.api.IData;
 import etomica.api.IFunction;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.IEtomicaDataInfo;
@@ -143,7 +143,7 @@ public class DataVector implements IData, java.io.Serializable {
     /**
      * The wrapped vector data.
      */
-    public final IVector x;
+    public final IVectorMutable x;
     
     public static class DataInfoVector extends DataInfo {
         

@@ -14,7 +14,7 @@ import etomica.action.SimulationRestart;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -412,7 +412,7 @@ public class JouleThomson extends SimulationGraphic {
     	        inflater.setTargetDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
     	        inflater.actionPerformed();
     	        double size = currentSig*Math.pow(sim.box.getLeafList().getAtomCount()/targetDensity,1.0/sim.getSpace().D());
-                IVector v = sim.getSpace().makeVector();
+                IVectorMutable v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.box.getBoundary().setDimensions(v);
                 SpaceLattice lattice;

@@ -1,7 +1,7 @@
 package etomica.data;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.ISpace;
@@ -34,7 +34,7 @@ public class DataSourceAtomDistance extends DataSourceScalar {
 	
 
 	protected final ISpace space;
-	protected final IVector vector;
+	protected final IVectorMutable vector;
 	protected IAtomPositioned atom1;
 	protected IAtomPositioned atom2;
 

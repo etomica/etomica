@@ -3,6 +3,7 @@ package etomica.space3d;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
@@ -57,7 +58,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
      * must have unit length, but need not be perpendicular to the current
      * orientation direction.
      */
-    public void rotateBy(double dt, IVector axis) {
+    public void rotateBy(double dt, IVectorMutable axis) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -151,7 +152,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector direction, secondaryDirection;
-    protected final IVector v2, v3;
+    protected final IVectorMutable direction, secondaryDirection;
+    protected final IVectorMutable v2, v3;
     protected final Tensor3D rotationTensor;
 }

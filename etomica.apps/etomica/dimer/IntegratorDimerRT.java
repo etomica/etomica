@@ -14,7 +14,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -58,19 +58,19 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public int movableAtoms;
 	public boolean rotate, ortho, ortho2, startOrtho, saddleFound;
 	public MeterPotentialEnergy energyBox1, energyBox2, energyBox0;
-	public IVector [] THETA, THETAstar, THETAstarstar;
-	public IVector [] F, F1, F2;
-	public IVector [] Fperp, F1perp, F2perp;
-	public IVector [] Gperp, Gperplast, Fperplast;
-	public IVector [] Fstar, F1star, F2star, Fstarperp;
-	public IVector [] Feff, Feffstar, Fr, Fpara;
-	public IVector [] deltaV, V;
-	public IVector [] newPosition;
-	public IVector [] workVector3;
+	public IVectorMutable [] THETA, THETAstar, THETAstarstar;
+	public IVectorMutable [] F, F1, F2;
+	public IVectorMutable [] Fperp, F1perp, F2perp;
+	public IVectorMutable [] Gperp, Gperplast, Fperplast;
+	public IVectorMutable [] Fstar, F1star, F2star, Fstarperp;
+	public IVectorMutable [] Feff, Feffstar, Fr, Fpara;
+	public IVectorMutable [] deltaV, V;
+	public IVectorMutable [] newPosition;
+	public IVectorMutable [] workVector3;
 	public IVectorRandom [] N, Nstar, Neff, N1;
-	public IVector NDelta, NstarDelta;
-	public IVector workVector1;
-	public IVector workVector2;
+	public IVectorMutable NDelta, NstarDelta;
+	public IVectorMutable workVector1;
+	public IVectorMutable workVector2;
 	public IRandom random1;
 	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
@@ -245,30 +245,30 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         Neff = new IVectorRandom [movableAtoms];
         Nstar = new IVectorRandom [movableAtoms];
         N1 = new IVectorRandom [movableAtoms];
-        THETA = new IVector [movableAtoms];
-        THETAstar = new IVector [movableAtoms];
-        THETAstarstar = new IVector [movableAtoms];
-        F = new IVector [movableAtoms];
-        F1 = new IVector [movableAtoms];
-        F2 = new IVector [movableAtoms];
-        Fperp = new IVector [movableAtoms];
-        Fperplast = new IVector [movableAtoms];
-        Gperp = new IVector [movableAtoms];
-        Gperplast = new IVector [movableAtoms];
-        F1perp = new IVector [movableAtoms];
-        F2perp = new IVector [movableAtoms];
-        Fstar = new IVector [movableAtoms];
-        F1star = new IVector [movableAtoms];
-        F2star = new IVector [movableAtoms];
-        Fstarperp = new IVector [movableAtoms];
-        Feff = new IVector [movableAtoms];
-        Feffstar = new IVector [movableAtoms];
-        Fr = new IVector [movableAtoms];
-        Fpara = new IVector [movableAtoms];
-        deltaV = new IVector [movableAtoms];
-        V = new IVector [movableAtoms];
-        newPosition = new IVector [movableAtoms];
-        workVector3 = new IVector [movableAtoms];
+        THETA = new IVectorMutable [movableAtoms];
+        THETAstar = new IVectorMutable [movableAtoms];
+        THETAstarstar = new IVectorMutable [movableAtoms];
+        F = new IVectorMutable [movableAtoms];
+        F1 = new IVectorMutable [movableAtoms];
+        F2 = new IVectorMutable [movableAtoms];
+        Fperp = new IVectorMutable [movableAtoms];
+        Fperplast = new IVectorMutable [movableAtoms];
+        Gperp = new IVectorMutable [movableAtoms];
+        Gperplast = new IVectorMutable [movableAtoms];
+        F1perp = new IVectorMutable [movableAtoms];
+        F2perp = new IVectorMutable [movableAtoms];
+        Fstar = new IVectorMutable [movableAtoms];
+        F1star = new IVectorMutable [movableAtoms];
+        F2star = new IVectorMutable [movableAtoms];
+        Fstarperp = new IVectorMutable [movableAtoms];
+        Feff = new IVectorMutable [movableAtoms];
+        Feffstar = new IVectorMutable [movableAtoms];
+        Fr = new IVectorMutable [movableAtoms];
+        Fpara = new IVectorMutable [movableAtoms];
+        deltaV = new IVectorMutable [movableAtoms];
+        V = new IVectorMutable [movableAtoms];
+        newPosition = new IVectorMutable [movableAtoms];
+        workVector3 = new IVectorMutable [movableAtoms];
         
         for(int i=0; i<movableAtoms; i++){
             N[i] = (IVectorRandom)space.makeVector();
@@ -465,7 +465,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             	if(startOrtho){
             		System.out.println("Starting othogonal dimer search.");
             		
-            		IVector workVec = space.makeVector();
+            		IVectorMutable workVec = space.makeVector();
             		for(int i=0;i<N.length;i++){
             			//swap
             			workVec.E(N1[i]);
@@ -499,7 +499,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             double cosDtheta = Math.cos(dTheta);
             
 			// Find Nstar after dTheta rotation
-	        IVector workVectorN1 = space.makeVector();
+	        IVectorMutable workVectorN1 = space.makeVector();
 			for(int i=0; i<N.length; i++){
 				workVectorN1.Ea1Tv1(cosDtheta, N[i]);
 				workVectorN1.PEa1Tv1(sinDtheta, THETA[i]);
@@ -509,7 +509,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				THETAstar[i].E(workVectorN1);
 			}
 			// Use N* to offset(rotate) replicas
-			IVector workVector1 = space.makeVector();
+			IVectorMutable workVector1 = space.makeVector();
 			for(int i=0; i<Nstar.length; i++){
 			    workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
 			    workVector1.PEa1Tv1(deltaR, Nstar[i]);
@@ -558,7 +558,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             */
 			
             // Find N**
-            IVector workVectorN2 = space.makeVector();
+            IVectorMutable workVectorN2 = space.makeVector();
             for(int i=0; i<N.length; i++){               
                 workVectorN2.Ea1Tv1(cosdeltaTheta, Nstar[i]);
                 workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
@@ -566,7 +566,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             }
             
             // Use new N to offset(rotate) replicas
-            IVector workVector2 = space.makeVector();
+            IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
                 workVector2.E(((IAtomPositioned)list.getAtom(i)).getPosition());
                 workVector2.PEa1Tv1(deltaR, N[i]);
@@ -678,7 +678,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	 * in forces at each end of the dimer into a single number.
 	 * 
 	 */
-	protected void dimerCurvature(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2){
+	protected void dimerCurvature(IVectorMutable [] aN, IVectorMutable [] aF1, IVectorMutable [] aF2){
 		curvature = 0.0;
 		
 	      // Copy forces of dimer end and center (R1, R) to local array
@@ -734,7 +734,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	// Compute Normal vector for dimer orientation
 	protected void dimerNormal(){
 	    double mag=0;
-		IVector workvector;
+		IVectorMutable workvector;
 		workvector = space.makeVector();
 		
 		// N =  (R1 - R2) / (-2*deltaR)
@@ -751,7 +751,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 		
 	// Reset forces in boxes 1 and 2, call calculate, and copy over new forces
-	protected void dimerForces(IVector [] aF1, IVector [] aF2, IVector [] aF){
+	protected void dimerForces(IVectorMutable [] aF1, IVectorMutable [] aF2, IVectorMutable [] aF){
 		force1.reset();
 		force0.reset();
 		
@@ -768,7 +768,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 	
 	
-	protected void dimerForcesStar(IVector [] aF1star, IVector [] aF2star, IVector [] aF){
+	protected void dimerForcesStar(IVectorMutable [] aF1star, IVectorMutable [] aF2star, IVectorMutable [] aF){
 	    force1.reset();
 	    potential.calculate(box1, allatoms, force1);
 	    
@@ -780,7 +780,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 	}
 	
-	protected void dimerForceCenter(IVector [] aF){
+	protected void dimerForceCenter(IVectorMutable [] aF){
 	    force0.reset();
 	    potential.calculate(box, allatoms, force0);
 	    
@@ -792,7 +792,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	
 	// Calculate the force, aF, perpendicular to dimer orientation N.
-	protected void dimerForcePerp(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2, IVector [] aFperp){
+	protected void dimerForcePerp(IVectorRandom [] aN, IVectorMutable [] aF1, IVectorMutable [] aF2, IVectorMutable [] aFperp){
 		
 		double mag1 = 0;
 		double mag2 = 0;
@@ -813,7 +813,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 		
 	// Calculate the effective force on the dimer using curvature and F, N
-	protected void dimerForceEff(IVector [] aF, IVector [] aFeff, IVector [] aNeff){
+	protected void dimerForceEff(IVectorMutable [] aF, IVectorMutable [] aFeff, IVectorMutable [] aNeff){
 		
 	    double mag = 0;
 	    for(int i=0; i<aF.length; i++){
@@ -824,7 +824,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    
 		// Feff = F - 2(F[dot]N)N
 		if(curvature<0.0){
-			IVector workvector = space.makeVector();
+			IVectorMutable workvector = space.makeVector();
 			for (int i=0; i<aNeff.length; i++){
 			    workvector.Ea1Tv1(2.0*mag, aNeff[i]);
 			    aFeff[i].Ev1Mv2(aF[i], workvector);
@@ -840,8 +840,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 	
 	// Update positions according Henkelman 2004
-	protected void dimerUpdatePositions(double a1, IVector [] normal){
-		IVector workvector = space.makeVector();	
+	protected void dimerUpdatePositions(double a1, IVectorMutable [] normal){
+		IVectorMutable workvector = space.makeVector();	
 		//System.out.println(".T - Stepping "+a1);
 		for(int i=0; i<normal.length; i++){
 		    workvector.Ea1Tv1(a1, normal[i]);			

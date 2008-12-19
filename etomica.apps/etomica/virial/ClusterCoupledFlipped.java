@@ -4,6 +4,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space3d.Vector3D;
 
@@ -100,5 +101,5 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
-    private IVector childAtomVector;
+    private IVectorMutable childAtomVector;
 }

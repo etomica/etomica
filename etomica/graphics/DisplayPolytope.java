@@ -8,6 +8,7 @@ import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAction;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
@@ -73,7 +74,7 @@ public class DisplayPolytope extends Display implements IAction {
     private double toPixels;
         
     protected Polytope polytope;
-    private final IVector dimensions, maxCoord, minCoord;
+    private final IVectorMutable dimensions, maxCoord, minCoord;
   
     public DisplayPolytope(Polytope polytope) {
         super();
@@ -171,7 +172,7 @@ public class DisplayPolytope extends Display implements IAction {
 
         switch(polytope.getEmbeddedSpace().D()) {
             case 3:
-//                canvas = new DisplayPolytopeCanvasG3DSys(this);
+                canvas = new DisplayPolytopeCanvasG3DSys(this);
                 break;
             case 2:
                 canvas = new DisplayPolytopeCanvas2D(this);
@@ -371,17 +372,15 @@ public class DisplayPolytope extends Display implements IAction {
             Parallelepiped parallelepiped = new Parallelepiped(space3D,a,b,c);
             Space2D space2D = Space2D.getInstance();
             LineSegment lineS1 = new LineSegment(space2D);
-            lineS1.getVertices()[1].setX(1,5.0);
+            lineS1.setVertex2(space2D.makeVector(new double[]{0,5}));
             LineSegment lineS2 = new LineSegment(space2D);
-            lineS2.getVertices()[0].setX(1,5.0);
-            lineS2.getVertices()[1].setX(0,10.0);
-            lineS2.getVertices()[1].setX(1,10.0);
+            lineS2.setVertex1(space2D.makeVector(new double[]{0,5}));
+            lineS2.setVertex2(space2D.makeVector(new double[]{10,10}));
             LineSegment lineS3 = new LineSegment(space2D);
-            lineS3.getVertices()[0].setX(0,10.0);
-            lineS3.getVertices()[0].setX(1,10.0);
-            lineS3.getVertices()[1].setX(0,10.0);
+            lineS3.setVertex1(space2D.makeVector(new double[]{10,10}));
+            lineS3.setVertex2(space2D.makeVector(new double[]{10,0}));
             LineSegment lineS4 = new LineSegment(space2D);
-            lineS4.getVertices()[0].setX(0,10.0);
+            lineS4.setVertex1(space2D.makeVector(new double[]{0,10}));
             PolygonGeneral quad = new PolygonGeneral(new LineSegment[]{lineS1,lineS2,lineS3,lineS4});
             DisplayPolytope displayPolytope = new DisplayPolytope(cuboid);
             getContentPane().add(displayPolytope.graphic());

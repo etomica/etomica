@@ -6,7 +6,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.space.ISpace;
@@ -80,11 +80,11 @@ public class MeterRadiusGyration extends DataSourceScalar {
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
-            IVector prevPosition = firstAtom.getPosition();
+            IVectorMutable prevPosition = firstAtom.getPosition();
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
                 nLeafAtoms++;
-                IVector position = a.getPosition();
+                IVectorMutable position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -100,7 +100,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
             realPos.E(firstAtom.getPosition());
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
                 IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
-                IVector position = a.getPosition();
+                IVectorMutable position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -135,7 +135,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     private IBox box;
     private MoleculeIteratorAllMolecules iterator;
-    private final IVector cm, realPos;
-    private final IVector dr;
+    private final IVectorMutable cm, realPos;
+    private final IVectorMutable dr;
 
 }

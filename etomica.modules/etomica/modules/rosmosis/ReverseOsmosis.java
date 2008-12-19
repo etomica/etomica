@@ -4,7 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -111,7 +111,7 @@ public class ReverseOsmosis extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVector dim = space.makeVector();
+        IVectorMutable dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setDimensions(dim);
         configMembrane = new ConfigurationMembrane(this, space);

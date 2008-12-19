@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
@@ -117,7 +117,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
     }
 
     private double AA, BB, CC;
-    protected final IVector dr01;
+    protected final IVectorMutable dr01;
 
     private static final long serialVersionUID = 1L;
 }

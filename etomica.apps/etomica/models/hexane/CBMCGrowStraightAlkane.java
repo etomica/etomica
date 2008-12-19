@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.integrator.IntegratorMC;
@@ -52,7 +52,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         temp = _space.makeVector();
         a = new double[numTrial];
         b = new double[chainlength]; // used to store old rosenbluth factors
-        storePos = new IVector[numTrial];
+        storePos = new IVectorMutable[numTrial];
         // angleSet = new double[numTrial];
         for (int k = 0; k < numTrial; k++) {
             storePos[k] = _space.makeVector();
@@ -289,7 +289,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * 
      * @return a new bond vector
      */
-    protected IVector calcRandomBond() {
+    protected IVectorMutable calcRandomBond() {
         vex.setRandomSphere(random);
         vex.TE(calcBondL());
         return vex;
@@ -307,7 +307,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     // Based on algorithm 45 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
+    protected IVectorMutable calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
         double phi;
         double ubb;
 
@@ -339,7 +339,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * @return new bond vector
      */
     // Based on algorithm 46 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
+    protected IVectorMutable calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
             IAtomPositioned c) {
 /*
         if (dim != 3) {
@@ -391,7 +391,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     protected abstract double calcBondAngleEnergy(double dub);
 
     // utors in algorithm 46
-    protected abstract double calcBondTorsionalEnergy(IVector v);
+    protected abstract double calcBondTorsionalEnergy(IVectorMutable v);
 
     public abstract double energyChange();
 
@@ -401,7 +401,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     double sumW;
 
-    IVector temp;
+    IVectorMutable temp;
 
     IVectorRandom vex;
 
@@ -409,11 +409,11 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     double[] b;
 
-    IVector[] storePos;
+    IVectorMutable[] storePos;
 
-    IVector tempCloser;
+    IVectorMutable tempCloser;
 
-    IVector tempFarther;
+    IVectorMutable tempFarther;
     
     protected RandomPositionSource positionSource;
 

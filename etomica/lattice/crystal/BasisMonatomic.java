@@ -1,6 +1,6 @@
 package etomica.lattice.crystal;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -12,7 +12,7 @@ public class BasisMonatomic extends Basis {
      * Creates a single-atom basis with the coordinate at the origin.
      */
     public BasisMonatomic(ISpace space) {
-        super(new IVector[] {space.makeVector()});
+        super(new IVectorMutable[] {space.makeVector()});
     }
     	
     private static final long serialVersionUID = 1L;

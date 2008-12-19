@@ -7,6 +7,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -123,7 +124,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
             IMoleculeList molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getMoleculeCount(); j++) {
                 IMolecule atom = molecules.getMolecule(j);
-                IVector oldPosition = ((IVector)agentManager.getAgent(atom));
+                IVectorMutable oldPosition = ((IVectorMutable)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
                 IVector newPosition = atom.getType().getPositionDefinition().position(atom);
                 double newX = newPosition.x(dim);
@@ -165,14 +166,14 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
     }
 
     public Class getMoleculeAgentClass() {
-        return IVector.class;
+        return IVectorMutable.class;
     }
 
     public Object makeAgent(IMolecule a) {
         ISpecies thisSpecies = a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
-                IVector vec = space.makeVector();
+                IVectorMutable vec = space.makeVector();
                 vec.E(a.getType().getPositionDefinition().position(a));
                 return vec;
             }

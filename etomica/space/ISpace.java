@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 public interface ISpace {
 
@@ -27,11 +27,11 @@ public interface ISpace {
 	/**
 	 * Constructs and returns a new Vector appropriate to the space.
 	 */
-	public abstract IVector makeVector();
+	public abstract IVectorMutable makeVector();
 
-	public abstract IVector makeVector(double[] a);
+	public abstract IVectorMutable makeVector(double[] a);
 
-	public abstract IVector makeVector(int[] k);
+	public abstract IVectorMutable makeVector(int[] k);
 
 	/**
 	 * Constructs and returns a new Orientation appropriate to the space.
@@ -84,6 +84,6 @@ public interface ISpace {
 	 * @param n number of vectors in the returned array
 	 * @return an array of n new vectors made by the space instance
 	 */
-	public abstract IVector[] makeVectorArray(int n);
+	public abstract IVectorMutable[] makeVectorArray(int n);
 	
 }

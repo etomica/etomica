@@ -2,6 +2,7 @@ package etomica.space3d;
 
 
 import etomica.api.IFunction;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.Tensor;
 import etomica.util.Debug;
@@ -73,7 +74,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
     }
     
-    public void assignTo(IVector[] v) {
+    public void assignTo(IVectorMutable[] v) {
         if(v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
         }
@@ -242,7 +243,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx = f.f(zx); zy = f.f(zy); zz = f.f(zz);
     }
 
-    public void transform(IVector v) {
+    public void transform(IVectorMutable v) {
         Vector3D v3D = (Vector3D) v;
         double x1 = xx * v3D.x + xy * v3D.y + xz * v3D.z;
         double y1 = yx * v3D.x + yy * v3D.y + yz * v3D.z;

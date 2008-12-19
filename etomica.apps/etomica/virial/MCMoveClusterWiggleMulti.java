@@ -7,7 +7,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.ISpace;
@@ -75,7 +75,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             int j = random.nextInt(numChildren);
             selectedAtoms[i] = (IAtomPositioned)childList.getAtom(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
-            IVector position = selectedAtoms[i].getPosition();
+            IVectorMutable position = selectedAtoms[i].getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             double oldBondLength1 = 0, oldBondLength2 = 0;
                 
@@ -130,8 +130,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 // j-1 - j and j - j+1 bond lengths are unaltered.
 
 //                System.out.println("middle move "+j+" "+position);
-                IVector position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
-                IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
+                IVectorMutable position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
+                IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
                 work1.Ev1Mv2(position0, position);
                 work2.Ev1Mv2(position2, position);
                 if (Debug.ON && Debug.DEBUG_NOW) {
@@ -223,8 +223,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtomPositioned[] selectedAtoms;
-    protected final IVector work1, work2, work3;
-    protected IVector[] translationVectors;
+    protected final IVectorMutable work1, work2, work3;
+    protected IVectorMutable[] translationVectors;
     protected double wOld, wNew;
     protected final ISpace space;
 }

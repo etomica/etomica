@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -24,12 +25,12 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private static final long serialVersionUID = 1L;
     private double w = 100.0;
-    private final IVector[] force;
-    private final IVector x0;
+    private final IVectorMutable[] force;
+    private final IVectorMutable x0;
     
     public P1Harmonic(ISpace space) {
         super(space);
-        force = new IVector[]{space.makeVector()};
+        force = new IVectorMutable[]{space.makeVector()};
         x0 = space.makeVector();
     }
     
@@ -74,7 +75,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList a){
-        IVector r = ((IAtomPositioned)a.getAtom(0)).getPosition();
+        IVectorMutable r = ((IAtomPositioned)a.getAtom(0)).getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

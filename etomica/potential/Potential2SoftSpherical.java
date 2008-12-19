@@ -4,6 +4,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -20,7 +21,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    
     public Potential2SoftSpherical(ISpace space) {
         super(space);
-        gradient = new IVector[2];
+        gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -111,8 +112,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-    protected final IVector[] gradient;
+    protected final IVectorMutable[] gradient;
     protected IBoundary boundary;
-    protected final IVector dr;
+    protected final IVectorMutable dr;
     
 }//end of Potential2SoftSpherical

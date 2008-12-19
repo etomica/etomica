@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -159,10 +159,10 @@ public class P22CLJQ extends PotentialMolecular {
     private double Q2;
     private IBoundary boundary;
 
-    private final IVector com1;
-    private final IVector com2;
-    private final IVector v12;
-    private final IVector v1;
-    private final IVector v2;
-    private final IVector dr;
+    private final IVectorMutable com1;
+    private final IVectorMutable com2;
+    private final IVectorMutable v12;
+    private final IVectorMutable v1;
+    private final IVectorMutable v2;
+    private final IVectorMutable dr;
 }

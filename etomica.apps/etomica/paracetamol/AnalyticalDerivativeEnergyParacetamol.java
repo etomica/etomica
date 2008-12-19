@@ -7,7 +7,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
@@ -22,9 +22,9 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 		aProj  = space.makeVector();
 		v      = space.makeVector();
 		deltaV = space.makeVector();
-		distance = new IVector[20];
-		torque   = new IVector[20];
-		torqueF  = new IVector[20];
+		distance = new IVectorMutable[20];
+		torque   = new IVectorMutable[20];
+		torqueF  = new IVectorMutable[20];
 		for (int i=0; i<20; i++){
 			distance[i] = space.makeVector();
 			torque  [i] = space.makeVector();
@@ -96,8 +96,8 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
-				IVector leafPos0 = ((IAtomPositioned)molecule.getAtom(0)).getPosition();
-				IVector leafPos5 = ((IAtomPositioned)molecule.getAtom(5)).getPosition();
+				IVectorMutable leafPos0 = ((IAtomPositioned)molecule.getAtom(0)).getPosition();
+				IVectorMutable leafPos5 = ((IAtomPositioned)molecule.getAtom(5)).getPosition();
 				
 				v.Ev1Mv2(leafPos5, leafPos0);
 				v.normalize();
@@ -223,11 +223,11 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 	
 	
 	
-	protected final IVector rotationAxis;
-	protected final IVector a, aProj;
-	protected final IVector v, deltaV;
-	protected final IVector [] distance, torque, torqueF;
-	protected final IVector torqueSum;
+	protected final IVectorMutable rotationAxis;
+	protected final IVectorMutable a, aProj;
+	protected final IVectorMutable v, deltaV;
+	protected final IVectorMutable [] distance, torque, torqueF;
+	protected final IVectorMutable torqueSum;
 	protected double[] fPrimeRotation;
 	private static final long serialVersionUID = 1L;
 }

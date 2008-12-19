@@ -11,7 +11,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IDataInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
@@ -83,7 +83,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         
         LatticeSum summer = new LatticeSum(lattice);
         summer.setMaxElement(49);
-        IVector kVector = new Vector3D();
+        IVectorMutable kVector = new Vector3D();
         kVector.E(0.0);
         summer.setK(kVector);
         System.out.println("\n k:"+kVector.toString()+"   in NormalModeSoftSpherical");

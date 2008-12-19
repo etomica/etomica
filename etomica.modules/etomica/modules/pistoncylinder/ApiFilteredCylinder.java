@@ -3,6 +3,7 @@ package etomica.modules.pistoncylinder;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
@@ -61,7 +62,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
             // accept them all and weight them half as much. 
             int numOut = 0;
             for (int i=0; i<2; i++) {
-                IVector pos = ((IAtomPositioned)atoms.getAtom(i)).getPosition();
+                IVectorMutable pos = ((IAtomPositioned)atoms.getAtom(i)).getPosition();
                 if (pos.x(0) < -0.5*dimensions.x(0)+radius ||
                     pos.x(0) >  0.5*dimensions.x(0)-radius ||
                     pos.x(1) >  0.5*dimensions.x(1)-radius ||

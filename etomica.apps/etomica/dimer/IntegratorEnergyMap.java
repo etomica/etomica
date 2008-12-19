@@ -6,7 +6,7 @@ import java.util.Formatter;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -35,7 +35,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         try {
            
             Formatter formatter = new Formatter("energy-"+fileTail);
-            IVector pos = adatom.getPosition();
+            IVectorMutable pos = adatom.getPosition();
             // Move atom along Y-axis, steps by 0.1
             for(int i=0; i<292; i++){ //292
                 

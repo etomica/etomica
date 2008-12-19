@@ -2,7 +2,7 @@ package etomica.dimer;
 
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -29,7 +29,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
     	final String APP_NAME = "SimDimerMEAMadatomCluster";
 
     	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
-        IVector vect = sim.getSpace().makeVector();
+        IVectorMutable vect = sim.getSpace().makeVector();
         vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);

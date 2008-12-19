@@ -7,6 +7,6 @@ package etomica.api;
  */
 public interface IAtomKinetic extends IAtomPositioned {
 
-    public IVector getVelocity();
+    public IVectorMutable getVelocity();
  
 }

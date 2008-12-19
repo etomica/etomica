@@ -6,7 +6,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.util.Debug;
 
@@ -96,13 +96,13 @@ public class BoxScaleMomenta implements IAction {
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                IVector vel = atom.getVelocity(); 
+                IVectorMutable vel = atom.getVelocity(); 
                 vel.setX(i, vel.x(i)*s); //scale momentum
             }
         }
     }
 
     protected final IBox box;
-    protected final IVector momentum;
+    protected final IVectorMutable momentum;
     protected double temperature;
 }

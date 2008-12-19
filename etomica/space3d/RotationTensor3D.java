@@ -3,7 +3,13 @@ package etomica.space3d;
 import etomica.api.IVector;
 
 public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
-    public RotationTensor3D() {super(); reset();}
+    protected final Vector3D work;
+    
+    public RotationTensor3D() {
+        super();
+        work = new Vector3D();
+        reset();
+    }
     public void reset() {
         xx = 1.0; xy = 0.0; xz = 0.0;
         yx = 0.0; yy = 1.0; yz = 0.0;
@@ -79,6 +85,7 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
 
     public void setOrientation(IOrientationFull3D orientation3D) {
         IVector direction = orientation3D.getDirection();
+        work.E(direction);
         IVector secondaryDirection = orientation3D.getSecondaryDirection();
         xx = direction.x(0);
         xy = direction.x(1);
@@ -86,14 +93,10 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         yx = secondaryDirection.x(0);
         yy = secondaryDirection.x(1);
         yz = secondaryDirection.x(2);
-        // sorry, really!  we'll put it back shortly
-        direction.XE(secondaryDirection);
-        zx = direction.x(0);
-        zy = direction.x(1);
-        zz = direction.x(2);
-        direction.setX(0, xx);
-        direction.setX(1, xy);
-        direction.setX(2, xz);
+        work.XE(secondaryDirection);
+        zx = work.x(0);
+        zy = work.x(1);
+        zz = work.x(2);
     }
     
     private static final long serialVersionUID = 1L;

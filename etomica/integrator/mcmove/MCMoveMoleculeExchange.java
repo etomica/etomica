@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -40,7 +40,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     private final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     private final MoleculeActionTranslateTo moleculeTranslator;
     private final MoleculeChildAtomAction moleculeReplacer;
-    private final IVector translationVector;
+    private final IVectorMutable translationVector;
     private final IRandom random;
     private MoleculeSource moleculeSource;
     protected RandomPositionSource positionSource;
@@ -61,7 +61,7 @@ public class MCMoveMoleculeExchange extends MCMove {
         energyMeter.setIncludeLrc(true);
         moleculeReplacer = new MoleculeChildAtomAction(new AtomActionTranslateBy(_space));
         moleculeTranslator = new MoleculeActionTranslateTo(_space);
-        translationVector = moleculeTranslator.getTranslationVector();
+        translationVector = _space.makeVector();
         setAtomPositionDefinition(new AtomPositionCOM(_space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
@@ -182,7 +182,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     
     public void rejectNotify() {
         iBox.removeMolecule(molecule);
-        translationVector.TE(-1);
+        translationVector.E(moleculeTranslator.getTranslationVector());
         ((AtomActionTranslateBy)moleculeReplacer.getAtomAction()).setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
         dBox.addMolecule(molecule);

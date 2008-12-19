@@ -4,17 +4,16 @@ import java.io.Serializable;
 
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -38,7 +37,7 @@ public class WaveVectorFactory2D implements WaveVectorFactory, Serializable {
         double[] d = primitive.getSize();
         int[] numCells = new int[space.D()];
         IVector[] reciprocals =  primitive.makeReciprocal().vectors();
-        IVector[] waveVectorBasis = new IVector[reciprocals.length];
+        IVectorMutable[] waveVectorBasis = new IVectorMutable[reciprocals.length];
         
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
@@ -137,7 +136,7 @@ outer:              for (int i=0; i<2; i++){
         }
    
     
-    public IVector[] getWaveVectors() {
+    public IVectorMutable[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -160,7 +159,7 @@ outer:              for (int i=0; i<2; i++){
         
         WaveVectorFactory2D foo = new WaveVectorFactory2D(primitive, sp);
         foo.makeWaveVectors(box);
-        IVector[] waveVectors = foo.getWaveVectors();
+        IVectorMutable[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -170,7 +169,7 @@ outer:              for (int i=0; i<2; i++){
 
     private static final long serialVersionUID = 1L;
     protected final Primitive primitive;
-    protected IVector[] waveVectors;
+    protected IVectorMutable[] waveVectors;
     protected double[] coefficients;
     private final ISpace space;
 }

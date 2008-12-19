@@ -6,6 +6,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;

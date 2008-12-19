@@ -1,10 +1,10 @@
 package etomica.config;
 
-import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -33,8 +33,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double spacing;
     protected ISpecies fixedSpecies, mobileSpecies;
     private ISpace space;
-    IVector [] reciprocal, origin, plane;
-    IVector normal;
+    IVector [] reciprocal;
+    IVectorMutable[] origin, plane;
+    IVectorMutable normal;
     int [] millerPlane;
     
     public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP,
@@ -110,7 +111,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     public void setGBplane(int [] m){
     	millerPlane = m;
     	
-    	origin = new IVector[space.D()];
+    	origin = new IVectorMutable[space.D()];
     	for(int i=0; i<space.D(); i++){ 
 	    	origin[i] = space.makeVector();
 	    	origin[i].setX(i,1);
@@ -122,7 +123,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     		normal.PEa1Tv1(millerPlane[i], reciprocal[i]);
     	}
     	spacing = Math.PI*2.0/Math.sqrt(normal.squared());
-    	IVector projection = space.makeVector();
+    	IVectorMutable projection = space.makeVector();
     	//rotate Miller plane into Y axis, about Z axis (through XY plane).
     	projection.E(normal);
     	//get XY projection of normal
@@ -155,7 +156,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     		}
     	}
     	//Create vector array of Miller plane XYZ intercepts (least common multiple at X intercept)
-    	plane = new IVector[space.D()];
+    	plane = new IVectorMutable[space.D()];
     	for(int i=0; i<plane.length; i++){
     		plane[i] = space.makeVector();
     	}
@@ -169,12 +170,12 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	}
     	    	
     	//Find X periodicity - magnitude of Miller plane intersection of X and Y axis.
-    	IVector xaxisperiod = space.makeVector();
+    	IVectorMutable xaxisperiod = space.makeVector();
     	xaxisperiod.Ev1Mv2(plane[0], plane[1]);
     	double xaxispbc = Math.sqrt(xaxisperiod.squared());
     	
     	//Find Y periodicity - magnitude of vector formed by Miler plane intersections of Z axis and XY plane.
-    	IVector yaxisperiod = space.makeVector();
+    	IVectorMutable yaxisperiod = space.makeVector();
     	double yaxispbc = Math.sqrt(Math.pow(2.0*plane[2].x(2),2) + Math.pow(plane[0].x(0),2) + Math.pow(plane[1].x(1),2) );
     	
     	//If plane does not intersect X axis
@@ -207,8 +208,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * FILL ATOMS IN TOP DOMAIN
          */
         
-        IVector boxCorner = space.makeVector();
-        IVector latticeVector = space.makeVector();
+        IVectorMutable boxCorner = space.makeVector();
+        IVectorMutable latticeVector = space.makeVector();
         
         // Get extremes of rotated simulation domain A (usually top half of Box)
         for(int i=-1; i<3; i++){
@@ -234,7 +235,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         //Compute number of cells to fit in box
         int [] ncellsTOP = new int[space.D()+1];
-        IVector latticeCenter = space.makeVector();
+        IVectorMutable latticeCenter = space.makeVector();
         
         for(int i=0; i<ncellsTOP.length-1; i++){
             ncellsTOP[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeTOP.getPrimitive().vectors()[i].x(i));
@@ -251,9 +252,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         while(indexIteratorTOP.hasNext()){
             
-            IVector transformedPosition = space.makeVector();
+            IVectorMutable transformedPosition = space.makeVector();
             
-            transformedPosition.E((IVector)latticeTOP.site(indexIteratorTOP.next()));
+            transformedPosition.E((IVectorMutable)latticeTOP.site(indexIteratorTOP.next()));
             
             transformedPosition.ME(latticeCenter);
                        
@@ -322,9 +323,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         while(indexIteratorBOTTOM.hasNext()){
             
-            IVector transformedPosition = space.makeVector();
+            IVectorMutable transformedPosition = space.makeVector();
             
-            transformedPosition.E((IVector)latticeBOTTOM.site(indexIteratorBOTTOM.next()));
+            transformedPosition.E((IVectorMutable)latticeBOTTOM.site(indexIteratorBOTTOM.next()));
             
             transformedPosition.ME(latticeCenter);
                        
@@ -357,7 +358,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          */
 
         dist = 3.0;
-        IVector rij = space.makeVector();
+        IVectorMutable rij = space.makeVector();
         
         int removeCount = 0;
         double range = 0.0;
@@ -370,7 +371,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 range = rij.squared();
                 
                 if(range<dist){
-                    box.removeMolecule(((IAtomLeaf)box.getLeafList().getAtom(j)).getParentGroup());
+                    box.removeMolecule(box.getLeafList().getAtom(j).getParentGroup());
                     removeCount++;
                }
             }

@@ -1,6 +1,7 @@
 package etomica.space2d;
 
 import etomica.api.IFunction;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.Tensor;
 
@@ -70,7 +71,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
     }
     
-    public void assignTo(IVector[] v) {
+    public void assignTo(IVectorMutable[] v) {
         if(v.length != 2) {
             throw new IllegalArgumentException("Tensor requires 2 vectors for assignment");
         }
@@ -208,7 +209,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy = f.f(yy);
     }
     
-    public void transform(IVector v) {
+    public void transform(IVectorMutable v) {
         double x = xx * v.x(0) + xy * v.x(1);
         v.setX(1, yx * v.x(0) + yy * v.x(1));
         v.setX(0, x);

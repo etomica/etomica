@@ -5,6 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -25,7 +26,7 @@ public class P2SoftTruncated extends Potential2
         this.wrappedPotential = potential;
         setTruncationRadius(truncationRadius);
         dr = space.makeVector();
-        gradient = new IVector[2];
+        gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
     }
@@ -219,8 +220,8 @@ public class P2SoftTruncated extends Potential2
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
-    protected final IVector dr;
+    protected final IVectorMutable dr;
     protected final Potential2Soft wrappedPotential;
     protected IBoundary boundary;
-    protected final IVector[] gradient;
+    protected final IVectorMutable[] gradient;
 }

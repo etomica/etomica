@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.space.ISpace;
@@ -51,8 +51,8 @@ public class P2RoughSphere extends P2HardSphere {
         IAtomLeaf atom1 = pair.getAtom(1);
         IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;
         IAtomOrientedKinetic coord1 = (IAtomOrientedKinetic)atom1;
-        IVector v1 = coord0.getVelocity();
-        IVector v2 = coord1.getVelocity();
+        IVectorMutable v1 = coord0.getVelocity();
+        IVectorMutable v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

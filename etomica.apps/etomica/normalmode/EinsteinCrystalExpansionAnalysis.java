@@ -4,7 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
@@ -55,7 +55,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        IVector[] initialLatticePos = _space.makeVectorArray(numAtoms);
+        IVectorMutable[] initialLatticePos = _space.makeVectorArray(numAtoms);
         IAtomList atoms = box.getLeafList();
         
         for (int i=0; i<numAtoms; i++){

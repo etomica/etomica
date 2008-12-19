@@ -5,7 +5,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.graphics.SimulationGraphic;
@@ -89,9 +89,9 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = space.makeVector();
+        IVectorMutable shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
-        IVector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -108,7 +108,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         }
 
         // determine lattice constant
-        IVector latticeScaling = space.makeVector();
+        IVectorMutable latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -120,11 +120,11 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = space.makeVector();
+        IVectorMutable offset = space.makeVector();
         offset.E(box.getBoundary().getDimensions());
-        IVector vectorOfMax = space.makeVector();
-        IVector vectorOfMin = space.makeVector();
-        IVector site = space.makeVector();
+        IVectorMutable vectorOfMax = space.makeVector();
+        IVectorMutable vectorOfMin = space.makeVector();
+        IVectorMutable site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -134,7 +134,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            site.E((IVector) lattice.site(indexIterator.next()));
+            site.E((IVectorMutable) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
@@ -151,7 +151,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         indexIterator.reset();
 
     	ConformationParacetamolMonoclinic regConfig = new ConformationParacetamolMonoclinic(lattice.getSpace());
-    	IVector cellPosition = null;
+    	IVectorMutable cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
 
     	for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
@@ -187,12 +187,12 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
       	  ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(t);
           atomGroupAction.actionPerformed(molecule);
  
-            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
+            atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(molecule);
             
             if (ii[3] == 0){
             	cellPosition = space.makeVector();
-            	cellPosition.E((IVector)myLat.site(ii));
+            	cellPosition.E((IVectorMutable)myLat.site(ii));
             	
             	
             //remember the coordinate of the cell
@@ -202,7 +202,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
 
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, IVectorMutable shape) {
         int dimLeft = shape.getD();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.getD()];
@@ -313,7 +313,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
      */
     public static class MyLattice implements SpaceLattice {
 
-        public MyLattice(SpaceLattice l, IVector latticeScaling, IVector offset) {
+        public MyLattice(SpaceLattice l, IVectorMutable latticeScaling, IVectorMutable offset) {
             lattice = l;
             this.latticeScaling = latticeScaling;
             this.offset = offset;
@@ -332,7 +332,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
          * Returns the same instance of IVector with each call.
          */
         public Object site(int[] index) {
-            site.E((IVector) lattice.site(index));
+            site.E((IVectorMutable) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -348,9 +348,9 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         }
 
         final SpaceLattice lattice;
-        final public IVector latticeScaling;
-        final IVector offset;
-        final IVector site;
+        final public IVectorMutable latticeScaling;
+        final IVectorMutable offset;
+        final IVectorMutable site;
 
     }
 

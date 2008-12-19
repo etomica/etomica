@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -35,7 +36,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(momentSquared);
-        gradient = new IVector[2];
+        gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -264,8 +265,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     private double hsdiasq=1.0/Math.sqrt(2);
     private double Q2;
     private IBoundary boundary;
-    private final IVector dr, drunit, dcos1dr, dcos2dr;
-    private final IVector[] gradient;
+    private final IVectorMutable dr, drunit, dcos1dr, dcos2dr;
+    private final IVectorMutable[] gradient;
     protected double temperature;
 
     public static void main(String[] args) {
@@ -292,8 +293,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         IAtomOriented atom1 = (IAtomOriented)leafAtoms.getAtom(1);
         potential.setBox(box);
         
-        IVector grad1 = space.makeVector();
-        IVector oldPosition = space.makeVector();
+        IVectorMutable grad1 = space.makeVector();
+        IVectorMutable oldPosition = space.makeVector();
         IVectorRandom ran = (IVectorRandom)space.makeVector();
 
         atom1.getPosition().setX(0, 2);

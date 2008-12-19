@@ -5,7 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialMolecular;
@@ -84,8 +84,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
-        IVector O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
-        IVector O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+        IVectorMutable O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+        IVectorMutable O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
         
         double r2 = O1r.Mv1Squared(O2r);
         
@@ -93,13 +93,13 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             return Double.POSITIVE_INFINITY;
         }
         
-        IVector H11r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
-        IVector H12r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
-        IVector H21r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
-        IVector H22r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+        IVectorMutable H11r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVectorMutable H12r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+        IVectorMutable H21r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVectorMutable H22r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
-        IVector M1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
-        IVector M2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+        IVectorMutable M1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+        IVectorMutable M2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
 
         double r = Math.sqrt(r2);
         double rOverSigma = r/sigma;
@@ -170,9 +170,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = atoms.getMolecule(i).getChildList();
-            IVector O1r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
-            IVector H11r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
-            IVector H12r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+            IVectorMutable O1r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+            IVectorMutable H11r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+            IVectorMutable H12r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
             comWi.Ea1Tv1(massH, H11r);
             comWi.PEa1Tv1(massO, O1r);
@@ -182,10 +182,10 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             for (int j=0; j<atoms.getMoleculeCount(); j++) {
                 if  (i == j) continue;
                 IAtomList jLeafAtoms = atoms.getMolecule(j).getChildList();
-                IVector Mjr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexM)).getPosition();
-                IVector Ojr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
-                IVector Hj1r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
-                IVector Hj2r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+                IVectorMutable Mjr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+                IVectorMutable Ojr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+                IVectorMutable Hj1r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+                IVectorMutable Hj2r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
                 double comWtoH1 = Math.sqrt(comWi.Mv1Squared(Hj1r));
                 double comWtoH2 = Math.sqrt(comWi.Mv1Squared(Hj2r));
@@ -321,9 +321,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     private final double chargeH, chargeM;
     private final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
     private Matrix[] Eq, A;
-    private IVector comWi, comWj;
-    private final IVector rijVector;
-    private final IVector work;
+    private IVectorMutable comWi, comWj;
+    private final IVectorMutable rijVector;
+    private final IVectorMutable work;
     private final Tensor Tunit, Tij;
     private final double sigmaM;
     private final double sigmaH;

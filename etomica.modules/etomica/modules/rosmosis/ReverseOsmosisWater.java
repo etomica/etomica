@@ -3,7 +3,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
@@ -215,7 +215,7 @@ public class ReverseOsmosisWater extends Simulation {
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space, 15), space);
         addBox(box);
-        IVector dim = space.makeVector();
+        IVectorMutable dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setDimensions(dim);
         configMembrane = new ConfigurationMembraneWater(this, space);

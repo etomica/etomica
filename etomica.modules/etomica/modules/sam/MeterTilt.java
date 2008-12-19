@@ -6,7 +6,7 @@ import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
@@ -66,7 +66,7 @@ public class MeterTilt implements IEtomicaDataSource {
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
     protected IBox box;
-    protected final IVector dr, drSum;
+    protected final IVectorMutable dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;
     protected final IEtomicaDataInfo dataInfo;

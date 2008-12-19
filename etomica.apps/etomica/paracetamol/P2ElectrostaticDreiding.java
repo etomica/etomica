@@ -50,7 +50,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         		
     }
     
-    public IVector [] gradient(IAtomList atomSet) {
+    public IVector[] gradient(IAtomList atomSet) {
     	
         IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
         IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);

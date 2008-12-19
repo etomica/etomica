@@ -11,7 +11,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeWell;
@@ -70,7 +70,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
        
     private void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
         
-        IVector r = a.getPosition();
+        IVectorMutable r = a.getPosition();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 

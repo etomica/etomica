@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -15,7 +16,7 @@ public class Point extends Polytope {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(ISpace embeddedSpace, IVector vectorRandom) {
+    public Point(ISpace embeddedSpace, IVectorMutable vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 

@@ -4,6 +4,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
@@ -31,7 +32,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         dr12 = space.makeVector();
         dr23 = space.makeVector();
         setAngle(Math.PI);
-        gradient = new IVector[3];
+        gradient = new IVectorMutable[3];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
@@ -146,12 +147,12 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         return 0;
     }
 
-    protected final IVector dr12, dr23;
+    protected final IVectorMutable dr12, dr23;
     protected IBoundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;
-    protected final IVector[] gradient;
+    protected final IVectorMutable[] gradient;
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
@@ -175,8 +176,8 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         double oldU = 0;
         double oldoldU = 0;
         double U = 0;
-        IVector oldGradient = space.makeVector();
-        IVector gradient = space.makeVector();
+        IVectorMutable oldGradient = space.makeVector();
+        IVectorMutable gradient = space.makeVector();
         IVectorRandom dr = (IVectorRandom)space.makeVector();
         for (int i=0; i<n+1; i++) {
             oldoldU = oldU;

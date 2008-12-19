@@ -2,7 +2,7 @@ package etomica.paracetamol;
 
 import etomica.api.IData;
 import etomica.api.IDataInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -28,13 +28,13 @@ public class LatticeSumCrystalParacetamol {
         //get coordinates of basis at the origin
         System.out.println("At  LatticeSumCrystalParacetamol Constructor");
         basisDim = lattice.getBasis().getScaledCoordinates().length;
-        basis0 = new IVector[basisDim];
+        basis0 = new IVectorMutable[basisDim];
         
 
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
-            basis0[j].E((IVector)lattice.site(siteIndex));
+            basis0[j].E((IVectorMutable)lattice.site(siteIndex));
         }
         
     }
@@ -115,11 +115,11 @@ public class LatticeSumCrystalParacetamol {
         return new DataGroupLSCParacetamol(sumR, sumI);
     }
  
-    public void setK(IVector k) {
+    public void setK(IVectorMutable k) {
         kVector.E(k);
     }
     
-    public IVector getK() {
+    public IVectorMutable getK() {
         return kVector;
     }
     
@@ -162,8 +162,8 @@ public class LatticeSumCrystalParacetamol {
     private final BravaisLatticeCrystal lattice;
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
-    private final IVector kVector;
-    private final IVector[] basis0;
+    private final IVectorMutable kVector;
+    private final IVectorMutable[] basis0;
     private final int[] siteIndex;
 //    private final IVector dr;
     private final int basisDim;

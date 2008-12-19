@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
@@ -13,8 +14,9 @@ import etomica.space.ISpace;
  */
 public abstract class Primitive implements java.io.Serializable {
     
-    protected final IVector[] latticeVectors;
-    protected final IVector[] latticeVectorsCopy;
+    private static final long serialVersionUID = 1L;
+    protected final IVectorMutable[] latticeVectors;
+    protected final IVectorMutable[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     protected final int D;
     protected final double[] size;
@@ -30,8 +32,8 @@ public abstract class Primitive implements java.io.Serializable {
     public Primitive(ISpace space) {
         this.space = space;
         D = space.D();
-        latticeVectors = new IVector[D];
-        latticeVectorsCopy = new IVector[D];
+        latticeVectors = new IVectorMutable[D];
+        latticeVectorsCopy = new IVectorMutable[D];
         idx = new int[D];
         size = new double[D];
 //        sizeCopy = new double[D];
@@ -110,13 +112,7 @@ public abstract class Primitive implements java.io.Serializable {
      * adhering to a particular structure (e.g., cubic, fcc, etc.).
      */
     public IVector[] vectors() {
-        return copyVectors();
-    }
-    
-    //copies the interal set of vectors to the copy for outside use
-    protected IVector[] copyVectors() {
-        for(int i=0; i<D; i++) latticeVectorsCopy[i].E(latticeVectors[i]);
-        return latticeVectorsCopy;
+        return latticeVectors;
     }
     
     /**

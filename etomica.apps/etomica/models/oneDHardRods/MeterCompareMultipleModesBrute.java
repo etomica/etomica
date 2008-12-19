@@ -3,7 +3,7 @@ package etomica.models.oneDHardRods;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -16,7 +16,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     MeterPotentialEnergy meterPE;
     
     private double eigenVectors[][][];
-    private IVector[] waveVectors;
+    private IVectorMutable[] waveVectors;
     int[] comparedWVs;
     protected double temperature;
     private double[] waveVectorCoefficients;
@@ -141,7 +141,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     public void setEigenVectors(double[][][] eigenVectors) {
         this.eigenVectors = eigenVectors;
     }
-    public void setWaveVectors(IVector[] waveVectors) {
+    public void setWaveVectors(IVectorMutable[] waveVectors) {
         this.waveVectors = waveVectors;
     }
     public void setComparedWVs(int[] cwvs) {

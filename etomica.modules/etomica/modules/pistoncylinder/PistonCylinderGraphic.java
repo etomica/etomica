@@ -25,6 +25,7 @@ import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -930,7 +931,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             if (newValue > oldDensity) {
                 // scale atom positions
                 for (int i=0; i<leafList.getAtomCount(); i++) {
-                    IVector pos = ((IAtomPositioned)leafList.getAtom(i)).getPosition();
+                    IVectorMutable pos = ((IAtomPositioned)leafList.getAtom(i)).getPosition();
                     double y = (pos.x(1)+yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }

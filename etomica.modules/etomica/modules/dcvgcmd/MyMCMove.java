@@ -7,7 +7,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -120,7 +120,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     private static final long serialVersionUID = 1L;
 	private double zFraction;
 	private int deltaN = 0;
-	private IVector position;
+	private IVectorMutable position;
 	private boolean nearOrigin;
 	private final MoleculeArrayList activeAtoms;
     private IMoleculeList moleculeList;

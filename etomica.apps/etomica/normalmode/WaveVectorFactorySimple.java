@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
@@ -36,7 +37,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         double[] d = primitive.getSize();
         int[] numCells = new int[space.D()];
         IVector[] reciprocals =  primitive.makeReciprocal().vectors();
-        IVector[] waveVectorBasis = new IVector[reciprocals.length];
+        IVectorMutable[] waveVectorBasis = new IVectorMutable[reciprocals.length];
         
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
@@ -139,7 +140,7 @@ outer:              for (int i=0; i<3; i++){
         }
     }
     
-    public IVector[] getWaveVectors() {
+    public IVectorMutable[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -161,7 +162,7 @@ outer:              for (int i=0; i<3; i++){
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive, sp);
         foo.makeWaveVectors(box);
-        IVector[] waveVectors = foo.getWaveVectors();
+        IVectorMutable[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -171,7 +172,7 @@ outer:              for (int i=0; i<3; i++){
 
     private static final long serialVersionUID = 1L;
     protected final Primitive primitive;
-    protected IVector[] waveVectors;
+    protected IVectorMutable[] waveVectors;
     protected double[] coefficients;
-    private final ISpace space;
+    protected final ISpace space;
 }

@@ -7,7 +7,7 @@ import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.ISpace;
 
@@ -33,10 +33,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         super.setBox(p);
         weightMeter.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
-        oldPositions = new IVector[moleculeList.getMoleculeCount()][];
+        oldPositions = new IVectorMutable[moleculeList.getMoleculeCount()][];
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             molecule = moleculeList.getMolecule(i);
-            oldPositions[i] = new IVector[molecule.getChildList().getAtomCount()];
+            oldPositions[i] = new IVectorMutable[molecule.getChildList().getAtomCount()];
             for (int j=0; j<oldPositions[i].length; j++) {
                 oldPositions[i][j] = space.makeVector();
             }
@@ -114,7 +114,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
-    private IVector[][] oldPositions;
+    private IVectorMutable[][] oldPositions;
     private int trialCount, relaxInterval = 100;
     private MoleculeAction relaxAction;
     private final ISpace space;

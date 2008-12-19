@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -47,7 +47,7 @@ public class MCMoveHarmonic extends MCMoveBox {
         temperature = newTemperature;
     }
     
-    public void setWaveVectors(IVector[] newWaveVectors) {
+    public void setWaveVectors(IVectorMutable[] newWaveVectors) {
         waveVectors = newWaveVectors;
     }
     
@@ -176,7 +176,7 @@ public class MCMoveHarmonic extends MCMoveBox {
     protected final AtomIteratorLeafAtoms iterator;
     private double[][] stdDev;
     private double[][][] eigenVectors;
-    private IVector[] waveVectors;
+    private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     protected double[] u;
     protected double[][] rRand;

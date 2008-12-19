@@ -1,6 +1,7 @@
 package etomica.models.water;
 
 import etomica.api.IMolecule;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeOriented;
@@ -47,5 +48,5 @@ public class DipoleSourceWater implements DipoleSource {
     }
 
     protected double dipoleStrength;
-    protected final IVector dipole;
+    protected final IVectorMutable dipole;
 }

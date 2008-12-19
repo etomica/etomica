@@ -1,6 +1,6 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.units.Null;
@@ -8,7 +8,7 @@ import etomica.units.Null;
 public class MeterF extends DataSourceScalar {
 
     CoordinateDefinition coordinateDefinition;
-    IVector[] waveVectors;
+    IVectorMutable[] waveVectors;
     double[] realT, imagT;
     int coordinateDim, convertedWV;
     double[][][] eigenVectors;
@@ -35,7 +35,7 @@ public class MeterF extends DataSourceScalar {
         return realCoord*realCoord + imagCoord*imagCoord;
     }
 
-    public void setWaveVectors(IVector[] waveVectors) {
+    public void setWaveVectors(IVectorMutable[] waveVectors) {
         this.waveVectors = waveVectors;
     }
 

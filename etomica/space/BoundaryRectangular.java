@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.math.geometry.Cuboid;
@@ -46,9 +47,8 @@ public abstract class BoundaryRectangular extends Boundary {
         dimensions = space.makeVector();
         dimensions.E(boxSize);
         
-        dimensionsCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
-        edgeVectors = new IVector[space.D()];
+        edgeVectors = new IVectorMutable[space.D()];
         for (int i=0; i<space.D(); i++) {
             edgeVectors[i] = space.makeVector();
         }
@@ -71,11 +71,10 @@ public abstract class BoundaryRectangular extends Boundary {
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
     public IVector getDimensions() {
-        return dimensionsCopy;
+        return dimensions;
     }
     
     protected void updateDimensions() {
-        dimensionsCopy.E(dimensions);
         ((Rectangular)shape).setEdgeLengths(dimensions);
         for (int i=0; i<space.D(); i++) {
             edgeVectors[i].setX(i, dimensions.x(i));
@@ -114,7 +113,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        IVector workVector = space.makeVector();
+        IVectorMutable workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -135,9 +134,8 @@ public abstract class BoundaryRectangular extends Boundary {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IVector dimensions;
-    protected final IVector dimensionsCopy;
+    protected final IVectorMutable dimensions;
     private final IndexIteratorRectangular indexIterator;
     protected final float[][] shift0 = new float[0][0];
-    protected final IVector[] edgeVectors;
+    protected final IVectorMutable[] edgeVectors;
 }

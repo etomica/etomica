@@ -3,7 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -23,7 +23,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     private static final long serialVersionUID = 1L;
 	private final IntegratorBox integrator1, integrator2;	
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
-	private final IVector r;
+	private final IVectorMutable r;
 	private double u1, u2, temp1, temp2, deltaU1;
 	private final IBox[] swappedBoxes = new IBox[2];
 

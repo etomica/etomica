@@ -1,6 +1,6 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.math.geometry.Plane;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.ISpace;
@@ -20,7 +20,7 @@ public class PistonPlane extends Plane {
     }
     
     // DisplayBoxCanvasG3DSys calls this
-    public double distanceTo(IVector v) {
+    public double distanceTo(IVectorMutable v) {
         return v.x(1) - pistonPotential.getWallPosition();
     }
     

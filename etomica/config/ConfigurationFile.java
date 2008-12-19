@@ -7,7 +7,7 @@ import java.io.IOException;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a box
@@ -42,7 +42,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         
     private void setPosition(IAtomPositioned atom, String string) {
         String[] coordStr = string.split(" +");
-        IVector pos = atom.getPosition();
+        IVectorMutable pos = atom.getPosition();
         for (int i=0; i<pos.getD(); i++) {
             pos.setX(i, Double.valueOf(coordStr[i]).doubleValue());
         }

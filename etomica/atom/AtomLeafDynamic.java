@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 public class AtomLeafDynamic extends AtomLeaf implements IAtomKinetic {
@@ -12,10 +12,10 @@ public class AtomLeafDynamic extends AtomLeaf implements IAtomKinetic {
         velocity = space.makeVector();
     }
     
-    public IVector getVelocity() {
+    public IVectorMutable getVelocity() {
         return velocity;
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IVector velocity;
+    protected final IVectorMutable velocity;
 }

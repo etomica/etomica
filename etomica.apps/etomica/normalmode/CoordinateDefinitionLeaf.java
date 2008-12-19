@@ -7,7 +7,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -43,8 +43,8 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)atoms.getMolecule(i).getChildList().getAtom(0);
-            IVector pos = a.getPosition();
-            IVector site = getLatticePosition((IAtomLeaf)a);
+            IVectorMutable pos = a.getPosition();
+            IVectorMutable site = getLatticePosition((IAtomLeaf)a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
                 u[j+k] = workVector.x(k);
@@ -65,7 +65,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)atoms.getMolecule(i).getChildList().getAtom(0);
-            IVector pos = a.getPosition();
+            IVectorMutable pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);
             }
@@ -74,7 +74,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         }
     }
 
-    protected final IVector workVector;
+    protected final IVectorMutable workVector;
     protected final double[] u;
     private static final long serialVersionUID = 1L;
 }

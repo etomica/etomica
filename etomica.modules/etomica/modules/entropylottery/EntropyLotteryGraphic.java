@@ -90,7 +90,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         nSelector.setLabel("Number of Balls");
         nSelector.setShowBorder(true);
         
-        final DeviceSlider nUrnSelector = new DeviceSlider(sim.getController(), new ModifierDimensions(sim.box));
+        final DeviceSlider nUrnSelector = new DeviceSlider(sim.getController(), new ModifierDimensions(space, sim.box));
         nUrnSelector.setMinimum(3);
         nUrnSelector.setMaximum(30);
         nUrnSelector.setLabel("Number of Urns");

@@ -8,6 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -33,7 +34,7 @@ public class ConfigurationMembraneWater implements Configuration {
 
     public void initializeCoordinates(IBox box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(space);
-        IVector translationVector = translateBy.getTranslationVector();
+        IVectorMutable translationVector = translateBy.getTranslationVector();
         translationVector.E(0);
         MoleculeChildAtomAction translator = new MoleculeChildAtomAction(translateBy);
         
@@ -49,7 +50,7 @@ public class ConfigurationMembraneWater implements Configuration {
         // solventChamber (middle, solvent-only)
         Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, 1), space);
         sim.addBox(pretendBox);
-        IVector pretendBoxDim = space.makeVector();
+        IVectorMutable pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, chamberLength);
         pretendBox.getBoundary().setDimensions(pretendBoxDim);

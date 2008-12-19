@@ -6,7 +6,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -81,7 +81,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
+		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVectorMutable)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((IAtomPositioned)atom).getPosition());
         }
@@ -122,7 +122,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void reset(IAtomLeaf atom) {
-        ((IVector)agentManager.getAgent(atom)).E(((IAtomPositioned)atom).getPosition());
+        ((IVectorMutable)agentManager.getAgent(atom)).E(((IAtomPositioned)atom).getPosition());
 	}
 
     public Class getAgentClass() {
@@ -138,7 +138,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
     private double interactionRange, displacementLimit2, neighborRadius2;
-	private final IVector dr;
+	private final IVectorMutable dr;
     private IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;

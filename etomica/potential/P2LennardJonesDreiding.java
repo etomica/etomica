@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -107,7 +107,7 @@ public class P2LennardJonesDreiding extends Potential2SoftSpherical {
     private double epsilon156;
     private static final double _84div156 = 84./156.;
     private double rho6;
-    protected final IVector dr01;
+    protected final IVectorMutable dr01;
 	
 	private static final long serialVersionUID = 1L;
 }

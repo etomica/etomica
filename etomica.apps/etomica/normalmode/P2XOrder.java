@@ -5,7 +5,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
@@ -25,7 +25,7 @@ import etomica.space.Tensor;
 public class P2XOrder extends Potential2 implements Potential2Spherical, PotentialHard {
     
     private static final long serialVersionUID = 1L;
-    protected final IVector dr;
+    protected final IVectorMutable dr;
     protected IBox box;
     protected Potential2HardSpherical wrappedPotential;
     

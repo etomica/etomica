@@ -1,6 +1,6 @@
 package etomica.math.geometry;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -29,7 +29,7 @@ public abstract class Polygon extends Polytope {
     }
     
     private static LineSegment[] makeEdges(ISpace embeddedSpace, int nSides) {
-        IVector[] vertices = embeddedSpace.makeVectorArray(nSides);
+        IVectorMutable[] vertices = embeddedSpace.makeVectorArray(nSides);
         LineSegment[] edges = new LineSegment[nSides];
         for (int i = 1; i < nSides; i++) {
             edges[i] = new LineSegment(embeddedSpace,

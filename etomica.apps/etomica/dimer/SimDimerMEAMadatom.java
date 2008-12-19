@@ -10,7 +10,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
@@ -62,7 +62,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
     public IBox box;
-    public IVector [] saddle, normal;
+    public IVectorMutable [] saddle, normal;
     public SpeciesSpheresMono fixed, potentialSpecies, movable;
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
@@ -72,7 +72,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    public IVector adAtomPos;
+    public IVectorMutable adAtomPos;
     public IMoleculeList movableSet;
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
@@ -190,7 +190,7 @@ public class SimDimerMEAMadatom extends Simulation{
         adAtomPos.setX(0, 9.8);
         adAtomPos.setX(1, 0.2);
         adAtomPos.setX(2, -1.0);
-        IVector newBoxLength = space.makeVector();
+        IVectorMutable newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
         newBoxLength.setX(0, 2.0*adAtomPos.x(0)+2.0);
         box.getBoundary().setDimensions(newBoxLength);
@@ -213,9 +213,9 @@ public class SimDimerMEAMadatom extends Simulation{
         */
     }
     
-    public void setMovableAtoms(double distance, IVector center){
+    public void setMovableAtoms(double distance, IVectorMutable center){
         //distance = distance*distance;
-        IVector rij = space.makeVector();
+        IVectorMutable rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -247,7 +247,7 @@ public class SimDimerMEAMadatom extends Simulation{
             if(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition().x(0) < -4.0){continue;}
             boolean fixedFlag = true;
             for(int j=0; j<movableSet.getMoleculeCount(); j++){
-                IVector dist = space.makeVector();
+                IVectorMutable dist = space.makeVector();
                 dist.Ev1Mv2(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition(),((IAtomPositioned)movableSet.getMolecule(j).getChildList().getAtom(0)).getPosition());
                 box.getBoundary().nearestImage(dist);
                 if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
@@ -277,9 +277,9 @@ public class SimDimerMEAMadatom extends Simulation{
     }
     
     //Must be run after setMovableAtoms
-    public void removeAtoms(double distance, IVector center){
+    public void removeAtoms(double distance, IVectorMutable center){
         distance = distance*distance;
-        IVector rij = space.makeVector();
+        IVectorMutable rij = space.makeVector();
         
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
@@ -298,8 +298,8 @@ public class SimDimerMEAMadatom extends Simulation{
     
     public void generateConfigs(String fileName, double percentd){       
         
-        IVector workVector = space.makeVector();
-        IVector [] currentPos = new IVector [movableSet.getMoleculeCount()];
+        IVectorMutable workVector = space.makeVector();
+        IVectorMutable [] currentPos = new IVectorMutable [movableSet.getMoleculeCount()];
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
             currentPos[i].E(((IAtomPositioned)movableSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
@@ -312,7 +312,7 @@ public class SimDimerMEAMadatom extends Simulation{
             genConfig.setConfName(fileName+"_config_"+m);
             //Displaces atom's by at most +/-0.03 in each coordinate
             for(int i=0; i<movableSet.getMoleculeCount(); i++){
-                IVector atomPosition = ((IAtomPositioned)movableSet.getMolecule(i).getChildList().getAtom(0)).getPosition();
+                IVectorMutable atomPosition = ((IAtomPositioned)movableSet.getMolecule(i).getChildList().getAtom(0)).getPosition();
                 for(int j=0; j<3; j++){
                     workVector.setX(j,percentd*random.nextGaussian());
                 }
@@ -376,7 +376,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public static void main(String[] args){
        
         final SimDimerMEAMadatom sim = new SimDimerMEAMadatom();
-        IVector vect = sim.getSpace().makeVector();
+        IVectorMutable vect = sim.getSpace().makeVector();
         vect.setX(0, 9.8);
         vect.setX(1, -0.2);
         vect.setX(2, -0.2);

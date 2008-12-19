@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.IAtomTypeLeaf;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
 
@@ -15,7 +15,7 @@ public class AtomLeafAngularDynamic extends AtomLeafDynamic implements
         angularVelocity = space.makeVector();  //XXX wrong! see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=128
     }
 
-    public IVector getAngularVelocity() {
+    public IVectorMutable getAngularVelocity() {
         return angularVelocity;
     }
 
@@ -24,5 +24,5 @@ public class AtomLeafAngularDynamic extends AtomLeafDynamic implements
     }
 
     protected final IOrientation iOrientation;
-    protected final IVector angularVelocity;
+    protected final IVectorMutable angularVelocity;
 }

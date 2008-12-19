@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
@@ -56,7 +56,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		
 		private void setPosition(IAtomPositioned atom, String string) {
 	        String[] coordStr = string.split(" +");
-            IVector pos = atom.getPosition();
+            IVectorMutable pos = atom.getPosition();
             for (int i=0; i<pos.getD(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
 	            if(coord<min.x(i)) min.setX(i,coord);
@@ -97,7 +97,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 	        return nAtomsList;
 		}
 		
-		public IVector getUpdatedDimensions(){
+		public IVectorMutable getUpdatedDimensions(){
 			updatedDimensions = Space.makeVector(dim.getD());
 			
 			updatedDimensions.TE(1.01);
@@ -105,10 +105,10 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		}
 		
         private static final long serialVersionUID = 2L;
-		private IVector updatedDimensions;
-		private IVector min;
-		private IVector max;
-		private IVector dim;
+		private IVectorMutable updatedDimensions;
+		private IVectorMutable min;
+		private IVectorMutable max;
+		private IVectorMutable dim;
 		private int[] nAtomsList;
 		private String confName;
 		private final ISpace space;

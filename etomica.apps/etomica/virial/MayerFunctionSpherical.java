@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -26,5 +26,5 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
         throw new RuntimeException("I was really hoping you wouldn't call me");
     }
     
-    protected final IVector dr;
+    protected final IVectorMutable dr;
 }

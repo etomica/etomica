@@ -13,6 +13,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
@@ -142,9 +143,9 @@ public class WriteConfigurationDLPOLY implements IAction {
         	}
         	
         	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
-        	
-        	
-        	for (int i=0; i<3; i++){
+
+
+            for (int i=0; i<3; i++){
                 IVector cell = boundary.getEdgeVector(i);
         		for (int j=0; j<3; j++){
         			formatter.format("%20f",new Object[]{cell.x(j)});
@@ -178,12 +179,12 @@ public class WriteConfigurationDLPOLY implements IAction {
 	       
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;
-	                	IVector atomPos = atom.getPosition();
+	                	IVectorMutable atomPos = atom.getPosition();
 	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.x(0), atomPos.x(1), atomPos.x(2)});
 	                		                	
 	                	
 	                	if (writeVelocity){
-	                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
+	                		IVectorMutable atomVelocity = ((IAtomKinetic)atom).getVelocity();
 	                		formatter.format("%20f%20f%20f\n", 
 	                				new Object[]{atomVelocity.x(0), atomVelocity.x(1), atomVelocity.x(2)});
 	                	}

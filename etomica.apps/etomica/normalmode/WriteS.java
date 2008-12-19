@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAction;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
@@ -53,7 +53,7 @@ public class WriteS implements IAction {
 
         // write wave vectors (to filename.k) and simulation results (to
         // filename.S) to file
-        IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+        IVectorMutable[] waveVectors = waveVectorFactory.getWaveVectors();
         double[] coefficients = waveVectorFactory.getCoefficients();
 
         String thisFilename = filename;

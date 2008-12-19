@@ -14,7 +14,7 @@ import etomica.EtomicaInfo;
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.space.ISpace;
 import etomica.units.Pixel;
@@ -656,7 +656,7 @@ public class DisplayBox extends Display {
      */
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
         
-        IVector point;
+        IVectorMutable point;
         
         //not yet configured to do molecule selections
         private boolean atomSelectEnabled = false;

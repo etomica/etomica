@@ -2,7 +2,7 @@ package etomica.spin;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.space.ISpace;
 
@@ -30,7 +30,7 @@ public class P1MagneticField extends Potential1 {
      * @see etomica.Potential#energy(etomica.AtomSet)
      */
     public double energy(IAtomList atoms) {
-        IVector r = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
+        IVectorMutable r = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
         return h * r.dot(direction);
     }
     
@@ -38,13 +38,13 @@ public class P1MagneticField extends Potential1 {
     /**
      * @return Returns the direction.
      */
-    public IVector getDirection() {
+    public IVectorMutable getDirection() {
         return direction;
     }
     /**
      * @param direction The direction to set.
      */
-    public void setDirection(IVector direction) {
+    public void setDirection(IVectorMutable direction) {
         this.direction.E(direction);
         this.direction.normalize();
     }
@@ -63,5 +63,5 @@ public class P1MagneticField extends Potential1 {
 
     private static final long serialVersionUID = 1L;
     private double h;
-    private final IVector direction;
+    private final IVectorMutable direction;
 }

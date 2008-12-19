@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -53,7 +53,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
     }
     
-    public IVector[] getWaveVectors() {
+    public IVectorMutable[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -73,7 +73,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         
         WaveVectorFactory1D foo = new WaveVectorFactory1D(sim.getSpace().D());
         foo.makeWaveVectors(box);
-        IVector[] waveVectors = foo.getWaveVectors();
+        IVectorMutable[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -83,6 +83,6 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    protected IVector[] waveVectors;
+    protected IVectorMutable[] waveVectors;
     protected double[] coefficients;
 }

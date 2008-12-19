@@ -4,7 +4,7 @@ import etomica.api.IBox;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
 import etomica.space.ISpace;
 
@@ -25,7 +25,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	 */
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(IBox box) {
-        IVector dimVector = space.makeVector();
+        IVectorMutable dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getDimensions());
 		IMoleculeList moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getMoleculeCount(); i++) {

@@ -2,8 +2,8 @@ package etomica.graphics;
 
 import etomica.api.IBoundary;
 import etomica.api.IVector;
-import etomica.space.ISpace;
 import etomica.space.BoundaryRectangular;
+import etomica.space.ISpace;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 
 public class OverflowShift {

@@ -4,7 +4,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -45,6 +45,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector dr;
+    protected final IVectorMutable dr;
     protected IBoundary boundary;
 }

@@ -3,6 +3,7 @@ package etomica.space2d;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -78,5 +79,5 @@ public class Orientation2D implements IOrientation2D, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected double angle;
-    protected IVector direction;
+    protected IVectorMutable direction;
 }

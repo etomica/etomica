@@ -10,6 +10,7 @@ import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IIntegrator;
 import etomica.api.IListener;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -116,7 +117,7 @@ public class MSDCoordWriter implements IAction, IListener {
 				int i=0;
 				for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
                      atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
-					IVector atomPosition = atom.getPosition();
+					IVectorMutable atomPosition = atom.getPosition();
 					for (int j=0;j < boxdim.getD();j++){
 						double actualDistance;
 							
@@ -179,7 +180,7 @@ public class MSDCoordWriter implements IAction, IListener {
 		}
 				
 		public void setBox(IBox box){
-			atomOldCoord = new IVector[box.getLeafList().getAtomCount()];
+			atomOldCoord = new IVectorMutable[box.getLeafList().getAtomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();
 			}
@@ -230,8 +231,8 @@ public class MSDCoordWriter implements IAction, IListener {
 		
 		private IVector boxDim;
 		private int [][] atomPBIarray;
-		private IVector workVector;
-		private IVector [] atomOldCoord;
+		private IVectorMutable workVector;
+		private IVectorMutable [] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
 		private final ISpace space;
 	}

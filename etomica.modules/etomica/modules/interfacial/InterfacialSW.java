@@ -7,6 +7,7 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -76,8 +77,8 @@ public class InterfacialSW extends Simulation {
         surfactant.setPositionDefinition(new IAtomPositionDefinition() {
             public IVector position(IMolecule atom) {
                 IAtomList children = atom.getChildList();
-                IVector pos0 = ((IAtomPositioned)children.getAtom(0)).getPosition();
-                IVector pos1 = ((IAtomPositioned)children.getAtom(1)).getPosition();
+                IVectorMutable pos0 = ((IAtomPositioned)children.getAtom(0)).getPosition();
+                IVectorMutable pos1 = ((IAtomPositioned)children.getAtom(1)).getPosition();
                 dr.Ev1Mv2(pos1, pos0);
                 box.getBoundary().nearestImage(dr);
                 dr.TE(0.5);
@@ -85,7 +86,7 @@ public class InterfacialSW extends Simulation {
                 dr.ME(box.getBoundary().centralImage(dr));
                 return dr;
             }
-            final IVector dr = space.makeVector();
+            final IVectorMutable dr = space.makeVector();
         });
         ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);
         getSpeciesManager().addSpecies(surfactant);
@@ -116,7 +117,7 @@ public class InterfacialSW extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVector dim = space.makeVector();
+        IVectorMutable dim = space.makeVector();
         if (space.D() == 2) {
             dim.E(new double[]{30,15});
         }

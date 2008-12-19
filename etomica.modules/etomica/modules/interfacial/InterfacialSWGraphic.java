@@ -16,7 +16,7 @@ import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -64,6 +64,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -140,7 +141,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
-                        IVector pos = ((IAtomPositioned)surfactant.getChildList().getAtom(j)).getPosition();
+                        IVectorMutable pos = ((IAtomPositioned)surfactant.getChildList().getAtom(j)).getPosition();
                         pos.setX(0, pos.x(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
@@ -174,7 +175,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 
                 isExpanded = true;
             }
-            IVector dim = space.makeVector();
+            IVectorMutable dim = space.makeVector();
             ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         };
         expandButton.setAction(expandAction);
@@ -187,7 +188,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 oldPreAction.actionPerformed();
                 if (!isExpanded) return;
-                IVector dim = sim.box.getBoundary().getDimensions();
+                IVectorMutable dim = space.makeVector();
+                dim.E(sim.box.getBoundary().getDimensions());
                 dim.setX(0, dim.x(0) / expansionFac);
                 sim.box.setNMolecules(sim.surfactant, 0);
                 int nMolecules = sim.box.getNMolecules(sim.species);
@@ -235,7 +237,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
-                    IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
+                    IVectorMutable pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
                     double sinx = Math.sin(q*pos.x(0));
                     double cosx = Math.cos(q*pos.x(0));
                     sumCos += cosx;
@@ -258,7 +260,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     center = -1;
                 }
                 for (int i=0; i<nTot; i++) {
-                    IVector pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
+                    IVectorMutable pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
                     pos.setX(0, pos.x(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
@@ -673,7 +675,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         xSlider.setShowBorder(true);
         xSlider.setMinimum(6);
         xSlider.setMaximum(30);
-        xSlider.setModifier(new ModifierBoxSize(sim.box, 0, reconfig));
+        xSlider.setModifier(new ModifierBoxSize(space, sim.box, 0, reconfig));
         JPanel systemPanel = new JPanel(new GridBagLayout());
         systemPanel.add(xSlider.graphic(), vertGBC);
         
@@ -828,10 +830,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     }
     
     public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(IBox box, int dim, IAction reconfig) {
+        public ModifierBoxSize(ISpace space, IBox box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
             this.reconfig = reconfig;
+            size = space.makeVector();
         }
         
         public Dimension getDimension() {
@@ -851,19 +854,20 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("Gotta be positive");
             }
             //newValue+=0.01;
-            IVector sizeNow = box.getBoundary().getDimensions();
-            double oldValue = sizeNow.x(dim);
-            sizeNow.setX(dim, newValue);
-            if (dim == 1 && sizeNow.getD() == 3) {
-                sizeNow.setX(2, newValue);
+            size.E(box.getBoundary().getDimensions());
+            double oldValue = size.x(dim);
+            size.setX(dim, newValue);
+            if (dim == 1 && size.getD() == 3) {
+                size.setX(2, newValue);
             }
-            box.getBoundary().setDimensions(sizeNow);
+            box.getBoundary().setDimensions(size);
             try {
                 reconfig.actionPerformed();
             }
             catch (RuntimeException e) {
                 // box is too small.  restore to original size
-                sizeNow.setX(dim, oldValue);
+                size.setX(dim, oldValue);
+                box.getBoundary().setDimensions(size);
                 // and reconfig.  this shouldn't throw.
                 reconfig.actionPerformed();
             }
@@ -872,6 +876,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         protected final IBox box;
         protected final int dim;
         protected final IAction reconfig;
+        protected final IVectorMutable size;
     }
 }
 

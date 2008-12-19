@@ -52,7 +52,7 @@ public interface IBoundary {
 	 * two points, the vector will be transformed such that it corresponds to
 	 * the vector between the nearest image of those two points.
 	 */
-    public void nearestImage(IVector dr);
+    public void nearestImage(IVectorMutable dr);
 
     /**
      * Returns the length of the sides of a rectangular box oriented in the lab

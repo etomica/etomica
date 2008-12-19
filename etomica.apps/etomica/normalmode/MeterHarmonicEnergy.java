@@ -3,7 +3,7 @@ package etomica.normalmode;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
@@ -71,7 +71,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         setOmegaSquared(normalModes.getOmegaSquared(newBox));
     }
     
-    protected void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
+    protected void setWaveVectors(IVectorMutable[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
@@ -93,7 +93,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     protected double[] realT, imaginaryT;
-    protected IVector[] waveVectors;
+    protected IVectorMutable[] waveVectors;
     protected double[] waveVectorCoefficients;
     protected double[][][] eigenvectors;
     protected double[][] omegaSquared;

@@ -6,7 +6,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.types.DataGroup;
@@ -289,7 +289,7 @@ public class TestHexane extends Simulation {
             normalModeData.TE(1.0/sim.box.getMoleculeList().getMoleculeCount());
             int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
-            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+            IVectorMutable[] waveVectors = waveVectorFactory.getWaveVectors();
             double[] coefficients = waveVectorFactory.getCoefficients();
             
             WriteS sWriter = new WriteS(sim.space);

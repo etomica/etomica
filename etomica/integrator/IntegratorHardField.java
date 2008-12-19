@@ -11,7 +11,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.Potential1;
@@ -162,13 +162,13 @@ public final class IntegratorHardField extends IntegratorHard {
     */
     public static class HardFieldAgent extends IntegratorHard.Agent implements IntegratorBox.Forcible { 
     
-        public final IVector force;
+        public final IVectorMutable force;
         public boolean forceFree = true;
         public HardFieldAgent(IAtomLeaf a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.space.makeVector();
         }
-        public final IVector force() {return force;}
+        public final IVectorMutable force() {return force;}
     }//end of Agent
     
     /**

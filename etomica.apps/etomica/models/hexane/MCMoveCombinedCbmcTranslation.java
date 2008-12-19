@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
@@ -31,7 +31,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
     protected MoleculeSourceRandomMolecule moleculeSource;
     private AtomIteratorArrayListSimple affectedAtomIterator;
     protected MoleculeChildAtomAction moveAction;
-    protected IVector oldGeo, newGeo, temp, transVect;
+    protected IVectorMutable oldGeo, newGeo, temp, transVect;
     protected AtomPositionGeometricCenter centerer;
     protected MeterPotentialEnergy energyMeter;
     protected final IRandom random;

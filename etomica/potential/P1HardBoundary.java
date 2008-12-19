@@ -6,6 +6,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.graphics.Drawable;
 import etomica.space.ISpace;
@@ -31,7 +32,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
-    private final IVector work;
+    private final IVectorMutable work;
     private int[] pixPosition;
     private int[] thickness;
     private boolean ignoreOverlap;
@@ -62,7 +63,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double energy(IAtomList a) {
         IVector dimensions = boundary.getDimensions();
-        IVector pos = ((IAtomPositioned)a.getAtom(0)).getPosition();
+        IVectorMutable pos = ((IAtomPositioned)a.getAtom(0)).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -81,7 +82,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVector v = atom.getVelocity();
+        IVectorMutable v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
@@ -120,7 +121,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
-        IVector v = atom.getVelocity();
+        IVectorMutable v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;

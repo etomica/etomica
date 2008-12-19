@@ -2,6 +2,7 @@ package etomica.config;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IConformation;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
@@ -53,7 +54,7 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
             case 1:
                 return;
             case 2:
-                setOrientation(new etomica.space2d.Vector2D(Math.cos(angle[0]),Math.sin(angle[0])));
+                setOrientation(space.makeVector(new double[]{Math.cos(angle[0]),Math.sin(angle[0])}));
                 return;
             case 3:
             	double[] ang = { Math.sin(angle[1])*Math.cos(angle[0]),
@@ -88,6 +89,6 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
     protected double bondLength;
-    private IVector orientation;
+    private IVectorMutable orientation;
     private double[] angle;
 }

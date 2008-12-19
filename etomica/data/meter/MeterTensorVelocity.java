@@ -6,7 +6,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IDataInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
@@ -73,7 +73,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
     public IData getData(IAtomLeaf atom) {
-        IVector vel = ((IAtomKinetic)atom).getVelocity();
+        IVectorMutable vel = ((IAtomKinetic)atom).getVelocity();
         atomData.x.Ev1v2(vel, vel);
         atomData.TE(atom.getType().rm());
         return atomData;

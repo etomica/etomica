@@ -10,6 +10,7 @@ import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
@@ -61,7 +62,7 @@ public abstract class CoordinateDefinition {
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
-        IVector offset = lattice.getSpace().makeVector();
+        IVectorMutable offset = lattice.getSpace().makeVector();
         IVector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
@@ -86,7 +87,7 @@ public abstract class CoordinateDefinition {
         // Place molecules
         atomIterator.reset();
         indexIterator.reset();
-        IVector position = lattice.getSpace().makeVector();
+        IVectorMutable position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
@@ -95,7 +96,7 @@ public abstract class CoordinateDefinition {
             config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();
-            position.E((IVector)lattice.site(ii));
+            position.E((IVectorMutable)lattice.site(ii));
             position.PE(offset);
             
             atomActionTranslateTo.setDestination(position);
@@ -172,7 +173,7 @@ public abstract class CoordinateDefinition {
      *            outputs the imaginary component of the T vector
      */
     //in principle this should be returning Complex[] and not returning the values through the args
-    public void calcT(IVector k, double[] realT, double[] imaginaryT) {
+    public void calcT(IVectorMutable k, double[] realT, double[] imaginaryT) {
         for (int i = 0; i < coordinateDim; i++) {
             realT[i] = 0;
             imaginaryT[i] = 0;
@@ -183,7 +184,7 @@ public abstract class CoordinateDefinition {
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
             double[] u = calcU(molecules);
-            IVector latticePosition = cell.cellPosition;
+            IVectorMutable latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
@@ -205,10 +206,10 @@ public abstract class CoordinateDefinition {
         return box;
     }
 
-    public IVector getLatticePosition(IAtomLeaf atom) {
+    public IVectorMutable getLatticePosition(IAtomLeaf atom) {
         // this impl only handles leaf atoms.  subclasses might override this
         // method and handle IMolecules.
-        return (IVector)siteManager.getAgent(atom);
+        return (IVectorMutable)siteManager.getAgent(atom);
     }
     
     public BasisCell[] getBasisCells() {
@@ -232,10 +233,10 @@ public abstract class CoordinateDefinition {
             this.space = space;
         }
         public Class getAgentClass() {
-            return IVector.class;
+            return IVectorMutable.class;
         }
         public Object makeAgent(IAtomLeaf atom) {
-            IVector vector = space.makeVector();
+            IVectorMutable vector = space.makeVector();
             vector.E(((IAtomPositioned)atom).getPosition());
             return vector;
         }
@@ -248,14 +249,14 @@ public abstract class CoordinateDefinition {
     }
     
     public static class BasisCell implements Serializable {
-        public BasisCell(IMoleculeList molecules, IVector cellPosition) {
+        public BasisCell(IMoleculeList molecules, IVectorMutable cellPosition) {
             this.molecules = molecules;
             this.cellPosition = cellPosition;
         }
         
         private static final long serialVersionUID = 1L;
         public final IMoleculeList molecules;
-        public final IVector cellPosition;
+        public final IVectorMutable cellPosition;
     }
 
 }

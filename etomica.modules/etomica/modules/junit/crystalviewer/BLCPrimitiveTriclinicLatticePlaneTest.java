@@ -3,7 +3,7 @@ package etomica.modules.junit.crystalviewer;
 import junit.framework.TestCase;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 
 public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
@@ -39,7 +39,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		super.tearDown();
 	}
 
-	private double[] makeArray(IVector v) {
+	private double[] makeArray(IVectorMutable v) {
 	    return new double[] {v.x(0), v.x(1), v.x(2)};
 	}
 

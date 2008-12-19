@@ -1,5 +1,6 @@
 package etomica.space3d;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorRectangular;
@@ -52,7 +53,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return dimensionsCopy;
     }
 
-    public IVector randomPosition() {
+    public IVectorMutable randomPosition() {
         throw new MethodNotImplementedException();
         //temp.setRandom(dimensions);
         //return temp;
@@ -73,10 +74,10 @@ public class BoundaryTruncatedOctahedron extends Boundary {
       private boolean hasnext;
       private int[] vals;
       private int[] retvals;
-      private IVector[] vecs;
+      private IVectorMutable[] vecs;
       int numLayers;
       
-      public IndexIteratorRectangularFiltered(int D, IVector[] v) {
+      public IndexIteratorRectangularFiltered(int D, IVectorMutable[] v) {
         iis = new IndexIteratorRectangular(D);
         vecs = v;
         hasnext = false;
@@ -171,7 +172,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     public IVector getEdgeVector(int d) {
         double x = dimensions.x(0)*.5;
         if(vecs == null || vecs[0].x(0) == 0) {
-          vecs = new IVector[] {
+          vecs = new IVectorMutable[] {
               space.makeVector(new double[]{-x,x,x}),
               space.makeVector(new double[]{x,-x,x}),
               space.makeVector(new double[]{x,x,-x}) };
@@ -195,14 +196,14 @@ public class BoundaryTruncatedOctahedron extends Boundary {
             for(int i=0; i<faces.length; i++) {
                 IVector[] vertices = faces[i].getVertices();
                 plane.setThreePoints(vertices[0], vertices[1], vertices[2]);
-                plane.getNormalVector(normal);
+                plane.setToNormalVector(normal);
                 normal.TE(multiplier);
                 normal.assignTo(origins[i]);
             }
             return origins;
         }
         //algorithm for nShells > 1 misses many of the images (those through the hexagon faces)
-        IVector workVector = space.makeVector();
+        IVectorMutable workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -223,7 +224,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return origins;
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(IVectorMutable dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
         dr.PEa1Tv1(-0.5, dimensions);
@@ -280,21 +281,17 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return dimensionsCopy;
     }
     
-    public IVector getCenter() {
-        return dimensionsHalfCopy;
-    }
-
     private static final long serialVersionUID = 1L;
-    protected final IVector intoTruncatedOctahedron;
-    protected final IVector rrounded;
-    protected final IVector dimensions;
-    protected final IVector dimensionsCopy;
-    protected final IVector dimensionsHalf;
-    protected final IVector dimensionsHalfCopy;
+    protected final IVectorMutable intoTruncatedOctahedron;
+    protected final IVectorMutable rrounded;
+    protected final IVectorMutable dimensions;
+    protected final IVectorMutable dimensionsCopy;
+    protected final IVectorMutable dimensionsHalf;
+    protected final IVectorMutable dimensionsHalfCopy;
     private final IndexIteratorRectangular indexIterator;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
     private final Plane plane;
     private final Vector3D normal = new Vector3D();
-    private IVector[] vecs; 
+    private IVectorMutable[] vecs; 
 }

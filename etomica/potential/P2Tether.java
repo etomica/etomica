@@ -3,7 +3,7 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -125,7 +125,7 @@ public class P2Tether extends Potential2HardSpherical {
     private double tetherLength, tetherLengthSquared;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
-    private final IVector dv;
+    private final IVectorMutable dv;
     private final Tensor lastCollisionVirialTensor;
     private final boolean ignoreOverlap;
    

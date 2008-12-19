@@ -1,12 +1,12 @@
 package etomica.space;
 
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 /**
  * Vector interface for vectors having random number methods 
  */
-public interface IVectorRandom extends IVector {
+public interface IVectorRandom extends IVectorMutable {
 
     /**
      * Assigns this vector to equal a point chosen randomly on the 

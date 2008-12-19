@@ -4,7 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -61,7 +61,7 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator2;
     public DataPump profile1pump, profile2pump;
     public AccumulatorAverage fluxAccumulator;
-    public IVector poreCenter;
+    public IVectorMutable poreCenter;
     public ActivityIntegrate activityIntegrate;
     public ConfigurationLatticeTube config;
     
@@ -214,7 +214,7 @@ public class DCVGCMD extends Simulation {
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();
 //        poreCenter.Ea1Tv1(0.5, box.getBoundary().getDimensions());
-        IVector[] poreCentersVector = new IVector[] { poreCenter };
+        IVectorMutable[] poreCentersVector = new IVectorMutable[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);
         potentialwallPorousA1.setPoreCenters(poreCentersVector);
         potentialwallPorousB.setPoreCenters(poreCentersVector);

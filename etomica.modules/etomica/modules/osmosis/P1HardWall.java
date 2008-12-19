@@ -3,7 +3,7 @@ package etomica.modules.osmosis;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;
@@ -44,8 +44,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
      
     public double collisionTime(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVector r = atom.getPosition();
-        IVector v = atom.getVelocity();
+        IVectorMutable r = atom.getPosition();
+        IVectorMutable v = atom.getVelocity();
         double vx = v.x(0);
         double rx = r.x(0) + vx * falseTime;
         double t = (vx > 0.0) ? - collisionRadius : collisionRadius;
@@ -59,7 +59,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
-        IVector v = atom.getVelocity();
+        IVectorMutable v = atom.getVelocity();
 
         v.setX(0,-v.x(0));
 

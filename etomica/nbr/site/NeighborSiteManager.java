@@ -40,7 +40,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
     public NeighborSiteManager(final IBox box, int nCells, ISpace _space) {
         space = _space;
 
-        lattice = new CellLattice(box.getBoundary().getDimensions(),
+        lattice = new CellLattice(space, box.getBoundary().getDimensions(),
                 AtomSite.FACTORY);
         int[] size = new int[space.D()];
         for (int i = 0; i < space.D(); i++)

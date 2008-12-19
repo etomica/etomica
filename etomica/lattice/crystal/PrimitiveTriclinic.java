@@ -1,4 +1,5 @@
 package etomica.lattice.crystal;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
@@ -25,9 +26,9 @@ public class PrimitiveTriclinic extends Primitive {
 
     //called by superclass constructor
     public Primitive makeReciprocal() {
-        IVector aStar = space.makeVector();
-        IVector bStar = space.makeVector();
-        IVector cStar = space.makeVector();
+        IVectorMutable aStar = space.makeVector();
+        IVectorMutable bStar = space.makeVector();
+        IVectorMutable cStar = space.makeVector();
         aStar.E(latticeVectors[1]);
         aStar.XE(latticeVectors[2]);
         double factor = 2.0*Math.PI/latticeVectors[0].dot(aStar); // a . (b X c)
@@ -38,7 +39,7 @@ public class PrimitiveTriclinic extends Primitive {
         cStar.E(latticeVectors[0]);
         cStar.XE(latticeVectors[1]);
         cStar.TE(factor);
-        return new PrimitiveGeneral(space, new IVector[]{aStar, bStar, cStar});
+        return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar, cStar});
     }
     
     public void setSizeA(double newA) {

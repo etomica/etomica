@@ -5,6 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -28,7 +29,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         this.species = species;
         agentManager = new AtomLeafAgentManager(this, box);
         work = _space.makeVector();
-        gradient = new IVector[]{work};
+        gradient = new IVectorMutable[]{work};
     }
     
     public void setEpsilon(double newEpsilon) {
@@ -42,14 +43,14 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public double energy(IAtomList atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
+        work.ME((IVectorMutable)agentManager.getAgent((IAtomLeaf)atom));
         return 0.5 * epsilon * work.squared();
     }
 
     public IVector[] gradient(IAtomList atoms) {
         IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVector)agentManager.getAgent((IAtomLeaf)atom));
+        work.ME((IVectorMutable)agentManager.getAgent((IAtomLeaf)atom));
         work.TE(epsilon);
         return gradient;
     }
@@ -64,12 +65,12 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
     /* AgentSource interface */
     public Class getAgentClass() {
-        return IVector.class;
+        return IVectorMutable.class;
     }
 
     public Object makeAgent(IAtomLeaf a) {
         if (a.getType().getSpecies() == species) {
-            IVector vec = space.makeVector();
+            IVectorMutable vec = space.makeVector();
             vec.E(((IAtomPositioned)a).getPosition());
             return vec;
         }
@@ -83,7 +84,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     private static final long serialVersionUID = 1L;
     protected final AtomLeafAgentManager agentManager;
     protected final ISpecies species;
-    protected final IVector work;
-    protected final IVector[] gradient;
+    protected final IVectorMutable work;
+    protected final IVectorMutable[] gradient;
     protected double epsilon;
 }

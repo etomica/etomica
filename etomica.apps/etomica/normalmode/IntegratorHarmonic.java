@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.integrator.IntegratorMD;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
@@ -44,11 +44,11 @@ public class IntegratorHarmonic extends IntegratorMD {
         temperature = newTemperature;
     }
     
-    public void setWaveVectors(IVector[] newWaveVectors) {
+    public void setWaveVectors(IVectorMutable[] newWaveVectors) {
         waveVectors = newWaveVectors;
     }
     
-    public IVector[] getWaVectors(){
+    public IVectorMutable[] getWaVectors(){
     	return waveVectors;
     }
     
@@ -166,7 +166,7 @@ public class IntegratorHarmonic extends IntegratorMD {
     private final MoleculeIteratorAllMolecules iterator;
     private double[][] omega;
     private double[][][] eigenVectors;
-    private IVector[] waveVectors;
+    private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     protected double[] u;
     protected double[][] rRand;

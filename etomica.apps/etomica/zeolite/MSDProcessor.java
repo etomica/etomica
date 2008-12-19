@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 public class MSDProcessor {
@@ -50,7 +50,7 @@ public class MSDProcessor {
             throw new RuntimeException("Couldn't shut down readers, caught IOException: " +e.getMessage());
         }
         
-        coordBlock1 = new IVector[numAtoms];
+        coordBlock1 = new IVectorMutable[numAtoms];
         coordVector2 = space.makeVector();
         
         for (int j=0; j<numAtoms; j++){
@@ -160,8 +160,8 @@ public class MSDProcessor {
         }
     }
     
-	private IVector [] coordBlock1;
-	private IVector coordVector2;
+	private IVectorMutable [] coordBlock1;
+	private IVectorMutable coordVector2;
 	private int numAtoms;
     private int numBlocks;
     private int deltaTmax;

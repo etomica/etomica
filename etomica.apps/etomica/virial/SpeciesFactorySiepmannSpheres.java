@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.config.ConformationChainZigZag;
 import etomica.api.ISimulation;
 import etomica.space.ISpace;
@@ -42,9 +42,9 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
     }
     
     public void init() {
-        IVector vector1 = space.makeVector();
+        IVectorMutable vector1 = space.makeVector();
         vector1.setX(0, bondL);
-        IVector vector2 = space.makeVector();
+        IVectorMutable vector2 = space.makeVector();
         vector2.setX(0, bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag(space, vector1, vector2);

@@ -2,7 +2,6 @@ package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
-import etomica.space.Space;
 
 /**
  * Primitive group for a 2D hexagonal system.  Primitive-vector angle

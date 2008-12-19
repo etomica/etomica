@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space3d.OrientationFull3D;
 
@@ -23,11 +23,11 @@ public class MoleculeOriented extends Molecule implements IAtomOriented {
         return orientation;
     }
 
-    public IVector getPosition() {
+    public IVectorMutable getPosition() {
         return position;
     }
 
     private static final long serialVersionUID = 1L;
     protected final OrientationFull3D orientation;
-    protected final IVector position;
+    protected final IVectorMutable position;
 }

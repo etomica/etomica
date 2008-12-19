@@ -9,6 +9,7 @@ import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.ISimulation;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
@@ -42,7 +43,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     protected double range;
     protected final AtomLeafAgentManager agentManager;
     protected boolean doApplyPBC;
-    protected final IVector v;
+    protected final IVectorMutable v;
     protected final int[] numCells;
     
     /**
@@ -67,7 +68,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         this.sim = sim;
         numCells = new int[space.D()];
 
-        lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
+        lattice = new CellLattice(space, box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
         agentManager = new AtomLeafAgentManager(this,box);
@@ -235,7 +236,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * cell's atom list.
      */
     public Object makeAgent(IAtomLeaf atom) {
-        IVector position = ((IAtomPositioned)atom).getPosition();
+        IVectorMutable position = ((IAtomPositioned)atom).getPosition();
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));

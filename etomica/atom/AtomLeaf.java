@@ -4,7 +4,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.util.Debug;
 
@@ -83,7 +83,7 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
         return parent;
     }
     
-    public IVector getPosition() {
+    public IVectorMutable getPosition() {
         return position;
     }
     
@@ -106,7 +106,7 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
     private static final long serialVersionUID = 3L;
     protected final IAtomTypeLeaf type;
     protected int index;
-    protected final IVector position;
+    protected final IVectorMutable position;
     protected IMolecule parent;
     protected int leafIndex;
 }

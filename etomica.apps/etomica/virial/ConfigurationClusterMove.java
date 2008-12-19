@@ -19,13 +19,13 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 		BoxCluster clusterBox =(BoxCluster) box;
 		ClusterAbstract sampleCluster = clusterBox.getSampleCluster();
 		while (sampleCluster.value(clusterBox)== 0){
-		IAtomList list = box.getLeafList();
-		for (int i=1;i<list.getAtomCount();i++){
-			((IVectorRandom)((IAtomPositioned)list.getAtom(i)).getPosition()).setRandomInSphere(random);
-			((IAtomPositioned)list.getAtom(i)).getPosition().TE(2);
-			 clusterBox.trialNotify();
-			 clusterBox.acceptNotify();
-		}
+    		IAtomList list = box.getLeafList();
+    		for (int i=1;i<list.getAtomCount();i++){
+    			((IVectorRandom)((IAtomPositioned)list.getAtom(i)).getPosition()).setRandomInSphere(random);
+    			((IAtomPositioned)list.getAtom(i)).getPosition().TE(2);
+    			 clusterBox.trialNotify();
+    			 clusterBox.acceptNotify();
+    		}
 		}
 	}
    protected final IRandom random;

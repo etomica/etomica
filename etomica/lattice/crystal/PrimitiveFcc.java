@@ -1,4 +1,5 @@
 package etomica.lattice.crystal;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
@@ -15,7 +16,7 @@ public class PrimitiveFcc extends Primitive {
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
     private double cubicSize;
-    private IVector[] unitVectors;
+    private IVectorMutable[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
     public PrimitiveFcc(ISpace space) {
@@ -24,7 +25,7 @@ public class PrimitiveFcc extends Primitive {
     public PrimitiveFcc(ISpace space, double size) {
         super(space);
         //set up orthogonal vectors of unit size
-        unitVectors = new IVector[D];
+        unitVectors = new IVectorMutable[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));
@@ -112,12 +113,12 @@ public class PrimitiveFcc extends Primitive {
         PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
         PrimitiveBcc reciprocal = (PrimitiveBcc)primitive.makeReciprocal();
         IVector[] latticeVectors = primitive.vectors();
-        Vector3D a = (Vector3D)latticeVectors[0];
-        Vector3D b = (Vector3D)latticeVectors[1];
-        Vector3D c = (Vector3D)latticeVectors[2];
-        Vector3D ar = (Vector3D)reciprocal.vectors()[0];
-        Vector3D br = (Vector3D)reciprocal.vectors()[1];
-        Vector3D cr = (Vector3D)reciprocal.vectors()[2];
+        IVector a = latticeVectors[0];
+        IVector b = latticeVectors[1];
+        IVector c = latticeVectors[2];
+        IVector ar = reciprocal.vectors()[0];
+        IVector br = reciprocal.vectors()[1];
+        IVector cr = reciprocal.vectors()[2];
         System.out.println("Primitive");
         System.out.println(a);
         System.out.println(b);

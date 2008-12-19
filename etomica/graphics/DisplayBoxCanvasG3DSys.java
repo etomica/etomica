@@ -15,6 +15,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
@@ -53,8 +54,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	private boolean initialOrient = false;
     private Plane[] planes;
     private Triangle[][] planeTriangles;
-    private IVector[] planeIntersections;
-    private IVector work, work2, work3;
+    private IVectorMutable[] planeIntersections;
+    private IVectorMutable work, work2, work3;
     private double[] planeAngles;
     private final ISpace space;
 
@@ -87,7 +88,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
-        planeIntersections = new IVector[0];
+        planeIntersections = new IVectorMutable[0];
         planeAngles = new double[0];
         work = space.makeVector();
         work2 = space.makeVector();
@@ -421,10 +422,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             double alpha = -plane.distanceTo(vertices[0]) / 
                             (plane.distanceTo(work) - plane.getD());
             if (alpha >= 0 && alpha <= 1) {
-                IVector newIntersection;
+                IVectorMutable newIntersection;
                 if (planeIntersections.length == intersectionCount) {
                     newIntersection = space.makeVector();
-                    planeIntersections = (IVector[])Arrays.addObject(planeIntersections, newIntersection);
+                    planeIntersections = (IVectorMutable[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {
                     newIntersection = planeIntersections[intersectionCount];
@@ -482,7 +483,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             for (int j=1; j<i; j++) {
                 if (angle < planeAngles[j-1]) {
                     // insert the i point at position j, shift existing points
-                    IVector intersection = planeIntersections[i];
+                    IVectorMutable intersection = planeIntersections[i];
                     for (int k=i; k>j; k--) {
                         planeAngles[k-1] = planeAngles[k-2];
                         planeIntersections[k] = planeIntersections[k-1];

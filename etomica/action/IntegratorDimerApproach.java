@@ -6,7 +6,7 @@ import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
 
@@ -265,7 +265,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	}
 	
 	public void checkOHBondLength() {
-		IVector work = space.makeVector();
+		IVectorMutable work = space.makeVector();
         
         work.Ev1Mv2(atom_aC_A.getPosition(), atom_aC_B.getPosition());
         double raCaC = Math.sqrt(work.squared());
@@ -305,8 +305,8 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected IPotentialMaster potentialMaster;
     
     // vectors used in translateMonomerB()
-    protected IVector newOriginB;
-    protected IVector translationVector;
+    protected IVectorMutable newOriginB;
+    protected IVectorMutable translationVector;
     
     protected IMoleculeList moleculeList; // List of monomers in box.
     protected IAtomList atomSetA; // List of sites in monomer A.

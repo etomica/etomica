@@ -1,7 +1,7 @@
 
 package etomica.space;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Primitive;
 
 /**
@@ -32,8 +32,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * Creates boundary vectors in the direction of the primitive vectors, 
      * scaled by nCells
      */
-    private static final IVector[] makeDimensionVectors(Primitive primitive, int[] numCells) {
-        IVector[] dimensionVectors = new IVector[primitive.getSpace().D()];
+    private static final IVectorMutable[] makeDimensionVectors(Primitive primitive, int[] numCells) {
+        IVectorMutable[] dimensionVectors = new IVectorMutable[primitive.getSpace().D()];
         for (int i=0; i<dimensionVectors.length; i++) {
             dimensionVectors[i] = primitive.getSpace().makeVector();
             dimensionVectors[i].Ea1Tv1(numCells[i],primitive.vectors()[i]);
@@ -45,8 +45,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * Creates boundary vectors in the direction of the primitive vectors, 
      * scaled by nCells
      */
-    private static final IVector[] makeDimensionVectors(Primitive primitive, double[] numCells) {
-        IVector[] dimensionVectors = new IVector[primitive.getSpace().D()];
+    private static final IVectorMutable[] makeDimensionVectors(Primitive primitive, double[] numCells) {
+        IVectorMutable[] dimensionVectors = new IVectorMutable[primitive.getSpace().D()];
         for (int i=0; i<dimensionVectors.length; i++) {
             dimensionVectors[i] = primitive.getSpace().makeVector();
             dimensionVectors[i].Ea1Tv1(numCells[i],primitive.vectors()[i]);

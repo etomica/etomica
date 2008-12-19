@@ -6,7 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorMC;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -58,7 +58,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     // Different because we know the bond angle
     // All moves are accepted
-    protected IVector calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
+    protected IVectorMutable calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
         // temp will be the radial vector
         // vex will be the axial vector
 
@@ -117,7 +117,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     }
 
-    protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
+    protected IVectorMutable calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
             IAtomPositioned c) {
         // Get a random number, and place it between the limits on the new
         // atom's placement. The angle must be between lowerTorsLimit,
@@ -169,7 +169,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
          */
     }
 
-    protected double calcBondTorsionalEnergy(IVector v) {
+    protected double calcBondTorsionalEnergy(IVectorMutable v) {
         throw new RuntimeException("calcBondTorsionalEnergy should not be "
                 + "called in CBMCGrowSolidHexane");
         /*
@@ -203,7 +203,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
      * @param vector
      * @return
      */
-    protected IVector getNormal(IVector vect) {
+    protected IVectorMutable getNormal(IVectorMutable vect) {
         // Determine the smallest component
         int min = 0;
         if (vect.x(1) < vect.x(0)) {
@@ -237,5 +237,5 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     Tensor rotor;
 
-    IVector temp2;
+    IVectorMutable temp2;
 }

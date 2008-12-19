@@ -2,7 +2,7 @@ package etomica.virial.paralleltempering;
 
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -22,7 +22,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private IntegratorMC integrator1, integrator2;
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
-    private IVector r;
+    private IVectorMutable r;
     private BoxCluster box1, box2;
     private double weightOld1, weightOld2;
     private double weightNew1, weightNew2;

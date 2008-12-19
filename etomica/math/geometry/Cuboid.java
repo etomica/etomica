@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space3d.Vector3D;
@@ -105,7 +106,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
         updateVertices();
     }
 
-    private final IVector edgeLengths = new Vector3D();//used only to return edge lengths as a vector
+    private final IVectorMutable edgeLengths = new Vector3D();//used only to return edge lengths as a vector
     private double pa;//p = +a/2
     private double pb;//p = +a/2
     private double pc;//p = +a/2

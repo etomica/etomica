@@ -4,7 +4,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
@@ -114,10 +114,10 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
                 		boundary.nearestImage(dr3);
             			if(dr3.squared()>rMaxSquared){continue;}
             			//compute dihedral angle
-            			IVector tanY = space.makeVector();
+            			IVectorMutable tanY = space.makeVector();
             			tanY.Ea1Tv1(Math.sqrt(dr2.squared()),dr1);
-            			IVector cross12 = space.makeVector();
-            			IVector cross23 = space.makeVector();
+            			IVectorMutable cross12 = space.makeVector();
+            			IVectorMutable cross23 = space.makeVector();
             			cross12.E(dr1);
             			cross12.XE(dr2);
             			cross23.E(dr2);
@@ -200,7 +200,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray phiData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector dr1, dr2, dr3;
+    private final IVectorMutable dr1, dr2, dr3;
     private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double rMax;

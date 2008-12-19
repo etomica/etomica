@@ -6,6 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
 import etomica.space.ISpace;
@@ -18,7 +19,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         iDipole = space.makeVector();
         cavityDipole = space.makeVector();
         dr = space.makeVector();
-        gradientAndTorque = new IVector[2][2];
+        gradientAndTorque = new IVectorMutable[2][2];
         gradientAndTorque[0][0] = space.makeVector();
         gradientAndTorque[0][1] = space.makeVector();
         gradientAndTorque[1][0] = space.makeVector();
@@ -111,13 +112,13 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector iDipole, cavityDipole;
-    protected final IVector dr;
+    protected final IVectorMutable iDipole, cavityDipole;
+    protected final IVectorMutable dr;
     protected DipoleSource dipoleSource;
     protected IBoundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
-    protected final IVector[][] gradientAndTorque;
+    protected final IVectorMutable[][] gradientAndTorque;
     protected double fac;
     
     /**
@@ -133,7 +134,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
             super(0,space);
             this.potential = p;
-            gradient = new IVector[0];
+            gradient = new IVectorMutable[0];
         }
         
         public double energy(IMoleculeList atoms) {
@@ -190,7 +191,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
 
         private static final long serialVersionUID = 1L;
         protected final P2ReactionFieldDipole potential;
-        protected final IVector[] gradient;
+        protected final IVectorMutable[] gradient;
         protected IMolecule targetAtom;
         protected IBox box;
 

@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space1d.Vector1D;
@@ -21,7 +22,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Forms the segment using the given vectors as the instances used to
      * represent the end points.
      */
-    LineSegment(ISpace embeddedSpace, IVector v0, IVector v1) {
+    LineSegment(ISpace embeddedSpace, IVectorMutable v0, IVectorMutable v1) {
         super(new Point[] {new Point(embeddedSpace, v0), new Point(embeddedSpace, v1)});
         edges = new LineSegment[]{this};
     }
@@ -49,6 +50,14 @@ public class LineSegment extends Polytope implements Rectangular {
     
     public double getVolume() {
         return getLength();
+    }
+    
+    public void setVertex1(IVector newVertex1) {
+        vertices[0].E(newVertex1);
+    }
+    
+    public void setVertex2(IVector newVertex2) {
+        vertices[1].E(newVertex2);
     }
     
     public double getLength() {
@@ -98,12 +107,9 @@ public class LineSegment extends Polytope implements Rectangular {
 
 
     public static void main(String[] args) {
-        LineSegment segment = new LineSegment(Space3D.getInstance());
-        segment.getVertices()[0].setX(0, 1.0);
-        segment.getVertices()[0].setX(1, 4.0);
-        segment.getVertices()[1].setX(0, 2.0);
-        segment.getVertices()[1].setX(1, 8.0);
-        etomica.space3d.Vector3D p1 = new etomica.space3d.Vector3D();
+        ISpace space = Space3D.getInstance();
+        LineSegment segment = new LineSegment(space, space.makeVector(new double[]{1,4}), space.makeVector(new double[]{2,8}));
+        IVectorMutable p1 = space.makeVector();
         p1.setX(0, 1.5);
         p1.setX(1, 6.0);
         System.out.println(segment.contains(p1));

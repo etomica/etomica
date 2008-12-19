@@ -2,6 +2,7 @@ package etomica.lattice;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
@@ -18,10 +19,10 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
-    private IVector normal, delta;
+    private IVectorMutable normal, delta;
     private ISpace space;
     private int[] millerIndices;
-    private IVector origin;
+    private IVectorMutable origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
@@ -121,8 +122,8 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     public double getPosition() {
         double d = plane.distanceTo(origin);
 //        return -Math.round((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
-      return -((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
-      }
+        return -((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
+    }
 
     /**
      * Returns true if the given point is on the side of the 

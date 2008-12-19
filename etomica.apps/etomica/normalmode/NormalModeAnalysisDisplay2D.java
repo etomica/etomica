@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
@@ -44,7 +44,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
         box.setNMolecules(species, numAtoms);
         
         primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
-        IVector[] dimension = space.makeVectorArray(space.D());
+        IVectorMutable[] dimension = space.makeVectorArray(space.D());
         for (int i=0; i<space.D(); i++){
         	dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
         }

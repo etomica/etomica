@@ -7,7 +7,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -31,7 +31,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    IVector work, work1, work2, work3, work4;
+    IVectorMutable work, work1, work2, work3, work4;
     double halfTime, mass;
 
     protected AtomLeafAgentManager agentManager;
@@ -98,7 +98,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVector v = a.getVelocity();
+            IVectorMutable v = a.getVelocity();
 
             work1.E(v); //work1 = v
             work2.E(((Agent)agentManager.getAgent((IAtomLeaf)a)).force);	//work2=F
@@ -114,7 +114,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
-            IVector v = a.getVelocity();
+            IVectorMutable v = a.getVelocity();
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
@@ -126,8 +126,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            IVector r = a.getPosition();
-            IVector v = a.getVelocity();
+            IVectorMutable r = a.getPosition();
+            IVectorMutable v = a.getVelocity();
 
             work.Ea1Tv1(timeStep,v);
             work.PE(r);
@@ -147,13 +147,13 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     public void releaseAgent(Object agent, IAtomLeaf atom) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
-        public IVector force;
+        public IVectorMutable force;
 
         public Agent(ISpace space) {
             force = space.makeVector();
         }
         
-        public IVector force() {return force;}
+        public IVectorMutable force() {return force;}
     }
     
 }

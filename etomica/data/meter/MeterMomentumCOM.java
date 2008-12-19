@@ -8,7 +8,7 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
@@ -86,7 +86,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
 
     private static final long serialVersionUID = 1L;
     private IBox box;
-    private final IVector momentumSum;
+    private final IVectorMutable momentumSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
     private String name;

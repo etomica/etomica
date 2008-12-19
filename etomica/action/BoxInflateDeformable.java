@@ -3,7 +3,7 @@ package etomica.action;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -21,6 +21,7 @@ public class BoxInflateDeformable extends BoxInflate{
         super(space);
         tempTens = space.makeTensor();
         tempTensInv = space.makeTensor();
+        dimVector = space.makeVector();
     }
     
     public BoxInflateDeformable(IBox box, ISpace space){
@@ -47,7 +48,7 @@ public class BoxInflateDeformable extends BoxInflate{
          * into coordinates based on the edge vectors, scale, 
          * convert back, and scale the molecule
          */
-        IVector translationVector = translator.getTranslationVector();
+        IVectorMutable translationVector = translator.getTranslationVector();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1.0);
@@ -65,12 +66,12 @@ public class BoxInflateDeformable extends BoxInflate{
         //Reverse the subtraction to the scaleVector
         scaleVector.PE(1.0);
 //      Then scale the boundary
-        IVector dimensions = box.getBoundary().getDimensions();
-        dimensions.TE(scaleVector);
-        box.getBoundary().setDimensions(dimensions);
+        dimVector.E(box.getBoundary().getDimensions());
+        dimVector.TE(scaleVector);
+        box.getBoundary().setDimensions(dimVector);
     }
 
-    protected Tensor tempTens;
-    protected Tensor tempTensInv;
-
+    protected final Tensor tempTens;
+    protected final Tensor tempTensInv;
+    protected final IVectorMutable dimVector;
 }

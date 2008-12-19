@@ -5,7 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
@@ -142,5 +142,5 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
-    private final IVector dr;
+    private final IVectorMutable dr;
 }

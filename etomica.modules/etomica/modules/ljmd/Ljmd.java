@@ -2,7 +2,7 @@ package etomica.modules.ljmd;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -54,7 +54,7 @@ public class Ljmd extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVector dim = space.makeVector();
+        IVectorMutable dim = space.makeVector();
         dim.E(15);
         box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, N);

@@ -6,7 +6,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
@@ -166,7 +166,7 @@ public class CheckCBMCHexane implements IAction {
 
     MoleculeIteratorAllMolecules moleculeIterator;
 
-    IVector vex, temp, axial, radial;
+    IVectorMutable vex, temp, axial, radial;
 
     int booink;
 

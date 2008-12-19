@@ -2,7 +2,7 @@ package etomica.box;
 
 import etomica.api.IBox;
 import etomica.api.IRandom;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -13,7 +13,7 @@ public class RandomPositionSourceRectangular implements RandomPositionSource {
         this.random = random;
     }
 
-    public IVector randomPosition() {
+    public IVectorMutable randomPosition() {
         p.setRandomCube(random);
         p.TE(box.getBoundary().getDimensions());
         return p;

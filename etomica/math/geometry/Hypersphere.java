@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
 
@@ -86,7 +87,7 @@ public class Hypersphere implements Shape, java.io.Serializable {
     }
 
     protected double radius;
-    private IVector position;
+    private IVectorMutable position;
     private final int D;
 
 }

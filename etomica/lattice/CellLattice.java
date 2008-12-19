@@ -1,10 +1,8 @@
-/*
- * History
- * Created on Dec 17, 2004 by kofke
- */
 package etomica.lattice;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -28,10 +26,11 @@ public class CellLattice extends RectangularLattice {
      * @param siteFactory
      *            makes the sites of the lattice
      */
-    public CellLattice(IVector dimensions, SiteFactory siteFactory) {
-        super(dimensions.getD(), siteFactory);
+    public CellLattice(ISpace space, IVector dimVector, SiteFactory siteFactory) {
+        super(space.D(), siteFactory);
         cellSize = new double[D()];
-        this.dimensions = dimensions;
+        this.dimensions = space.makeVector();
+        dimensions.E(dimVector);
     }
     
     /**
@@ -47,7 +46,6 @@ public class CellLattice extends RectangularLattice {
             idx1D += ((int)(size[i]*(r.x(i)/dimensions.x(i)+0.5)))*jumpCount[i];
         }
         return sites[idx1D];
-
     }
 
     /**
@@ -76,7 +74,7 @@ public class CellLattice extends RectangularLattice {
     
     private static final long serialVersionUID = 1L;
     private final double[] cellSize;
-    private final IVector dimensions;
+    private final IVectorMutable dimensions;
 
     /**
      * Extends the SimpleLattice neighbor iterator to provide methods that
@@ -152,7 +150,7 @@ public class CellLattice extends RectangularLattice {
         
         private static final long serialVersionUID = 1L;
         private final int[] idx;//a work array
-        private final IVector previousDimensions;
+        private final IVectorMutable previousDimensions;
         private double neighborDistance;
     }//end of NeighborIterator
 }

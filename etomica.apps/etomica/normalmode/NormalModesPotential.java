@@ -8,7 +8,7 @@ import Jama.Matrix;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IDataInfo;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.types.DataTensor;
@@ -93,7 +93,7 @@ public class NormalModesPotential implements NormalModes {
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
-        IVector kVector = lattice.getSpace().makeVector();
+        IVectorMutable kVector = lattice.getSpace().makeVector();
         
         
         

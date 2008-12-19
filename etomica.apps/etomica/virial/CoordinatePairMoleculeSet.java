@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -75,8 +76,8 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     protected final double[] r2;
     protected final IMolecule[] atoms;
     protected final int numAtoms;
-    protected final IVector dr;
-    private final IVector iPosition;
+    protected final IVectorMutable dr;
+    private final IVectorMutable iPosition;
     private int ID;
     private static int staticID;
 }

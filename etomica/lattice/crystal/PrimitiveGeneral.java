@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
@@ -48,9 +49,9 @@ public class PrimitiveGeneral extends Primitive {
 
     public Primitive makeReciprocal() {
         if (space.D() == 3) {
-            IVector aStar = space.makeVector();
-            IVector bStar = space.makeVector();
-            IVector cStar = space.makeVector();
+            IVectorMutable aStar = space.makeVector();
+            IVectorMutable bStar = space.makeVector();
+            IVectorMutable cStar = space.makeVector();
             aStar.E(latticeVectors[1]);
             aStar.XE(latticeVectors[2]);
             double factor = 2.0*Math.PI/latticeVectors[0].dot(aStar); // a . (b X c)
@@ -61,18 +62,18 @@ public class PrimitiveGeneral extends Primitive {
             cStar.E(latticeVectors[0]);
             cStar.XE(latticeVectors[1]);
             cStar.TE(factor);
-            return new PrimitiveGeneral(space, new IVector[]{aStar, bStar, cStar});
+            return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar, cStar});
         }
         if (space.D() == 2) {
-            IVector aStar = space.makeVector();
-            IVector bStar = space.makeVector();
+            IVectorMutable aStar = space.makeVector();
+            IVectorMutable bStar = space.makeVector();
             aStar.setX(0, -latticeVectors[0].x(1));
             aStar.setX(1, latticeVectors[0].x(0));
             aStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[1]));
             bStar.setX(0, -latticeVectors[1].x(1));
             bStar.setX(1, latticeVectors[1].x(0));
             bStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[0]));
-            return new PrimitiveGeneral(space, new IVector[]{aStar, bStar});
+            return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar});
         }
         throw new RuntimeException("can't make a "+space.D()+"D reciprocal");
     }

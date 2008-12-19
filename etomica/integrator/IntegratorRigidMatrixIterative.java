@@ -16,6 +16,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
@@ -61,9 +62,9 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
-    protected final IVector xWork, yWork;
+    protected final IVectorMutable xWork, yWork;
     protected final AtomTypeAgentManager typeAgentManager;
-    protected final IVector tempAngularVelocity;
+    protected final IVectorMutable tempAngularVelocity;
     protected final AtomPositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
     protected final MoleculeChildAtomAction translator;
@@ -148,7 +149,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = space.makeVector();
+                IVectorMutable dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -163,8 +164,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
                     AtomAgent agent = (AtomAgent)leafAgentManager.getAgent((IAtomLeaf)a);
-                    IVector r = a.getPosition();
-                    IVector v = a.getVelocity();
+                    IVectorMutable r = a.getPosition();
+                    IVectorMutable v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
                         System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                     }
@@ -181,7 +182,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             IOrientationFull3D orientation = (IOrientationFull3D)orientedMolecule.getOrientation();
 
             // use the angular velocity field to store angular momentum during the time step  :(
-            IVector angularMomentum = orientedMolecule.getAngularVelocity();
+            IVectorMutable angularMomentum = orientedMolecule.getAngularVelocity();
 
             // transform to body-fixed, multiply by moment of inertia, transform back
             rotationTensor.setOrientation(orientation);
@@ -274,7 +275,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/mass, agent.force);
             
             //advance position to full timestep
-            IVector transVec = ((AtomActionTranslateBy)translator.getAtomAction()).getTranslationVector();
+            IVectorMutable transVec = ((AtomActionTranslateBy)translator.getAtomAction()).getTranslationVector();
             transVec.Ea1Tv1(timeStep, orientedMolecule.getVelocity());
             orientedMolecule.getPosition().PE(transVec);
             translator.actionPerformed(molecule);
@@ -301,7 +302,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
-                    IVector velocity = a.getVelocity();
+                    IVectorMutable velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
                     workTensor.TE(((AtomLeaf)a).getType().getMass());
                     pressureTensor.PE(workTensor);
@@ -322,7 +323,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector atomForce = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVectorMutable atomForce = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -338,7 +339,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/mass, agent.force);
 
             //advance momentum to full timestep
-            IVector angularVelocity = orientedMolecule.getAngularVelocity();
+            IVectorMutable angularVelocity = orientedMolecule.getAngularVelocity();
 
             // we actually stored the half-timestep angular momentum in this field...
             // advance to full timestep
@@ -415,7 +416,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                 for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
-                    IVector velocity = a.getVelocity();
+                    IVectorMutable velocity = a.getVelocity();
                     velocity.ME(momentum);
                     totalMass += ((IAtomLeaf)a).getType().getMass();
                     KE += velocity.squared() * ((IAtomLeaf)a).getType().getMass();
@@ -424,7 +425,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                 continue;
             }
             IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
-            IVector velocity = orientedMolecule.getVelocity();
+            IVectorMutable velocity = orientedMolecule.getVelocity();
             velocity.ME(momentum);
             KE += velocity.squared() * ((ISpeciesOriented)molecule.getType()).getMass();
 
@@ -462,7 +463,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
             orientedMolecule.getVelocity().TE(scale);
 
-            IVector angularVelocity = orientedMolecule.getAngularVelocity();
+            IVectorMutable angularVelocity = orientedMolecule.getAngularVelocity();
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             rotationTensor.transform(angularVelocity);
             angularVelocity.TE(scale);
@@ -487,7 +488,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             }
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
-            IVector velocity = orientedMolecule.getVelocity();
+            IVectorMutable velocity = orientedMolecule.getVelocity();
             double mass = ((ISpeciesOriented)molecule.getType()).getMass();
             IVector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
             int D = velocity.getD();
@@ -496,7 +497,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             }
             velocity.TE(Math.sqrt(temperature/mass));
     
-            IVector angularVelocity = orientedMolecule.getAngularVelocity();
+            IVectorMutable angularVelocity = orientedMolecule.getAngularVelocity();
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
@@ -531,7 +532,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             }
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)atom;
-            IVector velocity = orientedMolecule.getVelocity();
+            IVectorMutable velocity = orientedMolecule.getVelocity();
             double mass = ((ISpeciesOriented)((IMolecule)atom).getType()).getMass();
             IVector moment = ((ISpeciesOriented)((IMolecule)atom).getType()).getMomentOfInertia();
             int D = velocity.getD();
@@ -540,7 +541,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             }
             velocity.TE(Math.sqrt(temperature/mass));
 
-            IVector angularVelocity = orientedMolecule.getAngularVelocity();
+            IVectorMutable angularVelocity = orientedMolecule.getAngularVelocity();
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
@@ -567,7 +568,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = space.makeVector();
+                IVectorMutable dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -604,7 +605,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
-                IVector force = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
+                IVectorMutable force = ((AtomAgent)leafAgentManager.getAgent((IAtomLeaf)atom)).force;
                 if (force.isZero()) {
                     continue;
                 }
@@ -641,27 +642,27 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
-        public final IVector torque;
-        public final IVector force;
+        public final IVectorMutable torque;
+        public final IVectorMutable force;
 
         public MoleculeAgent(ISpace space) {
             torque = space.makeVector();
             force = space.makeVector();
         }
         
-        public IVector torque() {return torque;}
-        public IVector force() {return force;}
+        public IVectorMutable torque() {return torque;}
+        public IVectorMutable force() {return force;}
     }
 
     public static class AtomAgent implements Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
-        public final IVector force;  // for leaf atoms
+        public final IVectorMutable force;  // for leaf atoms
 
         public AtomAgent(ISpace space) {
             force = space.makeVector();
         }
         
-        public IVector force() {return force;}
+        public IVectorMutable force() {return force;}
     }
 
     public Class getTypeAgentClass() {
@@ -686,7 +687,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             for (int i=0; i<molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 if (molecule instanceof MoleculeOrientedDynamic) {
-                    IVector position = ((MoleculeOrientedDynamic)molecule).getPosition();
+                    IVectorMutable position = ((MoleculeOrientedDynamic)molecule).getPosition();
                     IVector shift = boundary.centralImage(position);
                     if (!shift.isZero()) {
                         translateBy.setTranslationVector(shift);

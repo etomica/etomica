@@ -6,6 +6,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -35,6 +36,6 @@ public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Ser
     }
 
     private static final long serialVersionUID = 1L;
-    private final IVector center;
+    private final IVectorMutable center;
 }
  

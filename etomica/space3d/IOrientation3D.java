@@ -1,6 +1,6 @@
 package etomica.space3d;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 
 /**
@@ -18,5 +18,5 @@ public interface IOrientation3D extends IOrientation {
      * If the given axis is considered "up" (out of the plane and toward the
      * viewer), then positive rotation is in the counter-clockwise direction.
      */
-    public void rotateBy(double dt, IVector axis);
+    public void rotateBy(double dt, IVectorMutable axis);
 }

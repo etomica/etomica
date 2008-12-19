@@ -359,8 +359,8 @@ public class ClusterGenerator implements java.io.Serializable {
     /**
      * Method that does the real work for the isArticulation* methods.
      * The method walks through the cluster looking for root nodes.  If
-     * it finds a root point in every section, it returns true.  If all
-     * root points were deleted in calling methods, the it returns true if
+     * it finds a root point in every section, it returns false.  If all
+     * root points were deleted in calling methods, then it returns false if
      * all filled points are in one section.
      */
     private boolean isArticulated(int numMarksNeeded, int nRootPoints) {

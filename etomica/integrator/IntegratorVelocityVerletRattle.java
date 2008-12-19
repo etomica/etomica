@@ -10,7 +10,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
@@ -28,7 +28,7 @@ import etomica.util.Debug;
 public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShake implements AtomTypeAgentManager.AgentSource {
 
     private static final long serialVersionUID = 1L;
-    protected final IVector dv;
+    protected final IVectorMutable dv;
 
     public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -65,7 +65,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 IBoundary boundary = box.getBoundary();
 
                 if (drOld.length < bondConstraints.bondedAtoms.length) {
-                    IVector[] newDrOld = new IVector[bondConstraints.bondedAtoms.length];
+                    IVectorMutable[] newDrOld = new IVectorMutable[bondConstraints.bondedAtoms.length];
                     System.arraycopy(drOld, 0, newDrOld, 0, drOld.length);
                     for (int j=drOld.length; j<newDrOld.length; j++) {
                         newDrOld[j] = space.makeVector();
@@ -86,8 +86,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                 MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
-                IVector r = a.getPosition();
-                IVector v = a.getVelocity();
+                IVectorMutable r = a.getPosition();
+                IVectorMutable v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
@@ -179,7 +179,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVector velocity = a.getVelocity();
+            IVectorMutable velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
                 System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);
             }

@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceIndependent;
@@ -172,7 +172,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected AtomsetIteratorBoxDependent iterator;
-    private final IVector dr;
+    private final IVectorMutable dr;
     private IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;

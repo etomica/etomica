@@ -7,6 +7,7 @@ import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 
@@ -80,7 +81,7 @@ public class WriteConfiguration implements IAction {
             return;
         }
         try {
-            IVector writePosition = space.makeVector();
+            IVectorMutable writePosition = space.makeVector();
             IAtomList leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {

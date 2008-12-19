@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -32,7 +33,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Does nothing.
      */
-    public void nearestImage(IVector dr) {
+    public void nearestImage(IVectorMutable dr) {
     }
 
     /**
@@ -50,7 +51,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
         return false;
     }
 
-    private final IVector zero;
+    private final IVectorMutable zero;
     protected final double[][] origins= new double[0][0];//cannot be static because several boxs may be using at once
     private static final long serialVersionUID = 1L;
 }

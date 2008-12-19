@@ -5,7 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -58,11 +58,11 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
         return sum;
     }
 	
-	public IVector[] getInitialLatticePosition() {
+	public IVectorMutable[] getInitialLatticePosition() {
 		return initialLatticePosition;
 	}
 
-	public void setInitialLatticePosition(IVector[] initialLatticePosition) {
+	public void setInitialLatticePosition(IVectorMutable[] initialLatticePosition) {
 		this.initialLatticePosition = initialLatticePosition;
 	}
 
@@ -77,8 +77,8 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
     private static final long serialVersionUID = 1L;
 	protected  double sum = 0.0;
 	public IAtomLeaf atom0, atom1;
-	protected IVector[] initialLatticePosition;
-	protected IVector latticeDistance, dr;
+	protected IVectorMutable[] initialLatticePosition;
+	protected IVectorMutable latticeDistance, dr;
 	protected IBox box;
 
 }

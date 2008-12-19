@@ -1,6 +1,8 @@
 package etomica.config;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
+import etomica.api.IConformation;
+import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
@@ -13,7 +15,7 @@ import etomica.units.Length;
  * @author David Kofke
  */
 
-public class ConformationChainLinear extends ConformationChain {
+public class ConformationChainLinear implements IConformation {
     
     public ConformationChainLinear(ISpace _space) {
         this(_space, 0.55);
@@ -22,7 +24,7 @@ public class ConformationChainLinear extends ConformationChain {
     	this(_space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
     public ConformationChainLinear(ISpace _space, double bondLength, double[] initAngles) {
-        super(_space);
+        space = _space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];
@@ -75,21 +77,8 @@ public class ConformationChainLinear extends ConformationChain {
 
     private static final long serialVersionUID = 1L;
     private double bondLength;
-    private IVector orientation;
+    private IVectorMutable orientation;
     private double[] angle;
-	/* (non-Javadoc)
-	 * @see etomica.ConformationChain#reset()
-	 */
-	protected void reset() {
-		// TODO what happens here?
-		
-	}
-	/* (non-Javadoc)
-	 * @see etomica.ConformationChain#nextVector()
-	 */
-	protected IVector nextVector() {
-		// TODO what happens here? 
-		return null;
-	}
-}//end of ConformationLinear
+    protected final ISpace space;
+}
       

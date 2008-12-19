@@ -1,6 +1,6 @@
 package etomica.dimer;
 
-import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
@@ -39,11 +39,11 @@ public class SimDimerMEAMGBCluster extends Simulation{
         
         sim.initializeConfiguration("sngb101-4412-md");
         
-        IVector dimerCenter = sim.getSpace().makeVector();
+        IVectorMutable dimerCenter = sim.getSpace().makeVector();
         dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
         dimerCenter.setX(1, 1.0);
         dimerCenter.setX(2, 0.0);
-        IVector cubeSize = sim.getSpace().makeVector();
+        IVectorMutable cubeSize = sim.getSpace().makeVector();
         cubeSize.setX(0, 6.0);
         cubeSize.setX(1, 8.0);
         cubeSize.setX(2, 8.0);
