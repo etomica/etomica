@@ -1,7 +1,7 @@
 package etomica.lattice.crystal;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
@@ -16,7 +16,6 @@ public abstract class Primitive implements java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable[] latticeVectors;
-    protected final IVectorMutable[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     protected final int D;
     protected final double[] size;
@@ -33,14 +32,12 @@ public abstract class Primitive implements java.io.Serializable {
         this.space = space;
         D = space.D();
         latticeVectors = new IVectorMutable[D];
-        latticeVectorsCopy = new IVectorMutable[D];
         idx = new int[D];
         size = new double[D];
 //        sizeCopy = new double[D];
         angle = new double[D];
         for(int i=0; i<D; i++) {
             latticeVectors[i] = space.makeVector();
-            latticeVectorsCopy[i] = space.makeVector();
             angle[i] = rightAngle;
         }
     }

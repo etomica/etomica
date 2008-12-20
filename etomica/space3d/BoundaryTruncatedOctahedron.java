@@ -38,9 +38,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         dimensions.E(boxSize);
         rrounded = space.makeVector();
         intoTruncatedOctahedron = space.makeVector();
-        dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
-        dimensionsHalfCopy = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
         updateDimensions();
     }
@@ -50,7 +48,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     }
 
     public final IVector getDimensions() {
-        return dimensionsCopy;
+        return dimensions;
     }
 
     public IVectorMutable randomPosition() {
@@ -159,7 +157,6 @@ public class BoundaryTruncatedOctahedron extends Boundary {
        * vec update should be automatic now
        */
         dimensionsHalf.Ea1Tv1(0.5, dimensions);
-        dimensionsCopy.E(dimensions);
         ((TruncatedOctahedron) shape).setContainingCubeEdgeLength(dimensions
                 .x(0));
     }
@@ -277,17 +274,11 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return intoTruncatedOctahedron;
     }
     
-    public IVector getBoundingBox() {
-        return dimensionsCopy;
-    }
-    
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable intoTruncatedOctahedron;
     protected final IVectorMutable rrounded;
     protected final IVectorMutable dimensions;
-    protected final IVectorMutable dimensionsCopy;
     protected final IVectorMutable dimensionsHalf;
-    protected final IVectorMutable dimensionsHalfCopy;
     private final IndexIteratorRectangular indexIterator;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
