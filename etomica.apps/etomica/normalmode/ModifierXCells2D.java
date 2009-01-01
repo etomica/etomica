@@ -1,0 +1,50 @@
+package etomica.normalmode;
+
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+import etomica.modifier.Modifier;
+import etomica.units.Dimension;
+import etomica.units.Null;
+
+/**
+ * Modifier class that enables change of the number of cells in 2D
+ * 
+ */
+public class ModifierXCells2D implements Modifier, java.io.Serializable {
+
+    /**
+     * @param speciesAgent Agent of the affected species in the affected box.
+     * Cannot be changed after construction.
+     */
+    public ModifierXCells2D(IBox box, ISpecies species, int y) {
+        this.box = box;
+        this.species = species;
+        this.yCell = y;
+    }
+
+    public void setValue(double d) {
+        if (d < 0) d = 0;
+        previousValue = mostRecentValue;
+        mostRecentValue = (int)d;
+        
+        box.setNMolecules(species, 2*(int)d*yCell);
+    }
+
+    public double getValue() {
+        return box.getNMolecules(species)/(2*yCell);
+    }
+
+    public Dimension getDimension() {
+        return Null.DIMENSION;
+    }
+    
+    public String getLabel() {
+        return "x-Cell Number";
+    }
+    
+ 
+    private static final long serialVersionUID = 1L;
+    protected final IBox box;
+    protected final ISpecies species;
+    protected int mostRecentValue, previousValue, yCell;
+}

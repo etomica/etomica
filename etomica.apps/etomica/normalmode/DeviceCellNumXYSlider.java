@@ -1,0 +1,404 @@
+      package etomica.normalmode;
+
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+
+import etomica.action.activity.Controller;
+import etomica.api.IAction;
+import etomica.api.IBox;
+import etomica.api.IController;
+import etomica.api.ISpecies;
+import etomica.graphics.Device;
+import etomica.graphics.DeviceSlider;
+import etomica.graphics.SimulationGraphic;
+import etomica.modifier.Modifier;
+import etomica.units.Dimension;
+import etomica.units.Null;
+
+
+/**
+ * @author taitan
+ *
+ */
+public class DeviceCellNumXYSlider extends Device {
+
+	private JPanel        numCellPanel;  // main panel for cell number device PRIVATE
+	private DeviceSlider  xCellNumSlider; 
+	private DeviceSlider yCellNumSlider; // Do not make make accessible
+	private JRadioButton  buttonXComp;   // Do not make make accessible
+	private JRadioButton  buttonYComp;  // Do not make make accessible
+	
+	private final int DEFAULT_MIN_nCells = 1;
+	private final int DEFAULT_MAX_nCells = 50;
+
+    protected ISpecies species;
+    protected IBox box;
+    
+	
+	public DeviceCellNumXYSlider(IController cont) {
+		
+        //using x-axis or y-axis radio button
+        ButtonGroup numCellGroup = new ButtonGroup();
+        buttonXComp = new JRadioButton("x-Cell");
+        buttonYComp = new JRadioButton("y-Cell");
+        numCellGroup.add(buttonXComp);
+        numCellGroup.add(buttonYComp);
+
+        //x-CellNum selector
+        xCellNumSlider = new DeviceSlider(controller);
+        xCellNumSlider.setShowValues(true);
+        xCellNumSlider.setEditValues(true);
+        xCellNumSlider.setMinimum(DEFAULT_MIN_nCells);
+        xCellNumSlider.setMaximum(DEFAULT_MAX_nCells);
+        xCellNumSlider.setNMajor(4);
+        xCellNumSlider.setValue(0);
+        xCellNumSlider.getSlider().setEnabled(true);
+        xCellNumSlider.getTextField().setEnabled(true);
+
+        //y-CellNum selector
+        yCellNumSlider = new DeviceSlider(controller);
+        yCellNumSlider.setShowValues(true);
+        yCellNumSlider.setEditValues(true);
+        yCellNumSlider.setMinimum(DEFAULT_MIN_nCells);
+        yCellNumSlider.setMaximum(DEFAULT_MAX_nCells);
+        yCellNumSlider.setNMajor(4);
+        yCellNumSlider.setValue(0);
+        yCellNumSlider.getSlider().setEnabled(false);
+        yCellNumSlider.getTextField().setEnabled(false);
+        
+        setController(cont);
+
+        // Tie the "x-axis"/"y-axis" setting to the selectable status of
+        // numCells slider
+        ToggleButtonListener myListener = new ToggleButtonListener();
+        buttonXComp.setSelected(true);
+        buttonXComp.addActionListener(myListener);
+        buttonYComp.addActionListener(myListener);
+
+        numCellPanel = new JPanel(new GridBagLayout());
+        numCellPanel.setBorder(new TitledBorder(null, "Set x- and y- Cell Numbers", TitledBorder.CENTER, TitledBorder.TOP));
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        
+        gbc1.gridx = 0;  gbc1.gridy = 1;
+        gbc1.gridwidth = 1;
+        numCellPanel.add(buttonXComp, gbc1);
+        gbc1.gridx = 1;  gbc1.gridy = 1;
+        gbc1.gridwidth = 1;
+        numCellPanel.add(buttonYComp,gbc1);
+        
+        gbc1.gridx = 0;  gbc1.gridy = 2;
+        gbc1.gridwidth = 2;
+        numCellPanel.add(xCellNumSlider.graphic(),gbc1);
+        gbc1.gridx = 0;  gbc1.gridy = 3;
+        gbc1.gridwidth = 3;
+        numCellPanel.add(yCellNumSlider.graphic(),gbc1);
+    }
+
+	public void setYCompButtonsVisibility(boolean doShowYCompButtons) {
+	    buttonYComp.setVisible(doShowYCompButtons);
+        buttonXComp.setVisible(doShowYCompButtons);
+	}
+
+	public boolean getYCompButtonsVisibility() {
+	    return buttonYComp.isVisible();
+	}
+	
+	/**
+	 * Set the "y-axis" button to its selected state.
+	 */
+	public void setYComp() {
+		buttonYComp.setSelected(true);
+		configureSliderAccessibility();
+	}
+
+	/**
+	 * @return State of the 'y-axis' button
+	 */
+	public boolean isYComp() {
+		return buttonYComp.isSelected();
+	}
+
+	/**
+	 * Set the "x-axis" button to its selected state.
+	 */
+	public void setXComp() {
+		buttonXComp.setSelected(true);
+		configureSliderAccessibility();
+	}
+
+	/**
+	 * @return State of the "x-axis" button
+	 */
+	public boolean isXComp() {
+		return buttonXComp.isSelected();
+	}
+
+	
+	
+	/**
+	 * Add the specified listener to the list of listeners that
+	 * will get invoked when the 'xCell #' and 'yCell #' slider value changes.
+	 * @param listener
+	 */
+	public void addWaveVectorNumSliderListener(ChangeListener listener) {
+		xCellNumSlider.getSlider().addChangeListener(listener);
+		yCellNumSlider.getSlider().addChangeListener(listener);
+	}
+
+	/**
+	 * Add the specified listener to the list of listeners that
+	 * will get invoked when the "x-axis" or "y-axis" radio button
+	 * is pushed.
+	 * @param listener
+	 */
+	public void addRadioGroupActionListener(ActionListener listener) {
+		buttonXComp.addActionListener(listener);
+		buttonYComp.addActionListener(listener);
+	}
+
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Set the current value for the xCell # slider/text box.
+	 */
+	
+    public void setXCellNum(int value) {
+        xCellNumSlider.setValue(value);
+    }
+
+	/**
+	 * @return  Current value of the xCell # slider/text box.
+	 */
+	public double getXCellNum() {
+		return xCellNumSlider.getValue();
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Set the current value for the yCell # slider/text box.
+	 */
+	
+    public void setYCellNum(int value) {
+        yCellNumSlider.setValue(value);
+    }
+
+	/**
+	 * @return  Current value of the yCell # slider/text box.
+	 */
+	public double getYCellNum() {
+		return yCellNumSlider.getValue();
+	}
+	/////////////////////////////////////////////
+	
+
+	/**
+	 * Set whether the x- and y-Cell # text box should be displayed.
+	 */
+    public void setShowValues(boolean b) {
+    	xCellNumSlider.setShowValues(b);
+    	yCellNumSlider.setShowValues(b);
+    }
+
+	/**
+	 * Set whether the x- and y-Cell # text box should be editable.
+	 */
+    public void setEditValues(boolean b) {
+    	xCellNumSlider.setEditValues(b);
+    	yCellNumSlider.setEditValues(b);
+    }
+
+	/**
+	 * Set the minimum value for the x- and y-Cell #.
+	 */
+    public void setMinimum(int min) {
+         xCellNumSlider.setMinimum(min);
+         yCellNumSlider.setMinimum(min);
+    }
+
+	/**
+	 * Set the maximum value for the x- and y-Cell #.
+	 * 
+	 */
+    public void setMaximum(int max) {
+    	xCellNumSlider.setMaximum(max);
+    	yCellNumSlider.setMaximum(max);
+    }
+
+	/**
+	 * Set the number of "major" values that should be shown on the
+	 * x- and y- CellNum slider.
+	 */
+    public void setSliderMajorValues(int major) {
+    	xCellNumSlider.setNMajor(major);
+    	yCellNumSlider.setNMajor(major);
+    }
+
+    /**
+     * @return The panel that holds all graphical objects for the DeviceCellNumXYSlider.
+     */
+    public Component graphic(Object obj) {
+    	return numCellPanel;
+    }
+
+
+	/**
+	 * Set the x-Cell # modifier object.
+	 */
+    public void setXCellModifier(Modifier mod) {
+        xCellNumSlider.setModifier(mod);
+    }
+
+    /**
+     * @return x-Cell # value modifier.
+     */
+    public Modifier getXCellModifier() {
+        return xCellNumSlider.getModifier();
+        
+    }
+
+    
+	/**
+	 * Set the y-Cell # modifier object.
+	 */
+    public void setYCellModifier(Modifier mod) {
+        yCellNumSlider.setModifier(mod);
+    }
+
+    /**
+     * @return y-Cell # value modifier.
+     */
+    public Modifier getYCellModifier() {
+        return yCellNumSlider.getModifier();
+        
+    }
+
+    
+    
+    
+	/**
+	 * Set the x- and y- Cell # slider controller.
+	 */
+    public void setController(IController cont) {
+    	super.setController(cont);
+    	xCellNumSlider.setController(cont);
+        yCellNumSlider.setController(cont);
+       
+    }
+
+	/**
+	 * Set the post slider value changed action.
+	 */
+    public void setXSliderPostAction(IAction action) {
+    	xCellNumSlider.setPostAction(action);
+    }
+
+    public void setYSliderPostAction(IAction action) {
+    	yCellNumSlider.setPostAction(action);
+    }
+    
+    
+    
+    
+    
+    
+    public void setBox(IBox newBox) {
+        box = newBox;
+        if (species != null) {
+            init();
+        }
+    }
+    
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
+        if (box != null) {
+            init();
+        }
+    }
+    
+    public IBox getBox() {
+        return box;
+    }
+    
+    public ISpecies getSpecies() {
+        return species;
+    }
+
+    
+    protected void init(){
+    	
+    	setXCellModifier(new ModifierXCells2D(box, species, (int)getYCellNum()));
+       	setYCellModifier(new ModifierYCells2D(box, species, (int)getXCellNum()));
+    	
+    }
+
+    private void configureSliderAccessibility() {
+        if(buttonXComp.isSelected()) {
+        	xCellNumSlider.getSlider().setEnabled(true);
+        	xCellNumSlider.getTextField().setEnabled(true);
+        	
+        	yCellNumSlider.getSlider().setEnabled(false);
+        	yCellNumSlider.getTextField().setEnabled(false);
+       
+        }
+        else {
+        	yCellNumSlider.getSlider().setEnabled(true);
+        	yCellNumSlider.getTextField().setEnabled(true);
+        	
+        	xCellNumSlider.getSlider().setEnabled(false);
+        	xCellNumSlider.getTextField().setEnabled(false);
+        }		
+	}
+
+    /**
+     * Private class that toggles the state of the cell # slider and
+     * cell # text box based on the "x-axis"/"y-axis" button currently
+     * selected.  The y- slider/text box is selectable under "y-axis" conditions
+     * and x- slider/text box is selectable when "x-axis" is selected.
+     *
+     */
+    private class ToggleButtonListener implements ActionListener {
+    	public void actionPerformed(ActionEvent e) {
+    		configureSliderAccessibility();
+        }
+    }
+
+
+
+    
+    //
+    //main method to test device
+    //
+    public static void main(String[] args) {
+        final String APP_NAME = "Device Wave Vectors Number Slider";
+
+       
+        etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
+        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D(sp);
+        
+        DeviceCellNumXYSlider device = new DeviceCellNumXYSlider(new Controller());
+        device.setMinimum(1);
+        device.setMaximum(50);
+        //device.setWaveVectorNum(0);
+        
+        
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
+        graphic.add(device);
+        graphic.makeAndDisplayFrame(APP_NAME);
+
+    }
+
+
+
+    
+
+}
