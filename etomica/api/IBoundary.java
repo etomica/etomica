@@ -44,14 +44,14 @@ public interface IBoundary {
      */
     public IVector centralImage(IVector r);
 
-	/**
-	 * The nearest image is the pair of atom images that are closest when all
-	 * periodic-boundary images are considered.
-	 * 
-	 * If the vector passed to this method is the displacement vector between
-	 * two points, the vector will be transformed such that it corresponds to
-	 * the vector between the nearest image of those two points.
-	 */
+    /**
+     * The nearest image is the pair of atom images that are closest when all
+     * periodic-boundary images are considered.
+     *
+     * If the vector passed to this method is the displacement vector between
+     * two points, the vector will be transformed such that it corresponds to
+     * the vector between the nearest image of those two points.
+     */
     public void nearestImage(IVectorMutable dr);
 
     /**
@@ -81,7 +81,7 @@ public interface IBoundary {
      * originate from one corner.
      */
     public IVector getEdgeVector(int d);
-    
+
     /**
      * Returns true if the boundary is periodic in the given direction.
      */
