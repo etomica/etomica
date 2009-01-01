@@ -44,12 +44,21 @@ public class MeterRDFCylinder extends MeterRDF {
         IVector dimensions = box.getBoundary().getDimensions();
         double radius = pistonPotential.getCollisionRadius();
         for (int i=0; i<space.D(); i++) {
-            if (i != 1) {
-                pistonRatio *= (dimensions.x(i) - 2*(xMax + radius)) / (dimensions.x(i) - 2*radius);
+            if (i == 1) {
+                double ySize = dimensions.x(1)*0.5;
+                if (dimensions.getD() == 2) {
+                    ySize -= pistonPotential.getWallPosition();
+                }
+                else {
+                    ySize += pistonPotential.getWallPosition();
+                }
+                pistonRatio *= (ySize - 2*(xMax + radius)) / (ySize - 2*radius);
+                if (pistonRatio < 0) {
+                    pistonRatio = Double.NaN;
+                }
             }
             else {
-                pistonRatio *= ((dimensions.x(i)*0.5 - pistonPotential.getWallPosition()) - 2*(xMax + radius)) / 
-                               ((dimensions.x(i)*0.5 - pistonPotential.getWallPosition()) - 2*radius);
+                pistonRatio *= (dimensions.x(i) - 2*(xMax + radius)) / (dimensions.x(i) - 2*radius);
             }
         }
         data.TE(1/pistonRatio);
