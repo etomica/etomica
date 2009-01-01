@@ -56,7 +56,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
         vertices[5].E(vertices[4]);
         vertices[5].setX(2,pc);
         vertices[6].E(vertices[4]);
-        vertices[6].setX(1,pc);
+        vertices[6].setX(1,pb);
         vertices[7].E(vertices[6]);
         vertices[7].setX(2,pc);
         applyTranslationRotation();
