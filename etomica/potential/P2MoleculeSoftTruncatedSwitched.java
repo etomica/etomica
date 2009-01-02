@@ -22,7 +22,11 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
         super(2, _space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradientAndTorque = new IVectorMutable[2][0];
+        gradientAndTorque = new IVectorMutable[2][2];
+        for (int i=0; i<2; i++) {
+            gradientAndTorque[0][i] = space.makeVector();
+            gradientAndTorque[1][i] = space.makeVector();
+        }
         dr = space.makeVector();
         setSwitchFac(0.95);
     }
@@ -90,14 +94,6 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
                 gradientAndTorque[0][1].PEa1Tv1(+fac*u, dr);
             }
             return gradientAndTorqueUnswitched;
-        }
-        if (gradientAndTorque[0].length < atoms.getMoleculeCount()) {
-            gradientAndTorque[0] = new IVectorMutable[atoms.getMoleculeCount()];
-            gradientAndTorque[1] = new IVectorMutable[atoms.getMoleculeCount()];
-            for (int i=0; i<atoms.getMoleculeCount(); i++) {
-                gradientAndTorque[0][i] = space.makeVector();
-                gradientAndTorque[1][i] = space.makeVector();
-            }
         }
         gradientAndTorque[0][0].E(0);
         gradientAndTorque[0][1].E(0);
