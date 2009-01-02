@@ -59,7 +59,10 @@ public class PotentialCalculationForceSumWall extends
                 }
                 break;
             default:
-                throw new RuntimeException("we don't do N-body");
+                // we hit this for bonding potentials
+                for (int i=0; i<atoms.getAtomCount(); i++) {
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
+                }
         }
     }
 
