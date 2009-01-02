@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorBox;
  * Sums the force and torque on each iterated atom or molecule and adds it to
  * the agent associated with the atom.
  */
-public class PotentialCalculationTorqueSum implements PotentialCalculation {
+public class PotentialCalculationTorqueSum implements PotentialCalculationMolecular {
         
     private static final long serialVersionUID = 1L;
     protected AtomLeafAgentManager leafAgentManager;
