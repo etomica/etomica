@@ -182,7 +182,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     
     public void rejectNotify() {
         iBox.removeMolecule(molecule);
-        translationVector.E(moleculeTranslator.getTranslationVector());
+        translationVector.Ea1Tv1(-1,moleculeTranslator.getTranslationVector());
         ((AtomActionTranslateBy)moleculeReplacer.getAtomAction()).setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
         dBox.addMolecule(molecule);
