@@ -77,7 +77,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	this.sim = simulation;
 
