@@ -212,7 +212,9 @@ public class VirialAlkaneMix2 {
         pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2B}));
         
         sim.integratorOS.setNumSubSteps(1000);
-        PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
+        PotentialGroup pIntra1 = sim.integrators[1].getPotential().makePotentialGroup(1);
+        PotentialGroup pIntra2 = sim.integrators[1].getPotential().makePotentialGroup(1);
+        
         
         if (nSpheres1 > 2) {
             P3BondAngle p3 = new P3BondAngle(space);
@@ -224,9 +226,9 @@ public class VirialAlkaneMix2 {
                 triplets[i][1] = i+1;
                 triplets[i][2] = i+2;
             }
-            pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
+            pIntra1.addPotential(p3, new Atomset3IteratorIndexList(triplets)); 
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species[0]});
+            sim.integrators[1].getPotential().addPotential(pIntra1,new ISpecies[]{sim.species[0]});
         }
         MCMoveClusterTorsionMulti[] torsionMoves1 = null;
         if (nSpheres1 > 3) {
@@ -238,7 +240,7 @@ public class VirialAlkaneMix2 {
                 quads[i][2] = i+2;
                 quads[i][3] = i+3;
             }
-            pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
+            pIntra1.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves1 = new MCMoveClusterTorsionMulti[2];
             torsionMoves1[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves1[0].setTemperature(temperature);
@@ -248,7 +250,7 @@ public class VirialAlkaneMix2 {
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves1[1]);
         }
         if (nSpheres1 > 4) {
-            pIntra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres1-1}}));
+            pIntra1.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres1-1}}));
         }
         if (nSpheres1 > 5) {
             int[][] pairs = new int[2*(nSpheres1-5)][2];
@@ -258,7 +260,7 @@ public class VirialAlkaneMix2 {
                 pairs[2*i+1][0] = nSpheres1-1;
                 pairs[2*i+1][1] = i+1;
             }
-            pIntra.addPotential(p2CH3CH2,new ApiIndexList(pairs));
+            pIntra1.addPotential(p2CH3CH2,new ApiIndexList(pairs));
         }
         if (nSpheres1 > 6) {
             int[][] pairs = new int[(nSpheres1-6)*(nSpheres1-5)/2][2];
@@ -270,7 +272,7 @@ public class VirialAlkaneMix2 {
                     k++;
                 }
             }
-            pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
+            pIntra1.addPotential(p2CH2,new ApiIndexList(pairs));
         }
         
      
@@ -284,9 +286,9 @@ public class VirialAlkaneMix2 {
                 triplets[i][1] = i+1;
                 triplets[i][2] = i+2;
             }
-            pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
+            pIntra2.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species[1]});
+            sim.integrators[1].getPotential().addPotential(pIntra2,new ISpecies[]{sim.species[1]});
         }
         MCMoveClusterTorsionMulti[] torsionMoves2 = null;
         if (nSpheres2 > 3) {
@@ -298,7 +300,7 @@ public class VirialAlkaneMix2 {
                 quads[i][2] = i+2;
                 quads[i][3] = i+3;
             }
-            pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
+            pIntra2.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves2 = new MCMoveClusterTorsionMulti[2];
             torsionMoves2[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves2[0].setTemperature(temperature);
@@ -308,7 +310,7 @@ public class VirialAlkaneMix2 {
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves2[1]);
         }
         if (nSpheres2 > 4) {
-            pIntra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres2-1}}));
+            pIntra2.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres2-1}}));
         }
         if (nSpheres2 > 5) {
             int[][] pairs = new int[2*(nSpheres2-5)][2];
@@ -318,7 +320,7 @@ public class VirialAlkaneMix2 {
                 pairs[2*i+1][0] = nSpheres2-1;
                 pairs[2*i+1][1] = i+1;
             }
-            pIntra.addPotential(p2CH3CH2,new ApiIndexList(pairs));
+            pIntra2.addPotential(p2CH3CH2,new ApiIndexList(pairs));
         }
         if (nSpheres2 > 6) {
             int[][] pairs = new int[(nSpheres2-6)*(nSpheres2-5)/2][2];
@@ -330,7 +332,7 @@ public class VirialAlkaneMix2 {
                     k++;
                 }
             }
-            pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
+            pIntra2.addPotential(p2CH2,new ApiIndexList(pairs));
         }
                                
         if (false) {
@@ -432,13 +434,13 @@ public class VirialAlkaneMix2 {
      * Inner class for parameters
      */
     public static class VirialAlkaneMixParam extends ParameterBase {
-        public int nPoints = 2; //The number of total components = nComp1+nComp2
+        public int nPoints = 3; //The number of total components = nComp1+nComp2
         public int nSpheres1 = 2;   // The number of C for component1
-        public int nSpheres2 = 10;   // The number of C for component2
+        public int nSpheres2 = 12;   // The number of C for component2
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000;
         public int nComp1 = 1;//The number of component1
-        public int nComp2 = 1;//The number of component2
+        public int nComp2 = 2;//The number of component2
     }
 
 }
