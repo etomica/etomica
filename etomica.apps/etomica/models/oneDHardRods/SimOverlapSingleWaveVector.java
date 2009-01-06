@@ -45,7 +45,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapSingleWaveVector extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimOverlapAB";
+    private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
     int[] nCells;
     NormalModes1DHR nm;

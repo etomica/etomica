@@ -44,7 +44,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapMultipleWaveVectors extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimOverlapABC";
+    private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
     Primitive primitive;
     int[] nCells;
     NormalModes1DHR nm;
@@ -55,7 +55,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     ActivityIntegrate activityIntegrate;
     
     IntegratorMC[] integrators;
-    protected int blockSize;
+    protected int eqBlockSize, benBlockSize, runBlockSize;
+    private int blockSize;      //nan I need to straighten this out someday
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
@@ -300,7 +301,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             // equilibrate off the lattice to avoid anomolous contributions
             activityIntegrate.setMaxSteps(initSteps/2);
             
-            System.out.println("initBennetParam activityIntegrate" + initSteps/2 + " steps set");
             getController().actionPerformed();
             getController().reset();
 
@@ -309,9 +309,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(initSteps);
             
-
-            System.out.println("initBennetParam activityIntegrate" + initSteps + " steps set");
-
             getController().actionPerformed();
             getController().reset();
 
@@ -339,7 +336,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
         accumulators[iBox].setBlockSize(blockSize);
-        System.out.println("setAccumlator set to " + blockSize + " blocksize");
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -360,7 +356,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
-            System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
         }
         try {
             // reset the integrator so that it will re-adjust step frequency
@@ -373,8 +368,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
-
-        System.out.println("equilibrate activityIntegrate setsMaxSteps" + initSteps + " steps");
         
         integratorSim.getMoveManager().setEquilibrating(true);
         
@@ -456,7 +449,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         int[] harmonicWV = params.harmonicWV;
         
         long numSteps = params.numSteps;
-        long blockSize = params.blockSize;
+        long runBlockSize = params.runBlockSize;
         long subBlockSize = params.subBlockSize;
         
         long numEqSteps = params.eqNumSteps;
@@ -479,14 +472,11 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         for(int i = 0; i < harmonicWV.length; i++ ){
             System.out.println(harmonicWV[i]);
         }
-        System.out.println("Total steps: "+numSteps+" , split into blocks of "+blockSize);
+        System.out.println("Total steps: "+numSteps+" , split into blocks of "+runBlockSize);
         System.out.println(subBlockSize+" steps in subintegrator, per step in  main integrator");
         System.out.println(numEqSteps+" equilibration steps, split into blocks of "+ eqBlockSize);
         System.out.println(numBennettSteps+" Bennett-only steps, split into blocks of "+benBlockSize);
-        //        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
         System.out.println("output data to "+filename);
-    
-    
         
         //instantiate simulations!
         SimOverlapMultipleWaveVectors sim = new SimOverlapMultipleWaveVectors(Space.getInstance(D), numMolecules,
@@ -502,23 +492,25 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps((int)subBlockSize);
         
+        System.out.println("Init Bennett");
         sim.setAccumulatorBlockSize((int)benBlockSize);
         sim.initBennettParameter(filename, numBennettSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
-    //        System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
+        
+        System.out.println("equilibrate");
         sim.setAccumulatorBlockSize((int)eqBlockSize);
         sim.equilibrate(refFileName, numEqSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
-    //        System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
+        sim.setAccumulatorBlockSize((int)runBlockSize);
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -604,14 +596,13 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] harmonicWV = {12, 13};
         
         public long numSteps = 40000000;
-        public long blockSize = 100000;
+        public long runBlockSize = 100000;
         public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
-    
+        
         public long eqNumSteps = 4000000;  
         public long eqBlockSize = 10000;
         
         public long bennettNumSteps = 2000000;
         public long benBlockSize = 10000;
-
-}
+    }
 }
