@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomList;
@@ -82,7 +81,6 @@ public class SamGraphic extends SimulationGraphic {
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
 
-        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
         
         final IAction moveWallToggle = new IAction() {
@@ -153,7 +151,7 @@ public class SamGraphic extends SimulationGraphic {
             wallPositionSlider.setNMajor(5);
         }
         wallPositionSlider.setShowValues(true);
-        wallPositionSlider.setPostAction(new ActionGroupSeries(new IAction[]{getPaintAction(sim.box),resetAction}));
+        wallPositionSlider.setPostAction(getPaintAction(sim.box));
         wallTab.add(wallPositionSlider.graphic(), SimulationPanel.getVertGBC());
         
         JTabbedPane conformationTabs = new JTabbedPane();
@@ -183,6 +181,8 @@ public class SamGraphic extends SimulationGraphic {
                 resetAction.actionPerformed();
             }
         };
+        // SimulationRestart isn't enough, we need to re-findtetherbonds
+        getController().getReinitButton().setAction(reinitAction);
         thetaSlider.setPostAction(reinitAction);
         chainThetaPsi.add(thetaSlider.graphic(), SimulationPanel.getVertGBC());
 
@@ -295,7 +295,7 @@ public class SamGraphic extends SimulationGraphic {
             }
         });
 
-//        getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
+        getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
         
         MeterWallPressure wallPressure = new MeterWallPressure(sim.forceSum);
         wallPressure.setBox(sim.box);
@@ -478,7 +478,7 @@ public class SamGraphic extends SimulationGraphic {
         private final IAction moveWallToggle;
         public boolean enabled;
 
-        private ActionMoveWall(DeviceSlider wallPositionSlider, Sam sim,
+        protected ActionMoveWall(DeviceSlider wallPositionSlider, Sam sim,
                 IAction moveWallToggle) {
             this.wallPositionSlider = wallPositionSlider;
             this.sim = sim;
