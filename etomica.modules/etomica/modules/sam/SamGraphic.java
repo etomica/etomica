@@ -68,7 +68,7 @@ public class SamGraphic extends SimulationGraphic {
     
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(9));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(8));
         sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
         getDisplayBox(sim.box).setShowBoundary(false);
         
