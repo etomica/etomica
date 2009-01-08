@@ -334,7 +334,7 @@ public class VirialAlkaneMix2_Kong {
             pIntra2.addPotential(p2CH2,new ApiIndexList(pairs));
         }
                                
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
@@ -433,13 +433,13 @@ public class VirialAlkaneMix2_Kong {
      * Inner class for parameters
      */
     public static class VirialAlkaneMixParam extends ParameterBase {
-        public int nPoints = 5; //The number of total components = nComp1+nComp2
+        public int nPoints = 2; //The number of total components = nComp1+nComp2
         public int nSpheres1 = 2;   // The number of C for component1
         public int nSpheres2 = 12;   // The number of C for component2
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000;
-        public int nComp1 = 0;//The number of component1
-        public int nComp2 = 5;//The number of component2
+        public int nComp1 = 1;//The number of component1
+        public int nComp2 = 1;//The number of component2
     }
 
 
