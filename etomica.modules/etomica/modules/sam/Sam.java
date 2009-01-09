@@ -109,7 +109,6 @@ public class Sam extends Simulation {
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.4, sizeCellZ*numZCells});
         box.getBoundary().setDimensions(dim);
-        box.setNMolecules(species, 2*numXCells*numZCells);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
         ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
