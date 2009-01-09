@@ -56,7 +56,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
     ActivityIntegrate activityIntegrate;
     
     IntegratorMC[] integrators;
-    protected int blockSize,eqBlockSize;
+    protected int runBlockSize, benBlockSize, eqBlockSize;
+    protected int numSteps, numBenSteps, numEqSteps;
     
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
@@ -69,6 +70,9 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MeterCompareSingleModeBrute meterBinA, meterBinB;
     MeterCompareTest meterTestBinA, meterTestBinB;
     MeterOverlap meterOverlapInA, meterOverlapInB;
+    
+//    private blockSize;   //used only by the accumulator to set its blockSize
+    
     
     public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -330,19 +334,20 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //            setAccumulatorBlockSize((int)newBlockSize);
             
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
+            activityIntegrate.setMaxSteps(numBenSteps);
+            setAccumulatorBlockSize(benBlockSize);
             
-            System.out.println("initBennetParam activityIntegrate" + initSteps/2 + " steps set");
+//            System.out.println("initBennetParam activityIntegrate" + numBenSteps+ " steps set");
             getController().actionPerformed();
             getController().reset();
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setBennettParameter(1e40,40);
-            activityIntegrate.setMaxSteps(initSteps);
+            activityIntegrate.setMaxSteps(numBenSteps);
             
 
-            System.out.println("initBennetParam activityIntegrate" + initSteps + " steps set");
+//            System.out.println("initBennetParam activityIntegrate" + numBenSteps + " steps set");
 
             getController().actionPerformed();
             getController().reset();
@@ -366,12 +371,14 @@ public class SimOverlapSingleWaveVector extends Simulation {
             getController().reset();
         }
         integratorSim.getMoveManager().setEquilibrating(false);
+        setAccumulatorBlockSize(runBlockSize);
+        activityIntegrate.setMaxSteps(numSteps);
     }
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage 
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
-        accumulators[iBox].setBlockSize(blockSize);
-        System.out.println("setAccumlator set to " + blockSize + " blocksize");
+//        accumulators[iBox].setBlockSize(blockSize);
+//        System.out.println("setAccumlator set to " + blockSize + " blocksize");
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -389,7 +396,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
     }
     
     public void setAccumulatorBlockSize(int newBlockSize) {
-        blockSize = newBlockSize;
+//        blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
             System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
@@ -404,10 +411,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
-        System.out.println("equilibrate activityIntegrate setsMaxSteps" + initSteps + " steps");
-        
+        activityIntegrate.setMaxSteps(numEqSteps);
+        setAccumulatorBlockSize(eqBlockSize);
         integratorSim.getMoveManager().setEquilibrating(true);
         
         //This code allows the computer to set the block size for the main
@@ -421,7 +426,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        if (newBlockSize >1000000) {
 //            newBlockSize = 1000000;
 //        }
-//        setAccumulatorBlockSize((int)newBlockSize);
+//        setAccumulatorBl ockSize((int)newBlockSize);
         
 //        setAccumulatorBlockSize((int)eqBlockSize);
         
@@ -460,7 +465,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
         }
         
         integratorSim.getMoveManager().setEquilibrating(false);
-//        setAccumulatorBlockSize(oldBlockSize);
+        setAccumulatorBlockSize(runBlockSize);
+        activityIntegrate.setMaxSteps(numSteps);
     }
     
     public static void main(String args[]){
@@ -486,27 +492,27 @@ public class SimOverlapSingleWaveVector extends Simulation {
         double temperature = params.temperature;
         int comparedWV = params.comparedWV;
         
-        long numSteps = params.numSteps;
-        long blockSize = params.blockSize;
-        long subBlockSize = params.subBlockSize;
-        
-        long numEqSteps = params.eqNumSteps;
-        long eqBlockSize = params.eqBlockSize;
-
-        long numBennettSteps = params.bennettNumSteps;
-        long benBlockSize = params.benBlockSize;
+//        long numSteps = params.numSteps;
+//        long blockSize = params.blockSize;
+//        long subBlockSize = params.subBlockSize;
+//        
+//        long numEqSteps = params.eqNumSteps;
+//        long eqBlockSize = params.eqBlockSize;
+//
+//        long numBennettSteps = params.bennettNumSteps;
+//        long benBlockSize = params.benBlockSize;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running Nancy's 1DHR simulation");
+        System.out.println("Running Nancy's single 1DHR simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
         System.out.println("compared wave vector: " + comparedWV);
-        System.out.println("Total steps: "+numSteps+" , split into blocks of "+blockSize);
-        System.out.println(subBlockSize+" steps in subintegrator, per step in  main integrator");
-        System.out.println(numEqSteps+" equilibration steps, split into blocks of "+ eqBlockSize);
-        System.out.println(numBennettSteps+" Bennett-only steps, split into blocks of "+benBlockSize);
+        System.out.println("Total steps: "+params.numSteps+" , split into blocks of "+ params.blockSize);
+        System.out.println(params.subBlockSize+" steps in subintegrator, per step in  main integrator");
+        System.out.println(params.eqNumSteps+" equilibration steps, split into blocks of "+ params.eqBlockSize);
+        System.out.println(params.bennettNumSteps +" Bennett-only steps, split into blocks of "+params.benBlockSize);
         //        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
         System.out.println("output data to "+filename);
 
@@ -515,27 +521,34 @@ public class SimOverlapSingleWaveVector extends Simulation {
         //instantiate simulations!
         SimOverlapSingleWaveVector sim = new SimOverlapSingleWaveVector(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
+        sim.runBlockSize = (int)params.blockSize;
+        sim.eqBlockSize = (int)params.eqBlockSize;
+        sim.benBlockSize = (int)params.benBlockSize;
+        sim.numSteps = (int)params.numSteps;
+        sim.numEqSteps = (int)params.eqNumSteps;
+        sim.numBenSteps = (int)params.bennettNumSteps;
+        
         System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        numSteps /= (int)subBlockSize;
-        numEqSteps /= (int)subBlockSize;
-        numBennettSteps /= (int)subBlockSize;
+        sim.numSteps /= (int)params.subBlockSize;
+        sim.numEqSteps /= (int)params.subBlockSize;
+        sim.numBenSteps /= (int)params.subBlockSize;
         
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
-        sim.integratorSim.setNumSubSteps((int)subBlockSize);
+        sim.integratorSim.setNumSubSteps((int)params.subBlockSize);
         
-        sim.setAccumulatorBlockSize((int)benBlockSize);
-        sim.initBennettParameter(filename, numBennettSteps);
+        sim.setAccumulatorBlockSize((int)sim.benBlockSize);
+        sim.initBennettParameter(filename, sim.numBenSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
 //            System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
-        sim.setAccumulatorBlockSize((int)eqBlockSize);
-        sim.equilibrate(refFileName, numEqSteps);
+        sim.setAccumulatorBlockSize((int)sim.eqBlockSize);
+        sim.equilibrate(refFileName, sim.numEqSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
 //            System.out.println("bennet info:  " + )
@@ -545,7 +558,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
         System.out.println("equilibration finished.");
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.setAccumulatorBlockSize((int)sim.runBlockSize);
+        sim.activityIntegrate.setMaxSteps(params.numSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
