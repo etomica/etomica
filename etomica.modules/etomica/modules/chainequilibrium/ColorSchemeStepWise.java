@@ -2,14 +2,11 @@ package etomica.modules.chainequilibrium;
 
 import java.awt.Color;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.atom.AtomTypeAgentManager.AgentSource;
 import etomica.graphics.ColorScheme;
 import etomica.util.Arrays;
 
@@ -19,7 +16,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
+public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
 
     public ColorSchemeStepWise(ISimulation sim, AtomLeafAgentManager bondingAgentManager) {
         super(sim);
@@ -50,15 +47,15 @@ public class ColorSchemeStepWise extends ColorScheme implements AgentSource {
         colorMaps[nBonds].setAgent(type, color);
     }
     
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return Color.class;
     }
 
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(IAtomTypeLeaf type) {
         return ColorScheme.DEFAULT_ATOM_COLOR;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {}
+    public void releaseAgent(Object agent, IAtomTypeLeaf type) {}
 
     protected AtomTypeAgentManager[] colorMaps;
     protected final AtomLeafAgentManager bondingAgentManager;

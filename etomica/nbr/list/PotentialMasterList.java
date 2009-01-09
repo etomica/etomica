@@ -436,7 +436,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 calculate((IAtomLeaf)targetAtom, id.direction(), pc, neighborManager);
             }
             else {
-                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IMolecule)targetAtom).getType());
+                PotentialArray potentialArray = getIntraPotentials(((IMolecule)targetAtom).getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);

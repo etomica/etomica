@@ -11,22 +11,21 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.OrientationCalcQuaternion;
+import etomica.atom.SpeciesAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.ApiBuilder;
@@ -63,7 +62,7 @@ import etomica.util.Constants;
 import etomica.util.Debug;
 import etomica.util.Function;
 
-public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements AgentSource, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;
@@ -72,7 +71,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
     protected final IVectorMutable xWork;
-    protected final AtomTypeAgentManager typeAgentManager;
+    protected final SpeciesAgentManager typeAgentManager;
     protected final IVectorMutable angularVelocity;
     protected final double[] quatVelocity, tempQuat;
     protected final AtomPositionCOM atomPositionCOM;
@@ -102,7 +101,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         workTensor = space.makeTensor();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         angularVelocity = space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];
@@ -536,15 +535,15 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         public IVectorMutable force() {return force;}
     }
 
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return MyTypeAgent.class;
     }
 
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {}
+    public void releaseAgent(Object agent, ISpecies type) {}
     
     public static class MyTypeAgent implements Serializable {
         private static final long serialVersionUID = 1L;

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IEvent;
@@ -711,15 +710,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     // get called and that will totally clear the event list
     public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return PotentialHard.class;
     }
 
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(IAtomTypeLeaf type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {
+    public void releaseAgent(Object agent, IAtomTypeLeaf type) {
     }
 
     /**

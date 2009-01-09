@@ -9,24 +9,23 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.atom.OrientationCalc;
+import etomica.atom.SpeciesAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -54,7 +53,7 @@ import etomica.util.Function;
  * 
  * @author Andrew Schultz
  */
-public class IntegratorRigidMatrixIterative extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidMatrixIterative extends IntegratorMD implements AgentSource, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
@@ -63,7 +62,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
     protected final IVectorMutable xWork, yWork;
-    protected final AtomTypeAgentManager typeAgentManager;
+    protected final SpeciesAgentManager typeAgentManager;
     protected final IVectorMutable tempAngularVelocity;
     protected final AtomPositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
@@ -100,7 +99,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         rotationTensor = (RotationTensor3D)_space.makeRotationTensor();
         xWork = _space.makeVector();
         yWork = _space.makeVector();
-        typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         tempAngularVelocity = _space.makeVector();
         tempOrientation = new OrientationFull3D(_space);
         atomPositionCOM = new AtomPositionCOM(_space);
@@ -665,15 +664,15 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         public IVectorMutable force() {return force;}
     }
 
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return OrientationCalc.class;
     }
     
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {}
+    public void releaseAgent(Object agent, ISpecies type) {}
     
     public static class BoxImposePbcMolecule implements IAction {
         public BoxImposePbcMolecule(Box box, Space space) {

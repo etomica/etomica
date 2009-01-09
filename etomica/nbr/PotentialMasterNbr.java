@@ -1,6 +1,5 @@
 package etomica.nbr;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IEventManager;
 import etomica.api.IPotential;
@@ -10,6 +9,7 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.PotentialArray;
@@ -17,7 +17,7 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.util.Arrays;
 
-public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
+public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource, SpeciesAgentManager.AgentSource {
 
     protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
             BoxAgentManager boxAgentManager) {
@@ -26,7 +26,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
         rangedAgentManager = new AtomTypeAgentManager(this);
-        intraAgentManager = new AtomTypeAgentManager(this);
+        intraAgentManager = new SpeciesAgentManager(this);
 
         ISpeciesManager speciesManager = sim.getSpeciesManager();
         IEventManager simEventManager = sim.getEventManager();
@@ -128,15 +128,22 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return boxAgentManager;
     }
     
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return PotentialArray.class;
     }
     
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(IAtomTypeLeaf type) {
         return new PotentialArray();
     }
     
-    public void releaseAgent(Object agent, IAtomType type) {
+    public void releaseAgent(Object agent, IAtomTypeLeaf type) {
+    }
+
+    public Object makeAgent(ISpecies type) {
+        return new PotentialArray();
+    }
+    
+    public void releaseAgent(Object agent, ISpecies type) {
     }
 
     /**
@@ -147,9 +154,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
 
     protected AtomTypeAgentManager.AgentIterator rangedPotentialIterator;
-    protected AtomTypeAgentManager.AgentIterator intraPotentialIterator;
+    protected SpeciesAgentManager.AgentIterator intraPotentialIterator;
     protected final AtomTypeAgentManager rangedAgentManager;
-    protected final AtomTypeAgentManager intraAgentManager;
+    protected final SpeciesAgentManager intraAgentManager;
     protected IPotential[] allPotentials = new IPotential[0];
     protected BoxAgentSource boxAgentSource;
     protected final ISimulation simulation;

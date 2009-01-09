@@ -24,7 +24,7 @@ import etomica.api.ISpecies;
  * atoms represented only once.
  */
 
-public abstract class AtomType implements java.io.Serializable, Comparable<AtomType>, IAtomType {
+public abstract class AtomType implements java.io.Serializable, IAtomType {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,14 +80,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable<AtomT
 	 */
     public boolean isInteracting() {
         return isInteracting;
-    }
-    
-    /* (non-Javadoc)
-	 * @see etomica.atom.IAtomType#compareTo(java.lang.Object)
-	 */
-    public int compareTo(AtomType otherAtomType) {
-        int otherIndex = ((IAtomType)otherAtomType).getIndex();
-        return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }
     
     /* (non-Javadoc)

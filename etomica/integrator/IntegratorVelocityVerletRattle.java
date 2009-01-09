@@ -12,7 +12,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Space;
 import etomica.units.Joule;
@@ -25,7 +24,7 @@ import etomica.util.Debug;
  *
  * @author Andrew Schultz
  */
-public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShake implements AtomTypeAgentManager.AgentSource {
+public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShake {
 
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable dv;

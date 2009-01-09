@@ -3,7 +3,6 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -16,7 +15,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.PotentialMaster.PotentialLinker;
 import etomica.util.Arrays;
 
 /**
@@ -161,15 +159,15 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         }
     }
     
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return PotentialArrayByType.class;
     }
     
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(IAtomTypeLeaf type) {
         return new PotentialArrayByType();
     }
     
-    public void releaseAgent(Object agent, IAtomType type) {
+    public void releaseAgent(Object agent, IAtomTypeLeaf type) {
     }
     
     /* (non-Javadoc)

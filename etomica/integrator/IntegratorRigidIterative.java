@@ -12,24 +12,23 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.atom.OrientationCalc;
+import etomica.atom.SpeciesAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -68,7 +67,7 @@ import etomica.util.Constants;
 import etomica.util.Debug;
 import etomica.util.Function;
 
-public class IntegratorRigidIterative extends IntegratorMD implements AgentSource, AtomTypeAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidIterative extends IntegratorMD implements AgentSource, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
@@ -78,7 +77,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected final RotationTensor3D rotationTensor;
     protected final RotationTensor3D tempRotationTensor;
     protected final IVectorMutable xWork;
-    protected final AtomTypeAgentManager typeAgentManager;
+    protected final SpeciesAgentManager typeAgentManager;
     protected final IVectorMutable tempAngularVelocity;
     protected final AtomPositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
@@ -115,7 +114,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         tempAngularVelocity = space.makeVector();
         tempOrientation = new OrientationFull3D(space);
         atomPositionCOM = new AtomPositionCOM(space);
@@ -667,15 +666,15 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         public IVectorMutable force() {return force;}
     }
 
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
         return OrientationCalc.class;
     }
     
-    public Object makeAgent(IAtomType type) {
+    public Object makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomType type) {}
+    public void releaseAgent(Object agent, ISpecies type) {}
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();

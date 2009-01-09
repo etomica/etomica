@@ -17,6 +17,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
@@ -32,12 +33,12 @@ import etomica.util.Debug;
  *
  * @author Andrew Schultz
  */
-public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomTypeAgentManager.AgentSource, AtomLeafAgentManager.AgentSource {
+public class IntegratorVelocityVerletShake extends IntegratorMD implements SpeciesAgentManager.AgentSource, AtomLeafAgentManager.AgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
     protected final IteratorDirective allAtoms;
-    protected final AtomTypeAgentManager shakeAgentManager;
+    protected final SpeciesAgentManager shakeAgentManager;
     protected AtomLeafAgentManager agentManager;
     protected final IVectorMutable dr;
     protected double shakeTol;
@@ -65,7 +66,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
 
         
         dr = _space.makeVector();
-        shakeAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        shakeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
         setShakeTolerance(1e-14);
         setMaxIterations(20);
         moved = new boolean[2][0];
@@ -287,15 +288,15 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements AtomT
     
     public void releaseAgent(Object agent, IAtomLeaf atom) {}
 
-    public Class<BondConstraints> getTypeAgentClass() {
+    public Class<BondConstraints> getSpeciesAgentClass() {
         return BondConstraints.class;
     }
 
-    public final Object makeAgent(IAtomType a) {
+    public final Object makeAgent(ISpecies a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, IAtomType atom) {}
+    public void releaseAgent(Object agent, ISpecies atom) {}
 
     public static class BondConstraints {
         public final int[][] bondedAtoms;

@@ -22,14 +22,14 @@ public class ColorSchemeByType extends ColorScheme implements AgentSource {
                                             sim.getEventManager(), false);
     }
 
-    public Object makeAgent(IAtomType atom) {
+    public Object makeAgent(IAtomTypeLeaf atom) {
     	return null;
     }
 
-    public void releaseAgent(Object obj, IAtomType atom) {
+    public void releaseAgent(Object obj, IAtomTypeLeaf atom) {
     }
 
-    public Class getTypeAgentClass() {
+    public Class getSpeciesAgentClass() {
     	return Color.class;
     }
     

@@ -83,6 +83,11 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
+        if (r2 < 1.e-10) {
+            gradient[0].E(0);
+            gradient[1].E(0);
+            return gradient;
+        }
         gradient[1].Ea1Tv1(du(r2)/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
         return gradient;
