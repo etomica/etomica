@@ -40,7 +40,7 @@ public interface IVectorMutable extends IVector {
      * Plus-equals (+=) operation, causing a constant value to be added to all
      * components of this vector.
      */
-    public void PE(double a); //adds a constant value to all elements
+    public void PE(double a);
 
     /**
      * Minus-equals (-=) operation. Decrements each component of this vector by
