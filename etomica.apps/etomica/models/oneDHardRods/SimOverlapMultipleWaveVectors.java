@@ -56,6 +56,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     
     IntegratorMC[] integrators;
     protected int eqBlockSize, benBlockSize, runBlockSize;
+    protected int eqNumSteps, benNumSteps, numSteps;
     private int blockSize;      //nan I need to straighten this out someday
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
@@ -299,7 +300,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //            setAccumulatorBlockSize((int)newBlockSize);
             
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
+            activityIntegrate.setMaxSteps(benNumSteps);
             
             getController().actionPerformed();
             getController().reset();
@@ -307,7 +308,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setBennettParameter(1e40,40);
-            activityIntegrate.setMaxSteps(initSteps);
+            activityIntegrate.setMaxSteps(benNumSteps);
             
             getController().actionPerformed();
             getController().reset();
@@ -367,7 +368,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
+        activityIntegrate.setMaxSteps(eqNumSteps);
         
         integratorSim.getMoveManager().setEquilibrating(true);
         

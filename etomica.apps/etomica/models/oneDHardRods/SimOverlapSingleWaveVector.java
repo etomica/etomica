@@ -428,8 +428,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        }
 //        setAccumulatorBl ockSize((int)newBlockSize);
         
-//        setAccumulatorBlockSize((int)eqBlockSize);
-        
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
@@ -492,16 +490,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         double temperature = params.temperature;
         int comparedWV = params.comparedWV;
         
-//        long numSteps = params.numSteps;
-//        long blockSize = params.blockSize;
-//        long subBlockSize = params.subBlockSize;
-//        
-//        long numEqSteps = params.eqNumSteps;
-//        long eqBlockSize = params.eqBlockSize;
-//
-//        long numBennettSteps = params.bennettNumSteps;
-//        long benBlockSize = params.benBlockSize;
-        
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         System.out.println("Running Nancy's single 1DHR simulation");
@@ -513,7 +501,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         System.out.println(params.subBlockSize+" steps in subintegrator, per step in  main integrator");
         System.out.println(params.eqNumSteps+" equilibration steps, split into blocks of "+ params.eqBlockSize);
         System.out.println(params.bennettNumSteps +" Bennett-only steps, split into blocks of "+params.benBlockSize);
-        //        System.out.println((numSteps/subBlockSize)+" total steps of " + subBlockSize);
         System.out.println("output data to "+filename);
 
 
@@ -543,7 +530,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         sim.initBennettParameter(filename, sim.numBenSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
-//            System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
@@ -551,7 +537,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         sim.equilibrate(refFileName, sim.numEqSteps);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
-//            System.out.println("bennet info:  " + )
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
@@ -559,7 +544,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.setAccumulatorBlockSize((int)sim.runBlockSize);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
+        sim.activityIntegrate.setMaxSteps(sim.numSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
@@ -629,22 +614,22 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 2;
         public double density = 0.5;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 10;
+        public int comparedWV = 1;
         
-        public long numSteps = 40000000;
+        public long numSteps = 400000;
         public long blockSize = 100000;
         public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public long eqNumSteps = 4000000;  
+        public long eqNumSteps = 400000;  
         public long eqBlockSize = 10000;
         
-        public long bennettNumSteps = 2000000;
+        public long bennettNumSteps = 200000;
         public long benBlockSize = 10000;
 
     }
