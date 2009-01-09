@@ -292,7 +292,8 @@ public class DeviceSlider extends Device {
                     }
                     catch (NumberFormatException ex) {
                         //user entered a bogus number (like "J")
-                        textField.setText(String.valueOf(oldX));
+                        String formatString = "%."+slider.getPrecision()+"f";
+                        textField.setText(new Formatter().format(formatString, oldX).toString());
                         return;
                     }
                     if (newX < minimum) {
@@ -307,7 +308,8 @@ public class DeviceSlider extends Device {
                     }
                     else {
                         //revert text field to its original value if it changed (300 => 300.0)
-                        textField.setText(String.valueOf(oldX));
+                        String formatString = "%."+slider.getPrecision()+"f";
+                        textField.setText(new Formatter().format(formatString, oldX).toString());
                     }
                 }
             });
@@ -322,7 +324,8 @@ public class DeviceSlider extends Device {
                     }
                     catch (NumberFormatException ex) {
                         //user entered a bogus number (like "J")
-                        textField.setText(String.valueOf(oldX));
+                        String formatString = "%."+slider.getPrecision()+"f";
+                        textField.setText(new Formatter().format(formatString, oldX).toString());
                         return;
                     }
                     if (newX != oldX) {
@@ -331,7 +334,8 @@ public class DeviceSlider extends Device {
                     }
                     else {
                         //revert text field to its original value if it changed (300 => 300.0)
-                        textField.setText(String.valueOf(oldX));
+                        String formatString = "%."+slider.getPrecision()+"f";
+                        textField.setText(new Formatter().format(formatString, oldX).toString());
                     }
                 }
             });
@@ -469,7 +473,8 @@ public class DeviceSlider extends Device {
                      modifyAction = actualModifyAction;
                  }
              }
-             textField.setText(String.valueOf(newValue));
+             String formatString = "%."+slider.getPrecision()+"f";
+             textField.setText(new Formatter().format(formatString, newValue).toString());
          }
      }
 }
