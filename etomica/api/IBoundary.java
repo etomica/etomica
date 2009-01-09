@@ -83,7 +83,8 @@ public interface IBoundary {
     public IVector getEdgeVector(int d);
 
     /**
-     * Returns true if the boundary is periodic in the given direction.
+     * Returns true if the boundary is periodic in the given direction (as
+     * defined by the getEdgeVector method).
      */
    public boolean getPeriodicity(int d);
 }
