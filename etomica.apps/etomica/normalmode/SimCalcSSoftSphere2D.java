@@ -100,8 +100,9 @@ public class SimCalcSSoftSphere2D extends Simulation {
     public static void main(String[] args) {
 
         // defaults
-        int D = 2;
-        int[] nCells = new int[] {2,2} ;
+    	int D = 2;
+        int dim2D = 2;
+        int[] nCells = new int[] {2*dim2D, dim2D} ;
         int nA = 2*nCells[0]*nCells[1];
         double temperature = 0.1;
         int exponent = 12 ;
@@ -120,7 +121,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         if (args.length > 4) {
         	exponent = Integer.parseInt(args[4]);
         }
-        String filename = "CB_FCC_n"+exponent+"_T"+ (int)Math.round(temperature*10);
+        String filename = "Test_2D_CB_FCC_n"+exponent+"_T0"+ (int)Math.round(temperature*10);
         if (args.length > 0) {
             filename = args[0];
         }
