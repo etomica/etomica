@@ -153,12 +153,12 @@ public class HarmonicCrystalSoftSphereFCC {
 	}
     
     public static void main(String[] args) {
-        double rho = 1.256;
+        double rho = 1.116;
         int exponent = 12;
         int maxLatticeShell = 49;
         int nC =2;
-        double temperature = 0.1;
-        String fileName = "DB_FCC_n12_T01";
+        double temperature = 1.0;
+        String fileName = "DB_FCC_n12_T16";
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
         
@@ -185,6 +185,8 @@ public class HarmonicCrystalSoftSphereFCC {
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
 
         int[] nCells = new int[] {nC, nC, nC};
+        long startTime = System.currentTimeMillis();
+        System.out.println("Start Time: " + startTime);
         
         System.out.println("Running lattice-dynamics derivatives-based FCC soft-sphere simulation");
         System.out.println("Temperature: " + temperature);
@@ -209,6 +211,9 @@ public class HarmonicCrystalSoftSphereFCC {
         CalcHarmonicA calcHarmonicA = new CalcHarmonicA();
         calcHarmonicA.doit(fileName, 3, 1.0, temperature, basis.getScaledCoordinates().length, nC*nC*nC);
         
+        long endTime = System.currentTimeMillis();
+        System.out.println("End Time: " + endTime);
+        System.out.println("Time taken: " + (endTime - startTime));
         
 //        double latticeConstant = 1.0;
 //        primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
