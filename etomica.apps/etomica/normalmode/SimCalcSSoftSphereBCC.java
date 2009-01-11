@@ -5,6 +5,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -34,7 +40,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
     public SimCalcSSoftSphereBCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space, true);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
@@ -90,10 +96,10 @@ public class SimCalcSSoftSphereBCC extends Simulation {
 
         // defaults
         int D = 3;
-        int nA = 128;
-        double density = 2.2;
-        double temperature = 0.01;
-        int exponent = 12;
+        int nA = 128; 				//2*n^3 --- n be the number of unit cell
+        double density = 2.206;		//set the density to melting density = 1.56*sqrt(2) Ref: Hoover(1971)
+        double temperature = 0.1;	// varying temperature
+        int exponent = 6;
         if (D == 1) {
             nA = 3;
             density = 0.5;
@@ -116,7 +122,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         if (args.length > 5) {
         	exponent = Integer.parseInt(args[5]);
         }
-        String filename = "nm_SoftSphereBCC_n" + exponent + "_D"+density;
+        String filename = "CB_BCC_n"+exponent+"_T"+ (int)Math.round(temperature*10);
         if (args.length > 0) {
             filename = args[0];
         }
@@ -133,14 +139,6 @@ public class SimCalcSSoftSphereBCC extends Simulation {
 
         // set up initial configuration and save nominal positions
         Primitive primitive = sim.primitive;
-        
-        /*
-        final String APP_NAME = "SimCalcSSoftSphere";
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-  
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-        */
         
         /* 
          * set up normal-mode meter
@@ -164,47 +162,36 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         sim.integrator.addIntervalAction(meterNormalMode);
         sim.integrator.setActionInterval(meterNormalMode, nA);
 	
-/*        
-    	final String APP_NAME = "HSMD3D";
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        ((AtomTypeSphere)((SpeciesSpheresMono)sim.getSpeciesManager().getSpecies()[0]).getLeafType()).setDiameter(.5);
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-  */      
+        MeterPressure meterPressure = new MeterPressure(sim.space);
+        meterPressure.setIntegrator(sim.integrator);
+        System.out.println("\nPressure Lattice: "+ meterPressure.getDataAsScalar());
+        //System.exit(1);
         
+        
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+        meterEnergy.setBox(sim.box);
+        System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
+        System.out.println(" ");
 
-        // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
-        // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
-        // DataSinkConsole console = new DataSinkConsole();
-        // DataPump comPump = new DataPump(meterCOM,console);
-        // IntervalActionAdapter comAdapter = new
-        // IntervalActionAdapter(comPump);
-        // sim.integrator.addListener(comAdapter);
-        // meterCOM.setBox(sim.box);
+        AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
+	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
+	    
+	    sim.integrator.addIntervalAction(pressurePump);
+	    sim.integrator.setActionInterval(pressurePump, 100);
+	    
+        AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+        DataPump energyPump = new DataPump(meterEnergy, energyAverage);
+        
+        sim.integrator.addIntervalAction(energyPump);
+        sim.integrator.setActionInterval(energyPump, 100);
 
-        // start simulation
-//        MeterEnergy m = new MeterEnergy(sim.getPotentialMaster());
-//        m.setBox(sim.box);
-//        DataLogger logger = new DataLogger();
-//        logger.setAppending(true);
-//        logger.setCloseFileEachTime(true);
-//        DataTableWriter writer = new DataTableWriter();
-//        writer.setIncludeHeader(false);
-//        logger.setDataSink(writer);
-//        logger.setFileName("LJ_energy.dat");
-//        logger.setSameFileEachTime(true);
-//        logger.setWriteInterval(1);
-//        logger.setWriteOnInterval(true);
-//        DataPump pump = new DataPump(m, logger);
-//        sim.integrator.addListener(new IntervalActionAdapter(pump));
-        
-        
-        
-        
       
         sim.activityIntegrate.setMaxSteps(simSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
+        
+        long startTime = System.currentTimeMillis();
+        System.out.println("\nStart Time: " +startTime);
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().reset();
         meterNormalMode.reset();
@@ -216,7 +203,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
         sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, (int)simSteps/10);
+        sim.integrator.setActionInterval(sWriter, (int)simSteps/20);
         
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
@@ -224,6 +211,17 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         pdbWriter.setFileName("calcS_n"+exponent+"_D"+density+".pdb");
         pdbWriter.actionPerformed();
        
+        System.out.println("\nAverage Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)+
+        					" ,Error Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+        System.out.println(" ");
+        
+        System.out.println("Average-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
+        					 " ,Error-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("End Time: " + endTime);
+        System.out.println("Time taken: " + (endTime - startTime));
+        
     }
 
     private static final long serialVersionUID = 1L;
@@ -235,4 +233,5 @@ public class SimCalcSSoftSphereBCC extends Simulation {
     public Basis basis;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
+    protected PotentialMaster potentialMaster;
 }

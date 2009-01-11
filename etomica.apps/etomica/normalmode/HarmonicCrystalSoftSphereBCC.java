@@ -143,8 +143,8 @@ public class HarmonicCrystalSoftSphereBCC {
     }
 
     public static void main(String[] args) {
-        double rho = 2.204;
-        int exponent = 12;
+        double rho = 2.206;
+        int exponent = 6;
         int maxLatticeShell = 49;
         int nC =4;
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
