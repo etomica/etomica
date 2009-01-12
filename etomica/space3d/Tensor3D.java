@@ -132,11 +132,15 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         	temp = zy; zy = yz; yz = temp;    	
     }
     
+    public double determinant() {
+        return xx*yy*zz-xx*yz*zy-xy*yx*zz+xz*yx*zy+xy*yz*zx-xz*yy*zx;
+    }
+
     public void invert() {
         double txx=xx;double txy=xy;double txz=xz;
         double tyx=yx;double tyy=yy;double tyz=yz;
         double tzx=zx;double tzy=zy;double tzz=zz;
-	    double det = xx*yy*zz-xx*yz*zy-yx*xy*zz+yx*xz*zy+zx*xy*yz-zx*xz*yy;
+	    double det = determinant();
         xx= (tyy*tzz-tyz*tzy)/det; 
         xy= -(txy*tzz-txz*tzy)/det;
         xz= (txy*tyz-txz*tyy)/det;

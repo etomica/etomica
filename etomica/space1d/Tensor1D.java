@@ -162,4 +162,8 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     public void transform(IVectorMutable v) {
         v.setX(0, xx * v.x(1));
     }
+
+    public double determinant() {
+        return xx;
+    }
 }

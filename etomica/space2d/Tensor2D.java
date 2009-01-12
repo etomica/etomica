@@ -147,8 +147,12 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         double temp = xy; xy = yx; yx = temp;
     }
     
+    public double determinant() {
+        return xx+yy - xy*yx;
+    }
+
     public void invert() {
-        double det = xx*yy -xy*yx;
+        double det = determinant();
         double temp = xx; 
         xx = yy/det; yy = temp/det;
         xy = -xy/det; yx = -yx/det;
