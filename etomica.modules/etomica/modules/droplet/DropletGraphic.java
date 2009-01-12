@@ -12,15 +12,20 @@ import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataSplitter;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -69,22 +74,11 @@ public class DropletGraphic extends SimulationGraphic {
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
-        // add a listener to adjust the thermostat interval for different
-        // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
-        // don't need as much thermostating.
-        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
-                config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
+                sim.config.initializeCoordinates(sim.box);
 
-                getController().getSimRestart().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
             
@@ -103,15 +97,39 @@ public class DropletGraphic extends SimulationGraphic {
         //************* Lay out components ****************//
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("System", systemPanel);
+//        tabbedPane.add("System", systemPanel);
         getPanel().controlPanel.add(tabbedPane, vertGBC);
         JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
         numMoleculesPanel.add(nSlider.graphic(), vertGBC);
         tabbedPane.add("# of molecules", numMoleculesPanel);
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(cohesionEpsilon.graphic(), vertGBC);
-        tabbedPane.add("Surfactant potential", potentialPanel);
+        tabbedPane.add("Potential", potentialPanel);
+        
+        MeterDeformation meterDeformation = new MeterDeformation(space);
+        meterDeformation.setBox(sim.box);
+        DataSplitter splitter = new DataSplitter();
+        DataPump deformationPump = new DataPump(meterDeformation, splitter);
+        dataStreamPumps.add(deformationPump);
+        sim.integrator.addIntervalAction(deformationPump);
 
+        DataFork radiusFork = new DataFork();
+        splitter.setDataSink(0, radiusFork);
+        AccumulatorAverageCollapsing radiusAvg = new AccumulatorAverageCollapsing();
+        radiusFork.addDataSink(radiusAvg);
+        DisplayTextBoxesCAE radiusBox = new DisplayTextBoxesCAE();
+        radiusBox.setLabel("Radius");
+        radiusBox.setAccumulator(radiusAvg);
+        add(radiusBox);
+
+        DataFork deformationFork = new DataFork();
+        splitter.setDataSink(1, deformationFork);
+        AccumulatorAverageCollapsing deformationAvg = new AccumulatorAverageCollapsing();
+        deformationFork.addDataSink(deformationAvg);
+        DisplayTextBoxesCAE deformationBox = new DisplayTextBoxesCAE();
+        deformationBox.setLabel("Deformation");
+        deformationBox.setAccumulator(deformationAvg);
+        add(deformationBox);
     }
 
     public static void main(String[] args) {
