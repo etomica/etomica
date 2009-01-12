@@ -35,12 +35,12 @@ public class MCMoveStepTracker extends MCMoveTracker {
         double stepSize = mcMove.getStepSize();
         if (nAccept > (int) (acceptanceTarget * nTrials)) {
             if (stepSize < mcMove.getStepSizeMax()) {
-                if (lastAdjust == -1) {
+                if (lastAdjust < 0) {
                     // back-and-forth
                     adjustInterval *= 2;
                     adjustStep = Math.sqrt(adjustStep);
                 }
-                if (lastAdjust == 5) {
+                else if (lastAdjust == 5) {
                     // sixth consecutive increase.  increase adjustment step  
                     adjustStep *= adjustStep;
                     if (adjustStep > 2) {
@@ -49,6 +49,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     lastAdjust = 3;
                 }
                 stepSize *= adjustStep;
+                stepSize = Math.min(stepSize, mcMove.getStepSizeMax());
                 if (noisyAdjustment) {
                     System.out.println(mcMove.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
@@ -61,12 +62,12 @@ public class MCMoveStepTracker extends MCMoveTracker {
             }
         } else {
             if (stepSize > mcMove.getStepSizeMin()) {
-                if (lastAdjust == 1) {
+                if (lastAdjust > 0) {
                     // back-and-forth
                     adjustInterval *= 2;
                     adjustStep = Math.sqrt(adjustStep);
                 }
-                if (lastAdjust == -5) {
+                else if (lastAdjust == -5) {
                     // sixth consecutive decrease.  increase adjustment step
                     adjustStep *= adjustStep;
                     if (adjustStep > 2) {
@@ -75,6 +76,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     lastAdjust = -3;
                 }
                 stepSize /= adjustStep;
+                stepSize = Math.max(stepSize, mcMove.getStepSizeMin());
                 if (noisyAdjustment) {
                     System.out.println(mcMove.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
@@ -86,8 +88,6 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 }
             }
         }
-        stepSize = Math.min(stepSize, mcMove.getStepSizeMax());
-        stepSize = Math.max(stepSize, mcMove.getStepSizeMin());
         // setStepSize will call resetAdjustStep, which is bad, so prevent it
         noReset = true;
         mcMove.setStepSize(stepSize);
