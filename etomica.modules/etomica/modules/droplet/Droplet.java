@@ -28,6 +28,7 @@ public class Droplet extends Simulation {
     public final ActivityIntegrate activityIntegrate;
     public final P2Cohesion p2;
     public final P1Smash p1Smash;
+    public final ConfigurationDroplet config;
 
     public Droplet(Space _space) {
         super(_space);
@@ -65,15 +66,9 @@ public class Droplet extends Simulation {
         box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, numAtoms);
         integrator.setBox(box);
-        
-        for (int i=0; i<numAtoms; i++) {
-            IVectorMutable r = ((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition();
-            ((IVectorRandom)r).setRandomInSphere(random);
-            r.TE(2);
-        }
-        
-//        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-//        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
+
+        config = new ConfigurationDroplet(random);
+        config.initializeCoordinates(box);
     }
     
     public static void main(String[] args) {
