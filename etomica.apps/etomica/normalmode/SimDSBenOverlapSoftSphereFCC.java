@@ -55,14 +55,14 @@ import etomica.virial.overlap.IntegratorOverlap;
  * Simulation to run sampling with the soft sphere potential, but measuring
  * the harmonic potential based on normal mode data from a previous simulation.
  * 
- *  	Direct Sampling and Bennett's Overlap
+ *  	Direct Sampling and Bennett's Overlap for Soft Sphere FCC structure
  *  
  * 
  * @author Andrew Schultz & Tai Tan
  */
-public class SimDSBenOverlapSoftSphere extends Simulation {
+public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 
-    public SimDSBenOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
+    public SimDSBenOverlapSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
 
         potentialMasterTarget = new PotentialMasterMonatomic(this);
@@ -350,7 +350,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
 
     /**
      * @param args filename containing simulation parameters
-     * @see SimDSBenOverlapSoftSphere.SimOverlapParam
+     * @see SimDSBenOverlapSoftSphereFCC.SimOverlapParam
      */
     public static void main(String[] args) {
         
@@ -386,7 +386,7 @@ public class SimDSBenOverlapSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        final SimDSBenOverlapSoftSphere sim = new SimDSBenOverlapSoftSphere(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
+        final SimDSBenOverlapSoftSphereFCC sim = new SimDSBenOverlapSoftSphereFCC(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);   
