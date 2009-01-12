@@ -129,6 +129,12 @@ public class SimOverlapSingleWaveVector extends Simulation {
         
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
+        int wvflength = waveVectorFactoryTarget.getWaveVectors().length;
+        System.out.println("We have " + wvflength +" wave vectors.");
+        System.out.println("Wave Vector Coefficients:");
+        for(int i = 0; i < wvflength; i++){
+            System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
+        }
         
         changeMove = new MCMoveChangeMode(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
@@ -614,22 +620,21 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 2;
-        public double density = 0.5;
+        public int numAtoms = 4;
+        public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
         public int comparedWV = 1;
         
-        public long numSteps = 400000;
+        public long numSteps = 40000000;
         public long blockSize = 100000;
+        public long eqBlockSize = 10000;
         public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public long eqNumSteps = 400000;  
-        public long eqBlockSize = 10000;
-        
-        public long bennettNumSteps = 200000;
+        public long eqNumSteps = 4000000;  
+        public long bennettNumSteps = 2000000;
         public long benBlockSize = 10000;
 
     }
