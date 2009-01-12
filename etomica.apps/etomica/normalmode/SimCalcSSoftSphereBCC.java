@@ -75,7 +75,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         }
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.5;
+        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomTypeLeaf sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
@@ -85,6 +85,13 @@ public class SimCalcSSoftSphereBCC extends Simulation {
 
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
+        
+        /*
+         * 1-body Potential to Constraint the atom from moving too far 
+         * 	away from its lattice-site
+         */
+       P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
+       potentialMaster.addPotential(p1Constraint, new IAtomTypeLeaf[]{sphereType});
         
         integrator.setBox(box);
     }
