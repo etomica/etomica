@@ -175,7 +175,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 //            agent.force.TE(dv);
 //            System.out.println(a+" "+agent.rp+" "+a.getVelocity()+" "+agent.force);
         }
-        System.out.println(System.currentTimeMillis()/1000);
+//        System.out.println(System.currentTimeMillis()/1000);
     }
     
     protected void foo() {

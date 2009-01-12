@@ -5,21 +5,29 @@ import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
 import etomica.data.IEtomicaDataInfo;
+import etomica.data.meter.MeterEnergy;
+import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -93,15 +101,58 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         
         //************* Lay out components ****************//
 
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("System", systemPanel);
-        getPanel().controlPanel.add(tabbedPane, vertGBC);
-        JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
-        numMoleculesPanel.add(nSlider.graphic(), vertGBC);
-        tabbedPane.add("# of molecules", numMoleculesPanel);
-        JPanel potentialPanel = new JPanel(new GridBagLayout());
-        tabbedPane.add("Surfactant potential", potentialPanel);
+//        JTabbedPane tabbedPane = new JTabbedPane();
+//        tabbedPane.add("System", systemPanel);
+//        getPanel().controlPanel.add(tabbedPane, vertGBC);
+//        JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
+//        numMoleculesPanel.add(nSlider.graphic(), vertGBC);
+//        tabbedPane.add("# of molecules", numMoleculesPanel);
+//        JPanel potentialPanel = new JPanel(new GridBagLayout());
+//        tabbedPane.add("Surfactant potential", potentialPanel);
 
+        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
+        
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+        meterPE.setBox(sim.box);
+        DataFork peFork = new DataFork();
+        DataPump pePump = new DataPump(meterPE, peFork);
+        sim.integrator.addIntervalAction(pePump);
+        sim.integrator.setActionInterval(pePump, 10);
+        AccumulatorHistory peHistory = new AccumulatorHistory();
+        peFork.addDataSink(peHistory);
+        peHistory.setTimeDataSource(timeCounter);
+        AccumulatorAverageCollapsing peAvg = new AccumulatorAverageCollapsing();
+        peFork.addDataSink(peAvg);
+        DisplayTextBoxesCAE peBox = new DisplayTextBoxesCAE();
+        peBox.setAccumulator(peAvg);
+        peAvg.setPushInterval(1);
+        add(peBox);
+
+        MeterKineticEnergy meterKE = new MeterKineticEnergy();
+        meterKE.setBox(sim.box);
+        DataFork keFork = new DataFork();
+        DataPump kePump = new DataPump(meterKE, keFork);
+        sim.integrator.addIntervalAction(kePump);
+        sim.integrator.setActionInterval(kePump, 10);
+        AccumulatorHistory keHistory = new AccumulatorHistory();
+        keFork.addDataSink(keHistory);
+        keHistory.setTimeDataSource(timeCounter);
+        
+        MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
+        DataFork eFork = new DataFork();
+        DataPump ePump = new DataPump(meterE, eFork);
+        sim.integrator.addIntervalAction(ePump);
+        sim.integrator.setActionInterval(ePump, 10);
+        AccumulatorHistory eHistory = new AccumulatorHistory();
+        eFork.addDataSink(eHistory);
+        eHistory.setTimeDataSource(timeCounter);
+        
+        DisplayPlot ePlot = new DisplayPlot();
+        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        eHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.setLabel("Energy");
+        add(ePlot);
     }
 
     public static void main(String[] args) {
