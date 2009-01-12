@@ -22,8 +22,8 @@ public class P2SoftSphericalTruncatedForceShifted extends
      */
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
-        fShift = potential.du(r2Cutoff);
-        shift = potential.u(r2Cutoff) + fShift*Math.sqrt(r2Cutoff);
+        fShift = potential.du(r2Cutoff)/rCut;
+        shift = potential.u(r2Cutoff) - fShift*rCut;
     }
     
     public double u(double r2) {
@@ -31,7 +31,7 @@ public class P2SoftSphericalTruncatedForceShifted extends
     }
     
     public double du(double r2) {
-        return (r2 < r2Cutoff) ? (potential.du(r2) - fShift) : 0.0;
+        return (r2 < r2Cutoff) ? (potential.du(r2) - fShift*Math.sqrt(r2)) : 0.0;
     }
 
     protected double fShift;
