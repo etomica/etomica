@@ -116,6 +116,7 @@ public class DropletGraphic extends SimulationGraphic {
         DataFork radiusFork = new DataFork();
         splitter.setDataSink(0, radiusFork);
         AccumulatorAverageCollapsing radiusAvg = new AccumulatorAverageCollapsing();
+        radiusAvg.setPushInterval(1);
         radiusFork.addDataSink(radiusAvg);
         DisplayTextBoxesCAE radiusBox = new DisplayTextBoxesCAE();
         radiusBox.setLabel("Radius");
@@ -125,6 +126,7 @@ public class DropletGraphic extends SimulationGraphic {
         DataFork deformationFork = new DataFork();
         splitter.setDataSink(1, deformationFork);
         AccumulatorAverageCollapsing deformationAvg = new AccumulatorAverageCollapsing();
+        deformationAvg.setPushInterval(1);
         deformationFork.addDataSink(deformationAvg);
         DisplayTextBoxesCAE deformationBox = new DisplayTextBoxesCAE();
         deformationBox.setLabel("Deformation");
