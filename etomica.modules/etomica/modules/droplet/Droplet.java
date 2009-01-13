@@ -1,6 +1,5 @@
 package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -8,7 +7,6 @@ import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -32,7 +30,7 @@ public class Droplet extends Simulation {
 
     public Droplet(Space _space) {
         super(_space);
-        int numAtoms = 200;
+        int numAtoms = 2000;
         PotentialMaster potentialMaster = new PotentialMaster();
 
         //controller and integrator
