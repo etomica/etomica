@@ -85,7 +85,9 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     //This should be called by subclasses /after/ they have performed their own
     //reset
     public void reset() throws ConfigurationOverlapException {
-        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorNonintervalEvent.RESET));
+        if (initialized) {
+            fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorNonintervalEvent.RESET));
+        }
     }
 
     /**

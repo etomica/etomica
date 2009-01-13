@@ -111,6 +111,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
     
     public void reset() throws ConfigurationOverlapException {
+        if(!initialized) return;
         super.reset();
         updateMrLast();
     }

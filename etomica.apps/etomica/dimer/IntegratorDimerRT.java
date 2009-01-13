@@ -162,6 +162,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 	
 	public void reset() throws ConfigurationOverlapException{
+        if (!initialized) {
+            return;
+        }
 	    super.reset();
         
 	    deltaR = 1E-3;

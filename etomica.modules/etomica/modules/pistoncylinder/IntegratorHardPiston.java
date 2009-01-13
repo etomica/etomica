@@ -59,6 +59,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     public void reset() throws ConfigurationOverlapException {
+        if(!initialized) return;
         updatePiston();
         super.reset();
     }

@@ -84,6 +84,9 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      * reset the integrator's kinetic energy tracker
      */
     public void reset() throws ConfigurationOverlapException {
+        if (!initialized) {
+            return;
+        }
         currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
     }

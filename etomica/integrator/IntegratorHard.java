@@ -399,6 +399,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 	}
 
     public void reset() throws ConfigurationOverlapException {
+        if(!initialized) return;
         colliderAgent = null;
         
         ConfigurationOverlapException overlapException = null;

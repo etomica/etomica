@@ -262,6 +262,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     }
 
     public void reset() {
+        if(!initialized) return;
         /*
          * Rattle Part I
          */
