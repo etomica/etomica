@@ -404,8 +404,6 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         DataPump pressurePump = new DataPump(meterOsmoticPressure, pressureFork);
         pressureFork.addDataSink(pressureAvg);
         sim.integrator.addIntervalAction(pressurePump);
-        // has to happen before PBC are applied
-        sim.integrator.setIntervalActionPriority(pressurePump, 1);
         dataStreamPumps.add(pressurePump);
         AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         pressureFork.addDataSink(pressureHistory);
