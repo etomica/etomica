@@ -1,5 +1,4 @@
 package etomica.units;
-import java.io.ObjectStreamException;
 import java.util.Arrays;
 
 import etomica.units.systems.UnitSystem;
@@ -33,7 +32,7 @@ public class Dimension implements java.io.Serializable {
         if(signature.length != N_BASE) {
             throw new IllegalArgumentException("Incorrect length of signature array given to Dimension constructor. Given value = "+signature.length+"; expected value: "+N_BASE);
         }
-        this.signature = (double[])signature.clone();
+        this.signature = signature.clone();
         this.name = name;
     }
     
@@ -54,7 +53,7 @@ public class Dimension implements java.io.Serializable {
      * temperature, number, luminosity.
      */
     public double[] signature() {
-        return (double[])signature.clone();
+        return signature.clone();
     }
         
     /**
@@ -113,7 +112,7 @@ public class Dimension implements java.io.Serializable {
             String methodName = methods[i].getMethod().getName();
             if(methodName.equalsIgnoreCase("get"+property+"Dimension")) {
                 try {
-                    return (Dimension)methods[i].getMethod().invoke(obj, null);
+                    return (Dimension)methods[i].getMethod().invoke(obj, (Object[])null);
                 }
                 catch(java.lang.reflect.InvocationTargetException ex) {
                     System.out.println("InvocationTargetException in Dimension.introspect");
@@ -143,7 +142,7 @@ public class Dimension implements java.io.Serializable {
           * 
           * @return the singleton MIXED
           */
-         private Object readResolve() throws ObjectStreamException {
+         private Object readResolve() {
              return MIXED;
          }
          
