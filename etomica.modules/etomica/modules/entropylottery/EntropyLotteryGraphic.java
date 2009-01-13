@@ -35,7 +35,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
         sim.activityIntegrate.setSleepPeriod(10);
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero(space));
 
