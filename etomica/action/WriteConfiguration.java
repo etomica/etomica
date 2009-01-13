@@ -28,6 +28,7 @@ public class WriteConfiguration implements IAction {
      */
     public void setConfName(String newConfName) {
         confName = newConfName;
+        fileName = newConfName+".pos_new";
     }
 
     /**
@@ -35,6 +36,10 @@ public class WriteConfiguration implements IAction {
      */
     public String getConfName() {
         return confName;
+    }
+
+    public void setFileName(String newFileName) {
+        fileName = newFileName;
     }
 
     /**
@@ -73,7 +78,6 @@ public class WriteConfiguration implements IAction {
      */
     public void actionPerformed() {
         FileWriter fileWriter;
-        String fileName = confName + ".pos_new";
         try {
             fileWriter = new FileWriter(fileName);
         }catch(IOException e) {
@@ -106,7 +110,7 @@ public class WriteConfiguration implements IAction {
         }
     }
 
-    private String confName;
+    private String confName, fileName;
     private IBox box;
     private boolean doApplyPBC;
     private final ISpace space;
