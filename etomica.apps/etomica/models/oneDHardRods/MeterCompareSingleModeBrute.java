@@ -9,6 +9,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.units.Null;
+import etomica.util.Histogram;
 
 
 /**
@@ -36,6 +37,7 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
     private double[] uNow, deltaU;
     int coordinateDim;
     private double energyHardRod, energyHarmonic;
+    Histogram histogramNRG, histogramImagCoord, histogramRealCoord;
     
     private static final long serialVersionUID = 1L;
     
@@ -53,6 +55,7 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        histogramNRG = new
     }
         
     
