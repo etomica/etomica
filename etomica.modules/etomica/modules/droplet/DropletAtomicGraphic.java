@@ -5,27 +5,21 @@ import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
-import etomica.api.IBox;
-import etomica.api.IData;
-import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
@@ -34,12 +28,11 @@ import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
-import etomica.units.Length;
+import etomica.units.Null;
 import etomica.units.Pixel;
 
 /**
@@ -67,6 +60,45 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
+        DeviceSlider radiusSlider = new DeviceSlider(sim.getController(), new Modifier() {
+
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Droplet Radius";
+            }
+
+            public double getValue() {
+                return sim.dropRadius;
+            }
+
+            public void setValue(double newValue) {
+                sim.dropRadius = newValue;
+                if (sim.integrator.isInitialized()) {
+                    sim.potentialMaster.getNeighborManager(sim.box).uninitialize();
+                }
+                sim.makeDropShape();
+
+                if (sim.integrator.isInitialized()) {
+                    sim.potentialMaster.getNeighborManager(sim.box).reset();
+                    try {
+                        sim.integrator.reset();
+                    }
+                    catch (ConfigurationOverlapException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                getDisplayBox(sim.box).repaint();
+            }
+        });
+        radiusSlider.setPrecision(1);
+        radiusSlider.setMinimum(0.2);
+        radiusSlider.setMaximum(0.8);
+        radiusSlider.setNMajor(4);
+        
         nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
@@ -101,14 +133,16 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         
         //************* Lay out components ****************//
 
-//        JTabbedPane tabbedPane = new JTabbedPane();
+        JTabbedPane tabbedPane = new JTabbedPane();
 //        tabbedPane.add("System", systemPanel);
 //        getPanel().controlPanel.add(tabbedPane, vertGBC);
-//        JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
+        JPanel dropletPanel = new JPanel(new GridBagLayout());
 //        numMoleculesPanel.add(nSlider.graphic(), vertGBC);
-//        tabbedPane.add("# of molecules", numMoleculesPanel);
+        dropletPanel.add(radiusSlider.graphic());
+        tabbedPane.add("Droplet", dropletPanel);
 //        JPanel potentialPanel = new JPanel(new GridBagLayout());
 //        tabbedPane.add("Surfactant potential", potentialPanel);
+        getPanel().controlPanel.add(tabbedPane);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         
@@ -116,6 +150,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         meterPE.setBox(sim.box);
         DataFork peFork = new DataFork();
         DataPump pePump = new DataPump(meterPE, peFork);
+        dataStreamPumps.add(pePump);
         sim.integrator.addIntervalAction(pePump);
         sim.integrator.setActionInterval(pePump, 10);
         AccumulatorHistory peHistory = new AccumulatorHistory();
@@ -132,6 +167,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         meterKE.setBox(sim.box);
         DataFork keFork = new DataFork();
         DataPump kePump = new DataPump(meterKE, keFork);
+        dataStreamPumps.add(kePump);
         sim.integrator.addIntervalAction(kePump);
         sim.integrator.setActionInterval(kePump, 10);
         AccumulatorHistory keHistory = new AccumulatorHistory();
@@ -141,6 +177,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
         DataFork eFork = new DataFork();
         DataPump ePump = new DataPump(meterE, eFork);
+        dataStreamPumps.add(ePump);
         sim.integrator.addIntervalAction(ePump);
         sim.integrator.setActionInterval(ePump, 10);
         AccumulatorHistory eHistory = new AccumulatorHistory();
@@ -174,7 +211,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         DropletAtomic sim = new DropletAtomic(sp);
         DropletAtomicGraphic swGraphic = new DropletAtomicGraphic(sim, sp);
-        swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
+        swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 		SimulationGraphic.makeAndDisplayFrame
 		        (swGraphic.getPanel(), APP_NAME);
     }
@@ -187,96 +224,12 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 	        Space sp = Space3D.getInstance();
 	        DropletAtomic sim = new DropletAtomic(sp);
             DropletAtomicGraphic ljmdGraphic = new DropletAtomicGraphic(sim, sp);
-            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
+            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;
-    }
-    
-    /**
-     * Inner class to find the total pressure of the system from the pressure
-     * tensor.
-     */
-    public static class DataProcessorTensorSplitter extends DataProcessor {
-
-        public DataProcessorTensorSplitter() {
-            data = new DataDoubleArray(3);
-        }
-        
-        protected IData processData(IData inputData) {
-            double[] x = data.getData();
-            for (int i=0; i<x.length; i++) {
-                x[i] = ((DataTensor)inputData).x.component(i,i);
-            }
-            return data;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
-            return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
-        protected final DataDoubleArray data;
-    }
-    
-    public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(ISpace space, IBox box, int dim, IAction reconfig) {
-            this.box = box;
-            this.dim = dim;
-            this.reconfig = reconfig;
-            size = space.makeVector();
-        }
-        
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-
-        public String getLabel() {
-            return "Box size";
-        }
-
-        public double getValue() {
-            return box.getBoundary().getDimensions().x(dim);
-        }
-
-        public void setValue(double newValue) {
-            if (newValue <= 0) {
-                throw new IllegalArgumentException("Gotta be positive");
-            }
-            //newValue+=0.01;
-            size.E(box.getBoundary().getDimensions());
-            double oldValue = size.x(dim);
-            size.setX(dim, newValue);
-            if (dim == 1 && size.getD() == 3) {
-                size.setX(2, newValue);
-            }
-            box.getBoundary().setDimensions(size);
-            try {
-                reconfig.actionPerformed();
-            }
-            catch (RuntimeException e) {
-                // box is too small.  restore to original size
-                size.setX(dim, oldValue);
-                box.getBoundary().setDimensions(size);
-                // and reconfig.  this shouldn't throw.
-                reconfig.actionPerformed();
-            }
-        }
-        
-        protected final IBox box;
-        protected final int dim;
-        protected final IAction reconfig;
-        protected final IVectorMutable size;
     }
 }
 
