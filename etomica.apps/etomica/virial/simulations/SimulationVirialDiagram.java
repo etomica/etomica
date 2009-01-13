@@ -19,7 +19,7 @@ public class SimulationVirialDiagram extends SimulationVirial {
             ClusterAbstract[] targetClusters) {
         super(space, speciesFactory, temperature, aSampleCluster,
                 refCluster, targetClusters);
-        mcMoveDiagram = new MCMoveClusterDiagram(integrator.getPotential());
+        mcMoveDiagram = new MCMoveClusterDiagram(integrator.getPotentialMaster());
         integrator.getMoveManager().addMCMove(mcMoveDiagram);
     }
 

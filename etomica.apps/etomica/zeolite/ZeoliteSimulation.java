@@ -228,7 +228,7 @@ public class ZeoliteSimulation extends Simulation {
         int history = sim.getInterval()*10;
         //Settings
         
-        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
+        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);
         AccumulatorAverageCollapsing enAcc = new AccumulatorAverageCollapsing();

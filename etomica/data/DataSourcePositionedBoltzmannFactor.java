@@ -35,7 +35,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
-        energyMeter = new MeterPotentialEnergy(integrator.getPotential());
+        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster());
         energyMeter.setBox(integrator.getBox());
     }
 
@@ -50,7 +50,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
      * Returns the ISpecies for which the chemical potential is to be measured.
      */
     public ISpecies getSpecies() {
-        return (ISpecies)testMolecule.getType();
+        return testMolecule.getType();
     }
 
     public IData getData(IVector a) {

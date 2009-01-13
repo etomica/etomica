@@ -77,7 +77,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         super.doStepInternal();
         //Compute forces on each atom
         forceSum.reset();
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         pressureTensor.E(forceSum.getPressureTensor());
 
         //take step

@@ -178,7 +178,7 @@ public class LjmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Number Density");
 	    
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
@@ -187,7 +187,7 @@ public class LjmdGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotential());
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
         peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);

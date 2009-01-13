@@ -309,16 +309,16 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box1);
 		sim.addBox(box2);
 		
-		if(potential instanceof PotentialMasterListDimer){
-		   this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
-		   this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1)); 
+		if(potentialMaster instanceof PotentialMasterListDimer){
+		   this.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box1));
+		   this.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box1)); 
 		}
 		
-		energyBox0 = new MeterPotentialEnergy(this.potential);
+		energyBox0 = new MeterPotentialEnergy(potentialMaster);
 		energyBox0.setBox(box);
-		energyBox1 = new MeterPotentialEnergy(this.potential);
+		energyBox1 = new MeterPotentialEnergy(potentialMaster);
 		energyBox1.setBox(box1);
-        energyBox2 = new MeterPotentialEnergy(this.potential);
+        energyBox2 = new MeterPotentialEnergy(potentialMaster);
         energyBox2.setBox(box2);		
 		
 		atomAgent0 = new AtomLeafAgentManager(this, box);
@@ -758,8 +758,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		force1.reset();
 		force0.reset();
 		
-		potential.calculate(box1, allatoms, force1);
-		potential.calculate(box, allatoms, force0);
+		potentialMaster.calculate(box1, allatoms, force1);
+		potentialMaster.calculate(box, allatoms, force0);
 		
 		// Copy forces of dimer end and center (R1, R) to local array
 		for(int i=0; i<aF1.length; i++){
@@ -773,7 +773,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	protected void dimerForcesStar(IVectorMutable [] aF1star, IVectorMutable [] aF2star, IVectorMutable [] aF){
 	    force1.reset();
-	    potential.calculate(box1, allatoms, force1);
+	    potentialMaster.calculate(box1, allatoms, force1);
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF1star.length; i++){
@@ -785,7 +785,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	protected void dimerForceCenter(IVectorMutable [] aF){
 	    force0.reset();
-	    potential.calculate(box, allatoms, force0);
+	    potentialMaster.calculate(box, allatoms, force0);
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF.length; i++){
@@ -893,7 +893,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		if(saddleT<dFsq){
 		    
 		    vib = new CalcVibrationalModes();
-	        vib.setup(box, super.potential, box.getMoleculeList(movableSpecies[0]), space);
+	        vib.setup(box, potentialMaster, box.getMoleculeList(movableSpecies[0]), space);
 	        vib.actionPerformed();
 	        
 	        

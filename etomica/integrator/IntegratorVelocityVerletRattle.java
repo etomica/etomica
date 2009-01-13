@@ -170,7 +170,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         
         //Finish integration step
         IAtomList leafList = box.getLeafList();

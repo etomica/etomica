@@ -66,7 +66,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         super.setup();
     
         // Set variables for energy
-        energy = new MeterPotentialEnergy(this.potential);
+        energy = new MeterPotentialEnergy(potentialMaster);
         energy.setBox(box);
         
         

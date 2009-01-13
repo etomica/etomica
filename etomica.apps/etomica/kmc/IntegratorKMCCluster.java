@@ -393,7 +393,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin1.setBox(box);
         integratorMin2.setBox(box);
         
-        if(potential instanceof PotentialMasterListDimer){
+        if(potentialMaster instanceof PotentialMasterListDimer){
             integratorMin1.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
             integratorMin2.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
         }

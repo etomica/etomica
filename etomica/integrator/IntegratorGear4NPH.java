@@ -168,7 +168,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         forceSumNPH.rvx = 0.0;
         forceSumNPH.vf = 0.0;
 
-        potential.calculate(box, allAtoms, forceSumNPH);
+        potentialMaster.calculate(box, allAtoms, forceSumNPH);
     }//end of calculateForces
     
     protected void corrector() {

@@ -285,9 +285,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         listToUpdate.clear();
 
         downList.setTargetAtom(colliders.atom0);
-        potential.calculate(box, downList, reverseCollisionHandler);
+        potentialMaster.calculate(box, downList, reverseCollisionHandler);
         downList.setTargetAtom(colliders.atom1);
-        potential.calculate(box, downList, reverseCollisionHandler);
+        potentialMaster.calculate(box, downList, reverseCollisionHandler);
 
         // this would update collider0 as well since it wanted to collide with
         // atom1.  But we to full reset it, so remove it from the (hopefully
@@ -303,13 +303,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         upList.setTargetAtom(colliders.atom0);
         collisionHandlerUp.setAtom(colliders.atom0);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, upList, collisionHandlerUp);
+        potentialMaster.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         downList.setTargetAtom(colliders.atom0);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, downList, collisionHandlerDown);
+        potentialMaster.calculate(box, downList, collisionHandlerDown);
 
         agent = ((Agent)agentManager.getAgent(colliders.atom1));
         if (agent.collisionPotential != null) {
@@ -319,13 +319,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         upList.setTargetAtom(colliders.atom1);
         collisionHandlerUp.setAtom(colliders.atom1);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, upList, collisionHandlerUp);
+        potentialMaster.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         downList.setTargetAtom(colliders.atom1);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, downList, collisionHandlerDown);
+        potentialMaster.calculate(box, downList, collisionHandlerDown);
     }
 
     /**
@@ -337,7 +337,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         listToUpdate.clear();
 
         downList.setTargetAtom(a);
-        potential.calculate(box, downList, reverseCollisionHandler);
+        potentialMaster.calculate(box, downList, reverseCollisionHandler);
         processReverseList();
 
         Agent agent = (Agent)agentManager.getAgent(a);
@@ -348,12 +348,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         upList.setTargetAtom(a);
         collisionHandlerUp.setAtom(a);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, upList, collisionHandlerUp);
+        potentialMaster.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(box, downList, collisionHandlerDown);
+        potentialMaster.calculate(box, downList, collisionHandlerDown);
     }
 
     /**
@@ -377,7 +377,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
             upList.setTargetAtom(reverseAtom);
             collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
             collisionHandlerUp.setAtom(reverseAtom);
-            potential.calculate(box, upList, collisionHandlerUp);
+            potentialMaster.calculate(box, upList, collisionHandlerUp);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
@@ -439,7 +439,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = 0;
-        potential.calculate(box, upList, collisionHandlerUp); //assumes only one box
+        potentialMaster.calculate(box, upList, collisionHandlerUp); //assumes only one box
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomLeaf atom = leafList.getAtom(iLeaf);

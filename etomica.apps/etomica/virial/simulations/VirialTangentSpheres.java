@@ -102,9 +102,9 @@ public class VirialTangentSpheres {
         sim.integratorOS.setNumSubSteps(1000);
         
         if (nSpheres > 2) {
-            PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
+            PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
             pIntra.addPotential(p2,ApiBuilder.makeNonAdjacentPairIterator());
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
+            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         
         if (p2 instanceof P2HardSphere) {

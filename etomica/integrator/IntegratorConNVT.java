@@ -84,7 +84,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
   	    //Compute forces on each atom
   	    forceSum.reset();
-  	    potential.calculate(box, allAtoms, forceSum);
+  	    potentialMaster.calculate(box, allAtoms, forceSum);
 
   	    //MoveA
         //Advance velocities from T-Dt/2 to T without constraint

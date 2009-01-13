@@ -293,7 +293,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
         forceSum.reset();
         //Compute forces on each atom at t+dt
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         
         if(forceSum instanceof PotentialCalculationForcePressureSum){
             pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
@@ -458,7 +458,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
 
         forceSum.reset();
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
 
         IMoleculeList moleculeList = box.getMoleculeList();
         int nMolecules = moleculeList.getMoleculeCount();

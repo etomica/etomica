@@ -108,7 +108,7 @@ public final class IntegratorHardField extends IntegratorHard {
         //zero forces on all atoms
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(box, fieldsOnly, forceSum);
+        potentialMaster.calculate(box, fieldsOnly, forceSum);
         
     }//end of calculateForces
     

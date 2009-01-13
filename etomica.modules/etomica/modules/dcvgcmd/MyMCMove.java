@@ -27,7 +27,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public MyMCMove(IntegratorBox integrator, IRandom random,
 			        ISpace space, double zFraction) {
-		super(integrator.getPotential(), random, space);
+		super(integrator.getPotentialMaster(), random, space);
 		position = space.makeVector();
 		setZFraction(zFraction);
         this.integrator = integrator;

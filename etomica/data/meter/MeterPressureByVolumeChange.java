@@ -143,7 +143,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         IBox box = integrator.getBox();
         inflater.setBox(box);
         energy.zeroSum();
-        integrator.getPotential().calculate(box, iteratorDirective, energy);
+        integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
         double uOld = energy.getSum();
         final double[] x = ((DataDoubleArray)vDataSource.getData()).getData();
         double mult = 1.0/nDimension;
@@ -156,7 +156,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
             inflater.setVectorScale(scale);
             inflater.actionPerformed();
             energy.zeroSum();
-            integrator.getPotential().calculate(box, iteratorDirective, energy);
+            integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
                               + box.getMoleculeList().getMoleculeCount()*(x[i]-1));

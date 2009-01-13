@@ -178,7 +178,7 @@ public class VirialTraPPEAlcohol {
         	// INTRAmolecular harmonic bending potential
             double thetaEq = 108.5*Math.PI/180;
             double kTheta = Kelvin.UNIT.toSim(55400); // force constant [=] K;
-            PotentialGroup U_bend = sim.integrators[1].getPotential().makePotentialGroup(1);
+            PotentialGroup U_bend = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
             
             P3BondAngle uBending = new P3BondAngle(space);
             
@@ -187,7 +187,7 @@ public class VirialTraPPEAlcohol {
             
             U_bend.addPotential(uBending, new Atomset3IteratorIndexList(new int[][] {{0,1,2}}));
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotential().addPotential(U_bend,new ISpecies[]{species});
+            sim.integrators[1].getPotentialMaster().addPotential(U_bend,new ISpecies[]{species});
             
       //      sim.mcMoveWiggle[0].setBondLength(1.54);
      //       sim.mcMoveWiggle[1].setBondLength(1.54);

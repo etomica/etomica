@@ -238,7 +238,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         
         currentKineticEnergy = 0;
         //Finish integration step
@@ -275,7 +275,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         super.reset();
 
         forceSum.reset();
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
     }
 
     public Class getAgentClass() {

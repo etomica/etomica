@@ -129,7 +129,7 @@ public class VirialAlkane {
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
-        PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
+        PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
         if (nSpheres > 2) {
             P3BondAngle p3 = new P3BondAngle(space);
             p3.setAngle(Math.PI*114.0/180.0);
@@ -142,7 +142,7 @@ public class VirialAlkane {
             }
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
+            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         MCMoveClusterTorsionMulti[] torsionMoves = null;
         if (nSpheres > 3) {
@@ -156,10 +156,10 @@ public class VirialAlkane {
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
             torsionMoves = new MCMoveClusterTorsionMulti[2];
-            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
+            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialMaster(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves[0].setTemperature(temperature);
             sim.integrators[0].getMoveManager().addMCMove(torsionMoves[0]);
-            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotential(), space, sim.getRandom(), 1.0, p4, 40);
+            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialMaster(), space, sim.getRandom(), 1.0, p4, 40);
             torsionMoves[1].setTemperature(temperature);
             sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }

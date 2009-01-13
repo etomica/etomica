@@ -181,7 +181,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
     protected void foo() {
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         double vol = 4.0/3.0*Math.PI;
         double dv = vol / box.getMoleculeList().getMoleculeCount();
         double sp = 2.0*Math.pow(dv,1.0/3.0);
@@ -277,7 +277,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         }
 
         forceSum.reset();
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
     }
 
 //--------------------------------------------------------------

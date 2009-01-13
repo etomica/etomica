@@ -114,7 +114,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }

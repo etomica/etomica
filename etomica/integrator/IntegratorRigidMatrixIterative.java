@@ -289,7 +289,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         
         torqueSum.reset();
         //Compute forces and torques on each atom at t+dt
-        potential.calculate(box, allAtoms, torqueSum);
+        potentialMaster.calculate(box, allAtoms, torqueSum);
         
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
@@ -590,7 +590,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 
         torqueSum.reset();
         //Compute forces on each atom at t+dt
-        potential.calculate(box, allAtoms, torqueSum);
+        potentialMaster.calculate(box, allAtoms, torqueSum);
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);

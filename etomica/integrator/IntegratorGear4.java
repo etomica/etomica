@@ -102,7 +102,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         //zero forces on all atoms
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(box, allAtoms, forceSum);
+        potentialMaster.calculate(box, allAtoms, forceSum);
         
     }//end of calculateForces
     

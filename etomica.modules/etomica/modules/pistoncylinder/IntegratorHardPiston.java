@@ -19,7 +19,7 @@ public class IntegratorHardPiston extends IntegratorHard {
 
     /**
      * @param potentialMaster
-     * @param potential Potential between piston and every atom in the box
+     * @param potentialMaster Potential between piston and every atom in the box
      */
     public IntegratorHardPiston(ISimulation sim,
     		           IPotentialMaster potentialMaster,

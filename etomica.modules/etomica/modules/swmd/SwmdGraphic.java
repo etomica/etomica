@@ -346,7 +346,7 @@ public class SwmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Density");
 	    
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();

@@ -20,16 +20,17 @@ import etomica.units.Temperature;
 
 public abstract class IntegratorBox extends Integrator {
 
+    private static final long serialVersionUID = 1L;
     protected IBox box;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
     protected double currentPotentialEnergy;
-    protected final IPotentialMaster potential;
+    protected final IPotentialMaster potentialMaster;
 
     public IntegratorBox(IPotentialMaster potentialMaster, double temperature) {
         super();
-        potential = potentialMaster;
+        this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
             meterPE = new MeterPotentialEnergy(potentialMaster);
         }
@@ -39,8 +40,8 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @return Returns the PotentialMaster.
      */
-    public IPotentialMaster getPotential() {
-        return potential;
+    public IPotentialMaster getPotentialMaster() {
+        return potentialMaster;
     }
 
     /**

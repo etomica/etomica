@@ -148,7 +148,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
                 sim.removeBox(pretendBox);
                 
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }
@@ -263,7 +263,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     IVectorMutable pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
                     pos.setX(0, pos.x(0) - center);
                 }
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }
@@ -545,7 +545,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
                 
                 config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }
@@ -631,10 +631,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.p2Tail.setCollisionDiameter(0.5+0.5*newValue);
                 sim.p2HeadTail.setCollisionDiameter(0.5+0.5*newValue);
                 sim.p2Bond.setBondLength(0.5+0.5*newValue-0.2);
-                ((PotentialMasterList)sim.integrator.getPotential()).recomputeCriteriaRanges();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).recomputeCriteriaRanges();
                 // reset won't trigger recomputcriteriaranges because max range didn't change...
                 // perhaps it should
-                ((PotentialMasterList)sim.integrator.getPotential()).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
                 try {
                     sim.integrator.reset();
                 }
@@ -654,7 +654,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         IAction reconfig = new IAction() {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotential()).getNeighborManager(sim.box).reset();
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 }

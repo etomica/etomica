@@ -348,7 +348,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
 		eMeter.setKinetic(new MeterKineticEnergyFromIntegrator(sim.integrator));
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
@@ -359,7 +359,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(energyPump, 10);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotential());
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
 		peMeter.setBox(sim.box);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);

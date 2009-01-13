@@ -426,13 +426,13 @@ public class JouleThomson extends SimulationGraphic {
                 config.initializeCoordinates(sim.box);
             }
             if(speciesName.equals("Ideal gas")) {
-                if (sim.integrator.getPotential().getPotentials().length > 0) {
-                    sim.integrator.getPotential().removePotential(sim.potential);
+                if (sim.integrator.getPotentialMaster().getPotentials().length > 0) {
+                    sim.integrator.getPotentialMaster().removePotential(sim.potential);
                 }
             }
             else {
-                if (sim.integrator.getPotential().getPotentials().length == 0) {
-                    sim.integrator.getPotential().addPotential(sim.potential, new IAtomTypeLeaf[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                if (sim.integrator.getPotentialMaster().getPotentials().length == 0) {
+                    sim.integrator.getPotentialMaster().addPotential(sim.potential, new IAtomTypeLeaf[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 }
             }
             simRestart.actionPerformed();

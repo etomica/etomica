@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
@@ -247,7 +246,7 @@ public class SamGraphic extends SimulationGraphic {
         getController().getDataStreamPumps().add(pump);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 10);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotential());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
         meterPE.setBox(sim.box);
         AccumulatorHistory historyPE = new AccumulatorHistory();
         historyPE.setTimeDataSource(timeCounter);
@@ -255,7 +254,7 @@ public class SamGraphic extends SimulationGraphic {
         getController().getDataStreamPumps().add(pump);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 10);
-        MeterEnergy meterEnergy = new MeterEnergy(sim.integrator.getPotential(), sim.box);
+        MeterEnergy meterEnergy = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory historyE = new AccumulatorHistory();
         historyE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterEnergy, historyE);

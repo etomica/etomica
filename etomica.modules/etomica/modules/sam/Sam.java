@@ -523,7 +523,7 @@ public class Sam extends Simulation {
         }
         chainLength = newChainLength;
         potentialMaster.removePotential(p1Intra);
-        p1Intra = integrator.getPotential().makePotentialGroup(1);
+        p1Intra = integrator.getPotentialMaster().makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
 
         int[][] pairs = new int[1][2];

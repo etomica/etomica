@@ -35,9 +35,9 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         }
         super.addIntegrator(newIntegrator);
         if (nIntegrators == 2) {
-            volumeExchange = new MCMoveVolumeExchange(((IntegratorBox)newIntegrator).getPotential(), random,
+            volumeExchange = new MCMoveVolumeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
                     space, (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
-            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotential(), random,
+            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
                     space, (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(volumeExchange);

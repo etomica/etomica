@@ -137,7 +137,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
-        energyMeter = new MeterPotentialEnergy(integrator.getPotential());
+        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster());
         energyMeter.setBox(integrator.getBox());
         positionSource.setBox(integrator.getBox());
     }
