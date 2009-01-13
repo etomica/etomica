@@ -807,12 +807,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 pc.integrator.resetPiston();
-                if (pc.integrator.isInitialized()) {
-                    try {
-                        pc.integrator.reset();
-                    }
-                    catch (ConfigurationOverlapException e) {}
+                try {
+                    pc.integrator.reset();
                 }
+                catch (ConfigurationOverlapException e) {}
 
                 densityDisplayTextBox.putData(densityAvg.getData());
                 densityDisplayTextBox.repaint();
@@ -883,9 +881,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                     pc.potentialWrapper.setWrappedPotential(potentialIdeal);
                 }
                 try {
-                    if (pc.integrator.isInitialized()) {
-                        pc.integrator.reset();
-                    }
+                    pc.integrator.reset();
                 } catch(ConfigurationOverlapException e) {}
                 
                 getController().getResetAveragesButton().press();

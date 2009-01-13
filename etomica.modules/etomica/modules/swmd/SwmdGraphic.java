@@ -553,12 +553,9 @@ public class SwmdGraphic extends SimulationGraphic {
                     potentialIdeal.setBox(sim.box);
                     sim.potentialWrapper.setWrappedPotential(potentialIdeal);
                 }
-                // wrap atoms back inside the box so we can reassign atoms to cells if needed
-                if (sim.integrator.isInitialized()) {
-                    try {
-                        sim.integrator.reset();
-                    } catch(ConfigurationOverlapException e) {}
-                }
+                try {
+                    sim.integrator.reset();
+                } catch(ConfigurationOverlapException e) {}
             }
         });
     }

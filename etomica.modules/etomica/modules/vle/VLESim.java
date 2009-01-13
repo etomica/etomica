@@ -136,14 +136,12 @@ public class VLESim extends Simulation {
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
-        if (integratorLiquid.isInitialized()) {
-            try {
-                integratorLiquid.reset();
-                integratorVapor.reset();
-            }
-            catch (ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            integratorLiquid.reset();
+            integratorVapor.reset();
+        }
+        catch (ConfigurationOverlapException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -153,14 +151,12 @@ public class VLESim extends Simulation {
     
     public void setEpsilon(double newEpsilon) {
         p2LJQ.setEpsilon(newEpsilon);
-        if (integratorLiquid.isInitialized()) {
-            try {
-                integratorLiquid.reset();
-                integratorVapor.reset();
-            }
-            catch (ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            integratorLiquid.reset();
+            integratorVapor.reset();
+        }
+        catch (ConfigurationOverlapException e) {
+            throw new RuntimeException(e);
         }
     }
     
@@ -170,14 +166,12 @@ public class VLESim extends Simulation {
     
     public void setMoment(double newQ) {
         p2LJQ.setQuadrupolarMomentSquare(newQ*newQ);
-        if (integratorLiquid.isInitialized()) {
-            try {
-                integratorLiquid.reset();
-                integratorVapor.reset();
-            }
-            catch (ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            integratorLiquid.reset();
+            integratorVapor.reset();
+        }
+        catch (ConfigurationOverlapException e) {
+            throw new RuntimeException(e);
         }
     }
     
