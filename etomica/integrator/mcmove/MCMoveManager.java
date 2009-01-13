@@ -56,6 +56,10 @@ public class MCMoveManager implements Serializable {
             lastMoveLink.nextLink = new MCMoveLinker(move);
             lastMoveLink = lastMoveLink.nextLink;
         }
+        MCMoveTracker tracker = move.getTracker();
+        if (tracker instanceof MCMoveStepTracker) {
+            ((MCMoveStepTracker)tracker).setTunable(isEquilibrating);
+        }
         if (box != null) {
             ((MCMoveBox)move).setBox(box);
         }
