@@ -95,7 +95,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
     public void setValue(double d) {
         for(int j=0; j<nObjects; j++) {
             try {
-                writeMethod[j].invoke(object[j], new Double[] {new Double(d)});
+                writeMethod[j].invoke(object[j], new Object[] {new Double(d)});
             }
             catch(InvocationTargetException ex) {
                 throw new RuntimeException(ex.getTargetException());
@@ -113,7 +113,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
     public double getValue() {
         double value = Double.NaN;
         try {
-            value = ((Double)readMethod[0].invoke(object[0], null)).doubleValue();
+            value = ((Double)readMethod[0].invoke(object[0], (Object[])null)).doubleValue();
         }
         catch(InvocationTargetException ex) {
             System.err.println("InvocationTargetException in getValue");

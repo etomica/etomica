@@ -53,7 +53,7 @@ public class EtomicaInfo implements java.io.Serializable {
         java.lang.reflect.Method method = null;
         
         try {
-            method = myclass.getMethod("getEtomicaInfo",null);
+            method = myclass.getMethod("getEtomicaInfo",(Class[])null);
         }
         catch ( NoSuchMethodException se ) {
         	// class does not have a getEtomicaInfo method
@@ -61,7 +61,7 @@ public class EtomicaInfo implements java.io.Serializable {
         }
 
         try {
-            info = (etomica.EtomicaInfo)method.invoke(myclass, null);
+            info = (etomica.EtomicaInfo)method.invoke(myclass, (Object[])null);
         }
         catch (IllegalAccessException e) {
             System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + e.getLocalizedMessage() );

@@ -20,9 +20,9 @@ public final class Lister {
 	 * dimensions with "dimension" in the title.
 	 */
 
-	public static LinkedList listdimensions() {
-		LinkedList dimensionlist = classlist();
-		for (Iterator e = dimensionlist.iterator(); e.hasNext();) {
+	public static LinkedList<String> listdimensions() {
+		LinkedList<String> dimensionlist = classlist();
+		for (Iterator<String> e = dimensionlist.iterator(); e.hasNext();) {
 			try {
 				Class c = Class.forName(e.next().toString());
 				if (c.getSuperclass() != Dimension.class
@@ -44,9 +44,9 @@ public final class Lister {
 		return dimensionlist;
 	}
 
-	public static LinkedList listUnitSystems() {
-		LinkedList unitsystemlist = classlist();
-		for (Iterator e = unitsystemlist.iterator(); e.hasNext();) {
+	public static LinkedList<String> listUnitSystems() {
+		LinkedList<String> unitsystemlist = classlist();
+		for (Iterator<String> e = unitsystemlist.iterator(); e.hasNext();) {
 			try {
 				Class c = Class.forName(e.next().toString());
 				if (c.getSuperclass() != UnitSystem.class) {
@@ -72,9 +72,9 @@ public final class Lister {
 	 * the pixel class and any containing the word unit.
 	 */
 
-	public static LinkedList listUnits() {
-		LinkedList unitslist = classlist();
-		for (Iterator e = unitslist.iterator(); e.hasNext();) {
+	public static LinkedList<String> listUnits() {
+		LinkedList<String> unitslist = classlist();
+		for (Iterator<String> e = unitslist.iterator(); e.hasNext();) {
 			try {
 				Class c = Class.forName(e.next().toString());
 				if ((c.getSuperclass() != SimpleUnit.class && c.getSuperclass() != CompoundUnit.class)
@@ -97,16 +97,16 @@ public final class Lister {
 		return unitslist;
 	}
 
-	public static LinkedList listUnitsInSystem(String unitSystem){
-		LinkedList unitList = listUnits();
-		LinkedList unitsInSystem = new LinkedList();
+	public static LinkedList<String> listUnitsInSystem(String unitSystem){
+		LinkedList<String> unitList = listUnits();
+		LinkedList<String> unitsInSystem = new LinkedList<String>();
 		
 		try {
 			UnitSystem us = UnitFilter.stringToUnitSystem(unitSystem);
 			Class c = us.getClass();
 			Method[] methodSet = c.getDeclaredMethods();
 			for (int i=0; i<methodSet.length;i++){
-				String s = methodSet[i].invoke(us,null).getClass().getName();
+				String s = methodSet[i].invoke(us,(Object[])null).getClass().getName();
 				//System.out.println(s);
 				if (unitList.contains(s)){
 					unitsInSystem.add(s);
@@ -121,10 +121,10 @@ public final class Lister {
 		return unitsInSystem;
 	}
 	public static String[] uisString(String us) {
-		LinkedList dl = listUnitsInSystem(us);
+		LinkedList<String> dl = listUnitsInSystem(us);
 		String[] ds = new String[dl.size()];
 		int x = 0;
-		for (Iterator e = dl.iterator(); e.hasNext();) {
+		for (Iterator<String> e = dl.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
 				enext = enext.substring(14, enext.length());
@@ -140,10 +140,10 @@ public final class Lister {
 	}
 	
 	public static String[] dimensionString() {
-		LinkedList dl = listdimensions();
+		LinkedList<String> dl = listdimensions();
 		String[] ds = new String[dl.size()];
 		int x = 0;
-		for (Iterator e = dl.iterator(); e.hasNext();) {
+		for (Iterator<String> e = dl.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
 				enext = enext.substring(14, enext.length());
@@ -158,10 +158,10 @@ public final class Lister {
 	}
 
 	public static String[] unitSystemString() {
-		LinkedList ul = listUnitSystems();
+		LinkedList<String> ul = listUnitSystems();
 		String[] us = new String[ul.size()];
 		int x = 0;
-		for (Iterator e = ul.iterator(); e.hasNext();) {
+		for (Iterator<String> e = ul.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
 				enext = enext.substring(22, enext.length());
@@ -176,10 +176,10 @@ public final class Lister {
 	}
 
 	public static String[] unitString() {
-		LinkedList ul = listUnits();
+		LinkedList<String> ul = listUnits();
 		String[] us = new String[ul.size()];
 		int x = 0;
-		for (Iterator e = ul.iterator(); e.hasNext();) {
+		for (Iterator<String> e = ul.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
 				enext = enext.substring(14, enext.length());
@@ -222,10 +222,10 @@ public final class Lister {
 	/*
 	 * This replaces unitclasses.
 	 */
-	public static LinkedList classlist() {
+	public static LinkedList<String> classlist() {
 
-		LinkedList clist = new LinkedList();
-		ArrayList paths = new ArrayList();
+		LinkedList<String> clist = new LinkedList<String>();
+		ArrayList<String> paths = new ArrayList<String>();
 
 		String cpath = System.getProperty("java.class.path");
 		// System.out.println( "From Etomica plugin: java.class.path = " + cpath
@@ -235,11 +235,10 @@ public final class Lister {
 			paths.add(tz.nextToken());
 		}
 		for (int i = 0; i < paths.size(); i++) {
-			File file = new File((String) paths.get(i));
+			File file = new File(paths.get(i));
 			if (file.isDirectory()) {
 				if (!processDirectory(file, file.getAbsolutePath()).isEmpty())
-					clist
-							.addAll(processDirectory(file, file
+					clist.addAll(processDirectory(file, file
 									.getAbsolutePath()));
 			} else {
 				if (!processJar(file, file.getAbsolutePath()).isEmpty())
@@ -255,9 +254,9 @@ public final class Lister {
 	 * Recursively store all class names found in this directory and its
 	 * subdirectories
 	 */
-	private static LinkedList processDirectory(File directory, String basepath) {
+	private static LinkedList<String> processDirectory(File directory, String basepath) {
 		// System.out.println("Processing " + directory.getPath());
-		LinkedList addlist = new LinkedList();
+		LinkedList<String> addlist = new LinkedList<String>();
 		File[] files = directory.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			File currentFile = files[i];
@@ -282,9 +281,9 @@ public final class Lister {
 	/**
 	 * Store all class names found in this jar file
 	 */
-	private static LinkedList processJar(File jarfile, String basepath) {
+	private static LinkedList<String> processJar(File jarfile, String basepath) {
 		// System.out.println("Processing JAR " + jarfile.getPath());
-		LinkedList addlist = new LinkedList();
+		LinkedList<String> addlist = new LinkedList<String>();
 		try {
 			JarInputStream jarIS = new JarInputStream(new FileInputStream(
 					jarfile));
@@ -303,9 +302,9 @@ public final class Lister {
 		return addlist;
 	}
 
-	private static LinkedList add(String origname, String path, String basepath) {
+	private static LinkedList<String> add(String origname, String path, String basepath) {
 
-		LinkedList addlist = new LinkedList();
+		LinkedList<String> addlist = new LinkedList<String>();
 		String name = origname;
 		if (path.startsWith(basepath)) {
 			try {
