@@ -55,7 +55,6 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
-        histogramNRG = new
     }
         
     
