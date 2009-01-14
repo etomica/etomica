@@ -96,7 +96,7 @@ public abstract class CoordinateDefinition {
             config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();
-            position.E((IVectorMutable)lattice.site(ii));
+            position.E((IVector)lattice.site(ii));
             position.PE(offset);
             
             atomActionTranslateTo.setDestination(position);
@@ -173,7 +173,7 @@ public abstract class CoordinateDefinition {
      *            outputs the imaginary component of the T vector
      */
     //in principle this should be returning Complex[] and not returning the values through the args
-    public void calcT(IVectorMutable k, double[] realT, double[] imaginaryT) {
+    public void calcT(IVector k, double[] realT, double[] imaginaryT) {
         for (int i = 0; i < coordinateDim; i++) {
             realT[i] = 0;
             imaginaryT[i] = 0;
@@ -184,7 +184,7 @@ public abstract class CoordinateDefinition {
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
             double[] u = calcU(molecules);
-            IVectorMutable latticePosition = cell.cellPosition;
+            IVector latticePosition = cell.cellPosition;
             double kR = k.dot(latticePosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
