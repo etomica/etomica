@@ -149,7 +149,15 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         boolean latticeNeedsUpdate = false;
         for (int i=0; i<numCells.length; i++) {
             numCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
-            if (numCells[i] < cellRange*2+1) {
+            if (numCells[i] > 100) {
+                // too many cells will cause us to run out of memory.
+                // >100 cells is generally not useful
+                // we usually end up here because we will later increase the
+                // potential range
+                if (Debug.ON) System.err.println("capping "+i+" cells at 100");
+                numCells[i] = 100;
+            }
+            else if (numCells[i] < cellRange*2+1) {
                 // the box is too small for the lattice, but things might still be OK.
                 // it's possible the box is big enough for the potential range, but
                 // the extra padding that's needed for happy cells is missing.
