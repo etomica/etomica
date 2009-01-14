@@ -5,7 +5,6 @@ import etomica.atom.AtomArrayList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
-import etomica.util.Debug;
 
 /**
  * Site used to form array of cells for cell-based neighbor listing.  Each
@@ -18,16 +17,10 @@ public class Cell implements java.io.Serializable {
     }
     
     public AtomArrayList occupants() {
-        if (occupants.getAtomCount() > 1 && occupants.getAtom(0) == occupants.getAtom(1)) {
-            throw new RuntimeException("oops");
-        }
         return occupants;
     }
     
     public void addAtom(IAtomLeaf atom) {
-        if (Debug.ON && (occupants.getAtomCount() > 0 && occupants.getAtom(0) == atom)) {
-            throw new RuntimeException("oops "+atom);
-        }
         occupants.add(atom);
     }
     
