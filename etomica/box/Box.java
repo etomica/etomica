@@ -248,10 +248,6 @@ public class Box implements java.io.Serializable, IBox {
             eventManager.fireEvent(leafEvent);
         }
     }
-    
-    public int getLeafIndex(IAtomLeaf atomLeaf) {
-        return atomLeaf.getLeafIndex();
-    }
 
     /**
      * List of leaf atoms in box

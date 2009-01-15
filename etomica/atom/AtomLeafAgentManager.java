@@ -90,7 +90,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
             // no room in the array.  reallocate the array with an extra cushion.
             agents = Arrays.resizeArray(agents,idx+1+reservoirSize);
         }
-        agents[box.getLeafIndex(a)] = newAgent;
+        agents[a.getLeafIndex()] = newAgent;
     }
     
     /**
