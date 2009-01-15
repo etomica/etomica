@@ -71,7 +71,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
      * from the Box associated with this instance.
      */
     public Object getAgent(IAtomLeaf a) {
-        int idx = box.getLeafIndex(a);
+        int idx = a.getLeafIndex();
         if (idx < agents.length) {
             return agents[idx];
         }
@@ -85,7 +85,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
      * needed.
      */
     public void setAgent(IAtomLeaf a, Object newAgent) {
-        int idx = box.getLeafIndex(a);
+        int idx = a.getLeafIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
             agents = Arrays.resizeArray(agents,idx+1+reservoirSize);
@@ -158,7 +158,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     IAtomList childList = ((IMolecule)a).getChildList();
                     for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
                         IAtomLeaf childAtom = childList.getAtom(iChild);
-                        int index = box.getLeafIndex(childAtom);
+                        int index = childAtom.getLeafIndex();
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
                             agentSource.releaseAgent(agents[index], childAtom);
@@ -167,7 +167,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
                     }
                 }
                 else {
-                    int index = box.getLeafIndex((IAtomLeaf)a);
+                    int index = ((IAtomLeaf)a).getLeafIndex();
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
                         agentSource.releaseAgent(agents[index], (IAtomLeaf)a);
@@ -178,7 +178,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
             else if (evt instanceof IBoxAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
                 int oldIndex = ((IBoxAtomLeafIndexChangedEvent)evt).getOldIndex();
-                agents[box.getLeafIndex((IAtomLeaf)a)] = agents[oldIndex];
+                agents[((IAtomLeaf)a).getLeafIndex()] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }
@@ -200,7 +200,7 @@ public class AtomLeafAgentManager implements IListener, Serializable {
      * Adds an agent for the given leaf atom to the agents array.
      */
     protected void addAgent(IAtomLeaf a) {
-        addAgent(a, box.getLeafIndex(a));
+        addAgent(a, a.getLeafIndex());
     }
     
     /**

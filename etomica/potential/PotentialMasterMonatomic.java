@@ -95,7 +95,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             else {
                 leafAtom = (IAtomLeaf)targetAtom;
             }
-            final int targetIndex = box.getLeafIndex(leafAtom);
+            final int targetIndex = leafAtom.getLeafIndex();
             final PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(leafAtom.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
