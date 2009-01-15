@@ -384,14 +384,26 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     }
     
     public IAtomList[] getUpList(IAtomLeaf atom) {
+        if (!initialized) {
+            System.err.println("I shouldn't be able to get here");
+            reset();
+        }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
     public IAtomList[] getDownList(IAtomLeaf atom) {
+        if (!initialized) {
+            System.err.println("I shouldn't be able to get here");
+            reset();
+        }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 
     public AtomPotentialList getPotential1BodyList(IAtomLeaf atom) {
+        if (!initialized) {
+            System.err.println("I shouldn't be able to get here");
+            reset();
+        }
         return (AtomPotentialList)agentManager1Body.getAgent(atom);
     }
     
