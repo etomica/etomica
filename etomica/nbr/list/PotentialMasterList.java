@@ -227,25 +227,21 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     /**
      * Recomputes the maximum potential range (which might change without this
-     * class receiving notification) and readjust cell lists if the maximum
-     * has changed.
+     * class receiving notification) and readjust cell lists
      */
     public void reset() {
         rangedPotentialIterator.reset();
-        double newMaxPotentialRange = 0;
+        maxPotentialRange = 0;
         while (rangedPotentialIterator.hasNext()) {
             PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
             for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].getRange() > newMaxPotentialRange) {
-                    newMaxPotentialRange = potentials[i].getRange();
+                if (potentials[i].getRange() > maxPotentialRange) {
+                    maxPotentialRange = potentials[i].getRange();
                 }
             }
         }
-        if (newMaxPotentialRange != maxPotentialRange) {
-            maxPotentialRange = newMaxPotentialRange;
-            recomputeCriteriaRanges();
-        }
+        recomputeCriteriaRanges();
     }
     
     /**
