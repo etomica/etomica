@@ -67,7 +67,6 @@ public class TestHSMD3D extends Simulation {
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
-        integrator.addNonintervalListener(nbrManager);
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(box);

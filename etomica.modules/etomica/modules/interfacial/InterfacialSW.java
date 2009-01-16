@@ -135,7 +135,6 @@ public class InterfacialSW extends Simulation {
         integrator.setBox(box);
 
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
     }
     
     public static void main(String[] args) {

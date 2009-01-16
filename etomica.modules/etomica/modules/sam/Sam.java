@@ -271,7 +271,6 @@ public class Sam extends Simulation {
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
 
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 
         updateRCut();

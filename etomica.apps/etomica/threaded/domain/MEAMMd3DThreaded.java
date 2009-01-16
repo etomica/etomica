@@ -173,11 +173,10 @@ public class MEAMMd3DThreaded extends Simulation {
        
         potentialMaster.addPotential(potentialThreaded, new IAtomTypeLeaf[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
         
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
+        potentialMaster.setNumThreads(numThreads, box);
         
-        ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
-        ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, space, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        potentialMaster.setRange(potentialThreaded.getRange()*1.1);
+        potentialMaster.setCriterion(potentialThreaded, new CriterionSimple(this, space, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
         integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         
         
@@ -246,7 +245,7 @@ public class MEAMMd3DThreaded extends Simulation {
     	sim.integrator.addIntervalAction(kineticPump);
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
-        ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
 

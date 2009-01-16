@@ -310,7 +310,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box2);
 		
 		if(potentialMaster instanceof PotentialMasterListDimer){
-		   this.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box1));
 		   this.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box1)); 
 		}
 		

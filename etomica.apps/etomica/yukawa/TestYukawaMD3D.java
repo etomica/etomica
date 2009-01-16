@@ -67,7 +67,6 @@ public class TestYukawaMD3D extends Simulation{
         addBox(box);
         box.setNMolecules(species, numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
 		potential = new P2Yukawa(space);
 		

@@ -631,9 +631,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.p2Tail.setCollisionDiameter(0.5+0.5*newValue);
                 sim.p2HeadTail.setCollisionDiameter(0.5+0.5*newValue);
                 sim.p2Bond.setBondLength(0.5+0.5*newValue-0.2);
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).recomputeCriteriaRanges();
-                // reset won't trigger recomputcriteriaranges because max range didn't change...
-                // perhaps it should
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
                 try {
                     sim.integrator.reset();

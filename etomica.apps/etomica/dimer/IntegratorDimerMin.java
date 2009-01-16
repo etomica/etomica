@@ -216,8 +216,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         sim.addBox(boxMin);
         
         if(potentialMaster instanceof PotentialMasterListDimer){
-            this.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin));
-            this.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
+            addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
          }
         
         energyBox0 = new MeterPotentialEnergy(potentialMaster);

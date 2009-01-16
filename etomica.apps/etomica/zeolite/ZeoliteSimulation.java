@@ -118,7 +118,6 @@ public class ZeoliteSimulation extends Simulation {
         box = new Box(space);
         addBox(box);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){

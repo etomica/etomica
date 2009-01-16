@@ -73,7 +73,6 @@ public class HSMD2D extends Simulation {
         box.setNMolecules(species2, 5);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
-        integrator.addNonintervalListener(nbrManager);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
     }

@@ -94,7 +94,6 @@ public class TestSWChain extends Simulation {
         box.setNMolecules(species, numMolecules);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
-        integrator.addNonintervalListener(nbrManager);
 
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));

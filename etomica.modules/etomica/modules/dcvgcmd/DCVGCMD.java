@@ -202,7 +202,6 @@ public class DCVGCMD extends Simulation {
         //integrator.setInterval(10);
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integratorMD.addIntervalAction(nbrManager);
-        integratorMD.addNonintervalListener(nbrManager);
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;

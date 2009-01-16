@@ -94,7 +94,6 @@ public class DropletAtomic extends Simulation {
         makeDropShape();
         
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
     }
     
     public void makeDropShape() {
@@ -134,15 +133,7 @@ public class DropletAtomic extends Simulation {
     
     
     public static void main(String[] args) {
-        Space space = Space2D.getInstance();
-        if(args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
+        Space space = Space3D.getInstance();
             
         DropletAtomic sim = new DropletAtomic(space);
         sim.getController().actionPerformed();

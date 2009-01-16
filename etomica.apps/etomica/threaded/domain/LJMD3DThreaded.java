@@ -15,7 +15,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
@@ -44,7 +43,7 @@ public class LJMD3DThreaded extends Simulation {
     public ActivityIntegrate activityIntegrate;
 
 
-    public LJMD3DThreaded(ISpace _space) {
+    public LJMD3DThreaded() {
         this(500, 1);
     }
 
@@ -92,9 +91,9 @@ public class LJMD3DThreaded extends Simulation {
         
         potentialThreaded = new PotentialThreaded(space, potential);
         
-        ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
-        ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
-        ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(box).setQuiet(true);
+        potentialMaster.setCellRange(1);
+        potentialMaster.setRange(neighborFac * truncationRadius);
+        potentialMaster.getNeighborManager(box).setQuiet(true);
         potentialMaster.addPotential(potentialThreaded, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
        
         //--------------------------------------\\
@@ -104,9 +103,8 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
-        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
+        potentialMaster.setNumThreads(numThreads, box);
     }
 
        

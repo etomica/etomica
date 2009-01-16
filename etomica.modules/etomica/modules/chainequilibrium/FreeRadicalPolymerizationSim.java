@@ -62,7 +62,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
         addBox(box);
         integratorHard.setBox(box);
-        integratorHard.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         integratorHard.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         
         speciesA = new SpeciesSpheresMono(this, space);

@@ -8,13 +8,11 @@ import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IPotential;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.ApiAACell;
@@ -35,8 +33,7 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IIntegratorNonintervalListener,
-        IAction, AgentSource, Serializable {
+public class NeighborListManager implements IAction, AgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -69,23 +66,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
         return doApplyPBC;
     }
 
-    /**
-     * Reacts to an integrator INITIALIZE event, preparing the
-     * neighbor-list facility. Performs the following actions:
-     * <ul>
-     * <li>applies periodic boundary conditions, to move all atoms to the
-     * central image
-     * <li>identifies to each AtomType instance the potentials that apply to
-     * atoms of that type
-     * <li>assigns each interacting atom to a cell
-     * </ul>
-     */
-    public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.RESET) {
-            reset();
-        }
-    }
-    
     public void updateLists() {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
@@ -385,7 +365,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
     
     public IAtomList[] getUpList(IAtomLeaf atom) {
         if (!initialized) {
-            System.err.println("I shouldn't be able to get here");
             reset();
         }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
@@ -393,7 +372,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
 
     public IAtomList[] getDownList(IAtomLeaf atom) {
         if (!initialized) {
-            System.err.println("I shouldn't be able to get here");
             reset();
         }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
@@ -401,7 +379,6 @@ public class NeighborListManager implements IIntegratorNonintervalListener,
 
     public AtomPotentialList getPotential1BodyList(IAtomLeaf atom) {
         if (!initialized) {
-            System.err.println("I shouldn't be able to get here");
             reset();
         }
         return (AtomPotentialList)agentManager1Body.getAgent(atom);

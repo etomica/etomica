@@ -61,7 +61,6 @@ public class ChainHSMD3D extends Simulation {
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
 
         potential = new P2HardSphere(space, 1.0, true);
         IAtomTypeLeaf leafType = species.getLeafType();

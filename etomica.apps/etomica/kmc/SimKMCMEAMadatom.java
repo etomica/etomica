@@ -318,7 +318,6 @@ public void enableDimerSearch(String fileName, long maxSteps){
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
-        integratorDimer.addNonintervalListener(potentialMasterD.getNeighborManager(box));
         integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);

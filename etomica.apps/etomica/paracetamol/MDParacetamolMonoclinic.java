@@ -129,7 +129,6 @@ public class MDParacetamolMonoclinic extends Simulation {
         box.setNMolecules(species, 96);
         
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
                
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);

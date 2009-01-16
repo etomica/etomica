@@ -123,7 +123,6 @@ public class HSMD3D extends Simulation {
             NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(box);
             ((PotentialMasterList)potentialMaster).setRange(sigma*neighborRangeFac);
             integrator.addIntervalAction(nbrManager);
-            integrator.addNonintervalListener(nbrManager);
         }
         else {
             integrator.addIntervalAction(new BoxImposePbc(box, space));
