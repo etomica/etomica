@@ -76,7 +76,8 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
         doThermostat();
     }
 
-    public void resetTime() {
+    public void resetStepCount() {
+        super.resetStepCount();
         currentTime = 0;
     }
 
@@ -84,13 +85,10 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      * reset the integrator's kinetic energy tracker
      */
     public void reset() throws ConfigurationOverlapException {
-        if (!initialized) {
-            return;
-        }
-        currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
+        currentKineticEnergy = meterKE.getDataAsScalar();
     }
-    
+
     public void doStepInternal() {
         currentTime += timeStep;
     }

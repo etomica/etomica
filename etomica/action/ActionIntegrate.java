@@ -34,7 +34,7 @@ public class ActionIntegrate implements IAction {
      */
     public void actionPerformed() {
         try {
-            integrator.initialize();
+            integrator.reset();
         }
         catch (ConfigurationOverlapException e) {
             if (!ignoreOverlap) {

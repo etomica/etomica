@@ -12,6 +12,7 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Space;
 import etomica.units.Joule;
@@ -261,8 +262,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         }
     }
 
-    public void reset() {
-        if(!initialized) return;
+    public void reset() throws ConfigurationOverlapException {
+        super.reset();
         /*
          * Rattle Part I
          */

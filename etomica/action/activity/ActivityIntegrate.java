@@ -36,7 +36,7 @@ public class ActivityIntegrate extends Activity {
      */
     protected void run() {
         try {
-            integrator.initialize();
+            integrator.reset();
         }
         catch (ConfigurationOverlapException e) {
             if (!ignoreOverlap) {

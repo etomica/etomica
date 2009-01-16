@@ -202,11 +202,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 
 
     public void reset() throws ConfigurationOverlapException {
+        super.reset();
         vol1 = 0.0;
         vol2 = 0.0;
         vol3 = 0.0;
         vol4 = 0.0;
-        super.reset();
     }
               
     //inner class used to toggle between NPT and NPH ensembles

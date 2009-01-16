@@ -91,9 +91,8 @@ public final class IntegratorHardField extends IntegratorHard {
     }
     
     public void reset() throws ConfigurationOverlapException {
-        if(!initialized) return;
-        calculateForces();
         super.reset();
+        calculateForces();
     }
 
     private void calculateForces() {

@@ -25,10 +25,9 @@ public interface IIntegrator {
     public void reset() throws ConfigurationOverlapException;
 
     /**
-     * Initializes the integrator.  This method should be called before calling
-     * doStep.  This method resets the step counter.
+     * This method resets the step counter.
      */
-    public void initialize() throws ConfigurationOverlapException;
+    public void resetStepCount();
 
     /**
      * Returns true if initialize method has been called.

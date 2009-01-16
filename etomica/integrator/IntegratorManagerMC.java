@@ -38,7 +38,7 @@ public class IntegratorManagerMC extends Integrator {
         ConfigurationOverlapException overlapException = null;
         for(int i=0; i<nIntegrators; i++) {
             try {
-                integrators[i].initialize();
+                integrators[i].reset();
             }
             catch (ConfigurationOverlapException e) {
                 if (overlapException == null) {
@@ -57,6 +57,8 @@ public class IntegratorManagerMC extends Integrator {
      * moves.  Resets this integrator and passes on the reset to all managed integrators.
      */
     public void reset() throws ConfigurationOverlapException {
+        super.reset();
+
         moveManager.recomputeMoveFrequencies();
         ConfigurationOverlapException overlapException = null;
         for(int i=0; i<integrators.length; i++) {
@@ -72,8 +74,6 @@ public class IntegratorManagerMC extends Integrator {
         if (overlapException != null) {
             throw overlapException;
         }
-        
-        super.reset();
     }
 
     public void addIntegrator(IIntegrator integrator){

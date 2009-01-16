@@ -135,9 +135,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     }
     
     public void reset() throws ConfigurationOverlapException{
-        if(!initialized) return;
-        
         super.reset();
+
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {

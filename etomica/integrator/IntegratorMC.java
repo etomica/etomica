@@ -126,8 +126,8 @@ public class IntegratorMC extends IntegratorBox {
      * moves.
      */
     public void reset() throws ConfigurationOverlapException {
-        moveManager.recomputeMoveFrequencies();
         super.reset();
+        moveManager.recomputeMoveFrequencies();
     }
 
     /**

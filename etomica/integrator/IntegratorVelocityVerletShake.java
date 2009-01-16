@@ -270,8 +270,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     }
 
     public void reset() throws ConfigurationOverlapException{
-        if(!initialized) return;
-        
         super.reset();
 
         forceSum.reset();

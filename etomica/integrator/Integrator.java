@@ -81,27 +81,18 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized.
      */
-    //This should be called by subclasses /after/ they have performed their own
+    //This should be called by subclasses before they have performed their own
     //reset
     public void reset() throws ConfigurationOverlapException {
+        if (!initialized) {
+            setup();
+        }
     }
 
-    /**
-     * Initializes the integrator, performing the following steps: (1) deploys
-     * agents in all atoms; (2) call reset method; (3) fires an event
-     * indicating to registered listeners indicating that initialization has
-     * been performed (i.e. fires IntervalEvent of type field set to
-     * INITIALIZE).
-     */
-    public final void initialize() throws ConfigurationOverlapException {
+    public void resetStepCount() {
         stepCount = 0;
-        initialized = false;
-        setup();
-        iieCount = interval;
-        initialized = true;
-        reset();
     }
-    
+
     /**
      * Returns true if initialize method has been called.
      */
@@ -109,7 +100,13 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
         return initialized;
     }
 
-    protected void setup() throws ConfigurationOverlapException {}
+    /**
+     * @throws ConfigurationOverlapException  
+     */
+    protected void setup() throws ConfigurationOverlapException {
+        initialized = true;
+        iieCount = interval;
+    }
 
     /**
      * Arranges interval listeners registered with this iterator in order such that

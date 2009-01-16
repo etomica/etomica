@@ -5,7 +5,6 @@ import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.space.ISpace;
 
 /**
@@ -33,9 +32,7 @@ public class IntegratorAnalytic extends IntegratorMD {
     
     public void doStepInternal() {
         super.doStepInternal();
-        if(action == null) return;
-        elapsedTime += getTimeStep();
-        action.setTime(elapsedTime);
+        action.setTime(currentTime);
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -43,16 +40,9 @@ public class IntegratorAnalytic extends IntegratorMD {
         }
     }
     
-    public void reset() throws ConfigurationOverlapException {
-        elapsedTime = 0.0;
-        super.reset();
-    }
-    
     public void setAction(AtomTimeAction action) {this.action = action;}
     
     public AtomTimeAction getAction() {return action;}
-    
-    private double elapsedTime = 0.0;
     
     /**
      * Extends AtomAction class to add a method to set the time.

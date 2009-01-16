@@ -52,9 +52,6 @@ public abstract class IntegratorBox extends Integrator {
      * potential energy.
      */
     public void reset() throws ConfigurationOverlapException {
-        if (!initialized) {
-            return;
-        }
         super.reset();
         if (meterPE != null) {
             currentPotentialEnergy = meterPE.getDataAsScalar();

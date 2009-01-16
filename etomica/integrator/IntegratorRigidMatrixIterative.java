@@ -561,9 +561,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     }
     
     public void reset() throws ConfigurationOverlapException{
-        if(!initialized) return;
-        
         super.reset();
+
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {

@@ -179,6 +179,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }
 
     public void reset() throws ConfigurationOverlapException {
+        super.reset();
         calculateForces();
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
@@ -194,7 +195,6 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
             agent.dv3.E(0.0);
             agent.dv4.E(0.0);
         }
-        super.reset();
     }
 
     public Class getAgentClass() {
