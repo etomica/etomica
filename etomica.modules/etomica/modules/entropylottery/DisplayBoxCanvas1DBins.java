@@ -1,7 +1,10 @@
 package etomica.modules.entropylottery;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
@@ -15,6 +18,7 @@ import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.Drawable;
+import etomica.units.Pixel;
 
 /**
  * Class used to define canvas onto which configuration is drawn
@@ -29,6 +33,25 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
         super(controller);
         displayBox = _box;
         atomCount = new int[0];
+
+        pixel = new Pixel(10);
+
+        addComponentListener(new ComponentListener() {
+            public void componentHidden(ComponentEvent e) {}
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e) {}
+            public void componentResized(ComponentEvent e) { refreshSize(); }});
+    }
+    
+    protected void refreshSize() {
+        Dimension dim = getSize();
+        IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
+        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
+        if (pixel != null && pixel.toPixels() == px) {
+            return;
+        }
+        setPixelUnit(new Pixel(px));
+        displayBox.computeImageParameters();
     }
     
     public void setYScale(double newYScale) {

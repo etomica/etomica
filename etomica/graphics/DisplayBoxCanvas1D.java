@@ -1,8 +1,11 @@
 package etomica.graphics;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.TextField;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
@@ -11,12 +14,14 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
+import etomica.units.Pixel;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -42,6 +47,14 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
         atomOrigin = new int[2];
+
+        pixel = new Pixel(10);
+
+        addComponentListener(new ComponentListener() {
+            public void componentHidden(ComponentEvent e) {}
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e) {}
+            public void componentResized(ComponentEvent e) { refreshSize(); }});
     }
         
     /**
@@ -58,8 +71,18 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             setSize(width, height);
         }
     }
-            
-          
+
+    protected void refreshSize() {
+        Dimension dim = getSize();
+        IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
+        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
+        if (pixel != null && pixel.toPixels() == px) {
+            return;
+        }
+        setPixelUnit(new Pixel(px));
+        displayBox.computeImageParameters();
+    }
+    
     //Override superclass methods for changing size so that scale is reset with any size change  
     // this setBounds is ultimately called by all other setSize, setBounds methods
     public void setBounds(int x, int y, int width, int height) {

@@ -496,7 +496,7 @@ public class DisplayBox extends Display {
         }
     }
     
-    protected void computeImageParameters() {
+    public void computeImageParameters() {
         int w = canvas.getSize().width - 2 * originShift[0];
         int h = canvas.getSize().height - 2 * originShift[1];
         computeImageParameters2(w, h);
