@@ -73,7 +73,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             IAction currentAction = currentActions[0];
             if (currentAction instanceof ActivityIntegrate) {
                 IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
-                if(integrator.isInitialized()) {
+                if(integrator.getStepCount() > 0) {
                     integrator.resetStepCount();
                     try {
                         integrator.reset();

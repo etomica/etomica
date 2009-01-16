@@ -78,7 +78,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
                 sim.dropRadius = newValue;
                 sim.makeDropShape();
 
-                if (sim.integrator.isInitialized()) {
+                if (sim.integrator.getStepCount() > 0) {
                     sim.potentialMaster.getNeighborManager(sim.box).reset();
                     sim.integrator.reset();
                 }
