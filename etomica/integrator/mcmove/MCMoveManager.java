@@ -58,7 +58,7 @@ public class MCMoveManager implements Serializable {
         }
         MCMoveTracker tracker = move.getTracker();
         if (tracker instanceof MCMoveStepTracker) {
-            ((MCMoveStepTracker)tracker).setTunable(!isEquilibrating);
+            ((MCMoveStepTracker)tracker).setTunable(isEquilibrating);
         }
         if (box != null) {
             ((MCMoveBox)move).setBox(box);
