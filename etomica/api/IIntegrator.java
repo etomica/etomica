@@ -66,20 +66,6 @@ public interface IIntegrator {
     public void removeIntervalAction(IAction intervalAction);
 
     /**
-     * Adds the given listener to those that receive non-interval events fired
-     * by this integrator.  Do not add a listener that has been added or add a
-     * null listener.
-     */
-    public void addNonintervalListener(IIntegratorNonintervalListener iil);
-
-    /**
-     * Removes given listener from those notified of non-interval events fired
-     * by this integrator.  Do not attempt to remove a listener which is not
-     * listening to events from this integrator.
-     */
-    public void removeNonintervalListener(IIntegratorNonintervalListener iil);
-
-    /**
      * Returns the number of interval actions held by the integrator.
      */
     public int getIntervalActionCount();
@@ -88,15 +74,4 @@ public interface IIntegrator {
      * Returns the requested interval action.
      */
     public IAction getIntervalAction(int index);
-
-    /**
-     * Returns the number of non-interval actions held by the integrator.
-     */
-    public int getNonintervalListenerCount();
-
-    /**
-     * Returns the requested non-interval listener.
-     */
-    public IIntegratorNonintervalListener getNonintervalListener(int index);
-
 }
