@@ -263,9 +263,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         return pressureTensor;
     }
     
-    public void reset() throws ConfigurationOverlapException{
-        if(!initialized) return;
-        
+    public void reset() {
         super.reset();
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);

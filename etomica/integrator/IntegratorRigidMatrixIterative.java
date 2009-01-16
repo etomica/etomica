@@ -560,7 +560,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         }
     }
     
-    public void reset() throws ConfigurationOverlapException{
+    public void reset() {
         super.reset();
 
         if (Debug.ON && Debug.DEBUG_NOW) {

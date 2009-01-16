@@ -80,12 +80,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
                 if (sim.integrator.isInitialized()) {
                     sim.potentialMaster.getNeighborManager(sim.box).reset();
-                    try {
-                        sim.integrator.reset();
-                    }
-                    catch (ConfigurationOverlapException e) {
-                        throw new RuntimeException(e);
-                    }
+                    sim.integrator.reset();
                 }
 
                 getDisplayBox(sim.box).repaint();
@@ -112,12 +107,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
+                sim.integrator.reset();
 
                 getController().getSimRestart().actionPerformed();
                 getDisplayBox(sim.box).repaint();

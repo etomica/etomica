@@ -117,7 +117,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	    file = fileName;
 	}
 		
-	public void reset() throws ConfigurationOverlapException{
+	public void reset() {
 	    
         super.reset();
         rotate = true;
@@ -169,7 +169,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	}
 	
 	
-	protected void setup() throws ConfigurationOverlapException{
+	protected void setup() {
 		super.setup();     
         movableAtoms = 0;
         for(int i=0; i<movableSpecies.length; i++){

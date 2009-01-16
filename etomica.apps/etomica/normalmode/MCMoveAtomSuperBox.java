@@ -104,7 +104,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
         
         uOld -= potential.energy(pair);
         if(uOld > 1e10) {
-            throw new RuntimeException(new ConfigurationOverlapException(box));
+            throw new ConfigurationOverlapException(box);
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);

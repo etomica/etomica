@@ -201,7 +201,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 //--------------------------------------------------------------
 
 
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         vol1 = 0.0;
         vol2 = 0.0;

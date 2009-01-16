@@ -34,7 +34,7 @@ public class IntegratorManagerMC extends Integrator {
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
     }
 
-    protected void setup() throws ConfigurationOverlapException {
+    protected void setup() {
         ConfigurationOverlapException overlapException = null;
         for(int i=0; i<nIntegrators; i++) {
             try {
@@ -95,7 +95,7 @@ public class IntegratorManagerMC extends Integrator {
     }
     
     public IIntegrator[] getIntegrators() {
-        return (IIntegrator[])integrators.clone();
+        return integrators.clone();
     }
 
     /**

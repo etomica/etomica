@@ -74,7 +74,7 @@ public class IntegratorKMC extends IntegratorBox{
             randomizePositions();
             try {
                 System.out.println("Initializing dimer.");
-                integratorDimer.initialize();
+                integratorDimer.reset();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -106,7 +106,7 @@ public class IntegratorKMC extends IntegratorBox{
         //Minimum Search with random transition
         integratorMin1.setFileName("s_"+rateNum);
         try {
-            integratorMin1.initialize();
+            integratorMin1.reset();
         } catch (ConfigurationOverlapException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -132,7 +132,7 @@ public class IntegratorKMC extends IntegratorBox{
         }else{
             integratorMin2.setFileName("s_"+rateNum);
             try {
-                integratorMin2.initialize();
+                integratorMin2.reset();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -170,7 +170,7 @@ public class IntegratorKMC extends IntegratorBox{
         }
         
         try {
-            integratorDimer.initialize();
+            integratorDimer.reset();
         } catch (ConfigurationOverlapException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

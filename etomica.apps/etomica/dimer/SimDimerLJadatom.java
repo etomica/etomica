@@ -248,7 +248,7 @@ public class SimDimerLJadatom extends Simulation{
         }
     }
     
-    public static void main(String[] args) throws ConfigurationOverlapException{
+    public static void main(String[] args) {
        
         final SimDimerLJadatom sim = new SimDimerLJadatom();
         IVectorMutable vect = sim.getSpace().makeVector();

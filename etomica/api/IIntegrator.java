@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.exception.ConfigurationOverlapException;
 
 public interface IIntegrator {
 
@@ -22,7 +21,7 @@ public interface IIntegrator {
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized.
      */
-    public void reset() throws ConfigurationOverlapException;
+    public void reset();
 
     /**
      * This method resets the step counter.

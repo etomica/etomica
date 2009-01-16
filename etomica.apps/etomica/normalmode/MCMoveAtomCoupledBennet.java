@@ -92,7 +92,7 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
         pair.atom1 = atom1;
         
         if( 0 > gamma_Old ) {
-            throw new RuntimeException(new ConfigurationOverlapException(box));
+            throw new ConfigurationOverlapException(box);
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);

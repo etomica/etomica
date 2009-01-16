@@ -110,7 +110,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         return pressureTensor;
     }
     
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         updateMrLast();
     }

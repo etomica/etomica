@@ -398,7 +398,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 		}
 	}
 
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         ConfigurationOverlapException overlapException = null;
         try {
             super.reset();

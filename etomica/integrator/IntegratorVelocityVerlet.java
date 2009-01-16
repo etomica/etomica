@@ -134,7 +134,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return pressureTensor;
     }
     
-    public void reset() throws ConfigurationOverlapException{
+    public void reset() {
         super.reset();
 
         if (Debug.ON && Debug.DEBUG_NOW) {

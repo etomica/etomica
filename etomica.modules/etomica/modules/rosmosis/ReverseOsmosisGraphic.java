@@ -277,11 +277,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         IAction neighborRangeReset = new IAction() {
             public void actionPerformed() {
                 resetDataAction.actionPerformed();
-//                ((PotentialMasterList)sim.integrator.getPotential()).reset();
-//                double nbrRange = ((PotentialMasterList)sim.integrator.getPotential()).getMaxPotentialRange();
-//                nbrRange *= 1.2;
-//                ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
-//                ((PotentialMasterList)sim.integrator.getPotential()).reset();
                 try {
                     sim.integrator.reset();
                 }
@@ -358,8 +353,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         fluxHistory.setTimeDataSource(timeCounter);
         DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
         sim.integrator.addIntervalAction(fluxPump);
-        // has to happen before PBC are applied
-        sim.integrator.setIntervalActionPriority(fluxPump, 10);
         dataStreamPumps.add(fluxPump);
 
         MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim.forceSum, sim.box);

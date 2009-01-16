@@ -38,7 +38,7 @@ public class ActionIntegrate implements IAction {
         }
         catch (ConfigurationOverlapException e) {
             if (!ignoreOverlap) {
-                throw new RuntimeException(e);
+                throw e;
             }
         }
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {

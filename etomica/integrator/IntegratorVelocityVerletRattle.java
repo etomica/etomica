@@ -262,7 +262,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         }
     }
 
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         /*
          * Rattle Part I

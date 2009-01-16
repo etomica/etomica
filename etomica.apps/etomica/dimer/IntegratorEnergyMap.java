@@ -9,7 +9,6 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
@@ -62,7 +61,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
     }
     
     
-    protected void setup() throws ConfigurationOverlapException{
+    protected void setup() {
         super.setup();
     
         // Set variables for energy

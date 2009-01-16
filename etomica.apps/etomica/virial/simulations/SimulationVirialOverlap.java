@@ -178,12 +178,9 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
         }
-        try {
-            // reset the integrator so that it will re-adjust step frequency
-            // and ensure it will take enough data for both ref and target
-            integratorOS.reset();
-        }
-        catch (ConfigurationOverlapException e) { /* meaningless */ }
+        // reset the integrator so that it will re-adjust step frequency
+        // and ensure it will take enough data for both ref and target
+        integratorOS.reset();
     }
 
     public void setRefPref(double newRefPref) {
@@ -249,10 +246,7 @@ public class SimulationVirialOverlap extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,false),1);
             setRefPref(refPref,4);
             for (int i=0; i<2; i++) {
-                try {
-                    integrators[i].reset();
-                }
-                catch (ConfigurationOverlapException e) {}
+                integrators[i].reset();
             }
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value

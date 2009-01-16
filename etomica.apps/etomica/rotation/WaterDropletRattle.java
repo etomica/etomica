@@ -61,7 +61,7 @@ public class WaterDropletRattle {
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(280));
         try {
-            integrator.initialize();
+            integrator.reset();
         }
         catch (ConfigurationOverlapException e){}
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);

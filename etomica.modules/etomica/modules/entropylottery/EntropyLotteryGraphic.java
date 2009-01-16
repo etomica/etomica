@@ -68,7 +68,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         final DataSourceProbabilityDensity probabilityDensity = new DataSourceProbabilityDensity();
         probabilityDensity.setBox(sim.box);
         sim.integrator.addIntervalAction(probabilityDensity);
-        sim.integrator.setIntervalActionPriority(probabilityDensity, 0);
+//        sim.integrator.setIntervalActionPriority(probabilityDensity, 0);
         EntropyProcessor entropyProcessor = new EntropyProcessor();
         pump = new DataPump(probabilityDensity, entropyProcessor);
         sim.integrator.addIntervalAction(pump);

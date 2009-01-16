@@ -49,9 +49,9 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
         minDiffLoc = -1;
     }
     
-    public void reset() throws ConfigurationOverlapException {
-        setDSVO(dsvo);
+    public void reset() {
         super.reset();
+        setDSVO(dsvo);
     }
 
     /**

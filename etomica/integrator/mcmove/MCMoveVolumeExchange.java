@@ -110,23 +110,15 @@ public class MCMoveVolumeExchange extends MCMoveStep {
             ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
         }
         else {
-            try {
-                //XXX grossly inefficient
-                integrator1.reset();
-            } catch(ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+            //XXX grossly inefficient
+            integrator1.reset();
         }
         if (integrator2 instanceof IntegratorMC) {
             ((IntegratorMC)integrator2).notifyEnergyChange(uNew2-uOld2);
         }
         else {
-            try {
-                //XXX grossly inefficient
-                integrator2.reset();
-            } catch(ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+            //XXX grossly inefficient
+            integrator2.reset();
         }
     }
     

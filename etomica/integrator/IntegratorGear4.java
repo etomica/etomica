@@ -178,7 +178,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         }
     }
 
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         calculateForces();
         IAtomList leafList = box.getLeafList();

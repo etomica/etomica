@@ -419,10 +419,7 @@ public class Sam extends Simulation {
         updateRCut();
         findTetherBonds();
 
-        try {
-            integrator.initialize();
-        }
-        catch (ConfigurationOverlapException e) {}
+        integrator.reset();
     }
 
     public int getNumZCells() {
@@ -483,10 +480,7 @@ public class Sam extends Simulation {
 
         updateRCut();
         findTetherBonds();
-        try {
-            integrator.initialize();
-        }
-        catch (ConfigurationOverlapException e) {}
+        integrator.reset();
     }
 
     public int getNumXCells() {

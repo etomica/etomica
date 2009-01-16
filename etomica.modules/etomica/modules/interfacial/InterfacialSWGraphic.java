@@ -149,12 +149,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.removeBox(pretendBox);
                 
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
+                sim.integrator.reset();
 
                 if (numSurfactants > 0) {
                     sim.integrator.addIntervalAction(surfactantProfilePump);
@@ -264,12 +259,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     pos.setX(0, pos.x(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    //throw new RuntimeException(e);
-                }
+                sim.integrator.reset();
             }
         };
         sim.integrator.addIntervalAction(recenterAction);

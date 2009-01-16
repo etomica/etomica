@@ -477,10 +477,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         IAction resetAction = new IAction() {
         	public void actionPerformed() {
-        	    try {
-        	        sim.integrator.initialize();
-        	    }
-        	    catch (ConfigurationOverlapException e) {}
+        	    sim.integrator.reset();
 
         	    rdfMeter.reset();
 

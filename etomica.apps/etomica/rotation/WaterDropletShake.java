@@ -54,7 +54,7 @@ public class WaterDropletShake {
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(273));
         try {
-            integrator.initialize();
+            integrator.reset();
         }
         catch (ConfigurationOverlapException e){}
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);

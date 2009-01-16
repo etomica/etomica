@@ -283,12 +283,7 @@ public class LjmdGraphic extends SimulationGraphic {
                     config.initializeCoordinates(sim.box);
                 }
                 oldN = n;
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
+                sim.integrator.reset();
                 resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }

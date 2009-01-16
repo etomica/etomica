@@ -58,12 +58,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
         if (MDStepCount > interval || MDStepCount == 0) MDStepCount = interval;
     }
     
-    protected void setup() throws ConfigurationOverlapException {
-        potentialMasterHybrid.setUseNbrLists(false);
-        integratormc.initialize();
-        potentialMasterHybrid.setUseNbrLists(true);
-        integratormd.initialize();
+    protected void setup() {
         super.setup();
+        potentialMasterHybrid.setUseNbrLists(false);
+        integratormc.reset();
+        potentialMasterHybrid.setUseNbrLists(true);
+        integratormd.reset();
     }
     
     public void setTemperature(double t) {
@@ -102,11 +102,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			}
             potentialMasterHybrid.setUseNbrLists(true);
             potentialMasterHybrid.getNeighborManager(box).reset();
-            try {
-                integratormd.reset();
-            } catch(ConfigurationOverlapException e) {
-                throw new RuntimeException("overlap detected after inserting or deleting atoms",e);
-            }
+            integratormd.reset();
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
@@ -174,8 +170,8 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	/**
 	 * @see etomica.integrator.IntegratorBox#doReset()
 	 */
-	public void reset() throws ConfigurationOverlapException {
-        if(!initialized) return;
+	public void reset() {
+	    super.reset();
         potentialMasterHybrid.setUseNbrLists(false);
 		integratormc.reset();
         potentialMasterHybrid.setUseNbrLists(true);

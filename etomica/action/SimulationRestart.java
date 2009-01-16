@@ -80,7 +80,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
                     }
                     catch (ConfigurationOverlapException e) {
                         if (!ignoreOverlap) {
-                            throw new RuntimeException(e);
+                            throw e;
                         }
                     }
                 }

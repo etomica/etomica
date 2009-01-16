@@ -67,10 +67,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     }
 
     protected void setup() {
-        try {
-            super.setup();
-        }
-        catch (ConfigurationOverlapException e) {}
+        super.setup();
         currentTime = 0;
         thermostatCount = 1;
         doThermostat();
@@ -84,7 +81,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     /**
      * reset the integrator's kinetic energy tracker
      */
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         currentKineticEnergy = meterKE.getDataAsScalar();
     }

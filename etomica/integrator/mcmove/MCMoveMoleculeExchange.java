@@ -160,23 +160,15 @@ public class MCMoveMoleculeExchange extends MCMove {
             ((IntegratorMC)iIntegrator).notifyEnergyChange(uNew);
         }
         else {
-            try {
-                //XXX grossly inefficient
-                iIntegrator.reset();
-            } catch(ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+            //XXX grossly inefficient
+            iIntegrator.reset();
         }
         if (dIntegrator instanceof IntegratorMC) {
             ((IntegratorMC)dIntegrator).notifyEnergyChange(-uOld);
         }
         else {
-            try {
-                //XXX grossly inefficient
-                dIntegrator.reset();
-            } catch(ConfigurationOverlapException e) {
-                throw new RuntimeException(e);
-            }
+            //XXX grossly inefficient
+            dIntegrator.reset();
         }
     }
     

@@ -6,7 +6,7 @@ import etomica.api.IBox;
  * Exception thrown when an overlap is detected in the configuration of
  * a box, subject to the status of an ignoreOverlap flag.
  */
-public class ConfigurationOverlapException extends Exception {
+public class ConfigurationOverlapException extends RuntimeException {
 
     /**
      * Constructor for ConfigurationOverlapException
@@ -18,5 +18,6 @@ public class ConfigurationOverlapException extends Exception {
         this.box = box;
     }
 
+    private static final long serialVersionUID = 1L;
     public final IBox box;
 }

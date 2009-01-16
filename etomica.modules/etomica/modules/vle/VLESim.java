@@ -136,13 +136,8 @@ public class VLESim extends Simulation {
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
-        try {
-            integratorLiquid.reset();
-            integratorVapor.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            throw new RuntimeException(e);
-        }
+        integratorLiquid.reset();
+        integratorVapor.reset();
     }
 
     public double getSigma() {
@@ -151,13 +146,8 @@ public class VLESim extends Simulation {
     
     public void setEpsilon(double newEpsilon) {
         p2LJQ.setEpsilon(newEpsilon);
-        try {
-            integratorLiquid.reset();
-            integratorVapor.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            throw new RuntimeException(e);
-        }
+        integratorLiquid.reset();
+        integratorVapor.reset();
     }
     
     public double getEpsilon() {
@@ -166,13 +156,8 @@ public class VLESim extends Simulation {
     
     public void setMoment(double newQ) {
         p2LJQ.setQuadrupolarMomentSquare(newQ*newQ);
-        try {
-            integratorLiquid.reset();
-            integratorVapor.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            throw new RuntimeException(e);
-        }
+        integratorLiquid.reset();
+        integratorVapor.reset();
     }
     
     public double getMoment() {

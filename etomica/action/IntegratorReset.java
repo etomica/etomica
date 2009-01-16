@@ -25,7 +25,7 @@ public class IntegratorReset extends IntegratorActionAdapter {
             }
             catch (ConfigurationOverlapException e) {
                 if (!ignoreOverlap) {
-                    throw new RuntimeException(e);
+                    throw e;
                 }
             }
         }

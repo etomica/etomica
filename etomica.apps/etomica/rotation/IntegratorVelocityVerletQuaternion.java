@@ -444,10 +444,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         angularMomentum.DE(moment);
     }
     
-    public void reset() throws ConfigurationOverlapException{
-        if(!initialized) return;
-        
+    public void reset() {
         super.reset();
+
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {

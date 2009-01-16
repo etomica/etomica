@@ -30,7 +30,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.units.Energy;
 import etomica.units.Null;
 
@@ -221,81 +220,76 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 }            
                 
                 oldNx = nx;
-                try {
-                	sim.integrator.reset();
-                	
-                	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
-                    sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
-                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                                                    
-                    int m = sim.nm.getOmegaSquared(sim.box).length;
-                    double[] omega2 = new double[m];
-                    
-                    waveVectorSlider.setMaximum(m);
-                    waveVectorSlider.setIntegrator(sim.integrator);
-                    //Array
-                    if(sim.integrator.getWaveVectorNum() >= m){
-                    	waveVectorSlider.setMaximum(m);
-                    	sim.integrator.setWaveVectorNum(m-1);
-                    }
-                    
-                    
-                    if (sim.integrator.isOneWV()){
-                    	int wvNumUsed = sim.integrator.getWaveVectorNum();
-                    	for (int i=0; i<m; i++){
-                        	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                        	
-                        	if(i==wvNumUsed){
-                        		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                            	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
-                        	} else {
-                        		stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                            	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1));
-                        	}
-                        }
-                    } else {
-                    
-	                    for (int i=0; i<m; i++){
-	                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-	                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-	                    	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
-	                    }
-                    }
-                    data[0] = new DataDoubleArray(new int[]{m},omega2);
-                    omega2Table = new DataTable(data);
-                   
-                    
-                    /*
-                     * Harmonic Energy
-                     */
-                    AHarm = new DataDouble();
-                    
-                    double AHarmonic =0;
-                    coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
-                    
-                    for(int i=0; i<omega2.length; i++) {
-                            if (!Double.isInfinite(omega2[i])) {
-                                AHarmonic += coeffs[i] * Math.log(omega2[i]*coeffs[i] /
-                                        (sim.integrator.temperature*Math.PI));
-                        }
-                    }
-                    AHarm.E(AHarmonic);
-                    DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
-                    displayAHarmonic.putDataInfo(dataInfoA);
-                    displayAHarmonic.putData(AHarm);
-                    displayAHarmonic.repaint();
-                    
-                    DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
-                    DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
-                    sink.putDataInfo(dataInfo);
-                    sink.putData(omega2Table);
-                 }
+
+            	sim.integrator.reset();
+            	
+            	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
+                sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
+                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                                                
+                int m = sim.nm.getOmegaSquared(sim.box).length;
+                double[] omega2 = new double[m];
                 
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }   	    
+                waveVectorSlider.setMaximum(m);
+                waveVectorSlider.setIntegrator(sim.integrator);
+                //Array
+                if(sim.integrator.getWaveVectorNum() >= m){
+                	waveVectorSlider.setMaximum(m);
+                	sim.integrator.setWaveVectorNum(m-1);
+                }
                 
+                
+                if (sim.integrator.isOneWV()){
+                	int wvNumUsed = sim.integrator.getWaveVectorNum();
+                	for (int i=0; i<m; i++){
+                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	
+                    	if(i==wvNumUsed){
+                    		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                        	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+                    	} else {
+                    		stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                        	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1));
+                    	}
+                    }
+                } else {
+                
+                    for (int i=0; i<m; i++){
+                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                    	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+                    }
+                }
+                data[0] = new DataDoubleArray(new int[]{m},omega2);
+                omega2Table = new DataTable(data);
+               
+                
+                /*
+                 * Harmonic Energy
+                 */
+                AHarm = new DataDouble();
+                
+                double AHarmonic =0;
+                coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
+                
+                for(int i=0; i<omega2.length; i++) {
+                        if (!Double.isInfinite(omega2[i])) {
+                            AHarmonic += coeffs[i] * Math.log(omega2[i]*coeffs[i] /
+                                    (sim.integrator.temperature*Math.PI));
+                    }
+                }
+                AHarm.E(AHarmonic);
+                DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
+                displayAHarmonic.putDataInfo(dataInfoA);
+                displayAHarmonic.putData(AHarm);
+                displayAHarmonic.repaint();
+                
+                DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
+                DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
+                sink.putDataInfo(dataInfo);
+                sink.putData(omega2Table);
+
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }

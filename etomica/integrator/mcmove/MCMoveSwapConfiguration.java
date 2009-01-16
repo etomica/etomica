@@ -72,22 +72,9 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 			a1.getPosition().E(a2.getPosition());
 			a2.getPosition().E(r);
 		}
-        ConfigurationOverlapException overlapException = null;
-        try {
-            //XXX grossly inefficient
-            integrator1.reset();
-        } catch(ConfigurationOverlapException e) {
-            overlapException = e;
-        }
-        try {
-            //XXX grossly inefficient
-            integrator2.reset();
-        } catch(ConfigurationOverlapException e) {
-            overlapException = e;
-        }
-        if(overlapException != null) {
-            throw new RuntimeException(overlapException);
-        }
+        //XXX grossly inefficient
+        integrator1.reset();
+        integrator2.reset();
 	}
 	
 	/**

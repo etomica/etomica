@@ -90,7 +90,7 @@ public final class IntegratorHardField extends IntegratorHard {
         forceSum.setAgentManager(agentManager);
     }
     
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         calculateForces();
     }

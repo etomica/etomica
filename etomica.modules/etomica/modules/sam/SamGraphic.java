@@ -172,8 +172,9 @@ public class SamGraphic extends SimulationGraphic {
                 wallPositionSlider.doUpdate();
                 sim.config.initializeCoordinates(sim.box);
                 sim.findTetherBonds();
+                sim.integrator.resetStepCount();
                 try {
-                    sim.integrator.initialize();
+                    sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {}
                 getPaintAction(sim.box).actionPerformed();
@@ -416,7 +417,7 @@ public class SamGraphic extends SimulationGraphic {
                 sim.config.initializeCoordinates(sim.box);
                 sim.findTetherBonds();
                 try {
-                    sim.integrator.initialize();
+                    sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {}
                 getPaintAction(sim.box).actionPerformed();

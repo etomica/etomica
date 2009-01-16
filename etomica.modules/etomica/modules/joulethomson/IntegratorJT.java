@@ -23,7 +23,7 @@ public class IntegratorJT extends IntegratorManagerMC {
         addIntegrator(nve);
     }
     
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         super.reset();
         nveCount = 100;
     }
@@ -36,13 +36,7 @@ public class IntegratorJT extends IntegratorManagerMC {
                 integratorNVE.doStep();
                 nveCount--;
                 if (nveCount == 0) {
-                    try {
-                        integratorNPH.reset();
-                    }
-                    catch (ConfigurationOverlapException e) {
-                        // this shouldn't happen
-                        throw new RuntimeException(e);
-                    }
+                    integratorNPH.reset();
                 }
             }
             else {

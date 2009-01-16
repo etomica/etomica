@@ -15,8 +15,8 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -161,10 +161,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		counter++;
 	}
 	
-	public void reset() throws ConfigurationOverlapException{
-        if (!initialized) {
-            return;
-        }
+	public void reset() {
 	    super.reset();
         
 	    deltaR = 1E-3;
@@ -234,7 +231,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	 * Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
 	 * (R2)-------[Rc]-------(R1) ===> N
 	 */
-	protected void setup() throws ConfigurationOverlapException{
+	protected void setup() {
 		super.setup();
 			
 		movableAtoms = 0;

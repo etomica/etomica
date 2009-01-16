@@ -572,7 +572,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
     }
     
-    public void reset() throws ConfigurationOverlapException{
+    public void reset() {
         super.reset();
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);

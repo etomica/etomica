@@ -141,7 +141,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         //Minimum Search with random transition
         integratorMin1.setFileName("s_"+rateNum);
         try {
-            integratorMin1.initialize();
+            integratorMin1.reset();
         } catch (ConfigurationOverlapException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -165,7 +165,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
             System.out.println("Good minimum found. Computing MSD for other direction...");
             integratorMin2.setFileName("s_"+rateNum);
             try {
-                integratorMin2.initialize();
+                integratorMin2.reset();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -182,7 +182,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
             integratorMin2.setFileName("s_"+rateNum);
             //rename minimum 1 search XYZ file
             try {
-                integratorMin2.initialize();
+                integratorMin2.reset();
             } catch (ConfigurationOverlapException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

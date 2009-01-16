@@ -95,7 +95,7 @@ public class MCMoveMoleculeCoupledDLPOLY extends MCMoveBoxStep {
         
         
         if(uOld > 1e10){
-            throw new RuntimeException(new ConfigurationOverlapException(box));
+            throw new ConfigurationOverlapException(box);
         }
         
         groupTransVect.setRandomCube(random);

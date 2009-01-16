@@ -95,7 +95,7 @@ public class DeviceThermoSelector extends Device {
                 }
                 catch (ConfigurationOverlapException e) {
                     if (!fixOverlap) {
-                        throw new RuntimeException("overlap in configuration");
+                        throw e;
                     }
                 }
             }

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import etomica.api.IAction;
 import etomica.api.IIntegrator;
 import etomica.api.IVectorMutable;
-import etomica.exception.ConfigurationOverlapException;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -83,7 +82,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      */
     //This should be called by subclasses before they have performed their own
     //reset
-    public void reset() throws ConfigurationOverlapException {
+    public void reset() {
         if (!initialized) {
             setup();
         }
@@ -101,11 +100,13 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     }
 
     /**
-     * @throws ConfigurationOverlapException  
+     * Perform initialization.  Subclasses can override this method to set up
+     * before integration begins.
      */
-    protected void setup() throws ConfigurationOverlapException {
-        initialized = true;
+    protected void setup() {
+        resetStepCount();
         iieCount = interval;
+        initialized = true;
     }
 
     /**
