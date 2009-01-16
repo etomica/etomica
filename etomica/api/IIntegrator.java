@@ -29,11 +29,6 @@ public interface IIntegrator {
     public void resetStepCount();
 
     /**
-     * Returns true if initialize method has been called.
-     */
-    public boolean isInitialized();
-
-    /**
      * Adds the given interval action to those that receive interval events
      * fired by this integrator.  Do not add an interval action that is already
      * an interval listener to this integrator.  Do not add a null listener.

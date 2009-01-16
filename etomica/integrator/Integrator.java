@@ -93,13 +93,6 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     }
 
     /**
-     * Returns true if initialize method has been called.
-     */
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    /**
      * Perform initialization.  Subclasses can override this method to set up
      * before integration begins.
      */
