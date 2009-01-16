@@ -355,6 +355,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         meterFlux.setBox(sim.box);
         meterFlux.setSpecies(new ISpecies[]{sim.speciesSolute, sim.speciesSolvent});
         AccumulatorHistory fluxHistory = new AccumulatorHistory(new HistoryCollapsingAverage(20));
+        fluxHistory.setTimeDataSource(timeCounter);
         DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
         sim.integrator.addIntervalAction(fluxPump);
         // has to happen before PBC are applied
