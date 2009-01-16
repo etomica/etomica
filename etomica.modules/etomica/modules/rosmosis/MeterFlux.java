@@ -2,13 +2,12 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IIntegratorNonintervalListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.DataTag;
@@ -39,7 +38,7 @@ import etomica.units.Time;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IIntegratorNonintervalListener {
+public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
 
     public MeterFlux(ISimulation sim, ISpace _space) {
         this.sim = sim;
@@ -142,14 +141,22 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
             }
         }
         data.x = crossings;
+        double newTime;
         if (integrator instanceof IntegratorMD) {
-            data.x /= ((IntegratorMD)integrator).getCurrentTime() - oldTime;
-            oldTime = ((IntegratorMD)integrator).getCurrentTime();
+            newTime = ((IntegratorMD)integrator).getCurrentTime();
+            if (newTime < oldTime) {
+                // reinitialize sets time back to 0
+                oldTime = newTime - ((IntegratorMD)integrator).getTimeStep();
+            }
         }
         else {
-            data.x /= integrator.getStepCount() - oldStep;
-            oldTime = ((IntegratorMD)integrator).getCurrentTime();
+            newTime = integrator.getStepCount();
+            if (newTime < oldTime) {
+                oldTime = newTime - 1;
+            }
         }
+        data.x /= newTime - oldTime;
+        oldTime = newTime;
         for (int i=0; i<space.D(); i++) {
             if (i == dim) continue;
             data.x /= box.getBoundary().getDimensions().x(i);
@@ -184,14 +191,6 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource, IInte
 
     public void releaseAgent(Object agent, IMolecule atom) {
         /* do nothing */
-    }
-
-    public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.RESET &&
-                agentManager != null) {
-            agentManager = new MoleculeAgentManager(sim, box, this);
-        }
-        oldTime = 0;
     }
 
     protected final ISimulation sim;

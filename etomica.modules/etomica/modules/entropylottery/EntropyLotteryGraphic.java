@@ -1,21 +1,25 @@
 package etomica.modules.entropylottery;
 
-import java.awt.GridLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import etomica.api.IAction;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
+import etomica.api.IAction;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataTag;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
@@ -39,19 +43,18 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero(space));
 
-        this.getController().getReinitButton().setPostAction(getPaintAction(sim.box));
-
         this.getController().getControllerButton().setPostAction(getPaintAction(sim.box));
 
 	    //display of box, timer
         getDisplayBox(sim.box).setPixelUnit(new Pixel(300/sim.box.getBoundary().getDimensions().x(0)));
         getDisplayBox(sim.box).setDrawingHeight(300);
         DisplayBoxCanvas1DBins canvas = new DisplayBoxCanvas1DBins(getDisplayBox(sim.box), sim.getController());
-        getDisplayBox(sim.box).setBoxCanvas(canvas);
+        Component controllerButtons = getPanel().graphicsPanel.getComponent(0);
+        final DisplayBox displayBox = getDisplayBox(sim.box);
+        remove(displayBox);
+        getPanel().graphicsPanel.remove(controllerButtons);
+        displayBox.setBoxCanvas(canvas);
 
-        //tabbed pane for the big displays
-        JPanel bigPanel = new JPanel(new GridLayout(2,0));
-        
         MeterEntropy meterEntropy = new MeterEntropy();
         meterEntropy.setBox(sim.box);
         AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
@@ -62,8 +65,8 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(pump, 20);
         dataStreamPumps.add(pump);
         
-        DataSourceProbabilityDensity probabilityDensity = new DataSourceProbabilityDensity();
-        sim.integrator.addNonintervalListener(probabilityDensity);
+        final DataSourceProbabilityDensity probabilityDensity = new DataSourceProbabilityDensity();
+        probabilityDensity.setBox(sim.box);
         sim.integrator.addIntervalAction(probabilityDensity);
         sim.integrator.setIntervalActionPriority(probabilityDensity, 0);
         EntropyProcessor entropyProcessor = new EntropyProcessor();
@@ -76,6 +79,13 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         entropyProcessor.setDataSink(probabilityEntropyHistory);
         dataStreamPumps.add(pump);
         canvas.setExtraData(probabilityDensity);
+        
+        IAction resetEntropy = new IAction() {
+            public void actionPerformed() {
+                probabilityDensity.reset();
+            }
+        };
+        this.getController().getReinitButton().setPostAction(new ActionGroupSeries(new IAction[]{getPaintAction(sim.box), resetEntropy}));
         
         DisplayPlot entropyPlot = new DisplayPlot();
         entropyHistory.setDataSink(entropyPlot.getDataSet().makeDataSink());
@@ -99,13 +109,13 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
-                getDisplayBox(sim.box).setPixelUnit(new Pixel(a2p));
+                displayBox.setPixelUnit(new Pixel(a2p));
                 double yScale = nUrn*nUrn/(6*sim.box.getNMolecules(sim.species));
                 if (yScale > 6) {
                     yScale = 6;
                 }
-                ((DisplayBoxCanvas1DBins)getDisplayBox(sim.box).canvas).setYScale(yScale);
-                getDisplayBox(sim.box).repaint();
+                ((DisplayBoxCanvas1DBins)displayBox.canvas).setYScale(yScale);
+                displayBox.repaint();
             }
         };
 
@@ -113,11 +123,11 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         	(SimulationRestart)getController().getReinitButton().getAction();
 
         nUrnSelector.setPostAction(new ActionGroupSeries(new IAction[]
-                                   {resetDisplay, restartAction}));
+                                   {resetDisplay, restartAction, resetEntropy}));
         nUrnSelector.doUpdate();
 
         nSelector.setResetAction(new ActionGroupSeries(new IAction[]
-                                  {resetDisplay, restartAction}));
+                                  {resetDisplay, restartAction, resetEntropy}));
         nSelector.doUpdate();
 
         resetDisplay.actionPerformed();
@@ -125,9 +135,13 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         // SimulationGraphic has already added the box graphic.
         // Remove it from the graphicsPanel and add it to this
         // classes' bigPanel.
-        getPanel().graphicsPanel.removeAll();
-        bigPanel.add(entropyPlot.getPlot());
-        bigPanel.add(getDisplayBox(sim.box).graphic());
+        //tabbed pane for the big displays
+        JPanel bigPanel = new JPanel(new GridBagLayout());
+        
+        bigPanel.add(entropyPlot.getPlot(), SimulationPanel.getVertGBC());
+        displayBox.canvas.setPreferredSize(new Dimension(500, 300));
+        bigPanel.add(displayBox.canvas, SimulationPanel.getVertGBC());
+        bigPanel.add(controllerButtons, SimulationPanel.getVertGBC());
 
         add(nSelector);
         add(nUrnSelector);
