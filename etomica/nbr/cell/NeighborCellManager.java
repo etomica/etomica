@@ -9,14 +9,14 @@ import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
 import etomica.box.BoxInflateEvent;
-import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
@@ -276,8 +276,8 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
             }
 
             if (evt instanceof MCMoveEvent) {
-                MCMoveBox move = ((MCMoveBox)((MCMoveEvent)evt).getMCMove());
-                AtomIterator iterator = move.affectedAtoms();
+                MCMove move = ((MCMoveEvent)evt).getMCMove();
+                AtomIterator iterator = move.affectedAtoms(box);
                 iterator.reset();
                 for (IAtomLeaf atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                     updateCell(atom);
