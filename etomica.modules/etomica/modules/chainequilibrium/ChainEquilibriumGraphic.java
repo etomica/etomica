@@ -179,7 +179,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         final IAction resetData = new IAction() {
             public void actionPerformed() {
-                sim.integratorHard.resetTime();
+                sim.integratorHard.resetStepCount();
                 molecularCount.reset();
                 conversionPumpDiol.actionPerformed();
                 conversionPumpAcid.actionPerformed();
