@@ -85,6 +85,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     public void reset() {
         if (!initialized) {
             setup();
+            initialized = true;
         }
     }
 
@@ -99,7 +100,6 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     protected void setup() {
         resetStepCount();
         iieCount = interval;
-        initialized = true;
     }
 
     /**
