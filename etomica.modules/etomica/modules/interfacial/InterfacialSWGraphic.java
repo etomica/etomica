@@ -259,7 +259,13 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     pos.setX(0, pos.x(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
-                sim.integrator.reset();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    // we can cause overlap by increasing tail diameter
+                    // if so, that might not have been resolved yet
+                }
             }
         };
         sim.integrator.addIntervalAction(recenterAction);
