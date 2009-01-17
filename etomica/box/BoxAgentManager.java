@@ -95,6 +95,7 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
             for (int i=index; i<agents.length-1; i++) {
                 agents[i] = agents[i+1];
             }
+            agents = Arrays.resizeArray(agents,agents.length-1);
         }
     }
     
