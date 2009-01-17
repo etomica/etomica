@@ -96,7 +96,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
      */
     public void reset() {
         // the NeighborCellManager might not have existed during construction
-        // so we couldn't se the lattice.  It better exist now.
+        // so we couldn't set the lattice.  It better exist now.
         cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(box).getLattice());
 
         NeighborCriterion[] criteriaArray = potentialMaster.getNeighborCriteria();
