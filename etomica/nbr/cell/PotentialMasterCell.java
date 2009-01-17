@@ -1,14 +1,11 @@
 package etomica.nbr.cell;
 
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.api.ISimulation;
 import etomica.box.BoxAgentManager;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.potential.PotentialArray;
 import etomica.space.ISpace;
 
 /**
@@ -58,13 +55,6 @@ public class PotentialMasterCell extends PotentialMasterSite {
         return range;
     }
     
-    /**
-     * Returns the maximum range of any potential held by this potential master
-     */
-    public double getMaxPotentialRange() {
-        return maxPotentialRange;
-    }
-    
     public void setCellRange(int d) {
         super.setCellRange(d);
 
@@ -99,52 +89,17 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     
     /**
-     * Recomputes the maximum potential range (which might change without this
-     * class receiving notification) and readjust cell lists if the maximum
-     * has changed.
+     * Reassign atoms to cell lists for all boxes.
      */
     public void reset() {
-        rangedPotentialIterator.reset();
-        maxPotentialRange = 0;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].getRange() > maxPotentialRange) {
-                    maxPotentialRange = potentials[i].getRange();
-                }
-            }
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborCellManager neighborCellManager = (NeighborCellManager)iterator.next();
+            neighborCellManager.assignCellAll();
         }
     }
-
-    /**
-     * Adds the potential as a ranged potential that applies to the given 
-     * AtomTypes.  This method creates a criterion for the potential and 
-     * notifies the NeighborListManager of its existence.
-     */
-    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomTypeLeaf[] atomType) {
-        super.addRangedPotentialForTypes(potential, atomType);
-        if (potential.getRange() > maxPotentialRange) {
-            maxPotentialRange = potential.getRange();
-        }
-    }
-
-    public void removePotential(IPotentialAtomic potential) {
-        super.removePotential(potential);
-        
-        maxPotentialRange = 0;
-        for (int i=0; i<allPotentials.length; i++) {
-            double pRange = allPotentials[i].getRange();
-            if (pRange == Double.POSITIVE_INFINITY) {
-                continue;
-            }
-            if (pRange > maxPotentialRange) {
-                maxPotentialRange = pRange;
-            }
-        }
-    }
-
+    
     private static final long serialVersionUID = 1L;
     private double range;
-    private double maxPotentialRange;
 }

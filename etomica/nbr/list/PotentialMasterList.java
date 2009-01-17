@@ -242,6 +242,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
         }
         recomputeCriteriaRanges();
+        
+        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
+            neighborListManager.reset();
+        }
     }
     
     /**
