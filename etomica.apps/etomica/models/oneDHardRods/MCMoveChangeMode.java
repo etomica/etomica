@@ -31,7 +31,8 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     private double[][][] eigenVectors;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
-    int changedWV;
+    int changedWV, harmonicWaveVector;  //all wvs from the harmonic wv and up are not changed.
+    
     
     public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -49,6 +50,14 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     
     public CoordinateDefinition getCoordinateDefinition() {
         return coordinateDefinition;
+    }
+    
+    /**
+     * The harmonic wavevector and all wavevectors with higher numbers are not
+     * able to be changed by this MCMove.
+     */
+    public void setHarmonicWaveVector(int hwv){
+        harmonicWaveVector = hwv;
     }
 
     /**
@@ -101,7 +110,7 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
-        changedWV = random.nextInt(waveVectors.length-1);
+        changedWV = random.nextInt(harmonicWaveVector-1);
         changedWV +=1;
         
         //calculate the new positions of the atoms.
