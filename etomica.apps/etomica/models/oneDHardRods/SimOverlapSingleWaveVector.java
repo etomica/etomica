@@ -548,6 +548,15 @@ public class SimOverlapSingleWaveVector extends Simulation {
         }
         System.out.println("equilibration finished.");
         
+        sim.meterBinA.histogramNRG.reset();
+        sim.meterBinA.histogramRealCoord.reset();
+        sim.meterBinA.histogramImagCoord.reset();
+        sim.meterBinB.histogramNRG.reset();
+        sim.meterBinB.histogramRealCoord.reset();
+        sim.meterBinB.histogramImagCoord.reset();
+        
+        
+        
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.setAccumulatorBlockSize((int)sim.runBlockSize);
         sim.activityIntegrate.setMaxSteps(sim.numSteps);
@@ -610,7 +619,53 @@ public class SimOverlapSingleWaveVector extends Simulation {
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
+        System.out.println(" ");
+        System.out.println("Harmonic Energies - Meter B in A");
+        double[] xval = sim.meterBinA.histogramNRG.xValues();
+        double[] histval = sim.meterBinA.histogramNRG.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
         
+        System.out.println(" ");
+        System.out.println("Harmonic Energies - Meter B in B");
+        xval = sim.meterBinB.histogramNRG.xValues();
+        histval = sim.meterBinB.histogramNRG.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
+        
+        System.out.println(" ");
+        System.out.println("Real Coord - Meter B in A");
+        xval = sim.meterBinA.histogramRealCoord.xValues();
+         histval = sim.meterBinA.histogramRealCoord.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
+        
+        System.out.println(" ");
+        System.out.println("Real Coord - Meter B in B");
+        xval = sim.meterBinB.histogramRealCoord.xValues();
+         histval = sim.meterBinB.histogramRealCoord.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
+        
+        System.out.println(" ");
+        System.out.println("Imag Coord - Meter B in A");
+        xval = sim.meterBinA.histogramImagCoord.xValues();
+        histval = sim.meterBinA.histogramImagCoord.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
+        
+        System.out.println(" ");
+        System.out.println("Imag Coord - Meter B in B");
+        xval = sim.meterBinB.histogramImagCoord.xValues();
+        histval = sim.meterBinB.histogramImagCoord.getHistogram();
+        for(int i = 0; i < xval.length; i++){
+            System.out.println("xval " + xval[i] + " "+histval[i]);
+        }
     }
       
     
@@ -620,13 +675,13 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 6;
+        public int numAtoms = 32;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 2;
+        public int comparedWV = 1;
         
         public long numSteps = 4000000;
         public long blockSize = 100000;

@@ -9,7 +9,10 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.units.Null;
+import etomica.util.DoubleRange;
 import etomica.util.Histogram;
+import etomica.util.HistogramExpanding;
+import etomica.util.HistogramSimple;
 
 
 /**
@@ -55,6 +58,10 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        
+        histogramNRG = new HistogramSimple(new DoubleRange(0.0, 5.0));
+        histogramImagCoord = new HistogramExpanding(0.1);
+        histogramRealCoord = new HistogramExpanding(0.1);
     }
         
     
@@ -75,6 +82,8 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
                 imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
             }
         }
+        histogramRealCoord.addValue(realCoord);
+        histogramImagCoord.addValue(imagCoord);
         
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
@@ -117,6 +126,7 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
             double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
             energyHarmonic += wvc * normalCoord * omegaSquared[comparedWV][i];
         }
+        histogramNRG.addValue(energyHarmonic);
         
         // Set all the atoms back to the old values of u
         for (int iCell = 0; iCell<cells.length; iCell++) {
