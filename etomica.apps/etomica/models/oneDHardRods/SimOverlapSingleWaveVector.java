@@ -671,6 +671,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
     
     public void setComparedWaveVector(int awv){
         compareMove.setComparedWaveVector(awv);
+        changeMove.setHarmonicWaveVector(awv);
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);
     }
