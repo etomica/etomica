@@ -15,7 +15,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -101,7 +100,6 @@ public class SimulationVirialOverlapRejected extends Simulation {
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
-                ((MCMoveStepTracker)mcMoveTranslate[iBox].getTracker()).setAcceptanceTarget(0.4);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species instanceof SpeciesSpheresRotating) {
