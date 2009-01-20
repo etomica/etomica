@@ -63,7 +63,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
-    MCMoveChangeMode changeMove;
+    MCMoveChangeSingleMode changeMove;
     MCMoveCompareMultipleModes compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;
@@ -127,7 +127,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
         
-        changeMove = new MCMoveChangeMode(potentialMasterTarget, random);
+        changeMove = new MCMoveChangeSingleMode(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());

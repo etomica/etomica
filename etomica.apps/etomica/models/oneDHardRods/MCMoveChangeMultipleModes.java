@@ -11,14 +11,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
-/**
- * A Monte Carlo move which selects a wave vector, and changes the normal mode
- * associated with that wave vector.
- * 
- * @author cribbin
- *
- */
-public class MCMoveChangeMode extends MCMoveBoxStep{
+public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -31,10 +24,11 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
     private double[][][] eigenVectors;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
-    int changedWV, harmonicWaveVector;  //all wvs from the harmonic wv and up are not changed.
+    int changedWV;
+    int[] harmonicWaveVectors;  //all wvs from the harmonic wv and up are not changed.
     
     
-    public MCMoveChangeMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -56,8 +50,8 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
      * The harmonic wavevector and all wavevectors with higher numbers are not
      * able to be changed by this MCMove.
      */
-    public void setHarmonicWaveVector(int hwv){
-        harmonicWaveVector = hwv;
+    public void setHarmonicWaveVector(int[] hwv){
+        harmonicWaveVectors = hwv;
     }
 
     /**
@@ -108,10 +102,21 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
-        //The zero wavevector is center of mass motion, and is rejected as a 
-        //possibility.
-        changedWV = random.nextInt(harmonicWaveVector-1);
-        changedWV +=1;
+        // The zero wavevector is center of mass motion, and is rejected as
+        // a possibility.
+        boolean success = true;
+        do{
+            success = true;
+            changedWV = random.nextInt(waveVectorCoefficients.length-1);
+            changedWV += 1;
+            for(int i = 0; i < harmonicWaveVectors.length; i++){
+                if (changedWV == harmonicWaveVectors[i]) {
+                    success = false;
+                }
+            }
+        } while (!success);
+        
+        System.out.println("changedWV "+ changedWV );
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -179,5 +184,5 @@ public class MCMoveChangeMode extends MCMoveBoxStep{
         }
     }
 
-    
+
 }

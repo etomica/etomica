@@ -110,7 +110,7 @@ public class TestA extends Simulation {
         
         affectedWV = awv;
         
-        MCMoveChangeMode change = new MCMoveChangeMode(potentialMaster, random);
+        MCMoveChangeSingleMode change = new MCMoveChangeSingleMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(change);
         change.setWaveVectors(waveVectorFactory.getWaveVectors());
         change.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

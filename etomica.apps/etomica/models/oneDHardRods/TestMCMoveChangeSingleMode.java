@@ -14,7 +14,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.models.oneDHardRods.TestMCMove.Sim1DHRParams;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -34,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
-public class TestMCMoveChangeMode extends Simulation {
+public class TestMCMoveChangeSingleMode extends Simulation {
     private static final long serialVersionUID = 1L;
     public Boundary boundary;
     IntegratorMC integrator;
@@ -47,12 +46,12 @@ public class TestMCMoveChangeMode extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MCMoveChangeMode move;
+    MCMoveChangeSingleMode move;
     
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMoveChangeMode(Space _space, int numAtoms, double density, double 
+    public TestMCMoveChangeSingleMode(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
@@ -97,7 +96,7 @@ public class TestMCMoveChangeMode extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveChangeMode(potentialMaster, random);
+        move = new MCMoveChangeSingleMode(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -131,7 +130,7 @@ public class TestMCMoveChangeMode extends Simulation {
          * file is irrelevant.
          * 
          */
-        TestMCMoveChangeModesParams params = new TestMCMoveChangeModesParams();
+        TestMCMoveChangeSingleModeParams params = new TestMCMoveChangeSingleModeParams();
         String inputFilename = null;
         if(args.length > 0){
             inputFilename = args[0];
@@ -162,7 +161,7 @@ public class TestMCMoveChangeMode extends Simulation {
         
         
         //instantiate simulation
-        TestMCMoveChangeMode sim = new TestMCMoveChangeMode(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestMCMoveChangeSingleMode sim = new TestMCMoveChangeSingleMode(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.move.setHarmonicWaveVector(harmonicwvs);
         
@@ -199,6 +198,18 @@ public class TestMCMoveChangeMode extends Simulation {
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
         
+      //see if anything moved:
+      IAtomList leaflist = sim.box.getLeafList();
+      System.out.println("final: ");
+      double sum = 0.0;
+      for(int i = 0; i < numAtoms; i++){
+          //one d is assumed here.
+          sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+          System.out.println(sim.locations[i]);
+          sum += sim.locations[i];
+      }
+      System.out.println("sum  "+ sum);
+        
         System.out.println("Fini.");
     }
 
@@ -206,7 +217,7 @@ public class TestMCMoveChangeMode extends Simulation {
     /**
      * Inner class for parameters understood by the class's constructor
      */
-    public static class TestMCMoveChangeModesParams extends ParameterBase {
+    public static class TestMCMoveChangeSingleModeParams extends ParameterBase {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
@@ -214,6 +225,6 @@ public class TestMCMoveChangeMode extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int harmonicWV = 12;
+        public int harmonicWV = 1;
     }
 }

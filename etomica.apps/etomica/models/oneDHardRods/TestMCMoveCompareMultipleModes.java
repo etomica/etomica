@@ -10,7 +10,6 @@ import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
-import etomica.data.DataPump;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
@@ -182,6 +181,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         TestMCMoveCompareMultipleModes sim = new TestMCMoveCompareMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.move.setComparedWVs(comparedwvs);
+        sim.move.setHarmonicWVs(harmonicwvs);
         System.out.println("Compared wvs");
         for(int i = 0; i < comparedwvs.length; i++){System.out.println(comparedwvs[i]);}
         sim.move.setHarmonicWVs(harmonicwvs);
@@ -207,7 +207,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         ((Controller)sim.getController()).actionPerformed();
         
 //        //see if anything moved:
-//        IAtomSet leaflist = sim.box.getLeafList();
+        IAtomList leaflist = sim.box.getLeafList();
 //        System.out.println("final: ");
 //        double sum = 0.0;
 //        for(int i = 0; i < numAtoms; i++){
