@@ -5,14 +5,18 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IListener;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -69,7 +73,7 @@ public class VLESim extends Simulation {
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);
 
-        double range = 15.0;
+        final double range = 15.0;
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
@@ -82,6 +86,7 @@ public class VLESim extends Simulation {
         potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
+        integratorLiquid.getMoveManager().setEquilibrating(true);
         integratorLiquid.setBox(boxLiquid);
         MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
@@ -91,6 +96,7 @@ public class VLESim extends Simulation {
         
         integratorVapor = new IntegratorMC(potentialMaster, random, temperature);
         integratorVapor.setBox(boxVapor);
+        integratorVapor.getMoveManager().setEquilibrating(true);
         atomMove = new MCMoveAtom(potentialMaster, random, space, 0.5, 5.0, true);
         integratorVapor.getMoveManager().addMCMove(atomMove);
         rotateMove = new MCMoveRotate(potentialMaster, random, space);
@@ -107,19 +113,36 @@ public class VLESim extends Simulation {
         }
         
         integratorGEMC = new IntegratorManagerMC(random);
+        integratorGEMC.getMoveManager().setEquilibrating(true);
         integratorGEMC.setGlobalMoveInterval(2);
         integratorGEMC.addIntegrator(integratorLiquid);
         integratorGEMC.addIntegrator(integratorVapor);
-        MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(
+        final MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(
                 potentialMaster, random, space, integratorLiquid,integratorVapor);
         volumeExchange.setStepSize(0.05);
-//        ((MCMoveStepTracker)volumeExchange.getTracker()).setNoisyAdjustment(true);
         MCMoveMoleculeExchangeVLE moleculeExchange = new MCMoveMoleculeExchangeVLE(
                 potentialMaster, random, space, integratorLiquid,integratorVapor);
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
-        
+
+        integratorGEMC.getMoveEventManager().addListener(new IListener() {
+            public void actionPerformed(IEvent event) {
+                if (event instanceof MCMoveTrialCompletedEvent &&
+                    ((MCMoveTrialCompletedEvent)event).isAccepted()) {
+                    return;
+                }
+                if (((MCMoveEvent)event).getMCMove() == volumeExchange) {
+                    if (boxLiquid.getBoundary().getDimensions().x(0)*0.499 < range) {
+                        p2Truncated.setTruncationRadius(0.499*boxLiquid.getBoundary().getDimensions().x(0));
+                    }
+                    else {
+                        p2Truncated.setTruncationRadius(range);
+                    }
+                }
+            }
+        });
+
         activityIntegrate = new ActivityIntegrate(integratorGEMC);
         getController().addAction(activityIntegrate);
 
