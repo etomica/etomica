@@ -14,6 +14,8 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
 import etomica.units.Angstrom;
@@ -44,6 +46,31 @@ public class VLE extends SimulationGraphic {
         getDisplayBox(sim.boxVapor).setPixelUnit(new Pixel(8));
         getPanel().tabbedPane.setTitleAt(1, "Vapor");
 
+        final IAction resetMCMoves = new IAction() {
+            public void actionPerformed() {
+                MCMove[] moves = sim.integratorLiquid.getMoveManager().getMCMoves();
+                for (int i=0; i<moves.length; i++) {
+                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                    }
+                }
+
+                moves = sim.integratorVapor.getMoveManager().getMCMoves();
+                for (int i=0; i<moves.length; i++) {
+                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                    }
+                }
+                
+                moves = sim.integratorGEMC.getMoveManager().getMCMoves();
+                for (int i=0; i<moves.length; i++) {
+                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                    }
+                }
+            }
+        };
+
         DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
         thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setPrecision(1);
@@ -53,6 +80,7 @@ public class VLE extends SimulationGraphic {
         thermoSlider.setMaximum(400);
         thermoSlider.doUpdate();
         thermoSlider.setIsothermalButtonsVisibility(false);
+        thermoSlider.setPostAction(resetMCMoves);
         add(thermoSlider);
         
         DeviceSlider sigmaSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim, "sigma"));
@@ -67,6 +95,7 @@ public class VLE extends SimulationGraphic {
         sigmaSlider.doUpdate();
         sigmaSlider.setPostAction(new IAction() {
             public void actionPerformed() {
+                resetMCMoves.actionPerformed();
                 getPaintAction(sim.boxLiquid).actionPerformed();
                 getPaintAction(sim.boxVapor).actionPerformed();
             }
@@ -81,6 +110,7 @@ public class VLE extends SimulationGraphic {
         epsilonSlider.setEditValues(true);
         epsilonSlider.setShowBorder(true);
         epsilonSlider.setLabel("epsilon (K)");
+        epsilonSlider.setPostAction(resetMCMoves);
         add(epsilonSlider);
         epsilonSlider.doUpdate();
 
@@ -94,6 +124,7 @@ public class VLE extends SimulationGraphic {
         momentSlider.setShowBorder(true);
         momentSlider.setLabel("Quadrupole Moment (Debye A)");
         momentSlider.doUpdate();
+        momentSlider.setPostAction(resetMCMoves);
         add(momentSlider);
 
         MeterDensity meterDensityLiquid = new MeterDensity(sim.getSpace());
