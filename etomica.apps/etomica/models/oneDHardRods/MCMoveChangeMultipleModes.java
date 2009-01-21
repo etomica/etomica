@@ -11,6 +11,15 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
+/**
+ * A Monte Carlo move which selects a wave vector, and changes the normal mode
+ * associated with that wave vector.
+ * 
+ * harmonicWV are the wave vectors that cannot be changed by the doTrial() method.
+ * 
+ * @author cribbin
+ *
+ */
 public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
@@ -107,7 +116,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         boolean success = true;
         do{
             success = true;
-            changedWV = random.nextInt(waveVectorCoefficients.length-1);
+            changedWV = random.nextInt(waveVectorCoefficients.length);
             changedWV += 1;
             for(int i = 0; i < harmonicWaveVectors.length; i++){
                 if (changedWV == harmonicWaveVectors[i]) {

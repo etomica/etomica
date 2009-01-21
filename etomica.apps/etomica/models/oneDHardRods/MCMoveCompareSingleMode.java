@@ -16,6 +16,9 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * A Monte Carlo move which compares one hard rod normal mode to a harmonic 
  * normal mode and explores the phase space defined by the remaining normal modes.
  * 
+ * comparedWV is the wavevector that will be compared.  It cannot be selected
+ * by the "change a random mode" section of the doTrial() method
+ * 
  * @author cribbin
  *
  */
