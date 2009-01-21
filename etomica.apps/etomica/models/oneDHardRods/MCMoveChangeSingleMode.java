@@ -15,6 +15,8 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * A Monte Carlo move which selects a wave vector, and changes the normal mode
  * associated with that wave vector.
  * 
+ * harmonicWV is the largest wave vector that will be changed.
+ * 
  * @author cribbin
  *
  */
@@ -31,7 +33,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     private double[][][] eigenVectors;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
-    int changedWV, harmonicWaveVector;  //all wvs from the harmonic wv and up are not changed.
+    int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     
     
     public MCMoveChangeSingleMode(IPotentialMaster potentialMaster, IRandom random) {
@@ -56,8 +58,8 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
      * The harmonic wavevector and all wavevectors with higher numbers are not
      * able to be changed by this MCMove.
      */
-    public void setHarmonicWaveVector(int hwv){
-        harmonicWaveVector = hwv;
+    public void setHarmonicWV(int hwv){
+        harmonicWV = hwv;
     }
 
     /**
@@ -110,12 +112,11 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
-        if(harmonicWaveVector == 1){
-            changedWV = 1;
-        } else {
-            changedWV = random.nextInt(harmonicWaveVector-1);
-            changedWV +=1;
-        }
+        changedWV = random.nextInt(harmonicWV);
+        changedWV +=1;
+        
+//        System.out.println(changedWV);
+        
         //calculate the new positions of the atoms.
         //loop over cells
         double delta1 = (2*random.nextDouble()-1) * stepSize;

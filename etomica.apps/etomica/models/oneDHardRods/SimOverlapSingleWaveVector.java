@@ -671,7 +671,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
     
     public void setComparedWaveVector(int awv){
         compareMove.setComparedWaveVector(awv);
-        changeMove.setHarmonicWaveVector(awv);
+        changeMove.setHarmonicWV(awv);
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);
     }
@@ -684,7 +684,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = 1;
         
-        public long numSteps = 4000000;
+        public long numSteps = 40000000;
         public long blockSize = 100000;
         public long eqBlockSize = 10000;
         public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step

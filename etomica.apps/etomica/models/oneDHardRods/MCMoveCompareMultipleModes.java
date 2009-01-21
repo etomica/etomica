@@ -17,6 +17,11 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * modes and then explores the phase space defined by the remaining normal
  * modes.
  * 
+ * harmonicWVs are the wavevectors that are harmonic, and left out of the "change
+ * a random mode" calculation of the doTrial() method.
+ * 
+ * comparedWVs are the wavevectors that may be compared.
+ * 
  * @author cribbin
  * 
  */
@@ -131,7 +136,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 // MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
         int changedWV;
-        for(int wvCount = 0; wvCount <= howManyChangesToHardRodModes; wvCount++){
+        for(int wvCount = 0; wvCount < howManyChangesToHardRodModes; wvCount++){
 
             // Select the wave vector whose eigenvectors will be changed.
             // The zero wavevector is center of mass motion, and is rejected as
@@ -147,6 +152,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                     }
                 }
             } while (!success);
+            
+            System.out.println(changedWV);
             
             // calculate the new positions of the atoms.
             // loop over cells
@@ -361,6 +368,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
         for(int i = wv.length; i < harmonicWVs.length; i++){
             harmonicWVs[i] = comparedWVs[i-wv.length];
+        }
+        
+        if(harmonicWVs.length+1 == waveVectors.length){
+            howManyChangesToHardRodModes = 0;
         }
     }
 }

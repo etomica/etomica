@@ -163,7 +163,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         //instantiate simulation
         TestMCMoveChangeSingleMode sim = new TestMCMoveChangeSingleMode(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setHarmonicWaveVector(harmonicwvs);
+        sim.move.setHarmonicWV(harmonicwvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -225,6 +225,6 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int harmonicWV = 1;
+        public int harmonicWV = 2;
     }
 }

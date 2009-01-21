@@ -179,12 +179,12 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         
         //instantiate simulation
         TestMCMoveCompareMultipleModes sim = new TestMCMoveCompareMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        System.out.println("instantiated");
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.move.setComparedWVs(comparedwvs);
         sim.move.setHarmonicWVs(harmonicwvs);
         System.out.println("Compared wvs");
         for(int i = 0; i < comparedwvs.length; i++){System.out.println(comparedwvs[i]);}
-        sim.move.setHarmonicWVs(harmonicwvs);
         System.out.println("Harmonic wvs");
         for(int i = 0; i < harmonicwvs.length; i++){System.out.println(harmonicwvs[i]);}
         
@@ -253,11 +253,11 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
-        public long numSteps = 10000000;
+        public long numSteps = 1000;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {2, 15};
-        public int[] harmonicWV = {1, 16};
+        public int[] comparedWV = {3, 6, 9, 12, 1, 7, 11, 13};
+        public int[] harmonicWV = {2, 4,8,10,14, 15, 16, 5};
     }
 }
