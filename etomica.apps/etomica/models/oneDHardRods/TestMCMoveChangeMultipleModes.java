@@ -33,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
-public class TestMCMoveCompareMultipleModes extends Simulation {
+public class TestMCMoveChangeMultipleModes extends Simulation {
     private static final long serialVersionUID = 1L;
     public Boundary boundary;
     IntegratorMC integrator;
@@ -46,13 +46,12 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    
-    MCMoveCompareMultipleModes move; 
+    MCMoveChangeMultipleModes move;
     
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMoveCompareMultipleModes(Space _space, int numAtoms, double density, double 
+    public TestMCMoveChangeMultipleModes(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
@@ -97,31 +96,16 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-//        MCMoveCompareSingleMode convert = new MCMoveCompareSingleMode(potentialMaster, random);
-//        integrator.getMoveManager().addMCMove(convert);
-//        convert.setWaveVectors(waveVectorFactory.getWaveVectors());
-//        convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-//        convert.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-//        convert.setEigenVectors(nm.getEigenvectors(box));
-//        convert.setCoordinateDefinition(coordinateDefinition);
-//        convert.setTemperature(temperature);
-//        convert.setBox((IBox)box);
-//        convert.setStepSizeMin(0.001);
-//        convert.setStepSize(0.01);
-//        convert.setConvertedWaveVector(2);
-        
-        move = new MCMoveCompareMultipleModes(potentialMaster, random);
+        move = new MCMoveChangeMultipleModes(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
         move.setEigenVectors(nm.getEigenvectors(box));
         move.setCoordinateDefinition(coordinateDefinition);
-        move.setTemperature(temperature);
         move.setBox((IBox)box);
         move.setStepSizeMin(0.001);
         move.setStepSize(0.01);
-        
+       
         
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
@@ -146,7 +130,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
          * file is irrelevant.
          * 
          */
-        Sim1DHRParams params = new Sim1DHRParams();
+        TestMCMoveChangeMultipleModeParams params = new TestMCMoveChangeMultipleModeParams();
         String inputFilename = null;
         if(args.length > 0){
             inputFilename = args[0];
@@ -156,7 +140,6 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
             readParameters.readParameters();
         }
 
-        int[] comparedwvs = params.comparedWV;
         int[] harmonicwvs = params.harmonicWV;
         double density = params.density;
         long numSteps = params.numSteps;
@@ -178,15 +161,9 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         
         
         //instantiate simulation
-        TestMCMoveCompareMultipleModes sim = new TestMCMoveCompareMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
-        System.out.println("instantiated");
+        TestMCMoveChangeMultipleModes sim = new TestMCMoveChangeMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setComparedWVs(comparedwvs);
-        sim.move.setHarmonicWVs(harmonicwvs);
-        System.out.println("Compared wvs");
-        for(int i = 0; i < comparedwvs.length; i++){System.out.println(comparedwvs[i]);}
-        System.out.println("Harmonic wvs");
-        for(int i = 0; i < harmonicwvs.length; i++){System.out.println(harmonicwvs[i]);}
+        sim.move.setHarmonicWaveVectors(harmonicwvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -197,29 +174,8 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         sim.integrator.addIntervalAction(mnm);
         sim.integrator.setActionInterval(mnm, 2);
         
-        
-        
-        
-        
-        
-        
-        
         ((Controller)sim.getController()).actionPerformed();
-        
-//        //see if anything moved:
-        IAtomList leaflist = sim.box.getLeafList();
-        System.out.println("final: ");
-        double sum = 0.0;
-        for(int i = 0; i < numAtoms; i++){
-            //one d is assumed here.
-            sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
-            System.out.println(sim.locations[i]);
-            sum += sim.locations[i];
-        }
-        System.out.println("sum  "+ sum);
-
-        
-        
+                
         //print out final positions:
         try {
             FileWriter fileWriterE = new FileWriter(filename+".txt");
@@ -235,12 +191,24 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         }
         
 
-        WriteS sWriter = new WriteS(sim.space);
+        WriteS sWriter = new WriteS(sim.getSpace());
         sWriter.setFilename(filename);
         sWriter.setMeter(mnm);
         sWriter.setWaveVectorFactory(sim.nm.getWaveVectorFactory());
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
+        
+      //see if anything moved:
+      IAtomList leaflist = sim.box.getLeafList();
+      System.out.println("final: ");
+      double sum = 0.0;
+      for(int i = 0; i < numAtoms; i++){
+          //one d is assumed here.
+          sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+          System.out.println(sim.locations[i]);
+          sum += sim.locations[i];
+      }
+      System.out.println("sum  "+ sum);
         
         System.out.println("Fini.");
     }
@@ -249,7 +217,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
     /**
      * Inner class for parameters understood by the class's constructor
      */
-    public static class Sim1DHRParams extends ParameterBase {
+    public static class TestMCMoveChangeMultipleModeParams extends ParameterBase {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
@@ -257,7 +225,6 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {3, 6, 9, 12, 1, 7, 11, 13};
-        public int[] harmonicWV = {2, 4,8,10,14, 15, 16, 5};
+        public int[] harmonicWV = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     }
 }

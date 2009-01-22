@@ -405,7 +405,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
-            System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
+//            System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
         }
         try {
             // reset the integrator so that it will re-adjust step frequency

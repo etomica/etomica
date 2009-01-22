@@ -56,11 +56,15 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
     
     /**
-     * The harmonic wavevector and all wavevectors with higher numbers are not
-     * able to be changed by this MCMove.
+     * The harmonic wavevectors are not able to be changed by this MCMove.
+     * 
      */
-    public void setHarmonicWaveVector(int[] hwv){
+    public void setHarmonicWaveVectors(int[] hwv){
         harmonicWaveVectors = hwv;
+        if(harmonicWaveVectors.length +1 == waveVectors.length){
+            System.out.println("FEAR THE INFINiTE LOOP!!");
+            throw new IllegalArgumentException("all wave vectors are harmonic!");
+        }
     }
 
     /**
@@ -116,7 +120,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         boolean success = true;
         do{
             success = true;
-            changedWV = random.nextInt(waveVectorCoefficients.length);
+            changedWV = random.nextInt(waveVectorCoefficients.length-1);
             changedWV += 1;
             for(int i = 0; i < harmonicWaveVectors.length; i++){
                 if (changedWV == harmonicWaveVectors[i]) {
@@ -125,7 +129,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             }
         } while (!success);
         
-        System.out.println("changedWV "+ changedWV );
+        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
         //loop over cells
