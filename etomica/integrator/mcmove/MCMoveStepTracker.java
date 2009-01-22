@@ -114,7 +114,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
 
     /**
      * Resets damped step adjustment.  The adjustment interval is
-     * reset to defaultAdjustInterval and the adjustmentment step is
+     * reset to defaultAdjustInterval and the adjustment step is
      * reset to defaultAdjustStep.
      */
     public void resetAdjustStep() {
