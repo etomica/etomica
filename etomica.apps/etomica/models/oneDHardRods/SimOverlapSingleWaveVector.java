@@ -347,8 +347,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
             getController().actionPerformed();
             getController().reset();
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,41,false),1);
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(numBenSteps);
             
@@ -367,8 +367,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
             System.out.println("setting ref pref to "+bennettParam);
 //            setAccumulatorBlockSize(oldBlockSize);
             
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,11,false),1);
             setBennettParameter(bennettParam,5);
 
             // set benParam back to -1 so that later on we know that we've been looking for
@@ -388,8 +388,9 @@ public class SimOverlapSingleWaveVector extends Simulation {
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
-            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
-                    boxRef.getLeafList().getAtomCount()*2);
+//            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
+//                    boxRef.getLeafList().getAtomCount()*2);
+            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -448,8 +449,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+bennettParam+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(eqBlockSize,1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(eqBlockSize,1,false),1);
             setBennettParameter(bennettParam,1);
             if (fileName != null) {
                 try {
@@ -684,7 +685,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = 1;
         
-        public long numSteps = 40000000;
+        public long numSteps = 20000000;
         public long blockSize = 100000;
         public long eqBlockSize = 10000;
         public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
