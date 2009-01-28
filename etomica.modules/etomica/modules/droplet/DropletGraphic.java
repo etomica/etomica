@@ -60,6 +60,13 @@ public class DropletGraphic extends SimulationGraphic {
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
     	this.sim = simulation;
+    	
+    	getController().getSimRestart().setConfiguration(sim.config);
+    	getController().getReinitButton().setPostAction(new IAction() {
+    	    public void actionPerformed() {
+    	        getDisplayBox(sim.box).repaint();
+    	    }
+    	});
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
         add(displayTimer);
