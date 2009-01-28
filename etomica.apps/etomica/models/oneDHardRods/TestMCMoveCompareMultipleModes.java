@@ -257,7 +257,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {3, 6, 9, 12, 1, 7, 11, 13};
-        public int[] harmonicWV = {2, 4,8,10,14, 15, 16, 5};
+        public int[] comparedWV = {11};
+        public int[] harmonicWV = {12, 13, 14, 15, 16};
     }
 }

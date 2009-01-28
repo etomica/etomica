@@ -153,7 +153,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 }
             } while (!success);
             
-            System.out.println(changedWV);
+//            System.out.println(changedWV);
             
             // calculate the new positions of the atoms.
             // loop over cells

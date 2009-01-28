@@ -584,6 +584,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     
     public void setHarmonicWaveVectors(int[] hwv){
         compareMove.setHarmonicWVs(hwv);
+        changeMove.setHarmonicWaveVectors(hwv);
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
@@ -593,8 +594,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {10, 11};
-        public int[] harmonicWV = {12, 13};
+        public int[] comparedWV = {11};
+        public int[] harmonicWV = {12, 13, 14, 15, 16};
         
         public long numSteps = 40000000;
         public long runBlockSize = 100000;
