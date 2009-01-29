@@ -20,7 +20,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * harmonicWVs are the wavevectors that are harmonic, and left out of the "change
  * a random mode" calculation of the doTrial() method.
  * 
- * comparedWVs are the wavevectors that may be compared.
+ * comparedWVs are the wavevectors that are compared (removed).
  * 
  * @author cribbin
  * 
@@ -336,6 +336,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         return gaussian;
     }
 
+    /**
+     * Set the wavevectors that are removed.
+     * @param wv the wavevectors that are removed.
+     */
     public void setComparedWVs(int[] wv){
         for(int i = 0; i < wv.length; i++) {
             if(wv[i] == 0) {
@@ -345,6 +349,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }
         comparedWVs = wv;
     }
+    /**
+     * Set the wavevectors that are always harmonic.
+     * @param wv
+     */
     public void setHarmonicWVs(int[] wv){
         if(comparedWVs == null){ 
             throw new IllegalStateException("Must set comparedWVs before " +

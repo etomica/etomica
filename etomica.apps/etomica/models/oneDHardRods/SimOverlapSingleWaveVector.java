@@ -68,8 +68,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MCMoveCompareSingleMode compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareSingleModeBrute meterBinA, meterBinB;
-    MeterCompareTest meterTestBinA, meterTestBinB;
-    MeterOverlap meterOverlapInA, meterOverlapInB;
     
 //    private blockSize;   //used only by the accumulator to set its blockSize
     
@@ -171,7 +169,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        integratorTarget.setActionInterval(pumpTestBinA, 1000000);
 //        integratorTarget.setIntervalActionPriority(pumpTestBinA, 198);
         
-        meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
+        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
         
@@ -264,7 +262,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        integratorRef.setActionInterval(pumpTestBinB, 1000000);
 //        integratorRef.setIntervalActionPriority(pumpTestBinB, 199);
         
-        meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
         
@@ -692,14 +690,14 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = 1;
         
-        public int numSteps = 20000000;
-        public int runBlockSize = 100000;
-        public int eqBlockSize = 10000;
-        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        public int numSteps = 200000;
+        public int runBlockSize = 1000;
+        public int eqBlockSize = 100;
+        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000000;  
-        public int bennettNumSteps = 2000000;
-        public int benBlockSize = 10000;
+        public int eqNumSteps = 40000;  
+        public int bennettNumSteps = 20000;
+        public int benBlockSize = 100;
 
     }
     

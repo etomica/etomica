@@ -67,9 +67,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     MCMoveCompareMultipleModes compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;
-    MeterCompareTest meterTestBinA, meterTestBinB;
-    MeterOverlap meterOverlapInA, meterOverlapInB;
-    
     
     public SimOverlapMultipleWaveVectors(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
@@ -85,6 +82,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         accumulatorPumps = new DataPump[2];
         meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
+        
+        basis = new BasisMonatomic(space);
         
 //TARGET    
         // Set up target system - A, 1, hard rod
@@ -148,7 +147,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         
-        meterOverlapInA = new MeterOverlap("meterOverlapInA", Null.DIMENSION, 
+        MeterOverlap meterOverlapInA = new MeterOverlap("meterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
         
@@ -222,7 +221,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
         
-        meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
         
@@ -340,8 +339,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
-            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
-                    boxRef.getLeafList().getAtomCount()*2);
+//            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
+//                    boxRef.getLeafList().getAtomCount()*2);
+            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -597,14 +597,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] comparedWV = {11};
         public int[] harmonicWV = {12, 13, 14, 15, 16};
         
-        public long numSteps = 40000000;
-        public long runBlockSize = 100000;
-        public long subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        public long numSteps = 400000;
+        public long runBlockSize = 1000;
+        public long subBlockSize = 10;    //# of steps in subintegrator per integrator step
         
-        public long eqNumSteps = 4000000;  
-        public long eqBlockSize = 10000;
+        public long eqNumSteps = 40000;  
+        public long eqBlockSize = 100;
         
-        public long bennettNumSteps = 2000000;
-        public long benBlockSize = 10000;
+        public long bennettNumSteps = 40000;
+        public long benBlockSize = 100;
     }
 }
