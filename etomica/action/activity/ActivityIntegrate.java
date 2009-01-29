@@ -43,6 +43,7 @@ public class ActivityIntegrate extends Activity {
                 throw e;
             }
         }
+        integrator.resetStepCount();
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
             if (Debug.ON && stepCount == Debug.STOP) break;
