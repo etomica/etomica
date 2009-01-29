@@ -375,27 +375,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         getController().getReinitButton().setPostAction(reinitDisplayAction);
 
-		//set the number of significant figures displayed on the table.
-		javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-			java.text.NumberFormat formatter;
-			//initializer for inner class
-			{
-				formatter = java.text.NumberFormat.getInstance();
-				formatter.setMaximumFractionDigits(6);//this is the only part
-				// that
-				// differs from the default
-			}
-
-			public void setValue(Object value) {
-				setText((value == null) ? "" : formatter.format(value));
-			}
-		};
-		numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
-		//table.table.setDefaultRenderer(Number.class, numberRenderer);
+		table.setPrecision(6);
 
 		initializing = false;
-		//panel.removeAll();
-		//panel.add(panel);
 	}
 
 	public static void main(String[] args) {
