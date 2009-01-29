@@ -9,14 +9,10 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
 import etomica.api.IAtomTypeSphere;
-import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -32,6 +28,7 @@ import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
@@ -45,6 +42,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
+import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
@@ -104,8 +102,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
 
 		//	adjustment of species properties
-		MySpeciesEditor AEditor = new MySpeciesEditor(sim, sim.box, sim.speciesA, "Red");
-		MySpeciesEditor BEditor = new MySpeciesEditor(sim, sim.box, sim.speciesB, "Black");
+		MySpeciesEditor AEditor = new MySpeciesEditor(sim.speciesA, "Red");
+		MySpeciesEditor BEditor = new MySpeciesEditor(sim.speciesB, "Black");
 		int ms = 10;
 		AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
 		BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -115,6 +113,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				AEditor.nSlider.getSlider().createStandardLabels(ms));
 		BEditor.nSlider.getSlider().setLabelTable(
 				AEditor.nSlider.getSlider().createStandardLabels(ms));
+
+        MassEditor AMassEditor = new MassEditor(sim.speciesA, "Red");
+        MassEditor BMassEditor = new MassEditor(sim.speciesB, "Black");
 
 		//sliders to adjust potentials well depth
 		int eMin = 0;
@@ -162,9 +163,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		sizeSlider.setLabel("Atom size");
 		sizeSlider.setPrecision(2);
 		sizeSlider.setMinimum(0.0);
-		sizeSlider.setMaximum(3.0);
-		sizeSlider.setNMajor(3);
-		sizeSlider.setValue(3.0);
+		sizeSlider.setMaximum(2.0);
+		sizeSlider.setNMajor(4);
+		sizeSlider.setValue(2.0);
 		sizeSlider.setShowValues(true);
 		sizeSlider.setEditValues(true);
 		sizeSlider.setPostAction(resetAction);
@@ -320,6 +321,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		speciesEditors.setBorder(new TitledBorder(
 				null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 
+		JPanel massEditors = new JPanel(new java.awt.GridLayout(0, 1));
+        massEditors.add(AMassEditor);
+        massEditors.add(BMassEditor);
+
 		//panel of well-depth sliders
 		JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
 		epsilonSliders.add(AASlider.graphic(null));
@@ -349,11 +354,12 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				sliderPanel.validate();
 			}
 		});
+        sliderPanel.add("Species", speciesEditors);
+        sliderPanel.add("Mass (Da)", massEditors);
 
 		//top panel for control, temperature, potential adjustment
 		add(temperatureSelect);
 		getPanel().controlPanel.add(sliderPanel, vertGBC);
-		getPanel().controlPanel.add(speciesEditors, vertGBC);
 		add(plot);
 		add(table);
 		add(tBox);
@@ -390,28 +396,20 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	//=================================================================
 	//panel containing species-editing devices
 
-	class MySpeciesEditor extends javax.swing.JPanel {
+	public class MySpeciesEditor extends javax.swing.JPanel {
 
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-		public SpeciesSpheresMono species;
-
-		public final javax.swing.JTextField mass = new javax.swing.JTextField(
-				"40");
-
-		//    public java.awt.TextField mass = new java.awt.TextField("40");
-
-        public MySpeciesEditor(final ReactionEquilibrium sim, IBox box, SpeciesSpheresMono s, String label) {
+        public MySpeciesEditor(SpeciesSpheresMono s, String label) {
             super();
-            species = s;
             nSlider = new DeviceNSelector(sim.getController());
-            nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
-            nSlider.setSpecies(species);
-            nSlider.setBox(box);
+            nSlider.setResetAction(new SimulationRestart(sim, sim.getSpace(), sim.getController()));
+            nSlider.setSpecies(s);
+            nSlider.setBox(sim.box);
             //nSlider.setDisplayBox(DisplayBox1);
             nSlider.setMinimum(0);
-            nSlider.setMaximum(40);
+            nSlider.setMaximum(60);
             nSlider.setPostAction(new IAction() {
                 public void actionPerformed() {
                     AtomLeafAgentManager agentManager = sim.getAgentManager();
@@ -432,40 +430,26 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                     densityDisplay.putData(densityAccum.getData());
                 }
            });
-
-			//listener for changes to mass textbox
-			java.awt.event.ActionListener myListener = new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent event) {
-					if (initializing)
-						return;
-					int value;
-					try {
-						value = Integer.parseInt(mass.getText());
-					} catch (NumberFormatException ex) {
-						return;
-					}
-					if (value < 1)
-						value = 1;
-					if (value > 1000000)
-						value = 1000000;
-					final double newMass = value;
-					mass.setText(Integer.toString(value));
-					((ElementSimple)((IAtomTypeLeaf)species.getLeafType()).getElement()).setMass(newMass);
-                     try {
-                         sim.integratorHard1.reset();
-                     } catch(ConfigurationOverlapException e) {}
-				}
-			};
-			mass.addActionListener(myListener);
-			mass.setBorder(new javax.swing.border.TitledBorder("Mass"));
-			mass.setColumns(6);
-			mass.setOpaque(false);
 			setLayout(new java.awt.FlowLayout());
-			add(nSlider.graphic(null));
-			add(mass);
+			add(nSlider.graphic());
 			setBorder(new javax.swing.border.TitledBorder(label));
 		}
 	} //end of MySpeciesEditor
+
+    public static class MassEditor extends javax.swing.JPanel {
+
+        public final DeviceBox mass = new DeviceBox();
+
+        public MassEditor(SpeciesSpheresMono species, String label) {
+            super();
+            //listener for changes to mass textbox
+            mass.setModifier(new ModifierGeneral(species.getLeafType().getElement(), "mass"));
+            mass.setInteger(true);
+            setLayout(new java.awt.FlowLayout());
+            add(mass.graphic());
+            setBorder(new javax.swing.border.TitledBorder(label));
+        }
+    } //end of MySpeciesEditor
 
 	public static class Applet extends javax.swing.JApplet {
 
