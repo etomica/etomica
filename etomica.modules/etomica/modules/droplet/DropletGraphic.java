@@ -11,28 +11,26 @@ import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
-import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
+import etomica.atom.AtomTypeSphere;
+import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
+import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -40,6 +38,7 @@ import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Pixel;
+import etomica.util.HistoryCollapsing;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.
@@ -57,10 +56,11 @@ public class DropletGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
 
+
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
     	this.sim = simulation;
-    	
+
     	getController().getSimRestart().setConfiguration(sim.config);
     	getController().getReinitButton().setPostAction(new IAction() {
     	    public void actionPerformed() {
@@ -70,6 +70,17 @@ public class DropletGraphic extends SimulationGraphic {
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
         add(displayTimer);
+        displayTimer.setUpdateInterval(1);
+        
+        DeviceSlider timeStepSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.integrator, "timeStep"));
+        timeStepSlider.setPrecision(1);
+        timeStepSlider.setMinimum(0);
+        timeStepSlider.setMaximum(1);
+        timeStepSlider.setNMajor(4);
+        timeStepSlider.setShowValues(true);
+        timeStepSlider.setLabel("time step");
+        timeStepSlider.setShowBorder(true);
+        
 
         //add meter and display for current kinetic temperature
 
@@ -78,39 +89,70 @@ public class DropletGraphic extends SimulationGraphic {
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(2000);
+        nSlider.setNMajor(4);
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
 
+        ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(Math.pow(2.0/nSlider.getValue(),1.0/3.0));
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 sim.config.initializeCoordinates(sim.box);
-
+                ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(Math.pow(2.0/nSlider.getValue(),1.0/3.0));
                 getDisplayBox(sim.box).repaint();
             }
-            
         });
+        
+        DeviceSlider defSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.config, "deformation"));
+        defSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
+                sim.config.initializeCoordinates(sim.box);
+                getDisplayBox(sim.box).repaint();
+            }
+        });
+        defSlider.setPrecision(1);
+        defSlider.setMinimum(-0.6);
+        defSlider.setMaximum(0.6);
+        defSlider.setNMajor(3);
+        defSlider.setShowValues(true);
+        defSlider.setLabel("initial deformation");
+        defSlider.setShowBorder(true);
 
         DeviceSlider cohesionEpsilon = new DeviceSlider(sim.getController());
         cohesionEpsilon.setShowBorder(true);
         cohesionEpsilon.setModifier(new ModifierGeneral(sim.p2, "epsilon"));
-        cohesionEpsilon.setMaximum(5);
+        cohesionEpsilon.setPrecision(2);
+        cohesionEpsilon.setMinimum(0.5);
+        cohesionEpsilon.setMaximum(2);
+        cohesionEpsilon.setNMajor(3);
         cohesionEpsilon.setShowValues(true);
         cohesionEpsilon.setLabel("cohesion epsilon");
+
+        DeviceSlider squeeze = new DeviceSlider(sim.getController());
+        squeeze.setShowBorder(true);
+        squeeze.setModifier(new ModifierGeneral(sim.p1Smash, "g"));
+        squeeze.setPrecision(1);
+        squeeze.setMaximum(5);
+        squeeze.setNMajor(5);
+        squeeze.setShowValues(true);
+        squeeze.setLabel("squeezing epsilon");
         
-        JPanel systemPanel = new JPanel(new GridBagLayout());
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+        JPanel controlsPanel = new JPanel(new GridBagLayout());
+        controlsPanel.add(timeStepSlider.graphic(), vertGBC);
         
         //************* Lay out components ****************//
 
         JTabbedPane tabbedPane = new JTabbedPane();
-//        tabbedPane.add("System", systemPanel);
+        tabbedPane.add("Controls", controlsPanel);
         getPanel().controlPanel.add(tabbedPane, vertGBC);
         JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
         numMoleculesPanel.add(nSlider.graphic(), vertGBC);
+        numMoleculesPanel.add(defSlider.graphic(), vertGBC);
         tabbedPane.add("# of molecules", numMoleculesPanel);
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(cohesionEpsilon.graphic(), vertGBC);
+        potentialPanel.add(squeeze.graphic(), vertGBC);
         tabbedPane.add("Potential", potentialPanel);
         
         MeterDeformation meterDeformation = new MeterDeformation(space);
@@ -120,25 +162,26 @@ public class DropletGraphic extends SimulationGraphic {
         dataStreamPumps.add(deformationPump);
         sim.integrator.addIntervalAction(deformationPump);
 
+        DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
+        
         DataFork radiusFork = new DataFork();
         splitter.setDataSink(0, radiusFork);
-        AccumulatorAverageCollapsing radiusAvg = new AccumulatorAverageCollapsing();
-        radiusAvg.setPushInterval(1);
-        radiusFork.addDataSink(radiusAvg);
-        DisplayTextBoxesCAE radiusBox = new DisplayTextBoxesCAE();
-        radiusBox.setLabel("Radius");
-        radiusBox.setAccumulator(radiusAvg);
-        add(radiusBox);
+        AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsing());
+        radiusHistory.setTimeDataSource(timer);
+        radiusFork.addDataSink(radiusHistory);
+        DisplayPlot radiusDeformPlot = new DisplayPlot();
+        radiusDeformPlot.setLabel("Deformation");
+        radiusHistory.setDataSink(radiusDeformPlot.getDataSet().makeDataSink());
+        radiusDeformPlot.setLegend(new DataTag[]{radiusHistory.getTag()}, "radius");
+        add(radiusDeformPlot);
 
         DataFork deformationFork = new DataFork();
         splitter.setDataSink(1, deformationFork);
-        AccumulatorAverageCollapsing deformationAvg = new AccumulatorAverageCollapsing();
-        deformationAvg.setPushInterval(1);
-        deformationFork.addDataSink(deformationAvg);
-        DisplayTextBoxesCAE deformationBox = new DisplayTextBoxesCAE();
-        deformationBox.setLabel("Deformation");
-        deformationBox.setAccumulator(deformationAvg);
-        add(deformationBox);
+        AccumulatorHistory deformationHistory = new AccumulatorHistory(new HistoryCollapsing());
+        deformationHistory.setTimeDataSource(timer);
+        deformationFork.addDataSink(deformationHistory);
+        deformationHistory.setDataSink(radiusDeformPlot.getDataSet().makeDataSink());
+        radiusDeformPlot.setLegend(new DataTag[]{deformationHistory.getTag()}, "deformation");
     }
 
     public static void main(String[] args) {
@@ -159,10 +202,9 @@ public class DropletGraphic extends SimulationGraphic {
         }
 
         Droplet sim = new Droplet(sp);
-        DropletGraphic swGraphic = new DropletGraphic(sim, sp);
-        swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(9));
+        DropletGraphic simGraphic = new DropletGraphic(sim, sp);
 		SimulationGraphic.makeAndDisplayFrame
-		        (swGraphic.getPanel(), APP_NAME);
+		        (simGraphic.getPanel(), APP_NAME);
     }
     
     public static class Applet extends javax.swing.JApplet {
@@ -172,10 +214,10 @@ public class DropletGraphic extends SimulationGraphic {
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space3D.getInstance();
 	        Droplet sim = new Droplet(sp);
-            DropletGraphic ljmdGraphic = new DropletGraphic(sim, sp);
-            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
+            DropletGraphic simGraphic = new DropletGraphic(sim, sp);
+            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 
-		    getContentPane().add(ljmdGraphic.getPanel());
+		    getContentPane().add(simGraphic.getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;
