@@ -60,12 +60,12 @@ public class Droplet extends Simulation {
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         IVectorMutable dim = space.makeVector();
-        dim.E(new double[]{10,10,10});
+        dim.E(new double[]{4,4,4});
         box.getBoundary().setDimensions(dim);
         box.setNMolecules(species, numAtoms);
         integrator.setBox(box);
 
-        config = new ConfigurationDroplet(random);
+        config = new ConfigurationDroplet(random, space);
         config.initializeCoordinates(box);
     }
     
