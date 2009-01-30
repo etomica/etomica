@@ -51,7 +51,7 @@ public class DropletAtomic extends Simulation {
         super(_space);
         double pRange = 3;
         sigma = 3.35;
-        nNominalAtoms = 171500;
+        nNominalAtoms = 32000;
         dropRadius = 0.4;
         xDropAxis = 1;
         density = 0.6;
