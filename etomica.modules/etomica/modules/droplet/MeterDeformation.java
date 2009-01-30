@@ -21,7 +21,7 @@ public class MeterDeformation implements IEtomicaDataSource {
         tag = new DataTag();
         f = new double[10];
         for (int i=0; i<f.length; i++) {
-            f[i] = 1 + i/3.0;
+            f[i] = 1 + (i+1)/3.0;
         }
         
         center = space.makeVector();
@@ -55,11 +55,10 @@ public class MeterDeformation implements IEtomicaDataSource {
         double b1 = moment.trace();
         
         double b2 = 0;
-        workTensor.E(moment);
-        workTensor.TE(moment);
         for (int i=0; i<moment.D(); i++) {
             for (int j=0; j<moment.D(); j++) {
-                b2 += workTensor.component(i,j);
+                double m = moment.component(i,j);
+                b2 += m*m;
             }
         }
         
@@ -74,14 +73,16 @@ public class MeterDeformation implements IEtomicaDataSource {
         double eOld = 0;
         double eOldOld = 0;
         double e = factor * Math.sqrt(c1/3.0);
-        while (Math.abs(e-eOld) > 1.e-9 && (Math.abs(e-eOld) <= Math.abs(e-eOldOld) || (e-eOld)*(e-eOldOld) < 0)) {
+        int iter = 0;
+        while (iter < 20 && Math.abs(e-eOld) > 1.e-9 && (Math.abs(e-eOld) <= Math.abs(e-eOldOld) || (e-eOld)*(e-eOldOld) < 0)) {
             eOldOld = eOld;
             eOld = e;
             double denominator = 1.0;
             for (int i=0; i<10; i++) {
-                denominator += f[i] * Math.pow(eOld, i);
+                denominator += f[i] * Math.pow(eOld, (i+1));
             }
             e = factor * Math.sqrt(c1 / denominator);
+            iter++;
         }
         
         double[] x = data.getData();
