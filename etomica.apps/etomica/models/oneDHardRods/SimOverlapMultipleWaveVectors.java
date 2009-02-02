@@ -128,6 +128,12 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
+        int wvflength = waveVectorFactoryTarget.getWaveVectors().length;
+        System.out.println("We have " + wvflength +" wave vectors.");
+        System.out.println("Wave Vector Coefficients:");
+        for(int i = 0; i < wvflength; i++){
+            System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
+        }
         
         changeMove = new MCMoveChangeMultipleModes(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
@@ -589,14 +595,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 6;
         public double density = 0.5;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {11};
-        public int[] harmonicWV = {12, 13, 14, 15, 16};
+        public int[] comparedWV = {2};
+        public int[] harmonicWV = {3};
         
         public long numSteps = 400000;
         public long runBlockSize = 1000;

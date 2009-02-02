@@ -4,6 +4,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -34,7 +35,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV;
-    int[] harmonicWaveVectors;  //all wvs from the harmonic wv and up are not changed.
+    int[] harmonicWaveVectors;  //all wvs from the harmonic wv are not changed.
     
     
     public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
@@ -162,6 +163,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
+//                System.out.println(uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
@@ -181,6 +183,11 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     
     public void acceptNotify() {
 //        System.out.println("accept");
+//        iterator.reset();
+//        for(int i = 0; i < 32; i++){
+//            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
+//        }
+//        
     }
 
     public double energyChange() {

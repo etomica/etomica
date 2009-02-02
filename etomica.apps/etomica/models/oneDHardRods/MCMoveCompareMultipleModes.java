@@ -5,6 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -79,6 +80,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 // ZERO OUT A NORMAL MODE.
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
             int comparedwv = comparedWVs[wvCount];
+            
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             
@@ -109,6 +111,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                                 * eigenVectors[comparedwv][i][j] * 2.0
                                 * (realCoord * coskR - imagCoord * sinkR);
                     }
+//                    System.out.println(deltaU[i]);
                 }
                 for (int i = 0; i < coordinateDim; i++) {
                     deltaU[i] *= normalization;
@@ -210,8 +213,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 // ignored, but it's hard to know which. So long as we don't put
                 // an atom at the  origin (which is true for 1D if c(k)=0.5), 
                 // it's the real part that will be ignored.
-                if (waveVectorCoefficients[comparedwv] == 0.5)
-                    imagGauss = 0;
+                if (waveVectorCoefficients[comparedwv] == 0.5) {imagGauss = 0;}
                 rRand[j] = realGauss * stdDev[comparedwv][j];
                 iRand[j] = imagGauss * stdDev[comparedwv][j];
                 gaussian[0] = realGauss;
@@ -244,6 +246,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
+//                    System.out.println(uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
@@ -261,7 +264,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void acceptNotify() {
-        
+//      System.out.println("Accept!");
+//      iterator.reset();
+//      for(int i = 0; i < 32; i++){
+//          System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
+//      }
     }
 
     public double energyChange() {
@@ -275,6 +282,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
+//        System.out.println("rejected!");
     }
 
     public void setBox(IBox newBox) {
