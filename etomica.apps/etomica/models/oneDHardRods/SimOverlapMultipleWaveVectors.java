@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -37,6 +38,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -56,8 +58,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     
     IntegratorMC[] integrators;
     protected int eqBlockSize, benBlockSize, runBlockSize;
-//    protected int eqNumSteps, benNumSteps, numSteps;
-    private int blockSize;      //nan I need to straighten this out someday
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
@@ -72,6 +72,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] harmWV){
         super(_space, true);
+        
+//        IRandom rand = new RandomNumberGenerator((long)3.0);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -335,7 +338,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage 
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
-        accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -354,7 +356,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public void setAccumulatorBlockSize(int newBlockSize) {
-        blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
         }

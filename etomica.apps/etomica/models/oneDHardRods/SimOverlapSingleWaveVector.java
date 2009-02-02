@@ -9,8 +9,8 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -38,6 +38,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -67,14 +68,14 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MCMoveChangeSingleMode changeMove;
     MCMoveCompareSingleMode compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterCompareSingleModeBrute meterBinA, meterBinB;
-    
-//    private blockSize;   //used only by the accumulator to set its blockSize
-    
+    MeterCompareSingleModeBrute meterBinA, meterBinB;    
     
     public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
+        
+//        IRandom rand = new RandomNumberGenerator((long)3.0);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -688,15 +689,16 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 1;
+        public int comparedWV = 11;
         
-        public int numSteps = 200000;
+        public int numSteps = 400000;
         public int runBlockSize = 1000;
-        public int eqBlockSize = 100;
         public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
         public int eqNumSteps = 40000;  
-        public int bennettNumSteps = 20000;
+        public int eqBlockSize = 100;
+        
+        public int bennettNumSteps = 40000;
         public int benBlockSize = 100;
 
     }
