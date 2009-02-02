@@ -96,8 +96,8 @@ public class VirialLJ {
                 System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+//        sim.integratorOS.addIntervalAction(progressReport);
+//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.ai.setMaxSteps(steps);
         for (int i=0; i<2; i++) {
@@ -112,7 +112,7 @@ public class VirialLJ {
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(0);
         System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
         System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
@@ -121,8 +121,8 @@ public class VirialLJ {
         System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
+
+        allYourBase = (DataGroup)sim.accumulators[1].getData(0);
         System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
         System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
@@ -138,7 +138,7 @@ public class VirialLJ {
      */
     public static class VirialLJParam extends ParameterBase {
         public int nPoints = 3;
-        public double temperature = 1;
+        public double temperature = 1.5;
         public long numSteps = 100000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
