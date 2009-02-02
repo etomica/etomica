@@ -1,15 +1,36 @@
 package etomica.virial.simulations;
 
+import java.awt.Color;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import etomica.api.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeRandomByMolecule;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.CompoundDimension;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
+import etomica.units.Null;
+import etomica.units.Pixel;
+import etomica.units.Quantity;
+import etomica.units.Unit;
+import etomica.units.Volume;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
@@ -25,7 +46,6 @@ public class VirialLJRejected {
 
 
     public static void main(String[] args) {
-
         VirialLJParam params = new VirialLJParam();
         if (args.length > 0) {
             params.writeRefPref = true;
@@ -76,6 +96,81 @@ public class VirialLJRejected {
 		
         final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
+        
+        if (true) {
+            double size = 5;
+            sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
+            sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
+            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[0]).canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[1]).canvas).setBackgroundColor(Color.WHITE);
+            
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            simGraphic.getDisplayBox(sim.box[0]).setColorScheme(colorScheme);
+            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            simGraphic.getDisplayBox(sim.box[1]).setColorScheme(colorScheme);
+            
+            simGraphic.makeAndDisplayFrame();
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.setAccumulatorBlockSize(1000);
+                
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            sim.getController().removeAction(sim.ai);
+            sim.getController().addAction(new IAction() {
+                public void actionPerformed() {
+                    sim.initRefPref(null, 1000);
+                    sim.equilibrate(null, 2000);
+                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+                }
+            });
+            sim.getController().addAction(sim.ai);
+            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+                throw new RuntimeException("Oops");
+            }
+            
+            final DisplayTextBox averageBox = new DisplayTextBox("Average", Quantity.SIM_UNIT);
+            final DisplayTextBox errorBox = new DisplayTextBox("Error", Quantity.SIM_UNIT);
+            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
+            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
+            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
+            
+            IAction pushAnswer = new IAction() {
+                public void actionPerformed() {
+                    double ratio = sim.dsvo.getDataAsScalar() * HSB[nPoints];
+                    double error = sim.dsvo.getError() * HSB[nPoints];
+                    data.x = ratio;
+                    averageBox.putData(data);
+                    data.x = error;
+                    errorBox.putData(data);
+                }
+                
+                DataDouble data = new DataDouble();
+            };
+            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            Unit unit = Null.UNIT;
+            averageBox.putDataInfo(dataInfo);
+            averageBox.setLabel("average");
+            averageBox.setUnit(unit);
+            errorBox.putDataInfo(dataInfo);
+            errorBox.setLabel("error");
+            errorBox.setPrecision(2);
+            errorBox.setUnit(unit);
+            sim.integratorOS.addIntervalAction(pushAnswer);
+            sim.integratorOS.setActionInterval(pushAnswer, 1);
+            
+            return;
+        }
+
+        
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
