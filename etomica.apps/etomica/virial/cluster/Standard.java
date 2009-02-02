@@ -176,10 +176,10 @@ public final class Standard {
         return new ClusterSum(clusters,weights,new MayerFunction[]{f});
     }
     
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction[] f, int[] bondTypes, int clusterIndex) {
+    public static ClusterAbstract virialSeriesCluster(int nBody, MayerFunction[] f, int[] bondTypes) {
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
-        generator.setAllPermutations(true);
+        generator.setAllPermutations(false);
         generator.setOnlyDoublyConnected(true);
         generator.setExcludeArticulationPoint(false);
         generator.setExcludeArticulationPair(false);
@@ -187,39 +187,65 @@ public final class Standard {
         generator.setMakeReeHover(false);
         clusterD.reset();
         generator.reset();
-        while (clusterIndex>0) {
-            if (!generator.advance()) {
-                throw new RuntimeException("clusterIndex "+clusterIndex+" too high");
-            }
-            clusterIndex--;
-        }
         int nBondTypes = f.length;
-        int numBonds = clusterD.getNumConnections();
-        int[][][] bondList = new int[nBondTypes][][];
-        for (int i=0; i<nBondTypes; i++) {
-            int n = 0;
-            for (int j=0; j<numBonds; j++) {
-                if (bondTypes[j] == i) {
-                    n++;
+        PermutationIterator iter = new PermutationIterator(bondTypes);
+        int numBonds = bondTypes.length;
+        ClusterBonds[] clusters = new ClusterBonds[0];
+        double[] weights = new double[0];
+        while (true) {
+            while (clusterD.getNumConnections() != numBonds) {
+                if (!generator.advance()) {
+                    if (clusters.length > 0) {
+                        return new ClusterSum(clusters, weights, f);
+                    }
+                    throw new RuntimeException("couldn't find number of bonds "+bondTypes.length);
                 }
             }
-            bondList[i] = new int[n][2];
-        }
-        int bondCount = 0;
-        int[] iBondCount = new int[nBondTypes];
-        for (int i = 0; i < nBody; i++) {
-            int[] iConnections = clusterD.mConnections[i];
-            for (int j=0; j<nBody-1 && iConnections[j] != -1; j++) {
-                if (iConnections[j] > i) {
-                    int bondType = bondTypes[bondCount];
-                    bondList[bondType][iBondCount[bondType]][0] = i;
-                    bondList[bondType][iBondCount[bondType]][1] = iConnections[j];
-                    iBondCount[bondType]++;
-                    bondCount++;
+            iter.reset();
+            int nPermutations = 0;
+            for (int[] iBondTypes = iter.next(); iBondTypes != null; iBondTypes = iter.next()) {
+                nPermutations++;
+            }
+            iter.reset();
+            for (int[] iBondTypes = iter.next(); iBondTypes != null; iBondTypes = iter.next()) {
+                int[][][] bondList = new int[nBondTypes][][];
+                for (int i=0; i<nBondTypes; i++) {
+                    int n = 0;
+                    for (int j=0; j<numBonds; j++) {
+                        if (iBondTypes[j] == i) {
+                            n++;
+                        }
+                    }
+                    bondList[i] = new int[n][2];
                 }
+                int bondCount = 0;
+                int[] iBondCount = new int[nBondTypes];
+                for (int i = 0; i < nBody; i++) {
+                    int[] iConnections = clusterD.mConnections[i];
+                    for (int j=0; j<nBody-1 && iConnections[j] != -1; j++) {
+                        if (iConnections[j] > i) {
+                            int bondType = iBondTypes[bondCount];
+                            bondList[bondType][iBondCount[bondType]][0] = i;
+                            bondList[bondType][iBondCount[bondType]][1] = iConnections[j];
+                            iBondCount[bondType]++;
+                            bondCount++;
+                        }
+                    }
+                }
+                clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+                double [] newWeights = new double[weights.length+1];
+                System.arraycopy(weights,0,newWeights,0,weights.length);
+                newWeights[weights.length] = (1.0-nBody)/clusterD.mNumIdenticalPermutations/nPermutations;
+                System.out.println((1.0-nBody)+" "+clusterD.mNumIdenticalPermutations);
+                weights = newWeights;
+            }
+            if (!generator.advance()) {
+                if (clusters.length > 0) {
+                    return new ClusterSum(clusters, weights, f);
+                }
+                throw new RuntimeException("couldn't find number of bonds "+bondTypes.length);
             }
         }
-        return new ClusterSum(new ClusterBonds[]{new ClusterBonds(nBody, bondList, false)}, new double[]{(1-nBody)/(double)SpecialFunctions.factorial(nBody)}, f);
     }
     
     public static ClusterAbstract virialClusterXS(int nBody, MayerFunction f, 

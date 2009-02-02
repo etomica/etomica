@@ -30,7 +30,6 @@ public class VirialLJSeries {
 
 
     public static void main(String[] args) {
-
         VirialLJParam params = new VirialLJParam();
         if (args.length > 0) {
             params.writeRefPref = true;
@@ -67,12 +66,37 @@ public class VirialLJSeries {
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         Potential2Spherical pTarget = new P2SoftSphere(space,1.0,4.0,12);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,pTarget);
-        MayerFunction[] allF = new MayerFunction[10];
-        allF[0] = fTarget;
+        boolean[] used = new boolean[10];
+        int[] bondMap = new int[10];
         for (int i=1; i<10; i++) {
-            allF[i] = new MayerSSSeries(space, 6*i);
+            bondMap[i] = -1;
         }
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, allF, bondList, 0);
+        int iBond = 0;
+        for (int i=0; i<bondList.length; i++) {
+            if (!used[bondList[i]]) {
+                used[bondList[i]] = true;
+                iBond++;
+            }
+        }
+        MayerFunction[] allF = new MayerFunction[iBond];
+        iBond = 0;
+        if (used[0]) {
+            allF[0] = fTarget;
+            bondMap[0] = 0;
+            iBond++;
+        }
+        for (int i=1; i<10; i++) {
+            if (used[i]) {
+                bondMap[i] = iBond;
+                allF[iBond] = new MayerSSSeries(space, 6*i);
+                iBond++;
+            }
+        }
+        int[] newBondList = new int[bondList.length];
+        for (int i=0; i<bondList.length; i++) {
+            newBondList[i] = bondMap[bondList[i]];
+        }
+        ClusterAbstract targetCluster = Standard.virialSeriesCluster(nPoints, allF, newBondList);
         targetCluster.setTemperature(temperature);
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
