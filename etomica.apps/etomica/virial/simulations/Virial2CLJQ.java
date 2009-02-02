@@ -4,9 +4,7 @@ import etomica.api.IAction;
 import etomica.api.IData;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P22CLJQ;
@@ -97,7 +95,7 @@ public class Virial2CLJQ {
         steps /= 1000;
 		
         ConformationLinear conformation = new ConformationLinear(space, bondL);
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryTangentSpheres(2, conformation), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactoryTangentSpheres(2, conformation), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
 
         if (false) {
@@ -142,12 +140,6 @@ public class Virial2CLJQ {
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
-            int minDiffLoc = sim.dsvo.minDiffLocation();
-            System.out.println(minDiffLoc+" "+sim.accumulators[0].getBennetAverage(minDiffLoc)+" "+sim.accumulators[1].getBennetAverage(minDiffLoc));
-            IData avg = ((DataGroup)sim.accumulators[0].getData(minDiffLoc)).getData(AccumulatorAverage.StatType.AVERAGE.index);
-            System.out.println(avg.getValue(0)+" "+avg.getValue(1));
-            avg = ((DataGroup)sim.accumulators[1].getData(minDiffLoc)).getData(AccumulatorAverage.StatType.AVERAGE.index);
-            System.out.println(avg.getValue(0)+" "+avg.getValue(1));
             throw new RuntimeException("oops");
         }
 
@@ -180,25 +172,31 @@ public class Virial2CLJQ {
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("reference   average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("reference overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
         
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-        System.out.println("2CLJQ ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-        System.out.println("2CLJQ average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("2CLJQ overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("target average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("target overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
 	}
 
     /**
