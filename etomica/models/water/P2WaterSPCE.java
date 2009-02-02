@@ -14,7 +14,7 @@ public class P2WaterSPCE extends P2Water3P {
 
     public P2WaterSPCE(ISpace space) {
 	    super(space, 3.1670, Kelvin.UNIT.toSim(78.21), 
-	            Electron.UNIT.toSim(-0.8476), Electron.UNIT.toSim(-0.8476));
+	            Electron.UNIT.toSim(-0.8476), Electron.UNIT.toSim(0.4238));
     }
     
     private static final long serialVersionUID = 1L;
