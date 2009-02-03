@@ -29,6 +29,9 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
+    public MeterCompareSingleModeBrute single;
+    
+    public boolean isA;
     
     
     public MeterCompareMultipleModesBrute(IPotentialMaster potentialMaster, 
@@ -45,6 +48,8 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        
+        single = new MeterCompareSingleModeBrute("single", potentialMaster, cd, box);
     }
     
     
@@ -134,6 +139,12 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
         
+        if(isA){
+            double dork = energyHardRod + energyHarmonic;
+            System.out.println("single: " + single.getDataAsScalar());
+            System.out.println("multiple: " + dork);
+        }
+        
         return energyHardRod + energyHarmonic;
     }
     
@@ -164,5 +175,21 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
+    }
+
+    public MeterCompareSingleModeBrute getSingle() {
+        return single;
+    }
+
+    public void setSingle(MeterCompareSingleModeBrute single) {
+        this.single = single;
+    }
+
+    public boolean isA() {
+        return isA;
+    }
+
+    public void setA(boolean isA) {
+        this.isA = isA;
     }
 }

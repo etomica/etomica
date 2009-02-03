@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -38,7 +37,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -68,6 +66,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;
     
+    
     public SimOverlapMultipleWaveVectors(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] harmWV){
@@ -87,6 +86,13 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
         basis = new BasisMonatomic(space);
+        
+        
+//        bMeters = new IEtomicaDataSource[2];
+//        bPumps = new DataPump[2];
+//        bAccs = new AccumulatorVirialOverlapSingleAverage[2];
+        
+        
         
 //TARGET    
         // Set up target system - A, 1, hard rod
@@ -162,6 +168,30 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
+        meterBinA.getSingle().setCoordinateDefinition(coordinateDefinitionTarget);
+        meterBinA.getSingle().setEigenVectors(nm.getEigenvectors(boxTarget));
+        meterBinA.getSingle().setOmegaSquared(nm.getOmegaSquared(boxTarget));
+        meterBinA.getSingle().setTemperature(temperature);
+        meterBinA.getSingle().setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
+        meterBinA.getSingle().setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
+        meterBinA.setA(false);
+        
+//        singleBinA = new MeterCompareSingleModeBrute("singleBinA", potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
+//        singleBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
+//        singleBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
+//        singleBinA.setTemperature(temperature);
+//        singleBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
+//        singleBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
+//        singleBinA.setComparedWV(11);
+//        System.out.println("singleBinA has set its comparedWV to 11");
+//        
+//        MeterOverlap singleOverlapinA = new MeterOverlap("singleOverlapinA", Null.DIMENSION, meterAinA, singleBinA, temperature);
+//        bMeters[1] = singleOverlapinA;
+        
+        
+        
+        
+        
         
 //REFERENCE
         // Set up REFERENCE system - System B - 0 - Hybrid system
@@ -236,6 +266,29 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
+        
+        
+        meterBinB.getSingle().setCoordinateDefinition(coordinateDefinitionRef);
+        meterBinB.getSingle().setEigenVectors(nm.getEigenvectors(boxRef));
+        meterBinB.getSingle().setOmegaSquared(nm.getOmegaSquared(boxRef));
+        meterBinB.getSingle().setTemperature(temperature);
+        meterBinB.getSingle().setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
+        meterBinB.getSingle().setWaveVectors(waveVectorFactoryRef.getWaveVectors());
+        meterBinB.setA(true);
+        
+//        singleBinB = new MeterCompareSingleModeBrute(potentialMasterRef, 
+//                coordinateDefinitionRef, boxRef);
+//        singleBinB.setCoordinateDefinition(coordinateDefinitionRef);
+//        singleBinB.setEigenVectors(nm.getEigenvectors(boxRef));
+//        singleBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
+//        singleBinB.setTemperature(temperature);
+//        singleBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
+//        singleBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
+//        
+//        
+//        MeterOverlap singleOverlapInB = new MeterOverlap("SingleOverlapInB", Null.DIMENSION, singleBinB, meterAinB, temperature);
+//        bMeters[0] = singleOverlapInB;
+        
         
         
 //JOINT
@@ -586,6 +639,10 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.setComparedWVs(cwvs);
         meterBinA.setComparedWVs(cwvs);
         compareMove.setComparedWVs(cwvs);
+        
+        meterBinB.getSingle().setComparedWV(cwvs[0]);
+        meterBinA.getSingle().setComparedWV(cwvs[0]);
+        
         
     }
     
