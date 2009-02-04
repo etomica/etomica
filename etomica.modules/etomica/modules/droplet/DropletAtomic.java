@@ -16,6 +16,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
