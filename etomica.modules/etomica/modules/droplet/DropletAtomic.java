@@ -16,11 +16,10 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -39,7 +38,7 @@ public class DropletAtomic extends Simulation {
     public final ActivityIntegrate activityIntegrate;
     public final PotentialMasterList potentialMaster;
     public final P2LennardJones p2LJ;
-    public final P2SoftSphericalTruncatedForceShifted p2LJt;
+    public final P2SoftSphericalTruncatedShifted p2LJt;
     public final P1Smash p1Smash;
     protected int nNominalAtoms;
     protected double dropRadius;
@@ -62,7 +61,7 @@ public class DropletAtomic extends Simulation {
 	    integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
 	    integrator.setTimeStep(0.005);
 	    integrator.setIsothermal(true);
-	    integrator.setThermostatInterval(1000);
+	    integrator.setThermostatInterval(5000);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
@@ -80,14 +79,11 @@ public class DropletAtomic extends Simulation {
         potentialMaster.addPotential(p2LJt, new IAtomTypeLeaf[]{leafType,leafType});
 
         p1Smash = new P1Smash(space);
-        p1Smash.setG(0.004);
+        p1Smash.setG(4);
         potentialMaster.addPotential(p1Smash, new IAtomTypeLeaf[]{leafType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space), space);
-	    IVectorMutable newDim = space.makeVector();
-	    newDim.E(100);
-	    box.getBoundary().setDimensions(newDim);
         addBox(box);
         integrator.setBox(box);
 
@@ -109,6 +105,7 @@ public class DropletAtomic extends Simulation {
         IAtomList leafList = box.getLeafList();
         IVectorMutable v = space.makeVector();
         IVector dim = box.getBoundary().getDimensions();
+        System.out.println(dim.x(0));
         double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.x(0)*dim.x(0);
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();
