@@ -86,7 +86,7 @@ public class ClipPlaneEditor {
         });
         
         //box that toggles highlighting of atoms in the plane
-        colorScheme = new ColorSchemePlane(sim, latticePlane,highlightColor,atomColor);
+        colorScheme = new ColorSchemePlane(latticePlane,highlightColor,atomColor);
         display.setColorScheme(colorScheme);
         DeviceCheckBox highlightToggle = new DeviceCheckBox("Highlight", new ModifierBoolean() {
             public boolean getBoolean() {return colorScheme.getColorIn().equals(highlightColor);}

@@ -32,7 +32,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
 
-        final StrainColorScheme strainColor = new StrainColorScheme(sim);    
+        final StrainColorScheme strainColor = new StrainColorScheme();    
         getDisplayBox(sim.box).setColorScheme(strainColor);
         // 37 is the index of the first atom (on the left) to be colored red
         strainColor.setNumber(37);

@@ -3,7 +3,6 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISimulation;
 import etomica.atom.AtomTypeAgentManager;
@@ -17,7 +16,7 @@ import etomica.atom.AtomTypeAgentManager.AgentSource;
 public class ColorSchemeByType extends ColorScheme implements AgentSource {
     
     public ColorSchemeByType(ISimulation sim) {
-    	super(sim);
+    	super();
         colorMap = new AtomTypeAgentManager(this, sim.getSpeciesManager(),
                                             sim.getEventManager(), false);
     }

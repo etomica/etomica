@@ -19,7 +19,8 @@ import etomica.util.Arrays;
 public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
 
     public ColorSchemeStepWise(ISimulation sim, AtomLeafAgentManager bondingAgentManager) {
-        super(sim);
+        super();
+        simulation = sim;
         colorMaps = new AtomTypeAgentManager[0];
         this.bondingAgentManager = bondingAgentManager;
     }
@@ -59,4 +60,5 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
 
     protected AtomTypeAgentManager[] colorMaps;
     protected final AtomLeafAgentManager bondingAgentManager;
+    protected final ISimulation simulation;
 }

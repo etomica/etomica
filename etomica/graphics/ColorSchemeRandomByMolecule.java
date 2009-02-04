@@ -12,7 +12,7 @@ import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource {
     
     public ColorSchemeRandomByMolecule(ISimulation sim, IBox box, IRandom random) {
-    	super(sim);
+    	super();
         this.random = random;
         agentManager = new MoleculeAgentManager(sim, box, this);
     }

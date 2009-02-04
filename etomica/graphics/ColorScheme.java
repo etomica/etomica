@@ -4,7 +4,6 @@ import java.awt.Color;
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
 import etomica.api.IAtomLeaf;
-import etomica.api.ISimulation;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -18,14 +17,12 @@ import etomica.nbr.list.PotentialMasterList;
 public abstract class ColorScheme implements java.io.Serializable {
 
     protected Color defaultColor;
-    protected final ISimulation simulation;
     
-    public ColorScheme(ISimulation sim) {
-        this(sim, DEFAULT_ATOM_COLOR);
+    public ColorScheme() {
+        this(DEFAULT_ATOM_COLOR);
     }
-    public ColorScheme(ISimulation sim, Color color) {
+    public ColorScheme(Color color) {
         defaultColor = color;
-        simulation = sim;
     }
 
     public abstract Color getAtomColor(IAtomLeaf a);
@@ -40,8 +37,8 @@ public abstract class ColorScheme implements java.io.Serializable {
      */
     public static class Simple extends ColorScheme {
         private static final long serialVersionUID = 1L;
-        public Simple(ISimulation sim) {super(sim);}
-        public Simple(ISimulation sim, java.awt.Color color) {super(sim,color);}
+        public Simple() {super();}
+        public Simple(java.awt.Color color) {super(color);}
         public Color getAtomColor(IAtomLeaf a) {return defaultColor;}
     }
     
@@ -66,12 +63,12 @@ public abstract class ColorScheme implements java.io.Serializable {
       simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 
       final ColorSchemeByType ct = new ColorSchemeByType(sim);
-      final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(sim, 0,5);
-      final ColorSchemeColliders ccld = new ColorSchemeColliders(sim, sim.integrator);
+      final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
+      final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
       final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.box, sp.D());
-      nghb.setAtom((IAtomLeaf)sim.box.getLeafList().getAtom(0));
-      final ColorSchemeRandom rand = new ColorSchemeRandom(sim, sim.box, sim.getRandom());
-      final ColorSchemeCell cell = new ColorSchemeCell(sim, (PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);
+      nghb.setAtom(sim.box.getLeafList().getAtom(0));
+      final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
+      final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);
       cell.setLattice(((PotentialMasterList)sim.potentialMaster).getNbrCellManager(sim.box).getLattice());
       
       IAction act = new IAction() {

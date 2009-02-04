@@ -17,8 +17,8 @@ public abstract class ColorSchemeCollectiveAgent extends ColorScheme implements 
     
     protected AtomLeafAgentManager agentManager;
     
-    public ColorSchemeCollectiveAgent(ISimulation sim, IBox box) {
-    	super(sim);
+    public ColorSchemeCollectiveAgent(IBox box) {
+    	super();
         agentManager = new AtomLeafAgentManager(this, box);
     }
     

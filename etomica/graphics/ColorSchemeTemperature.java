@@ -2,10 +2,8 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
-import etomica.api.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Temperature;
@@ -26,11 +24,11 @@ public class ColorSchemeTemperature extends ColorScheme {
     /**
      * Constructs with default low of 200K and high of 400K.
      */
-    public ColorSchemeTemperature(ISimulation sim) {
-        this(sim, Kelvin.UNIT.toSim(200.), Kelvin.UNIT.toSim(400.));
+    public ColorSchemeTemperature() {
+        this(Kelvin.UNIT.toSim(200.), Kelvin.UNIT.toSim(400.));
     }
-    public ColorSchemeTemperature(ISimulation sim, double TLow, double THigh) {
-    	super(sim);
+    public ColorSchemeTemperature(double TLow, double THigh) {
+    	super();
         setTLow(TLow);
         setTHigh(THigh);
     }

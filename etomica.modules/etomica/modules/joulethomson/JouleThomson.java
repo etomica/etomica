@@ -113,7 +113,7 @@ public class JouleThomson extends SimulationGraphic {
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
         if(sim.getSpace().D() == 2) 
-            getDisplayBox(sim.box).setColorScheme(new ColorSchemeTemperature(sim, 100, 500));
+            getDisplayBox(sim.box).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
             ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
             colorScheme.setColor(sim.species.getLeafType(), Color.blue);

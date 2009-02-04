@@ -13,8 +13,8 @@ public class StrainColorScheme extends ColorScheme {
     protected boolean hex;
     protected int atomNumberMod;
 
-    public StrainColorScheme(ISimulation sim) {
-        super(sim);
+    public StrainColorScheme() {
+        super();
         setHexagonal(true);
     }
     public java.awt.Color centerAtomColor = java.awt.Color.red;
