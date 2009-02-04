@@ -5,6 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomFilter;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
@@ -23,37 +24,51 @@ public class MeterDeformation implements IEtomicaDataSource {
         for (int i=0; i<f.length; i++) {
             f[i] = 1 + (i+1)/3.0;
         }
-        
+
         center = space.makeVector();
         dr = space.makeVector();
         moment = space.makeTensor();
         workTensor = space.makeTensor();
     }
-    
+
     public void setBox(IBox newBox) {
         box = newBox;
     }
-    
+
     public IBox getBox() {
         return box;
     }
-    
+
+    public void setFilter(AtomFilter newFilter) {
+        filter = newFilter;
+    }
+
+    public AtomFilter getFilter() {
+        return filter;
+    }
+
     public IData getData() {
         IAtomList leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
+            if (!filter.accept(leafList.getAtom(i))) {
+                continue;
+            }
             center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
         }
         center.TE(1.0/leafList.getAtomCount());
-        
+
         for (int i=0; i<leafList.getAtomCount(); i++) {
+            if (!filter.accept(leafList.getAtom(i))) {
+                continue;
+            }
             dr.Ev1Mv2(((IAtomPositioned)leafList.getAtom(i)).getPosition(), center);
             workTensor.Ev1v2(dr, dr);
             moment.PE(workTensor);
         }
         moment.TE(1.0/leafList.getAtomCount());
-        
+
         double b1 = moment.trace();
-        
+
         double b2 = 0;
         for (int i=0; i<moment.D(); i++) {
             for (int j=0; j<moment.D(); j++) {
@@ -61,9 +76,9 @@ public class MeterDeformation implements IEtomicaDataSource {
                 b2 += m*m;
             }
         }
-        
+
         double b3 = moment.determinant();
-        
+
         double c1 = b1 / (3.0*Math.pow(b3, 1.0/3.0)) - 1.0;
         double c2 = b2 / (3.0*Math.pow(b3, 2.0/3.0)) - 1.0;
 
@@ -84,7 +99,7 @@ public class MeterDeformation implements IEtomicaDataSource {
             e = factor * Math.sqrt(c1 / denominator);
             iter++;
         }
-        
+
         double[] x = data.getData();
         x[0] = Math.pow(125*b3, 1.0/6.0);
         if (e > 0.02) {
@@ -103,8 +118,7 @@ public class MeterDeformation implements IEtomicaDataSource {
     }
 
     public DataTag getTag() {
-        // TODO Auto-generated method stub
-        return null;
+        return tag;
     }
 
     protected IBox box;
@@ -115,4 +129,5 @@ public class MeterDeformation implements IEtomicaDataSource {
     protected final IVectorMutable center;
     protected final IVectorMutable dr;
     protected final Tensor moment, workTensor;
+    protected AtomFilter filter;
 }
