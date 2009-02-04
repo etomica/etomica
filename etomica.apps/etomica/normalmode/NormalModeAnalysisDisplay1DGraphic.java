@@ -359,7 +359,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         displayAHarmonic.putData(AHarm);
         displayAHarmonic.setLabel("Harmonic Free Energy");
       
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandom(sim, sim.box,sim.getRandom()));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandom(sim.box,sim.getRandom()));
 			
  
         
