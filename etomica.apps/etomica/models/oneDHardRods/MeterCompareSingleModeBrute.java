@@ -75,10 +75,6 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         
         //get normal mode coordinate of "last" waveVector
         coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
-
-        System.out.println("real " +realT[0]);
-        System.out.println("imag " +imagT[0]);
-        
         
         double realCoord = 0.0, imagCoord = 0.0;
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
