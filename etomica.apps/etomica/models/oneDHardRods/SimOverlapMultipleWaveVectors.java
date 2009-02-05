@@ -55,7 +55,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     ActivityIntegrate activityIntegrate;
     
     IntegratorMC[] integrators;
-    protected int eqBlockSize, benBlockSize, runBlockSize;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
@@ -174,7 +173,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinA.getSingle().setTemperature(temperature);
         meterBinA.getSingle().setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.getSingle().setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        meterBinA.setA(false);
+        meterBinA.setA(true);
         
 //        singleBinA = new MeterCompareSingleModeBrute("singleBinA", potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
 //        singleBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
@@ -274,7 +273,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.getSingle().setTemperature(temperature);
         meterBinB.getSingle().setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.getSingle().setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-        meterBinB.setA(true);
+        meterBinB.setA(false);
         
 //        singleBinB = new MeterCompareSingleModeBrute(potentialMasterRef, 
 //                coordinateDefinitionRef, boxRef);
@@ -323,7 +322,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         setBennettParameter(newBennettParameter,1);
     }
     
-    public void initBennettParameter(String fileName, long initSteps) {
+    public void initBennettParameter(String fileName, int initSteps, int initBlockSize) {
         // benParam = -1 indicates we are searching for an appropriate value
         bennettParam = -1.0;
         integratorSim.getMoveManager().setEquilibrating(true);
@@ -366,8 +365,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             getController().actionPerformed();
             getController().reset();
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(benBlockSize,41,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,false),1);
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(initSteps);
             
@@ -377,6 +376,12 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             int newMinDiffLoc = dsvo.minDiffLocation();
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
+            
+            double top = accumulators[0].getBennetAverage(newMinDiffLoc);
+            System.out.println("top " + top);
+            double bottom = accumulators[1].getBennetAverage(newMinDiffLoc);
+            System.out.println("bottom " + bottom);
+            
             if (Double.isNaN(bennettParam) || bennettParam == 0 || Double.isInfinite(bennettParam)) {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
@@ -394,6 +399,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         }
         integratorSim.getMoveManager().setEquilibrating(false);
     }
+    
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage 
             newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
@@ -425,7 +431,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         }
         catch (ConfigurationOverlapException e) { /* meaningless */ }
     }
-    public void equilibrate(String fileName, long initSteps) {
+    public void equilibrate(String fileName, int initSteps, int initBlockSize) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
@@ -461,8 +467,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+bennettParam+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(eqBlockSize,1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(eqBlockSize,1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
             setBennettParameter(bennettParam,1);
             if (fileName != null) {
                 try {
@@ -509,15 +515,15 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         int[] comparedWV = params.comparedWV;
         int[] harmonicWV = params.harmonicWV;
         
-        long numSteps = params.numSteps;
-        long runBlockSize = params.runBlockSize;
-        long subBlockSize = params.subBlockSize;
+        int numSteps = params.numSteps;
+        int runBlockSize = params.runBlockSize;
+        int subBlockSize = params.subBlockSize;
         
-        long numEqSteps = params.eqNumSteps;
-        long eqBlockSize = params.eqBlockSize;
+        int numEqSteps = params.eqNumSteps;
+        int eqBlockSize = params.eqBlockSize;
     
-        long numBenSteps = params.bennettNumSteps;
-        long benBlockSize = params.benBlockSize;
+        int numBenSteps = params.bennettNumSteps;
+        int benBlockSize = params.benBlockSize;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
@@ -554,8 +560,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         sim.integratorSim.setNumSubSteps((int)subBlockSize);
         
         System.out.println("Init Bennett");
-        sim.setAccumulatorBlockSize((int)benBlockSize);
-        sim.initBennettParameter(filename, numBenSteps);
+        sim.setAccumulatorBlockSize(benBlockSize);
+        sim.initBennettParameter(filename, numBenSteps, benBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
@@ -563,8 +569,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         }
         
         System.out.println("equilibrate");
-        sim.setAccumulatorBlockSize((int)eqBlockSize);
-        sim.equilibrate(refFileName, numEqSteps);
+        sim.setAccumulatorBlockSize(eqBlockSize);
+        sim.equilibrate(refFileName, numEqSteps, eqBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
@@ -661,14 +667,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] comparedWV = {2};
         public int[] harmonicWV = {3};
         
-        public long numSteps = 400000;
-        public long runBlockSize = 1000;
-        public long subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int numSteps = 400000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
         
-        public long eqNumSteps = 40000;  
-        public long eqBlockSize = 100;
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 100;
         
-        public long bennettNumSteps = 40000;
-        public long benBlockSize = 100;
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 100;
     }
 }
