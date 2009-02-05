@@ -122,7 +122,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
 
-            }
+            }//end of cell loop
         }// end of wvCount loop
 
         energyOld = energyMeter.getDataAsScalar();
