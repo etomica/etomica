@@ -67,16 +67,15 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         
         
 
-        System.out.println("single: " + single.getDataAsScalar());
+//        System.out.println("single: " + single.getDataAsScalar());
         
         
         //Get the normal mode coordinates of the compared waveVectors, and
         // store them in realCoord and imagCoord for further use.
         for(int wvcount = 0; wvcount < numWV; wvcount++){
-            coordinateDefinition.calcT(waveVectors[wvcount], realT, imagT);
+            coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
 //            System.out.println("real " +realT[0]);
 //            System.out.println("imag " +imagT[0]);
-
             
             imagCoord[wvcount] = 0.0;
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
@@ -147,7 +146,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         }
         
 //        if(isA){
-//            double dork = energyHardRod + energyHarmonic;
 //            System.out.println("single: " + single.getDataAsScalar());
 //            System.out.println("HR: " + energyHardRod);
 //            System.out.println("Harm: " + energyHarmonic);
