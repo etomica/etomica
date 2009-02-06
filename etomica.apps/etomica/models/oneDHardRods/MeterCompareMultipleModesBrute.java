@@ -76,41 +76,41 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
 //            System.out.println("real " +realT[0]);
 //            System.out.println("imag " +imagT[0]);
-            
+            realCoord[wvcount] = 0.0;
             imagCoord[wvcount] = 0.0;
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 for(int j = 0; j < coordinateDim; j++){
-                    realCoord[wvcount] += eigenVectors[wvcount][i][j] * realT[j];
-                    imagCoord[wvcount] += eigenVectors[wvcount][i][j] * imagT[j];
+                    realCoord[wvcount] += eigenVectors[comparedWVs[wvcount]][i][j] * realT[j];
+                    imagCoord[wvcount] += eigenVectors[comparedWVs[wvcount]][i][j] * imagT[j];
                 }
             }
         }
         
-        //Store the original positions
-        for(int i = 0; i < cells.length; i++){
-            uNow = coordinateDefinition.calcU(cells[i].molecules);
-            System.arraycopy(uNow, 0, uOld[i], 0, coordinateDim);
-        }
-        
         //Remove the effects of the compared modes.
-        for(int wvcount = 0; wvcount < numWV; wvcount++){
-            for(int iCell = 0; iCell < cells.length; iCell++){
-                cell = cells[iCell];
+        for(int iCell = 0; iCell < cells.length; iCell++){
+            cell = cells[iCell];
+            
+            //store the original positions of the cell.
+            uNow = coordinateDefinition.calcU(cell.molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            
+            
+            for(int wvcount = 0; wvcount < numWV; wvcount++){
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] = 0.0;
                 }
                 
                 //Calculate the contributions to the current position of the 
                 //zeroed mode, and subtract it from the overall position.
-                double kR = waveVectors[wvcount].dot(cell.cellPosition);
+                double kR = waveVectors[comparedWVs[wvcount]].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                     //Calculate the current coordinates.
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] -= waveVectorCoefficients[wvcount] * 
-                            eigenVectors[wvcount][i][j] * 2.0 * (realCoord[wvcount] *
-                            coskR - imagCoord[wvcount]*sinkR);
+                        deltaU[j] -= waveVectorCoefficients[comparedWVs[wvcount]] * 
+                            eigenVectors[comparedWVs[wvcount]][i][j] * 2.0 *
+                            (realCoord[wvcount] * coskR - imagCoord[wvcount]*sinkR);
                     }
                 }
 
@@ -121,21 +121,42 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
                 }
-                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+                coordinateDefinition.setToU(cell.molecules, uNow);
             }//end of cell loop
         }//end of wvcount loop
         energyHardRod = meterPE.getDataAsScalar();
         
+//        for(int wvcount = 0; wvcount < numWV; wvcount++){
+//            coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
+////            System.out.println("real " +realT[0]);
+////            System.out.println("imag " +imagT[0]);
+//            double realdork = 0.0;
+//            double imagdork = 0.0;
+//            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+//                for(int j = 0; j < coordinateDim; j++){
+//                    realdork += eigenVectors[comparedWVs[wvcount]][i][j] * realT[j];
+//                    imagdork += eigenVectors[comparedWVs[wvcount]][i][j] * imagT[j];
+//                }
+//            }
+//        
+//        System.out.println("realdork: " + realdork);
+//        System.out.println("imagdork: " + imagdork);
+//        System.out.println("realCoord: " +realCoord[0]);
+//        System.out.println("imagCoord: " + imagCoord[0]);
+//                }
+        
+        
+        
         //Calculate the energy due to the compared modes
         for(int wvcount = 0; wvcount < numWV; wvcount++){
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-                if(Double.isInfinite(omegaSquared[wvcount][i])){
+                if(Double.isInfinite(omegaSquared[comparedWVs[wvcount]][i])){
                     continue;
                 }
                 double normalCoord = realCoord[wvcount]*realCoord[wvcount] + 
                     imagCoord[wvcount] * imagCoord[wvcount];
-                energyHarmonic += waveVectorCoefficients[wvcount] * normalCoord 
-                    * omegaSquared[wvcount][i];
+                energyHarmonic += waveVectorCoefficients[comparedWVs[wvcount]] * normalCoord 
+                    * omegaSquared[comparedWVs[wvcount]][i];
             }
         }
         

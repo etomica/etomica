@@ -45,6 +45,14 @@ public class MeterOverlap implements IEtomicaDataSource {
                 / Math.exp(-dataSourceA.getDataAsScalar()/temperature);
         eAeB[0] = 1.0;
         
+        
+        
+        if(Double.isNaN(eAeB[1])){
+            System.out.println("AARH?");
+            System.out.println("B: " +dataSourceB.getDataAsScalar());
+            System.out.println("A: " +dataSourceA.getDataAsScalar());
+        }
+        
 //        System.out.println("meter overlap getdata");
         return dda;
     }

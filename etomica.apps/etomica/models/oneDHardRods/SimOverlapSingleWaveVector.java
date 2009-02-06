@@ -679,23 +679,23 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 6;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 11;
+        public int comparedWV = 2;
         
-        public int numSteps = 400000;
-        public int runBlockSize = 1000;
-        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int numSteps = 40000000;
+        public int runBlockSize = 100000;
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 40000;  
-        public int eqBlockSize = 100;
+        public int eqNumSteps = 4000000;  
+        public int eqBlockSize = 10000;
         
-        public int bennettNumSteps = 40000;
-        public int benBlockSize = 100;
+        public int bennettNumSteps = 4000000;
+        public int benBlockSize = 10000;
 
     }
     

@@ -86,6 +86,10 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         histogramRealCoord.addValue(realCoord);
         histogramImagCoord.addValue(imagCoord);
         
+//        System.out.println("single real: " + realCoord);
+//        System.out.println("single imag: " + imagCoord);
+        
+        
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);

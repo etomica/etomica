@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -37,6 +38,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -320,6 +322,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
         setBennettParameter(newBennettParameter,1);
+        
     }
     
     public void initBennettParameter(String fileName, int initSteps, int initBlockSize) {
@@ -391,7 +394,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
             setBennettParameter(bennettParam,5);
-
+            
             // set benParam back to -1 so that later on we know that we've been looking for
             // the appropriate value
             bennettParam = -1;
@@ -418,6 +421,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorSim.setDSVO(dsvo);
         }
+        
     }
     
     public void setAccumulatorBlockSize(int newBlockSize) {
@@ -557,7 +561,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
-        sim.integratorSim.setNumSubSteps((int)subBlockSize);
+        sim.integratorSim.setNumSubSteps(subBlockSize);
         
         System.out.println("Init Bennett");
         sim.setAccumulatorBlockSize(benBlockSize);
@@ -667,14 +671,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] comparedWV = {2};
         public int[] harmonicWV = {3};
         
-        public int numSteps = 400000;
-        public int runBlockSize = 1000;
-        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int numSteps = 40000000;
+        public int runBlockSize = 100000;
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 40000;  
-        public int eqBlockSize = 100;
+        public int eqNumSteps = 4000000;  
+        public int eqBlockSize = 10000;
         
-        public int bennettNumSteps = 40000;
-        public int benBlockSize = 100;
+        public int bennettNumSteps = 4000000;
+        public int benBlockSize = 10000;
     }
 }
