@@ -11,7 +11,7 @@ public class NormalModes1DHR implements NormalModes {
     public NormalModes1DHR(int D) {
         harmonicFudge = 1;
         this.dim = D;
-        waveVectorFactory = new WaveVectorFactory1D(dim);
+        waveVectorFactory = new WaveVectorFactory1D();
     }
     
     public double[][] getOmegaSquared(IBox box) {

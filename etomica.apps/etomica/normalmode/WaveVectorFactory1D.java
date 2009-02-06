@@ -25,12 +25,6 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactory1D(int dim) {
-        if(dim != 1) {
-            throw new RuntimeException("Must give a box for a 1D system"); 
-        }
-    }
-    
     public void makeWaveVectors(IBox box) {
 
         int nA = box.getMoleculeList().getMoleculeCount();
@@ -71,7 +65,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         box.setNMolecules(species, nCells*nCells*nCells);
         
-        WaveVectorFactory1D foo = new WaveVectorFactory1D(sim.getSpace().D());
+        WaveVectorFactory1D foo = new WaveVectorFactory1D();
         foo.makeWaveVectors(box);
         IVectorMutable[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();

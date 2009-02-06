@@ -3,13 +3,14 @@ package etomica.normalmode;
 import Jama.Matrix;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -40,6 +41,13 @@ public class SimCalcJ extends Simulation {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms);
             basis = new BasisMonatomic(space);
             nCells = new int[]{numAtoms};
+        }
+        else if (space.D() == 2) {
+            primitive = new PrimitiveCubic(space, 1);
+            int n = (int)Math.round(Math.pow(numAtoms/2, 1.0/2.0));
+            nCells = new int[]{n,n};
+            bdry = new BoundaryDeformableLattice(primitive, nCells);
+            basis = new BasisOrthorhombicHexagonal();
         }
         else {
             primitive = new PrimitiveCubic(space, 1);
@@ -78,9 +86,9 @@ public class SimCalcJ extends Simulation {
         // set up normal-mode meter
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D(D);
+            waveVectorFactory = new WaveVectorFactory1D();
         } else if (D == 2) {
-            waveVectorFactory = null;
+            waveVectorFactory = new WaveVectorFactory2D(sim.primitive, sim.space);
         } else {
             waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
         }

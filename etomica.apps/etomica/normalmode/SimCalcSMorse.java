@@ -135,7 +135,7 @@ public class SimCalcSMorse extends Simulation {
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D(D);
+            waveVectorFactory = new WaveVectorFactory1D();
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
