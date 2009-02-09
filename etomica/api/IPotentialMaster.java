@@ -110,7 +110,7 @@ public interface IPotentialMaster {
 	 * Returns true if the potential is in this group and has not been disabled
 	 * via a previous call to setEnabled; returns false otherwise.
 	 */
-	public abstract boolean isEnabled(IPotentialMolecular potential);
+	public boolean isEnabled(IPotentialMolecular potential);
 
     /**
      * Indicates that the specified potential should not contribute to potential
@@ -122,7 +122,7 @@ public interface IPotentialMaster {
      * Returns true if the potential is in this group and has not been disabled
      * via a previous call to setEnabled; returns false otherwise.
      */
-    public abstract boolean isEnabled(IPotentialAtomic potential);
+    public boolean isEnabled(IPotentialAtomic potential);
 
 	/**
 	 * Returns an array containing all molecular Potentials.

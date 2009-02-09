@@ -10,14 +10,14 @@ public interface IAtomTypeLeaf extends IAtomType {
      * Informs the ISpecies what its index should be.  This should only be
      * called by the SpeciesManager.
      */
-    public abstract void setIndex(int newIndex);
+    public void setIndex(int newIndex);
 
     /**
      * Returns the index for this IAtomTypeLeaf, within the context of an
      * ISimulation.  The index is the IAtomTypeLeaf' position in the list of
      * species and atom types in the simulation.
      */
-    public abstract int getIndex();
+    public int getIndex();
     
     public void setChildIndex(int newChildIndex);
 
