@@ -518,6 +518,10 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         double temperature = params.temperature;
         int[] comparedWV = params.comparedWV;
         int[] harmonicWV = params.harmonicWV;
+        if(harmonicWV[0]== -1){
+            int[] empty = { };
+            harmonicWV = empty;
+        }
         
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
@@ -669,7 +673,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         public int[] comparedWV = {16};
-        public int[] harmonicWV = {};
+        public int[] harmonicWV = {15};
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;
