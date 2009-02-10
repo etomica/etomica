@@ -20,7 +20,7 @@ public class MayerESpherical extends MayerFunctionSpherical {
 	}
 
 	/**
-	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double)
+	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double, double)
 	 */
 	public double f(double r2, double beta) {
 		return Math.exp(-beta*potential.u(r2));

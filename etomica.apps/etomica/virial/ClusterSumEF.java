@@ -68,7 +68,7 @@ public class ClusterSumEF extends ClusterSum {
                         eValue = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
-                        eValue = f[k].f(aPairs.getAPair(i,j),beta);
+                        eValue = f[k].f(aPairs.getAPair(i,j),0, beta);
                     }
                     fValues[i][j][k+numF] = eValue;
                     fValues[j][i][k+numF] = eValue;

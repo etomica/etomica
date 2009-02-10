@@ -75,7 +75,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     break;
                 }
                 for(int k=0; k<f.length; k++) {
-                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),0, beta);
                     fValues[j][i][k] = fValues[i][j][k];
                     scfPotential = (PotentialPolarizable) f[k].getPotential();
                     if (k==0) uijPol[i][j] = scfPotential.getLastPolarizationEnergy();
