@@ -126,7 +126,6 @@ public class P2Water3P extends PotentialMolecular {
             shift.ME(H12r);
             sum += chargeHH/Math.sqrt(r2);
         }
-
 		return sum;																					        
 	}
 

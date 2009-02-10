@@ -3,7 +3,6 @@ import java.awt.Color;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 
