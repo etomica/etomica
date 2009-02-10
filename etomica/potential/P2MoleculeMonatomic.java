@@ -28,7 +28,6 @@ public class P2MoleculeMonatomic implements IPotentialMolecular {
 		return 2;
 	}
 
-	@Override
 	public void setBox(IBox box) {
 		wrappedPotential.setBox(box); 
 
