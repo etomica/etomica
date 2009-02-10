@@ -20,7 +20,7 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
         this.potential = potential;
     }
 
-    public double f(IMoleculeList pair, double beta) {
+    public double f(IMoleculeList pair, double r2, double beta) {
         double betaU = beta*potential.energy(pair);
         if (Math.abs(betaU) < 1.e-8) {
             // for small betaU, exp(-betaU)-1 ~= -betaU

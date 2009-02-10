@@ -103,7 +103,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                         fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
-                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                     }
                     fValues[j][i][k] = fValues[i][j][k];
                 }
@@ -124,8 +124,8 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                         }
                     }
                     else {
-                        if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),beta)) {
-                            throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),beta));
+                        if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),0, beta)) {
+                            throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),0, beta));
                         }
                     }
                     if (fValues[j][i][k] != fValues[i][j][k]) {

@@ -22,8 +22,8 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
      */
     public abstract double f(double r2, double beta);
 
-    public double f(IMoleculeList pair, double beta) {
-        throw new RuntimeException("I was really hoping you wouldn't call me");
+    public double f(IMoleculeList pair, double r2, double beta) {
+        return f(r2, beta);
     }
     
     protected final IVectorMutable dr;

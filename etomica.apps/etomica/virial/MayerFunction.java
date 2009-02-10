@@ -15,8 +15,9 @@ public interface MayerFunction {
     /**
      * returns Mayer function between atoms in the pair at temperature
      * 1/beta
+     * @param r2 TODO
      */
-	public double f(IMoleculeList pair, double beta);
+	public double f(IMoleculeList pair, double r2, double beta);
 
 	/**
 	 * @return

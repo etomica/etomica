@@ -72,7 +72,7 @@ public class SimulationVirialOverlap extends Simulation {
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
-        if (!(species instanceof SpeciesSpheresMono)) {
+        if (!(species instanceof SpeciesSpheresMono)|| species instanceof SpeciesSpheresRotating) {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (doWiggle) {
