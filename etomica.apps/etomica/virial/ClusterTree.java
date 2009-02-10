@@ -94,7 +94,7 @@ public class ClusterTree implements ClusterAbstract {
                         fValues[l][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
-                        fValues[l][k] = f[k].f(aPairs.getAPair(i,j),0, beta);
+                        fValues[l][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                     }
                     if (Double.isInfinite(fValues[l][k])) {
                         System.out.println("oops9");

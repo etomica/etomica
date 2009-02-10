@@ -47,7 +47,7 @@ public class ClusterTreeEF extends ClusterTree {
                         fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
-                        fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),0, beta);
+                        fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                     }
                     fValues[l][k] = fValues[l][k+numF] - 1;
                 }
