@@ -3,7 +3,6 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.IEvent;
 import etomica.api.IEventManager;
@@ -161,7 +160,7 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
             }
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
-            IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
+            IAtomTypeLeaf atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
             if (!(atomType instanceof IAtomTypeLeaf)) {
                 return;
             }

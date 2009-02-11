@@ -3,15 +3,14 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtomType;
 import etomica.api.IEvent;
 import etomica.api.IEventManager;
 import etomica.api.IListener;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
-import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
-import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
 import etomica.simulation.SimulationSpeciesAddedEvent;
+import etomica.simulation.SimulationSpeciesIndexChangedEvent;
+import etomica.simulation.SimulationSpeciesMaxIndexEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
 
@@ -132,21 +131,18 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
             agents = Arrays.resizeArray(agents, species.getIndex()+1);
             addAgent(species);
         }
-        else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
-            IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
-            if (!(atomType instanceof ISpecies)) {
-                return;
-            }
-            int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
-            int newIndex = ((ISpecies)atomType).getIndex();
+        else if (evt instanceof SimulationSpeciesIndexChangedEvent) {
+            ISpecies species = ((SimulationSpeciesIndexChangedEvent)evt).getSpecies();
+            int oldIndex = ((SimulationSpeciesIndexChangedEvent)evt).getOldIndex();
+            int newIndex = species.getIndex();
             if (newIndex >= agents.length) {
                 agents = Arrays.resizeArray(agents, newIndex+1);
             }
             agents[newIndex] = agents[oldIndex];
             agents[oldIndex] = null;
         }
-        else if (evt instanceof SimulationAtomTypeMaxIndexEvent) {
-            int maxIndex = ((SimulationAtomTypeMaxIndexEvent)evt).getMaxIndex();
+        else if (evt instanceof SimulationSpeciesMaxIndexEvent) {
+            int maxIndex = ((SimulationSpeciesMaxIndexEvent)evt).getMaxIndex();
             agents = Arrays.resizeArray(agents, maxIndex+1);
         }
     }

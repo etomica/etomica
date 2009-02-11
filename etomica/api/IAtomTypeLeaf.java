@@ -2,7 +2,7 @@ package etomica.api;
 
 import etomica.chem.elements.Element;
 
-public interface IAtomTypeLeaf extends IAtomType {
+public interface IAtomTypeLeaf {
 
     public void setSpecies(ISpecies newParent);
 

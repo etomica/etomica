@@ -13,7 +13,23 @@ import etomica.util.Arrays;
  * 
  * @author andrew
  */
-public abstract class Species extends AtomType implements ISpecies {
+public abstract class Species /*extends AtomType*/ implements ISpecies {
+
+    protected int index;
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#setIndex(int)
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#getIndex()
+     */
+    public int getIndex() {
+        return index;
+    }
 
     /**
      * Simple invokes parent constructor with same arguments.

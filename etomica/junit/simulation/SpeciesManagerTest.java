@@ -44,8 +44,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 		
+		int expectedChildIndex = 0;
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
+			assertSame(i, species[i].getIndex());
+			for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+			    assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+			    expectedChildIndex++;
+			}
 		}
 	}
 
@@ -63,8 +69,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		int expectedChildIndex = 0;
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
+			assertSame(i, species[i].getIndex());
+	        for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+	            assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+	            expectedChildIndex++;
+	        }
 		}
 		
 		sm.removeSpecies(species[numSpecies-1]);
@@ -72,8 +84,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		expectedChildIndex = 0;
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
+			assertSame(i, species[i].getIndex());
+            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+                expectedChildIndex++;
+            }
 		}
 
 		sm.removeSpecies(species[0]);
@@ -81,8 +99,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		expectedChildIndex = 0;
 		for(int i = 1; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i-1));
+			assertSame(i-1, species[i].getIndex());
+            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+                expectedChildIndex++;
+            }
 		}
 	}
 
@@ -90,7 +114,8 @@ public class SpeciesManagerTest extends TestCase {
 	 * testAddSpeciesChildIndex
 	 */
 	public void testAddSpeciesChildIndex() {
-		int numSpecies = 5;
+	    int INIT_NUM_SPECIES = 5;
+		int numSpecies = INIT_NUM_SPECIES;
 		final int numAtomsPerSpecies = 3;
 		SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
 
@@ -101,16 +126,13 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
 			assertEquals(i, sm.getSpecies(i).getIndex());
-		}
-
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
+            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+                expectedChildIndex++;
+            }
 		}
 
 		SpeciesSpheresMono newSpecies = new SpeciesSpheresMono(simulation, space, element);
@@ -122,11 +144,17 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+	    expectedChildIndex = 0;
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
+		    if(i < INIT_NUM_SPECIES) {
+		        assertEquals(i, species[i].getIndex());
+		    }
+		    else {
+		        assertEquals(i, newSpecies.getIndex());
+		    }
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
+			    assertEquals(expectedChildIndex, sm.getSpecies(i).getChildType(j).getIndex());
+			    expectedChildIndex++;
 			}
 		}
 
@@ -136,48 +164,57 @@ public class SpeciesManagerTest extends TestCase {
 	 * testRemoveFirstSpeciesChildIndex
 	 */
 	public void testRemoveFirstSpeciesChildIndex() {
-		int numSpecies = 6;
-		final int numAtomsPerSpecies = 3;
-		SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
+        int numSpecies = 6;
+        int REMOVE_INDEX = 0;
+        final int numAtomsPerSpecies = 3;
+        SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
 
-		for(int i = 0; i < numSpecies; i++) {
-		    species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-		    sm.addSpecies(species[i]);
-		}
+        for(int i = 0; i < numSpecies; i++) {
+            species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
+            sm.addSpecies(species[i]);
+        }
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, sm.getSpeciesCount());
 
-		for(int i = 0; i < numSpecies; i++) {
-			assertEquals(i, sm.getSpecies(i).getIndex());
-		}
+        int expectedChildIndex = 0;
+        for(int i = 0; i < numSpecies; i++) {
+            assertEquals(i, species[i].getIndex());
+            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                expectedChildIndex++;
+            }
+        }
 
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
-		}
+        sm.removeSpecies(species[REMOVE_INDEX]);
+        numSpecies--;
 
-		sm.removeSpecies(species[0]);
-		numSpecies--;
+        assertEquals(numSpecies, sm.getSpeciesCount());
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
-
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
-		}
-	}
+        expectedChildIndex = 0;
+        for(int i = 0; i < sm.getSpeciesCount(); i++) {
+            if(i < REMOVE_INDEX) {
+                assertEquals(i, species[i].getIndex());
+                for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                    expectedChildIndex++;
+                }
+            }
+            else {
+                assertEquals(i, species[i+1].getIndex());
+                for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+                    expectedChildIndex++;
+                }
+            }
+        }
+    }
 
 	/*
 	 * testRemoveSpeciesFromMiddleChildIndex
 	 */
 	public void testRemoveSpeciesFromMiddleChildIndex() {
 		int numSpecies = 6;
+		int REMOVE_INDEX = 2;
 		final int numAtomsPerSpecies = 3;
 		SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
 
@@ -188,71 +225,87 @@ public class SpeciesManagerTest extends TestCase {
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
-			assertEquals(i, sm.getSpecies(i).getIndex());
-		}
-
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
+		    assertEquals(i, species[i].getIndex());
+			for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+			    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+			    expectedChildIndex++;
 			}
 		}
 
-		sm.removeSpecies(species[2]);
+		sm.removeSpecies(species[REMOVE_INDEX]);
 		numSpecies--;
 
 		assertEquals(numSpecies, sm.getSpeciesCount());
 
+		expectedChildIndex = 0;
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
+		    if(i < REMOVE_INDEX) {
+		        assertEquals(i, species[i].getIndex());
+		        for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+		            assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+		            expectedChildIndex++;
+		        }
+		    }
+		    else {
+		        assertEquals(i, species[i+1].getIndex());
+	            for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
+	                assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+	                expectedChildIndex++;
+	            }
+		    }
+
 		}
 	}
 
 	/*
 	 * testRemoveLastSpeciesChildIndex
 	 */
-	public void testRemoveLastSpeciesChildIndex() {
-		int numSpecies = 6;
-		final int numAtomsPerSpecies = 3;
-		SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
+    public void testRemoveLastSpeciesChildIndex() {
+        int numSpecies = 6;
+        int REMOVE_INDEX = 5;
+        final int numAtomsPerSpecies = 3;
+        SpeciesSpheresHetero species[] = new SpeciesSpheresHetero[numSpecies];
 
-		for(int i = 0; i < numSpecies; i++) {
-		    species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-		    sm.addSpecies(species[i]);
-		}
+        for(int i = 0; i < numSpecies; i++) {
+            species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
+            sm.addSpecies(species[i]);
+        }
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, sm.getSpeciesCount());
 
-		for(int i = 0; i < numSpecies; i++) {
-			assertEquals(i, sm.getSpecies(i).getIndex());
-		}
+        int expectedChildIndex = 0;
+        for(int i = 0; i < numSpecies; i++) {
+            assertEquals(i, species[i].getIndex());
+            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                expectedChildIndex++;
+            }
+        }
 
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
-		}
+        sm.removeSpecies(species[REMOVE_INDEX]);
+        numSpecies--;
 
-		sm.removeSpecies(species[5]);
-		numSpecies--;
+        assertEquals(numSpecies, sm.getSpeciesCount());
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
-
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertEquals(numAtomsPerSpecies, sm.getSpecies(i).getChildTypeCount());
-			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(((numSpecies)+(i*numAtomsPerSpecies) + j),
-			    		   sm.getSpecies(i).getChildType(j).getIndex());
-			}
-		}
-	}
+        expectedChildIndex = 0;
+        for(int i = 0; i < sm.getSpeciesCount(); i++) {
+            if(i < REMOVE_INDEX) {
+                assertEquals(i, species[i].getIndex());
+                for(int j = 0; j < species[i].getChildTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                    expectedChildIndex++;
+                }
+            }
+            else {
+                assertEquals(i, species[i+1].getIndex());
+                for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+                    expectedChildIndex++;
+                }
+            }
+        }
+    }
 
 }

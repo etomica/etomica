@@ -15,7 +15,7 @@ import etomica.potential.PotentialMaster;
  * @see IBox
  * @see PotentialMaster
  */
-public interface ISpecies extends IAtomType {
+public interface ISpecies {
 
     /**
      * Informs the ISpecies what its index should be.  This should only be

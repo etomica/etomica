@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Element;
@@ -15,7 +14,7 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-public class AtomTypeLeaf extends AtomType implements IAtomTypeLeaf, Comparable<IAtomTypeLeaf> {
+public class AtomTypeLeaf extends AtomType implements Comparable<IAtomTypeLeaf> {
 
     public AtomTypeLeaf(Element element) {
         super();

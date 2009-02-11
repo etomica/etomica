@@ -1,6 +1,5 @@
 package etomica.models.traPPE;
 
-import etomica.api.IAtomType;
 import etomica.api.IAtomTypeLeaf;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ElectrostaticWithHardCore;
@@ -8,7 +7,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.units.Electron;
-import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 

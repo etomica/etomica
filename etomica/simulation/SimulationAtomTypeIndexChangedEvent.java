@@ -1,6 +1,6 @@
 package etomica.simulation;
 
-import etomica.api.IAtomType;
+import etomica.api.IAtomTypeLeaf;
 
 /**
  * Simulation event that notifies listeners that the index of an AtomType has
@@ -9,7 +9,7 @@ import etomica.api.IAtomType;
  */
 public class SimulationAtomTypeIndexChangedEvent extends SimulationAtomTypeEvent {
 
-    SimulationAtomTypeIndexChangedEvent(IAtomType atomType, int oldIndex) {
+    SimulationAtomTypeIndexChangedEvent(IAtomTypeLeaf atomType, int oldIndex) {
         super(atomType);
         this.oldIndex = oldIndex;
     }
