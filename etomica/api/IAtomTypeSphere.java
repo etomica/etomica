@@ -1,6 +1,6 @@
 package etomica.api;
 
-public interface IAtomTypeSphere extends IAtomTypeLeaf {
+public interface IAtomTypeSphere extends IAtomType {
 
 	public double getDiameter();
 

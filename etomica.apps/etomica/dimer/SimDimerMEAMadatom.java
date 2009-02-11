@@ -4,7 +4,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -169,16 +169,16 @@ public class SimDimerMEAMadatom extends Simulation{
         Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box);
         
-        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), potentialSpecies.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
         potentialMaster.setRange(potential.getRange()*1.1);
         CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomTypeLeaf[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
+        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomType[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
         
-        this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), potentialSpecies.getLeafType()});
+        this.potentialMasterD.addPotential(potential, new IAtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
         potentialMasterD.setSpecies(new ISpecies []{potentialSpecies, movable});
         potentialMasterD.setRange(potential.getRange()*1.1);
         CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new IAtomTypeLeaf[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
+        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new IAtomType[] {movable.getLeafType(), potentialSpecies.getLeafType()}));
         
     //ADATOM CREATION AND PLACEMENT
         // Sn

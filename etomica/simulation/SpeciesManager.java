@@ -3,7 +3,7 @@ package etomica.simulation;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.ISimulation;
@@ -24,7 +24,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         this.sim = sim;
         speciesList = new ISpecies[0];
         elementSymbolHash = new HashMap<String,Element>();
-        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomTypeLeaf>>();
+        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomType>>();
     }
 
     /* (non-Javadoc)
@@ -130,7 +130,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         return speciesList[index];
     }
 
-    protected void atomTypeAddedNotify(IAtomTypeLeaf newChildType) {
+    protected void atomTypeAddedNotify(IAtomType newChildType) {
         Element newElement = newChildType.getElement();
         Element oldElement = elementSymbolHash.get(newElement.getSymbol());
         if (oldElement != null && oldElement != newElement) {
@@ -140,15 +140,15 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         }
         // remember the element so we can check for future duplication
         elementSymbolHash.put(newElement.getSymbol(), newElement);
-        LinkedList<IAtomTypeLeaf> atomTypeList = elementAtomTypeHash.get(newElement);
+        LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
         if (atomTypeList == null) {
-            atomTypeList = new LinkedList<IAtomTypeLeaf>();
+            atomTypeList = new LinkedList<IAtomType>();
             elementAtomTypeHash.put(newElement, atomTypeList);
         }
         atomTypeList.add(newChildType);
     }
 
-    protected void atomTypeRemovedNotify(IAtomTypeLeaf removedType) {
+    protected void atomTypeRemovedNotify(IAtomType removedType) {
         // remove the type's element from our hash 
         Element oldElement = removedType.getElement();
         elementSymbolHash.remove(oldElement.getSymbol());
@@ -173,6 +173,6 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     private ISpecies[] speciesList;
 //    private IAtomTypeLeaf[] atomTypeList;
     private final HashMap<String,Element> elementSymbolHash;
-    private final HashMap<Element,LinkedList<IAtomTypeLeaf>> elementAtomTypeHash;
+    private final HashMap<Element,LinkedList<IAtomType>> elementAtomTypeHash;
     private final ISimulation sim;
 }

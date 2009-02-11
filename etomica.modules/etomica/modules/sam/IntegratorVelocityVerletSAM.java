@@ -4,7 +4,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -27,7 +27,7 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         super(potentialMaster, random, timeStep, temperature, _space);
     }
     
-    public void setSulfurType(IAtomTypeLeaf newSulfurType) {
+    public void setSulfurType(IAtomType newSulfurType) {
         sulfurType = newSulfurType;
     }
     
@@ -91,5 +91,5 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         }
     }
     
-    protected IAtomTypeLeaf sulfurType;
+    protected IAtomType sulfurType;
 }

@@ -1,7 +1,7 @@
 package etomica.species;
 
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IConformation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomType;
@@ -42,7 +42,7 @@ public abstract class Species /*extends AtomType*/ implements ISpecies {
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeMolecule#removeChildType(etomica.atom.AtomTypeLeaf)
      */
-    public void removeChildType(IAtomTypeLeaf removedType) {
+    public void removeChildType(IAtomType removedType) {
         boolean success = false;
         for (int i=0; i<childTypes.length; i++) {
             if (childTypes[i] == removedType) {
@@ -53,7 +53,7 @@ public abstract class Species /*extends AtomType*/ implements ISpecies {
         if (!success) {
             throw new IllegalArgumentException("AtomType "+removedType+" is not my child!");
         }
-        childTypes = (IAtomTypeLeaf[])Arrays.removeObject(childTypes,removedType);
+        childTypes = (IAtomType[])Arrays.removeObject(childTypes,removedType);
         for (int i = 0; i < childTypes.length; i++) {
             childTypes[i].setChildIndex(i);
         }
@@ -66,7 +66,7 @@ public abstract class Species /*extends AtomType*/ implements ISpecies {
         return this;
     }
 
-    public IAtomTypeLeaf getChildType(int index) {
+    public IAtomType getChildType(int index) {
     	return childTypes[index];
     }
 
@@ -77,13 +77,13 @@ public abstract class Species /*extends AtomType*/ implements ISpecies {
     /* (non-Javadoc)
      * @see etomica.atom.IAtomTypeMolecule#addChildType(etomica.atom.AtomTypeLeaf)
      */
-    public void addChildType(IAtomTypeLeaf newChildType) {
+    public void addChildType(IAtomType newChildType) {
         if (newChildType.getSpecies() != null) {
             throw new IllegalArgumentException(newChildType+" already has a parent");
         }
         newChildType.setSpecies(this);
         newChildType.setChildIndex(childTypes.length);
-        childTypes = (IAtomTypeLeaf[]) Arrays.addObject(childTypes, newChildType);
+        childTypes = (IAtomType[]) Arrays.addObject(childTypes, newChildType);
     }
     
     /* (non-Javadoc)
@@ -116,5 +116,5 @@ public abstract class Species /*extends AtomType*/ implements ISpecies {
     private static final long serialVersionUID = 2L;
     protected IConformation conformation;
     protected IAtomPositionDefinition positionDefinition;
-    protected IAtomTypeLeaf[] childTypes = new IAtomTypeLeaf[0];
+    protected IAtomType[] childTypes = new IAtomType[0];
 }

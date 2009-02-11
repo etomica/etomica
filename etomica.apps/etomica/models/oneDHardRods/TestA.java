@@ -6,7 +6,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomLeaf;
 import etomica.box.Box;
@@ -78,7 +78,7 @@ public class TestA extends Simulation {
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         p2.setBox(box);
-        potentialMaster.addPotential(p2, new IAtomTypeLeaf[]
+        potentialMaster.addPotential(p2, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);

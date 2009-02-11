@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IDataInfo;
@@ -171,7 +171,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
 		potentialThreaded = new PotentialThreaded(space, potentialN);
        
-        potentialMaster.addPotential(potentialThreaded, new IAtomTypeLeaf[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
+        potentialMaster.addPotential(potentialThreaded, new IAtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
         
         potentialMaster.setNumThreads(numThreads, box);
         

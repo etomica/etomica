@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 
 /**
  * Colors the atom according to the color given by its type field.  
@@ -39,7 +39,7 @@ implements ColorScheme, java.io.Serializable
     	return index.intValue();
     }
 
-    public void setColor(IAtomTypeLeaf type, Color c) 
+    public void setColor(IAtomType type, Color c) 
     {
     	int index = colorindex.size();
     	colormap.put( type, new Integer(index) );

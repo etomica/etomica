@@ -44,5 +44,5 @@ public interface IAtomLeaf extends IAtom {
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
      */
-    public IAtomTypeLeaf getType();
+    public IAtomType getType();
 }

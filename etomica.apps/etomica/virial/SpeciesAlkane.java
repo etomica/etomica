@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Molecule;
@@ -34,11 +34,11 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         return group;
     }
     
-    public IAtomTypeLeaf getCH2Type() {
+    public IAtomType getCH2Type() {
         return childTypes[0];
     }
     
-    public IAtomTypeLeaf getCH3Type() {
+    public IAtomType getCH3Type() {
         return childTypes[1];
     }
     

@@ -2,7 +2,7 @@ package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -104,7 +104,7 @@ public class EnergyMap extends Simulation{
         potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
 		
         /**
         // Cu

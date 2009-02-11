@@ -3,7 +3,7 @@ package etomica.models.hexane;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeSphere;
@@ -156,7 +156,7 @@ public class TestHexaneFileConfig extends Simulation {
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {

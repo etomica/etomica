@@ -1,7 +1,7 @@
 package etomica.junit.atom;
 
 import junit.framework.TestCase;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.Molecule;
@@ -12,7 +12,7 @@ import etomica.util.Debug;
 
 public class MoleculeArrayListTest extends TestCase {
 
-    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomTypeLeaf[0]);
+    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomType[0]);
     
 	/*
 	 * testTrimToSize()

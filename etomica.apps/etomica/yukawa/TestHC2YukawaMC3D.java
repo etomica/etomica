@@ -5,7 +5,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -72,7 +72,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange());
-		potentialMaster.addPotential(potentialTruncated, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
+		potentialMaster.addPotential(potentialTruncated, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 			
 		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 		

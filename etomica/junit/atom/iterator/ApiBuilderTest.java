@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -90,7 +90,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
                 new int[][] {{3,2},{4,1,6}});
         ISpecies species0 = sim.getSpeciesManager().getSpecies(0);
         ISpecies species1 = sim.getSpeciesManager().getSpecies(1);
-        IAtomTypeLeaf[] types = new IAtomTypeLeaf[2];
+        IAtomType[] types = new IAtomType[2];
         MoleculePair basisPair = new MoleculePair();
 
         IBox box = sim.getBox(0);

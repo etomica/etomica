@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
@@ -49,11 +49,11 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         return (Color)radicalColorMap.getAgent(atom.getType());
     }
 
-    public void setFreeRadicalColor(IAtomTypeLeaf type, Color color) {
+    public void setFreeRadicalColor(IAtomType type, Color color) {
         radicalColorMap.setAgent(type, color);
     }
     
-    public void setFullColor(IAtomTypeLeaf type, Color color) {
+    public void setFullColor(IAtomType type, Color color) {
         fullColorMap.setAgent(type, color);
     }
     

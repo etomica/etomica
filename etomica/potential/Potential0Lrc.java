@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
@@ -61,12 +61,12 @@ import etomica.space.ISpace;
  */
 public abstract class Potential0Lrc extends Potential0 implements PotentialSoft, IPotential0Lrc {
     
-    protected final IAtomTypeLeaf[] types;
+    protected final IAtomType[] types;
     protected final boolean interType;
     protected final IPotentialAtomic truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
     
-    public Potential0Lrc(ISpace space, IAtomTypeLeaf[] types, IPotentialAtomic truncatedPotential) {
+    public Potential0Lrc(ISpace space, IAtomType[] types, IPotentialAtomic truncatedPotential) {
         super(space);
         this.types = types.clone();
         if(types.length != 2) {

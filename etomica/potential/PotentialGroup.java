@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -74,7 +74,7 @@ public class PotentialGroup extends PotentialMolecular {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(IPotentialAtomic potential, IAtomTypeLeaf[] types) {
+    public void addPotential(IPotentialAtomic potential, IAtomType[] types) {
         if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
@@ -110,7 +110,7 @@ public class PotentialGroup extends PotentialMolecular {
         addPotential(potential,iterator,null);
     }
     
-    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -132,7 +132,7 @@ public class PotentialGroup extends PotentialMolecular {
      * within this group or does not apply to specific AtomTypes, null is 
      * returned.
      */
-    public IAtomTypeLeaf[] getAtomTypes(IPotential potential) {
+    public IAtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
@@ -279,11 +279,11 @@ public class PotentialGroup extends PotentialMolecular {
         private static final long serialVersionUID = 1L;
         public final IPotentialAtomic potential;
         public final AtomsetIteratorBasisDependent iterator;
-        public final IAtomTypeLeaf[] types;
+        public final IAtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotentialAtomic a, AtomsetIteratorBasisDependent i, IAtomTypeLeaf[] t, PotentialLinker l) {
+        public PotentialLinker(IPotentialAtomic a, AtomsetIteratorBasisDependent i, IAtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
@@ -74,8 +74,8 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
         Potential2SoftSpherical potential = new P2SoftSphere(space);
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, 1);
 	    
-        IAtomTypeLeaf sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
+        IAtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
         
         int looping = 10000;
         double interval = 0.0001;

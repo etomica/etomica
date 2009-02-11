@@ -7,7 +7,7 @@ package etomica.models.hexane;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -156,7 +156,7 @@ public class TestSetToUHexane extends Simulation {
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new ISpecies[] {

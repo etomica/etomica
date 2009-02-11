@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -71,8 +71,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
         
-        IAtomTypeLeaf sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomTypeLeaf[] {sphereType, sphereType});
+        IAtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
         
         box.setBoundary(boundary);
 
@@ -97,7 +97,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
          * 	away from its lattice-site
          */
        P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
-       potentialMaster.addPotential(p1Constraint, new IAtomTypeLeaf[]{sphereType});
+       potentialMaster.addPotential(p1Constraint, new IAtomType[]{sphereType});
       
        integrator.setBox(box);
     }

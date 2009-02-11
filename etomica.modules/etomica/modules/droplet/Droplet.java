@@ -1,6 +1,6 @@
 package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
@@ -44,17 +44,17 @@ public class Droplet extends Simulation {
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-        IAtomTypeLeaf leafType = species.getLeafType();
+        IAtomType leafType = species.getLeafType();
         
         p2 = new P2Cohesion(space);
         p2.setEpsilon(1.0);
         double vol = 4.0/3.0*Math.PI;
         p2.setDv(vol/numAtoms);
-        potentialMaster.addPotential(p2, new IAtomTypeLeaf[]{leafType,leafType});
+        potentialMaster.addPotential(p2, new IAtomType[]{leafType,leafType});
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(1.0);
-        potentialMaster.addPotential(p1Smash, new IAtomTypeLeaf[]{leafType});
+        potentialMaster.addPotential(p1Smash, new IAtomType[]{leafType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);

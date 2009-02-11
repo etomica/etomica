@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
@@ -159,11 +159,11 @@ public class VirialAlkaneMix {
 
         SpeciesAlkane speciesCH4 = (SpeciesAlkane)sim.species[0];
         SpeciesAlkane speciesCH3 = (SpeciesAlkane)sim.species[1];
-        IAtomTypeLeaf typeCH4 = speciesCH4.getChildType(0);
-        IAtomTypeLeaf typeCH3 = speciesCH3.getChildType(0);
-        pMethaneMethaneGroup.addPotential(p2CH4, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH4, typeCH4}));
-        pMethaneEthaneGroup.addPotential(p2CH4CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH4, typeCH3}));
-        pEthaneEthaneGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH3}));
+        IAtomType typeCH4 = speciesCH4.getChildType(0);
+        IAtomType typeCH3 = speciesCH3.getChildType(0);
+        pMethaneMethaneGroup.addPotential(p2CH4, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH4, typeCH4}));
+        pMethaneEthaneGroup.addPotential(p2CH4CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH4, typeCH3}));
+        pEthaneEthaneGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
         

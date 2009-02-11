@@ -3,7 +3,7 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IEvent;
 import etomica.api.IEventManager;
 import etomica.api.IListener;
@@ -50,7 +50,7 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
      * agent.  The AtomType must be from the ISimulation.  The AtomType's old
      * agent is not "released".  This should be done manually if needed.
      */
-    public void setAgent(IAtomTypeLeaf atomType, Object newAgent) {
+    public void setAgent(IAtomType atomType, Object newAgent) {
         agents[atomType.getIndex()] = newAgent;
     }
     
@@ -59,7 +59,7 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
      * access to the agents from multiple AtomTypes, it might be faster to use 
      * the above getAgents method.
      */
-    public Object getAgent(IAtomTypeLeaf type) {
+    public Object getAgent(IAtomType type) {
         return agents[type.getIndex()];
     }
     
@@ -68,7 +68,7 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
      */
     private void releaseAgents(ISpecies parentType) {
         for (int i=0; i<parentType.getChildTypeCount(); i++) {
-            IAtomTypeLeaf leafType = parentType.getChildType(i);
+            IAtomType leafType = parentType.getChildType(i);
             Object agent = agents[leafType.getIndex()];
             if (agent != null) {
                 agentSource.releaseAgent(agent, leafType);
@@ -153,19 +153,19 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
         else if (evt instanceof SimulationSpeciesAddedEvent) {
             ISpecies species = ((SimulationSpeciesAddedEvent)evt).getSpecies();
             for(int i = 0; i < species.getChildTypeCount(); i++) {
-                IAtomTypeLeaf newType = species.getChildType(i);
+                IAtomType newType = species.getChildType(i);
                 int indexMax = newType.getIndex();
                 agents = Arrays.resizeArray(agents, indexMax+1);
                 addAgent(newType);
             }
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
-            IAtomTypeLeaf atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
-            if (!(atomType instanceof IAtomTypeLeaf)) {
+            IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
+            if (!(atomType instanceof IAtomType)) {
                 return;
             }
             int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
-            int newIndex = ((IAtomTypeLeaf)atomType).getIndex();
+            int newIndex = ((IAtomType)atomType).getIndex();
             if (newIndex >= agents.length) {
                 agents = Arrays.resizeArray(agents, newIndex+1);
             }
@@ -178,7 +178,7 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
         }
     }
     
-    protected void addAgent(IAtomTypeLeaf type) {
+    protected void addAgent(IAtomType type) {
         agents[type.getIndex()] = agentSource.makeAgent(type);
     }
     
@@ -196,13 +196,13 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
         /**
          * Returns an agent for the given AtomType.
          */
-        public Object makeAgent(IAtomTypeLeaf type);
+        public Object makeAgent(IAtomType type);
         
         /**
          * This informs the agent source that the agent is going away and that 
          * the agent source should disconnect the agent from other elements.
          */
-        public void releaseAgent(Object agent, IAtomTypeLeaf type);
+        public void releaseAgent(Object agent, IAtomType type);
     }
 
     private static final long serialVersionUID = 1L;

@@ -1,6 +1,6 @@
 package etomica.modules.sam;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISimulation;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -15,15 +15,15 @@ public class SpeciesAlkaneThiol extends SpeciesSpheresHetero {
         setTotalChildren(numCarbons+1);
     }
 
-    public IAtomTypeLeaf getSulfurType() {
+    public IAtomType getSulfurType() {
         return childTypes[0];
     }
     
-    public IAtomTypeLeaf getCH2Type() {
+    public IAtomType getCH2Type() {
         return childTypes[1];
     }
     
-    public IAtomTypeLeaf getCH3Type() {
+    public IAtomType getCH3Type() {
         return childTypes[2];
     }
     

@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -83,7 +83,7 @@ public class SpeciesParacetamol extends Species {
         return moleculeParacetamol; 
     }
     
-    protected IAtomLeaf makeLeafAtom(IAtomTypeLeaf leafType) {
+    protected IAtomLeaf makeLeafAtom(IAtomType leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new AtomLeaf(space, leafType);
     }

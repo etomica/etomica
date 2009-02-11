@@ -3,7 +3,7 @@ package etomica.spin;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -63,9 +63,9 @@ public class Heisenberg extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        IAtomTypeLeaf type = spins.getLeafType();
-        potentialMaster.addPotential(field, new IAtomTypeLeaf[] {type});
-        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] {type, type});
+        IAtomType type = spins.getLeafType();
+        potentialMaster.addPotential(field, new IAtomType[] {type});
+        potentialMaster.addPotential(potential, new IAtomType[] {type, type});
         
         integrator.setBox(box);
         

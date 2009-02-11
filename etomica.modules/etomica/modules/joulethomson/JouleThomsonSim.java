@@ -2,7 +2,7 @@ package etomica.modules.joulethomson;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.atom.AtomTypeSphere;
@@ -77,7 +77,7 @@ public class JouleThomsonSim extends Simulation {
         ((ElementSimple)((AtomTypeSphere)species.getLeafType()).getElement()).setMass(40);
         getSpeciesManager().addSpecies(species);
 	    potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
-        potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potential, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 	    box = new Box(space);
         addBox(box);
         box.setNMolecules(species, nAtoms);

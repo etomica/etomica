@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -185,7 +185,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomTypeLeaf[] atomType) {
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomType[] atomType) {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)

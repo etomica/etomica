@@ -7,7 +7,7 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -106,7 +106,7 @@ public class SWMD3D extends Simulation {
 //	lambdaControl.setNMajor(5);
 
 
-    potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
+    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
 
     integrator.setBox(box);
     integrator.addIntervalAction(new BoxImposePbc(box, space));

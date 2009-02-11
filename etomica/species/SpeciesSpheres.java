@@ -1,6 +1,6 @@
 package etomica.species;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
@@ -38,7 +38,7 @@ public class SpeciesSpheres extends Species {
         this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
     }
     
-    public SpeciesSpheres(ISpace _space, boolean isDynamic, int nA, IAtomTypeLeaf leafAtomType, IConformation conformation) {
+    public SpeciesSpheres(ISpace _space, boolean isDynamic, int nA, IAtomType leafAtomType, IConformation conformation) {
         super(new AtomPositionGeometricCenter(_space));
         this.space = _space;
         addChildType(leafAtomType);
@@ -48,7 +48,7 @@ public class SpeciesSpheres extends Species {
         this.isDynamic = isDynamic;
     }
     
-    public IAtomTypeLeaf getLeafType() {
+    public IAtomType getLeafType() {
         return getChildType(0);
     }
     
@@ -86,5 +86,5 @@ public class SpeciesSpheres extends Species {
      protected final boolean isDynamic;
      protected final ISpace space;
      protected int atomsPerGroup;
-     protected final IAtomTypeLeaf leafAtomType;
+     protected final IAtomType leafAtomType;
 }

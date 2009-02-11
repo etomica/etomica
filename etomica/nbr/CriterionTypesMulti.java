@@ -3,7 +3,7 @@ package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 
 /**
  * Filters AtomSets to match a given set of AtomTypes.  CriterionType and
@@ -14,7 +14,7 @@ import etomica.api.IAtomTypeLeaf;
 public class CriterionTypesMulti extends CriterionAdapter {
 
     public CriterionTypesMulti(NeighborCriterion criterion, 
-            IAtomTypeLeaf[] types) {
+            IAtomType[] types) {
         super(criterion);
         this.types = types.clone();
     }
@@ -43,10 +43,10 @@ public class CriterionTypesMulti extends CriterionAdapter {
     /**
      * Returns the AtomTypes accepted by this NeighborCriterion
      */
-    public IAtomTypeLeaf[] getTypes() {
+    public IAtomType[] getTypes() {
         return types;
     }
     
     private static final long serialVersionUID = 1L;
-    private final IAtomTypeLeaf[] types;
+    private final IAtomType[] types;
 }

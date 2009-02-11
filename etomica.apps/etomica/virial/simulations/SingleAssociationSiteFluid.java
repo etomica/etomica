@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.data.AccumulatorAverage;

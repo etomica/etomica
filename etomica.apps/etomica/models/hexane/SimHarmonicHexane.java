@@ -3,7 +3,7 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -172,7 +172,7 @@ public class SimHarmonicHexane extends Simulation {
         // potential is not otherwise used.
         Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
         PotentialMaster potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(p2, new IAtomTypeLeaf[]
+        potentialMaster.addPotential(p2, new IAtomType[]
                {((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType(),
                 ((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType()});
         /* Yes, Andrew, I know that the above specifies only the first thing in 

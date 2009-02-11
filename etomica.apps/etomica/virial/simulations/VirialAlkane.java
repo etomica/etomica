@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IData;
 import etomica.api.ISpecies;
@@ -123,13 +123,13 @@ public class VirialAlkane {
 //        sim.integratorOS.setStepFreq0(1);
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
-        IAtomTypeLeaf typeCH3 = species.getChildType(0);
-        IAtomTypeLeaf typeCH2 = species.getChildType(1);
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2, typeCH2}));
+        IAtomType typeCH3 = species.getChildType(0);
+        IAtomType typeCH2 = species.getChildType(1);
+        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH2}));
-        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));
+        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH2}));
+        pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3, typeCH3}));
         
         sim.integratorOS.setNumSubSteps(1000);
 

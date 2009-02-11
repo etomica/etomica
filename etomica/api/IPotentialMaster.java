@@ -59,7 +59,7 @@ public interface IPotentialMaster {
 	 * 
 	 */
 	public void addPotential(IPotentialAtomic potential,
-			IAtomTypeLeaf[] atomTypes);
+			IAtomType[] atomTypes);
 
 	/**
 	 * Notifies the PotentialMaster that the sub-potential has been added to 

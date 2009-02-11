@@ -4,7 +4,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -94,9 +94,9 @@ public class HSMD3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
-        IAtomTypeLeaf leafType = species.getLeafType();
+        IAtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType, leafType});
+        potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
 
         box = new Box(space);
         addBox(box);

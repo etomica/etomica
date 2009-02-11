@@ -3,7 +3,7 @@ package etomica.nbr.site;
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -74,7 +74,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         cellRange = newCellRange;
     }
     
-    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomTypeLeaf[] atomType) {
+    protected void addRangedPotentialForTypes(IPotentialAtomic potential, IAtomType[] atomType) {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);

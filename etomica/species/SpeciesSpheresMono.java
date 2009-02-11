@@ -1,6 +1,6 @@
 package etomica.species;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
@@ -45,7 +45,7 @@ public class SpeciesSpheresMono extends Species {
         this.isDynamic = isDynamic;
     }
     
-    public IAtomTypeLeaf getLeafType() {
+    public IAtomType getLeafType() {
         return leafAtomType;
     }
     
@@ -70,5 +70,5 @@ public class SpeciesSpheresMono extends Species {
      private static final long serialVersionUID = 1L;
      protected final ISpace space;
      protected final boolean isDynamic;
-     protected final IAtomTypeLeaf leafAtomType;
+     protected final IAtomType leafAtomType;
 }

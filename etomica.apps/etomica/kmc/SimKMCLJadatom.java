@@ -3,7 +3,7 @@ package etomica.kmc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -76,8 +76,8 @@ public class SimKMCLJadatom extends Simulation{
         inflater.setTargetDensity(1);
         inflater.actionPerformed();
     	
-		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomTypeLeaf[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomTypeLeaf[]{movable.getLeafType(), movable.getLeafType()});
+		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomType[]{movable.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomType[]{movable.getLeafType(), movable.getLeafType()});
 
 		
     //CRYSTAL

@@ -4,7 +4,7 @@
 package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -102,7 +102,7 @@ public class TestHexaneCBMCOnly extends Simulation {
 
         // Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential,
-                new IAtomTypeLeaf[] { sphereType, sphereType });
+                new IAtomType[] { sphereType, sphereType });
 
         // //INTRAMOLECULAR POTENTIAL STUFF
         //

@@ -1,7 +1,7 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -88,7 +88,7 @@ public class Sim1DHR extends Simulation {
         
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
-        potentialMasterTarget.addPotential(p2, new IAtomTypeLeaf[]
+        potentialMasterTarget.addPotential(p2, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);

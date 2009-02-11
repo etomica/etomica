@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomListWrapper;
@@ -24,7 +24,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
      * @param species species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public AtomIteratorAllLeafType(IAtomTypeLeaf[] atomType) {
+    public AtomIteratorAllLeafType(IAtomType[] atomType) {
     	this.atomType = atomType;
         next = new AtomListWrapper();
     }
@@ -103,7 +103,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
     }
 
     private static final long serialVersionUID = 1L;
-    private final IAtomTypeLeaf[] atomType;
+    private final IAtomType[] atomType;
     private IBox box;
     private int nextCursor;
     private final AtomListWrapper next;

@@ -3,7 +3,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -43,7 +43,7 @@ public class InterfacialSW extends Simulation {
     public final IBox box;
     public final IntegratorHard integrator;
     public final ActivityIntegrate activityIntegrate;
-    public final IAtomTypeLeaf leafType, headType, tailType;
+    public final IAtomType leafType, headType, tailType;
     public final P2SquareWell p2Head, p2HeadHead;
     public final P2HardSphere p2TailTail, p2Tail, p2HeadTail;
     public final P2HardBond p2Bond;
@@ -96,18 +96,18 @@ public class InterfacialSW extends Simulation {
 
         //instantiate several potentials for selection in combo-box
         P2SquareWell p2SW = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-	    potentialMaster.addPotential(p2SW, new IAtomTypeLeaf[]{leafType, leafType});
+	    potentialMaster.addPotential(p2SW, new IAtomType[]{leafType, leafType});
         p2Head = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2Head, new IAtomTypeLeaf[]{leafType, headType});
+        potentialMaster.addPotential(p2Head, new IAtomType[]{leafType, headType});
         p2HeadHead = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2HeadHead, new IAtomTypeLeaf[]{headType, headType});
+        potentialMaster.addPotential(p2HeadHead, new IAtomType[]{headType, headType});
 
         p2TailTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2TailTail, new IAtomTypeLeaf[]{tailType, tailType});
+        potentialMaster.addPotential(p2TailTail, new IAtomType[]{tailType, tailType});
         p2Tail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2Tail, new IAtomTypeLeaf[]{leafType, tailType});
+        potentialMaster.addPotential(p2Tail, new IAtomType[]{leafType, tailType});
         p2HeadTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2HeadTail, new IAtomTypeLeaf[]{headType, tailType});
+        potentialMaster.addPotential(p2HeadTail, new IAtomType[]{headType, tailType});
         
         p2Bond = new P2HardBond(space, 0.8, 0.2, true);
         PotentialGroup p1Surfactant = potentialMaster.makePotentialGroup(1);

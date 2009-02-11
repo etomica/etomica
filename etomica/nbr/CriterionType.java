@@ -2,7 +2,7 @@
 package etomica.nbr;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 
 /**
  * Filters atoms to match a given AtomType.
@@ -12,7 +12,7 @@ import etomica.api.IAtomTypeLeaf;
 public class CriterionType extends CriterionAdapter {
 
     public CriterionType(NeighborCriterion criterion, 
-            IAtomTypeLeaf type) {
+            IAtomType type) {
         super(criterion);
         this.type = type;
     }
@@ -31,10 +31,10 @@ public class CriterionType extends CriterionAdapter {
     /**
      * Returns the AtomType accepted by this criterion.
      */
-    public IAtomTypeLeaf getType() {
+    public IAtomType getType() {
         return type;
     }
     
     private static final long serialVersionUID = 1L;
-    private final IAtomTypeLeaf type;
+    private final IAtomType type;
 }

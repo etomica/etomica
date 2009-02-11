@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -52,7 +52,7 @@ public class SimCalcS extends Simulation {
 
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomTypeLeaf[] { sphereType,
+        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
 
         int nCells;

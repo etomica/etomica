@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
@@ -85,11 +85,11 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         p2BB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
 
 		potentialMaster.addPotential(p2AA,
-		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesA.getLeafType() });
+		        new IAtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
 		potentialMaster.addPotential(p2AB,
-		        new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesB.getLeafType() });
+		        new IAtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
         potentialMaster.addPotential(p2BB,
-                new IAtomTypeLeaf[] { speciesB.getLeafType(), speciesB.getLeafType() });
+                new IAtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
 
 		// **** Setting Up the thermometer Meter *****
 		

@@ -2,7 +2,7 @@ package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -71,8 +71,8 @@ public class TestLJMC3D extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
-        IAtomTypeLeaf leafType = species.getLeafType();
-        potentialMaster.addPotential(potentialTruncated, new IAtomTypeLeaf[] {leafType, leafType});
+        IAtomType leafType = species.getLeafType();
+        potentialMaster.addPotential(potentialTruncated, new IAtomType[] {leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));

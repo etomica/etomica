@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -16,7 +16,7 @@ import etomica.util.Debug;
   */
 public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
 
-    public AtomLeaf(ISpace space, IAtomTypeLeaf type) {
+    public AtomLeaf(ISpace space, IAtomType type) {
         super();
         this.type = type;
         position = space.makeVector();
@@ -99,12 +99,12 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
      */
-    public final IAtomTypeLeaf getType() {
+    public final IAtomType getType() {
         return type;
     }
 
     private static final long serialVersionUID = 3L;
-    protected final IAtomTypeLeaf type;
+    protected final IAtomType type;
     protected int index;
     protected final IVectorMutable position;
     protected IMolecule parent;

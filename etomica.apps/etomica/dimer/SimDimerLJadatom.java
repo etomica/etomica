@@ -6,7 +6,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -92,8 +92,8 @@ public class SimDimerLJadatom extends Simulation{
     	
 //    	potential = new P2LennardJones(space, sigma, 1.0);
 //		potentialMaster.addPotential(, new IAtomTypeLeaf[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomTypeLeaf[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomTypeLeaf[]{movable.getLeafType(), movable.getLeafType()});
+		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomType[]{movable.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new IAtomType[]{movable.getLeafType(), movable.getLeafType()});
         
     //CRYSTAL
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);

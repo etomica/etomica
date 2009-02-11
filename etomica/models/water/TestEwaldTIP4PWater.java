@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -81,7 +81,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		//Potential
 		P2LennardJones potentialLJ = new P2LennardJones(space, 3.154,Kelvin.UNIT.toSim(78.02));
-		potentialMaster.addPotential(potentialLJ, new IAtomTypeLeaf[]{species.getOxygenType(), species.getOxygenType()} );
+		potentialMaster.addPotential(potentialLJ, new IAtomType[]{species.getOxygenType(), species.getOxygenType()} );
         
 		CriterionAll criterionAll = new CriterionAll();
 		

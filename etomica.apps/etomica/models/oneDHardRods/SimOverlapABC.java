@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
@@ -95,7 +95,7 @@ public class SimOverlapABC extends Simulation {
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         p2.setBox(boxTarget);
-        potentialMasterTarget.addPotential(p2, new IAtomTypeLeaf[]
+        potentialMasterTarget.addPotential(p2, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);
@@ -181,7 +181,7 @@ public class SimOverlapABC extends Simulation {
         p2 = new P2HardSphere(space, 1.0, true);
         p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         p2.setBox(boxRef);
-        potentialMasterRef.addPotential(p2, new IAtomTypeLeaf[]
+        potentialMasterRef.addPotential(p2, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
         
         primitive = new PrimitiveCubic(space, 1.0/density);

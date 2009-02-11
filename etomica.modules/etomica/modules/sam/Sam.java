@@ -3,7 +3,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -160,9 +160,9 @@ public class Sam extends Simulation {
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
 
-        IAtomTypeLeaf typeCH2 = species.getCH2Type();
-        IAtomTypeLeaf typeCH3 = species.getCH3Type();
-        IAtomTypeLeaf typeS = species.getSulfurType();
+        IAtomType typeCH2 = species.getCH2Type();
+        IAtomType typeCH3 = species.getCH3Type();
+        IAtomType typeS = species.getSulfurType();
         
         double sigmaCH3 = 3.75;
         double sigmaSulfur = 3.62;
@@ -211,13 +211,13 @@ public class Sam extends Simulation {
             public void setBox(IBox box) {}
             public boolean unsafe() {return false;}
         };
-        potentialMaster.addPotential(p2CH2t, new IAtomTypeLeaf[]{typeCH2, typeCH2});
+        potentialMaster.addPotential(p2CH2t, new IAtomType[]{typeCH2, typeCH2});
         ((CriterionInterMolecular)potentialMaster.getCriterion(p2CH2t)).setIntraMolecularCriterion(nonBondedCriterion);
-        potentialMaster.addPotential(p2CH3t, new IAtomTypeLeaf[]{typeCH3, typeCH3});
-        potentialMaster.addPotential(p2St, new IAtomTypeLeaf[]{typeS, typeS});
-        potentialMaster.addPotential(p2SCH2t, new IAtomTypeLeaf[]{typeS, typeCH2});
+        potentialMaster.addPotential(p2CH3t, new IAtomType[]{typeCH3, typeCH3});
+        potentialMaster.addPotential(p2St, new IAtomType[]{typeS, typeS});
+        potentialMaster.addPotential(p2SCH2t, new IAtomType[]{typeS, typeCH2});
         ((CriterionInterMolecular)potentialMaster.getCriterion(p2SCH2t)).setIntraMolecularCriterion(nonBondedCriterion);
-        potentialMaster.addPotential(p2CH2CH3t, new IAtomTypeLeaf[]{typeCH2, typeCH3});
+        potentialMaster.addPotential(p2CH2CH3t, new IAtomType[]{typeCH2, typeCH3});
         ((CriterionInterMolecular)potentialMaster.getCriterion(p2CH2CH3t)).setIntraMolecularCriterion(nonBondedCriterion);
         p1Intra = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
@@ -242,7 +242,7 @@ public class Sam extends Simulation {
             public double uInt(double rc) { return 0; }
             public double u(double r2) { return p2SurfaceBond.u(r2); }
         };
-        potentialMaster.addPotential(p2SurfaceTrunc, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2SurfaceTrunc, new IAtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
         criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
         criterion3.setBox(box);
         potentialMaster.setCriterion(p2SurfaceTrunc, criterion3);
@@ -253,12 +253,12 @@ public class Sam extends Simulation {
         p1SurfaceBond.setB(0); // initially disabled
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
         p1SurfaceBond.setOffset(space.makeVector(new double[]{sizeCellX/6.0, 0, sizeCellZ/6.0}));
-        potentialMaster.addPotential(p1SurfaceBond, new IAtomTypeLeaf[]{species.getSulfurType()});
+        potentialMaster.addPotential(p1SurfaceBond, new IAtomType[]{species.getSulfurType()});
         
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
         wallPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
-        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH2Type()});
-        potentialMaster.addPotential(wallPotential, new IAtomTypeLeaf[]{species.getCH3Type()});
+        potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH2Type()});
+        potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH3Type()});
 
         forceSum = new PotentialCalculationForceSumWall(wallPotential);
         integrator.setForceSum(forceSum);
@@ -266,8 +266,8 @@ public class Sam extends Simulation {
         P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
         p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         p2CH2Surface = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
-        potentialMaster.addPotential(p2CH2Surface, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getCH2Type()});
-        potentialMaster.addPotential(p2SulfurSurfaceLJ, new IAtomTypeLeaf[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2CH2Surface, new IAtomType[]{speciesSurface.getLeafType(), species.getCH2Type()});
+        potentialMaster.addPotential(p2SulfurSurfaceLJ, new IAtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
 

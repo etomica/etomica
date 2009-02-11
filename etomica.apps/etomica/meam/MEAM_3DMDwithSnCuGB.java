@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IDataInfo;
@@ -292,7 +292,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 		potentialN.setParametersIMC(cuB.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(cuFixedB.getLeafType(), ParameterSetMEAM.Cu3Sn);
 //		potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
-        potentialMaster.addPotential(potentialN, new IAtomTypeLeaf[]{snFixedA.getLeafType(), snA.getLeafType(), cuFixedB.getLeafType(), cuB.getLeafType()});    
+        potentialMaster.addPotential(potentialN, new IAtomType[]{snFixedA.getLeafType(), snA.getLeafType(), cuFixedB.getLeafType(), cuB.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));

@@ -12,7 +12,7 @@ import etomica.action.AtomAction;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
@@ -432,7 +432,7 @@ public class JouleThomson extends SimulationGraphic {
             }
             else {
                 if (sim.integrator.getPotentialMaster().getPotentials().length == 0) {
-                    sim.integrator.getPotentialMaster().addPotential(sim.potential, new IAtomTypeLeaf[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                    sim.integrator.getPotentialMaster().addPotential(sim.potential, new IAtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 }
             }
             simRestart.actionPerformed();

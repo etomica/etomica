@@ -3,7 +3,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -72,9 +72,9 @@ public class SoftSphere3d extends Simulation {
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 	    
-	    IAtomTypeLeaf type1 = species.getLeafType();
+	    IAtomType type1 = species.getLeafType();
         //AtomTypeLeaf type2 = species2.getLeafType();
-        potentialMaster.addPotential(truncated, new IAtomTypeLeaf[] {type1, type1});
+        potentialMaster.addPotential(truncated, new IAtomType[] {type1, type1});
        // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
         

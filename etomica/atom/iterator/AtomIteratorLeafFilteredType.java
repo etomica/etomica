@@ -2,12 +2,12 @@ package etomica.atom.iterator;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 
 public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
 
-    public AtomIteratorLeafFilteredType(IBox box, IAtomTypeLeaf type) {
+    public AtomIteratorLeafFilteredType(IBox box, IAtomType type) {
         super(box);
         filteredType = type;
     }
@@ -44,5 +44,5 @@ public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IAtomTypeLeaf filteredType;
+    protected final IAtomType filteredType;
 }

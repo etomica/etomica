@@ -3,7 +3,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -55,9 +55,9 @@ public class LjMd3D extends Simulation {
         addBox(box);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
-        IAtomTypeLeaf leafType = species.getLeafType();
+        IAtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType,leafType});
+        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
         
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);

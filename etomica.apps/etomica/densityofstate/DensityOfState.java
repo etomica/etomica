@@ -3,7 +3,7 @@ package etomica.densityofstate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.box.Box;
@@ -77,7 +77,7 @@ public class DensityOfState extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		((PotentialMasterCell)potentialMaster).setCellRange(3);
 		((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
-		potentialMaster.addPotential(potentialTruncated, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
+		potentialMaster.addPotential(potentialTruncated, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 			
 		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(box).makeMCMoveListener());
 		

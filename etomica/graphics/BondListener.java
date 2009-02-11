@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
@@ -132,7 +132,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         // we got a leaf atom in a mult-atom molecule
         ArrayList<Object> bondList = new ArrayList<Object>(); 
         Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
-                get(((IAtomTypeLeaf)newAtom.getType()).getSpecies());
+                get(((IAtomType)newAtom.getType()).getSpecies());
         
         if (bondIterators != null) {
             IMolecule molecule = newAtom.getParentGroup();

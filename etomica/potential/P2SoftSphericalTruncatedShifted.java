@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.space.ISpace;
 
 /**
@@ -44,7 +44,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     /**
      * Returns null because the shift can't be corrected.
      */
-    public Potential0Lrc makeLrcPotential(IAtomTypeLeaf[] types) {
+    public Potential0Lrc makeLrcPotential(IAtomType[] types) {
         return null;
     }
     

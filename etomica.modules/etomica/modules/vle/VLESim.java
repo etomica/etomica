@@ -2,7 +2,7 @@ package etomica.modules.vle;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IEvent;
@@ -83,7 +83,7 @@ public class VLESim extends Simulation {
         p2LJQ.setTemperature(temperature);
         p2Truncated = new P2SoftTruncated(p2LJQ, range, space);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
-        potentialMaster.addPotential(p2Truncated, new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.getMoveManager().setEquilibrating(true);

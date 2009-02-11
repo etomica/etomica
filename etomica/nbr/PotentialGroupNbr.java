@@ -2,7 +2,7 @@ package etomica.nbr;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.MoleculeSetSinglet;
@@ -49,7 +49,7 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
     }
     
-    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomTypeLeaf[] types) {
+    protected void addPotential(IPotentialAtomic potential, AtomsetIteratorBasisDependent iterator, IAtomType[] types) {
         super.addPotential(potential, iterator, types);
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);

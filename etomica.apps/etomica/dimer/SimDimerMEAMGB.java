@@ -5,7 +5,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -173,16 +173,16 @@ public class SimDimerMEAMGB extends Simulation{
         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, potential.getRange(), space);
        */
         
-        this.potentialMaster.addPotential(potential, new IAtomTypeLeaf[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
+        this.potentialMaster.addPotential(potential, new IAtomType[]{fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()});
         potentialMaster.setRange(potential.getRange()*1.1);
         CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomTypeLeaf[] {fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()}));
+        potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new IAtomType[] {fixed.getLeafType(), movable.getLeafType(), dimer.getLeafType()}));
         
-        this.potentialMasterD.addPotential(potential, new IAtomTypeLeaf[]{movable.getLeafType(), dimer.getLeafType()});
+        this.potentialMasterD.addPotential(potential, new IAtomType[]{movable.getLeafType(), dimer.getLeafType()});
         potentialMasterD.setSpecies(new ISpecies []{dimer, movable});
         potentialMasterD.setRange(potential.getRange()*1.1);
         CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
-        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new IAtomTypeLeaf[] {movable.getLeafType(), dimer.getLeafType()}));
+        potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new IAtomType[] {movable.getLeafType(), dimer.getLeafType()}));
         
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);

@@ -11,7 +11,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -595,15 +595,15 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         pHH.setCharge1(hCharge);
         pHH.setCharge2(hCharge);
         P2LennardJones p2 = new P2LennardJones(sim.getSpace(), 3.1670, Kelvin.UNIT.toSim(78.23));
-        IAtomTypeLeaf oType = species.getOxygenType();
-        IAtomTypeLeaf hType = species.getHydrogenType();
+        IAtomType oType = species.getOxygenType();
+        IAtomType hType = species.getHydrogenType();
        
-        potentialMaster.addPotential(p2 /*new P2SoftSphericalTruncatedShifted(p2, boxlength*0.5)*/, new IAtomTypeLeaf[]{oType,oType});
+        potentialMaster.addPotential(p2 /*new P2SoftSphericalTruncatedShifted(p2, boxlength*0.5)*/, new IAtomType[]{oType,oType});
         PotentialGroup pGroup = potentialMaster.getPotential(new ISpecies[]{species, species});
-        potentialMaster.addPotential(pOO /*new P2SoftSphericalTruncatedShifted(pOO, boxlength*0.5)*/, new IAtomTypeLeaf[]{oType,oType});
-        pGroup.addPotential(pOH /*new P2SoftSphericalTruncatedShifted(pOH, boxlength*0.5)*/, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{oType, hType}));
-        pGroup.addPotential(pOH /*new P2SoftSphericalTruncatedShifted(pOH, boxlength*0.5)*/, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{hType, oType}));
-        potentialMaster.addPotential(pHH /*new P2SoftSphericalTruncatedShifted(pHH, boxlength*0.5)*/, new IAtomTypeLeaf[]{hType,hType});
+        potentialMaster.addPotential(pOO /*new P2SoftSphericalTruncatedShifted(pOO, boxlength*0.5)*/, new IAtomType[]{oType,oType});
+        pGroup.addPotential(pOH /*new P2SoftSphericalTruncatedShifted(pOH, boxlength*0.5)*/, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{oType, hType}));
+        pGroup.addPotential(pOH /*new P2SoftSphericalTruncatedShifted(pOH, boxlength*0.5)*/, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{hType, oType}));
+        potentialMaster.addPotential(pHH /*new P2SoftSphericalTruncatedShifted(pHH, boxlength*0.5)*/, new IAtomType[]{hType,hType});
         
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());

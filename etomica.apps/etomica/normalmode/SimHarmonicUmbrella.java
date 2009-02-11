@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -105,8 +105,8 @@ public class SimHarmonicUmbrella extends Simulation {
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundary.getDimensions().x(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomTypeLeaf sphereType = species.getLeafType();
-        potentialMasterMonatomic.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
+        IAtomType sphereType = species.getLeafType();
+        potentialMasterMonatomic.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
         
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);

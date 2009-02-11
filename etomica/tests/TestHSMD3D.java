@@ -1,7 +1,7 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -51,14 +51,14 @@ public class TestHSMD3D extends Simulation {
         getSpeciesManager().addSpecies(species);
         species2 = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species2);
-        IAtomTypeLeaf type1 = species.getLeafType();
-        IAtomTypeLeaf type2 = species2.getLeafType();
+        IAtomType type1 = species.getLeafType();
+        IAtomType type2 = species2.getLeafType();
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomTypeLeaf[]{type1, type1});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type1, type1});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomTypeLeaf[]{type1, type2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type1, type2});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomTypeLeaf[]{type2, type2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new IAtomType[]{type2, type2});
         
         box = new Box(space);
         addBox(box);

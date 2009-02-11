@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
@@ -190,26 +190,26 @@ public class VirialAlkaneMix2 {
 
         SpeciesAlkane species1 = (SpeciesAlkane)sim.species[0];
         SpeciesAlkane species2 = (SpeciesAlkane)sim.species[1];
-        IAtomTypeLeaf typeCH3A = species1.getChildType(0);
-        IAtomTypeLeaf typeCH3B = species2.getChildType(0);
-        IAtomTypeLeaf typeCH2A = species1.getChildType(1);
-        IAtomTypeLeaf typeCH2B = species2.getChildType(1);
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2A}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH2B}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2A}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH2B}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3A}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH3B}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3A}));
-        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH3B}));
-        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3A}));
-        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3A, typeCH3B}));
-        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3A}));
-        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH3B, typeCH3B}));
-        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2A}));
-        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2A, typeCH2B}));
-        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2A}));
-        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomTypeLeaf[]{typeCH2B, typeCH2B}));
+        IAtomType typeCH3A = species1.getChildType(0);
+        IAtomType typeCH3B = species2.getChildType(0);
+        IAtomType typeCH2A = species1.getChildType(1);
+        IAtomType typeCH2B = species2.getChildType(1);
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH2A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH2B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3B, typeCH2A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3B, typeCH2B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2A, typeCH3A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2A, typeCH3B}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2B, typeCH3A}));
+        pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2B, typeCH3B}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH3A}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH3B}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3B, typeCH3A}));
+        pComp1Comp1Group.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3B, typeCH3B}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2A, typeCH2A}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2A, typeCH2B}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2B, typeCH2A}));
+        pComp2Comp2Group.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2B, typeCH2B}));
         
         sim.integratorOS.setNumSubSteps(1000);
         PotentialGroup pIntra1 = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);

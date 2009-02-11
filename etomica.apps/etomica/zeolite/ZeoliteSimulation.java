@@ -2,7 +2,7 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
@@ -156,9 +156,9 @@ public class ZeoliteSimulation extends Simulation {
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
         
         
-        potentialMaster.addPotential(MM,new IAtomTypeLeaf[]{species[2].getLeafType(),species[2].getLeafType()});
-        potentialMaster.addPotential(MO,new IAtomTypeLeaf[]{species[0].getLeafType(),species[2].getLeafType()});
-        potentialMaster.addPotential(potentialMS,new IAtomTypeLeaf[]{species[1].getLeafType(),species[2].getLeafType()});
+        potentialMaster.addPotential(MM,new IAtomType[]{species[2].getLeafType(),species[2].getLeafType()});
+        potentialMaster.addPotential(MO,new IAtomType[]{species[0].getLeafType(),species[2].getLeafType()});
+        potentialMaster.addPotential(potentialMS,new IAtomType[]{species[1].getLeafType(),species[2].getLeafType()});
         
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);

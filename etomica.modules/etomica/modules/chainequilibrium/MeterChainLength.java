@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.atom.AtomLeafAgentManager;
@@ -170,11 +170,11 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         return dataInfo;
     }
 
-    public IAtomTypeLeaf getIgnoredAtomType() {
+    public IAtomType getIgnoredAtomType() {
         return ignoredAtomType;
     }
 
-    public void setIgnoredAtomType(IAtomTypeLeaf ignoredAtomType) {
+    public void setIgnoredAtomType(IAtomType ignoredAtomType) {
         this.ignoredAtomType = ignoredAtomType;
     }
 
@@ -187,7 +187,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
     protected DataInfoDoubleArray xDataInfo;
     protected DataInfoFunction dataInfo;
     protected final DataTag tag;
-    protected IAtomTypeLeaf ignoredAtomType;
+    protected IAtomType ignoredAtomType;
     
     public static class AtomTag {
         public boolean tagged;

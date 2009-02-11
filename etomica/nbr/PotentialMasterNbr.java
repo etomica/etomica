@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IEventManager;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -50,7 +50,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
 
     public void potentialAddedNotify(IPotentialAtomic subPotential, PotentialGroup pGroup) {
         super.potentialAddedNotify(subPotential, pGroup);
-        IAtomTypeLeaf[] atomTypes = pGroup.getAtomTypes(subPotential);
+        IAtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
             if (pGroup.nBody() == 1 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
                 boolean found = false;
@@ -82,9 +82,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
 
-    protected abstract void addRangedPotentialForTypes(IPotentialAtomic subPotential, IAtomTypeLeaf[] atomTypes);
+    protected abstract void addRangedPotentialForTypes(IPotentialAtomic subPotential, IAtomType[] atomTypes);
     
-    protected void addRangedPotential(IPotentialAtomic potential, IAtomTypeLeaf atomType) {
+    protected void addRangedPotential(IPotentialAtomic potential, IAtomType atomType) {
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
@@ -116,7 +116,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
     }
     
-    public PotentialArray getRangedPotentials(IAtomTypeLeaf atomType) {
+    public PotentialArray getRangedPotentials(IAtomType atomType) {
         return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 
@@ -132,11 +132,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return PotentialArray.class;
     }
     
-    public Object makeAgent(IAtomTypeLeaf type) {
+    public Object makeAgent(IAtomType type) {
         return new PotentialArray();
     }
     
-    public void releaseAgent(Object agent, IAtomTypeLeaf type) {
+    public void releaseAgent(Object agent, IAtomType type) {
     }
 
     public Object makeAgent(ISpecies type) {

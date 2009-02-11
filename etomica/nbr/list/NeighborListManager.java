@@ -6,7 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.api.IAction;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.atom.AtomArrayList;
@@ -191,7 +191,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         iieCount = updateInterval;
     }
 
-    public NeighborCriterion[] getCriterion(IAtomTypeLeaf atomType) {
+    public NeighborCriterion[] getCriterion(IAtomType atomType) {
         return potentialMaster.getRangedPotentials(atomType).getCriteria();
     }
 

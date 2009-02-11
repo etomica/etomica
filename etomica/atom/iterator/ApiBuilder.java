@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 
 /**
  * Provides static methods for construction of some useful pair iterators.
@@ -56,7 +56,7 @@ public final class ApiBuilder {
      * 
      * @throws IllegalArgumentException if the types array is not of length 2
      */
-    public static ApiIntergroup makeIntergroupTypeIterator(IAtomTypeLeaf[] types) {
+    public static ApiIntergroup makeIntergroupTypeIterator(IAtomType[] types) {
         if (types.length != 2)
             throw new IllegalArgumentException(
                     "Incorrect number of types; must be 2");

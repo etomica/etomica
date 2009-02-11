@@ -5,7 +5,7 @@ import java.awt.Color;
 import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.data.AccumulatorAverage;
@@ -368,12 +368,12 @@ public class VirialRowleyAlcohol {
             	SpeciesEthanol species = (SpeciesEthanol)sim.species;
             	
             	// Create instances of the types of molecular sites
-            	IAtomTypeLeaf type_O  = species.getOxygenType();
-                IAtomTypeLeaf type_aC = species.getAlphaCarbonType(); 
-                IAtomTypeLeaf type_C = species.getCarbonType();
-                IAtomTypeLeaf type_aH = species.getAlphaHydrogenType();
-                IAtomTypeLeaf type_H  = species.getHydrogenType();
-                IAtomTypeLeaf type_X  = species.getXType();
+            	IAtomType type_O  = species.getOxygenType();
+                IAtomType type_aC = species.getAlphaCarbonType(); 
+                IAtomType type_C = species.getCarbonType();
+                IAtomType type_aH = species.getAlphaHydrogenType();
+                IAtomType type_H  = species.getHydrogenType();
+                IAtomType type_X  = species.getXType();
                 
                 // Set color of each site type for each simulation
                 
@@ -397,11 +397,11 @@ public class VirialRowleyAlcohol {
             	SpeciesMethanol species = (SpeciesMethanol)sim.species;
             	
             	// Create instances of the types of molecular sites
-            	IAtomTypeLeaf type_O  = species.getOxygenType();
-                IAtomTypeLeaf type_aC = species.getAlphaCarbonType(); 
-                IAtomTypeLeaf type_aH = species.getAlphaHydrogenType();
-                IAtomTypeLeaf type_H  = species.getHydrogenType();
-                IAtomTypeLeaf type_X  = species.getXType();
+            	IAtomType type_O  = species.getOxygenType();
+                IAtomType type_aC = species.getAlphaCarbonType(); 
+                IAtomType type_aH = species.getAlphaHydrogenType();
+                IAtomType type_H  = species.getHydrogenType();
+                IAtomType type_X  = species.getXType();
                 
                 // Set color of each site type for each simulation
                 

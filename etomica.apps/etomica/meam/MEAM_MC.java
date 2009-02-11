@@ -2,7 +2,7 @@ package etomica.meam;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IDataInfo;
@@ -165,7 +165,7 @@ public class MEAM_MC extends Simulation {
 		potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
 		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new IAtomTypeLeaf[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()}); 
+        this.potentialMaster.addPotential(potentialN, new IAtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()}); 
 	        
 	    integrator.setBox(box);
 	    BoxImposePbc imposepbc = new BoxImposePbc(space);

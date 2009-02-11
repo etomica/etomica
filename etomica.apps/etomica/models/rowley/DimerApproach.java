@@ -5,7 +5,7 @@ import java.awt.Color;
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
@@ -283,12 +283,12 @@ public class DimerApproach extends Simulation {
             	
             	// Create instances of the types of molecular sites
             	
-            	IAtomTypeLeaf type_O  = speciesEthanol.getOxygenType();
-                IAtomTypeLeaf type_aC = speciesEthanol.getAlphaCarbonType(); 
-                IAtomTypeLeaf type_C = speciesEthanol.getCarbonType();
-                IAtomTypeLeaf type_aH = speciesEthanol.getAlphaHydrogenType();
-                IAtomTypeLeaf type_H  = speciesEthanol.getHydrogenType();
-                IAtomTypeLeaf type_X  = speciesEthanol.getXType();
+            	IAtomType type_O  = speciesEthanol.getOxygenType();
+                IAtomType type_aC = speciesEthanol.getAlphaCarbonType(); 
+                IAtomType type_C = speciesEthanol.getCarbonType();
+                IAtomType type_aH = speciesEthanol.getAlphaHydrogenType();
+                IAtomType type_H  = speciesEthanol.getHydrogenType();
+                IAtomType type_X  = speciesEthanol.getXType();
                 
                 // Set color of each site type for each simulation
                 
@@ -303,11 +303,11 @@ public class DimerApproach extends Simulation {
             	
             	// Create instances of the types of molecular sites
             	
-            	IAtomTypeLeaf type_O  = speciesMethanol.getOxygenType();
-                IAtomTypeLeaf type_aC = speciesMethanol.getAlphaCarbonType(); 
-                IAtomTypeLeaf type_aH = speciesMethanol.getAlphaHydrogenType();
-                IAtomTypeLeaf type_H  = speciesMethanol.getHydrogenType();
-                IAtomTypeLeaf type_X  = speciesMethanol.getXType();
+            	IAtomType type_O  = speciesMethanol.getOxygenType();
+                IAtomType type_aC = speciesMethanol.getAlphaCarbonType(); 
+                IAtomType type_aH = speciesMethanol.getAlphaHydrogenType();
+                IAtomType type_H  = speciesMethanol.getHydrogenType();
+                IAtomType type_X  = speciesMethanol.getXType();
                 
                 // Set color of each site type for each simulation
                 

@@ -1,18 +1,18 @@
 package etomica.simulation;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 
 public class SimulationAtomTypeEvent extends SimulationEvent {
 
-    public SimulationAtomTypeEvent(IAtomTypeLeaf atomType) {
+    public SimulationAtomTypeEvent(IAtomType atomType) {
         super();
         this.atomType = atomType;
     }
 
-    public IAtomTypeLeaf getAtomType() {
+    public IAtomType getAtomType() {
         return atomType;
     }
     
-    private final IAtomTypeLeaf atomType;
+    private final IAtomType atomType;
     private static final long serialVersionUID = 1L;
 }

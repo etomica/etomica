@@ -2,7 +2,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomTypeSphere;
@@ -51,7 +51,7 @@ public class SwMd2D extends Simulation {
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
-        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{leafType,leafType});
+        potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
         
         integrator.setBox(box);
         integrator.addIntervalAction(new BoxImposePbc(box, space));

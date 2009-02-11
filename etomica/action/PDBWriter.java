@@ -13,7 +13,7 @@ import etomica.api.IAction;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 
@@ -137,8 +137,8 @@ public class PDBWriter implements IAction, Serializable {
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;
         public final int elementIndex;
-        public final IAtomTypeLeaf type;
-        public ElementLinker(int aElementIndex, IAtomTypeLeaf aType) {
+        public final IAtomType type;
+        public ElementLinker(int aElementIndex, IAtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
         }

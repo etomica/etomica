@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -133,7 +133,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#addPotential(etomica.api.IPotential, etomica.api.IAtomType[])
 	 */
-    public void addPotential(IPotentialAtomic potential, IAtomTypeLeaf[] atomTypes) {
+    public void addPotential(IPotentialAtomic potential, IAtomType[] atomTypes) {
         if (potential.nBody() != Integer.MAX_VALUE && potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }

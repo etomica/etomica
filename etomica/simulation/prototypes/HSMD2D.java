@@ -1,6 +1,6 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -61,11 +61,11 @@ public class HSMD2D extends Simulation {
         potential12 = new P2HardSphere(space, sigma, false);
         potential22 = new P2HardSphere(space, sigma, false);
         
-        potentialMaster.addPotential(potential11,new IAtomTypeLeaf[]{leafType1, leafType1});
+        potentialMaster.addPotential(potential11,new IAtomType[]{leafType1, leafType1});
 
-        potentialMaster.addPotential(potential12,new IAtomTypeLeaf[]{leafType2, leafType2});
+        potentialMaster.addPotential(potential12,new IAtomType[]{leafType2, leafType2});
 
-        potentialMaster.addPotential(potential22,new IAtomTypeLeaf[]{leafType1, leafType2});
+        potentialMaster.addPotential(potential22,new IAtomType[]{leafType1, leafType2});
 
         box = new Box(space);
         addBox(box);

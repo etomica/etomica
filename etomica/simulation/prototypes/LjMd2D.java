@@ -1,7 +1,7 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -48,7 +48,7 @@ public class LjMd2D extends Simulation {
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);
-        potentialMaster.addPotential(potential,new IAtomTypeLeaf[]{species.getLeafType(),species.getLeafType()});
+        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities

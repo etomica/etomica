@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IMolecule;
@@ -516,7 +516,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     /**
      * @return Returns the nullPotential.
      */
-    public PotentialHard getNullPotential(IAtomTypeLeaf atomType) {
+    public PotentialHard getNullPotential(IAtomType atomType) {
         return (PotentialHard)nullPotentialManager.getAgent(atomType);
     }
 
@@ -525,7 +525,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * a 1-body potential used by IntegratorHard to handle Atoms that wrap
      * around periodic boundaries when neighbor listing is not used.
      */
-    public void setNullPotential(PotentialHard nullPotential, IAtomTypeLeaf type) {
+    public void setNullPotential(PotentialHard nullPotential, IAtomType type) {
         // if nullPotentialManager is null, it's because you passed a null
         // ISimulation when you constructed this class
         nullPotentialManager.setAgent(type, nullPotential);
@@ -713,11 +713,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         return PotentialHard.class;
     }
 
-    public Object makeAgent(IAtomTypeLeaf type) {
+    public Object makeAgent(IAtomType type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomTypeLeaf type) {
+    public void releaseAgent(Object agent, IAtomType type) {
     }
 
     /**

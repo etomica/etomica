@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -109,8 +109,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        IAtomTypeLeaf sphereType = species.getLeafType();
-        potentialMasterTarget.addPotential(pTruncated, new IAtomTypeLeaf[] { sphereType, sphereType });
+        IAtomType sphereType = species.getLeafType();
+        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
 
         integratorTarget.setBox(boxTarget);
@@ -122,7 +122,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
          */
 
         P1Constraint p1Constraint = new P1Constraint(space, primitive, boxTarget, coordinateDefinitionTarget);
-        potentialMasterTarget.addPotential(p1Constraint, new IAtomTypeLeaf[] {sphereType});
+        potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
         
         potentialMasterTarget.lrcMaster().setEnabled(false);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);

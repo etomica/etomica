@@ -5,7 +5,7 @@ import java.awt.Color;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -77,7 +77,7 @@ public class TestYukawaMD3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
-		potentialMaster.addPotential(potentialTruncated, new IAtomTypeLeaf[] {species.getLeafType(), species.getLeafType()});
+		potentialMaster.addPotential(potentialTruncated, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 		
 		new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 		integrator.setBox(box);

@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAction;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -268,9 +268,9 @@ public class VirialTraPPEAlcohol {
             	//SpeciesMethanol species = (SpeciesMethanol)sim.species;
             	
             	// Create instances of the types of molecular sites
-            	IAtomTypeLeaf typeCH3  = species.getCH3Type();
-                IAtomTypeLeaf typeO = species.getOType(); 
-                IAtomTypeLeaf typeH = species.getHType();
+            	IAtomType typeCH3  = species.getCH3Type();
+                IAtomType typeO = species.getOType(); 
+                IAtomType typeH = species.getHType();
                 
                 // Set color of each site type for each simulation
                 

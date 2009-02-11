@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
@@ -83,11 +83,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
                 2.0, //well multiplier
                 1.0, true);
         potentialMaster.addPotential(AAbonded,
-                new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesA.getLeafType() });
+                new IAtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
         potentialMaster.addPotential(ABbonded,
-                new IAtomTypeLeaf[] { speciesA.getLeafType(), speciesB.getLeafType() });
+                new IAtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
         potentialMaster.addPotential(BBbonded,
-                new IAtomTypeLeaf[] { speciesB.getLeafType(), speciesB.getLeafType() });
+                new IAtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
 
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);

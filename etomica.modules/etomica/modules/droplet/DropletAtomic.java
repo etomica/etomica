@@ -3,7 +3,7 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -70,18 +70,18 @@ public class DropletAtomic extends Simulation {
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space, Argon.INSTANCE);
         getSpeciesManager().addSpecies(species);
-        IAtomTypeLeaf leafType = species.getLeafType();
+        IAtomType leafType = species.getLeafType();
         ((AtomTypeSphere)leafType).setDiameter(sigma);
         
         p2LJ = new P2LennardJones(space);
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
         p2LJ.setSigma(sigma);
         p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma*pRange);
-        potentialMaster.addPotential(p2LJt, new IAtomTypeLeaf[]{leafType,leafType});
+        potentialMaster.addPotential(p2LJt, new IAtomType[]{leafType,leafType});
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(4);
-        potentialMaster.addPotential(p1Smash, new IAtomTypeLeaf[]{leafType});
+        potentialMaster.addPotential(p1Smash, new IAtomType[]{leafType});
 
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space), space);

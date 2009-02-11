@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Element;
 import etomica.units.Dimension;
@@ -14,7 +14,7 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-public class AtomTypeLeaf extends AtomType implements Comparable<IAtomTypeLeaf> {
+public class AtomTypeLeaf extends AtomType implements Comparable<IAtomType> {
 
     public AtomTypeLeaf(Element element) {
         super();
@@ -85,7 +85,7 @@ public class AtomTypeLeaf extends AtomType implements Comparable<IAtomTypeLeaf> 
         return element;
     }
     
-    public int compareTo(IAtomTypeLeaf otherAtomType) {
+    public int compareTo(IAtomType otherAtomType) {
         int otherIndex = otherAtomType.getIndex();
         return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }

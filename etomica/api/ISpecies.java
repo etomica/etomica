@@ -49,7 +49,7 @@ public interface ISpecies {
     /**
      * Returns the child types of this group for the specified index.
      */
-    public IAtomTypeLeaf getChildType(int index);
+    public IAtomType getChildType(int index);
 
     /**
      * Returns the conformation used to set the standard arrangement of

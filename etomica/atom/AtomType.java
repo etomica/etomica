@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 
 /**
@@ -24,7 +24,7 @@ import etomica.api.ISpecies;
  * atoms represented only once.
  */
 
-public abstract class AtomType implements java.io.Serializable, IAtomTypeLeaf {
+public abstract class AtomType implements java.io.Serializable, IAtomType {
 
     private static final long serialVersionUID = 1L;
 

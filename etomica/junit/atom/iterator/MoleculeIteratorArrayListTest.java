@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.atom.Molecule;
 import etomica.atom.MoleculeArrayList;
@@ -22,7 +22,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
     }
     
     public void testListVariations() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomTypeLeaf[0]);
+        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomType[0]);
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates

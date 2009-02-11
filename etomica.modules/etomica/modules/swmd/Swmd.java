@@ -1,7 +1,7 @@
 package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
@@ -64,7 +64,7 @@ public class Swmd extends Simulation {
         //instantiate several potentials for selection in combo-box
 	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(space.D() == 3 ? 1000 : 1500), true);
         potentialWrapper = new P2HardWrapper(space,potentialSW);
-        potentialMaster.addPotential(potentialWrapper,new IAtomTypeLeaf[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(potentialWrapper,new IAtomType[]{species.getLeafType(), species.getLeafType()});
 	    
         //construct box
 	    box = new Box(space);

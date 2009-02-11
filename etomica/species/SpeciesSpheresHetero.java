@@ -1,6 +1,6 @@
 package etomica.species;
 import etomica.api.IAtomLeaf;
-import etomica.api.IAtomTypeLeaf;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeaf;
@@ -69,7 +69,7 @@ public class SpeciesSpheresHetero extends Species {
         return types;
     }
     
-    public SpeciesSpheresHetero(ISpace space, boolean isDynamic, IAtomTypeLeaf[] atomTypes) {
+    public SpeciesSpheresHetero(ISpace space, boolean isDynamic, IAtomType[] atomTypes) {
         super(new AtomPositionGeometricCenter(space));
         this.space = space;
         this.isDynamic = isDynamic;
@@ -97,7 +97,7 @@ public class SpeciesSpheresHetero extends Species {
         return group;
     }
 
-    protected IAtomLeaf makeLeafAtom(IAtomTypeLeaf leafType) {
+    protected IAtomLeaf makeLeafAtom(IAtomType leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new AtomLeaf(space, leafType);
     }
@@ -217,7 +217,7 @@ public class SpeciesSpheresHetero extends Species {
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
      */
-    public void setchildTypes(IAtomTypeLeaf[] newchildTypes) {
+    public void setchildTypes(IAtomType[] newchildTypes) {
         for (int i=0; i<childTypes.length; i++) {
             removeChildType(childTypes[i]);
         }
@@ -236,7 +236,7 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for ensuring that the AtomType for the child factory is a
      * child of this AtomFactory's AtomType.
      */
-    public void addChildType(IAtomTypeLeaf newLeafType) {
+    public void addChildType(IAtomType newLeafType) {
         super.addChildType(newLeafType);
         if (childTypes.length > 1) {
             // assume fraction = 0 for new childFactory
@@ -253,7 +253,7 @@ public class SpeciesSpheresHetero extends Species {
      * responsible for removing the AtomType for the child factory from its
      * parent AtomType.
      */
-    public void removeChildType(IAtomTypeLeaf oldLeafType) {
+    public void removeChildType(IAtomType oldLeafType) {
         super.removeChildType(oldLeafType);
         if (childTypes.length > 0) {
             double[] newNumberFraction = new double[numberFraction.length-1];
