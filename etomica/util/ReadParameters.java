@@ -116,9 +116,16 @@ public class ReadParameters implements java.io.Serializable {
                 continue;
             }
             int i = line.indexOf(' ');
-            String token = line.substring(0,i).trim();
-            String value = line.substring(i).trim();
-            if (value.length() == 0) {
+            String token = "", value = "";
+            if (i > -1) {
+                token = line.substring(0,i).trim();
+                value = line.substring(i).trim();
+            }
+            else {
+                // no token.  perhaps an empty array.  we'll let the wrapper sort it out.
+                token = line;
+            }
+            if (token.length() == 0) {
                 throw new RuntimeException("bogus line encountered in "+fileName+" "+line);
             }
             boolean foundField = false;
@@ -168,4 +175,9 @@ public class ReadParameters implements java.io.Serializable {
     protected Field[] fields;
     protected ParameterBase wrapper;
     protected String fileName;
+    
+    public static void main(String[] args) {
+        System.out.println("foo "+"".split(" +")[0].length());
+    }
+        
 }

@@ -60,6 +60,11 @@ public abstract class ParameterBase {
             else if (type.isArray()) {
                 Class subType = type.getComponentType();
                 String[] strings = value.split(" +");
+                if (strings.length == 1 && strings[0].length() == 0) {
+                    // split gives us a single empty string instead of
+                    // an empty array
+                    strings = new String[0];
+                }
                 if (subType == int.class) {
                     int[] array = new int[strings.length];
                     for (int i=0; i<array.length; i++) {
