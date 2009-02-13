@@ -302,7 +302,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                 new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
                 AccumulatorAverage.StatType.AVERAGE,
                 AccumulatorAverage.StatType.ERROR});
-        densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol()+"^-3)");
+        densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol()+"^-2)");
         dimerPump.actionPerformed();
         densityDisplay.putData(densityAccum.getData());
         densityDisplay.setLabelType(LabelType.BORDER);
