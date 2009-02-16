@@ -43,7 +43,6 @@ public class SingleAssociationSiteFluid {
 		final int nBody = rhopoint + rho0point;
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
-		//double epsilonattraction = params.epsilonattraction;
 		long numSteps = params.numSteps;
 		
 		if (args.length == 6) {
@@ -65,7 +64,7 @@ public class SingleAssociationSiteFluid {
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B2HS: "+HSB[2]);
         System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-		P2HardAssociationCone p = new P2HardAssociationCone(space, sigma, epsilon, 1.0); //Lennard-Jones potential+square-well site-site attraction potential, 1.0=cutoffFactor
+		P2HardAssociationCone p = new P2HardAssociationCone(space, sigma, epsilon, Double.POSITIVE_INFINITY, 20.0); //Lennard-Jones potential+square-well site-site attraction potential, 1.0=cutoffFactor
 		P2MoleculeMonatomic pMolecule = new P2MoleculeMonatomic(p);
 		P2SoftSphere pR = new P2SoftSphere(space, sigma, 4*epsilon, n);//repulsion potential in LJ
 		MayerGeneralSpherical fR = new MayerGeneralSpherical(space, pR);//repulsion Mayer fR function
@@ -127,6 +126,7 @@ public class SingleAssociationSiteFluid {
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryOrientedSpheres(), temperature, refCluster, targetCluster);
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
+		sim.setAccumulatorBlockSize((int)numSteps*10);
 		sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+rhopoint+"_"+rho0point+"_"+temperature : null;
@@ -186,11 +186,11 @@ public class SingleAssociationSiteFluid {
     
 	
 	public static class VirialAssociatingFluidParam extends ParameterBase {
-		public double temperature = 0.7;//reduced temperature
+		public double temperature = 1.5;//reduced temperature
 		public double sigmaHSRef = 1.5;
-		public long numSteps = 1000000;
-		public int rhopoint = 2;
-		public int rho0point = 0;
+		public long numSteps = 10000;
+		public int rhopoint = 0;
+		public int rho0point = 2;
 		public int diagramIndex = 0;
 		
 	}
