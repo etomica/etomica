@@ -64,7 +64,7 @@ public class SingleAssociationSiteFluid4Points {
         System.out.println("B2HS: "+HSB[2]);
         System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
         System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
-		P2HardAssociationCone p = new P2HardAssociationCone(space, sigma, epsilon, 1.0); //Lennard-Jones potential+square-well site-site attraction potential, 1.0=cutoffFactor
+		P2HardAssociationCone p = new P2HardAssociationCone(space, sigma, epsilon, Double.POSITIVE_INFINITY, 20.0); //Lennard-Jones potential+square-well site-site attraction potential, 1.0=cutoffFactor
 		P2MoleculeMonatomic pMolecule = new P2MoleculeMonatomic(p);
 		P2SoftSphere pR = new P2SoftSphere(space, sigma, 4*epsilon, n);//repulsion potential in LJ
 		MayerGeneralSpherical fR = new MayerGeneralSpherical(space, pR);//repulsion Mayer fR function
@@ -226,6 +226,7 @@ public class SingleAssociationSiteFluid4Points {
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryOrientedSpheres(), temperature, refCluster, targetCluster);
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
+		sim.setAccumulatorBlockSize((int)numSteps*10);
 		sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+rhopoint+"_"+rho0point+"_"+temperature : null;

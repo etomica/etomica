@@ -21,6 +21,7 @@ import etomica.units.Null;
 
 public class P2HardAssociationCone extends Potential2 {
     private static final long serialVersionUID = 1L;
+    public static boolean FLAG = false;
     private double wellcutoffFactor;
     private double wellCutoffSquared;
     private double sigma, sigmaSquared;
@@ -31,10 +32,10 @@ public class P2HardAssociationCone extends Potential2 {
     private IBoundary boundary;
     
     public P2HardAssociationCone(ISpace space) {
-        this(space, 1.0, 1.0, 2.0);
+        this(space, 1.0, 1.0, 2.0, 8.0);
     }
     
-    public P2HardAssociationCone(ISpace space, double sigma, double epsilon, double cutoffFactorLJ) {
+    public P2HardAssociationCone(ISpace space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);
         dr = space.makeVector();
 
@@ -42,7 +43,7 @@ public class P2HardAssociationCone extends Potential2 {
         setEpsilon(epsilon);
         setCutoffFactorLJ(cutoffFactorLJ);
         setWellCutoffFactor(1.0);
-        setWellEpsilon(8.0*getEpsilon());
+        setWellEpsilon(wellConstant*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
     }
     
@@ -70,6 +71,7 @@ public class P2HardAssociationCone extends Potential2 {
         double r2 = dr.squared();
         double eTot = 0.0;
                  
+       // FLAG = false;
         if(r2 > cutoffLJSquared) {
             eTot = 0.0;
         }
@@ -87,6 +89,13 @@ public class P2HardAssociationCone extends Potential2 {
                 IVector e2 = atom1.getOrientation().getDirection();
                 double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
+                //if(er2 < 0.0 && er2*er2 > ec2*r2) {
+                	//System.out.println ("haha " + eTot);
+                	//if (eTot < -2) {
+                		//FLAG = true;
+                	//}
+                //}
+                
             }
         }
         return eTot;
