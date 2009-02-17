@@ -130,8 +130,6 @@ public class SimOverlap extends Simulation {
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0);
         integratorHarmonic.setBox(boxHarmonic);
 
-        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
-        integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
         
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(this, boxHarmonic, primitive, basis, space);
@@ -145,17 +143,21 @@ public class SimOverlap extends Simulation {
         normalModes.setHarmonicFudge(harmonicFudge);
         normalModes.setTemperature(temperature);
         
+        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
+        move.setCoordinateDefinition(coordinateDefinitionHarmonic);
+
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
         move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
         move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setCoordinateDefinition(coordinateDefinitionHarmonic);
         move.setTemperature(temperature);
         
         move.setBox(boxHarmonic);
         
+        integratorHarmonic.getMoveManager().addMCMove(move);
+
         integratorHarmonic.setBox(boxHarmonic);
         
         if (potentialMasterTarget instanceof PotentialMasterList) {
@@ -412,7 +414,6 @@ public class SimOverlap extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-    public CoordinateDefinition coordinateDefinition;
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
