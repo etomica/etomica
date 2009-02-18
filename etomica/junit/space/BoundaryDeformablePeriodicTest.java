@@ -5,7 +5,7 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
@@ -159,6 +159,6 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     ISimulation sim;
     SimulationGraphic simGraphic;
     DisplayBox display;
-    AtomLeaf atom0, atom1, atom2;
+    Atom atom0, atom1, atom2;
     private boolean interactive = false;
 }

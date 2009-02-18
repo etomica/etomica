@@ -3,7 +3,7 @@ package etomica.models.rowley;
 
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
@@ -47,16 +47,16 @@ public class SpeciesEthanol extends Species {
          Molecule ethanol = new Molecule(this);
          
          // The order in which the child atoms are added is important; it must match the order of site indices below.
-         ethanol.addChildAtom(new AtomLeaf(space, oType));
-         ethanol.addChildAtom(new AtomLeaf(space, acType));
-         ethanol.addChildAtom(new AtomLeaf(space, ahType));
-         ethanol.addChildAtom(new AtomLeaf(space, cType));
-         ethanol.addChildAtom(new AtomLeaf(space, hType));
-         ethanol.addChildAtom(new AtomLeaf(space, hType));
-         ethanol.addChildAtom(new AtomLeaf(space, hType));
-         ethanol.addChildAtom(new AtomLeaf(space, hType));
-         ethanol.addChildAtom(new AtomLeaf(space, hType));
-         ethanol.addChildAtom(new AtomLeaf(space, xType));
+         ethanol.addChildAtom(new Atom(space, oType));
+         ethanol.addChildAtom(new Atom(space, acType));
+         ethanol.addChildAtom(new Atom(space, ahType));
+         ethanol.addChildAtom(new Atom(space, cType));
+         ethanol.addChildAtom(new Atom(space, hType));
+         ethanol.addChildAtom(new Atom(space, hType));
+         ethanol.addChildAtom(new Atom(space, hType));
+         ethanol.addChildAtom(new Atom(space, hType));
+         ethanol.addChildAtom(new Atom(space, hType));
+         ethanol.addChildAtom(new Atom(space, xType));
          conformation.initializePositions(ethanol.getChildList());
          return ethanol;
      }

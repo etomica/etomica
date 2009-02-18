@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -57,7 +57,7 @@ public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
      * of the basis-set atoms. Call to this method leaves iterator unset; call to reset is
      * required before beginning iteration.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         needSetupIterator = (basis != null);//flag to setup iterator only if
                                             // presently has a non-null basis
@@ -98,7 +98,7 @@ public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
      * yield an iterate. Assumes that the basis -- if it is a group -- 
      * has child atoms. 
      */
-    public boolean haveTarget(IAtomLeaf target) {
+    public boolean haveTarget(IAtom target) {
         if(basis == null) return false;
         if (target == null) {
             return true;
@@ -158,7 +158,7 @@ public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
     private final AtomArrayList littleList = new AtomArrayList(1);//used to form a list of
                                                        // one iterate if target
                                                        // is specified
-    private IAtomLeaf targetAtom;
+    private IAtom targetAtom;
     private IMolecule basis;
     private IAtomList myList;
     private boolean needSetupIterator = true;//flag to indicate if

@@ -1,7 +1,7 @@
 package etomica.models.water;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
@@ -34,9 +34,9 @@ public class SpeciesWater3P extends Species {
     
     public IMolecule makeMolecule() {
         Molecule water = new Molecule(this);
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new AtomLeaf(space, hType));
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new AtomLeaf(space, hType));
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new AtomLeaf(space, oType));
+        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
+        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
+        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
         conformation.initializePositions(water.getChildList());
         return water;
     }

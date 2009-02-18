@@ -1,7 +1,7 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -106,7 +106,7 @@ public class Box implements java.io.Serializable, IBox {
         IAtomList childList = molecule.getChildList();
         int nLeafAtoms = leafList.getAtomCount();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtomLeaf childAtom = childList.getAtom(iChild);
+            IAtom childAtom = childList.getAtom(iChild);
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
@@ -142,11 +142,11 @@ public class Box implements java.io.Serializable, IBox {
         eventManager.fireEvent(new BoxMoleculeRemovedEvent(this, molecule));
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtomLeaf childAtom = childList.getAtom(iChild);
+            IAtom childAtom = childList.getAtom(iChild);
             int leafIndex = childAtom.getLeafIndex();
             leafList.removeAndReplace(leafIndex);
             if (leafList.getAtomCount() > leafIndex) {
-                IAtomLeaf movedAtom = leafList.getAtom(leafIndex);
+                IAtom movedAtom = leafList.getAtom(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, movedLeafIndex);
                 movedAtom.setLeafIndex(leafIndex);

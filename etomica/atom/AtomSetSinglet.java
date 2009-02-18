@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 
@@ -12,11 +12,11 @@ public class AtomSetSinglet implements IAtomList, java.io.Serializable {
     public AtomSetSinglet() {
     }
     
-    public AtomSetSinglet(IAtomLeaf atom) {
+    public AtomSetSinglet(IAtom atom) {
         this.atom = atom;
     }
     
-    public final IAtomLeaf getAtom(int i) {
+    public final IAtom getAtom(int i) {
         if(i == 0) return atom;
         throw new IllegalArgumentException();
     }
@@ -30,5 +30,5 @@ public class AtomSetSinglet implements IAtomList, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    public IAtomLeaf atom;
+    public IAtom atom;
 }

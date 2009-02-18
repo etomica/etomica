@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 
 
@@ -13,7 +13,7 @@ public interface AtomFilter {
     /**
      * Returns true if atom is passes test of filter.
      */
-    public boolean accept(IAtomLeaf a);
+    public boolean accept(IAtom a);
     
     public boolean accept(IMolecule mole);
 

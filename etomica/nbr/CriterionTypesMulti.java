@@ -1,7 +1,7 @@
 
 package etomica.nbr;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 

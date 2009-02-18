@@ -11,7 +11,7 @@ import javax.swing.border.TitledBorder;
 import etomica.action.AtomAction;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IVectorMutable;
@@ -359,7 +359,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomAction() {
-            public void actionPerformed(IAtomLeaf a) {((ElementSimple)a.getType().getElement()).setMass(currentMass);}
+            public void actionPerformed(IAtom a) {((ElementSimple)a.getType().getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         private final ISpace space;

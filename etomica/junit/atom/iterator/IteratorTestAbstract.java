@@ -3,7 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
@@ -101,7 +101,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         if(iterator instanceof AtomIterator) {
             iterator.reset();
             int i = 0;
-            for (IAtomLeaf next = ((AtomIterator)iterator).nextAtom(); i<atoms.length;
+            for (IAtom next = ((AtomIterator)iterator).nextAtom(); i<atoms.length;
                  next = ((AtomIterator)iterator).nextAtom()) {
                 assertEquals(next, atoms[i++].getAtom(0));
             }
@@ -153,7 +153,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param partners array of expected iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testIterates(AtomIterator iterator, IAtomLeaf[] iterates) {
+    protected LinkedList testIterates(AtomIterator iterator, IAtom[] iterates) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<iterates.length; i++) {
@@ -172,7 +172,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @return the Lister list of iterates
      */
     protected LinkedList testApiIterates(AtomLeafsetIterator iterator, IteratorDirective.Direction direction,
-            IAtomLeaf iterate, IAtomLeaf[] partners) {
+            IAtom iterate, IAtom[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
@@ -190,7 +190,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * Same as testApiIterates, but with atom1 the same in all pair iterates, while
      * atom0 varies.
      */
-    protected LinkedList testApiIteratesSwap(AtomLeafsetIterator iterator, IAtomLeaf iterate, IAtomLeaf[] partners) {
+    protected LinkedList testApiIteratesSwap(AtomLeafsetIterator iterator, IAtom iterate, IAtom[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
@@ -253,7 +253,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param dn array of atom1 expected in the dnlist pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomLeafsetIterator iterator, IAtomLeaf iterate, IAtomLeaf[] up, IAtomLeaf[] dn) {
+    protected LinkedList testApiIterates(AtomLeafsetIterator iterator, IAtom iterate, IAtom[] up, IAtom[] dn) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<up.length; i++) {

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -44,7 +44,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
      * Sets the target of iteration... has no actual effect since all iterates
      * contain all Atoms.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
     }
 
     /** 
@@ -83,7 +83,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
             return next;
         }
         AtomArrayList arrayList = next.getArrayList();
-        IAtomLeaf oldFirst = arrayList.getAtom(0);
+        IAtom oldFirst = arrayList.getAtom(0);
         arrayList.set(0,arrayList.getAtom(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         nextCursor++;

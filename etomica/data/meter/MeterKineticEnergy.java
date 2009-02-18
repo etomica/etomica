@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -60,7 +60,7 @@ public class MeterKineticEnergy extends DataSourceScalar {
         iterator.reset();
         for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
              atom = (IAtomKinetic)iterator.nextAtom()) {
-            double mass = ((IAtomLeaf)atom).getType().getMass();
+            double mass = ((IAtom)atom).getType().getMass();
             if(mass == Double.POSITIVE_INFINITY) continue;
             ke += 0.5*mass*(atom.getVelocity().squared());
         }

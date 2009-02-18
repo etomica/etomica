@@ -1,6 +1,6 @@
 package etomica.modules.sam;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
@@ -206,8 +206,8 @@ public class Sam extends Simulation {
                 int idxDiff = idx0 - idx1;
                 return idxDiff > 3 || idxDiff < -3;
             }
-            public boolean needUpdate(IAtomLeaf atom) {return false;}
-            public void reset(IAtomLeaf atom) {}
+            public boolean needUpdate(IAtom atom) {return false;}
+            public void reset(IAtom atom) {}
             public void setBox(IBox box) {}
             public boolean unsafe() {return false;}
         };
@@ -360,7 +360,7 @@ public class Sam extends Simulation {
                 dr.Ev1Mv2(sulfur.getPosition(), gold.getPosition());
                 boundary.nearestImage(dr);
                 if (dr.squared() < maxDistance) {
-                    bondedSurfaceAtoms.add((IAtomLeaf)gold);
+                    bondedSurfaceAtoms.add((IAtom)gold);
                 }
             }
             if (bondedSurfaceAtoms.getAtomCount() != 3) {

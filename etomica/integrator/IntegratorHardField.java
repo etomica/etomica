@@ -2,7 +2,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
@@ -73,13 +73,13 @@ public final class IntegratorHardField extends IntegratorHard {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)a);
+            HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent((IAtom)a);
             agent.decrementCollisionTime(tStep);
             a.getPosition().PEa1Tv1(tStep,a.getVelocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.getPosition().PEa1Tv1(t2*((IAtomLeaf)a).getType().rm(),agent.force);
-                a.getVelocity().PEa1Tv1(tStep*((IAtomLeaf)a).getType().rm(),agent.force);
+                a.getPosition().PEa1Tv1(t2*((IAtom)a).getType().rm(),agent.force);
+                a.getVelocity().PEa1Tv1(tStep*((IAtom)a).getType().rm(),agent.force);
             }
         }
     }
@@ -100,7 +100,7 @@ public final class IntegratorHardField extends IntegratorHard {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomLeaf atom = leafList.getAtom(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
         }
         //zero forces on all atoms
@@ -120,24 +120,24 @@ public final class IntegratorHardField extends IntegratorHard {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             a.getVelocity().TE(s); //scale momentum
-            ((Agent)agentManager.getAgent((IAtomLeaf)a)).eventLinker.sortKey *= rs;
+            ((Agent)agentManager.getAgent((IAtom)a)).eventLinker.sortKey *= rs;
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
-            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent((IAtomLeaf)a);
-            if(!iagent.forceFree) updateAtom((IAtomLeaf)a);//update because not force free
-            IAtomLeaf partner = iagent.collisionPartner();
+            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent((IAtom)a);
+            if(!iagent.forceFree) updateAtom((IAtom)a);//update because not force free
+            IAtom partner = iagent.collisionPartner();
             if(partner == null) continue;
             HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent(partner);
             if(!iagent.forceFree) {
-                updateAtom((IAtomLeaf)partner);//update because partner not force free
+                updateAtom((IAtom)partner);//update because partner not force free
                 continue;
             }
             if(!jagent.forceFree) {
-                updateAtom((IAtomLeaf)partner);
-                updateAtom((IAtomLeaf)a);
+                updateAtom((IAtom)partner);
+                updateAtom((IAtom)a);
             }
         }
         findNextCollider();
@@ -152,7 +152,7 @@ public final class IntegratorHardField extends IntegratorHard {
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new HardFieldAgent(a,this);
     }
      
@@ -163,7 +163,7 @@ public final class IntegratorHardField extends IntegratorHard {
     
         public final IVectorMutable force;
         public boolean forceFree = true;
-        public HardFieldAgent(IAtomLeaf a, IntegratorHardField integrator) {
+        public HardFieldAgent(IAtom a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.space.makeVector();
         }

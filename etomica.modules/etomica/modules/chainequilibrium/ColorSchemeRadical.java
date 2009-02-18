@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -28,8 +28,8 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         }
     }
 
-    public Color getAtomColor(IAtomLeaf atom) {
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(atom);
+    public Color getAtomColor(IAtom atom) {
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(atom);
         if (nbrs == null) {
             return ColorScheme.DEFAULT_ATOM_COLOR;
         }
@@ -61,11 +61,11 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         return LengthAgent.class;
     }
 
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new LengthAgent();
     }
 
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     public void colorAllAtoms() {
         // untag all the Atoms
@@ -77,7 +77,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
 
         int chainNumber = 0;
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = leafList.getAtom(i);
+            IAtom a = leafList.getAtom(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
             if (((LengthAgent)chainLengthManager.getAgent(a)).chainNumber > 0) continue;
@@ -87,10 +87,10 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         }
     }
 
-    protected void recursiveTag(IAtomLeaf a, int chainNumber) {
+    protected void recursiveTag(IAtom a, int chainNumber) {
         ((LengthAgent)chainLengthManager.getAgent(a)).chainNumber = chainNumber;
 
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 
         // count all the bonded partners
         for(int i=0; i<nbrs.length; i++) {

@@ -1,9 +1,9 @@
 package etomica.species;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
@@ -97,9 +97,9 @@ public class SpeciesSpheresHetero extends Species {
         return group;
     }
 
-    protected IAtomLeaf makeLeafAtom(IAtomType leafType) {
+    protected IAtom makeLeafAtom(IAtomType leafType) {
         return isDynamic ? new AtomLeafDynamic(space, leafType)
-                         : new AtomLeaf(space, leafType);
+                         : new Atom(space, leafType);
     }
 
     public int getNumComponents() {

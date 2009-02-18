@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -83,12 +83,12 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
 
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        IAtomLeaf targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
 
         IAtomList leafList = box.getLeafList();
         if (targetAtom != null || targetMolecule != null) {
-            IAtomLeaf leafAtom = null;
+            IAtom leafAtom = null;
             if (targetMolecule instanceof IMolecule) {
                 leafAtom = targetMolecule.getChildList().getAtom(0);
             }
@@ -109,7 +109,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
                 allPotentials[i].setBox(box);
             }
             for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtomLeaf atom = leafList.getAtom(i);
+                IAtom atom = leafList.getAtom(i);
                 PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(atom.getType());
                 calculate(atom, leafList, i, potentialArray, IteratorDirective.Direction.UP, pc);
             }
@@ -119,7 +119,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         }
     }
     
-    protected void calculate(IAtomLeaf leafAtom, IAtomList leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
+    protected void calculate(IAtom leafAtom, IAtomList leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
         
         IPotential[] potentials = potentialArray.getPotentials();
         int leafCount = leafList.getAtomCount();

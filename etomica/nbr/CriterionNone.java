@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 
@@ -12,7 +12,7 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
      * This is appropriate if atoms are never added to or removed from box,
      * because all atoms are always on neighbor list.
      */
-    public boolean needUpdate(IAtomLeaf atom) {return false;}
+    public boolean needUpdate(IAtom atom) {return false;}
 
     /**
      * Performs no action.
@@ -27,7 +27,7 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
     /**
      * Performs no action.
      */
-    public void reset(IAtomLeaf atom) {}
+    public void reset(IAtom atom) {}
 
     /**
      * Always returns false, indicating that no atoms pairs are neighbors.

@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -45,8 +45,8 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
      * Zero if x coordinates are ordered differently from atom indexes.
      */
     public double energy(IAtomList pair) {
-        IAtomLeaf atom0 = pair.getAtom(0);
-        IAtomLeaf atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
         int dI = atom1.getParentGroup().getIndex() - atom0.getParentGroup().getIndex();
         // assume 1 species

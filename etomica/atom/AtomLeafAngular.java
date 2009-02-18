@@ -4,7 +4,7 @@ import etomica.api.IAtomType;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
 
-public class AtomLeafAngular extends AtomLeaf implements
+public class AtomLeafAngular extends Atom implements
         IAtomOriented {
 
     public AtomLeafAngular(ISpace space, IAtomType type) {

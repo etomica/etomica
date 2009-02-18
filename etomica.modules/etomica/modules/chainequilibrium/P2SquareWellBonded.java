@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
@@ -48,8 +48,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * This function will tell the user, if passed an atom weither or not that atom can bond
 	 */
-	protected boolean full(IAtomLeaf a) {
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+	protected boolean full(IAtom a) {
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == null) {
@@ -62,8 +62,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * This will tell you what the lowest open space is in atom a
 	 */
-	protected int lowest(IAtomLeaf a){
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+	protected int lowest(IAtom a){
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == null) {
@@ -78,8 +78,8 @@ public class P2SquareWellBonded extends P2SquareWell {
      * This could probably be public, although a public version would
      * need to first re-retrieve agents
 	 */
-	protected boolean areBonded(IAtomLeaf a, IAtomLeaf b){
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+	protected boolean areBonded(IAtom a, IAtom b){
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (nbrs[i] == b){		
@@ -92,27 +92,27 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * this function will bond atoms a & b together
 	 */
-	protected void bond(IAtomLeaf a, IAtomLeaf b){
+	protected void bond(IAtom a, IAtom b){
 		if (areBonded(a,b)){			// Error Checking, what about double bonds?
 			throw new RuntimeException(a+" and "+b+" are already bonded");
 		}
 		int i = lowest(a);		// (0 is the First Space) 
 		int j = lowest(b);
-        ((IAtomLeaf[])agentManager.getAgent(a))[i] = b;
-        ((IAtomLeaf[])agentManager.getAgent(b))[j] = a;
+        ((IAtom[])agentManager.getAgent(a))[i] = b;
+        ((IAtom[])agentManager.getAgent(b))[j] = a;
 	}
 	
     /**
      * this function will bond atoms a & b together
      */
-    protected void checkRing(IAtomLeaf a, IAtomLeaf b, int maxBondCount){
-        IAtomLeaf[] aNbrs = ((IAtomLeaf[])agentManager.getAgent(a));
+    protected void checkRing(IAtom a, IAtom b, int maxBondCount){
+        IAtom[] aNbrs = ((IAtom[])agentManager.getAgent(a));
         if (aNbrs.length < 2) {
             ringResult.linker = null;
             ringResult.foundRing = false;
             return;
         }
-        IAtomLeaf next = aNbrs[0];
+        IAtom next = aNbrs[0];
         if (next == null) {
             next = aNbrs[1];
         }
@@ -123,9 +123,9 @@ public class P2SquareWellBonded extends P2SquareWell {
             return;
         }
         int bondCount = 1;
-        IAtomLeaf prev = a;
+        IAtom prev = a;
         while (true) {
-            IAtomLeaf[] nextNbrs = ((IAtomLeaf[])agentManager.getAgent(next));
+            IAtom[] nextNbrs = ((IAtom[])agentManager.getAgent(next));
             if (nextNbrs.length == 3) {
                 // encountered a cross-linker.  rings are OK.
                 ringResult.linker = next;
@@ -138,7 +138,7 @@ public class P2SquareWellBonded extends P2SquareWell {
                 ringResult.foundRing = false;
                 return;
             }
-            IAtomLeaf nextNext = nextNbrs[0];
+            IAtom nextNext = nextNbrs[0];
             if (nextNext == prev) {
                 // we want |next|'s bonded partner's bonded partner that isn't |next|
                 nextNext = nextNbrs[1];
@@ -171,13 +171,13 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * this function unbonds two atoms
 	 */
-	protected void unbond(IAtomLeaf a, IAtomLeaf b){
+	protected void unbond(IAtom a, IAtom b){
 		if (!areBonded(a,b)){		// Error Checking
             throw new RuntimeException(a+" and "+b+" are not bonded");
 		}
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 		for(int i=0; i < nbrs.length; ++i){
 			if (nbrs[i] == b){
 				nbrs[i] = null;
@@ -189,7 +189,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
         success = false;
 		// Unbonding the Atom, Atom B's side
-        nbrs = (IAtomLeaf[])agentManager.getAgent(b);
+        nbrs = (IAtom[])agentManager.getAgent(b);
 		for(int i=0; i < nbrs.length; ++i){
 			if (nbrs[i] == a){
 				nbrs[i] = null;
@@ -219,7 +219,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
-			boolean areBonded = areBonded((IAtomLeaf)atom0, (IAtomLeaf)atom1);
+			boolean areBonded = areBonded((IAtom)atom0, (IAtom)atom1);
 			//inside well but not mutually bonded; collide now if approaching
             if (!areBonded && r2 < wellDiameterSquared) {
                 return (bij < 0) ? falseTime : Double.POSITIVE_INFINITY;
@@ -249,14 +249,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// ke is kinetic energy due to components of velocity
 		
-		double rm0 = ((IAtomLeaf)atom0).getType().rm();
-		double rm1 = ((IAtomLeaf)atom1).getType().rm();
+		double rm0 = ((IAtom)atom0).getType().rm();
+		double rm1 = ((IAtom)atom1).getType().rm();
 		
 		double reduced_m = 2.0 /  + (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		IAtomLeaf atomLeaf0 = (IAtomLeaf)atom0;
-        IAtomLeaf atomLeaf1 = (IAtomLeaf)atom1;
+		IAtom atomLeaf0 = (IAtom)atom0;
+        IAtom atomLeaf1 = (IAtom)atom1;
 		if (areBonded(atomLeaf0,atomLeaf1)) {		//atoms are bonded to each
 			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
 				lastCollisionVirial = reduced_m * bij;
@@ -280,7 +280,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		    boolean canBond = !full(atomLeaf0) && !full(atomLeaf1);
 		    if (canBond) {
                 int maxRingBonds = 20;
-		        IAtomLeaf[] aNbrs = ((IAtomLeaf[])agentManager.getAgent(atomLeaf0));
+		        IAtom[] aNbrs = ((IAtom[])agentManager.getAgent(atomLeaf0));
 		        if (aNbrs.length == 3) {
 		            // cross linker
                     checkRing(atomLeaf1, atomLeaf0, maxRingBonds);
@@ -291,7 +291,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 //    		        System.out.println("checkRing "+atom0+" "+atom1+" linker0 "+ringResult.linker);
     //                System.out.println(atom0+" "+atom1+" "+ringBonds);
     		        if (ringResult.linker != null) {
-    		            IAtomLeaf linker0 = ringResult.linker;
+    		            IAtom linker0 = ringResult.linker;
     		            int ringBonds0 = ringResult.bondCount;
     		            checkRing(atomLeaf1, atomLeaf0, maxRingBonds - ringBonds0);
 //    	                System.out.println("checkRing "+atom0+" "+atom1+" linker1 "+ringResult.linker);
@@ -312,7 +312,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 			else {
 			    //neither is taken; bond to each other
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon*solventThermoFrac/ reduced_m));
-				bond((IAtomLeaf)atom0,(IAtomLeaf)atom1);
+				bond((IAtom)atom0,(IAtom)atom1);
 				nudge = -eps;
 			}
 		} 
@@ -355,7 +355,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     protected final RingResult ringResult;
     
     protected static class RingResult {
-        public IAtomLeaf linker;
+        public IAtom linker;
         public int bondCount;
         public boolean foundRing;
     }

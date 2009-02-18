@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomPair;
 
@@ -88,7 +88,7 @@ public class ApiInnerVariable implements AtomLeafsetIterator, java.io.Serializab
     public int size() {
         int sum = 0;
         aiOuter.reset();
-        for (IAtomLeaf a = aiOuter.nextAtom(); a != null; a = aiOuter.nextAtom()) {
+        for (IAtom a = aiOuter.nextAtom(); a != null; a = aiOuter.nextAtom()) {
             aiInner.setAtom(a);
             sum += aiInner.size();
         }
@@ -100,7 +100,7 @@ public class ApiInnerVariable implements AtomLeafsetIterator, java.io.Serializab
      */
     public void reset() {
         aiOuter.reset();
-        IAtomLeaf nextOuter = aiOuter.nextAtom();
+        IAtom nextOuter = aiOuter.nextAtom();
         if (nextOuter == null) {
             aiInner.unset();
             return;
@@ -121,9 +121,9 @@ public class ApiInnerVariable implements AtomLeafsetIterator, java.io.Serializab
      * iterate.
      */
     public IAtomList next() {
-        IAtomLeaf nextInner = aiInner.nextAtom();
+        IAtom nextInner = aiInner.nextAtom();
         while (nextInner == null) {
-            IAtomLeaf nextOuter = aiOuter.nextAtom();
+            IAtom nextOuter = aiOuter.nextAtom();
             if (nextOuter == null) {
                 return null;
             }

@@ -1,6 +1,6 @@
 package etomica.util;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -99,7 +99,7 @@ public final class Debug {
 	 */
 	public static boolean anyAtom(IAtomList atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
-	        IAtomLeaf atom = atoms.getAtom(i);
+	        IAtom atom = atoms.getAtom(i);
 	        if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
 	            atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
 	            atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
@@ -143,7 +143,7 @@ public final class Debug {
 	 */
 	public static boolean allAtoms(IAtomList atoms) {
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomLeaf atom = atoms.getAtom(i);
+            IAtom atom = atoms.getAtom(i);
             if (((atom.getIndex() != ATOM1_INDEX && ATOM1_INDEX != -1) ||
                  atom.getParentGroup().getIndex() != MOLECULE1_INDEX ||
                  atom.getParentGroup().getType().getIndex() != SPECIES1_INDEX) ||
@@ -242,7 +242,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static IAtomLeaf getAtomLeaf1(IBox box) {
+    public static IAtom getAtomLeaf1(IBox box) {
         if (ATOM1_INDEX > -1 && ATOM1_INDEX < box.getLeafList().getAtomCount()) {
             return box.getLeafList().getAtom(ATOM1_INDEX);
         }

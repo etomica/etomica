@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 
@@ -39,12 +39,12 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
         return 2;
     }
     
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         aiOuter.setTarget(targetAtom);
 	}
     
-    public boolean haveTarget(IAtomLeaf target) {
+    public boolean haveTarget(IAtom target) {
         return aiOuter.haveTarget(target);
     }
 	
@@ -127,7 +127,7 @@ public final class ApiIntragroup implements AtomsetIteratorBasisDependent, Atoms
     
     private static final long serialVersionUID = 2L;
 	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
-	private IAtomLeaf targetAtom;
+	private IAtom targetAtom;
     private IteratorDirective.Direction direction;
     private final ApiInnerVariable apiUp, apiDown;
     private boolean doGoDown, upListNow;

@@ -1,6 +1,6 @@
 package etomica.nbr.site;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -150,7 +150,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i=0; i<criteriaArray.length; i++) {
             criteriaArray[i].setBox(box);
         }
-        IAtomLeaf targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         neighborIterator.setBox(box);
         if (targetAtom == null && targetMolecule == null) {
@@ -234,7 +234,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * child atoms is performed and process is repeated (recursively) with each on down
      * the hierarchy until leaf atoms are reached.
      */
-    protected void calculate(IAtomLeaf atom, PotentialCalculation pc) {
+    protected void calculate(IAtom atom, PotentialCalculation pc) {
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();

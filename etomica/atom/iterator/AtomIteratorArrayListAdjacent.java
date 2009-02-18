@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomToAtomLeafList;
@@ -74,7 +74,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     /**
      * Returns the next iterator, or null if hasNext is false.
      */
-    public IAtomLeaf nextAtom() {
+    public IAtom nextAtom() {
         if(upListNow) {
             upListNow = false;
             return list.getAtom(firstCursor+1);
@@ -107,7 +107,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * and/or down the list, depending on how iterator was configured at
      * construction.
      */
-    public void setAtom(IAtomLeaf atom) {
+    public void setAtom(IAtom atom) {
         list = atomToAtomSet.getAtomList(atom);
         firstCursor = atomToIndex.getIndex(atom);
     }

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
@@ -79,13 +79,13 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
      */
     public IAtomList next() {
         //Advance the inner loop, if it is not at its end.
-        IAtomLeaf nextInner = aiInner.nextAtom();
+        IAtom nextInner = aiInner.nextAtom();
         if (nextInner != null) {
             pair.atom1 = nextInner;
         }
         //Advance the outer loop, if the inner loop has reached its end.
         else {
-            IAtomLeaf nextOuter = aiOuter.nextAtom();
+            IAtom nextOuter = aiOuter.nextAtom();
             if (nextOuter == null) {
                 return null;
             }
@@ -108,12 +108,12 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
      * Specifies a target atom, which should appear in all iterates. A
      * null value removes any restriction on the iterates.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         needSetupIterators = true;
     }
 
-    public boolean haveTarget(IAtomLeaf target) {
+    public boolean haveTarget(IAtom target) {
         if (target == null) {
             return true;
         }
@@ -166,7 +166,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
 
         aiOuter.reset();
         aiInner.reset();
-        IAtomLeaf nextOuter = aiOuter.nextAtom();
+        IAtom nextOuter = aiOuter.nextAtom();
         if (nextOuter == null) {
             aiInner.unset();
             return;
@@ -186,7 +186,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
     private static final long serialVersionUID = 1L;
     protected final AtomPair pair = new AtomPair();
     protected final AtomIteratorBasis aiInner, aiOuter;
-    protected IAtomLeaf targetAtom;
+    protected IAtom targetAtom;
     protected boolean needSetupIterators = true;
     protected final MoleculeSetSinglet atomSetSinglet;
 

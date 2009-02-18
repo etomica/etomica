@@ -1,6 +1,6 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -19,11 +19,11 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         return LengthAgent.class;
     }
 
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new LengthAgent();
     }
 
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     public void resetFilter() {
         maxChainLength = 0;
@@ -35,7 +35,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         }
 
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = leafList.getAtom(i);
+            IAtom a = leafList.getAtom(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
             if (((LengthAgent)chainLengthManager.getAgent(a)).chainLength > 0) continue;
@@ -49,10 +49,10 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         }
     }
 
-    protected int recursiveTag(IAtomLeaf a, int chainLength) {
+    protected int recursiveTag(IAtom a, int chainLength) {
         ((LengthAgent)chainLengthManager.getAgent(a)).chainLength = chainLength;
 
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 
         int ctr = 1;
         
@@ -83,8 +83,8 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         chainLengthManager = new AtomLeafAgentManager(this,box);
     }
 
-    public boolean accept(IAtomLeaf a) {
-        return ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)a)).chainLength == maxChainLength;
+    public boolean accept(IAtom a) {
+        return ((LengthAgent)chainLengthManager.getAgent((IAtom)a)).chainLength == maxChainLength;
     }
 
     public boolean accept(IMolecule mole) {

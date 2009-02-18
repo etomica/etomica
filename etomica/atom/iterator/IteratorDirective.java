@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.util.EnumeratedType;
@@ -20,7 +20,7 @@ public final class IteratorDirective implements java.io.Serializable {
     public IteratorDirective(Direction direction) {
         setDirection(direction);
     }
-    public IteratorDirective(Direction direction, IAtomLeaf atom) {
+    public IteratorDirective(Direction direction, IAtom atom) {
         this(direction);
         targetAtom = atom;
         targetMolecule = null;
@@ -67,7 +67,7 @@ public final class IteratorDirective implements java.io.Serializable {
         potentialCriteriaHead = newCriterion;
     }
 
-    public void setTargetAtom(IAtomLeaf atom) {
+    public void setTargetAtom(IAtom atom) {
         targetAtom = atom;
         targetMolecule = null;
     }
@@ -77,7 +77,7 @@ public final class IteratorDirective implements java.io.Serializable {
         targetAtom = null;
     }
 
-    public IAtomLeaf getTargetAtom() {return targetAtom;}
+    public IAtom getTargetAtom() {return targetAtom;}
     public IMolecule getTargetMolecule() {return targetMolecule;}
 
     private static final long serialVersionUID = 1L;
@@ -88,7 +88,7 @@ public final class IteratorDirective implements java.io.Serializable {
     public boolean includeLrc = true;
     private Direction direction;
     PotentialCriterion potentialCriteriaHead;
-    private IAtomLeaf targetAtom = null;
+    private IAtom targetAtom = null;
     private IMolecule targetMolecule = null;
     
     //IteratorDirective.Direction

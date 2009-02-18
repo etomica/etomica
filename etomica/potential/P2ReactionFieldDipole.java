@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -169,7 +169,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
             targetAtom = atom;
         }
         
-        public void setTargetAtom(IAtomLeaf targetAtom) {
+        public void setTargetAtom(IAtom targetAtom) {
             throw new RuntimeException("Can't provide correction for an individual atom");
         }
 

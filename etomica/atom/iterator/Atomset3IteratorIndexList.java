@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -29,7 +29,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent 
     	return 1;
     }
     
-    public boolean haveTarget(IAtomLeaf a){
+    public boolean haveTarget(IAtom a){
         if (parentGroup == null) {
             return false;
         }
@@ -49,7 +49,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent 
     	return false;
     }
     
-    public void setTarget(IAtomLeaf a){
+    public void setTarget(IAtom a){
     	target = a;
     	unset();
     }
@@ -142,10 +142,10 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent 
     private int [][]index;
     private int cursor;
     private IMolecule parentGroup;
-    private IAtomLeaf target;
+    private IAtom target;
     
     private AtomsetArray atomset;
-    private IAtomLeaf[] atoms;
+    private IAtom[] atoms;
     
 	private static final long serialVersionUID = 1L;
 

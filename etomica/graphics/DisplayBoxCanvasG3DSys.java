@@ -9,7 +9,7 @@ import javax.vecmath.Point3f;
 import org.jmol.g3d.Graphics3D;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
@@ -181,7 +181,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		IAtomList leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomLeaf a = leafList.getAtom(iLeaf);
+			IAtom a = leafList.getAtom(iLeaf);
 			if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -242,7 +242,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-		    IAtomLeaf a = null;
+		    IAtom a = null;
 		    Ball ball = null;
 		    try {
 		        a = leafList.getAtom(iLeaf);
@@ -579,7 +579,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return Figure.class;
 	}
 
-	public Object makeAgent(IAtomLeaf a) {
+	public Object makeAgent(IAtom a) {
 		if (!(a.getType() instanceof IAtomTypeSphere))
 			return null;
 		((IAtomPositioned) a).getPosition().assignTo(coords);
@@ -592,7 +592,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Object agent, IAtomLeaf atom) {
+	public void releaseAgent(Object agent, IAtom atom) {
 		gsys.removeFig((Figure) agent);
 	}
 

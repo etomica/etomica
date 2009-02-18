@@ -3,7 +3,7 @@ package etomica.dimer;
 import java.io.IOException;
 import java.util.Formatter;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
@@ -77,11 +77,11 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         return IntegratorVelocityVerlet.MyAgent.class;
     }
 
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Object agent, IAtomLeaf atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
         // TODO Auto-generated method stub  
     }
     

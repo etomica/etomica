@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
@@ -152,20 +152,20 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
     public void resetBonds() {
         IAtomList atoms = box.getLeafList();
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomLeaf a = atoms.getAtom(i);
+            IAtom a = atoms.getAtom(i);
             agentManager.setAgent(a, makeAgent(a));
         }
     }
 
     public Class getAgentClass() {
-        return IAtomLeaf[].class;
+        return IAtom[].class;
     }
     
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(IAtomLeaf a) {
+	public Object makeAgent(IAtom a) {
 	    IMolecule m = a.getParentGroup();
 	    int nBonds = 2;
 	    if (m.getType() == speciesA) {
@@ -181,10 +181,10 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	            nBonds = 3;
 	        }
 	    }
-		return new IAtomLeaf[nBonds];
+		return new IAtom[nBonds];
 	}
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
     
     public AtomLeafAgentManager getAgentManager() {
     	return agentManager;

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -28,7 +28,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     	return 1;
     }
     
-    public boolean haveTarget(IAtomLeaf a){
+    public boolean haveTarget(IAtom a){
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
     		
     		if (a == parentGroup.getChildList().getAtom(index[i][0])){
@@ -42,7 +42,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     	return false;
     }
     
-    public void setTarget(IAtomLeaf a){
+    public void setTarget(IAtom a){
     	target = a;
     	unset();
     }
@@ -114,7 +114,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     private int [][]index;
     private int cursor;
     private IMolecule parentGroup;
-    private IAtomLeaf target;
+    private IAtom target;
     
     private final AtomPair pair;
     

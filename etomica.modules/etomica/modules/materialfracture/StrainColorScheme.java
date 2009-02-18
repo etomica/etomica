@@ -1,7 +1,7 @@
 package etomica.modules.materialfracture;
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.graphics.ColorScheme;
@@ -34,7 +34,7 @@ public class StrainColorScheme extends ColorScheme {
         hex = b;
     }
 
-    public Color getAtomColor(IAtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         int idx = a.getParentGroup().getIndex();
         if(hex){
             if( (idx>=atomNumber && idx<atomNumber+18 && idx%2 == atomNumber%2)

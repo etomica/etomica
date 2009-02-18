@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 
@@ -14,7 +14,7 @@ public class AtomsetArray implements IAtomList, java.io.Serializable {
      * Wraps a new atom array of the given length.
      */
     public AtomsetArray(int nAtoms) {
-        atoms = new IAtomLeaf[nAtoms];
+        atoms = new IAtom[nAtoms];
     }
 
     /**
@@ -44,21 +44,21 @@ public class AtomsetArray implements IAtomList, java.io.Serializable {
      * Wraps the given atom array. Subsequent call to getArray will return the
      * array instance given here.
      */
-    public AtomsetArray(IAtomLeaf[] atoms) {
+    public AtomsetArray(IAtom[] atoms) {
         this.atoms = atoms;
     }
 
     /**
      * Part of implementation of AtomSet interface.
      */
-    public IAtomLeaf getAtom(int i) {
+    public IAtom getAtom(int i) {
         return atoms[i];
     }
 
     /**
      * @return the wrapped array of atoms, which is declared final in the class.
      */
-    public IAtomLeaf[] getArray() {
+    public IAtom[] getArray() {
         return atoms;
     }
 
@@ -71,7 +71,7 @@ public class AtomsetArray implements IAtomList, java.io.Serializable {
      * @throws NullPointerException
      *             if argument is null.
      */
-    public void setAtoms(IAtomLeaf[] newAtoms) {
+    public void setAtoms(IAtom[] newAtoms) {
         if (newAtoms.length != atoms.length)
             throw new IllegalArgumentException("Wrong size array; should be "
                     + atoms.length + " but is " + newAtoms.length);
@@ -115,5 +115,5 @@ public class AtomsetArray implements IAtomList, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final IAtomLeaf[] atoms;
+    private final IAtom[] atoms;
 }

@@ -1,6 +1,6 @@
 package etomica.threaded.domain;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -58,7 +58,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        IAtomLeaf targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
 

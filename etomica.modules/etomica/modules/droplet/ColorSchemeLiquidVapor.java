@@ -2,7 +2,7 @@ package etomica.modules.droplet;
 
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.atom.AtomFilterCollective;
 import etomica.graphics.ColorSchemeCollective;
 
@@ -40,7 +40,7 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
 		}
     }
     
-    public Color getAtomColor(IAtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return liquidFilter.accept(a) ? liquidColor : vaporColor;
     }
     

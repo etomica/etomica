@@ -4,7 +4,7 @@
  */
 package etomica.nbr.site;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
@@ -132,7 +132,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -145,7 +145,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
     private boolean doGoDown;
     private boolean upListNow;
     private IteratorDirective.Direction direction;
-    private IAtomLeaf targetAtom;
+    private IAtom targetAtom;
     private final BoxAgentManager boxAgentManager;
     private NeighborSiteManager neighborSiteManager;
     

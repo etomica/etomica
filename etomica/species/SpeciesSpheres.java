@@ -1,10 +1,10 @@
 package etomica.species;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
@@ -64,9 +64,9 @@ public class SpeciesSpheres extends Species {
          return group;
      }
      
-     protected IAtomLeaf makeLeafAtom() {
+     protected IAtom makeLeafAtom() {
          return isDynamic ? new AtomLeafDynamic(space, leafAtomType)
-                          : new AtomLeaf(space, leafAtomType);
+                          : new Atom(space, leafAtomType);
      }
 
     /**

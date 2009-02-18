@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
@@ -55,8 +55,8 @@ public class P2SquareWellRadical extends P2SquareWell {
      * This function return true if the given atom is a radical (meaning that
      * it has only one unreacted site).
      */
-    protected boolean isRadical(IAtomLeaf a) {
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+    protected boolean isRadical(IAtom a) {
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
         for(int i=0; i < nbrs.length-1; ++i){
             if (nbrs[i] == null) {
                 return false;
@@ -65,15 +65,15 @@ public class P2SquareWellRadical extends P2SquareWell {
         return nbrs[nbrs.length-1] == null;
     }
 
-    protected boolean isEmpty(IAtomLeaf a) {
-        return ((IAtomLeaf[])agentManager.getAgent(a))[0] == null;
+    protected boolean isEmpty(IAtom a) {
+        return ((IAtom[])agentManager.getAgent(a))[0] == null;
     }
 
     /**
      * This will tell you what the lowest open space is in atom a
      */
-    protected int lowest(IAtomLeaf a){
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+    protected int lowest(IAtom a){
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
             if (nbrs[i] == null) {
@@ -86,8 +86,8 @@ public class P2SquareWellRadical extends P2SquareWell {
     /**
      * This function tells you if two atoms are bonded
      */
-    protected boolean areBonded(IAtomLeaf a, IAtomLeaf b){
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+    protected boolean areBonded(IAtom a, IAtom b){
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
             if (nbrs[i] == b){		
@@ -100,22 +100,22 @@ public class P2SquareWellRadical extends P2SquareWell {
     /**
      * this function will bond atoms a & b together
      */
-    protected void bond(IAtomLeaf a, IAtomLeaf b){
+    protected void bond(IAtom a, IAtom b){
         int i = lowest(a);
         int j = lowest(b);
-        ((IAtomLeaf[])agentManager.getAgent(a))[i] = b;
-        ((IAtomLeaf[])agentManager.getAgent(b))[j] = a;
+        ((IAtom[])agentManager.getAgent(a))[i] = b;
+        ((IAtom[])agentManager.getAgent(b))[j] = a;
     }
 
     /**
      * this function will makes a and b unreactive by setting both to be bonded
      * to themselves (a-a, b-b).
      */
-    protected void disproportionate(IAtomLeaf a, IAtomLeaf b){
+    protected void disproportionate(IAtom a, IAtom b){
         int i = lowest(a);
         int j = lowest(b);
-        ((IAtomLeaf[])agentManager.getAgent(a))[i] = a;
-        ((IAtomLeaf[])agentManager.getAgent(b))[j] = b;
+        ((IAtom[])agentManager.getAgent(a))[i] = a;
+        ((IAtom[])agentManager.getAgent(b))[j] = b;
     }
 
     /**
@@ -136,7 +136,7 @@ public class P2SquareWellRadical extends P2SquareWell {
 
             double r2 = dr.squared();
             if (r2 < wellDiameterSquared) {
-                boolean areBonded = areBonded((IAtomLeaf)atom0, (IAtomLeaf)atom1);
+                boolean areBonded = areBonded((IAtom)atom0, (IAtom)atom1);
                 if (!areBonded) {
                     //inside well but not mutually bonded; collide now if approaching
                     return (dr.dot(dv) < 0) ? falseTime : Double.POSITIVE_INFINITY;
@@ -162,13 +162,13 @@ public class P2SquareWellRadical extends P2SquareWell {
         double nudge = 0;
         double eps = 1.0e-10;
 
-        double rm0 = ((IAtomLeaf)atom0).getType().rm();
-        double rm1 = ((IAtomLeaf)atom1).getType().rm();
+        double rm0 = ((IAtom)atom0).getType().rm();
+        double rm1 = ((IAtom)atom1).getType().rm();
         
         double reduced_m = 2.0 /  + (rm0 + rm1);
 
-        IAtomLeaf atomLeaf0 = (IAtomLeaf)atom0;
-        IAtomLeaf atomLeaf1 = (IAtomLeaf)atom1;
+        IAtom atomLeaf0 = (IAtom)atom0;
+        IAtom atomLeaf1 = (IAtom)atom1;
         if (areBonded(atomLeaf0,atomLeaf1)) {		//atoms are bonded to each other
             lastCollisionVirial = reduced_m * bij;
             if (2 * r2 > (coreDiameterSquared + wellDiameterSquared)) {															

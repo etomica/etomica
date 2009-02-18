@@ -1,6 +1,6 @@
 package etomica.modules.sam;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -39,10 +39,10 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     }
 
     public boolean accept(IAtomList pair) {
-        IAtomLeaf atom1 = pair.getAtom(0);
-        IAtomLeaf atom2 = pair.getAtom(1);
+        IAtom atom1 = pair.getAtom(0);
+        IAtom atom2 = pair.getAtom(1);
         if (atom1.getIndex() != 0 || atom1.getParentGroup().getType() != polymerSpecies) {
-            IAtomLeaf foo = atom2;
+            IAtom foo = atom2;
             atom2 = atom1;
             atom1 = foo;
             if (atom1.getIndex() != 0 || atom1.getParentGroup().getType() != polymerSpecies) {
@@ -64,11 +64,11 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         return false;
     }
 
-    public boolean needUpdate(IAtomLeaf atom) {
+    public boolean needUpdate(IAtom atom) {
         return false;
     }
 
-    public void reset(IAtomLeaf atom) {
+    public void reset(IAtom atom) {
     }
 
     public boolean unsafe() {

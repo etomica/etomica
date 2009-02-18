@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -12,8 +12,8 @@ public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
         filteredType = type;
     }
     
-    public IAtomLeaf nextAtom() {
-        IAtomLeaf atom = super.nextAtom();
+    public IAtom nextAtom() {
+        IAtom atom = super.nextAtom();
         while (atom != null) {
             if (atom.getType() == filteredType) {
                 return atom;
@@ -37,7 +37,7 @@ public class AtomIteratorLeafFilteredType extends AtomIteratorLeafAtoms {
     public int size() {
         reset();
         int count = 0;
-        for (IAtomLeaf atom = nextAtom(); atom != null; atom = nextAtom()) {
+        for (IAtom atom = nextAtom(); atom != null; atom = nextAtom()) {
             count++;
         }
         return count;

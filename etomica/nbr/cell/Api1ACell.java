@@ -1,6 +1,6 @@
 package etomica.nbr.cell;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomPair;
@@ -76,7 +76,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
 	}
 
     public IAtomList next() {
-        IAtomLeaf innerAtom = aiInner.nextAtom();
+        IAtom innerAtom = aiInner.nextAtom();
         if (innerAtom == null) {
             innerAtom = advanceLists();
             if (innerAtom == null) {
@@ -152,19 +152,19 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
     // Moves to next neighbor-cell list that can provide an iterate
     // This should be invoked only if aiInner.hasNext is false
-    private IAtomLeaf advanceLists() {
+    private IAtom advanceLists() {
         if (inCentralCell && upListNow && doGoDown) {
             aiSeqDirectableDn.setAtom(targetAtom);
             aiSeqDirectableDn.reset();
             upListNow = false;
             aiInner = aiSeqDirectableDn;
-            IAtomLeaf atom = aiSeqDirectableDn.nextAtom();
+            IAtom atom = aiSeqDirectableDn.nextAtom();
             if (atom != null) {
                 return atom;
             }
@@ -190,7 +190,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
                 //no more cells
                 return null;
             }
-            IAtomLeaf atom = aiSeq.nextAtom();
+            IAtom atom = aiSeq.nextAtom();
             if (atom != null) {
                 return atom;
             }
@@ -214,7 +214,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private IteratorDirective.Direction direction;
     private boolean doGoDown, upListNow;
     private boolean inCentralCell;
-    private IAtomLeaf targetAtom;
+    private IAtom targetAtom;
     private final BoxAgentManager boxAgentManager;
     private NeighborCellManager cellManager;
     protected final boolean[] periodicity;

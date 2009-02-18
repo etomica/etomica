@@ -1,6 +1,6 @@
 package etomica.nbr.list;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -30,7 +30,7 @@ public class NeighborCellManagerList extends NeighborCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public Object makeAgent(IAtomLeaf atom) {
+    public Object makeAgent(IAtom atom) {
         if (range == 0) {
             // no range, no lattice, etc
             return null;

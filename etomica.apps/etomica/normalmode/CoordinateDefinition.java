@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IConformation;
@@ -206,7 +206,7 @@ public abstract class CoordinateDefinition {
         return box;
     }
 
-    public IVectorMutable getLatticePosition(IAtomLeaf atom) {
+    public IVectorMutable getLatticePosition(IAtom atom) {
         // this impl only handles leaf atoms.  subclasses might override this
         // method and handle IMolecules.
         return (IVectorMutable)siteManager.getAgent(atom);
@@ -235,12 +235,12 @@ public abstract class CoordinateDefinition {
         public Class getAgentClass() {
             return IVectorMutable.class;
         }
-        public Object makeAgent(IAtomLeaf atom) {
+        public Object makeAgent(IAtom atom) {
             IVectorMutable vector = space.makeVector();
             vector.E(((IAtomPositioned)atom).getPosition());
             return vector;
         }
-        public void releaseAgent(Object agent, IAtomLeaf atom) {
+        public void releaseAgent(Object agent, IAtom atom) {
             //nothing to do
         }
 

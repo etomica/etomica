@@ -1,7 +1,7 @@
 package etomica.graphics2;
 
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 
 /**
  * Does nothing at any time to set atom's color, leaving color to be set to default value.
@@ -16,7 +16,7 @@ public final class ColorSchemeNull implements ColorScheme {
  /**
   * Return without changing atom's color.
   */
-    public final int atomColor(IAtomLeaf a) {return 0;}
+    public final int atomColor(IAtom a) {return 0;}
 
 /* (non-Javadoc)
  * @see etomica.graphics2.ColorScheme#getNumColors()

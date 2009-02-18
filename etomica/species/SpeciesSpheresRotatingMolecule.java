@@ -1,11 +1,11 @@
 package etomica.species;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -46,8 +46,8 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
          return group;
      }
 
-    protected IAtomLeaf makeLeafAtom() {
-        return new AtomLeaf(space, leafAtomType);
+    protected IAtom makeLeafAtom() {
+        return new Atom(space, leafAtomType);
     }
 
     public double getMass() {

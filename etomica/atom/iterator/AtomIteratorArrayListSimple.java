@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
@@ -52,7 +52,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public IAtomLeaf nextAtom() {
+ 	public IAtom nextAtom() {
         if (cursor < list.getAtomCount()) {
             return list.getAtom(cursor++);
         }
@@ -63,7 +63,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Same as nextAtom().
      */
  	public IAtomList next() {
-        IAtomLeaf atom = nextAtom();
+        IAtom atom = nextAtom();
         if (atom == null) return null;
         atomSetSinglet.atom = atom;
  		return atomSetSinglet;

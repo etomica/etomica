@@ -1,6 +1,6 @@
 package etomica.nbr.list;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
@@ -400,7 +400,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      */
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        IAtomLeaf targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
         if (targetAtom == null && targetMolecule == null) {
@@ -475,7 +475,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
     }
     
-    protected void calculate(IAtomLeaf atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
+    protected void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
         singletIterator.setAtom(atom);
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         IPotential[] potentials = potentialArray.getPotentials();
@@ -521,12 +521,12 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // target's neighbors
                     IAtomList list = neighborManager.getUpList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtomLeaf otherAtom = list.getAtom(j);
+                        IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic)potentials[i], neighborManager);
                     }
                     list = neighborManager.getDownList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtomLeaf otherAtom = list.getAtom(j);
+                        IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic)potentials[i], neighborManager);
                     }
                 }
@@ -539,7 +539,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Invokes the PotentialCalculation for the given Atom with its up and down
      * neighbors as a single AtomSet.
      */
-    protected void doNBodyStuff(IAtomLeaf atom, PotentialCalculation pc, int potentialIndex, 
+    protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, 
             IPotentialAtomic potential, NeighborListManager neighborManager) {
         atomArrayList.add(atom);
         IAtomList[] list = neighborManager.getUpList(atom);

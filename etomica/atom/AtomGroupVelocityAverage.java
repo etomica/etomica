@@ -3,7 +3,7 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
@@ -34,7 +34,7 @@ public class AtomGroupVelocityAverage implements Serializable {
         IAtomList children = molecule.getChildList();
         int nAtoms = children.getAtomCount();
         for (int i=0; i<nAtoms; i++) {
-            IAtomLeaf a = children.getAtom(i);
+            IAtom a = children.getAtom(i);
             vectorSum.PE(((IAtomKinetic)a).getVelocity());
             massSum += a.getType().getMass();
         }

@@ -1,7 +1,7 @@
 package etomica.models.water;
 
 import etomica.api.IMolecule;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -30,10 +30,10 @@ public class SpeciesWater4POriented extends SpeciesOriented {
     public IMolecule makeMolecule() {
         MoleculeOriented water = isDynamic ? new MoleculeOrientedDynamic(space, this) :
                                              new MoleculeOriented(space, this);
-        water.addChildAtom(new AtomLeaf(space, hType));
-        water.addChildAtom(new AtomLeaf(space, hType));
-        water.addChildAtom(new AtomLeaf(space, oType));
-        water.addChildAtom(new AtomLeaf(space, mType));
+        water.addChildAtom(new Atom(space, hType));
+        water.addChildAtom(new Atom(space, hType));
+        water.addChildAtom(new Atom(space, oType));
+        water.addChildAtom(new Atom(space, mType));
         conformation.initializePositions(water.getChildList());
         return water;
     }

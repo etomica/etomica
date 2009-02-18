@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.ISimulation;
 import etomica.atom.AtomSetSinglet;
@@ -37,9 +37,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         IAtomList atomList = sim.getBox(0).getMoleculeList().getMolecule(0).getChildList();
 
         //atom in middle of list
-        IAtomLeaf atom = atomList.getAtom(5);
-        IAtomLeaf dnAtom = atomList.getAtom(4);
-        IAtomLeaf upAtom = atomList.getAtom(6);
+        IAtom atom = atomList.getAtom(5);
+        IAtom dnAtom = atomList.getAtom(4);
+        IAtom upAtom = atomList.getAtom(6);
         LinkedList list = null;
         
         iteratorUp.setAtom(atom);

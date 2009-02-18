@@ -3,7 +3,7 @@ package etomica.data;
 import java.io.Serializable;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IData;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
@@ -91,7 +91,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
         dataInfo.addTag(tag);
     }
     
-    public IData getData(IAtomLeaf a) {
+    public IData getData(IAtom a) {
         atomData.x = Math.sqrt(((IAtomKinetic)a).getVelocity().squared());
         return atomData;
     }

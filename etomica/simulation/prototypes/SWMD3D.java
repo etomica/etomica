@@ -6,7 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -131,15 +131,15 @@ public class SWMD3D extends Simulation {
 
   
   public static class MyColorScheme extends ColorScheme {
-      public MyColorScheme(IAtomLeaf redAtom) {
+      public MyColorScheme(IAtom redAtom) {
     	  super();
           atom = redAtom;
       }
-	  public java.awt.Color getAtomColor(IAtomLeaf a) {
+	  public java.awt.Color getAtomColor(IAtom a) {
 		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
 	  }
       private static final long serialVersionUID = 1L;
-      private IAtomLeaf atom;
+      private IAtom atom;
   }
 
 }//end of class

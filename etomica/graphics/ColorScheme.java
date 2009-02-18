@@ -3,7 +3,7 @@ import java.awt.Color;
 
 import etomica.action.SimulationRestart;
 import etomica.api.IAction;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -25,7 +25,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         defaultColor = color;
     }
 
-    public abstract Color getAtomColor(IAtomLeaf a);
+    public abstract Color getAtomColor(IAtom a);
     
     public final void setDefaultColor(Color c) {defaultColor = c;}
     public final Color getDefaultColor() {return defaultColor;}
@@ -39,7 +39,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         public Simple() {super();}
         public Simple(java.awt.Color color) {super(color);}
-        public Color getAtomColor(IAtomLeaf a) {return defaultColor;}
+        public Color getAtomColor(IAtom a) {return defaultColor;}
     }
     
     //for color scheme demo

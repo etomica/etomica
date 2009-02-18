@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -57,8 +57,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         Lister testLister = new Lister();
         LinkedList list = null;
         IMolecule basis = null;
-        IAtomLeaf target = null;
-        IAtomLeaf iterate = null;
+        IAtom target = null;
+        IAtom iterate = null;
         AtomArrayList iterates = null;
         
         assertEquals(basisIterator.basisSize(), 1);
@@ -117,7 +117,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //int[] {box (0), species (0,1,2), molecule etc}
     }
     
-    private LinkedList testOneIterate(IMolecule basis, IAtomLeaf target, IAtomLeaf iterate) {
+    private LinkedList testOneIterate(IMolecule basis, IAtom target, IAtom iterate) {
         basisIterator.setBasis(new MoleculeSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -129,7 +129,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(IMolecule basis, IAtomLeaf target, AtomArrayList iterates) {
+    private LinkedList testListIterates(IMolecule basis, IAtom target, AtomArrayList iterates) {
         basisIterator.setBasis(new MoleculeSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -141,7 +141,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private void testNoIterates(IMolecule basis, IAtomLeaf target) {
+    private void testNoIterates(IMolecule basis, IAtom target) {
         basisIterator.setBasis(basis == null ? null : new MoleculeSetSinglet(basis));
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);

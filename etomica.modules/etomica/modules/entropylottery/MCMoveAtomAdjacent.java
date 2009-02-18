@@ -1,6 +1,6 @@
 package etomica.modules.entropylottery;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -23,7 +23,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected IVectorMutable translationVector;
-    protected IAtomLeaf atom;
+    protected IAtom atom;
     protected AtomSource atomSource;
     protected final IRandom random;
     private final ISpace space;

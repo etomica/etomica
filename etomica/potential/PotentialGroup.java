@@ -2,7 +2,7 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -195,7 +195,7 @@ public class PotentialGroup extends PotentialMolecular {
      * using the directive to set up the iterators for the sub-potentials of this group.
      */
     //TODO consider what to do with sub-potentials after target atoms are reached
-    public void calculate(MoleculesetIterator iterator, IteratorDirective.Direction direction, IAtomLeaf targetAtom , PotentialCalculation pc) {
+    public void calculate(MoleculesetIterator iterator, IteratorDirective.Direction direction, IAtom targetAtom , PotentialCalculation pc) {
     	//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable
     	for (PotentialLinker link=first; link!= null; link=link.next) {

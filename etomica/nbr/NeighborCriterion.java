@@ -1,5 +1,5 @@
 package etomica.nbr;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 
@@ -19,7 +19,7 @@ public interface NeighborCriterion {
      * be updated, according to this criterion.  
      * @return true if the atom's list should be updated.
      */
-	public boolean needUpdate(IAtomLeaf atom);
+	public boolean needUpdate(IAtom atom);
 	
     /**
      * Specifies the box where the criterion is being applied.  Sometimes
@@ -41,5 +41,5 @@ public interface NeighborCriterion {
      * updated, and that properties (e.g., record of atom's position) 
      * used by needUpdate and unsafe() methods should be reset.  
      */
-	public void reset(IAtomLeaf atom);
+	public void reset(IAtom atom);
 }

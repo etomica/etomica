@@ -1,7 +1,7 @@
 package etomica.modules.crystalviewer;
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.graphics.ColorScheme;
 import etomica.lattice.LatticePlane;
@@ -25,7 +25,7 @@ public class ColorSchemePlane extends ColorScheme {
         this.colorIn = colorIn;
         this.colorOut = colorOut;
     }
-    public Color getAtomColor(IAtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return plane.inPlane(((IAtomPositioned)a).getPosition()) ? colorIn : colorOut;
     }
     

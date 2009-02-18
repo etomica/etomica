@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomArrayList;
@@ -29,7 +29,7 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
      * Sets the target of iteration... has no actual effect since all iterates
      * contain all Atoms.
      */
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
     }
 
     public void reset() {
@@ -70,7 +70,7 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
 		return Integer.MAX_VALUE;
 	}
 
-	public boolean haveTarget(IAtomLeaf target) {
+	public boolean haveTarget(IAtom target) {
 		for (int i=0; i<basis.getMoleculeCount(); i++){
 			if(basis.getMolecule(i).getChildList().getAtom(0) == target){
 				return true;

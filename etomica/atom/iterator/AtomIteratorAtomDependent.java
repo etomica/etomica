@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 
 /**
  * Interface for an atom iterator that can be altered by setting
@@ -8,5 +8,5 @@ import etomica.api.IAtomLeaf;
  */
 public interface AtomIteratorAtomDependent extends AtomIterator {
 
-	public void setAtom(IAtomLeaf atom);
+	public void setAtom(IAtom atom);
 }

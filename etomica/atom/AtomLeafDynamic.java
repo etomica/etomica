@@ -5,7 +5,7 @@ import etomica.api.IAtomType;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
-public class AtomLeafDynamic extends AtomLeaf implements IAtomKinetic {
+public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
     public AtomLeafDynamic(ISpace space, IAtomType type) {
         super(space, type);

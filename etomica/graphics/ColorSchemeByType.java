@@ -2,7 +2,7 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.ISimulation;
 import etomica.atom.AtomTypeAgentManager;
@@ -36,7 +36,7 @@ public class ColorSchemeByType extends ColorScheme implements AgentSource {
     	colorMap.setAgent(type, c);
     }
     
-    public Color getAtomColor(IAtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return getColor(a.getType());
     }
     

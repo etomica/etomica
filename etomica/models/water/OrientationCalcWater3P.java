@@ -5,7 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
 import etomica.atom.OrientationCalcQuaternion;
@@ -244,7 +244,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
     public void initializePositions(IAtomList childList) {
         super.initializePositions(childList);
         if (!initialized) {
-            com0.E(atomPositionCOM.position(((AtomLeaf)childList.getAtom(0)).getParentGroup()));
+            com0.E(atomPositionCOM.position(((Atom)childList.getAtom(0)).getParentGroup()));
             initialized = true;
         }
     }

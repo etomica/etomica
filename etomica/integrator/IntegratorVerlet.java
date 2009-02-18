@@ -2,7 +2,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -88,14 +88,14 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
             pressureTensor.E(forceSum.getPressureTensor());
             IVectorMutable v = a.getVelocity();
             workTensor.Ev1v2(v,v);
-            workTensor.TE(((IAtomLeaf)a).getType().getMass());
+            workTensor.TE(((IAtom)a).getType().getMass());
             pressureTensor.PE(workTensor);
             
-            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
+            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(((IAtomLeaf)a).getType().rm()*t2);
+            agent.force.TE(((IAtom)a).getType().rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
@@ -120,7 +120,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
+            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
             agent.rMrLast.Ea1Tv1(timeStep,a.getVelocity());//06/13/03 removed minus sign before timeStep
         }
     }
@@ -142,7 +142,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)atom);
+        Agent agent = (Agent)agentManager.getAgent((IAtom)atom);
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
@@ -152,11 +152,11 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         return Agent.class;
     }
 
-    public final Object makeAgent(IAtomLeaf a) {
+    public final Object makeAgent(IAtom a) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

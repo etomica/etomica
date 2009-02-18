@@ -3,7 +3,7 @@
  */
 package etomica.data.meter;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -44,7 +44,7 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-            double mass = ((IAtomLeaf)a).getType().getMass();
+            double mass = ((IAtom)a).getType().getMass();
             massSum += mass;
             positionSum.PEa1Tv1(mass,a.getPosition());
         }

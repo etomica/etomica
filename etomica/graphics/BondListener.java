@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -128,7 +128,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         return ArrayList.class;
     }
     
-    public Object makeAgent(IAtomLeaf newAtom) {
+    public Object makeAgent(IAtom newAtom) {
         // we got a leaf atom in a mult-atom molecule
         ArrayList<Object> bondList = new ArrayList<Object>(); 
         Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
@@ -166,7 +166,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         return bondList;
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting

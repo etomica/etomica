@@ -1,7 +1,7 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
@@ -45,14 +45,14 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = a.getPosition();
             IVectorMutable v = a.getVelocity();
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
-            v.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),agent.force);  // p += f(old)*dt/2
-            if (((IAtomLeaf)a).getType() == sulfurType) {
+            v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+            if (((IAtom)a).getType() == sulfurType) {
                 // sulfur isn't allowed to move in the Y direction
                 v.setX(1, 0);
             }
@@ -73,13 +73,13 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVectorMutable velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);
-            workTensor.TE(((IAtomLeaf)a).getType().getMass());
+            workTensor.TE(((IAtom)a).getType().getMass());
             pressureTensor.PE(workTensor);
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtomLeaf)a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
+                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtom)a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtomLeaf)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtomLeaf)a)).force);  //p += f(new)*dt/2
-            if (((IAtomLeaf)a).getType() == sulfurType) {
+            velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtom)a)).force);  //p += f(new)*dt/2
+            if (((IAtom)a).getType() == sulfurType) {
                 velocity.setX(1, 0);
             }
         }

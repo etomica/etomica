@@ -3,7 +3,7 @@ package etomica.graphics2;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 
 /**
@@ -22,7 +22,7 @@ implements ColorScheme, java.io.Serializable
  /**
   * Initialize atom color to the color of its type
   */
-    public final int atomColor(IAtomLeaf a) 
+    public final int atomColor(IAtom a) 
     {
     	Integer index = (Integer) colormap.get( a.getType() );
     	if ( index==null )

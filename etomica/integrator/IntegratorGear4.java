@@ -4,7 +4,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -112,7 +112,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
+            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = a.getPosition();
             IVectorMutable v = a.getVelocity();
             work1.E(v);
@@ -128,7 +128,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
             agent.dr3.PEa1Tv1(c3,work2);
             agent.dr4.PEa1Tv1(c4,work2);
             
-            work1.Ea1Tv1(((IAtomLeaf)a).getType().rm(),agent.force);
+            work1.Ea1Tv1(((IAtom)a).getType().rm(),agent.force);
             work1.PEa1Tv1(-(zeta+chi),v);
             work2.E(work1);
             work2.ME(agent.dv1);
@@ -145,7 +145,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
+            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = a.getPosition();
             IVectorMutable v = a.getVelocity();
             r.PEa1Tv1(p1, agent.dr1);
@@ -185,12 +185,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent((IAtomLeaf)a);
+            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
             agent.dr1.E(a.getVelocity());
-            agent.dr2.Ea1Tv1(((IAtomLeaf)a).getType().rm(),agent.force);
+            agent.dr2.Ea1Tv1(((IAtom)a).getType().rm(),agent.force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);
-            agent.dv1.Ea1Tv1(((IAtomLeaf)a).getType().rm(),agent.force);
+            agent.dv1.Ea1Tv1(((IAtom)a).getType().rm(),agent.force);
             agent.dv2.E(0.0);
             agent.dv3.E(0.0);
             agent.dv4.E(0.0);
@@ -201,11 +201,11 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         return Agent.class;
     }
     
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
             
     public static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

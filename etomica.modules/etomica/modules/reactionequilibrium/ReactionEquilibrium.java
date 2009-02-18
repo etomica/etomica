@@ -4,7 +4,7 @@ import javax.swing.JPanel;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -40,7 +40,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public MeterDimerFraction meterDimerFraction;
     public ActivityIntegrate activityIntegrate;
     private AtomLeafAgentManager agentManager = null;
-    public IAtomLeaf[] agents;
+    public IAtom[] agents;
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
@@ -101,7 +101,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	}
     
     public Class getAgentClass() {
-        return IAtomLeaf.class;
+        return IAtom.class;
     }
 
     public AtomLeafAgentManager getAgentManager() {
@@ -115,11 +115,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
      * @param a  ignored
      * @return Object always null
      */
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
 
 }

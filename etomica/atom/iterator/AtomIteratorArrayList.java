@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.atom.AtomToAtomLeafList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
@@ -42,7 +42,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public IAtomLeaf nextAtom() {
+ 	public IAtom nextAtom() {
         if (upListNow) {
             if (cursor > list.getAtomCount()-2) {
                 return null;
@@ -101,14 +101,14 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * and/or down the list, depending on how iterator was configured at
      * construction.
      */
-    public void setAtom(IAtomLeaf atom) {
+    public void setAtom(IAtom atom) {
         startAtom = atom;
     }
 
     private static final long serialVersionUID = 1L;
     protected final boolean upListNow;
     private final int numToSkip;
-    private IAtomLeaf startAtom;
+    private IAtom startAtom;
     private final AtomToIndex atomToIndex;
     private final AtomToAtomLeafList atomToAtomSet;
  }

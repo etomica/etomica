@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
@@ -38,7 +38,7 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
         for (int i=0; i<nAtoms; i++) {
-            IAtomLeaf a = children.getAtom(i);
+            IAtom a = children.getAtom(i);
             double mass = a.getType().getMass();
             center.PEa1Tv1(mass, ((IAtomPositioned)a).getPosition());
             massSum += mass;

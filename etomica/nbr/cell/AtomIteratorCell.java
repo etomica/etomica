@@ -1,6 +1,6 @@
 package etomica.nbr.cell;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomSetSinglet;
@@ -59,8 +59,8 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         return atomSetSinglet;
     }
     
-    public IAtomLeaf nextAtom() {
-        IAtomLeaf nextAtom = atomIterator.nextAtom();
+    public IAtom nextAtom() {
+        IAtom nextAtom = atomIterator.nextAtom();
         while (nextAtom == null) {
             if(cellIterator.hasNext()) {
                 atomIterator.setList(((Cell)cellIterator.next()).occupants());

@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.atom.AtomsetArray;
@@ -40,7 +40,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return 1;
     }
 
-    public boolean haveTarget(IAtomLeaf target) {
+    public boolean haveTarget(IAtom target) {
         if (childList == null) {
             return false;
         }
@@ -53,7 +53,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return false;
     }
 
-    public void setTarget(IAtomLeaf newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -160,9 +160,9 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     protected int stateUpDown; // 0 = up, 1 = middle, 2 = down, 3 = all done
     protected boolean doGoUp, doGoDown;
     protected IAtomList childList;
-    protected IAtomLeaf targetAtom;
+    protected IAtom targetAtom;
     protected int cursor;
     protected final AtomsetArray next;
-    protected final IAtomLeaf[] atomArray;
+    protected final IAtom[] atomArray;
     private static final long serialVersionUID = 1L;
 }

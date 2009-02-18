@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -107,12 +107,12 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        IAtomLeaf target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
+        IAtom target0 = moleculeList0.getMolecule(2).getChildList().getAtom(1);
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        IAtomLeaf target1 = moleculeList1.getMolecule(1).getChildList().getAtom(0);
+        IAtom target1 = moleculeList1.getMolecule(1).getChildList().getAtom(0);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
@@ -260,7 +260,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
-        upNon = upFirstNon = dnNon = dnLastNon = new IAtomLeaf[0]; 
+        upNon = upFirstNon = dnNon = dnLastNon = new IAtom[0]; 
         iterate = target;
         iterateFirst = target;
         iterateLast = target;
@@ -297,16 +297,16 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = childList.getAtom(0);
         targetLast = childList.getAtom(9);
         up = childList.getAtom(6);
-        upNon = new IAtomLeaf[] {childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
+        upNon = new IAtom[] {childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
         upFirst = childList.getAtom(1);
-        upFirstNon = new IAtomLeaf[] {childList.getAtom(2),childList.getAtom(3),
+        upFirstNon = new IAtom[] {childList.getAtom(2),childList.getAtom(3),
                 childList.getAtom(4),childList.getAtom(5),childList.getAtom(6),
                 childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
         dn = childList.getAtom(4);
-        dnNon = new IAtomLeaf[] {childList.getAtom(3),childList.getAtom(2),childList.getAtom(1),
+        dnNon = new IAtom[] {childList.getAtom(3),childList.getAtom(2),childList.getAtom(1),
                 childList.getAtom(0)};
         dnLast = childList.getAtom(8);
-        dnLastNon = new IAtomLeaf[] {childList.getAtom(7),childList.getAtom(6),
+        dnLastNon = new IAtom[] {childList.getAtom(7),childList.getAtom(6),
                 childList.getAtom(5),childList.getAtom(4),childList.getAtom(3),
                 childList.getAtom(2),childList.getAtom(1),childList.getAtom(0)};
         iterate = target;
@@ -463,18 +463,18 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
     private static final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
     private IMolecule parent;
-    private IAtomLeaf target;
-    private IAtomLeaf targetFirst;
-    private IAtomLeaf targetLast;
-    private IAtomLeaf up;
-    private IAtomLeaf[] upNon;
-    private IAtomLeaf upFirst;
-    private IAtomLeaf[] upFirstNon;
-    private IAtomLeaf dn;
-    private IAtomLeaf[] dnNon;
-    private IAtomLeaf dnLast;
-    private IAtomLeaf[] dnLastNon;
-    private IAtomLeaf iterate;
-    private IAtomLeaf iterateFirst;
-    private IAtomLeaf iterateLast;
+    private IAtom target;
+    private IAtom targetFirst;
+    private IAtom targetLast;
+    private IAtom up;
+    private IAtom[] upNon;
+    private IAtom upFirst;
+    private IAtom[] upFirstNon;
+    private IAtom dn;
+    private IAtom[] dnNon;
+    private IAtom dnLast;
+    private IAtom[] dnLastNon;
+    private IAtom iterate;
+    private IAtom iterateFirst;
+    private IAtom iterateLast;
 }

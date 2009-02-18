@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -180,7 +180,7 @@ public class EwaldSummation implements IPotentialMolecular {
 				int numSites = moleculei.getChildList().getAtomCount();
 					
 				for (int a=0; a<numSites; a++){
-					IAtomLeaf sitea = moleculei.getChildList().getAtom(a);
+					IAtom sitea = moleculei.getChildList().getAtom(a);
 					IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
 					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 					atomPair.atom0 = sitea;
@@ -189,7 +189,7 @@ public class EwaldSummation implements IPotentialMolecular {
 						IMolecule moleculej = moleculeList.getMolecule(j);
 						
 						for (int b=0; b<numSites; b++){
-							IAtomLeaf siteb = moleculej.getChildList().getAtom(b);
+							IAtom siteb = moleculej.getChildList().getAtom(b);
 							IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();
 							double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
 							atomPair.atom1 = siteb;
@@ -264,7 +264,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			double imagMagnitude = 0.0;
 			
 			for (int i=0; i<numAtom; i++){
-				IAtomLeaf atomi = atomList.getAtom(i);
+				IAtom atomi = atomList.getAtom(i);
 				IVectorMutable posAtomi = ((IAtomPositioned)atomi).getPosition();
 				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
 				
@@ -318,7 +318,7 @@ public class EwaldSummation implements IPotentialMolecular {
 		
 			// cancel-Term
 			for (int a=0; a<numSites; a++){
-				IAtomLeaf sitea = molecule.getChildList().getAtom(a);
+				IAtom sitea = molecule.getChildList().getAtom(a);
 				
 				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 				cancelTerm += prefcancel*chargea*chargea;
@@ -330,8 +330,8 @@ public class EwaldSummation implements IPotentialMolecular {
 			iterator.reset();
 			
 			for (IAtomList pair = iterator.next(); pair!= null; pair = iterator.next()){
-				IAtomLeaf sitea = pair.getAtom(0);
-				IAtomLeaf siteb = pair.getAtom(1);
+				IAtom sitea = pair.getAtom(0);
+				IAtom siteb = pair.getAtom(1);
 				
 				IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
 				IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();

@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -33,7 +33,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
     protected final MeterPotentialEnergy energyMeter;
     protected final MeterHarmonicEnergy harmonicEnergyMeter;
     protected final IVectorRandom translationVector;
-    protected IAtomLeaf atom0, atom1;
+    protected IAtom atom0, atom1;
     protected double uOld, uNew;
     protected double gamma_Old, gamma_New;
     protected AtomSource atomSource;

@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 
@@ -39,7 +39,7 @@ public class AtomListWrapper implements IAtomList, java.io.Serializable {
     /**
      * Part of implementation of AtomSet interface.
      */
-    public IAtomLeaf getAtom(int i) {
+    public IAtom getAtom(int i) {
         return atoms.getAtom(i);
     }
 

@@ -2,7 +2,7 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
@@ -25,7 +25,7 @@ public class AtomActionTranslateBy implements AtomAction, Serializable {
         translationVector = space.makeVector();
     }
     
-    public void actionPerformed(IAtomLeaf atom) {
+    public void actionPerformed(IAtom atom) {
         ((IAtomPositioned)atom).getPosition().PE(translationVector);
     }
        

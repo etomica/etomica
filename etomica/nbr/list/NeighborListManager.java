@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
 import etomica.api.IAction;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -70,7 +70,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
-            IAtomLeaf atom = leafList.getAtom(j);
+            IAtom atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
 
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(potentials.length);
@@ -140,7 +140,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int j=0; j<nLeaf; j++) {
-            IAtomLeaf atom = leafList.getAtom(j);
+            IAtom atom = leafList.getAtom(j);
             final NeighborCriterion[] criterion = potentialMaster.getRangedPotentials(atom.getType()).getCriteria();
             for (int i = 0; i < criterion.length; i++) {
                 if (criterion[i].needUpdate(atom)) {
@@ -241,7 +241,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         int nLeaf = leafList.getAtomCount();
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            IAtomLeaf atom = leafList.getAtom(j);
+            IAtom atom = leafList.getAtom(j);
             final NeighborCriterion[] criterion = getCriterion(atom.getType());
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -270,8 +270,8 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
         for (IAtomList pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
-            IAtomLeaf atom0 = pair.getAtom(0);
-            IAtomLeaf atom1 = pair.getAtom(1);
+            IAtom atom0 = pair.getAtom(0);
+            IAtom atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -292,7 +292,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
     /**
      * Constructs neighbor lists for the given atom
      */
-    public void addAtomNotify(IAtomLeaf atom) {
+    public void addAtomNotify(IAtom atom) {
         if (!initialized) {
             // the simulation hasn't started yet.  just wait for neighborSetup
             // to get called.  It can do everything at once and can be sure
@@ -311,8 +311,8 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         cell1ANbrIterator.reset();
         for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
-            IAtomLeaf atom0 = pair.getAtom(0);
-            IAtomLeaf atom1 = pair.getAtom(1);
+            IAtom atom0 = pair.getAtom(0);
+            IAtom atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -363,21 +363,21 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         this.quiet = quiet;
     }
     
-    public IAtomList[] getUpList(IAtomLeaf atom) {
+    public IAtomList[] getUpList(IAtom atom) {
         if (!initialized) {
             reset();
         }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
-    public IAtomList[] getDownList(IAtomLeaf atom) {
+    public IAtomList[] getDownList(IAtom atom) {
         if (!initialized) {
             reset();
         }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 
-    public AtomPotentialList getPotential1BodyList(IAtomLeaf atom) {
+    public AtomPotentialList getPotential1BodyList(IAtom atom) {
         if (!initialized) {
             reset();
         }
@@ -411,7 +411,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         return AtomNeighborLists.class;
     }
     
-    public Object makeAgent(IAtomLeaf atom) {
+    public Object makeAgent(IAtom atom) {
         if (initialized) {
             Object oldAgent = agentManager2Body.getAgent(atom);
             if (oldAgent != null) {
@@ -426,14 +426,14 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         return lists;
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
         // we need to remove this atom from the neighbor lists of its neighbors.
         AtomNeighborLists nbrLists = (AtomNeighborLists)agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
-                IAtomLeaf jAtom = upDnLists[i].getAtom(j);
+                IAtom jAtom = upDnLists[i].getAtom(j);
                 AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jDnLists = jNbrLists.downList;
                 for (int k=0; k<jDnLists.length; k++) {
@@ -448,7 +448,7 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
-                IAtomLeaf jAtom = upDnLists[i].getAtom(j);
+                IAtom jAtom = upDnLists[i].getAtom(j);
                 AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jUpLists = jNbrLists.upList;
                 for (int k=0; k<jUpLists.length; k++) {
@@ -473,8 +473,8 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         public Class getAgentClass() {
             return AtomPotentialList.class;
         }
-        public void releaseAgent(Object obj, IAtomLeaf atom) {}
-        public Object makeAgent(IAtomLeaf atom) {
+        public void releaseAgent(Object obj, IAtom atom) {}
+        public Object makeAgent(IAtom atom) {
             AtomPotentialList lists = new AtomPotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
             

@@ -1,6 +1,6 @@
 package etomica.meam;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
@@ -55,7 +55,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     		sum[i] = 0;
 		}
         IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
-		int indexi = ((IAtomLeaf)atom0).getType().getIndex(); pi = parameters[indexi];
+		int indexi = ((IAtom)atom0).getType().getIndex(); pi = parameters[indexi];
 		for(int j = 1; j < atoms.getAtomCount(); j++) {
             IAtomPositioned atomj = (IAtomPositioned)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
@@ -66,7 +66,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			    continue; 
 			}
 			
-			int indexj = ((IAtomLeaf)atomj).getType().getIndex(); pj = parameters[indexj];
+			int indexj = ((IAtom)atomj).getType().getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
 			*/
@@ -99,7 +99,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					//System.out.println(" | Sijk 1.0 b/c C is negative");
 					continue; // negative C forms hyperbola, not ellipse
 				}
-				int indexk = ((IAtomLeaf)atomk).getType().getIndex(); 
+				int indexk = ((IAtom)atomk).getType().getIndex(); 
 				pk = parameters[indexk];
 				
 				//Cu-Sn system only
@@ -369,7 +369,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			gamma = gamma(), rhoi = rhoi(atoms);
         
         IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
-		int indexi = ((IAtomLeaf)atom0).getType().getIndex(); pi = parameters[indexi];
+		int indexi = ((IAtom)atom0).getType().getIndex(); pi = parameters[indexi];
 		
 		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
@@ -419,7 +419,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
             	rij.E(rin); double ij = in;
-    			int indexj = ((IAtomLeaf)atomn).getType().getIndex(); pj = parameters[indexj];
+    			int indexj = ((IAtom)atomn).getType().getIndex(); pj = parameters[indexj];
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.getAtomCount(); k++) {
@@ -445,7 +445,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
-            		int indexk = ((IAtomLeaf)atomk).getType().getIndex(); pk = parameters[indexk];
+            		int indexk = ((IAtom)atomk).getType().getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
             		
@@ -909,8 +909,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
-	        	int indexj = ((IAtomLeaf)atomj).getType().getIndex(); pj = parameters[indexj];
-	        	int indexk = ((IAtomLeaf)atomn).getType().getIndex(); pk = parameters[indexk];
+	        	int indexj = ((IAtom)atomj).getType().getIndex(); pj = parameters[indexj];
+	        	int indexk = ((IAtom)atomn).getType().getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
 	        	
@@ -971,7 +971,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	    			if (c < 0) continue;
-	    			int indexl = ((IAtomLeaf)atoml).getType().getIndex(); pl = parameters[indexl];
+	    			int indexl = ((IAtom)atoml).getType().getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
 	    			

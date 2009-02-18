@@ -1,6 +1,6 @@
 package etomica.nbr.site;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -70,7 +70,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         throw new RuntimeException("Cell assignments are made automagically.  This method isn't here.  Really.");
     }
 
-    public AtomSite getSite(IAtomLeaf atom) {
+    public AtomSite getSite(IAtom atom) {
         return (AtomSite)agentManager.getAgent(atom);
     }
     
@@ -78,13 +78,13 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         return AtomSite.class;
     }
 
-    public Object makeAgent(IAtomLeaf atom) {
+    public Object makeAgent(IAtom atom) {
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     private final CellLattice lattice;
     private final ISpace space;

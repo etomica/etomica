@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 
 /**
  * Interface for an iterator that can be targeted at one or more atoms.
@@ -11,5 +11,5 @@ import etomica.api.IAtomLeaf;
  * target.
  */
 public interface AtomsetIteratorTargetable extends AtomLeafsetIterator {
-	public void setTarget(IAtomLeaf targetAtom);
+	public void setTarget(IAtom targetAtom);
 }

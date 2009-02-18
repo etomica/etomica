@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import etomica.api.IAction;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -213,7 +213,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
 	            		IMolecule molecule = box.getMoleculeList().getMolecule(iMolec);
 	            		for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
 	            			IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
-	            			String atomName = (String)elementHash.get(((IAtomLeaf)atom).getType().getElement());
+	            			String atomName = (String)elementHash.get(((IAtom)atom).getType().getElement());
 	            			
 	            			formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	            			atomCount++;

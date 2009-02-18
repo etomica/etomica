@@ -1,6 +1,6 @@
 	package etomica.normalmode;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -37,7 +37,7 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 			double distanceScalar = dr.squared();
 			double rdu = ((Potential2SoftSpherical)potential).du(distanceScalar);
 			   
-			latticeDistance.Ev1Mv2(initialLatticePosition[((IAtomLeaf)atom1).getLeafIndex()], initialLatticePosition[((IAtomLeaf)atom0).getLeafIndex()]);
+			latticeDistance.Ev1Mv2(initialLatticePosition[((IAtom)atom1).getLeafIndex()], initialLatticePosition[((IAtom)atom0).getLeafIndex()]);
 			box.getBoundary().nearestImage(latticeDistance);
 			
 			sum += rdu*(dr.dot(latticeDistance))/distanceScalar;
@@ -76,7 +76,7 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 	
     private static final long serialVersionUID = 1L;
 	protected  double sum = 0.0;
-	public IAtomLeaf atom0, atom1;
+	public IAtom atom0, atom1;
 	protected IVectorMutable[] initialLatticePosition;
 	protected IVectorMutable latticeDistance, dr;
 	protected IBox box;

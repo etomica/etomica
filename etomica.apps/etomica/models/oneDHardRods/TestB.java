@@ -8,7 +8,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -121,7 +121,7 @@ public class TestB extends Simulation {
         IAtomList leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
         }
         
         MeterPotentialEnergy meterAinB = new MeterPotentialEnergy(potentialMaster);

@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 
 
 /**
@@ -14,7 +14,7 @@ public class AtomToIndexChild implements AtomToIndex, Serializable {
     /**
      * @throws NullPointerException if the atom is null.
      */
-    public int getIndex(IAtomLeaf atom) {
+    public int getIndex(IAtom atom) {
         return atom.getIndex();
     }
     

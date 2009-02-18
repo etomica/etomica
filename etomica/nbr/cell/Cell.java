@@ -1,6 +1,6 @@
 package etomica.nbr.cell;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.atom.AtomArrayList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
@@ -20,11 +20,11 @@ public class Cell implements java.io.Serializable {
         return occupants;
     }
     
-    public void addAtom(IAtomLeaf atom) {
+    public void addAtom(IAtom atom) {
         occupants.add(atom);
     }
     
-    public void removeAtom(IAtomLeaf atom) {
+    public void removeAtom(IAtom atom) {
         occupants.removeAndReplace(occupants.indexOf(atom));
     }
     

@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
@@ -14,9 +14,9 @@ import etomica.util.Debug;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class AtomLeaf implements IAtomLeaf, IAtomPositioned, java.io.Serializable {
+public class Atom implements IAtom, IAtomPositioned, java.io.Serializable {
 
-    public AtomLeaf(ISpace space, IAtomType type) {
+    public Atom(ISpace space, IAtomType type) {
         super();
         this.type = type;
         position = space.makeVector();
@@ -27,7 +27,7 @@ public class AtomLeaf implements IAtomLeaf, IAtomPositioned, java.io.Serializabl
      * node is for a leaf atom; type is a sphere with unit mass and unit size, 
      * unique to the new atom; depth is 0.
      */
-    public AtomLeaf(ISpace space) {
+    public Atom(ISpace space) {
         super();
         type = null;
         position = space.makeVector();

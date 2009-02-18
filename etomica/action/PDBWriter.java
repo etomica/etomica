@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.api.IAction;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
@@ -80,12 +80,12 @@ public class PDBWriter implements IAction, Serializable {
             int elementIndex = -1;
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = elementIterator.next();
-                if (thisElement.type == ((IAtomLeaf)atom).getType()) {
+                if (thisElement.type == ((IAtom)atom).getType()) {
                     elementIndex = thisElement.elementIndex;
                 }
             }
             if (elementIndex == -1) {
-                ElementLinker thisElement = new ElementLinker(elementCount,((IAtomLeaf)atom).getType());
+                ElementLinker thisElement = new ElementLinker(elementCount,((IAtom)atom).getType());
                 elementIndex = thisElement.elementIndex;
                 elementCount++;
                 elementAtomType.add(thisElement);

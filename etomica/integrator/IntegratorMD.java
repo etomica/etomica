@@ -2,7 +2,7 @@ package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxMoleculeAddedEvent;
@@ -203,7 +203,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
                     if (atomCount > 0) {
                         int index = random.nextInt(atomList.getAtomCount());
                         IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
-                        double m = ((IAtomLeaf)a).getType().getMass();
+                        double m = ((IAtom)a).getType().getMass();
                         currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
                         randomizeMomentum(a);
                         currentKineticEnergy += 0.5*m*a.getVelocity().squared();
@@ -242,7 +242,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        atomActionRandomizeVelocity.actionPerformed((IAtomLeaf)atom);
+        atomActionRandomizeVelocity.actionPerformed((IAtom)atom);
     }
     
     /**
@@ -256,7 +256,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
         if (nLeaf == 0) return;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomLeaf a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.getAtom(iLeaf);
                 double mass = a.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
@@ -266,7 +266,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                double rm = ((IAtomLeaf)a).getType().rm();
+                double rm = ((IAtom)a).getType().rm();
                 if (rm != 0) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
                 }
@@ -275,7 +275,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                    double mass = ((IAtomLeaf)a).getType().getMass();
+                    double mass = ((IAtom)a).getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
@@ -306,7 +306,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
             double sum = 0.0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
-                double mass = ((IAtomLeaf)atom).getType().getMass();
+                double mass = ((IAtom)atom).getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().x(i);
                 sum += mass*v*v;

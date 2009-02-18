@@ -4,12 +4,12 @@ package etomica.models.hexane;
  * Class to calculate the volume of a single hexane molecule
  */
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
@@ -87,7 +87,7 @@ public class HexaneVolumeFraction extends Simulation {
             IVectorMutable rand = sim.space.makeVector();
             AtomIteratorLeafAtoms ail = new AtomIteratorLeafAtoms(sim.box);
             ail.reset();
-            IAtomLeaf atom = new AtomLeaf(sim.getSpace());
+            IAtom atom = new Atom(sim.getSpace());
             
             time1 = System.currentTimeMillis();
             for(int count = 0; count < numberOfTests; count++){

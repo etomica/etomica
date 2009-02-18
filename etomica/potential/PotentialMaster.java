@@ -2,7 +2,7 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -59,7 +59,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IMolecule targetMolecule = id.getTargetMolecule();
-    	IAtomLeaf targetAtomLeaf = id.getTargetAtom();
+    	IAtom targetAtomLeaf = id.getTargetAtom();
     	if (targetAtomLeaf != null) {
     	    targetMolecule = targetAtomLeaf.getParentGroup();
     	}

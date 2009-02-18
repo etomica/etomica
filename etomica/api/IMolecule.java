@@ -22,13 +22,13 @@ public interface IMolecule {
      * should be parentless when this method is called.
      * @throws IllegalArgumentException if the given atom already has a parent.
      */
-    public void addChildAtom(IAtomLeaf newChildAtom);
+    public void addChildAtom(IAtom newChildAtom);
 
     /**
      * Removes the given child Atom from this AtomGroup.
      * @throws IllegalArgumentException if the given atom is not a child.
      */
-    public void removeChildAtom(IAtomLeaf oldChildAtom);
+    public void removeChildAtom(IAtom oldChildAtom);
 
     /**
      * @return the children as an AtomArrayList

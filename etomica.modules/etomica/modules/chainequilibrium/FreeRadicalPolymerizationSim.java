@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -101,12 +101,12 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         
         IMoleculeList initiators = box.getMoleculeList(speciesA);
         for (int i=0; i<initiators.getMoleculeCount(); i++) {
-            IAtomLeaf initiator0 = initiators.getMolecule(i).getChildList().getAtom(0);
-            IAtomLeaf[] bonds0 = (IAtomLeaf[])agentManager.getAgent(initiator0);
+            IAtom initiator0 = initiators.getMolecule(i).getChildList().getAtom(0);
+            IAtom[] bonds0 = (IAtom[])agentManager.getAgent(initiator0);
             if (i<initiators.getMoleculeCount()-1) {
                 i++;
-                IAtomLeaf initiator1 = initiators.getMolecule(i).getChildList().getAtom(0);
-                IAtomLeaf[] bonds1 = (IAtomLeaf[])agentManager.getAgent(initiator1);
+                IAtom initiator1 = initiators.getMolecule(i).getChildList().getAtom(0);
+                IAtom[] bonds1 = (IAtom[])agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
             }
@@ -117,28 +117,28 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         
         IMoleculeList monomers = box.getMoleculeList(speciesB);
         for (int i=0; i<monomers.getMoleculeCount(); i++) {
-            IAtomLeaf[] bonds = (IAtomLeaf[])agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
+            IAtom[] bonds = (IAtom[])agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
             bonds[0] = null;
             bonds[1] = null;
         }
     }
     
     public Class getAgentClass() {
-        return IAtomLeaf[].class;
+        return IAtom[].class;
     }
     
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(IAtomLeaf a) {
+	public Object makeAgent(IAtom a) {
 	    if (a.getType() == speciesB.getLeafType()) {
-	        return new IAtomLeaf[2]; // monomer
+	        return new IAtom[2]; // monomer
 	    }
-		return new IAtomLeaf[1]; // initiator
+		return new IAtom[1]; // initiator
 	}
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
     
     public AtomLeafAgentManager getAgentManager() {
     	return agentManager;

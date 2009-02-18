@@ -1,7 +1,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
@@ -17,7 +17,7 @@ public class ColorSchemeRandomByMolecule extends ColorScheme implements Molecule
         agentManager = new MoleculeAgentManager(sim, box, this);
     }
     
-    public Color getAtomColor(IAtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return (Color)agentManager.getAgent(a.getParentGroup());
     }
    

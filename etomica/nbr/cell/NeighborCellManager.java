@@ -1,6 +1,6 @@
 package etomica.nbr.cell;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
@@ -203,12 +203,12 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         IAtomList leafList = box.getLeafList();
         int count = leafList.getAtomCount();
         for (int i=0; i<count; i++) {
-            IAtomLeaf atom = leafList.getAtom(i);
+            IAtom atom = leafList.getAtom(i);
             assignCell(atom);
         }
     }
     
-    public Cell getCell(IAtomLeaf atom) {
+    public Cell getCell(IAtom atom) {
         return (Cell)agentManager.getAgent(atom);
     }
 
@@ -217,7 +217,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * cell's atom list and the cell with be associated with the atom via
      * agentManager.
      */
-    public void assignCell(IAtomLeaf atom) {
+    public void assignCell(IAtom atom) {
         Cell atomCell;
         if (doApplyPBC) {
             v.E(((IAtomPositioned)atom).getPosition());
@@ -243,7 +243,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Object makeAgent(IAtomLeaf atom) {
+    public Object makeAgent(IAtom atom) {
         IVectorMutable position = ((IAtomPositioned)atom).getPosition();
         v.E(position);
         if (doApplyPBC) {
@@ -260,7 +260,7 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Object cell, IAtomLeaf atom) {
+    public void releaseAgent(Object cell, IAtom atom) {
         ((Cell)cell).removeAtom(atom);
     }
     
@@ -279,13 +279,13 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
                 MCMove move = ((MCMoveEvent)evt).getMCMove();
                 AtomIterator iterator = move.affectedAtoms(box);
                 iterator.reset();
-                for (IAtomLeaf atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
+                for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                     updateCell(atom);
                 }
             }
         }
 
-        private void updateCell(IAtomLeaf atom) {
+        private void updateCell(IAtom atom) {
             IBoundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);

@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.space3d.Space3D;
@@ -24,8 +24,8 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
     
     public void setUp() {
         singletIterator = new AtomIteratorSinglet();
-        testAtom1 = new AtomLeaf(Space3D.getInstance());
-        testAtom2 = new AtomLeaf(Space3D.getInstance());
+        testAtom1 = new Atom(Space3D.getInstance());
+        testAtom2 = new Atom(Space3D.getInstance());
         list1 = makeTestList(new IAtomList[] {new AtomSetSinglet(testAtom1)});
         list2 = makeTestList(new IAtomList[] {new AtomSetSinglet(testAtom2)});
     }
@@ -52,7 +52,7 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorSinglet singletIterator;
-    private IAtomLeaf testAtom1, testAtom2;
+    private IAtom testAtom1, testAtom2;
     private LinkedList list1, list2;
 
 }

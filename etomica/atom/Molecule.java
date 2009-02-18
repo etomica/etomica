@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
@@ -35,7 +35,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
      * should be parentless when this method is called.
      * @throws IllegalArgumentException if the given atom already has a parent.
      */
-    public void addChildAtom(IAtomLeaf newChildAtom) {
+    public void addChildAtom(IAtom newChildAtom) {
         if(newChildAtom.getParentGroup() != null) {//new parent is null
             throw new IllegalArgumentException(newChildAtom+" is already the child of "+newChildAtom.getParentGroup());
         }
@@ -50,7 +50,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
      * Removes the given child Atom from this AtomGroup.
      * @throws IllegalArgumentException if the given atom is not a child.
      */
-    public void removeChildAtom(IAtomLeaf oldChildAtom) {
+    public void removeChildAtom(IAtom oldChildAtom) {
         for (int i=0; i<childList.getAtomCount(); i++) {
             if (childList.getAtom(i) == oldChildAtom) {
                 oldChildAtom.setParent(null);
@@ -59,7 +59,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
                 if (childList.getAtomCount() > i) {
                     // reassign the old last Atom (which is now in the removed
                     // Atom's place) to have the old Atom's index.
-                    ((IAtomLeaf)childList.getAtom(i)).setIndex(i);
+                    ((IAtom)childList.getAtom(i)).setIndex(i);
                 }
                 return;
             }

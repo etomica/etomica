@@ -2,7 +2,7 @@ package etomica.models.traPPE;
 
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
@@ -40,9 +40,9 @@ public class SpeciesMethanol extends Species {
          Molecule methanol = new Molecule(this);
          
          // The order in which the child atoms are added is important; it must match the site indices.
-         methanol.addChildAtom(new AtomLeaf(space, cH3Type));
-         methanol.addChildAtom(new AtomLeaf(space, oType));
-         methanol.addChildAtom(new AtomLeaf(space, hType));
+         methanol.addChildAtom(new Atom(space, cH3Type));
+         methanol.addChildAtom(new Atom(space, oType));
+         methanol.addChildAtom(new Atom(space, hType));
  
          conformation.initializePositions(methanol.getChildList());
          return methanol;

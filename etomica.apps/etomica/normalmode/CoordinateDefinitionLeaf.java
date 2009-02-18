@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
@@ -44,7 +44,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)atoms.getMolecule(i).getChildList().getAtom(0);
             IVectorMutable pos = a.getPosition();
-            IVectorMutable site = getLatticePosition((IAtomLeaf)a);
+            IVectorMutable site = getLatticePosition((IAtom)a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
                 u[j+k] = workVector.x(k);
@@ -70,7 +70,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
                 pos.setX(k, newU[j+k]);
             }
             j += workVector.getD();
-            pos.PE(getLatticePosition((IAtomLeaf)a));
+            pos.PE(getLatticePosition((IAtom)a));
         }
     }
 

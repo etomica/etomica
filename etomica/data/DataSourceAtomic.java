@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IData;
 
 
@@ -9,7 +9,7 @@ import etomica.api.IData;
  */
 public interface DataSourceAtomic {
     
-    public IData getData(IAtomLeaf a);
+    public IData getData(IAtom a);
     
     public IEtomicaDataInfo getAtomDataInfo();
     

@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -100,7 +100,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         box = b;
     }
     
-    public void setTargetAtom(IAtomLeaf targetAtom) {
+    public void setTargetAtom(IAtom targetAtom) {
         if (targetAtom == null) {
             divisor = 1;
             return;

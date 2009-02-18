@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 
 public class AtomFilterStatic implements AtomFilter, Serializable {
@@ -12,7 +12,7 @@ public class AtomFilterStatic implements AtomFilter, Serializable {
         rv = accept;
     }
 
-    public boolean accept(IAtomLeaf a) {return rv;}
+    public boolean accept(IAtom a) {return rv;}
 
     public boolean accept(IMolecule mole) {return rv;}
 
@@ -33,7 +33,7 @@ public class AtomFilterStatic implements AtomFilter, Serializable {
      * @return the singleton INSTANCE
      */
     private Object readResolve() {
-        if (this.accept((IAtomLeaf)null)) {
+        if (this.accept((IAtom)null)) {
             return ACCEPT_ALL;
         }
         return ACCEPT_NONE;

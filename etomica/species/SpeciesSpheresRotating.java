@@ -1,6 +1,6 @@
 package etomica.species;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAngular;
 import etomica.atom.AtomLeafAngularDynamic;
@@ -20,7 +20,7 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
         super(_space, sim.isDynamic(), new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0));
     }
 
-    protected IAtomLeaf makeLeafAtom() {
+    protected IAtom makeLeafAtom() {
         return isDynamic ? new AtomLeafAngularDynamic(space, leafAtomType)
                          : new AtomLeafAngular(space, leafAtomType);
     }

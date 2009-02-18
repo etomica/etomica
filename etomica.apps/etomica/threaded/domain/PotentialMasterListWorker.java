@@ -1,6 +1,6 @@
 package etomica.threaded.domain;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -62,7 +62,7 @@ public class PotentialMasterListWorker extends Thread {
            threadCalculate = System.currentTimeMillis(); 
            // Thread completes objective
            for(int i=0; i<threadList.getAtomCount(); i++){
-                IAtomLeaf a = threadList.getAtom(i);
+                IAtom a = threadList.getAtom(i);
                 calculate(a, id, pc);
             }
            threadCalculate = System.currentTimeMillis()-threadCalculate;
@@ -87,7 +87,7 @@ public class PotentialMasterListWorker extends Thread {
 	}
 	
 	
-	public void calculate(IAtomLeaf atom, IteratorDirective id, PotentialCalculation pc) {
+	public void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
 		
 	     IteratorDirective.Direction direction = id.direction();
 	     PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
@@ -136,12 +136,12 @@ public class PotentialMasterListWorker extends Thread {
                     // target's neighbors
                     IAtomList list = neighborManager.getUpList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtomLeaf otherAtom = list.getAtom(j);
+                        IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
                     list = neighborManager.getDownList(atom)[i];
                     for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtomLeaf otherAtom = list.getAtom(j);
+                        IAtom otherAtom = list.getAtom(j);
                         doNBodyStuff(otherAtom, pc, i, potentialThread);
                     }
                 }
@@ -150,7 +150,7 @@ public class PotentialMasterListWorker extends Thread {
         }//end of for
 	}
 	
-	protected void doNBodyStuff(IAtomLeaf atom, PotentialCalculation pc, int potentialIndex, IPotentialAtomic potential) {
+	protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex, IPotentialAtomic potential) {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);

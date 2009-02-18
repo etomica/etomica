@@ -2,7 +2,7 @@ package etomica.modules.droplet;
 
 import java.util.Random;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -33,7 +33,7 @@ public class AtomFilterLiquid implements AtomFilterCollective, AtomLeafAgentMana
         int nLeaf = leafList.getAtomCount();
         int nLiquid = 0;
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomLeaf atom = leafList.getAtom(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             int nbrs = nbrListManager.getUpList(atom)[0].getAtomCount() +
                        nbrListManager.getDownList(atom)[0].getAtomCount();
             nLiquid += nbrs > maxNbrsVapor ? 1 : 0;
@@ -44,7 +44,7 @@ public class AtomFilterLiquid implements AtomFilterCollective, AtomLeafAgentMana
         }
     }
     
-    public boolean accept(IAtomLeaf a) {
+    public boolean accept(IAtom a) {
         Boolean b = (Boolean)agentManager.getAgent(a);
         return b == null ? false : b;
     }
@@ -57,11 +57,11 @@ public class AtomFilterLiquid implements AtomFilterCollective, AtomLeafAgentMana
         return Boolean.class;
     }
 
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtomLeaf atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
     }
 
     private static final long serialVersionUID = 1L;

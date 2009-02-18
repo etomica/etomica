@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
@@ -77,7 +77,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         return Length.DIMENSION;
     }
 	
-	public boolean needUpdate(IAtomLeaf atom) {
+	public boolean needUpdate(IAtom atom) {
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
@@ -121,7 +121,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		return dr.squared() < neighborRadius2;
 	}
 	
-	public void reset(IAtomLeaf atom) {
+	public void reset(IAtom atom) {
         ((IVectorMutable)agentManager.getAgent(atom)).E(((IAtomPositioned)atom).getPosition());
 	}
 
@@ -129,11 +129,11 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         return dr.getClass();
     }
     
-    public Object makeAgent(IAtomLeaf atom) {
+    public Object makeAgent(IAtom atom) {
         return atom instanceof IAtomPositioned ? space.makeVector() : null;
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;

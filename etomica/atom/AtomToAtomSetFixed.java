@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 public class AtomToAtomSetFixed implements AtomToAtomLeafList, AtomToIndex, Serializable {
@@ -17,11 +17,11 @@ public class AtomToAtomSetFixed implements AtomToAtomLeafList, AtomToIndex, Seri
         atomArrayList = list;
     }
     
-    public IAtomList getAtomList(IAtomLeaf atom) {
+    public IAtomList getAtomList(IAtom atom) {
         return atomArrayList;
     }
     
-    public int getIndex(IAtomLeaf atom) {
+    public int getIndex(IAtom atom) {
         return atomArrayList.indexOf(atom);
     }
 

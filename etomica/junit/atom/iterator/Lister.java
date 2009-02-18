@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.action.AtomAction;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
@@ -29,7 +29,7 @@ class Lister implements AtomAction {
         list.clear();
     }
 
-	public void actionPerformed(IAtomLeaf atom) {
+	public void actionPerformed(IAtom atom) {
 		list.add(atom.toString());
 	}
 
@@ -56,7 +56,7 @@ class Lister implements AtomAction {
     public void addEachToList(AtomArrayList atomList) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(atomList);
         iterator.reset();
-        for (IAtomLeaf atom = iterator.nextAtom(); atom != null;
+        for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
             actionPerformed(new AtomSetSinglet(atom));
         }

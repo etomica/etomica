@@ -1,6 +1,6 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -47,7 +47,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         super.doStepInternal();
     }
     
-    public void updateAtom(IAtomLeaf a) {
+    public void updateAtom(IAtom a) {
         boolean isPistonPotential = colliderAgent == null ? false : 
                            (colliderAgent.collisionPotential == pistonPotential);
         // actually updates the atom
@@ -72,7 +72,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         IAtomList leafList = box.getLeafList();
         int nAtoms = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
-            IAtomLeaf atom1 = leafList.getAtom(iLeaf);
+            IAtom atom1 = leafList.getAtom(iLeaf);
             atomSetSinglet.atom = atom1;
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {

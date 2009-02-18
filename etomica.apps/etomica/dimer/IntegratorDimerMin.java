@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
@@ -491,8 +491,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent((IAtomLeaf)list.getAtom(i))).force());
-			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());
+			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent((IAtom)list.getAtom(i))).force());
+			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtom)listMin.getAtom(i))).force());
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -514,7 +514,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtomLeaf)listMin.getAtom(i))).force());
+            aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtom)listMin.getAtom(i))).force());
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }
@@ -551,11 +551,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		return IntegratorVelocityVerlet.MyAgent.class;
 	}
 
-	public Object makeAgent(IAtomLeaf a) {
+	public Object makeAgent(IAtom a) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(Object agent, IAtomLeaf atom) {
+	public void releaseAgent(Object agent, IAtom atom) {
 		// TODO Auto-generated method stub	
 	}
 	

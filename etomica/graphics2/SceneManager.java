@@ -1,7 +1,7 @@
 package etomica.graphics2;
 
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
@@ -85,7 +85,7 @@ public final class SceneManager {
         while (agentIterator.hasNext()) {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
             IAtomPositioned a = wrapper.atom;
-            int c = colorScheme.atomColor((IAtomLeaf)a);
+            int c = colorScheme.atomColor((IAtom)a);
             IVectorMutable r = a.getPosition();
 
             Renderable.Shape shp = wrapper.shape;
@@ -156,10 +156,10 @@ public final class SceneManager {
 		this.scale = scale;
 	}
 	
-	public IAtomLeaf[] getSelectedAtoms() {
+	public IAtom[] getSelectedAtoms() {
 		return selectedAtoms;
 	}
-	public void setSelectedAtoms(IAtomLeaf[] selectedAtoms) {
+	public void setSelectedAtoms(IAtom[] selectedAtoms) {
 		this.selectedAtoms = selectedAtoms;
 	}
 	
@@ -185,7 +185,7 @@ public final class SceneManager {
     protected IVectorMutable from, to;
     
     protected ColorScheme colorScheme;
-    protected IAtomLeaf[] selectedAtoms = new IAtomLeaf[1];
+    protected IAtom[] selectedAtoms = new IAtom[1];
     protected Renderable renderer;
     
     private AtomLeafAgentManager agentManager;
@@ -225,7 +225,7 @@ public final class SceneManager {
             return SphereShapeWrapper.class;
         }
         
-        public Object makeAgent(IAtomLeaf a) {
+        public Object makeAgent(IAtom a) {
             if (!(a.getType() instanceof IAtomTypeSphere)) {
                 return null;
             }
@@ -242,7 +242,7 @@ public final class SceneManager {
             return wrapper;
         }
         
-        public void releaseAgent(Object agent, IAtomLeaf atom) {
+        public void releaseAgent(Object agent, IAtom atom) {
             ((SphereShapeWrapper)agent).shape.dispose();
         }
         

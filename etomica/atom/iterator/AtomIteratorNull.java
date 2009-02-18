@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 
 /**
@@ -16,7 +16,7 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
     
     public IAtomList next() {return null;}
 
-    public IAtomLeaf nextAtom() {return null;}
+    public IAtom nextAtom() {return null;}
 
     public void reset() {}
 

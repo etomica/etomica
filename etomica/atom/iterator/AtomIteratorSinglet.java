@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.atom.AtomSetSinglet;
 
@@ -28,7 +28,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomIteratorSinglet(IAtomLeaf a) {
+    public AtomIteratorSinglet(IAtom a) {
         this();
         setAtom(a);
     }
@@ -38,7 +38,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * Call to reset() must be performed before beginning iteration.
      * If atom is null, hasNext will remain false on reset.
      */
-    public void setAtom(IAtomLeaf a) {
+    public void setAtom(IAtom a) {
     	atom = a;
     	unset();
     }
@@ -46,7 +46,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * @return the atom given by this iterator as its single iterate
      */
-    public IAtomLeaf getAtom() {
+    public IAtom getAtom() {
         return atom;
     }
     
@@ -70,7 +70,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public IAtomLeaf nextAtom() {
+    public IAtom nextAtom() {
     	if (!hasNext) return null;
     	hasNext = false;
     	return atom;
@@ -86,6 +86,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     
     private static final long serialVersionUID = 1L;
     private boolean hasNext = false;
-    private IAtomLeaf atom;
+    private IAtom atom;
     protected final AtomSetSinglet atomSetSinglet;
 }

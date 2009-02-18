@@ -3,7 +3,7 @@ package etomica.modules.droplet;
 import java.io.Serializable;
 
 import etomica.api.IAtomKinetic;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -102,7 +102,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             agent.r0.E(((IAtomPositioned)a).getPosition());
             agent.rp.E(((IAtomPositioned)a).getPosition());
         }
@@ -111,7 +111,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = ((IAtomPositioned)a).getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
@@ -128,7 +128,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = ((IAtomPositioned)a).getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
@@ -145,7 +145,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             IVectorMutable r = ((IAtomPositioned)a).getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(timeStep, a.getVelocity());
@@ -162,7 +162,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
             agent.rp.PEa1Tv1(timeStep/6.0, a.getVelocity());
             ((IAtomPositioned)a).getPosition().E(agent.rp);
 //            if (((IAtomPositioned)a).getPosition().isNaN()) {
@@ -198,13 +198,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
             IVectorMutable v = a.getVelocity();
             dr.E(0);
             stokeslet(sp);
-            MyAgent iAgent = (MyAgent)agentManager.getAgent((IAtomLeaf)a);
+            MyAgent iAgent = (MyAgent)agentManager.getAgent((IAtom)a);
             dr.Ea1Tv1(dv,iAgent.force);
             workTensor.transform(dr);
             v.PE(dr);
             for (int jLeaf=iLeaf+1; jLeaf<nLeaf; jLeaf++) {
                 IAtomKinetic aj = (IAtomKinetic)leafList.getAtom(jLeaf);
-                MyAgent jAgent = (MyAgent)agentManager.getAgent((IAtomLeaf)aj);
+                MyAgent jAgent = (MyAgent)agentManager.getAgent((IAtom)aj);
                 dr.Ev1Mv2(a.getPosition(),aj.getPosition());
                 stokeslet(sp);
                 // reuse as tensor * f
@@ -284,11 +284,11 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         return MyAgent.class;
     }
 
-    public final Object makeAgent(IAtomLeaf a) {
+    public final Object makeAgent(IAtom a) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

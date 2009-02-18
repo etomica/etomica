@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
@@ -25,7 +25,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     }
     
     protected void drawAtom(Graphics g, int origin[], IAtomPositioned atom) {
-        AtomSite site = neighborSiteManager.getSite((IAtomLeaf)atom);
+        AtomSite site = neighborSiteManager.getSite((IAtom)atom);
         if (site == null) return;
         RectangularLattice lattice = neighborSiteManager.getLattice();
         lattice.latticeIndex(site.getLatticeArrayIndex(),latticeIndex);

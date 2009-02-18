@@ -8,7 +8,7 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -114,7 +114,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         IAtomList leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
         }
     }
     
@@ -204,7 +204,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
       double sum = 0.0;
       for(int i = 0; i < numAtoms; i++){
           //one d is assumed here.
-          sim.locations[i] = ( ((AtomLeaf)leaflist.getAtom(i)).getPosition().x(0) );
+          sim.locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
           System.out.println(sim.locations[i]);
           sum += sim.locations[i];
       }

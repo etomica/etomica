@@ -2,7 +2,7 @@ package etomica.potential;
 
 import java.util.ArrayList;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
@@ -38,7 +38,7 @@ public class PotentialMasterLrc {
      */
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
-        IAtomLeaf targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
 
         if (pc instanceof PotentialCalculationMolecular && (targetMolecule != null)) {

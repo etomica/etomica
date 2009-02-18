@@ -2,7 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -66,12 +66,12 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         return AtomTag.class;
     }
     
-    public Object makeAgent(IAtomLeaf a) {
+    public Object makeAgent(IAtom a) {
         return new AtomTag();
     }
     
     // does nothing
-    public void releaseAgent(Object agent, IAtomLeaf atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
@@ -91,7 +91,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
 
         int totalAtoms = 0;
         for (int i=0; i<nLeaf; i++) {
-            IAtomLeaf a = leafList.getAtom(i);
+            IAtom a = leafList.getAtom(i);
             if (a.getType() == ignoredAtomType) continue;
             // if an Atom is tagged, it was already counted as part of 
             // another chain
@@ -130,11 +130,11 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         return 1;
     }
 
-    protected int recursiveTag(IAtomLeaf a) {
+    protected int recursiveTag(IAtom a) {
         if (a.getType() == ignoredAtomType) return 0;
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
-        IAtomLeaf[] nbrs = (IAtomLeaf[])agentManager.getAgent(a);
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 
         int ctr = 1;
         

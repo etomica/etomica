@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtomLeaf;
+import etomica.api.IAtom;
 import etomica.api.IMoleculeList;
 
 /**
@@ -29,6 +29,6 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
      * Returns true if the iterator with its current basis 
      * would return an iterate for the given target.
      */
-    public boolean haveTarget(IAtomLeaf target);
+    public boolean haveTarget(IAtom target);
 
 }
