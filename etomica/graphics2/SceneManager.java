@@ -1,14 +1,13 @@
 package etomica.graphics2;
 
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomLeafAgentManager;
@@ -157,10 +156,10 @@ public final class SceneManager {
 		this.scale = scale;
 	}
 	
-	public IAtom[] getSelectedAtoms() {
+	public IAtomLeaf[] getSelectedAtoms() {
 		return selectedAtoms;
 	}
-	public void setSelectedAtoms(IAtom[] selectedAtoms) {
+	public void setSelectedAtoms(IAtomLeaf[] selectedAtoms) {
 		this.selectedAtoms = selectedAtoms;
 	}
 	
@@ -186,7 +185,7 @@ public final class SceneManager {
     protected IVectorMutable from, to;
     
     protected ColorScheme colorScheme;
-    protected IAtom[] selectedAtoms = new IAtom[1];
+    protected IAtomLeaf[] selectedAtoms = new IAtomLeaf[1];
     protected Renderable renderer;
     
     private AtomLeafAgentManager agentManager;

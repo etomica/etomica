@@ -2,7 +2,6 @@ package etomica.potential;
 
 import java.util.ArrayList;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -39,13 +38,15 @@ public class PotentialMasterLrc {
      */
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
-        IAtom targetAtom = id.getTargetAtom();
-        if (pc instanceof PotentialCalculationMolecular && !(targetAtom instanceof IAtomLeaf)) {
+        IAtomLeaf targetAtom = id.getTargetAtom();
+        IMolecule targetMolecule = id.getTargetMolecule();
+
+        if (pc instanceof PotentialCalculationMolecular && (targetMolecule != null)) {
             int numMolecularPotentials = molecularPotentials.size();
             for (int i=0; i<numMolecularPotentials; i++) {
                 final IPotentialMolecular potential = molecularPotentials.get(i);
                 potential.setBox(box);
-                ((IPotential0MoleculeLrc)potential).setTargetMolecule((IMolecule)targetAtom);
+                ((IPotential0MoleculeLrc)potential).setTargetMolecule(targetMolecule);
                 ((PotentialCalculationMolecular)pc).doCalculation(list0, potential);
             }
         }
@@ -53,11 +54,11 @@ public class PotentialMasterLrc {
         for (int i=0; i<numAtomicPotentials; i++) {
             final IPotentialAtomic potential = atomicPotentials.get(i);
             potential.setBox(box);
-            if (targetAtom instanceof IMolecule) {
-                ((IPotential0Lrc)potential).setTargetMolecule((IMolecule)targetAtom);
+            if (targetMolecule != null) {
+                ((IPotential0Lrc)potential).setTargetMolecule(targetMolecule);
             }
             else {
-                ((IPotential0Lrc)potential).setTargetAtom((IAtomLeaf)targetAtom);
+                ((IPotential0Lrc)potential).setTargetAtom(targetAtom);
             }
             pc.doCalculation(listLeaf0, potential);
         }

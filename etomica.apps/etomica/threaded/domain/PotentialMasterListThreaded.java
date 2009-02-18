@@ -1,6 +1,5 @@
 package etomica.threaded.domain;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
@@ -59,10 +58,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        IAtom targetAtom = id.getTargetAtom();
+        IAtomLeaf targetAtom = id.getTargetAtom();
+        IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
 
-        if (targetAtom == null) {
+        if (targetAtom == null && targetMolecule == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
@@ -83,28 +83,28 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            if (targetAtom instanceof IAtomLeaf) {
-                IMolecule molecule = ((IAtomLeaf)targetAtom).getParentGroup();
+            if (targetAtom != null) {
+                IMolecule molecule = targetAtom.getParentGroup();
                 PotentialArray potentialArray = getIntraPotentials(molecule.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
-                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id.direction(),(IAtomLeaf)targetAtom,pc);
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id.direction(),targetAtom,pc);
                 }
-                potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
+                potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
                 potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IAtomLeaf)targetAtom, id.direction(), pc, neighborManager);
+                calculate(targetAtom, id.direction(), pc, neighborManager);
             }
             else {
-                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(((IAtomLeaf)targetAtom).getType());
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                 }
-                calculate((IMolecule)targetAtom, id.direction(), pc, neighborManager);
+                calculate(targetMolecule, id.direction(), pc, neighborManager);
             }
         }
        

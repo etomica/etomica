@@ -1,6 +1,5 @@
 package etomica.modules.reactionequilibrium;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;

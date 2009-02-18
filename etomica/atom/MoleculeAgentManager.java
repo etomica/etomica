@@ -3,11 +3,9 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.api.IBoxAtomAddedEvent;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomRemovedEvent;
+import etomica.api.IBoxMoleculeAddedEvent;
+import etomica.api.IBoxMoleculeRemovedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
@@ -135,31 +133,30 @@ public class MoleculeAgentManager implements IListener, Serializable {
     }
     
     public void actionPerformed(IEvent evt) {
-        if (evt instanceof IBoxAtomEvent) {
-            IAtom a = ((IBoxAtomEvent)evt).getAtom();
-            if (evt instanceof IBoxAtomAddedEvent && a instanceof IMolecule) {
-                addAgent((IMolecule)a);
+
+        if (evt instanceof IBoxMoleculeAddedEvent) {
+            IMolecule mole = ((IBoxMoleculeAddedEvent)evt).getMolecule();
+            addAgent(mole);
+        }
+        else if (evt instanceof IBoxMoleculeRemovedEvent) {
+            IMolecule mole = ((IBoxMoleculeRemovedEvent)evt).getMolecule();
+            int index = mole.getIndex();
+            int typeIndex = mole.getType().getIndex();
+            Object[] speciesAgents = agents[typeIndex];
+            if (speciesAgents[index] != null) {
+                // Atom used to have an agent.  nuke it.
+                agentSource.releaseAgent(speciesAgents[index], mole);
+                speciesAgents[index] = null;
             }
-            else if (evt instanceof IBoxAtomRemovedEvent) {
-                if (a instanceof IMolecule) {
-                    int index = ((IMolecule)a).getIndex();
-                    int typeIndex = ((IMolecule)a).getType().getIndex();
-                    Object[] speciesAgents = agents[typeIndex];
-                    if (speciesAgents[index] != null) {
-                        // Atom used to have an agent.  nuke it.
-                        agentSource.releaseAgent(speciesAgents[index], (IMolecule)a);
-                        speciesAgents[index] = null;
-                    }
-                }
-            }
-            else if (evt instanceof BoxMoleculeIndexChangedEvent) {
-                // the atom's index changed.  assume it would get the same agent
-                int oldIndex = ((BoxMoleculeIndexChangedEvent)evt).getOldIndex();
-                int typeIndex = ((IMolecule)a).getType().getIndex();
-                Object[] speciesAgents = agents[typeIndex];
-                speciesAgents[((IMolecule)a).getIndex()] = speciesAgents[oldIndex];
-                speciesAgents[oldIndex] = null;
-            }
+        }
+        else if (evt instanceof BoxMoleculeIndexChangedEvent) {
+            IMolecule mole = ((BoxMoleculeIndexChangedEvent)evt).getMolecule();
+            // the atom's index changed.  assume it would get the same agent
+            int oldIndex = ((BoxMoleculeIndexChangedEvent)evt).getOldIndex();
+            int typeIndex = mole.getType().getIndex();
+            Object[] speciesAgents = agents[typeIndex];
+            speciesAgents[mole.getIndex()] = speciesAgents[oldIndex];
+            speciesAgents[oldIndex] = null;
         }
         else if (evt instanceof BoxNumMoleculesEvent) {
             int speciesIndex = ((BoxNumMoleculesEvent)evt).getSpecies().getIndex();

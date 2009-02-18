@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
+import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.util.EnumeratedType;
 
@@ -19,11 +20,17 @@ public final class IteratorDirective implements java.io.Serializable {
     public IteratorDirective(Direction direction) {
         setDirection(direction);
     }
-    public IteratorDirective(Direction direction, IAtom atom) {
+    public IteratorDirective(Direction direction, IAtomLeaf atom) {
         this(direction);
         targetAtom = atom;
+        targetMolecule = null;
     }
-    
+    public IteratorDirective(Direction direction, IMolecule mole) {
+        this(direction);
+        targetAtom = null;
+        targetMolecule = mole;
+    }
+
     /**
      * Puts directive in default state of no atoms specified, up direction, no
      * potential criteria applied, no LRC included.
@@ -31,6 +38,7 @@ public final class IteratorDirective implements java.io.Serializable {
     public void clear() {
         setDirection(Direction.UP);
         targetAtom = null;
+        targetMolecule = null;
         potentialCriteriaHead = null;
         includeLrc = false;
     }
@@ -58,12 +66,20 @@ public final class IteratorDirective implements java.io.Serializable {
         newCriterion.setNextCriterion(potentialCriteriaHead);
         potentialCriteriaHead = newCriterion;
     }
-    
-    public void setTargetAtom(IAtom atoms) {
-        targetAtom = atoms;
+
+    public void setTargetAtom(IAtomLeaf atom) {
+        targetAtom = atom;
+        targetMolecule = null;
     }
-    public IAtom getTargetAtom() {return targetAtom;}
-    
+
+    public void setTargetMolecule(IMolecule mole) {
+        targetMolecule = mole;
+        targetAtom = null;
+    }
+
+    public IAtomLeaf getTargetAtom() {return targetAtom;}
+    public IMolecule getTargetMolecule() {return targetMolecule;}
+
     private static final long serialVersionUID = 1L;
     /**
      * Flag indicating whether long-range correction contributions should
@@ -72,7 +88,8 @@ public final class IteratorDirective implements java.io.Serializable {
     public boolean includeLrc = true;
     private Direction direction;
     PotentialCriterion potentialCriteriaHead;
-    public IAtom targetAtom = null;
+    private IAtomLeaf targetAtom = null;
+    private IMolecule targetMolecule = null;
     
     //IteratorDirective.Direction
     public static final class Direction extends EnumeratedType {

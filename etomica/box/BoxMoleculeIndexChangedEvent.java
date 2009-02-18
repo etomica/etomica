@@ -7,10 +7,10 @@ import etomica.api.IMolecule;
 /**
  * Event that conveys that an Atom's global index in a box has changed.
  */
-public class BoxMoleculeIndexChangedEvent extends BoxAtomEvent {
+public class BoxMoleculeIndexChangedEvent extends BoxMoleculeEvent {
 
-    public BoxMoleculeIndexChangedEvent(IBox box, IMolecule atom, int oldIndex) {
-        super(box, atom);
+    public BoxMoleculeIndexChangedEvent(IBox box, IMolecule mole, int oldIndex) {
+        super(box, mole);
         this.oldIndex = oldIndex;
     }
     

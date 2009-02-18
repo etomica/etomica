@@ -209,13 +209,13 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtomLeaf a = leafList.getAtom(iLeaf);
             if(atomFilter != null && atomFilter.accept(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
-            	drawAtom(g, origin, a);
+            	drawAtom(g, origin, (IAtomPositioned)a);
             }
             else {
-                drawAtom(g, atomOrigin, a);
+                drawAtom(g, atomOrigin, (IAtomPositioned)a);
             }
         }
             

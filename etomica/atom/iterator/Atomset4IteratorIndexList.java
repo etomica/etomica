@@ -1,7 +1,5 @@
 package etomica.atom.iterator;
 
-
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;

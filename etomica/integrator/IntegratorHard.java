@@ -333,6 +333,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      * collision with the atom)
      */
     protected void updateAtom(IAtomLeaf a) {
+        Agent agent = (Agent)agentManager.getAgent(a);
+        if(agent == null) return;
 
         listToUpdate.clear();
 
@@ -340,7 +342,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
         potentialMaster.calculate(box, downList, reverseCollisionHandler);
         processReverseList();
 
-        Agent agent = (Agent)agentManager.getAgent(a);
         if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }

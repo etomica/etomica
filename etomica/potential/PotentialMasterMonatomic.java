@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
@@ -84,16 +83,17 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
 
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        IAtom targetAtom = id.getTargetAtom();
+        IAtomLeaf targetAtom = id.getTargetAtom();
+        IMolecule targetMolecule = id.getTargetMolecule();
 
         IAtomList leafList = box.getLeafList();
-        if (targetAtom != null) {
+        if (targetAtom != null || targetMolecule != null) {
             IAtomLeaf leafAtom = null;
-            if (targetAtom instanceof IMolecule) {
-                leafAtom = ((IMolecule)targetAtom).getChildList().getAtom(0);
+            if (targetMolecule instanceof IMolecule) {
+                leafAtom = targetMolecule.getChildList().getAtom(0);
             }
             else {
-                leafAtom = (IAtomLeaf)targetAtom;
+                leafAtom = targetAtom;
             }
             final int targetIndex = leafAtom.getLeafIndex();
             final PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(leafAtom.getType());

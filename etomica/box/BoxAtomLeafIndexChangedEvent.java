@@ -1,6 +1,6 @@
 package etomica.box;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomLeafIndexChangedEvent;
 
@@ -10,7 +10,7 @@ import etomica.api.IBoxAtomLeafIndexChangedEvent;
  */
 public class BoxAtomLeafIndexChangedEvent extends BoxAtomEvent implements IBoxAtomLeafIndexChangedEvent {
 
-    public BoxAtomLeafIndexChangedEvent(IBox box, IAtom atom, int oldIndex) {
+    public BoxAtomLeafIndexChangedEvent(IBox box, IAtomLeaf atom, int oldIndex) {
         super(box, atom);
         this.oldIndex = oldIndex;
     }

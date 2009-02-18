@@ -2,10 +2,10 @@ package etomica.modules.droplet;
 
 import java.util.Random;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.nbr.list.NeighborListManager;
@@ -44,9 +44,13 @@ public class AtomFilterLiquid implements AtomFilterCollective, AtomLeafAgentMana
         }
     }
     
-    public boolean accept(IAtom a) {
-        Boolean b = (Boolean)agentManager.getAgent((IAtomLeaf)a);
+    public boolean accept(IAtomLeaf a) {
+        Boolean b = (Boolean)agentManager.getAgent(a);
         return b == null ? false : b;
+    }
+
+    public boolean accept(IMolecule mole) {
+        return false;
     }
 
     public Class getAgentClass() {

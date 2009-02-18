@@ -15,8 +15,8 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
@@ -242,13 +242,13 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-		    IAtomPositioned a = null;
+		    IAtomLeaf a = null;
 		    Ball ball = null;
 		    try {
-		        a = (IAtomPositioned) leafList.getAtom(iLeaf);
-	            if (a == null || !(((IAtomLeaf)a).getType() instanceof IAtomTypeSphere))
+		        a = leafList.getAtom(iLeaf);
+	            if (a == null || !(a.getType() instanceof IAtomTypeSphere))
 	                continue;
-	            ball = (Ball) aam.getAgent((IAtomLeaf)a);
+	            ball = (Ball) aam.getAgent(a);
 		    }
 		    catch (ArrayIndexOutOfBoundsException e) {
 		        System.out.println("oops, array index out of bounds");
@@ -275,10 +275,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			if (!drawable) {
 				continue;
 			}
-			a.getPosition().assignTo(coords);
-			float diameter = (float) ((IAtomTypeSphere) ((IAtomLeaf)a).getType())
+			((IAtomPositioned)a).getPosition().assignTo(coords);
+			float diameter = (float) ((IAtomTypeSphere) a.getType())
 					.getDiameter();
-			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor((IAtomLeaf)a)));
+			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
 			ball.setD(diameter);
 			ball.setX((float) coords[0]);
 			ball.setY((float) coords[1]);

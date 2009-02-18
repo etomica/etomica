@@ -1,9 +1,9 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 
@@ -83,8 +83,12 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         chainLengthManager = new AtomLeafAgentManager(this,box);
     }
 
-    public boolean accept(IAtom a) {
+    public boolean accept(IAtomLeaf a) {
         return ((LengthAgent)chainLengthManager.getAgent((IAtomLeaf)a)).chainLength == maxChainLength;
+    }
+
+    public boolean accept(IMolecule mole) {
+        return false;
     }
 
     private static final long serialVersionUID = 1L;

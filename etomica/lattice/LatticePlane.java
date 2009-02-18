@@ -1,9 +1,10 @@
 package etomica.lattice;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
+import etomica.api.IMolecule;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
@@ -39,8 +40,12 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         setMillerIndices(h);
     }
     
-    public boolean accept(IAtom a) {
+    public boolean accept(IAtomLeaf a) {
         return !plane.isPositiveSide(((IAtomPositioned)a).getPosition());
+    }
+
+    public boolean accept(IMolecule mole) {
+        return false;
     }
 
     public void setTolerance(double tolerance) {

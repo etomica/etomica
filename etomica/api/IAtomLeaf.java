@@ -1,7 +1,7 @@
 package etomica.api;
 
 
-public interface IAtomLeaf extends IAtom {
+public interface IAtomLeaf {
 
     /**
      * Returns this IAtom's index, which is its place in the parent AtomGroup's

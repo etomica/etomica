@@ -110,7 +110,7 @@ public class Box implements java.io.Serializable, IBox {
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
-        eventManager.fireEvent(new BoxAtomAddedEvent(this, molecule));
+        eventManager.fireEvent(new BoxMoleculeAddedEvent(this, molecule));
 
         if (Debug.ON) {
             for (int i=0; i<moleculeLists[speciesIndex].getMoleculeCount(); i++) {
@@ -139,7 +139,7 @@ public class Box implements java.io.Serializable, IBox {
         }
         allMoleculeList.setMoleculeLists(moleculeLists);
 
-        eventManager.fireEvent(new BoxAtomRemovedEvent(this, molecule));
+        eventManager.fireEvent(new BoxMoleculeRemovedEvent(this, molecule));
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
             IAtomLeaf childAtom = childList.getAtom(iChild);

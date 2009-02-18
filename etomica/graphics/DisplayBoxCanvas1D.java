@@ -189,9 +189,9 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtomLeaf a = leafList.getAtom(iLeaf);
             if(atomFilter != null && atomFilter.accept(a)) continue;
-            drawAtom(g, atomOrigin, a);
+            drawAtom(g, atomOrigin, (IAtomPositioned)a);
         }
             
         //Draw overflow images if so indicated

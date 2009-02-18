@@ -4,7 +4,7 @@ package etomica.api;
 /**
  * Interface for a group of IAtoms, typically a molecule or a SpeciesAgent.
  */
-public interface IMolecule extends IAtom {
+public interface IMolecule {
 
     /**
      * Returns this IAtom's index, which is its place in the parent AtomGroup's

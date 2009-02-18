@@ -1,7 +1,6 @@
 package etomica.modules.materialfracture;
 import java.awt.Color;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.ISimulation;

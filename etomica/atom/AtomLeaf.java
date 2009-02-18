@@ -14,7 +14,7 @@ import etomica.util.Debug;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
+public class AtomLeaf implements IAtomLeaf, IAtomPositioned, java.io.Serializable {
 
     public AtomLeaf(ISpace space, IAtomType type) {
         super();
@@ -41,10 +41,9 @@ public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
      */
     public String signature() {
         if(parent != null) {
-            if (parent instanceof Atom) {
-                return ((Atom)parent).signature() + " " + getIndex();
+            if(parent instanceof Molecule) {
+                return ((Molecule)parent).signature() + " " + getIndex();
             }
-            return parent.toString() + " " + getIndex();
         }
         return Integer.toString(getIndex());
     }

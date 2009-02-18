@@ -1,6 +1,6 @@
 package etomica.box;
 
-import etomica.api.IAtom;
+import etomica.api.IAtomLeaf;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomEvent;
 
@@ -9,7 +9,7 @@ import etomica.api.IBoxAtomEvent;
  */
 public class BoxAtomEvent extends BoxEvent implements IBoxAtomEvent {
     
-    public BoxAtomEvent(IBox box, IAtom atom) {
+    public BoxAtomEvent(IBox box, IAtomLeaf atom) {
         super(box);
         this.atom = atom;
     }
@@ -17,10 +17,10 @@ public class BoxAtomEvent extends BoxEvent implements IBoxAtomEvent {
     /* (non-Javadoc)
      * @see etomica.box.IBoxAtomEvent#getAtom()
      */
-    public IAtom getAtom() {
+    public IAtomLeaf getAtom() {
         return atom;
     }
     
-    private final IAtom atom;
+    private final IAtomLeaf atom;
     private static final long serialVersionUID = 1L;
 }

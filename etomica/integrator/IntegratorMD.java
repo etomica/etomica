@@ -1,22 +1,21 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IBoxAtomAddedEvent;
+import etomica.api.IBoxMoleculeAddedEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
+import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.box.BoxAtomAddedEvent;
+import etomica.box.BoxMoleculeAddedEvent;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Time;
@@ -370,10 +369,11 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     }
     
     public void actionPerformed(IEvent event) {
-        if (event instanceof IBoxAtomAddedEvent) {
-            IAtom atom = ((BoxAtomAddedEvent)event).getAtom();
-            if (atom instanceof IAtomKinetic) {
-                randomizeMomentum((IAtomKinetic)atom);
+        if (event instanceof IBoxMoleculeAddedEvent) {
+            IMolecule mole = ((IBoxMoleculeAddedEvent)event).getMolecule();
+            IAtomList atomList = mole.getChildList();
+            for(int i = 0; i < atomList.getAtomCount(); i++) {
+                randomizeMomentum((IAtomKinetic)atomList.getAtom(i));
             }
         }
     }

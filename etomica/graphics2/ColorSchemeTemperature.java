@@ -1,7 +1,6 @@
 //includes a main method to demonstrate use and to test
 package etomica.graphics2;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomLeaf;
 import etomica.units.Dimension;

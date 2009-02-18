@@ -5,7 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 
-public class Molecule extends Atom implements IMolecule {
+public class Molecule implements IMolecule, java.io.Serializable {
 
     public Molecule(ISpecies species) {
         this.species = species;
