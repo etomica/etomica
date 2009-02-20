@@ -16,8 +16,8 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTableWriter;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -98,7 +98,7 @@ public class SimUmbrella extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space);
@@ -124,7 +124,7 @@ public class SimUmbrella extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         
-        MCMoveAtomCoupledUmbrella move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(), 
+        move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(), 
         		coordinateDefinition, normalModes, getRefPref(), space);
         move.setTemperature(temperature);
         move.setLatticeEnergy(latticeEnergy);
@@ -187,10 +187,9 @@ public class SimUmbrella extends Simulation {
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
-      // Umbrella Sampling ---> Harmonic
-        final MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+      // Work Umbrella Sampling ---> Harmonic
+        final MeterWorkUmbrellaHarmonic meterWorkUmbrellaHarmonic = new MeterWorkUmbrellaHarmonic(sim.integrator, sim.move);
         meterWorkUmbrellaHarmonic.setRefPref(sim.refPref);
-        meterWorkUmbrellaHarmonic.setLatticeEnergy(sim.latticeEnergy);
         workMeters[0] = meterWorkUmbrellaHarmonic;
         
         DataFork dataForkHarmonic = new DataFork();
@@ -205,10 +204,9 @@ public class SimUmbrella extends Simulation {
         final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramExpanding(1, new DoubleRange(0,1)));
         dataForkHarmonic.addDataSink(histogramHarmonic);
         
-      // Umbrella Sampling ---> Target
-        final MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+      // Work Umbrella Sampling ---> Target
+        final MeterWorkUmbrellaTarget meterWorkUmbrellaTarget = new MeterWorkUmbrellaTarget(sim.integrator, sim.move);
         meterWorkUmbrellaTarget.setRefPref(sim.refPref);
-        meterWorkUmbrellaTarget.setLatticeEnergy(sim.latticeEnergy);
         workMeters[1] = meterWorkUmbrellaTarget;
         
         DataFork dataForkTarget = new DataFork();
@@ -217,7 +215,7 @@ public class SimUmbrella extends Simulation {
         final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
         dataForkTarget.addDataSink(dataAverageTarget);
         sim.integrator.addIntervalAction(pumpTarget);
-        sim.integrator.setActionInterval(pumpTarget, numAtoms*2);
+        sim.integrator.setActionInterval(pumpTarget, 1);
         
         //Histogram Target
         final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramExpanding(1,new DoubleRange(0,1)));
@@ -227,11 +225,10 @@ public class SimUmbrella extends Simulation {
          * 
          */
         
-        // Harmonic Sampling
+        // Umbrella Sampling --> Harmonic System
         
-        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
         meterSamplingHarmonic.setRefPref(sim.refPref);
-        meterSamplingHarmonic.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[0] = meterSamplingHarmonic;
         
         final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
@@ -239,11 +236,10 @@ public class SimUmbrella extends Simulation {
         sim.integrator.addIntervalAction(pumpSamplingHarmonic);
         sim.integrator.setActionInterval(pumpSamplingHarmonic, 1);
         
-        // Target Sampling
+        // Umbrella Sampling --> Target System
         
-        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
         meterSamplingTarget.setRefPref(sim.refPref);
-        meterSamplingTarget.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[1] = meterSamplingTarget;
         
         final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
@@ -448,16 +444,17 @@ public class SimUmbrella extends Simulation {
     public MeterHarmonicEnergy meterHarmonicEnergy;
     public MeterPotentialEnergy meterEnergy;
     public double refPref;
+    public MCMoveAtomCoupledUmbrella move;
     
     public static class SimBennetParam extends ParameterBase {
-    	public int numMolecules = 32;
+    	public int numMolecules = 108;
     	public double density = 1256;
     	public int exponentN = 12;
     	public int D = 3;
-    	public long numSteps = 2000000;
+    	public long numSteps = 1000000;
     	public double harmonicFudge =1;
-    	public String filename = "CB_FCC_n12_T01";
-    	public double temperature = 0.1;
+    	public String filename = "CB_FCC_n12_T07";
+    	public double temperature = 0.7;
     }
 
 }

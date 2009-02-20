@@ -35,6 +35,7 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
     protected final IVectorRandom translationVector;
     protected IAtom atom0, atom1;
     protected double uOld, uNew;
+    protected double uHarmonicOld, uHarmonicNew;
     protected double gamma_Old, gamma_New;
     protected AtomSource atomSource;
     protected final IRandom random;
@@ -69,6 +70,9 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         affectedAtomList = new AtomArrayList(2);
         affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         pair = new AtomPair();
+        
+        uOld = -1;
+        uHarmonicOld = -1;
     }
     
     /**
@@ -79,13 +83,16 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         atom1 = atomSource.getAtom();
         if (atom0 == null || atom1 == null || atom0 == atom1) return false;
        
-        uOld = energyMeter.getDataAsScalar() - latticeEnergy;
-        double exp_uOld = Math.exp(-uOld /temperature);
-        double exp_uOldHarmonic = Math.exp(-harmonicEnergyMeter.getDataAsScalar() /temperature);
-        double exp_2uOld = exp_uOld*exp_uOld;
-        double exp_2uOldHarmonic = exp_uOldHarmonic*exp_uOldHarmonic;
+        if (uOld == -1 || uHarmonicOld == -1){
+        	uOld = energyMeter.getDataAsScalar() - latticeEnergy;
+        	uHarmonicOld = harmonicEnergyMeter.getDataAsScalar();
+        	
+        }
         
-        gamma_Old = Math.sqrt(exp_2uOld + refPref*refPref*exp_2uOldHarmonic);
+        double exp_uOld = Math.exp(-uOld /temperature);
+        double exp_uOldHarmonic = Math.exp(-uHarmonicOld /temperature);
+        
+        gamma_Old = exp_uOld + refPref*exp_uOldHarmonic;
         
 //        System.out.println("exp_uOld: "+ exp_uOld);
 //        System.out.println("exp_uOldHarmonic: "+exp_uOldHarmonic);
@@ -103,12 +110,13 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         ((IAtomPositioned)atom1).getPosition().ME(translationVector);
 
         uNew = energyMeter.getDataAsScalar() - latticeEnergy;
+        uHarmonicNew = harmonicEnergyMeter.getDataAsScalar();
         double exp_uNew = Math.exp(-uNew /temperature);
-        double exp_uNewHarmonic = Math.exp(-harmonicEnergyMeter.getDataAsScalar()/ temperature);
-        double exp_2uNew = exp_uNew*exp_uNew;
-        double exp_2uNewHarmonic = exp_uNewHarmonic*exp_uNewHarmonic;
+        double exp_uNewHarmonic = Math.exp(-uHarmonicNew/ temperature);
+        //double exp_2uNew = exp_uNew*exp_uNew;
+        //double exp_2uNewHarmonic = exp_uNewHarmonic*exp_uNewHarmonic;
         
-        gamma_New = Math.sqrt(exp_2uNew + refPref*refPref*exp_2uNewHarmonic);
+        gamma_New = exp_uNew + refPref*exp_uNewHarmonic;
         
 //        System.out.println("\nexp_uNew: "+ exp_uNew);
 //        System.out.println("uexp_NewHarmonic: "+exp_uNewHarmonic);
@@ -144,6 +152,8 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
     public void acceptNotify() {  /* do nothing */
+    	uOld = uNew;
+    	uHarmonicOld = uHarmonicNew;
     }
     
     /**
@@ -215,5 +225,9 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
 	public void setLatticeEnergy(double latticeEnergy) {
 		this.latticeEnergy = latticeEnergy;
 	}
+	
+	public double getPotentialEnergy(){ return uOld;}
+	
+	public double getHarmonicEnergy(){return uHarmonicOld;}
 
 }

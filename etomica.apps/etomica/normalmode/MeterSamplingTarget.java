@@ -20,10 +20,9 @@ import etomica.units.Null;
  */
 public class MeterSamplingTarget implements IEtomicaDataSource {
     
-    public MeterSamplingTarget(IntegratorBox integrator, MeterPotentialEnergy meterEnergy, MeterHarmonicEnergy meterHarmonic) {
-        this.meterTarget = meterEnergy;
+    public MeterSamplingTarget(IntegratorBox integrator, MCMoveAtomCoupledUmbrella move) {
+        this.mcMove = move;
         this.integrator = integrator;
-        this.meterHarmonic = meterHarmonic;
         
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Target and Bennet's Overlap Energies", Null.DIMENSION);
@@ -33,28 +32,21 @@ public class MeterSamplingTarget implements IEtomicaDataSource {
 
     public IData getData() {
     	
-    	double uTarget = meterTarget.getDataAsScalar();
-    	double uHarmonic = meterHarmonic.getDataAsScalar();
-    	double exp_uTarget = Math.exp(-(uTarget-latticeEnergy) /integrator.getTemperature());
+    	double uTarget = mcMove.getPotentialEnergy();
+    	double uHarmonic = mcMove.getHarmonicEnergy();
+    	double exp_uTarget = Math.exp(-uTarget /integrator.getTemperature());
     	double exp_uHarmonic = Math.exp(-uHarmonic /integrator.getTemperature());
-    	double exp_2uTarget = exp_uTarget*exp_uTarget;
-    	double exp_2uHarmonic = exp_uHarmonic*exp_uHarmonic;
+//    	double exp_2uTarget = exp_uTarget*exp_uTarget;
+//    	double exp_2uHarmonic = exp_uHarmonic*exp_uHarmonic;
     	
-    	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
+//    	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
+    	double gamma = exp_uTarget + refPref*exp_uHarmonic;
 
-//    	System.out.println("\nBennetTarget");
-//    	System.out.println("uTarget-ulattice: "+ (uTarget - latticeEnergy));
-//    	System.out.println("uHarmonic: "+ uHarmonic);
-//    	System.out.println("uOverlap: "+overlapEnergy);
-//    	System.out.println("uBennetTarget: "+((uTarget - latticeEnergy)-overlapEnergy));
         
     	data.x =  exp_uTarget /gamma;
         return data;
     }
 
-    public void setLatticeEnergy(double newLatticeEnergy) {
-        latticeEnergy = newLatticeEnergy;
-    }
     
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
@@ -73,13 +65,11 @@ public class MeterSamplingTarget implements IEtomicaDataSource {
 	}
 
 
-    protected final MeterPotentialEnergy meterTarget;
-    protected final MeterHarmonicEnergy meterHarmonic;
+    protected final MCMoveAtomCoupledUmbrella mcMove;
     protected final IntegratorBox integrator;
     protected final DataDouble data;
     protected final DataInfoDouble dataInfo;
     protected final DataTag tag;
-    protected double latticeEnergy;
     protected double refPref;
 
 }

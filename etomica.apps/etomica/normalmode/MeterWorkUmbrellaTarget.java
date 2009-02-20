@@ -19,10 +19,10 @@ import etomica.units.Null;
  */
 public class MeterWorkUmbrellaTarget implements IEtomicaDataSource {
     
-    public MeterWorkUmbrellaTarget(IntegratorBox integrator, MeterPotentialEnergy meterEnergy, MeterHarmonicEnergy meterHarmonic) {
-        this.meterTarget = meterEnergy;
-        this.integrator = integrator;
-        this.meterHarmonic = meterHarmonic;
+    public MeterWorkUmbrellaTarget(IntegratorBox integrator, MCMoveAtomCoupledUmbrella move) {
+        this.mcMove = move;
+    	this.integrator = integrator;
+        
         
         data = new DataDouble();
         dataInfo = new DataInfoDouble("Target and Bennet's Overlap Energies", Null.DIMENSION);
@@ -33,26 +33,21 @@ public class MeterWorkUmbrellaTarget implements IEtomicaDataSource {
 
     public IData getData() {
     	
-    	double uTarget = meterTarget.getDataAsScalar();
-    	double uHarmonic = meterHarmonic.getDataAsScalar();
-    	double exp_uTarget = Math.exp(-(uTarget-latticeEnergy) /integrator.getTemperature());
+    	double uTarget = mcMove.getPotentialEnergy();
+    	double uHarmonic = mcMove.getHarmonicEnergy();
+    	double exp_uTarget = Math.exp(-(uTarget) /integrator.getTemperature());
     	double exp_uHarmonic = Math.exp(-uHarmonic /integrator.getTemperature());
-    	double exp_2uTarget = exp_uTarget*exp_uTarget;
-    	double exp_2uHarmonic = exp_uHarmonic*exp_uHarmonic;
+//    	double exp_2uTarget = exp_uTarget*exp_uTarget;
+//    	double exp_2uHarmonic = exp_uHarmonic*exp_uHarmonic;
     	
     	
-    	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
+//    	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
+    	double gamma = exp_uTarget + refPref*exp_uHarmonic;   	
+    	
     	double umbrellaEnergy = -Math.log(gamma)*integrator.getTemperature();
-    	//System.out.println("Targ gamma: "+gamma+ " uTarget: "+ uTarget+" uHarmonic: "+ uHarmonic);
-     	
-    	//if (Double.isInfinite(uTarget)){
-    	//	System.out.println("Target");
-    	//}
-    	
-//    	System.out.println("uTarget-ulattice: "+ (uTarget - latticeEnergy));
-//    	System.out.println("uHarmonic: "+ uHarmonic);
+
         
-    	data.x =  ((uTarget - latticeEnergy) - umbrellaEnergy)/integrator.getTemperature();
+    	data.x =  (uTarget - umbrellaEnergy)/integrator.getTemperature();
                 
     	denomSum += exp_uTarget/gamma;
     	numSum += data.x*(exp_uTarget/gamma);  
@@ -62,10 +57,6 @@ public class MeterWorkUmbrellaTarget implements IEtomicaDataSource {
 
     public double getDataReweighted(){
     	return numSum/denomSum;
-    }
-    
-    public void setLatticeEnergy(double newLatticeEnergy) {
-        latticeEnergy = newLatticeEnergy;
     }
     
     public IEtomicaDataInfo getDataInfo() {
@@ -85,13 +76,11 @@ public class MeterWorkUmbrellaTarget implements IEtomicaDataSource {
 	}
 
 
-    protected final MeterPotentialEnergy meterTarget;
-    protected final MeterHarmonicEnergy meterHarmonic;
+    protected final MCMoveAtomCoupledUmbrella mcMove;
     protected final IntegratorBox integrator;
     protected final DataDouble data;
     protected final DataInfoDouble dataInfo;
     protected final DataTag tag;
-    protected double latticeEnergy;
     protected double numSum, denomSum;
     protected double refPref;
 

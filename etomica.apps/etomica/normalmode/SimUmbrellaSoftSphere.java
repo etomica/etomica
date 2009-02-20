@@ -121,7 +121,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         
-        MCMoveAtomCoupledUmbrella move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(), 
+        move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(), 
         		coordinateDefinition, normalModes, getRefPref(), space);
         move.setTemperature(temperature);
         move.setLatticeEnergy(latticeEnergy);
@@ -192,9 +192,8 @@ public class SimUmbrellaSoftSphere extends Simulation {
         
         // Harmonic Sampling
         
-        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
         meterSamplingHarmonic.setRefPref(sim.refPref);
-        meterSamplingHarmonic.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[0] = meterSamplingHarmonic;
         
         final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
@@ -204,9 +203,8 @@ public class SimUmbrellaSoftSphere extends Simulation {
         
         // Target Sampling
         
-        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.meterEnergy, sim.meterHarmonicEnergy);
+        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
         meterSamplingTarget.setRefPref(sim.refPref);
-        meterSamplingTarget.setLatticeEnergy(sim.latticeEnergy);
         samplingMeters[1] = meterSamplingTarget;
         
         final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
@@ -325,6 +323,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public double latticeEnergy;
     public MeterHarmonicEnergy meterHarmonicEnergy;
     public MeterPotentialEnergy meterEnergy;
+    public MCMoveAtomCoupledUmbrella move;
     public double refPref;
     
     public static class SimBennetParam extends ParameterBase {
