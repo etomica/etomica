@@ -182,7 +182,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     public void setWaveVectors(IVectorMutable[] waveVectors) {
         this.waveVectors = waveVectors;
     }
-    public void setComparedWVs(int[] cwvs) {
+    public void setComparedWV(int[] cwvs) {
         this.comparedWVs = cwvs;
     }
     public void setTemperature(double temperature) {

@@ -670,45 +670,45 @@ public class SimOverlapn32m2Right extends Simulation {
     
     public void setComparedWV(){
 //        compareMove.setComparedWV(1);
-//        changeMove.setHarmonicWaveVectors(new int[] {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {1, 2});
-//        meterBinB.setComparedWVs(new int[] {1, 2});
+//        changeMove.setHarmonicWV(3);
+//        meterBinA.setComparedWV(new int[] {1, 2});
+//        meterBinB.setComparedWV(new int[] {1, 2});
 //        
 //        compareMove.setComparedWV(3);
-//        changeMove.setHarmonicWaveVectors(new int[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {3, 4});
-//        meterBinB.setComparedWVs(new int[] {3, 4});
+//        changeMove.setHarmonicWV(5);
+//        meterBinA.setComparedWV(new int[] {3, 4});
+//        meterBinB.setComparedWV(new int[] {3, 4});
 //        
 //        compareMove.setComparedWV(5);
-//        changeMove.setHarmonicWaveVectors(new int[] {7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {5, 6});
-//        meterBinB.setComparedWVs(new int[] {5, 6});
+//        changeMove.setHarmonicWV(7);
+//        meterBinA.setComparedWV(new int[] {5, 6});
+//        meterBinB.setComparedWV(new int[] {5, 6});
 //        
 //        compareMove.setComparedWV(7);
-//        changeMove.setHarmonicWaveVectors(new int[] {7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {7, 8});
-//        meterBinB.setComparedWVs(new int[] {7, 8});
+//        changeMove.setHarmonicWV(9);
+//        meterBinA.setComparedWV(new int[] {7, 8});
+//        meterBinB.setComparedWV(new int[] {7, 8});
 //        
 //        compareMove.setComparedWV(9);
-//        changeMove.setHarmonicWaveVectors(new int[] {9, 10, 11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {9, 10});
-//        meterBinB.setComparedWVs(new int[] {9, 10});
+//        changeMove.setHarmonicWV(11);
+//        meterBinA.setComparedWV(new int[] {9, 10});
+//        meterBinB.setComparedWV(new int[] {9, 10});
 //        
 //        compareMove.setComparedWV(11);
-//        changeMove.setHarmonicWaveVectors(new int[] {11, 12, 13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {11, 12});
-//        meterBinB.setComparedWVs(new int[] {11, 12});
+//        changeMove.setHarmonicWV(13);
+//        meterBinA.setComparedWV(new int[] {11, 12});
+//        meterBinB.setComparedWV(new int[] {11, 12});
 //        
-//        compareMove.setComparedWV(13);
-//        changeMove.setHarmonicWaveVectors(new int[] {13, 14, 15, 16});
-//        meterBinA.setComparedWVs(new int[] {13, 14});
-//        meterBinB.setComparedWVs(new int[] {13, 14});
-//        
-        compareMove.setComparedWV(15);
+        compareMove.setComparedWV(13);
         changeMove.setHarmonicWV(15);
-        meterBinA.setComparedWVs(new int[] {15, 16});
-        meterBinB.setComparedWVs(new int[] {15, 16});
-        
+        meterBinA.setComparedWV(new int[] {13, 14});
+        meterBinB.setComparedWV(new int[] {13, 14});
+//        
+//        compareMove.setComparedWV(15);
+//        changeMove.setHarmonicWV(-1);
+//        meterBinA.setComparedWV(new int[] {15, 16});
+//        meterBinB.setComparedWV(new int[] {15, 16});
+//        
         
         
     }

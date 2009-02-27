@@ -650,8 +650,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public void setComparedWV(int[] cwvs){
-        meterBinB.setComparedWVs(cwvs);
-        meterBinA.setComparedWVs(cwvs);
+        meterBinB.setComparedWV(cwvs);
+        meterBinA.setComparedWV(cwvs);
         compareMove.setComparedWV(cwvs);
         
         meterBinB.getSingle().setComparedWV(cwvs[0]);

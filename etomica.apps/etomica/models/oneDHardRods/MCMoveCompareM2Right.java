@@ -60,6 +60,8 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 
 
     public boolean doTrial() {
+        
+        System.out.println("NRGStart " + energyMeter.getDataAsScalar());
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -88,7 +90,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 //rezero deltaU
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] = 0.0;
-    //                System.out.println(uNow[j]);
+//                    System.out.println(uNow[j]);
                 }
                 
                 //Calculate the contributions to the current position of the zeroed
@@ -117,12 +119,13 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-    //                System.out.println("1-unow " + uNow[i]);
+//                    System.out.println("1-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 
             }
             energyOld = energyMeter.getDataAsScalar();
+            System.out.println("NRGOld: " + energyOld);
             if(energyOld != 0.0){
                 for(int k = 0; k < waveVectors.length; k++){
                     System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
@@ -130,6 +133,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 throw new IllegalStateException("Overlap after the removal of a mode!");
             }
         }
+
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
@@ -176,46 +180,46 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 //                }
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-//                    System.out.println("2-unow " + uNow[i]);
+                    System.out.println("2-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
+        
         energyNew = energyMeter.getDataAsScalar();
-//        System.out.println("youNou " + energyNew);
+        System.out.println("youNou " + energyNew);
 
 //        for(int k = 0; k < 32; k++){
 //            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
 //        }
         
         
-        
-        
 //MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
         //set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
-        for (int j=0; j<coordinateDim; j++) {
-            if (stdDev[comparedWV][j] == 0) continue;
-            //generate real and imaginary parts of random normal-mode coordinate Q
-            double realGauss = random.nextGaussian() * sqrtT;
-            double imagGauss = random.nextGaussian() * sqrtT;
-            
-//            realGauss = 0.6;  //nork
-//            imagGauss = 0.3;  //nork
-            
-            //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
-            // it's hard to know which.  So long as we don't put an atom at the origin
-            // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-            if (wvc == 0.5) imagGauss = 0;
-            rRand[j] = realGauss * stdDev[comparedWV][j];
-            iRand[j] = imagGauss * stdDev[comparedWV][j];
-            gaussian[0] = realGauss;
-            gaussian[1] = imagGauss;
-            
-        }
 
-        //calculate the new positions of the atoms.
         for(int countWV = comparedWV; countWV < comparedWV+2; countWV++){
+            for (int j=0; j<coordinateDim; j++) {
+                if (stdDev[comparedWV][j] == 0) continue;
+                //generate real and imaginary parts of random normal-mode coordinate Q
+                double realGauss = random.nextGaussian() * sqrtT;
+                double imagGauss = random.nextGaussian() * sqrtT;
+                
+    //            realGauss = 0.6;  //nork
+    //            imagGauss = 0.3;  //nork
+                
+                //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
+                // it's hard to know which.  So long as we don't put an atom at the origin
+                // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
+                if (wvc == 0.5) imagGauss = 0;
+                rRand[j] = realGauss * stdDev[comparedWV][j];
+                iRand[j] = imagGauss * stdDev[comparedWV][j];
+                gaussian[0] = realGauss;
+                gaussian[1] = imagGauss;
+                
+            }
+
+            //calculate the new positions of the atoms.
             for(int iCell = 0; iCell < cells.length; iCell++){
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
@@ -240,12 +244,13 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-    //              System.out.println("3-unow " + uNow[i]);
+                    System.out.println("3-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
-//        energyEvenLater = energyMeter.getDataAsScalar();
+        energyEvenLater = energyMeter.getDataAsScalar();
+        System.out.println("NRGevenl8r: " + energyEvenLater);
         
         return true;
     }
@@ -259,7 +264,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
+        System.out.println("  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
 //        count ++;
     }
 
