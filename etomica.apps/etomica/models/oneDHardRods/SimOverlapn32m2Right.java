@@ -61,7 +61,7 @@ public class SimOverlapn32m2Right extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
-    MCMoveChangeMultipleModes changeMove;
+    MCMoveChangeSingleMode changeMove;
     MCMoveCompareM2Right compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;    
@@ -131,7 +131,7 @@ public class SimOverlapn32m2Right extends Simulation {
             System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeMultipleModes(potentialMasterTarget, random);
+        changeMove = new MCMoveChangeSingleMode(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
@@ -705,7 +705,7 @@ public class SimOverlapn32m2Right extends Simulation {
 //        meterBinB.setComparedWVs(new int[] {13, 14});
 //        
         compareMove.setComparedWV(15);
-        changeMove.setHarmonicWaveVectors(new int[] {15, 16});
+        changeMove.setHarmonicWV(15);
         meterBinA.setComparedWVs(new int[] {15, 16});
         meterBinB.setComparedWVs(new int[] {15, 16});
         
@@ -720,15 +720,15 @@ public class SimOverlapn32m2Right extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         
-        public int numSteps = 4000000;
-        public int runBlockSize = 10000;
-        public int subBlockSize = 100;    //# of steps in subintegrator per integrator step
+        public int numSteps = 400000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 400000;  
-        public int eqBlockSize = 1000;
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 10;
         
-        public int bennettNumSteps = 400000;
-        public int benBlockSize = 1000;
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 10;
 
     }
     
