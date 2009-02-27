@@ -60,7 +60,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
      * The harmonic wavevectors are not able to be changed by this MCMove.
      * 
      */
-    public void setHarmonicWaveVectors(int[] hwv){
+    public void setHarmonicWV(int[] hwv){
         harmonicWaveVectors = hwv;
         if(harmonicWaveVectors.length +1 == waveVectors.length){
             System.out.println("FEAR THE INFINiTE LOOP!!");

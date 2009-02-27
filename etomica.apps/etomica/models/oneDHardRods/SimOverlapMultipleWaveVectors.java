@@ -294,8 +294,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
 //JOINT
         //Set up the rest of the joint stuff
-        setComparedWaveVectors(compWV);
-        setHarmonicWaveVectors(harmWV);
+        setComparedWV(compWV);
+        setHarmonicWV(harmWV);
         
         integratorSim = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
@@ -649,10 +649,10 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         }
     }
     
-    public void setComparedWaveVectors(int[] cwvs){
+    public void setComparedWV(int[] cwvs){
         meterBinB.setComparedWVs(cwvs);
         meterBinA.setComparedWVs(cwvs);
-        compareMove.setComparedWVs(cwvs);
+        compareMove.setComparedWV(cwvs);
         
         meterBinB.getSingle().setComparedWV(cwvs[0]);
         meterBinA.getSingle().setComparedWV(cwvs[0]);
@@ -660,9 +660,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
     }
     
-    public void setHarmonicWaveVectors(int[] hwv){
-        compareMove.setHarmonicWVs(hwv);
-        changeMove.setHarmonicWaveVectors(hwv);
+    public void setHarmonicWV(int[] hwv){
+        compareMove.setHarmonicWV(hwv);
+        changeMove.setHarmonicWV(hwv);
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {

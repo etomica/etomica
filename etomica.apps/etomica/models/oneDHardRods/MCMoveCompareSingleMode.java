@@ -326,12 +326,12 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     public double[] getGaussian(){
         return gaussian;
     }
-    public void setComparedWaveVector(int wv){
+    public void setComparedWV(int wv){
         if(wv == 1) {System.out.println("System is now entirely Gaussian!");};
         comparedWV = wv;
         wvc = waveVectorCoefficients[wv];
     }
-    public int getComparedWaveVector(){
+    public int getComparedWV(){
         return comparedWV;
     }
     public double[] getLastGaussian(){

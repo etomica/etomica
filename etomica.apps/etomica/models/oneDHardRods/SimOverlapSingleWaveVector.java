@@ -271,7 +271,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         
 //JOINT
         //Set up the rest of the joint stuff
-        setComparedWaveVector(awv);
+        setComparedWV(awv);
         
         integratorSim = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
@@ -672,8 +672,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
     }
       
     
-    public void setComparedWaveVector(int awv){
-        compareMove.setComparedWaveVector(awv);
+    public void setComparedWV(int awv){
+        compareMove.setComparedWV(awv);
         changeMove.setHarmonicWV(awv);
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);

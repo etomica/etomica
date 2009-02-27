@@ -163,7 +163,7 @@ public class TestMCMoveChangeMultipleModes extends Simulation {
         //instantiate simulation
         TestMCMoveChangeMultipleModes sim = new TestMCMoveChangeMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setHarmonicWaveVectors(harmonicwvs);
+        sim.move.setHarmonicWV(harmonicwvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);

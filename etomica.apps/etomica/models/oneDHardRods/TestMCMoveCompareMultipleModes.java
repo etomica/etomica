@@ -181,8 +181,8 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         TestMCMoveCompareMultipleModes sim = new TestMCMoveCompareMultipleModes(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         System.out.println("instantiated");
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setComparedWVs(comparedwvs);
-        sim.move.setHarmonicWVs(harmonicwvs);
+        sim.move.setComparedWV(comparedwvs);
+        sim.move.setHarmonicWV(harmonicwvs);
         System.out.println("Compared wvs");
         for(int i = 0; i < comparedwvs.length; i++){System.out.println(comparedwvs[i]);}
         System.out.println("Harmonic wvs");

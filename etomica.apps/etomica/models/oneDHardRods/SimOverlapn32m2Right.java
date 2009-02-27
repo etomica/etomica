@@ -269,7 +269,7 @@ public class SimOverlapn32m2Right extends Simulation {
         
 //JOINT
         //Set up the rest of the joint stuff
-        setComparedWaveVector();
+        setComparedWV();
         
         integratorSim = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
@@ -668,7 +668,7 @@ public class SimOverlapn32m2Right extends Simulation {
     }
       
     
-    public void setComparedWaveVector(){
+    public void setComparedWV(){
 //        compareMove.setComparedWV(1);
 //        changeMove.setHarmonicWaveVectors(new int[] {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
 //        meterBinA.setComparedWVs(new int[] {1, 2});

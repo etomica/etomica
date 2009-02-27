@@ -348,7 +348,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
      * Set the wavevectors that are removed.
      * @param wv the wavevectors that are removed.
      */
-    public void setComparedWVs(int[] wv){
+    public void setComparedWV(int[] wv){
         for(int i = 0; i < wv.length; i++) {
             if(wv[i] == 0) {
                 throw new IllegalArgumentException("Cannot compare the " +
@@ -361,7 +361,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
      * Set the wavevectors that are always harmonic.
      * @param wv
      */
-    public void setHarmonicWVs(int[] wv){
+    public void setHarmonicWV(int[] wv){
         if(comparedWVs == null){ 
             throw new IllegalStateException("Must set comparedWVs before " +
                     "harmonicWVs");

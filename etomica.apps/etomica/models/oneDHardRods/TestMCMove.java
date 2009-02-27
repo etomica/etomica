@@ -180,8 +180,8 @@ public class TestMCMove extends Simulation {
         //instantiate simulation
         TestMCMove sim = new TestMCMove(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setComparedWVs(comparedwvs);
-        sim.move.setHarmonicWVs(harmonicwvs);
+        sim.move.setComparedWV(comparedwvs);
+        sim.move.setHarmonicWV(harmonicwvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
