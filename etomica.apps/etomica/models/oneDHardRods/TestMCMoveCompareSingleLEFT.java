@@ -33,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
-public class TestMCMoveChangeSingleMode extends Simulation {
+public class TestMCMoveCompareSingleLEFT extends Simulation {
     private static final long serialVersionUID = 1L;
     public Boundary boundary;
     IntegratorMC integrator;
@@ -46,12 +46,13 @@ public class TestMCMoveChangeSingleMode extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MCMoveChangeSingleMode move;
+    
+    MCMoveCompareSingleLEFT move; 
     
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMoveChangeSingleMode(Space _space, int numAtoms, double density, double 
+    public TestMCMoveCompareSingleLEFT(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
@@ -96,17 +97,18 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveChangeSingleMode(potentialMaster, random);
+        move = new MCMoveCompareSingleLEFT(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
         move.setEigenVectors(nm.getEigenvectors(box));
         move.setCoordinateDefinition(coordinateDefinition);
+        move.setTemperature(temperature);
         move.setBox((IBox)box);
         move.setStepSizeMin(0.001);
         move.setStepSize(0.01);
-       
-        
+                
         integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
         
@@ -130,7 +132,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
          * file is irrelevant.
          * 
          */
-        TestMCMoveChangeSingleModeParams params = new TestMCMoveChangeSingleModeParams();
+        Sim1DHRParams params = new Sim1DHRParams();
         String inputFilename = null;
         if(args.length > 0){
             inputFilename = args[0];
@@ -140,7 +142,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
             readParameters.readParameters();
         }
 
-        int harmonicwvs = params.harmonicWV;
+        int comparedwv = params.comparedWV;
         double density = params.density;
         long numSteps = params.numSteps;
         int numAtoms = params.numAtoms;
@@ -161,9 +163,11 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         
         
         //instantiate simulation
-        TestMCMoveChangeSingleMode sim = new TestMCMoveChangeSingleMode(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestMCMoveCompareSingleLEFT sim = new TestMCMoveCompareSingleLEFT(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        System.out.println("instantiated");
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setHarmonicWV(harmonicwvs);
+        sim.move.setComparedWV(comparedwv);
+        System.out.println("Compared wv " + comparedwv);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -174,8 +178,29 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         sim.integrator.addIntervalAction(mnm);
         sim.integrator.setActionInterval(mnm, 2);
         
+        
+        
+        
+        
+        
+        
+        
         ((Controller)sim.getController()).actionPerformed();
-                
+        
+//        //see if anything moved:
+        IAtomList leaflist = sim.box.getLeafList();
+        System.out.println("final: ");
+        double sum = 0.0;
+        for(int i = 0; i < numAtoms; i++){
+            //one d is assumed here.
+            sim.locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+            System.out.println(sim.locations[i]);
+            sum += sim.locations[i];
+        }
+        System.out.println("sum  "+ sum);
+
+        
+        
         //print out final positions:
         try {
             FileWriter fileWriterE = new FileWriter(filename+".txt");
@@ -191,24 +216,12 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         }
         
 
-        WriteS sWriter = new WriteS(sim.space);
+        WriteS sWriter = new WriteS(sim.getSpace());
         sWriter.setFilename(filename);
         sWriter.setMeter(mnm);
         sWriter.setWaveVectorFactory(sim.nm.getWaveVectorFactory());
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
-        
-      //see if anything moved:
-      IAtomList leaflist = sim.box.getLeafList();
-      System.out.println("final: ");
-      double sum = 0.0;
-      for(int i = 0; i < numAtoms; i++){
-          //one d is assumed here.
-          sim.locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
-          System.out.println(sim.locations[i]);
-          sum += sim.locations[i];
-      }
-      System.out.println("sum  "+ sum);
         
         System.out.println("Fini.");
     }
@@ -217,7 +230,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
     /**
      * Inner class for parameters understood by the class's constructor
      */
-    public static class TestMCMoveChangeSingleModeParams extends ParameterBase {
+    public static class Sim1DHRParams extends ParameterBase {
         public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
@@ -225,6 +238,6 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int harmonicWV = 8;
+        public int comparedWV = 16;
     }
 }

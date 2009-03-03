@@ -11,17 +11,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
-/**
- * A Monte Carlo move which selects a wave vector, and changes the normal mode
- * associated with that wave vector.
- * 
- * harmonicWV is the largest wave vector that will be changed.
- * 
- * @author cribbin
- *
- */
-public class MCMoveChangeSingleMode extends MCMoveBoxStep{
-
+public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final AtomIteratorLeafAtoms iterator;
@@ -36,7 +26,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     
     
-    public MCMoveChangeSingleMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeSingleLEFT(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
@@ -112,9 +102,8 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
-        changedWV = random.nextInt(harmonicWV);
-        changedWV +=1;
-        
+        changedWV = random.nextInt(waveVectorCoefficients.length - harmonicWV - 1);
+        changedWV = changedWV + harmonicWV + 1 ;        
         System.out.println(changedWV);
         
         //calculate the new positions of the atoms.

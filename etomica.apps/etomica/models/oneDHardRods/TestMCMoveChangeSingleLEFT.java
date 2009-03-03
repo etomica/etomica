@@ -33,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
-public class TestMCMoveChangeSingleMode extends Simulation {
+public class TestMCMoveChangeSingleLEFT extends Simulation {
     private static final long serialVersionUID = 1L;
     public Boundary boundary;
     IntegratorMC integrator;
@@ -46,12 +46,12 @@ public class TestMCMoveChangeSingleMode extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MCMoveChangeSingleMode move;
+    MCMoveChangeSingleLEFT move;
     
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMoveChangeSingleMode(Space _space, int numAtoms, double density, double 
+    public TestMCMoveChangeSingleLEFT(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
@@ -96,7 +96,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveChangeSingleMode(potentialMaster, random);
+        move = new MCMoveChangeSingleLEFT(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -161,7 +161,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         
         
         //instantiate simulation
-        TestMCMoveChangeSingleMode sim = new TestMCMoveChangeSingleMode(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestMCMoveChangeSingleLEFT sim = new TestMCMoveChangeSingleLEFT(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.move.setHarmonicWV(harmonicwvs);
         
@@ -191,7 +191,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         }
         
 
-        WriteS sWriter = new WriteS(sim.space);
+        WriteS sWriter = new WriteS(sim.getSpace());
         sWriter.setFilename(filename);
         sWriter.setMeter(mnm);
         sWriter.setWaveVectorFactory(sim.nm.getWaveVectorFactory());
@@ -225,6 +225,8 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int harmonicWV = 8;
+        public int harmonicWV = 16;
     }
 }
+
+
