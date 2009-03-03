@@ -40,7 +40,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     private double[][] stdDev;
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
-    private double wvc;
     double[] uNow;
     
     
@@ -81,34 +80,39 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         
         
 //ZERO OUT NORMAL MODES.)
+        for(int iCell = 0; iCell < cells.length; iCell++){
+            //store old positions.
+            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            cell = cells[iCell];
+            //rezero deltaU
+            for(int j = 0; j < coordinateDim; j++){
+                deltaU[j] = 0.0;
+//                System.out.println(uNow[j]);
+            }
+        }
         for(int countWV= comparedWV; countWV <comparedWV+2; countWV++){
+            System.out.println("Chunk 1 count " + countWV);
+            
             for(int iCell = 0; iCell < cells.length; iCell++){
-                //store old positions.
-                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-                System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-                cell = cells[iCell];
-                //rezero deltaU
-                for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] = 0.0;
-//                    System.out.println(uNow[j]);
-                }
                 
+   
                 //Calculate the contributions to the current position of the zeroed
                 //mode, and subtract it from the overall position
-                double kR = waveVectors[comparedWV].dot(cell.cellPosition);
+                double kR = waveVectors[countWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for(int i = 0; i < coordinateDim; i++){
                     //Calculate the current coordinate:
                     double realCoord = 0, imagCoord = 0;
                     for (int j=0; j<coordinateDim; j++) {
-                        realCoord += eigenVectors[comparedWV][i][j] * realT[j];
+                        realCoord += eigenVectors[countWV][i][j] * realT[j];
     //                    System.out.println("realcoord " + realCoord);
-                        imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
+                        imagCoord += eigenVectors[countWV][i][j] * imagT[j];
     //                    System.out.println("imagcoord " + imagCoord);
                     }
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] * 2.0 *
+                        deltaU[j] -= waveVectorCoefficients[countWV]*eigenVectors[countWV][i][j] * 2.0 *
                             (realCoord*coskR - imagCoord*sinkR);
     //                    System.out.println("delta 1 " + deltaU[j]);
                     }
@@ -119,21 +123,22 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-//                    System.out.println("1-unow " + uNow[i]);
+                    System.out.println("1-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 
             }
-            energyOld = energyMeter.getDataAsScalar();
-            System.out.println("NRGOld: " + energyOld);
-            if(energyOld != 0.0){
-                for(int k = 0; k < waveVectors.length; k++){
-                    System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
-                }
-                throw new IllegalStateException("Overlap after the removal of a mode!");
-            }
+            
         }
-
+        
+        energyOld = energyMeter.getDataAsScalar();
+        System.out.println("NRGOld: " + energyOld);
+        if(energyOld != 0.0){
+//            for(int k = 0; k < waveVectors.length; k++){
+//                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
+//            }
+            throw new IllegalStateException("Overlap after the removal of a mode!");
+        }
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
@@ -174,10 +179,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                              - delta2*sinkR);
                     }
                 }
-//                for(int i = 0; i < coordinateDim; i++){
-////                    deltaU[i] *= normalization;
-//                System.out.println(deltaU[i]);
-//                }
+                for(int i = 0; i < coordinateDim; i++){
+                    deltaU[i] *= normalization;
+//                      System.out.println(deltaU[i]);
+                }
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
                     System.out.println("2-unow " + uNow[i]);
@@ -199,8 +204,9 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         double sqrtT = Math.sqrt(temperature);
 
         for(int countWV = comparedWV; countWV < comparedWV+2; countWV++){
+            System.out.println("Chunk 3 count " + countWV);
             for (int j=0; j<coordinateDim; j++) {
-                if (stdDev[comparedWV][j] == 0) continue;
+                if (stdDev[countWV][j] == 0) continue;
                 //generate real and imaginary parts of random normal-mode coordinate Q
                 double realGauss = random.nextGaussian() * sqrtT;
                 double imagGauss = random.nextGaussian() * sqrtT;
@@ -211,9 +217,9 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                 // it's hard to know which.  So long as we don't put an atom at the origin
                 // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-                if (wvc == 0.5) imagGauss = 0;
-                rRand[j] = realGauss * stdDev[comparedWV][j];
-                iRand[j] = imagGauss * stdDev[comparedWV][j];
+                if (waveVectorCoefficients[countWV] == 0.5) imagGauss = 0;
+                rRand[j] = realGauss * stdDev[countWV][j];
+                iRand[j] = imagGauss * stdDev[countWV][j];
                 gaussian[0] = realGauss;
                 gaussian[1] = imagGauss;
                 
@@ -229,12 +235,12 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 }
                 // Calculate the change in position due to the substitution of a 
                 //  Gaussian.
-                double kR = waveVectors[comparedWV].dot(cell.cellPosition);
+                double kR = waveVectors[countWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for(int i = 0; i < coordinateDim; i++){
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] += wvc*eigenVectors[comparedWV][i][j] * 2.0 *
+                        deltaU[j] += waveVectorCoefficients[countWV]*eigenVectors[countWV][i][j] * 2.0 *
                             (rRand[i]*coskR - iRand[i]*sinkR);
                     }
                 }

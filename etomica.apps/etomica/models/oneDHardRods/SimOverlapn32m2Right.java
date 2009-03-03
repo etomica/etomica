@@ -699,15 +699,15 @@ public class SimOverlapn32m2Right extends Simulation {
 //        meterBinA.setComparedWV(new int[] {11, 12});
 //        meterBinB.setComparedWV(new int[] {11, 12});
 //        
-        compareMove.setComparedWV(13);
-        changeMove.setHarmonicWV(15);
-        meterBinA.setComparedWV(new int[] {13, 14});
-        meterBinB.setComparedWV(new int[] {13, 14});
+//        compareMove.setComparedWV(13);
+//        changeMove.setHarmonicWV(15);
+//        meterBinA.setComparedWV(new int[] {13, 14});
+//        meterBinB.setComparedWV(new int[] {13, 14});
 //        
-//        compareMove.setComparedWV(15);
-//        changeMove.setHarmonicWV(-1);
-//        meterBinA.setComparedWV(new int[] {15, 16});
-//        meterBinB.setComparedWV(new int[] {15, 16});
+        compareMove.setComparedWV(15);
+        changeMove.setHarmonicWV(-1);
+        meterBinA.setComparedWV(new int[] {15, 16});
+        meterBinB.setComparedWV(new int[] {15, 16});
 //        
         
         
