@@ -90,7 +90,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      * @param blockSize
      *            new block size.
      */
-    public void setBlockSize(int blockSize) {
+    public void setBlockSize(long blockSize) {
         this.blockSize = blockSize;
         blockCountDown = blockSize;
     }

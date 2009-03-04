@@ -11,7 +11,6 @@ import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.types.DataGroup;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
@@ -182,7 +181,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         }
     }
     
-    public void setAccumulatorBlockSize(int newBlockSize) {
+    public void setAccumulatorBlockSize(long newBlockSize) {
         blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
@@ -227,7 +226,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
                 integrators[i].getMoveManager().setEquilibrating(true);
             }
 
-            int oldBlockSize = blockSize;
+            long oldBlockSize = blockSize;
             // 1000 blocks
             long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
             if (newBlockSize < 1000) {
@@ -267,7 +266,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         ai.setMaxSteps(initSteps);
-        int oldBlockSize = blockSize;
+        long oldBlockSize = blockSize;
         // 1000 blocks
         long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
         if (newBlockSize < 1000) {
@@ -333,7 +332,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
     public ActivityIntegrate ai;
     public IntegratorOverlapRejected integratorOS;
     public double refPref;
-    protected int blockSize;
+    protected long blockSize;
 
   /*  public static void main(String[] args) {
 

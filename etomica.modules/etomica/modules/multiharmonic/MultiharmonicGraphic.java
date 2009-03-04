@@ -44,7 +44,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         dataStreamPumps.add(simulation.dataPump);
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
@@ -121,7 +121,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(exactPump);
-        sim.integrator.setActionInterval(exactPump, sim.accumulator.getBlockSize());
+        sim.integrator.setActionInterval(exactPump, (int)sim.accumulator.getBlockSize());
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
@@ -129,7 +129,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(uPump);
-        sim.integrator.setActionInterval(uPump, sim.accumulatorEnergy.getBlockSize());
+        sim.integrator.setActionInterval(uPump, (int)sim.accumulatorEnergy.getBlockSize());
         dataStreamPumps.add(uPump);
         uAvgHistory.setTimeDataSource(sim.timeCounter);
         
@@ -147,23 +147,11 @@ public class MultiharmonicGraphic extends SimulationGraphic {
                 double x0 = sim.potentialA.getX0().x(0);
                 return 0.5*sim.potentialA.getSpringConstant()*(x - x0)*(x - x0);
             }
-            public double dfdx(double x) {
-                return 0.0;
-            }
-            public double inverse(double f) {
-                return 0.0;
-            }
         };
         Function fUB = new Function() {
             public double f(double x) {
                 double x0 = sim.potentialB.getX0().x(0);
                 return 0.5*sim.potentialB.getSpringConstant()*(x - x0)*(x - x0);
-            }
-            public double dfdx(double x) {
-                return 0.0;
-            }
-            public double inverse(double f) {
-                return 0.0;
             }
         };
 

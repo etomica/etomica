@@ -139,25 +139,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     /**
-     * Sets the size of the block used to group data for error analysis. Has no
-     * effect on statistics accumulated so far.  Default is 100.
-     * 
-     * @param blockSize
-     *            new block size.
-     */
-    public void setBlockSize(int blockSize) {
-        this.blockSize = blockSize;
-        blockCountDown = blockSize;
-    }
-
-    /**
-     * Returns the current value of the block size.
-     */
-    public int getBlockSize() {
-        return blockSize;
-    }
-
-    /**
      * Prepares the accumulator for input data.  Discards any previous 
      * contributions to statistics.
      * 
