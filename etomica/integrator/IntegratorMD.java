@@ -1,8 +1,8 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxMoleculeAddedEvent;
@@ -12,7 +12,6 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.box.BoxMoleculeAddedEvent;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -371,9 +370,16 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
     public void actionPerformed(IEvent event) {
         if (event instanceof IBoxMoleculeAddedEvent) {
             IMolecule mole = ((IBoxMoleculeAddedEvent)event).getMolecule();
+            if (mole instanceof IAtomKinetic) {
+                randomizeMomentum((IAtomKinetic)mole);
+                return;
+            }
             IAtomList atomList = mole.getChildList();
             for(int i = 0; i < atomList.getAtomCount(); i++) {
-                randomizeMomentum((IAtomKinetic)atomList.getAtom(i));
+                IAtom a = atomList.getAtom(i);
+                if (a instanceof IAtomKinetic) {
+                    randomizeMomentum((IAtomKinetic)a);
+                }
             }
         }
     }
