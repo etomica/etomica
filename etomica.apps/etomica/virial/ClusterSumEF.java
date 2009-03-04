@@ -63,13 +63,7 @@ public class ClusterSumEF extends ClusterSum {
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<numF; k++) {
-                    double eValue;
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        eValue = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                    }
-                    else {
-                        eValue = f[k].f(aPairs.getAPair(i,j),0, beta);
-                    }
+                    double eValue = f[k].f(aPairs.getAPair(i,j), cPairs.getr2(i,j), beta);
                     fValues[i][j][k+numF] = eValue;
                     fValues[j][i][k+numF] = eValue;
                     fValues[j][i][k] = eValue - 1;
