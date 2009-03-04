@@ -1012,7 +1012,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            int D = 2;
+            int D = 3;
             String dimStr = getParameter("dim");
             if (dimStr != null) {
                 D = Integer.parseInt(dimStr);
