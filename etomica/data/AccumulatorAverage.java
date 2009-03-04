@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.EnumeratedType;
@@ -99,7 +98,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     /**
      * Returns the current value of the block size.
      */
-    public int getBlockSize() {
+    public long getBlockSize() {
         return blockSize;
     }
 
@@ -174,7 +173,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      * Returns the number of times addData has been called since construction or
      * the last call to reset.
      */
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
@@ -210,8 +209,8 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     protected IData average, error, standardDeviation;
     protected IData blockCorrelation;
     protected DataGroup dataGroup;
-    protected int count, blockCountDown;
-    protected int blockSize;
+    protected long count, blockCountDown;
+    protected long blockSize;
     private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, blockCorrelationTag;
 
 }
