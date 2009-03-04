@@ -45,7 +45,7 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
     }
     
     /**
-     * The harmonic wavevector and all wavevectors with higher numbers are not
+     * The harmonic wavevector and all wavevectors with lower numbers are not
      * able to be changed by this MCMove.
      */
     public void setHarmonicWV(int hwv){
@@ -103,7 +103,7 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
         changedWV = random.nextInt(waveVectorCoefficients.length - harmonicWV - 1);
-        changedWV = changedWV + harmonicWV + 1 ;        
+        changedWV = changedWV + harmonicWV;        
         System.out.println(changedWV);
         
         //calculate the new positions of the atoms.

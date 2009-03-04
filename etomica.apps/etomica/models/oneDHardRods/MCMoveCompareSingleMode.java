@@ -138,6 +138,8 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
             int changedWV = random.nextInt(comparedWV-1);
             changedWV += 1;
             
+            System.out.println(changedWV);
+            
             //calculate the new positions of the atoms.
             //loop over cells
             double delta1 = (2*random.nextDouble()-1) * stepSize;
