@@ -265,7 +265,6 @@ public class VirialAlkane {
             errorBox.setPrecision(2);
             errorBox.setUnit(unit);
             sim.integratorOS.addIntervalAction(pushAnswer);
-            sim.integratorOS.setActionInterval(pushAnswer, 1);
             
             return;
         }
