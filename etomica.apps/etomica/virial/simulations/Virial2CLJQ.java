@@ -78,8 +78,8 @@ public class Virial2CLJQ {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         P22CLJQ pTarget = new P22CLJQ(space);
         pTarget.setEpsilon(epsilon);
         pTarget.setSigma(sigma);
@@ -152,14 +152,14 @@ public class Virial2CLJQ {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         
-        IAction progressReport = new IAction() {
-            public void actionPerformed() {
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
-                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-            }
-        };
+//        IAction progressReport = new IAction() {
+//            public void actionPerformed() {
+//                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+//                double ratio = sim.dsvo.getDataAsScalar();
+//                double error = sim.dsvo.getError();
+//                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+//            }
+//        };
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
         

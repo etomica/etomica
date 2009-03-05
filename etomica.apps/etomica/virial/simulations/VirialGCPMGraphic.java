@@ -49,7 +49,7 @@ public class VirialGCPMGraphic {
 
         Space space = Space3D.getInstance();
 
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final PotentialMolecular pTarget = new PNWaterGCPM(space);
         
         MayerGeneral fTarget = new MayerGeneral(pTarget);

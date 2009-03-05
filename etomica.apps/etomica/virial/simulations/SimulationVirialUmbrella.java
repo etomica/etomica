@@ -57,12 +57,12 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 		
 		Space3D space = Space3D.getInstance();
 		
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         P2LennardJones p2LJ = new P2LennardJones(space,sigmaLJ,1.0);
         System.out.println("LJ sampling");
-        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
-        MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2LJ);
+        MayerESpherical eTarget = new MayerESpherical(p2LJ);
         
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, true, eRef, true);
         refCluster.setTemperature(temperature);

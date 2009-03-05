@@ -1,11 +1,11 @@
 package etomica.virial.simulations;
 
+import etomica.api.IData;
+import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.P2HardSphere;
@@ -15,8 +15,6 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.api.IData;
-import etomica.api.ISpecies;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
@@ -66,8 +64,8 @@ public class VirialTangentSpheres {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         PotentialGroup pTargetGroup = new PotentialGroup(2);
         Potential2 p2 = null;
         if (model.equals("hard")) {

@@ -62,10 +62,10 @@ public class VirialLJSeries {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         Potential2Spherical pTarget = new P2SoftSphere(space,1.0,4.0,12);
-        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,pTarget);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         boolean[] used = new boolean[10];
         int[] bondMap = new int[10];
         for (int i=1; i<10; i++) {
@@ -88,7 +88,7 @@ public class VirialLJSeries {
         for (int i=1; i<10; i++) {
             if (used[i]) {
                 bondMap[i] = iBond;
-                allF[iBond] = new MayerSSSeries(space, 6*i);
+                allF[iBond] = new MayerSSSeries(6*i);
                 iBond++;
             }
         }

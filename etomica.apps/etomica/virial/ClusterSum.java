@@ -99,12 +99,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                    }
-                    else {
-                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    }
+                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
@@ -118,15 +113,8 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        if (fValues[i][j][k] != ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta)) {
-                            throw new RuntimeException("oops1 "+i+" "+j+" "+k+" "+((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta));
-                        }
-                    }
-                    else {
-                        if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),0, beta)) {
-                            throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta));
-                        }
+                    if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)) {
+                        throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta));
                     }
                     if (fValues[j][i][k] != fValues[i][j][k]) {
                         throw new RuntimeException("oops3 "+i+" "+j+" "+k+" "+fValues[j][i][k]+" "+fValues[i][j][k]);

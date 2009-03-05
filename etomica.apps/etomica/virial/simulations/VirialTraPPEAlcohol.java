@@ -18,7 +18,6 @@ import etomica.models.traPPE.SpeciesFactoryMethanol;
 import etomica.models.traPPE.SpeciesMethanol;
 import etomica.potential.P3BondAngle;
 import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -116,8 +115,8 @@ public class VirialTraPPEAlcohol {
         ****************************************************************************
         */
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         
         // U_a_b is a pairwise potential (2 molecules, a and b, are involved).
         // The directives for calculation of U_a_b are provided later.

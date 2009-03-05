@@ -24,10 +24,8 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.SpeciesFactorySpheres2;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.VirialAlkaneMix.VirialAlkaneMixParam;
 
 public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
 	public static void main(String[] args) {
@@ -84,8 +82,8 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2);
         PotentialGroup pMethaneEthaneGroup = new PotentialGroup(2);
         PotentialGroup pEthaneEthaneGroup = new PotentialGroup(2);

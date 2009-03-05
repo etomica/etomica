@@ -90,12 +90,7 @@ public class ClusterTree implements ClusterAbstract {
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                    }
-                    else {
-                        fValues[l][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    }
+                    fValues[l][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                     if (Double.isInfinite(fValues[l][k])) {
                         System.out.println("oops9");
                     }

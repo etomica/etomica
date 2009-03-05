@@ -63,12 +63,12 @@ public class VirialLJXS {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         Potential2Spherical pTarget = new P2LennardJones(space,1.0,1.0);
-        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,pTarget);
-        MayerESpherical eTarget = new MayerESpherical(space,pTarget);
-        ClusterAbstract targetCluster = Standard.virialClusterXS(nPoints, fTarget, nPoints>3, eTarget, true, ClusterOperations.PY);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
+        MayerESpherical eTarget = new MayerESpherical(pTarget);
+        ClusterAbstract targetCluster = Standard.virialClusterXS(nPoints, fTarget, true, eTarget, true, ClusterOperations.PY);
         targetCluster.setTemperature(temperature);
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);

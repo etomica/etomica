@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IBox;
-import etomica.space.ISpace;
+import etomica.api.IMoleculeList;
 
 /**
  * @author kofke
@@ -16,16 +16,16 @@ public class MayerEHardSphere extends MayerESpherical {
 	 * Constructor for MayerEHardSphere.
 	 * @param potential
 	 */
-	public MayerEHardSphere(ISpace space) {
-		this(space,1.0);
+	public MayerEHardSphere() {
+		this(1.0);
 	}
 	
-	public MayerEHardSphere(ISpace space, double sigma) {
-		super(space,null);
+	public MayerEHardSphere(double sigma) {
+		super(null);
 		setSigma(sigma);
 	}
 
-	public double f(double r2, double beta) {
+	public double f(IMoleculeList pair, double r2, double beta) {
 		return (r2<sigma2) ? 0.0 : 1.0;
 	}
 

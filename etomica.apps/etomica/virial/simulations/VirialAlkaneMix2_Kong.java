@@ -93,8 +93,8 @@ public class VirialAlkaneMix2_Kong {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);//Mayer f-function of HS potential
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);//Mayer e-function of HS potential
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);//Mayer f-function of HS potential
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);//Mayer e-function of HS potential
         //PotentialGroup pMethaneMethaneGroup = new PotentialGroup(2, space);//CH4-CH4 potential group
         //PotentialGroup pMethaneMethylGroup = new PotentialGroup(2, space);//CH4-CH3 potential group
         PotentialGroup pComp1Comp1Group = new PotentialGroup(2);//comp1-comp1 potential group

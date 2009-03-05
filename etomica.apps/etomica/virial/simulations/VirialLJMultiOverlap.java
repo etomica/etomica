@@ -75,8 +75,8 @@ public class VirialLJMultiOverlap {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         double sigma11 = 1.0;
         double sigma22 = 1.0;
         double sigma12 = 1.0;
@@ -104,14 +104,14 @@ public class VirialLJMultiOverlap {
             throw new RuntimeException("Don't know how to do mix "+mixID);
         }
         Potential2Spherical p11Target = new P2LennardJones(space, sigma11, epsilon11);
-        MayerGeneralSpherical f11Target = new MayerGeneralSpherical(space,p11Target);
+        MayerGeneralSpherical f11Target = new MayerGeneralSpherical(p11Target);
         Potential2Spherical p12Target = new P2LennardJones(space, sigma12, epsilon12);
-        MayerGeneralSpherical f12Target = new MayerGeneralSpherical(space,p12Target);
+        MayerGeneralSpherical f12Target = new MayerGeneralSpherical(p12Target);
         Potential2Spherical p22Target = new P2LennardJones(space, sigma22, epsilon22);
-        MayerGeneralSpherical f22Target = new MayerGeneralSpherical(space,p22Target);
-        MayerESpherical e11Target = new MayerESpherical(space,p11Target);
-        MayerESpherical e12Target = new MayerESpherical(space,p12Target);
-        MayerESpherical e22Target = new MayerESpherical(space,p22Target);
+        MayerGeneralSpherical f22Target = new MayerGeneralSpherical(p22Target);
+        MayerESpherical e11Target = new MayerESpherical(p11Target);
+        MayerESpherical e12Target = new MayerESpherical(p12Target);
+        MayerESpherical e22Target = new MayerESpherical(p22Target);
         ClusterAbstract targetCluster = Standard.virialClusterMixture(nPoints, new MayerFunction[][]{{f11Target,f12Target},{f12Target,f22Target}},
                                                                                new MayerFunction[][]{{e11Target,e12Target},{e12Target,e22Target}}, nTypes);
         targetCluster.setTemperature(temperature);

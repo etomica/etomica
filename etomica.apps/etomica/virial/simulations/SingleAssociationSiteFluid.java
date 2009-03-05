@@ -1,9 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.api.IAction;
-import etomica.api.IAtomType;
-import etomica.api.ISpecies;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -67,13 +64,13 @@ public class SingleAssociationSiteFluid {
 		P2HardAssociationCone p = new P2HardAssociationCone(space, sigma, epsilon, Double.POSITIVE_INFINITY, 20.0); //Lennard-Jones potential+square-well site-site attraction potential, 1.0=cutoffFactor
 		P2MoleculeMonatomic pMolecule = new P2MoleculeMonatomic(p);
 		P2SoftSphere pR = new P2SoftSphere(space, sigma, 4*epsilon, n);//repulsion potential in LJ
-		MayerGeneralSpherical fR = new MayerGeneralSpherical(space, pR);//repulsion Mayer fR function
-		MayerESpherical eR = new MayerESpherical(space, pR);//repulsion eR function
+		MayerGeneralSpherical fR = new MayerGeneralSpherical(pR);//repulsion Mayer fR function
+		MayerESpherical eR = new MayerESpherical(pR);//repulsion eR function
 		MayerGeneral f = new MayerGeneral(pMolecule);//usual Mayer f function
 		MayerFunctionSumGeneral F = new MayerFunctionSumGeneral(space, new MayerFunction[]{f,fR}, new double[]{1,-1});//F=f-fR
 		
-		MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+		MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
 		
 		int nBondTypes = 3;//fR,F,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];

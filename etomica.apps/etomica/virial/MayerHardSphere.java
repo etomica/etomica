@@ -1,34 +1,32 @@
 package etomica.virial;
 
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.space.ISpace;
 
 /**
  * @author kofke
  *
  * Hard-sphere Mayer function.  -1 if r < sigma; 0 otherwise
  */
-public class MayerHardSphere extends MayerFunctionSpherical {
+public class MayerHardSphere implements MayerFunction {
 
     private static final long serialVersionUID = 1L;
     private double sigma, sigma2;
-    private IPotential potential;
     /**
      * Constructor for MayerHardSphere.
      */
-    public MayerHardSphere(ISpace _space) {
-        this(_space, 1.0);
+    public MayerHardSphere() {
+        this(1.0);
     }
-    public MayerHardSphere(ISpace _space, double sigma) {
-        super(_space);
+    public MayerHardSphere(double sigma) {
         setSigma(sigma);
     }
 
     /**
      * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair)
      */
-    public double f(double r2, double beta) {
+    public double f(IMoleculeList pair, double r2, double beta) {
         return (r2<sigma2) ? -1.0 : 0.0;
     }
 
@@ -50,7 +48,7 @@ public class MayerHardSphere extends MayerFunctionSpherical {
     }
 
     public IPotential getPotential() {
-        return potential;
+        return null;
     }
 
     public void setBox(IBox newBox) {

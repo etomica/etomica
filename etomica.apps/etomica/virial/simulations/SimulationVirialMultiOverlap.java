@@ -13,7 +13,6 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -339,11 +338,11 @@ public class SimulationVirialMultiOverlap extends Simulation {
         System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
 
         Space3D space = Space3D.getInstance();
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         P2LennardJones p2LJ = new P2LennardJones(space,sigmaLJ,1.0);
-        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
-        MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2LJ);
+        MayerESpherical eTarget = new MayerESpherical(p2LJ);
 
         ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true);
         refCluster.setTemperature(temperature);

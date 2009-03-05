@@ -1,15 +1,15 @@
 package etomica.virial;
 
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.space.ISpace;
 
 /**
  * @author kofke
  *
  * Hard-sphere Mayer function.  -1 if r < sigma; 0 otherwise
  */
-public class MayerSSSeries extends MayerFunctionSpherical {
+public class MayerSSSeries implements MayerFunction {
 
     private static final long serialVersionUID = 1L;
     protected int exp6;
@@ -17,15 +17,14 @@ public class MayerSSSeries extends MayerFunctionSpherical {
     /**
      * Constructor for MayerHardSphere.
      */
-    public MayerSSSeries(ISpace _space, int exp) {
-        super(_space);
+    public MayerSSSeries(int exp) {
         setExp(exp);
     }
 
     /**
      * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair)
      */
-    public double f(double r2, double beta) {
+    public double f(IMoleculeList pair, double r2, double beta) {
         // beta = 1, epsilon = 1, sigma = 1
         if (r2 == 0) {
             return 0;

@@ -163,8 +163,8 @@ public class VirialRowleyAlcohol {
         ****************************************************************************
         */
         
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         
         // U_a_b is a pairwise potential (2 molecules, a and b, are involved).
         // The directives for calculation of U_a_b are provided later.

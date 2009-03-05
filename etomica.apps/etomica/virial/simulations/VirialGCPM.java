@@ -61,7 +61,7 @@ public class VirialGCPM {
 
         Space space = Space3D.getInstance();
 
-        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final IPotentialMolecular pTarget = new PNWaterGCPM(space);
         
         MayerGeneral fTarget = new MayerGeneral(pTarget);
@@ -137,14 +137,14 @@ public class VirialGCPM {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize());
         
-        IAction progressReport = new IAction() {
-            public void actionPerformed() {
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
-                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-            }
-        };
+//        IAction progressReport = new IAction() {
+//            public void actionPerformed() {
+//                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+//                double ratio = sim.dsvo.getDataAsScalar();
+//                double error = sim.dsvo.getError();
+//                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+//            }
+//        };
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 

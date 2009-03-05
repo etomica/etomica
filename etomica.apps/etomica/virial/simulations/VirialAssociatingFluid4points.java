@@ -18,13 +18,11 @@ import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionSpherical;
 import etomica.virial.MayerFunctionSum;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.VirialAssociatingFluid.VirialAssociatingFluidParam;
 
 public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
 	public static void main(String[] args) {
@@ -71,13 +69,13 @@ public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
         System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
 		P2LennardJones p = new P2LennardJones(space, sigma, epsilon);//Lennard-Jones potential
 		P2SoftSphere pR = new P2SoftSphere(space, sigma, 4*epsilon, n);//repulsion potential in LJ
-		MayerGeneralSpherical fR = new MayerGeneralSpherical(space, pR);//repulsion Mayer fR function
-		MayerESpherical eR = new MayerESpherical(space, pR);//repulsion eR function
-		MayerGeneralSpherical f = new MayerGeneralSpherical(space, p);//usual Mayer f function
-		MayerFunctionSum F = new MayerFunctionSum(space, new MayerFunctionSpherical[]{f,fR}, new double[]{1,-1});//F=f-fR
+		MayerGeneralSpherical fR = new MayerGeneralSpherical(pR);//repulsion Mayer fR function
+		MayerESpherical eR = new MayerESpherical(pR);//repulsion eR function
+		MayerGeneralSpherical f = new MayerGeneralSpherical(p);//usual Mayer f function
+		MayerFunctionSum F = new MayerFunctionSum(new MayerFunction[]{f,fR}, new double[]{1,-1});//F=f-fR
 		
-		MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+		MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
 		
 		int nBondTypes = 3;//fR,F,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
