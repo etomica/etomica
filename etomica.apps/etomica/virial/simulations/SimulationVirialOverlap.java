@@ -229,7 +229,7 @@ public class SimulationVirialOverlap extends Simulation {
                 // needs to be an int.  1e6 steps/block is a bit crazy.
                 newBlockSize = 1000000;
             }
-            setAccumulatorBlockSize((int)newBlockSize);
+            setAccumulatorBlockSize(newBlockSize);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(oldRefPref,30);
