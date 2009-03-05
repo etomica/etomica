@@ -115,7 +115,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         changedWV = random.nextInt(harmonicWV);
         changedWV +=1;
         
-        System.out.println(changedWV);
+//        System.out.println(changedWV);
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -138,7 +138,8 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                    deltaU[j] += waveVectorCoefficients[changedWV] * 
+                        eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);

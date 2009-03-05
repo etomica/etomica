@@ -153,7 +153,8 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                    deltaU[j] += waveVectorCoefficients[changedWV]*
+                        eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);

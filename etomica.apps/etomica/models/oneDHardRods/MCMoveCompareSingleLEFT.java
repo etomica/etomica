@@ -138,7 +138,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             int changedWV = random.nextInt(waveVectorCoefficients.length - comparedWV - 1);
             changedWV = changedWV + comparedWV + 1 ;
             
-            System.out.println(changedWV);
+//            System.out.println(changedWV);
             
             //calculate the new positions of the atoms.
             //loop over cells

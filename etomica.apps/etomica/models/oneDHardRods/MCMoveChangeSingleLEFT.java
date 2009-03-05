@@ -101,10 +101,10 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
         
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
-        //possibility.
-        changedWV = random.nextInt(waveVectorCoefficients.length - harmonicWV - 1);
-        changedWV = changedWV + harmonicWV;        
-        System.out.println(changedWV);
+        //possibility. 
+        changedWV = random.nextInt(waveVectorCoefficients.length  - harmonicWV);
+        changedWV += harmonicWV;
+//        System.out.println(changedWV);
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -127,7 +127,8 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                    deltaU[j] += waveVectorCoefficients[changedWV] * 
+                        eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);
