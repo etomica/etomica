@@ -7,6 +7,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SquareWell;
@@ -14,6 +15,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.api.IData;
 import etomica.api.ISpecies;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -83,6 +85,25 @@ public class VirialTangentSpheres {
             System.out.println(nSpheres+"-mer LJ chains B"+nPoints+" at "+temperature);
             p2 = new P2LennardJones(space, 1.0, 1.0);
         }
+        else if (model.equals("exp6")) {
+            double alpha = params.exp6Alpha;
+            System.out.println(nSpheres+"-mer exp6(alpha="+alpha+") chains B"+nPoints+" at "+temperature);
+            double lambda = 0;
+            double rm = 0;
+            if (alpha == 15) {
+                lambda = 0.1682455;
+                rm = 1.0/0.894170;
+            }
+            else if (alpha == 30) {
+                lambda = 0.1465604;
+                rm = 1.0 / 0.932341;
+            }
+            else if (alpha == 100) {
+                lambda = 6.248806e-7;
+                rm = 1.0/0.970041;
+            }
+            p2 = new P2Exp6Buckingham(space, 1.0, alpha, rm, lambda*rm);
+        }
         else {
             throw new RuntimeException("Unknown model "+model);
         }
@@ -97,9 +118,10 @@ public class VirialTangentSpheres {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryTangentSpheres(nSpheres,
+        SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactoryTangentSpheres(nSpheres,
                 new ConformationLinear(space,bondL)), temperature,refCluster,targetCluster, true);
         sim.integratorOS.setNumSubSteps(1000);
+        sim.setAccumulatorBlockSize(10*steps);
         
         if (nSpheres > 2) {
             PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
@@ -136,25 +158,31 @@ public class VirialTangentSpheres {
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("reference average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("reference overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
         
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-        System.out.println("chain ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-        System.out.println("chain average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("chain overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("target average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("target overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
 	}
     
     /**
@@ -166,6 +194,7 @@ public class VirialTangentSpheres {
         public double temperature = 500.0/114.0;
         public long numSteps = 10000;
         public String model = "LJ";
+        public double exp6Alpha = 15;
         public double bondL = 1.54/3.93;
     }
 }
