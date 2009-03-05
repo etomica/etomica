@@ -126,7 +126,7 @@ public class SingleAssociationSiteFluid {
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryOrientedSpheres(), temperature, refCluster, targetCluster);
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
-		sim.setAccumulatorBlockSize((int)numSteps*10);
+		sim.setAccumulatorBlockSize(numSteps*10);
 		sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+rhopoint+"_"+rho0point+"_"+temperature : null;
@@ -153,7 +153,7 @@ public class SingleAssociationSiteFluid {
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(numSteps);
         for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
+            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         sim.getController().actionPerformed();
 
