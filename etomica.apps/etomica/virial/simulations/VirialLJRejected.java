@@ -96,6 +96,7 @@ public class VirialLJRejected {
 		
         final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
+        sim.setAccumulatorBlockSize(steps*10);
         
         if (true) {
             double size = 5;

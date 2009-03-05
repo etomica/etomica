@@ -19,7 +19,6 @@ import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -123,6 +122,7 @@ public class VirialLJMultiOverlap {
 		
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
+        sim.setAccumulatorBlockSize(10*numSteps);
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
