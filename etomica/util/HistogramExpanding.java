@@ -86,7 +86,7 @@ public class HistogramExpanding extends HistogramSimple {
         	// data to come in and use that to initialize the range
         	xMin = Double.NaN;
         	xMax = Double.NaN;
-        	counts = new int[0];
+        	counts = new long[0];
             histogram = new double[0];
             xValues = new double[0];
         	nBins = 0;
@@ -113,14 +113,14 @@ public class HistogramExpanding extends HistogramSimple {
                 }
             }
             //copy old data
-            int[] newCounts = new int[newNBins];
+            long[] newCounts = new long[newNBins];
             for (int i=Math.max(0,minDiff); i<nBins-Math.max(0,maxDiff); i++) {
                 newCounts[i-minDiff] = counts[i];
             }
             counts = newCounts;
         }
         else {
-            counts = new int[newNBins];
+            counts = new long[newNBins];
         }
         xMin = newXMin;
         xMax = newXMax;

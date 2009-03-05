@@ -2,12 +2,6 @@ package etomica.util;
 
 import java.io.Serializable;
 
-
-/* History
- * 09/08/02 (DAK) added set/get methods for xMin, xMax, nBins
- * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
- */
-
 /**
  * Simple Histogram implementation with a static x range and number of bins.
  * If an x value is given that falls outside the histogram's x range, the 
@@ -17,7 +11,7 @@ import java.io.Serializable;
 public class HistogramSimple implements Histogram, java.io.Serializable {
 	protected double deltaX;
 	private long sum;
-	protected int[] counts;
+	protected long[] counts;
 	protected double[] histogram;
     protected double xValues[];
     protected double xMin;
@@ -38,7 +32,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
      */
     public HistogramSimple(int n, DoubleRange xRange) {
         nBins = n;
-        counts = new int[n];
+        counts = new long[n];
         histogram = new double[n];
         xValues = new double[n];
         setXRange(xRange);
@@ -80,7 +74,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
     
     public void setNBins(int n) {
         this.nBins = n;
-        counts = new int[n];
+        counts = new long[n];
         histogram = new double[n];
         xValues = new double[n];
         deltaX = (xMax-xMin)/nBins;
@@ -91,7 +85,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
         //returns an array representing the present histogram
         if (sum != 0) {
 		    for(int i=0; i<nBins; i++) {
-		        histogram[i] = (double)counts[i]/((double)sum*deltaX);
+		        histogram[i] = counts[i]/(sum*deltaX);
 		    }
         }
 	    return histogram;
