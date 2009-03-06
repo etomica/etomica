@@ -92,7 +92,7 @@ public class SimFluidSoftSphere extends Simulation {
         writeConfig.setBox(box);
         writeConfig.setConfName(fname);
         writeConfig.actionPerformed();
-        System.out.println("***output configFile: "+ fname);
+        System.out.println("\n***output configFile: "+ fname);
     }
     
     /**
@@ -100,18 +100,29 @@ public class SimFluidSoftSphere extends Simulation {
      */
     public static void main(String[] args) {
 
+    	/*
+    	 *  exponent               freezing density
+    	 *  ----------------------------------------
+    	 *  	12						0.813
+    	 *  	 9						0.943
+    	 *  	 6						1.540
+    	 *  	 4						3.920
+    	 *  Referece: Hoover, Gray & Johnson (JCP 1971) Table IV	
+    	 */
+    	
         // defaults
         int D = 3;
         int nA = 500;
-        double density = 0.05;
+        double density_div_sqrt2 = .215;
         double temperature = 1.0;
-        int exponent = 12 ;
+        int exponent = 12;
+        double freezeDensity = 0.813;
         long simSteps =10000;
         
         
         // parse arguments
         if (args.length > 0) {
-            density = Double.parseDouble(args[0]);
+            density_div_sqrt2 = Double.parseDouble(args[0]);
         }
         if (args.length > 1) {
             simSteps = Long.parseLong(args[1]);
@@ -125,23 +136,46 @@ public class SimFluidSoftSphere extends Simulation {
         if (args.length > 4) {
         	exponent = Integer.parseInt(args[4]);
         }
+        if (args.length > 5) {
+        	freezeDensity = Integer.parseInt(args[5]);
+        }
+        
+        double density = density_div_sqrt2*Math.sqrt(2);
+        
+        int rho60Freeze = (int)Math.round(0.6*freezeDensity*1000);
+        double density60Freeze = (double)rho60Freeze/1000;
+        int rho90Freeze = (int)Math.round(0.9*freezeDensity*1000);
+        double density90Freeze = (double)rho90Freeze/1000;
         
         System.out.println("Running fluid soft sphere simulation");
-        System.out.println(nA + " atoms with exponent " + exponent+" and density "+density);
+        System.out.println(nA + " atoms with exponent " + exponent+" and simulation box density "+density);
+        System.out.println("Freezing Density: "+ freezeDensity +" ;Density/sqrt(2): " + density_div_sqrt2);
         System.out.println("isotherm temperature at "+temperature);
         System.out.println(simSteps+ " steps");
+        System.out.println("60% Freezing Density: "+ density60Freeze + " ;90% Freezing Density: "+ density90Freeze);
 
+        
+        
         // construct simulation
         SimFluidSoftSphere sim = new SimFluidSoftSphere(Space.getInstance(D), nA, density, temperature, exponent);
-        
-        if (density < 0.1){
-        	filename = "ConfigSS00"+(int)Math.round(density*100);
+       
+        /*
+         * Output the Configuration File Name
+         * The format is, e.g. Confign12SS1256
+         * 		exponent n = 12
+         * 		density/sqrt(2) = 1.256
+         */
+        if(density_div_sqrt2 < 0.01){
+        	filename = "Confign"+exponent+"SS000"+(int)Math.round(density_div_sqrt2*1000);
         	
-        } else if (density >= 0.1 && density < 1.0){
-        	filename = "ConfigSS0"+(int)Math.round(density*100);
+    	} else if (density_div_sqrt2 >= 0.01 && density_div_sqrt2 < 0.1){
+        	filename = "Confign"+exponent+"SS00"+(int)Math.round(density_div_sqrt2*1000);
+        	
+        } else if (density_div_sqrt2 >= 0.1 && density_div_sqrt2 < 1.0){
+        	filename = "Confign"+exponent+"SS0"+(int)Math.round(density_div_sqrt2*1000);
         	
         } else {
-        	filename = "ConfigSS"+(int)Math.round(density*100);
+        	filename = "Confign"+exponent+"SS"+(int)Math.round(density_div_sqrt2*1000);
         	
         }
         
@@ -181,15 +215,15 @@ public class SimFluidSoftSphere extends Simulation {
         
         final double d = density; 
         final double temp = temperature;
+        final int n = exponent;
         IAction pressureCheck = new IAction(){
         	public void actionPerformed(){
-        		System.out.println("Var[density/sqrt(2)]: "+ d/(Math.sqrt(2)*Math.pow(temp, 0.25))+ " ,Z: "
+        		System.out.println("Var[density/sqrt(2)]: "+ d/(Math.sqrt(2)*Math.pow(temp, 3.0/(double)n))+ " ,Z: "
                 		+((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)/(d*temp));
                 
         	}
         };
         
-		
         sim.integrator.addIntervalAction(pressureCheck);
         sim.integrator.setActionInterval(pressureCheck, (int)simSteps/10);
         
@@ -209,12 +243,14 @@ public class SimFluidSoftSphere extends Simulation {
         
         
         /*
-         * Note: 	density= 1.05 @ kT = 1.0
-         * 			var = 0.74246212
+         * If the density is greater 90% of the freezing density;
+         * 	we use the final configuration of the simulation run with 0.9*freezeDensity
+         * 	as the initial configuration and scale to the corresponding density.
+         * 
          */
         
         File configFileNew = new File(filename+".pos"); 
-       
+        
         if(configFileNew.exists()){
     		System.out.println("\n***using "+ configFileNew);
 			sim.activityIntegrate.setMaxSteps(10);
@@ -222,29 +258,41 @@ public class SimFluidSoftSphere extends Simulation {
         
         } else {
         	        
-	        if (density < 0.85){
+	        if (density_div_sqrt2 < density60Freeze){
 	        	sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
 	        
-	        } else if(density >= 0.85 && density <= 1.05){	
+	        } else if(density_div_sqrt2 >= density60Freeze && density_div_sqrt2 <= density90Freeze){	
 	        	sim.activityIntegrate.setMaxSteps(simSteps/4);
 	        	
-	        } else if (density > 1.05){
-	        	File configFile105 = new File("ConfigSS105.pos_new");
+	        } else if (density_div_sqrt2 > density90Freeze){
+	        	File configFile09Freeze;
+	        	String fileName09Freeze;
 	        	
-	        	if (!configFile105.exists()){
-	        		throw new RuntimeException("you need to have the configuration file from lower density");
+	        	if (density90Freeze < 1.0){
+	        		fileName09Freeze = "Confign"+exponent+"SS0"+rho90Freeze;
+	        		configFile09Freeze = new File(fileName09Freeze+".pos");
 	        	
 	        	} else {
-	        		System.out.println("\n***using "+ configFile105);
+	        		fileName09Freeze = "Confign"+exponent+"SS"+rho90Freeze;
+	        		configFile09Freeze = new File(fileName09Freeze+".pos");
+	        	}
+	        	
+	        	
+	        	if (!configFile09Freeze.exists()){
+	        		throw new RuntimeException("Density exceeds 90% of freezing density,\nyou need to have the configuration file from lower density");
+	        	
+	        	} else {
+	        		System.out.println("\n***using "+ configFile09Freeze);
 	        		sim.activityIntegrate.setMaxSteps(simSteps/10);
-	        		sim.rescaleBox(1.05);
-	        		sim.initializeConfigFromFile("ConfigSS105");       	
+	        		sim.rescaleBox(density90Freeze*Math.sqrt(2));
+	        		sim.initializeConfigFromFile(fileName09Freeze);       	
 	        		sim.rescaleBox(density);
 	        	
 	        	}
 	        
 	        }
         }
+        
         
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
@@ -271,7 +319,7 @@ public class SimFluidSoftSphere extends Simulation {
         					+ " ,Error Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
         System.out.println(" ");
         
-        System.out.println("Var[density/sqrt(2)]: "+ density/(Math.sqrt(2)*Math.pow(temperature, 0.25))+ " ,Z: "
+        System.out.println("Var[density/sqrt(2)]: "+ density/(Math.sqrt(2)*Math.pow(temperature, 3/(double)exponent))+ " ,Z: "
         		+((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)/(density*temperature));
 
     }
