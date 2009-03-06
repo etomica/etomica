@@ -137,7 +137,7 @@ public class SimFluidSoftSphere extends Simulation {
         	exponent = Integer.parseInt(args[4]);
         }
         if (args.length > 5) {
-        	freezeDensity = Integer.parseInt(args[5]);
+        	freezeDensity = Double.parseDouble(args[5]);
         }
         
         double density = density_div_sqrt2*Math.sqrt(2);
@@ -166,16 +166,16 @@ public class SimFluidSoftSphere extends Simulation {
          * 		density/sqrt(2) = 1.256
          */
         if(density_div_sqrt2 < 0.01){
-        	filename = "Confign"+exponent+"SS000"+(int)Math.round(density_div_sqrt2*1000);
+        	filename = "confign"+exponent+"SS000"+(int)Math.round(density_div_sqrt2*1000);
         	
     	} else if (density_div_sqrt2 >= 0.01 && density_div_sqrt2 < 0.1){
-        	filename = "Confign"+exponent+"SS00"+(int)Math.round(density_div_sqrt2*1000);
+        	filename = "confign"+exponent+"SS00"+(int)Math.round(density_div_sqrt2*1000);
         	
         } else if (density_div_sqrt2 >= 0.1 && density_div_sqrt2 < 1.0){
-        	filename = "Confign"+exponent+"SS0"+(int)Math.round(density_div_sqrt2*1000);
+        	filename = "confign"+exponent+"SS0"+(int)Math.round(density_div_sqrt2*1000);
         	
         } else {
-        	filename = "Confign"+exponent+"SS"+(int)Math.round(density_div_sqrt2*1000);
+        	filename = "confign"+exponent+"SS"+(int)Math.round(density_div_sqrt2*1000);
         	
         }
         
@@ -269,11 +269,11 @@ public class SimFluidSoftSphere extends Simulation {
 	        	String fileName09Freeze;
 	        	
 	        	if (density90Freeze < 1.0){
-	        		fileName09Freeze = "Confign"+exponent+"SS0"+rho90Freeze;
+	        		fileName09Freeze = "confign"+exponent+"SS0"+rho90Freeze;
 	        		configFile09Freeze = new File(fileName09Freeze+".pos");
 	        	
 	        	} else {
-	        		fileName09Freeze = "Confign"+exponent+"SS"+rho90Freeze;
+	        		fileName09Freeze = "confign"+exponent+"SS"+rho90Freeze;
 	        		configFile09Freeze = new File(fileName09Freeze+".pos");
 	        	}
 	        	
