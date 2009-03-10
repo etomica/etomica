@@ -73,8 +73,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             int[] compWV, int[] harmWV){
         super(_space, true);
         
-//        IRandom rand = new RandomNumberGenerator((long)3.0);
-//        this.setRandom(rand);
+        IRandom rand = new RandomNumberGenerator((long)3.0);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -666,14 +666,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
-        public int numAtoms = 10;
+        public int numAtoms = 6;
         public double density = 0.5;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {4, 1};
-        public int[] harmonicWV = {2, 5};
+        public int[] comparedWV = {2};
+        public int[] harmonicWV = {3};
         
         public int numSteps = 400000;
         public int runBlockSize = 1000;
