@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -37,6 +38,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -70,8 +72,8 @@ public class SimOverlapn32m2Right extends Simulation {
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
-//        IRandom rand = new RandomNumberGenerator((long)3.0);
-//        this.setRandom(rand);
+        IRandom rand = new RandomNumberGenerator((long)3.0);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -704,16 +706,19 @@ public class SimOverlapn32m2Right extends Simulation {
 //        meterBinA.setComparedWV(new int[] {13, 14});
 //        meterBinB.setComparedWV(new int[] {13, 14});
 //        
-        compareMove.setComparedWV(15);
-        changeMove.setHarmonicWV(-1);
-        meterBinA.setComparedWV(new int[] {15, 16});
-        meterBinB.setComparedWV(new int[] {15, 16});
+//        compareMove.setComparedWV(15);
+//        changeMove.setHarmonicWV(-1);
+//        meterBinA.setComparedWV(new int[] {15, 16});
+//        meterBinB.setComparedWV(new int[] {15, 16});
 //        
         
-        
+        compareMove.setComparedWV(2);
+        changeMove.setHarmonicWV(-1);
+        meterBinA.setComparedWV(new int[] {2, 3});
+        meterBinB.setComparedWV(new int[] {2, 3});
     }
     public static class SimOverlapn32m4RightParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 6;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
