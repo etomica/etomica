@@ -5,7 +5,6 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -48,6 +47,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     int howManyChangesToHardRodModes;
     int[] comparedWVs, harmonicWVs;
 
+    MCMoveCompareSingleLEFT compLeft;
+    
     public MCMoveCompareMultipleModes(IPotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster);
@@ -57,9 +58,15 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
         howManyChangesToHardRodModes = 1;
+        
+        compLeft = new MCMoveCompareSingleLEFT(potentialMaster, random);
     }
 
-    public boolean doTrial() {        
+    public boolean doTrial() {
+        
+        compLeft.doTrial();
+        
+        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -127,7 +134,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
         energyOld = energyMeter.getDataAsScalar();
         if (energyOld != 0.0) {
-            for (int k = 0; k < 32; k++) {
+            int limit = coordinateDefinition.getBox().getLeafList().getAtomCount();
+            for (int k = 0; k < limit; k++) {
                 System.out.println(k + " " + ((IAtomPositioned) 
                         coordinateDefinition.getBox().getLeafList().getAtom(k))
                         .getPosition());
@@ -289,6 +297,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
+        
+        compLeft.setBox(newBox);
     }
 
     public AtomIterator affectedAtoms() {
@@ -301,6 +311,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         uOld = null;
         realT = new double[coordinateDefinition.getCoordinateDim()];
         imagT = new double[coordinateDefinition.getCoordinateDim()];
+        
+        
+        compLeft.setCoordinateDefinition(newCD);
     }
 
     public CoordinateDefinition getCoordinateDefinition() {
@@ -315,9 +328,15 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     public void setWaveVectors(IVectorMutable[] wv){
         waveVectors = new IVectorMutable[wv.length];
         waveVectors = wv;
+        
+        compLeft.setWaveVectors(wv);
+        
     }
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
         waveVectorCoefficients = newWaveVectorCoefficients;
+    
+        compLeft.setWaveVectorCoefficients(newWaveVectorCoefficients);
+    
     }
 
     /**
@@ -325,6 +344,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
      */
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
+        
+        
+        compLeft.setEigenVectors(newEigenVectors);
     }
 
     public void setOmegaSquared(double[][] omega2, double[] coeff) {
@@ -334,10 +356,16 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 stdDev[i][j] = Math.sqrt(1.0 / (2.0 * omega2[i][j] * coeff[i]));
             }
         }
+        
+        compLeft.setOmegaSquared(omega2, coeff);
+
     }
 
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
+
+        compLeft.setTemperature(newTemperature);
+    
     }
 
     public double[] getGaussian() {
@@ -356,6 +384,15 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             }
         }
         comparedWVs = wv;
+    
+        int dink = 0;
+        for(int i = 0; i < wv.length; i++){
+            if(wv[i] < wv[dink]){
+                dink = i;
+            }
+        }
+        compLeft.setComparedWV(wv[dink]);
+    
     }
     /**
      * Set the wavevectors that are always harmonic.
