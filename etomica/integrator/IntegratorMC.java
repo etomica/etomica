@@ -7,7 +7,6 @@ import etomica.api.IEventManager;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -47,11 +46,6 @@ public class IntegratorMC extends IntegratorBox {
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
-	}
-
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("General Monte Carlo simulation");
-		return info;
 	}
 
     /**
