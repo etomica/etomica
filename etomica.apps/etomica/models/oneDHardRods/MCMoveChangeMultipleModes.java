@@ -37,7 +37,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     int[] harmonicWaveVectors;  //all wvs from the harmonic wv are not changed.
     
     
-    MCMoveChangeSingleLEFT singleft;
+//    MCMoveChangeSingleLEFT singleft;
     
     public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -46,7 +46,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         
-        singleft = new MCMoveChangeSingleLEFT(potentialMaster, random);
+//        singleft = new MCMoveChangeSingleLEFT(potentialMaster, random);
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -54,7 +54,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         deltaU = new double[coordinateDefinition.getCoordinateDim()];
         uOld = null;
         
-        singleft.setCoordinateDefinition(newCoordinateDefinition);
+//        singleft.setCoordinateDefinition(newCoordinateDefinition);
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -72,7 +72,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             throw new IllegalArgumentException("all wave vectors are harmonic!");
         }
         
-        singleft.setHarmonicWV(hwv[0]);
+//        singleft.setHarmonicWV(hwv[0]);
     }
 
     /**
@@ -84,12 +84,12 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         waveVectors = new IVectorMutable[wv.length];
         waveVectors = wv;
         
-        singleft.setWaveVectors(wv);
+//        singleft.setWaveVectors(wv);
     }
     public void setWaveVectorCoefficients(double[] coeff){
         waveVectorCoefficients = coeff;
         
-        singleft.setWaveVectorCoefficients(coeff);
+//        singleft.setWaveVectorCoefficients(coeff);
     }
     /**
      * Informs the move of the eigenvectors for the selected wave vector.  The
@@ -98,7 +98,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
         
-        singleft.setEigenVectors(newEigenVectors);
+//        singleft.setEigenVectors(newEigenVectors);
     }
     
     public void setBox(IBox newBox) {
@@ -106,7 +106,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
         
-        singleft.setBox(newBox);
+//        singleft.setBox(newBox);
     }
 
     public AtomIterator affectedAtoms() {
@@ -120,7 +120,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
 //    
     public boolean doTrial() {
         
-        singleft.doTrial();
+//        singleft.doTrial();
         
         
         

@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -37,6 +38,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -70,8 +72,8 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-//        IRandom rand = new RandomNumberGenerator((long)3.0);
-//        this.setRandom(rand);
+        IRandom rand = new RandomNumberGenerator((long)3.0);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -677,7 +679,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 6;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -685,15 +687,15 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = 2;
         
-        public int numSteps = 40000000;
-        public int runBlockSize = 100000;
-        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        public int numSteps = 400000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000000;  
-        public int eqBlockSize = 10000;
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 100;
         
-        public int bennettNumSteps = 4000000;
-        public int benBlockSize = 10000;
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 100;
 
     }
     

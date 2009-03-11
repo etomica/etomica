@@ -73,8 +73,8 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
 
         //Get normal mode coordinate information
         coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
-//        System.out.println("Real:  "+ realT[0]);
-//        System.out.println("Imag:  "+ imagT[0]);
+        System.out.println("Single Real:  "+ realT[0]);
+        System.out.println("Single Imag:  "+ imagT[0]);
         
         
 //ZERO OUT A NORMAL MODE.
@@ -99,9 +99,9 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
                 double realCoord = 0, imagCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
                     realCoord += eigenVectors[comparedWV][i][j] * realT[j];
-//                    System.out.println("realcoord " + realCoord);
+//                    System.out.println("Single realcoord " + realCoord);
                     imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
-//                    System.out.println("imagcoord " + imagCoord);
+//                    System.out.println("Single imagcoord " + imagCoord);
                 }
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] * 2.0 *
@@ -115,7 +115,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//                System.out.println("1-unow " + uNow[i]);
+                System.out.println("1-unow Single" + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
@@ -138,13 +138,15 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             int changedWV = random.nextInt(waveVectorCoefficients.length - comparedWV - 1);
             changedWV = changedWV + comparedWV + 1 ;
             
-//            System.out.println(changedWV);
+            System.out.println("single changed in chunk 2: " + changedWV);
             
             //calculate the new positions of the atoms.
             //loop over cells
             double delta1 = (2*random.nextDouble()-1) * stepSize;
             double delta2 = (2*random.nextDouble()-1) * stepSize;
 //            delta1 = 0.0; delta2 = 0.5;  //nork
+            System.out.println("single deltas " + delta1 + "  "+ delta2);
+            
             for(int iCell = 0; iCell < cells.length; iCell++){
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
@@ -175,7 +177,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
 //                }
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-//                    System.out.println("2-unow " + uNow[i]);
+                    System.out.println("2-unow single " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
@@ -183,6 +185,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
         energyNew = energyMeter.getDataAsScalar();
 //        System.out.println("youNou " + energyNew);
 
+//        System.out.println("Single:");
 //        for(int k = 0; k < 32; k++){
 //            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
 //        }
@@ -199,6 +202,9 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             double realGauss = random.nextGaussian() * sqrtT;
             double imagGauss = random.nextGaussian() * sqrtT;
             
+            System.out.println("single real Gauss " + realGauss);
+            System.out.println("single imag Gauss " + imagGauss);
+
 //            realGauss = 0.6;  //nork
 //            imagGauss = 0.3;  //nork
             
@@ -238,7 +244,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//              System.out.println("3-unow " + uNow[i]);
+                System.out.println("3-unow single: " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }

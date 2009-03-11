@@ -585,6 +585,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
+        sim.setBennettParameter(0.573265415766427);
         sim.setAccumulatorBlockSize((int)runBlockSize);
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);

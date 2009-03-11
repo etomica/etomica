@@ -64,7 +64,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
     public boolean doTrial() {
         
-        compLeft.doTrial();
+//        compLeft.doTrial();
         
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -73,7 +73,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         iRand = new double[coordinateDim];
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
-
+        
         // nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
@@ -90,10 +90,14 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
+
+//            System.out.println(wvCount +"Multiple Real:  "+ realT[0]);
+//            System.out.println(wvCount + "Multiple Imag:  "+ imagT[0]);
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 // store old positions.
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+//                System.out.println("mult uNow "+ uNow[0]);
                 System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
                 cell = cells[iCell];
                 // rezero deltaU
@@ -126,7 +130,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
+
+//                    System.out.println("1-unow Multiple " + uNow[i]);
                 }
+                
+                
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
 
             }//end of cell loop
@@ -164,12 +172,15 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 }
             } while (!isaccepted);
             
-//            System.out.println(changedWV);
+//            System.out.println("multiple changed in chunk 2: " + changedWV);
+
             
             // calculate the new positions of the atoms.
             // loop over cells
             double delta1 = (2 * random.nextDouble() - 1) * stepSize;
             double delta2 = (2 * random.nextDouble() - 1) * stepSize;
+//            System.out.println("multiple deltas " + delta1 + "  "+ delta2);
+            
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
@@ -195,6 +206,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                  }
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
+//                    System.out.println("2-unow multiple " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
@@ -217,6 +229,9 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 double realGauss = random.nextGaussian() * sqrtT;
                 double imagGauss = random.nextGaussian() * sqrtT;
     
+//                System.out.println("multiple real Gauss " + realGauss);
+//                System.out.println("multiple imag Gauss " + imagGauss);
+                
                 // XXX we know that if c(k) = 0.5, one of the gaussians will be
                 // ignored, but it's hard to know which. So long as we don't put
                 // an atom at the  origin (which is true for 1D if c(k)=0.5), 
@@ -254,7 +269,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     
                 for (int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-//                    System.out.println(uNow[i]);
+//                    System.out.println("3-unow multiple: " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }

@@ -49,7 +49,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
-        single = new MeterCompareSingleModeBrute("single", potentialMaster, cd, box);
+//        single = new MeterCompareSingleModeBrute("single", potentialMaster, cd, box);
     }
     
     
@@ -67,7 +67,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         
         
 
-//        System.out.println("single: " + single.getDataAsScalar());
+        System.out.println("single: " + single.getDataAsScalar());
         
         
         //Get the normal mode coordinates of the compared waveVectors, and
@@ -171,6 +171,8 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
 //            System.out.println("HR: " + energyHardRod);
 //            System.out.println("Harm: " + energyHarmonic);
 //        }
+        
+//        System.out.println("multiple: "+ (energyHardRod +energyHarmonic));
         
         return energyHardRod + energyHarmonic;
     }
