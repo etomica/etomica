@@ -29,7 +29,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-    public MeterCompareSingleModeBrute single;
+//    public MeterCompareSingleModeBrute single;
     
     public boolean isA;
     
@@ -67,7 +67,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         
         
 
-        System.out.println("single: " + single.getDataAsScalar());
+//        System.out.println("single: " + single.getDataAsScalar());
         
         
         //Get the normal mode coordinates of the compared waveVectors, and
@@ -206,13 +206,13 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         omegaSquared = sc;
     }
 
-    public MeterCompareSingleModeBrute getSingle() {
-        return single;
-    }
-
-    public void setSingle(MeterCompareSingleModeBrute single) {
-        this.single = single;
-    }
+//    public MeterCompareSingleModeBrute getSingle() {
+//        return single;
+//    }
+//
+//    public void setSingle(MeterCompareSingleModeBrute single) {
+//        this.single = single;
+//    }
 
     public boolean isA() {
         return isA;

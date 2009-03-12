@@ -501,7 +501,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        SimOverlapSingleWaveVector sim = new SimOverlapSingleWaveVector(Space.getInstance(D), numMolecules,
+        SimOverlapSingleWaveVectorLEFT sim = new SimOverlapSingleWaveVectorLEFT(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
