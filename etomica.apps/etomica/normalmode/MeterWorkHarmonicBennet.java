@@ -46,13 +46,30 @@ public class MeterWorkHarmonicBennet implements IEtomicaDataSource {
     	
     	double ratio = e0/(1+refPref*(e0/e1));     //e0*e1/(e1+refPref*e0);
     	double overlapEnergy = -Math.log(ratio);
-        data.x = overlapEnergy - mcMoveHarmonic.getLastTotalEnergy()/temperature;
+    	double harmonicEnergy = mcMoveHarmonic.getLastTotalEnergy()/temperature;
+        data.x = overlapEnergy - harmonicEnergy;
       	//System.out.println("uHarmonic: "+ mcMoveHarmonic.getLastTotalEnergy()+" uTarget: "+meterEnergy.getDataAsScalar()
       	//					+" ,ratio: "+ratio+ " ,overlapEnergy: "+overlapEnergy);
       	
-    	denomSum += ratio/e0;
-    	numSum += data.x*(ratio/e0);
-    	
+        /*
+         * to take care of the limit when e1 --> 0
+         */
+        if (e1 < 1e-100){
+            
+            numSum += e1/(refPref*e0)*100;   //*100 is just a correction to the order of magnitude 1/27/2009
+            
+            
+            //System.out.println("e1: " + e1);
+            //System.out.println("e1limit: "+ e1/(refPref*e0)*100+ " , e1: "+ data.x*(ratio/e0));
+            
+            
+        } else {
+        	
+        	numSum += data.x*(ratio/e0);
+        	
+        }
+        
+        denomSum += ratio/e0;
         return data;
     }
     
