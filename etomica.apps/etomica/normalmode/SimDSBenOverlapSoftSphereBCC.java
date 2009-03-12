@@ -55,10 +55,10 @@ import etomica.virial.overlap.IntegratorOverlap;
  * Simulation to run sampling with the soft sphere potential, but measuring
  * the harmonic potential based on normal mode data from a previous simulation.
  * 
- *  	Direct Sampling and Bennett's Overlap for Soft Sphere FCC structure
+ *  	Direct Sampling and Bennett's Overlap for Soft Sphere BCC structure
  *  
  * 
- * @author Andrew Schultz & Tai Tan
+ * @author Tai Tan
  */
 public class SimDSBenOverlapSoftSphereBCC extends Simulation {
 
@@ -380,7 +380,7 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
         String refFileName = filename+"_ref";
 
-        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
+        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "BCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
         System.out.println((numSteps/1000)+" total steps of 1000");
@@ -762,6 +762,9 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
 		        double reweightedWorkBennHarm = meterWorkHarmonicBennet.getDataReweighted();
 		        double reweightedWorkBennTarg = meterWorkTargetBennet.getDataReweighted();
 		        
+		        double sBennetHarmonic = -reweightedWorkBennHarm + deltaFEHarmonic;
+		        double sBennetTarget = -reweightedWorkBennTarg + deltaFETarget;
+		        
 		        double pressureTarget = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double pressureError = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
@@ -773,7 +776,8 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
 		        	
 		        	fileWriterBen.write(idStep*1000 + " " + deltaFEHarmonic + " " + deltaFETarget + " " + wHarmonicBennet + " "+ wTargetBennet
 		        			+ " " + reweightedWorkBennHarm + " " + reweightedWorkBennTarg                      
-		        			+ " " + sHarmonicBennet + " " + sTargetBennet + "\n");
+		        			+ " " + sHarmonicBennet + " " + sTargetBennet 
+		        			+ " " + sBennetHarmonic + " " + sBennetTarget + "\n");
 		        	
 		        } catch (IOException e){
 		        	
@@ -859,8 +863,8 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
 		         *  B: reference system
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE;
-		        double sTarget =   wTarget + deltaFE;
+		        double sHarmonic = wHarmonic - deltaFE_DSHarmonic;
+		        double sTarget =   wTarget + deltaFE_DSHarmonic;
 		        
 		        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
 		        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -884,7 +888,7 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
         IAction outputActionTarget = new IAction(){
         	public void actionPerformed(){
 
-        		long idStep = sim.integrators[1].getStepCount()/sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
+        		long idStep = sim.integrators[1].getStepCount(); // /sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
      
 		        /*
 		         * Histogram
@@ -957,8 +961,8 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
 		         *  B: reference system
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE;
-		        double sTarget =   wTarget + deltaFE;
+		        double sHarmonic = wHarmonic - deltaFE_DSTarget;
+		        double sTarget =   wTarget + deltaFE_DSTarget;
 		        
 		        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
 		        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -1005,6 +1009,7 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
             }
         }
 
+        
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCells[i];
@@ -1080,7 +1085,7 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "DB_BCC_n6_T01";
+        public String filename = "CB_BCC_n6_T01";
         public double temperature = 0.1;
     }
 }

@@ -160,7 +160,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         /*
          * nuke this line if it is overlap between DB and harmonic
          */
-        //normalModes.setTemperature(temperature);
+       normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
@@ -353,7 +353,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
      * @see SimDSBenOverlapSoftSphereFCC.SimOverlapParam
      */
     public static void main(String[] args) {
-        
+
+    	
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
@@ -763,6 +764,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        double reweightedWorkBennHarm = meterWorkHarmonicBennet.getDataReweighted();
 		        double reweightedWorkBennTarg = meterWorkTargetBennet.getDataReweighted();
 		        
+		        double sBennetHarmonic = -reweightedWorkBennHarm + deltaFEHarmonic;
+		        double sBennetTarget = -reweightedWorkBennTarg + deltaFETarget;
+		        
 		        double pressureTarget = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double pressureError = ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
@@ -774,7 +778,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        	
 		        	fileWriterBen.write(idStep*1000 + " " + deltaFEHarmonic + " " + deltaFETarget + " " + wHarmonicBennet + " "+ wTargetBennet
 		        			+ " " + reweightedWorkBennHarm + " " + reweightedWorkBennTarg                      
-		        			+ " " + sHarmonicBennet + " " + sTargetBennet + "\n");
+		        			+ " " + sHarmonicBennet + " " + sTargetBennet 
+		        			+ " " + sBennetHarmonic + " " + sBennetTarget + "\n");
 		        	
 		        } catch (IOException e){
 		        	
@@ -860,8 +865,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		         *  B: reference system
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE;
-		        double sTarget =   wTarget + deltaFE;
+		        double sHarmonic = wHarmonic - deltaFE_DSHarmonic;
+		        double sTarget =   wTarget + deltaFE_DSHarmonic;
 		        
 		        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
 		        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -885,7 +890,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         IAction outputActionTarget = new IAction(){
         	public void actionPerformed(){
 
-        		long idStep = sim.integrators[1].getStepCount()/sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
+        		long idStep = sim.integrators[1].getStepCount(); // /sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
      
 		        /*
 		         * Histogram
@@ -958,8 +963,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		         *  B: reference system
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE;
-		        double sTarget =   wTarget + deltaFE;
+		        double sHarmonic = wHarmonic - deltaFE_DSTarget;
+		        double sTarget =   wTarget + deltaFE_DSTarget;
 		        
 		        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
 		        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -1081,7 +1086,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "CB_FCC_n12_T01";
-        public double temperature = 0.1;
+        public String filename = "DB_FCC_n12_T16";
+        public double temperature = 1.6;
     }
 }
