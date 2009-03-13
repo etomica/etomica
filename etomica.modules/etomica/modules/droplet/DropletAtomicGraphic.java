@@ -58,7 +58,13 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
     	this.sim = simulation;
     	
-    	final AtomFilterLiquid liquidFilter = new AtomFilterLiquid(sim.potentialMaster, sim.box);
+    	getController().getReinitButton().setPostAction(new IAction() {
+    	    public void actionPerformed() {
+    	        sim.makeDropShape();
+    	    }
+    	});
+    	
+    	final AtomFilterLiquidAtomic liquidFilter = new AtomFilterLiquidAtomic(sim.potentialMaster, sim.box);
     	final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
     	colorScheme.setDoResetFilter(true);
     	getDisplayBox(sim.box).setColorScheme(colorScheme);

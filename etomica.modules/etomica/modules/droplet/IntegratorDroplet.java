@@ -14,7 +14,6 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.PotentialCalculationForcePressureSum;
@@ -65,15 +64,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         workTensor2 = space.makeTensor();
         dr = space.makeVector();
     }
-
-    public void setForceSum(PotentialCalculationForceSum pc){
-        forceSum = pc;
-        if(box != null){
-            forceSum.setAgentManager(agentManager);
-        }
-        
-    }
-
+    
     public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
@@ -90,14 +81,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
     // assumes one box
     public void doStepInternal() {
         super.doStepInternal();
-        if (Debug.ON && Debug.DEBUG_NOW) {
-            IAtomList pair = Debug.getAtoms(box);
-            if (pair != null) {
-                IVectorMutable dr = space.makeVector();
-                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
-                System.out.println(pair+" dr "+dr);
-            }
-        }
+
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {

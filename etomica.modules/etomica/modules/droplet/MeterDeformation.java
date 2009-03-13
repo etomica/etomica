@@ -4,8 +4,10 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
+import etomica.api.IFunction;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterStatic;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
@@ -13,6 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Null;
+import etomica.util.Function;
 
 public class MeterDeformation implements IEtomicaDataSource {
 
@@ -27,8 +30,10 @@ public class MeterDeformation implements IEtomicaDataSource {
 
         center = space.makeVector();
         dr = space.makeVector();
+        rg = space.makeVector();
         moment = space.makeTensor();
         workTensor = space.makeTensor();
+        setFilter(AtomFilterStatic.ACCEPT_ALL);
     }
 
     public void setBox(IBox newBox) {
@@ -57,6 +62,8 @@ public class MeterDeformation implements IEtomicaDataSource {
         }
         center.TE(1.0/leafList.getAtomCount());
 
+        rg.E(0);
+        moment.E(0);
         for (int i=0; i<leafList.getAtomCount(); i++) {
             if (!filter.accept(leafList.getAtom(i))) {
                 continue;
@@ -64,8 +71,31 @@ public class MeterDeformation implements IEtomicaDataSource {
             dr.Ev1Mv2(((IAtomPositioned)leafList.getAtom(i)).getPosition(), center);
             workTensor.Ev1v2(dr, dr);
             moment.PE(workTensor);
+
         }
+        
         moment.TE(1.0/leafList.getAtomCount());
+        rg.setX(0, moment.component(0,0));
+        rg.setX(1, moment.component(1,1));
+        rg.setX(2, moment.component(2,2));
+        // ugh
+        if (rg.x(0) > rg.x(1)) {
+            double t = rg.x(0);
+            rg.setX(0, rg.x(1));
+            rg.setX(1, t);
+        }
+        if (rg.x(2) < rg.x(0)) {
+            double t = rg.x(0);
+            rg.setX(0, rg.x(2));
+            rg.setX(2, rg.x(1));
+            rg.setX(1, t);
+        }
+        else if (rg.x(2) < rg.x(1)) {
+            double t = rg.x(1);
+            rg.setX(1, rg.x(2));
+            rg.setX(2, t);
+        }
+        // now rg0 <= rg1 <= rg2
 
         double b1 = moment.trace();
 
@@ -80,10 +110,15 @@ public class MeterDeformation implements IEtomicaDataSource {
         double b3 = moment.determinant();
 
         double c1 = b1 / (3.0*Math.pow(b3, 1.0/3.0)) - 1.0;
-        double c2 = b2 / (3.0*Math.pow(b3, 2.0/3.0)) - 1.0;
+//        double c2 = b2 / (3.0*Math.pow(b3, 2.0/3.0)) - 1.0;
 
-        double delta = c2 - 4.0*c1;
-        double factor = Math.signum(delta);
+        // rg1 is closer to rg0 or rg2?
+//        double delta = c2 - 4.0*c1;
+//        double factor = Math.signum(delta);
+        double factor = 1;  // assume prolate
+        if (rg.x(1)*rg.x(1) > rg.x(0)*rg.x(2)) {
+            factor = -1;    // oblate
+        }
 
         double eOld = 0;
         double eOldOld = 0;
@@ -128,6 +163,7 @@ public class MeterDeformation implements IEtomicaDataSource {
     protected final double[] f;
     protected final IVectorMutable center;
     protected final IVectorMutable dr;
+    protected final IVectorMutable rg;
     protected final Tensor moment, workTensor;
     protected AtomFilter filter;
 }

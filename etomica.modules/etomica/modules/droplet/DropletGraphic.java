@@ -19,17 +19,18 @@ import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
-import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
+import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -56,7 +57,6 @@ public class DropletGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
 
-
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
     	this.sim = simulation;
@@ -69,7 +69,7 @@ public class DropletGraphic extends SimulationGraphic {
     	});
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
-        add(displayTimer);
+        getPanel().controlPanel.add(displayTimer.graphic(), SimulationPanel.getVertGBC());
         displayTimer.setUpdateInterval(1);
         
         DeviceSlider timeStepSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.integrator, "timeStep"));
@@ -123,10 +123,10 @@ public class DropletGraphic extends SimulationGraphic {
         cohesionEpsilon.setModifier(new ModifierGeneral(sim.p2, "epsilon"));
         cohesionEpsilon.setPrecision(2);
         cohesionEpsilon.setMinimum(0.5);
-        cohesionEpsilon.setMaximum(2);
-        cohesionEpsilon.setNMajor(3);
+        cohesionEpsilon.setMaximum(1);
+        cohesionEpsilon.setNMajor(5);
         cohesionEpsilon.setShowValues(true);
-        cohesionEpsilon.setLabel("cohesion epsilon");
+        cohesionEpsilon.setLabel("Cohesion Radius");
 
         DeviceSlider squeeze = new DeviceSlider(sim.getController());
         squeeze.setShowBorder(true);
@@ -135,7 +135,14 @@ public class DropletGraphic extends SimulationGraphic {
         squeeze.setMaximum(5);
         squeeze.setNMajor(5);
         squeeze.setShowValues(true);
-        squeeze.setLabel("squeezing epsilon");
+        squeeze.setLabel("Squeezing Force");
+
+
+        ModifierBoolean surfaceCohesionModifier = new ModifierBoolean(){
+            public void setBoolean(boolean b) {sim.p2.setUseSurfaceOnly(b);}
+            public boolean getBoolean() {return sim.p2.getUseSurfaceOnly();}
+        };
+        DeviceToggleButton surfaceCohesionButton = new DeviceToggleButton(sim.getController(), surfaceCohesionModifier, "Use Bulk Cohesion", "Use Surface Cohesion");
         
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
         JPanel controlsPanel = new JPanel(new GridBagLayout());
@@ -151,14 +158,13 @@ public class DropletGraphic extends SimulationGraphic {
         numMoleculesPanel.add(defSlider.graphic(), vertGBC);
         tabbedPane.add("# of molecules", numMoleculesPanel);
         JPanel potentialPanel = new JPanel(new GridBagLayout());
+        potentialPanel.add(surfaceCohesionButton.graphic(), vertGBC);
         potentialPanel.add(cohesionEpsilon.graphic(), vertGBC);
         potentialPanel.add(squeeze.graphic(), vertGBC);
         tabbedPane.add("Potential", potentialPanel);
         
-        MeterDeformation meterDeformation = new MeterDeformation(space);
-        meterDeformation.setBox(sim.box);
         DataSplitter splitter = new DataSplitter();
-        DataPump deformationPump = new DataPump(meterDeformation, splitter);
+        DataPump deformationPump = new DataPump(sim.meterDeformation, splitter);
         dataStreamPumps.add(deformationPump);
         sim.integrator.addIntervalAction(deformationPump);
 
@@ -169,19 +175,25 @@ public class DropletGraphic extends SimulationGraphic {
         AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsing());
         radiusHistory.setTimeDataSource(timer);
         radiusFork.addDataSink(radiusHistory);
-        DisplayPlot radiusDeformPlot = new DisplayPlot();
-        radiusDeformPlot.setLabel("Deformation");
-        radiusHistory.setDataSink(radiusDeformPlot.getDataSet().makeDataSink());
-        radiusDeformPlot.setLegend(new DataTag[]{radiusHistory.getTag()}, "radius");
-        add(radiusDeformPlot);
+        DisplayPlot radiusPlot = new DisplayPlot();
+        radiusPlot.setLabel("Radius");
+        radiusHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
+        radiusPlot.setDoLegend(false);
+        add(radiusPlot);
 
         DataFork deformationFork = new DataFork();
         splitter.setDataSink(1, deformationFork);
         AccumulatorHistory deformationHistory = new AccumulatorHistory(new HistoryCollapsing());
         deformationHistory.setTimeDataSource(timer);
         deformationFork.addDataSink(deformationHistory);
-        deformationHistory.setDataSink(radiusDeformPlot.getDataSet().makeDataSink());
-        radiusDeformPlot.setLegend(new DataTag[]{deformationHistory.getTag()}, "deformation");
+        DisplayPlot deformPlot = new DisplayPlot();
+        deformPlot.setLabel("Deformation");
+        deformationHistory.setDataSink(deformPlot.getDataSet().makeDataSink());
+        deformPlot.setDoLegend(false);
+        add(deformPlot);
+        
+        ColorSchemeDropletSurface colorScheme2 = new ColorSchemeDropletSurface(sim.liquidFilter);
+        getDisplayBox(sim.box).setColorScheme(colorScheme2);
     }
 
     public static void main(String[] args) {

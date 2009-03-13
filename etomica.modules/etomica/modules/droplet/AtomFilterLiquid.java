@@ -1,72 +1,53 @@
 package etomica.modules.droplet;
 
-import java.util.Random;
-
 import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.api.IAtomPositioned;
+import etomica.api.IDataSource;
 import etomica.api.IMolecule;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilterCollective;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.space.ISpace;
 
-public class AtomFilterLiquid implements AtomFilterCollective, AtomLeafAgentManager.AgentSource {
+public class AtomFilterLiquid implements AtomFilterCollective {
     
-    public AtomFilterLiquid(PotentialMasterList potentialMaster, IBox box) {
-        leafList = box.getLeafList();
-        nbrListManager = potentialMaster.getNeighborManager(box);
-        setMaxNbrsVapor(80);
-        agentManager = new AtomLeafAgentManager(this, box);
+    public AtomFilterLiquid(ISpace space, IDataSource meterDeformation) {
+        axis = space.makeVector();
+        work = space.makeVector();
+        meter = meterDeformation;
     }
 
-    public void setMaxNbrsVapor(int newMaxNbrsVapor) {
-        maxNbrsVapor = newMaxNbrsVapor;
+    public void setCutoff(double newCutoff) {
+        cutoff = newCutoff;
+        cutoffSq = cutoff*cutoff;
     }
     
-    public int getMaxNbrsVapor() {
-        return maxNbrsVapor;
+    public double getCutoff() {
+        return cutoff;
     }
     
     public void resetFilter() {
-		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
-        int nLiquid = 0;
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            int nbrs = nbrListManager.getUpList(atom)[0].getAtomCount() +
-                       nbrListManager.getDownList(atom)[0].getAtomCount();
-            nLiquid += nbrs > maxNbrsVapor ? 1 : 0;
-            agentManager.setAgent(atom, nbrs > maxNbrsVapor);
-        }
-        if (new Random().nextInt(100) == 5) {
-            System.out.println("numLiquid "+nLiquid);
-        }
+        double deformation = meter.getData().getValue(1);
+        double factor = (1+deformation) / (1-deformation);
+        axis.E(Math.pow(factor, -1.0/3.0));
+        axis.setX(2,1.0/(axis.x(0)*axis.x(0)));
     }
     
     public boolean accept(IAtom a) {
-        Boolean b = (Boolean)agentManager.getAgent(a);
-        return b == null ? false : b;
+        IVector p = ((IAtomPositioned)a).getPosition();
+        work.E(p);
+        work.DE(axis);
+        double r2 = work.squared();
+        return r2 < cutoffSq;
     }
 
-    public boolean accept(IMolecule mole) {
-        return false;
-    }
-
-    public Class getAgentClass() {
-        return Boolean.class;
-    }
-
-    public Object makeAgent(IAtom a) {
-        return null;
-    }
-
-    public void releaseAgent(Object agent, IAtom atom) {
+    public boolean accept(IMolecule m) {
+        throw new RuntimeException("go away");
     }
 
     private static final long serialVersionUID = 1L;
-    private final NeighborListManager nbrListManager;
-    private final IAtomList leafList;
-    protected int maxNbrsVapor;
-    protected AtomLeafAgentManager agentManager;
+    protected double cutoff, cutoffSq;
+    protected final IDataSource meter;
+    protected final IVectorMutable axis;
+    protected final IVectorMutable work;
 }

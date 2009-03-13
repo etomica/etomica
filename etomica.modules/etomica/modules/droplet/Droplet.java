@@ -4,7 +4,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -27,11 +27,13 @@ public class Droplet extends Simulation {
     public final P2Cohesion p2;
     public final P1Smash p1Smash;
     public final ConfigurationDroplet config;
+    public final AtomFilterLiquid liquidFilter;
+    public final MeterDeformation meterDeformation;
 
     public Droplet(Space _space) {
         super(_space);
         int numAtoms = 2000;
-        PotentialMaster potentialMaster = new PotentialMaster();
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
 
         //controller and integrator
 	    integrator = new IntegratorDroplet(this, potentialMaster, space);
@@ -67,6 +69,14 @@ public class Droplet extends Simulation {
 
         config = new ConfigurationDroplet(random, space);
         config.initializeCoordinates(box);
+        
+        meterDeformation = new MeterDeformation(space);
+        meterDeformation.setBox(box);
+
+        liquidFilter = new AtomFilterLiquid(space, meterDeformation);
+        liquidFilter.setCutoff(0.9);
+        
+        p2.setLiquidFilter(liquidFilter);
     }
     
     public static void main(String[] args) {
