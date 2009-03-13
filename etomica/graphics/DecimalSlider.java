@@ -21,9 +21,8 @@ public class DecimalSlider extends javax.swing.JSlider {
     
     private Hashtable labelTable;
     private int maximum, minimum;
-    private int precision;
+    private long precision;
     private int spacing, halfSpacing;
-    private int anyValues;
     private int standardSpacingLabel;
     
     public DecimalSlider() {
@@ -48,7 +47,27 @@ public class DecimalSlider extends javax.swing.JSlider {
     public void setPrecision(int p){
         if(p < 0) p = 0;
         if(p > 16) p = 16;
-        precision = (int)Math.pow(10,p);
+        boolean skipit = false;
+        if (precision == 0) {
+            // during initialization
+            precision = 1;
+            skipit = true;
+        }
+        // other parameters depend on the value of precision, so save them
+        double max = ((double)maximum)/precision;
+        double min = ((double)minimum)/precision;
+        double s = ((double)spacing)/precision;
+        double hs = ((double)halfSpacing)/precision;
+        double n = ((double)super.getValue())/precision;
+        precision = (long)Math.pow(10,p);
+        if (skipit) return;
+        // attempt to restore original values for other parameters
+        setDecimalSliderMaximum(max);
+        setDecimalSliderMinimum(min);
+        setDecimalSliderMajorTickSpacing(s);
+        setDecimalSliderMinorTickSpacing(hs);
+        setDecimalSliderValue(n);
+        setDecimalSliderLabelTable(createDecimalSliderStandardLabels(hs));
     }
    
     public int getDecimalSliderMaximum(){return super.getMaximum();}
@@ -80,8 +99,7 @@ public class DecimalSlider extends javax.swing.JSlider {
         return realValue;
     }
     public void setDecimalSliderValue(double n){
-        anyValues = (int)Math.round(n*precision);
-        super.setValue(anyValues);
+        super.setValue((int)Math.round(n*precision));
     }
    
     public Hashtable createDecimalSliderStandardLabels(double n){
