@@ -1,5 +1,7 @@
 package etomica.virial.cluster;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -11,6 +13,20 @@ import etomica.util.Rational;
 public class ClusterOperations {
 
     public ClusterOperations() {
+    }
+    
+    /**
+     * Sorts diagrams in order from most bonds to fewest bonds
+     */
+    public static void sortDiagrams(ClusterDiagram[] diagrams) {
+        java.util.Arrays.sort(diagrams, new Comparator<ClusterDiagram>() {
+        
+            public int compare(ClusterDiagram o1, ClusterDiagram o2) {
+                int n1 = o1.getNumConnections();
+                int n2 = o2.getNumConnections();
+                return n1 > n2 ? -1 : (n1 < n2 ? 1 : 0);
+            }
+        });
     }
     
     public static void sortConnections(ClusterDiagram cluster) {
@@ -122,14 +138,19 @@ public class ClusterOperations {
     }
     
     /**
-     * Replaces all isomorphic clusters in the given list by a single cluster with weight
-     * given by their sum.  Both the list and the the weights of the clusters it contains
-     * may be altered by this method.
+     * Replaces all isomorphic clusters in the given list by a single cluster
+     * with weight given by their sum.  The resulting list is also sorted by #
+     * of connections.  Both the list and the the weights of the clusters it
+     * contains may be altered by this method.
      */
     public static void addEquivalents(LinkedList<ClusterDiagram> list) {
-        if(list.size() < 2) {
+        if (list.size() < 2) {
             return;
         }
+        ArrayList<ClusterDiagram> arrayList = new ArrayList<ClusterDiagram>(list);
+        reduce(arrayList);
+        list.clear();
+        list.addAll(arrayList);
         ListIterator<ClusterDiagram> outer = list.listIterator(0);
         ClusterDiagram cluster1 = null;
         int j = 0;
@@ -138,6 +159,9 @@ public class ClusterOperations {
             ListIterator<ClusterDiagram> inner = list.listIterator(++j);
             while(inner.hasNext()) {
                 ClusterDiagram cluster2 = inner.next();
+                if (cluster1.getNumConnections() != cluster2.getNumConnections()) {
+                    break;
+                }
                 if(cluster2.getWeight().numerator() == 0) {
                     continue;
                 }
@@ -164,6 +188,55 @@ public class ClusterOperations {
         }
     }
 
+    /**
+     * Sorts cluster diagrams (but # of connections) and combines any diagrams
+     * that are identical, resulting in a diagram with a weight equal to the
+     * sum of the original weights.
+     */
+    public static void reduce(ArrayList<ClusterDiagram> list) {
+        if (list.size() < 2) {
+            return;
+        }
+        ClusterDiagram[] array = list.toArray(new ClusterDiagram[list.size()]);
+        sortDiagrams(array);
+
+        list.clear();
+        int numBody = array[0].mNumBody;
+        int[][] scores = new int[array.length][numBody/2+1];
+        for (int i=0; i<array.length; i++) {
+            ClusterDiagram iCluster = array[i];
+            iCluster.calcScore(scores[i]);
+            list.add(array[i]);
+        }
+        for (int i=0; i<list.size()-1; i++) {
+            ClusterDiagram iCluster = list.get(i);
+            for (int j=i+1; j<list.size(); j++) {
+                ClusterDiagram jCluster = list.get(j);
+                if (iCluster.getNumConnections() != jCluster.getNumConnections()) {
+                    break;
+                }
+                if (java.util.Arrays.equals(scores[i], scores[j])) {
+                    iCluster.setWeight(iCluster.getWeight().plus(jCluster.getWeight()));
+                    list.remove(j);
+                    for (int k=j; k<scores.length-1; k++) {
+                        scores[k] = scores[k+1];
+                    }
+                    j--;
+                    if (iCluster.getWeight().numerator() == 0) {
+                        list.remove(i);
+                        for (int k=i; k<scores.length-1; k++) {
+                            scores[k] = scores[k+1];
+                        }
+                        i--;
+                        break;
+                    }                        
+                }
+            }
+        }
+        if (list.size() == 0) {
+            throw new RuntimeException("oops");
+        }
+    }
     
     /**
      * Returns a new cluster that is a convolution of the given cluster, which is obtained by joining a root point
@@ -453,6 +526,75 @@ public class ClusterOperations {
         return w[n];
     }
     
+    /**
+     * Returns an array of cluster diagrams with all e-bonds representing
+     * the same sum of diagrams as the given f-bond cluster.
+     */
+    public static ClusterDiagram[] toE(ClusterDiagram f) {
+        ArrayList<ClusterDiagram> oldDiagrams = new ArrayList<ClusterDiagram>();
+        oldDiagrams.add(f);
+        ArrayList<ClusterDiagram> newDiagrams = new ArrayList<ClusterDiagram>();
+        int totalConnections = f.getNumConnections();
+        for (int iConnection=0; iConnection<totalConnections; iConnection++) {
+            int node1 = -1;
+            int node2 = -1;
+            int connectionCount = 0;
+            for (int i=0; i<f.mNumBody-1; i++) {
+                for (int j=0; j<f.mNumBody; j++) {
+                    if (f.mConnections[i][j] > i) {
+                        if (connectionCount == iConnection) {
+                            node1 = i;
+                            node2 = f.mConnections[i][j];
+                            break;
+                        }
+                        connectionCount++;
+                    }
+                    else if (f.mConnections[i][j] == -1) {
+                        break;
+                    }
+                }
+                if (node1 != -1 || node2 != -1) {
+                    break;
+                }
+            }
+            if (node1 == -1 || node2 == -1) {
+                throw new RuntimeException("oops");
+            }
+            for (int i=0; i<oldDiagrams.size(); i++) {
+                ClusterDiagram oldF = oldDiagrams.get(i);
+                ClusterDiagram e0 = new ClusterDiagram(oldF);
+                newDiagrams.add(new ClusterDiagram(e0));
+                e0.deleteConnection(node1, node2);
+                e0.deleteConnection(node2, node1);
+                e0.setWeight(oldF.getWeight().times(new Rational(-1,1)));
+                newDiagrams.add(e0);
+            }
+            
+            oldDiagrams.clear();
+            reduce(newDiagrams);
+            ArrayList<ClusterDiagram> swapper = newDiagrams;
+            newDiagrams = oldDiagrams;
+            oldDiagrams = swapper;
+        }
+        return oldDiagrams.toArray(new ClusterDiagram[oldDiagrams.size()]);
+    }
+    
+    /**
+     * Returns an array of cluster diagrams with all e-bonds representing
+     * the same sum of diagrams as the given f-bond clusters.
+     */
+    public static ClusterDiagram[] toE(ClusterDiagram[] f) {
+        ArrayList<ClusterDiagram> e = new ArrayList<ClusterDiagram>();
+        for (int i=0; i<f.length; i++) {
+            ClusterDiagram[] ei = toE(f[i]);
+            for (int j=0; j<ei.length; j++) {
+                e.add(ei[j]);
+            }
+        }
+        reduce(e);
+        return e.toArray(new ClusterDiagram[e.size()]);
+    }
+
     public static void main(String args[]) {
 //        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
 //        cluster1.deleteConnection(0, 1);
