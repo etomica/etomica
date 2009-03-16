@@ -1,5 +1,5 @@
 package etomica.virial.cluster;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import etomica.math.SpecialFunctions;
 import etomica.util.Arrays;
@@ -269,7 +269,7 @@ public final class Standard {
 
 
         clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
-        LinkedList<ClusterDiagram> list = new LinkedList<ClusterDiagram>();
+        ArrayList<ClusterDiagram> list = new ArrayList<ClusterDiagram>();
         list.add(new ClusterDiagram(clusterD));
         while(generator.advance()) {
             clusterD.setWeight(new Rational(1, clusterD.mNumIdenticalPermutations));
