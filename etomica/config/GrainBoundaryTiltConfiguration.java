@@ -14,8 +14,6 @@ import etomica.space.RotationTensor;
 import etomica.space3d.Vector3D;
 
 /**
- * 
- * 
  * @authors ajschultz, msellers
  */
 
@@ -27,7 +25,9 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     RotationTensor eulerRotationB2LatticeBOTTOM;
     BravaisLatticeCrystal latticeTOP, latticeBOTTOM;
     ISpecies [] species;
+    IVectorMutable shiftVector;
     double cutoff;
+    double xboxshift, yboxshift;
     double phi, theta;
     double dist;
     double spacing;
@@ -110,7 +110,6 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
      */
     public void setGBplane(int [] m){
     	millerPlane = m;
-    	
     	origin = new IVectorMutable[space.D()];
     	for(int i=0; i<space.D(); i++){ 
 	    	origin[i] = space.makeVector();
@@ -124,6 +123,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	}
     	spacing = Math.PI*2.0/Math.sqrt(normal.squared());
     	IVectorMutable projection = space.makeVector();
+    	
     	//rotate Miller plane into Y axis, about Z axis (through XY plane).
     	projection.E(normal);
     	//get XY projection of normal
@@ -155,45 +155,64 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     			m[i]=1;
     		}
     	}
-    	//Create vector array of Miller plane XYZ intercepts (least common multiple at X intercept)
+    	//Create vector array of Miller plane XYZ intercepts
     	plane = new IVectorMutable[space.D()];
     	for(int i=0; i<plane.length; i++){
     		plane[i] = space.makeVector();
     	}
-    	plane[0].setX(0, m[0]*m[1]*m[2]*latticeTOP.getLatticeConstants()[0]);
-    	plane[1].setX(1, m[0]*m[1]*m[2]*latticeTOP.getLatticeConstants()[1]);
-    	plane[2].setX(2, m[0]*m[1]*m[2]*latticeTOP.getLatticeConstants()[2]);
+    	plane[0].setX(0, m[1]*latticeTOP.getLatticeConstants()[0]);
+    	plane[1].setX(1, m[0]*latticeTOP.getLatticeConstants()[1]);
+    	plane[2].setX(2, m[2]*latticeTOP.getLatticeConstants()[2]);
     	for(int i=0; i<plane.length; i++){
     		if(millerPlane[i]==0){
     			plane[i].setX(i,0);
     		}
     	}
-    	    	
+    	
+    	xboxshift = 0;
+    	yboxshift =	0;
     	//Find X periodicity - magnitude of Miller plane intersection of X and Y axis.
     	IVectorMutable xaxisperiod = space.makeVector();
     	xaxisperiod.Ev1Mv2(plane[0], plane[1]);
     	double xaxispbc = Math.sqrt(xaxisperiod.squared());
+    	xboxshift = (xaxispbc/2.0) - Math.sin((Math.PI/2.0) - theta)*plane[0].x(0);
     	
     	//Find Y periodicity - magnitude of vector formed by Miler plane intersections of Z axis and XY plane.
-    	IVectorMutable yaxisperiod = space.makeVector();
-    	double yaxispbc = Math.sqrt(Math.pow(2.0*plane[2].x(2),2) + Math.pow(plane[0].x(0),2) + Math.pow(plane[1].x(1),2) );
+    	double yaxispbc = 2.0*plane[2].x(2)/Math.cos((Math.PI/2.0)-phi);
+    	//double yaxispbc = Math.sqrt(Math.pow(2.0*plane[2].x(2),2) + Math.pow(plane[0].x(0),2) + Math.pow(plane[1].x(1),2) );
     	
     	//If plane does not intersect X axis
     	if(millerPlane[0]==0){
+    		xboxshift = 0;
     		xaxispbc=latticeTOP.getLatticeConstants()[0];
     	}
     	
     	//If plane does not intersect Y axis
         if(millerPlane[1]==0){
-            yaxisperiod.Ev1Mv2(plane[0], plane[2]);
-            yaxispbc=Math.sqrt(yaxisperiod.squared());
-            xaxispbc=latticeTOP.getLatticeConstants()[1];
+        	plane[0].setX(0, m[2]*latticeTOP.getLatticeConstants()[0]);
+        	plane[2].setX(2, m[0]*latticeTOP.getLatticeConstants()[2]);
+        	for(int i=0; i<plane.length; i++){
+        		if(millerPlane[i]==0){
+        			plane[i].setX(i,0);
+        		}
+        	}        	
+        	xaxisperiod.Ev1Mv2(plane[0], plane[2]);
+        	yaxispbc = Math.sqrt(xaxisperiod.squared());
+            yboxshift = (yaxispbc/2.0) - Math.sin((Math.PI/2.0) - phi)*plane[0].x(0);
+        	
+            xboxshift = 0;
+        	xaxispbc = latticeTOP.getLatticeConstants()[1];
         }
     	
     	//If plane does not intersect Z axis
     	if(millerPlane[2]==0){
     	    yaxispbc=latticeTOP.getLatticeConstants()[2];
     	}
+    	
+    	System.out.println(xboxshift+"    "+yboxshift);
+    	shiftVector = space.makeVector();
+    	shiftVector.setX(0, xboxshift);
+    	shiftVector.setX(1, yboxshift);
     	
     	//Set Box size
     	box.getBoundary().setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
@@ -241,12 +260,12 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             ncellsTOP[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeTOP.getPrimitive().vectors()[i].x(i));
             latticeCenter.setX(i, 0.5*ncellsTOP[i]*latticeTOP.getPrimitive().vectors()[i].x(i));
         }
+        
         ncellsTOP[ncellsTOP.length-1] = latticeTOP.getBasis().getScaledCoordinates().length;
         
         IndexIteratorRectangular indexIteratorTOP = new IndexIteratorRectangular(space.D()+1);
         
         indexIteratorTOP.setSize(ncellsTOP);
-        
         
         indexIteratorTOP.reset();
         
@@ -261,6 +280,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             eulerRotationL2BoxTOP.transform(transformedPosition);
             
             transformedPosition.setX(2,transformedPosition.x(2)+(0.25*box.getBoundary().getDimensions().x(2)));
+            
+            transformedPosition.PE(shiftVector);
             
             // If the atom position is outside the original simulation domain A (top half of simulation box)
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<-0.0001){
@@ -318,7 +339,6 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         indexIteratorBOTTOM.setSize(ncellsBOTTOM);
         
-        
         indexIteratorBOTTOM.reset();
         
         while(indexIteratorBOTTOM.hasNext()){
@@ -333,6 +353,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             
             //Notice negative sign for bottom domain
             transformedPosition.setX(2,transformedPosition.x(2)+(-0.25*box.getBoundary().getDimensions().x(2)));
+            
+            transformedPosition.PE(shiftVector);
             
             // If the atom position is outside the original simulation domain B (bottom half of simulation box)
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0001){
@@ -350,17 +372,17 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             box.addMolecule(a);
             ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
             
-        }
-    
-     
+        }      
+      
+        
         /**
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
-
-        dist = 3.0;
+        int removeCount = 0;
+        dist = 0.0;
         IVectorMutable rij = space.makeVector();
         
-        int removeCount = 0;
+        
         double range = 0.0;
         for(int i=0; i<box.getLeafList().getAtomCount()-1; i++){
             for(int j=i+1; j<box.getLeafList().getAtomCount(); j++){
@@ -377,18 +399,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             }
         }
         
-        //Create gap between grains
-        /**
-        for(int i=0; i<box.getLeafList().getAtomCount()-1; i++){
-             
-                
-                if(Math.abs(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition().x(2))<3){
-                    box.removeMolecule(box.getLeafList().getAtom(i));
-                    removeCount++;
-             
-            }
-        }
-        */
+
         
         if(millerPlane[2]==0){
         	theta = 360*theta/Math.PI;
