@@ -281,13 +281,13 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             
             transformedPosition.setX(2,transformedPosition.x(2)+(0.25*box.getBoundary().getDimensions().x(2)));
             
-            transformedPosition.PE(shiftVector);
+            
             
             // If the atom position is outside the original simulation domain A (top half of simulation box)
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<-0.0001){
                continue;            
             }
-            
+            transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed.
             IMolecule a = null;
             if(transformedPosition.x(2)>(box.getBoundary().getDimensions().x(2)/2.0 - cutoff)){
@@ -354,13 +354,13 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             //Notice negative sign for bottom domain
             transformedPosition.setX(2,transformedPosition.x(2)+(-0.25*box.getBoundary().getDimensions().x(2)));
             
-            transformedPosition.PE(shiftVector);
+            
             
             // If the atom position is outside the original simulation domain B (bottom half of simulation box)
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0001){
                continue;            
             }
-            
+            transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
             IMolecule a = null;
             if(transformedPosition.x(2)<(-box.getBoundary().getDimensions().x(2)/2.0 + cutoff)){
@@ -379,7 +379,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
         int removeCount = 0;
-        dist = 0.0;
+        dist = 3.0;
         IVectorMutable rij = space.makeVector();
         
         
