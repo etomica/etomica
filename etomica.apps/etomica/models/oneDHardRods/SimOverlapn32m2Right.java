@@ -713,12 +713,12 @@ public class SimOverlapn32m2Right extends Simulation {
 //        
         
         compareMove.setComparedWV(2);
-        changeMove.setHarmonicWV(-1);
+        changeMove.setHarmonicWV(4);
         meterBinA.setComparedWV(new int[] {2, 3});
         meterBinB.setComparedWV(new int[] {2, 3});
     }
     public static class SimOverlapn32m4RightParam extends ParameterBase {
-        public int numAtoms = 6;
+        public int numAtoms = 8;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;

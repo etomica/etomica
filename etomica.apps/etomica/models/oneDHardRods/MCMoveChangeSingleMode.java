@@ -59,6 +59,9 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
      * able to be changed by this MCMove.
      */
     public void setHarmonicWV(int hwv){
+        if(hwv == -1){
+            
+        }
         harmonicWV = hwv;
     }
 

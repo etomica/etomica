@@ -72,8 +72,8 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-        IRandom rand = new RandomNumberGenerator((long)3.0);
-        this.setRandom(rand);
+//        IRandom rand = new RandomNumberGenerator((long)3.0);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -679,13 +679,13 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 6;
+        public int numAtoms = 32;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 2;
+        public int comparedWV = 8;
         
         public int numSteps = 400000;
         public int runBlockSize = 1000;
