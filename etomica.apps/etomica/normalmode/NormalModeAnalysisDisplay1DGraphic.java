@@ -19,7 +19,6 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
