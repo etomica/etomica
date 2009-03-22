@@ -22,12 +22,10 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		if (nBennetPoints%2 == 0) {
 			throw new IllegalArgumentException("try again with an odd aNPoints");
 		}
-		bennetSum = new double[nBennetPoints];
 		overlapSum = new double[nBennetPoints];
 		blockOverlapSum = new double[nBennetPoints];
+        overlapSumBlockSquare = new double[nBennetPoints];
         overlapSumSquare = new double[nBennetPoints];
-        blockOverlapSumSq = new double[nBennetPoints];
-        overlapSumSquareBlock = new double[nBennetPoints];
 		expX = new double[nBennetPoints];
         setBennetParam(1.0,5);
 	}
@@ -82,9 +80,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
                     v /= (expX[j] + 1.0/value1);
                 }
             }
-            bennetSum[j] += v;
+            overlapSum[j] += v;
             blockOverlapSum[j] += v;
-            blockOverlapSumSq[j] += v*v;
+            overlapSumSquare[j] += v*v;
         }
         // superclass sums up blockSum[1], but we drop it on the floor in doBlockSum in
         // favor of blockOverlapSum
@@ -92,13 +90,10 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     }
     
     protected void doBlockSum() {
+        long blockSizeSq = blockSize * blockSize;
         for (int j=0; j<nBennetPoints; j++) {
 			// this is actually blockSum[1], but for all the various values of the overlap parameter
-            blockOverlapSum[j] /= blockSize;
-	    	overlapSum[j] += blockOverlapSum[j];
-            overlapSumSquare[j] += blockOverlapSum[j]*blockOverlapSum[j];
-            overlapSumSquareBlock[j] += blockOverlapSumSq[j];
-            blockOverlapSumSq[j] = 0.0;
+            overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j] / blockSizeSq;
             blockOverlapSum[j] = 0.0;
 		}
 
@@ -131,7 +126,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * Bennet parameter (value[1]/(value[1]+expX[iParam]).
      */
     public double getBennetAverage(int iParam) {
-        return bennetSum[iParam]/((double)count*blockSize+(blockSize-blockCountDown));
+        return overlapSum[iParam]/((double)count*blockSize+(blockSize-blockCountDown));
     }
 
     /**
@@ -141,9 +136,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         if(count > 0) {
             // fill in data for set "1" with appropriate "overlap" data
             ((DataDoubleArray)sum).getData()[1] = overlapSum[iParam];
-            ((DataDoubleArray)blockSum).getData()[1] = blockOverlapSum[iParam];
+            ((DataDoubleArray)currentBlockSum).getData()[1] = blockOverlapSum[iParam];
+            ((DataDoubleArray)sumBlockSquare).getData()[1] = overlapSumBlockSquare[iParam];
             ((DataDoubleArray)sumSquare).getData()[1] = overlapSumSquare[iParam];
-            ((DataDoubleArray)sumSquareBlock).getData()[1] = overlapSumSquareBlock[iParam];
             // let AccumulatorRatioAverage do the work for us
             super.getData();
         }
@@ -155,21 +150,18 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
  	 */
     public void reset() {
         for (int i=0; i<nBennetPoints; i++) {
-            bennetSum[i] = 0.0;
             overlapSum[i] = 0.0;
-            overlapSumSquare[i] = 0.0;
+            overlapSumBlockSquare[i] = 0.0;
             blockOverlapSum[i] = 0.0;
-            blockOverlapSumSq[i] = 0.0;
-            overlapSumSquareBlock[i] = 0.0;
+            overlapSumSquare[i] = 0.0;
         }
         super.reset();
     }
      
     private static final long serialVersionUID = 1L;
-    private final double[] overlapSum, blockOverlapSum;
-    private final double[] overlapSumSquare, blockOverlapSumSq;
-    private final double[] overlapSumSquareBlock;
-    private final double[] bennetSum;
+    private final double[] blockOverlapSum;
+    private final double[] overlapSumBlockSquare, overlapSumSquare;
+    private final double[] overlapSum;
     private final int nBennetPoints;
     private final double[] expX;
     private final boolean isReference;
