@@ -543,7 +543,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         }
 
         //  control panel
-        ModifierBoolean fixPistonModulator = new ModifierBoolean() {
+        final ModifierBoolean fixPistonModulator = new ModifierBoolean() {
             public void setBoolean(boolean b) {
                 pistonPotential.setStationary(b);
                 pressureSlider.getSlider().setEnabled(!b);
@@ -558,12 +558,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         };
         fixPistonButton.setController(pc.getController());
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
-        fixPistonButton.setPostAction(new IAction() {
-            public void actionPerformed() {
-                new ActionPistonUpdate(pc.integrator).actionPerformed();
-                dataResetAction.actionPerformed();
-            }
-        });
         fixPistonButton.setState(pistonHeld);
 
         meterCycles = new DataSourceCountTime(pc.integrator);
@@ -783,16 +777,34 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             dataStreamPumps.add(pump);
             pc.integrator.addIntervalAction(pump);
             pc.integrator.setActionInterval(pump, dataInterval);
+            final DataPump rdfPump = doRDF ? pump : null;
             
             getController().getResetAveragesButton().setPostAction(new IAction() {
                 public void actionPerformed() {
                     meterRDF.reset();
+                    rdfPump.actionPerformed();
                 }
             });
         }
         final DataPump rdfPump = doRDF ? pump : null;
 
-        
+        fixPistonButton.setPostAction(new IAction() {
+            public void actionPerformed() {
+                new ActionPistonUpdate(pc.integrator).actionPerformed();
+                dataResetAction.actionPerformed();
+                if (doRDF) {
+                    if (fixPistonModulator.getBoolean()) {
+                        pc.integrator.addIntervalAction(rdfPump);
+                        pc.integrator.setActionInterval(rdfPump, dataInterval);
+                    }
+                    else {
+                        pc.integrator.removeIntervalAction(rdfPump);
+                    }
+                }
+            }
+        });
+
+
         if (doConfigButton) {
             configButton.setController(pc.getController());
             configButton.setAction(new ActionConfigWindow(pc.box));
