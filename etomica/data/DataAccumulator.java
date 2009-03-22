@@ -110,6 +110,7 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
     }
 
     
+    private static final long serialVersionUID = 1L;
     /**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */

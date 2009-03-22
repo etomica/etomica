@@ -30,7 +30,7 @@ public abstract class ColorScheme implements java.io.Serializable {
     public final void setDefaultColor(Color c) {defaultColor = c;}
     public final Color getDefaultColor() {return defaultColor;}
 
-    public static Color DEFAULT_ATOM_COLOR = Color.red;
+    public final static Color DEFAULT_ATOM_COLOR = Color.RED;
     
     /**
      * Colors all atoms with baseColor.

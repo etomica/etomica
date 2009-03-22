@@ -37,7 +37,7 @@ public class DataTableAverages extends DataSinkTable {
     public DataTableAverages(IIntegrator integrator, StatType[] types, int blockSize, 
             IEtomicaDataSource[] sources) {
         super();
-        this.types = (StatType[]) types.clone();
+        this.types = types.clone();
         this.integrator = integrator;
         actionGroup = new ActionGroupSeries();
         integrator.addIntervalAction(actionGroup);
@@ -103,7 +103,7 @@ public class DataTableAverages extends DataSinkTable {
      * pushInterval of all accumulators can be changed via setTableUpdate.
      */
     public AccumulatorAverage[] getAccumulators() {
-        return (AccumulatorAverage[]) accumulators.clone();
+        return accumulators.clone();
     }
 
     private static final long serialVersionUID = 1L;
