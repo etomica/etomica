@@ -78,7 +78,7 @@ public class NormalModes2D implements NormalModes {
     		for(int j=0; j<numEigen; j++){
     			for(int k=0; k<numEigen; k++){
     				if(j==k){
-    					eigenvectors[i][j][k] = 1.0;
+    					eigenvectors[i][j][k] = 0.8;
     					
     				} else {
     					eigenvectors[i][j][k] = 0.0;

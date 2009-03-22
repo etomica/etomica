@@ -102,15 +102,6 @@ public class DeviceCellNumXYSlider extends Device {
         gbc1.gridwidth = 3;
         numCellPanel.add(yCellNumSlider.graphic(),gbc1);
     }
-
-	public void setYCompButtonsVisibility(boolean doShowYCompButtons) {
-	    buttonYComp.setVisible(doShowYCompButtons);
-        buttonXComp.setVisible(doShowYCompButtons);
-	}
-
-	public boolean getYCompButtonsVisibility() {
-	    return buttonYComp.isVisible();
-	}
 	
 	/**
 	 * Set the "y-axis" button to its selected state.
@@ -230,7 +221,7 @@ public class DeviceCellNumXYSlider extends Device {
 	 */
     public void setMaximum(int max) {
     	xCellNumSlider.setMaximum(max);
-    	yCellNumSlider.setMaximum(max);
+    	yCellNumSlider.setMaximum(max/2);
     }
 
 	/**
@@ -239,7 +230,7 @@ public class DeviceCellNumXYSlider extends Device {
 	 */
     public void setSliderMajorValues(int major) {
     	xCellNumSlider.setNMajor(major);
-    	yCellNumSlider.setNMajor(major);
+    	yCellNumSlider.setNMajor(major/2);
     }
 
     /**
@@ -298,17 +289,16 @@ public class DeviceCellNumXYSlider extends Device {
 	 * Set the post slider value changed action.
 	 */
     public void setXSliderPostAction(IAction action) {
+       	setYCellModifier(new ModifierYCells2D(box, species, (int)getXCellNum()));
     	xCellNumSlider.setPostAction(action);
+    	setXCellModifier(new ModifierXCells2D(box, species, (int)getYCellNum()));
     }
 
     public void setYSliderPostAction(IAction action) {
+    	setXCellModifier(new ModifierXCells2D(box, species, (int)getYCellNum()));
     	yCellNumSlider.setPostAction(action);
+    	setYCellModifier(new ModifierYCells2D(box, species, (int)getXCellNum()));
     }
-    
-    
-    
-    
-    
     
     public void setBox(IBox newBox) {
         box = newBox;
@@ -347,7 +337,7 @@ public class DeviceCellNumXYSlider extends Device {
         	
         	yCellNumSlider.getSlider().setEnabled(false);
         	yCellNumSlider.getTextField().setEnabled(false);
-       
+        	init();
         }
         else {
         	yCellNumSlider.getSlider().setEnabled(true);
@@ -355,6 +345,7 @@ public class DeviceCellNumXYSlider extends Device {
         	
         	xCellNumSlider.getSlider().setEnabled(false);
         	xCellNumSlider.getTextField().setEnabled(false);
+        	init();
         }		
 	}
 

@@ -13,8 +13,7 @@ import etomica.units.Null;
 public class ModifierYCells2D implements Modifier, java.io.Serializable {
 
     /**
-     * @param speciesAgent Agent of the affected species in the affected box.
-     * Cannot be changed after construction.
+     * 
      */
     public ModifierYCells2D(IBox box, ISpecies species, int x) {
         this.box = box;

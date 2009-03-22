@@ -13,8 +13,7 @@ import etomica.units.Null;
 public class ModifierXCells2D implements Modifier, java.io.Serializable {
 
     /**
-     * @param speciesAgent Agent of the affected species in the affected box.
-     * Cannot be changed after construction.
+     * 
      */
     public ModifierXCells2D(IBox box, ISpecies species, int y) {
         this.box = box;
@@ -26,7 +25,6 @@ public class ModifierXCells2D implements Modifier, java.io.Serializable {
         if (d < 0) d = 0;
         previousValue = mostRecentValue;
         mostRecentValue = (int)d;
-        
         box.setNMolecules(species, 2*(int)d*yCell);
     }
 

@@ -40,7 +40,6 @@ import etomica.units.Null;
  */
 public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 
-
 	public NormalModeAnalysisDisplay2DGraphic(final NormalModeAnalysisDisplay2D simulation, Space space) {
 		
 		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
@@ -94,30 +93,39 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 		temperatureSetter.setSliderPostAction(new IAction() {
             public void actionPerformed() {
             	
-                int m = sim.nm.getOmegaSquared(sim.box).length;
+            	int m = sim.nm.getOmegaSquared(sim.box).length;
                 double[] omega2 = new double[m];
                 
-                int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
-                
-                if (waveVectorSlider.isOneWV()){
-	                for (int i=0; i<m; i++){
-	                	
-	                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-	                	if (i==wvNumUsed){
-	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
-	                		
-	                	} else {
-	                	
-	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
-	                	}
-	                }
-                } else {
-                	for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">"; 	
-                    }
+                waveVectorSlider.setMaximum(m);
+                waveVectorSlider.setIntegrator(sim.integrator);
+                //Array
+                if(sim.integrator.getWaveVectorNum() >= m){
+                	waveVectorSlider.setMaximum(m);
+                	sim.integrator.setWaveVectorNum(m-1);
                 }
                 
+                
+                if (sim.integrator.isOneWV()){
+                	int wvNumUsed = sim.integrator.getWaveVectorNum();
+                	for (int i=0; i<m; i++){
+                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	
+                    	if(i==wvNumUsed){
+                    		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                        	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+                    	} else {
+                    		stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                        	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1));
+                    	}
+                    }
+                } else {
+                
+                    for (int i=0; i<m; i++){
+                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                    	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+                    }
+                }
                 data[0] = new DataDoubleArray(new int[]{m},omega2);
                 omega2Table = new DataTable(data);
                
@@ -161,7 +169,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 		final DeviceCellNumXYSlider cellSlider = new DeviceCellNumXYSlider(sim.getController());
 		cellSlider.setBox(sim.box);
 		cellSlider.setSpecies(sim.species);
-		cellSlider.setMaximum(10);
+		cellSlider.setMaximum(sim.getDimx());
         
         int m = sim.nm.getOmegaSquared(sim.box).length;
         double[] omega2 = new double[m];
@@ -201,19 +209,16 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
        	  		int nx = (int)cellSlider.getXCellNum(); 
        	  	
                 if (oldNx != nx ) {
-                	
                 	int[] nCells = new int[]{nx, (int)cellSlider.getYCellNum()};
-                	System.out.println("numAtoms: "+ sim.box.getNMolecules(sim.species));
                 	
                 	IVectorMutable[] dimension = sim.space.makeVectorArray(sim.space.D());
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
-                    	System.out.println("Dimension["+i +"]: "+ dimension[i]);
                     }
                 	                	       	
                 	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
                 	sim.box.setBoundary(boundary);
-                	System.out.println("Boundary: " + boundary);
+                	
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	
@@ -293,7 +298,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-       	  	int oldNx = sim.getDimx();
+       	  	int oldNx = (int)cellSlider.getXCellNum();
         });
         
         //end of XCell Post-Action
@@ -305,19 +310,15 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
        	  		int ny = (int)cellSlider.getYCellNum(); 
        	  	
                 if (oldNy != ny ) {
-                	
                 	int[] nCells = new int[]{(int)cellSlider.getXCellNum(), ny};
-                	System.out.println("numAtoms: "+ sim.box.getNMolecules(sim.species));
                 	
                 	IVectorMutable[] dimension = sim.space.makeVectorArray(sim.space.D());
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
-                    	System.out.println("Dimension["+i +"]: "+ dimension[i]);
                     }
                 	                	       	
                 	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
                 	sim.box.setBoundary(boundary);
-                	System.out.println("Boundary: " + boundary);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	
@@ -402,7 +403,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-       	  	int oldNy = sim.getDimy();
+       	 int oldNy = (int)cellSlider.getYCellNum();
         });
         
         //end of NCell Slider
