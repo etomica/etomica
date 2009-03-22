@@ -30,11 +30,9 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     public AccumulatorAverageCollapsing(int maxBlocks, int blockSize) {
         super(blockSize);
         blockSums = new double[0];
-        blockSumSqs = new double[0];
         setMaxBlocks(maxBlocks);
         setBlockSize(blockSize);
         setPushInterval(100);
-        
     }
 
     public void setMaxBlocks(int newMaxBlocks) {
@@ -53,7 +51,6 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         // this would drop stuff at the end, but then we just collapsed the
         // blocks so they should all be 0.
         blockSums = Arrays.resizeArray(blockSums, maxBlocks);
-        blockSumSqs = Arrays.resizeArray(blockSumSqs, maxBlocks);
     }
     
     public int getMaxBlocks() {
@@ -81,7 +78,8 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
             return;
         double value = data.getValue(0);
         currentBlockSum += value;
-        currentBlockSumSq += value * value;
+        totalSum += value;
+        totalSumSquare += value * value;
         mostRecent.E(value);
         if (--blockCountDown == 0) {//count down to zero to determine
                                     // completion of block
@@ -94,17 +92,13 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      */
     protected void doBlockSum() {
         
-        if (count > 0) {
-            correlationSum *= blockSums[(int)count-1] * currentBlockSum;
-        }
         currentBlockSum /= blockSize;
+        if (count > 0) {
+            correlationSum += blockSums[(int)count-1] * currentBlockSum;
+        }
         blockSums[(int)count] = currentBlockSum;
-        blockSumSqs[(int)count] = currentBlockSumSq;
         totalSumBlockSq += currentBlockSum * currentBlockSum;
-        totalSum += currentBlockSum;
-        totalSumSq += currentBlockSumSq;
         currentBlockSum = 0;
-        currentBlockSumSq = 0;
         
         count++;
         blockCountDown = blockSize;
@@ -121,25 +115,22 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
             // if we have an odd number of blocks, the last block will get
             // dropped.  So add its contribution to the "current" block.
             currentBlockSum += blockSums[intCount-1];
-            currentBlockSumSq += blockSumSqs[intCount-1];
-            // we can just fix totalSum here rather than recalculating it
-            totalSum -= blockSums[intCount-1];
-            totalSumSq -= blockSumSqs[intCount-1];
         }
-        totalSum /= 2;
         totalSumBlockSq = 0;
         count /= 2;
         intCount = (int)count;
+        correlationSum = 0;
         // the first half of the blocks contain all previous data
         for (int i=0; i<intCount; i++) {
             blockSums[i] = (blockSums[2*i] + blockSums[2*i+1]) / 2;
             totalSumBlockSq += blockSums[i] * blockSums[i];
-            blockSumSqs[i] = blockSumSqs[2*i] + blockSumSqs[2*i+1];
+            if (i>0) {
+                correlationSum += blockSums[i-1]*blockSums[i];
+            }
         }
         // the last half are 0
         for (int i=intCount; i<maxBlocks; i++) {
             blockSums[i] = 0;
-            blockSumSqs[i] = 0;
         }
         blockCountDown += blockSize;
         blockSize *= 2;
@@ -153,24 +144,26 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     	if (dataGroup == null) {
             return null;
         }
-        else if (count > 0) {
-            double avg = totalSum / count;
-            average.E(avg);
-            double err = totalSumBlockSq / count - avg * avg;
-
-            // error's intermediate value is useful for calculating block correlation
-            blockCorrelation.E((((2 * totalSum - blockSums[0]) * avg - correlationSum) / (1-count) + avg * avg) / err);
-            
-            // ok, now finish up with error
+    	
+        if (count > 1) {
+            // calculate block properties (these require 2 or more blocks)
+            double blockAvg = (totalSum-currentBlockSum) / (count*blockSize);
+            double err = totalSumBlockSq / count - blockAvg * blockAvg;
             error.E(Math.sqrt(err / (count-1)));
-            double stdev = Math.sqrt(totalSumSq / (count*blockSize) - avg*avg);
-            standardDeviation.E(stdev);
+
+            blockCorrelation.E((((2 * (totalSum-currentBlockSum) / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
+                    (1-count) + blockAvg * blockAvg) / err);
         }
-        else if (blockSize > blockCountDown) {
-            average.E(currentBlockSum/(blockSize-blockCountDown));
+        else {
             error.E(Double.NaN);
             blockCorrelation.E(Double.NaN);
-            standardDeviation.E(Double.NaN);
+        }
+
+    	long nTotalData = count*blockSize + (blockSize-blockCountDown);
+        if (nTotalData > 0) {
+            double avg = totalSum / nTotalData;
+            average.E(avg);
+            standardDeviation.E(Math.sqrt(totalSumSquare / nTotalData - avg*avg));
         }
         return dataGroup;
     }
@@ -179,38 +172,26 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
-        if (count == 0 && blockCountDown == blockSize) {
-            //no data has been added yet, so nothing to reset
-            return;
-        }
-        count = 0;
         blockSize = nominalBlockSize;
-        blockCountDown = blockSize;
+        super.reset();
+
         correlationSum = 0;
         currentBlockSum = 0;
-        currentBlockSumSq = 0;
+        totalSumSquare = 0;
         totalSum = 0;
         totalSumBlockSq = 0;
-        totalSumSq = 0;
-
-        error.E(Double.NaN);
-        mostRecent.E(Double.NaN);
-        average.E(Double.NaN);
-        standardDeviation.E(Double.NaN);
-        blockCorrelation.E(Double.NaN);
     }
 
     /**
-     * Sets the size of the block used to group data for error analysis. Has no
-     * effect on statistics accumulated so far.  Default is 100.
+     * Sets the size of the block used to group data for error analysis. Resets
+     * statistics accumulated so far.  Default is 1.
      * 
      * @param blockSize
      *            new block size.
      */
-    public void setBlockSize(int newBlockSize) {
+    public void setBlockSize(long newBlockSize) {
         nominalBlockSize = newBlockSize;
-        blockSize = newBlockSize;
-        blockCountDown = newBlockSize;
+        super.setBlockSize(newBlockSize);
     }
 
     /**
@@ -238,11 +219,10 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
     private static final long serialVersionUID = 1L;
     protected int maxBlocks;
-    protected double[] blockSums, blockSumSqs;
-    protected double currentBlockSum, currentBlockSumSq;
+    protected double[] blockSums;
+    protected double currentBlockSum, totalSumSquare;
     protected double totalSumBlockSq;
     protected double correlationSum;
     protected double totalSum;
-    protected double totalSumSq;
-    protected int nominalBlockSize;
+    protected long nominalBlockSize;
 }

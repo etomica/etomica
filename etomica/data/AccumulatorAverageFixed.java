@@ -38,10 +38,11 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             return;
 
         mostRecent.E(data);
-        blockSum.PE(data);
+        currentBlockSum.PE(data);
+        sum.PE(data);
         work.E(data);
         work.TE(data);
-        blockSumSq.PE(work);
+        sumSquare.PE(work);
         if (--blockCountDown == 0) {//count down to zero to determine
                                     // completion of block
             doBlockSum();
@@ -54,24 +55,21 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected void doBlockSum() {
         count++;
         blockCountDown = blockSize;
-        blockSum.TE(1 / (double) blockSize);//compute block average
-        sum.PE(blockSum);
-        work.E(blockSum);
-        work.TE(blockSum);
-        sumSquare.PE(work);
+        currentBlockSum.TE(1 / (double) blockSize);//compute block average
+        work.E(currentBlockSum);
+        work.TE(currentBlockSum);
+        sumBlockSquare.PE(work);
         if (!mostRecentBlock.isNaN()) {
-            work.E(blockSum);
+            work.E(currentBlockSum);
             work.TE(mostRecentBlock);
             correlationSum.PE(work);
         }
         else {
-            firstBlock.E(blockSum);
+            firstBlock.E(currentBlockSum);
         }
-        sumSquareBlock.PE(blockSumSq);
         //reset blocks
-        mostRecentBlock.E(blockSum);
-        blockSum.E(0.0);
-        blockSumSq.E(0.0);
+        mostRecentBlock.E(currentBlockSum);
+        currentBlockSum.E(0.0);
     }
 
     /**
@@ -81,18 +79,22 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     public IData getData() {
         if (sum == null)
             return null;
-        if (count > 0) {
+        if (count > 1) {
+            // calculate block properties (these require 2 or more blocks)
+            
+            // block average (later discarded)
             average.E(sum);
-            average.TE(1 / (double) count);
+            average.ME(currentBlockSum);
+            average.TE(1.0 / (count*blockSize));
             work.E(average);
             work.TE(average);
-            error.E(sumSquare);
+            error.E(sumBlockSquare);
             error.TE(1 / (double) count);
             error.ME(work);
 
             // error's intermediate value is useful for calculating block correlation
-            blockCorrelation.E(sum);
-            blockCorrelation.TE(2.0);
+            blockCorrelation.E(average);
+            blockCorrelation.TE(2*count);
             blockCorrelation.ME(firstBlock);
             blockCorrelation.ME(mostRecentBlock);
             blockCorrelation.TE(average);
@@ -104,16 +106,26 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             // ok, now finish up with error
             error.TE(1 / (double) (count - 1));
             error.map(Function.Sqrt.INSTANCE);
-            standardDeviation.E(sumSquareBlock);
-            standardDeviation.TE(1.0 / (count * blockSize));
+        }
+        else {
+            error.E(Double.NaN);
+            blockCorrelation.E(Double.NaN);
+        }
+        
+        long nTotalData = count*blockSize - (blockSize-blockCountDown);
+        if (nTotalData > 0) {
+            // now use *all* of the data
+            average.E(sum);
+            average.TE(1.0 / nTotalData);
+            work.E(average);
+            work.TE(average);
+            standardDeviation.E(sumSquare);
+            standardDeviation.TE(1.0 / nTotalData);
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);
         }
-        else if (blockSize > blockCountDown) {
-            average.E(blockSum);
-            average.TE(1.0/(blockSize-blockCountDown));
-            error.E(Double.NaN);
-            blockCorrelation.E(Double.NaN);
+        else {
+            average.E(Double.NaN);
             standardDeviation.E(Double.NaN);
         }
         return dataGroup;
@@ -123,16 +135,14 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
-        if (count == 0 && blockCountDown == blockSize) {
-            //no data has been added yet, so nothing to reset
+        super.reset();
+        if (sum == null) {
             return;
         }
-        super.reset();
         sum.E(0);
+        sumBlockSquare.E(0);
+        currentBlockSum.E(0);
         sumSquare.E(0);
-        sumSquareBlock.E(0);
-        blockSum.E(0);
-        blockSumSq.E(0);
         correlationSum.E(0);
         firstBlock.E(Double.NaN);
         mostRecentBlock.E(Double.NaN);
@@ -148,10 +158,9 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      */
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
+        sumBlockSquare = incomingDataInfo.makeData();
+        currentBlockSum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
-        sumSquareBlock = incomingDataInfo.makeData();
-        blockSum = incomingDataInfo.makeData();
-        blockSumSq = incomingDataInfo.makeData();
         firstBlock = incomingDataInfo.makeData();
         correlationSum = incomingDataInfo.makeData();
         mostRecentBlock = incomingDataInfo.makeData();
@@ -161,11 +170,10 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
 
 
     private static final long serialVersionUID = 1L;
-    protected IData sum; //sum(blockSum/blkSize) = sum(blockAvg)
-    protected IData sumSquare;//sum(blockAvg^2)
-    protected IData blockSum;//block(value)
-    protected IData blockSumSq;//block(value^2)
-    protected IData sumSquareBlock;//sum(value^2)
+    protected IData sum; //sum(value)
+    protected IData sumBlockSquare;//sum(blockAvg^2)
+    protected IData currentBlockSum;//block_sum(value)
+    protected IData sumSquare;//sum(value^2)
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work;
 }

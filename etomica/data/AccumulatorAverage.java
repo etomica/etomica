@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.api.IData;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.units.Null;
 import etomica.util.EnumeratedType;
 
 /**
@@ -70,12 +71,11 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
-        if (count == 0 && blockCountDown == blockSize) {
-            //no data has been added yet, so nothing to reset
-            return;
-        }
         count = 0;
         blockCountDown = blockSize;
+        if (error == null) {
+            return;
+        }
         error.E(Double.NaN);
         mostRecent.E(Double.NaN);
         average.E(Double.NaN);
@@ -84,15 +84,15 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Sets the size of the block used to group data for error analysis. Has no
-     * effect on statistics accumulated so far.  Default is 100.
+     * Sets the size of the block used to group data for error analysis. Resets
+     * statistics accumulated so far.  Default is 1000.
      * 
      * @param blockSize
      *            new block size.
      */
-    public void setBlockSize(long blockSize) {
-        this.blockSize = blockSize;
-        blockCountDown = blockSize;
+    public void setBlockSize(long newBlockSize) {
+        blockSize = newBlockSize;
+        reset();
     }
 
     /**
@@ -137,12 +137,13 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         IEtomicaDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
         factory.setLabel(incomingLabel+" blk correlation");
+        factory.setDimension(Null.DIMENSION);
         IEtomicaDataInfo correlationInfo = factory.makeDataInfo();
         correlationInfo.addTag(blockCorrelationTag);
         
         dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
             mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
         return dataInfo;
     }
 
@@ -170,10 +171,10 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Returns the number of times addData has been called since construction or
+     * Returns the number of blocks that have been accumulated since construction or
      * the last call to reset.
      */
-    public long getCount() {
+    public long getBlockCount() {
         return count;
     }
 
