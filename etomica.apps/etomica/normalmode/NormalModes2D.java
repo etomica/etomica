@@ -34,7 +34,7 @@ public class NormalModes2D implements NormalModes {
     	}
     	
     	int numWV = waveVectorFactory.getWaveVectors().length;
-    	int numEigen = basis.getScaledCoordinates().length*2;
+    	int numEigen = basis.getScaledCoordinates().length*space.D();
     	
     	double[][] omega2 = new double[numWV][numEigen];
     	
@@ -70,7 +70,7 @@ public class NormalModes2D implements NormalModes {
     	}
     	
     	int numWV = waveVectorFactory.getWaveVectors().length;
-    	int numEigen = basis.getScaledCoordinates().length*2;
+    	int numEigen = basis.getScaledCoordinates().length*space.D();
     	
     	eigenvectors = new double[numWV][numEigen][numEigen];
     	
