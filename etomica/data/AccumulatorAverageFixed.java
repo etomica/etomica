@@ -112,7 +112,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             blockCorrelation.E(Double.NaN);
         }
         
-        long nTotalData = count*blockSize - (blockSize-blockCountDown);
+        long nTotalData = count*blockSize + (blockSize-blockCountDown);
         if (nTotalData > 0) {
             // now use *all* of the data
             average.E(sum);
