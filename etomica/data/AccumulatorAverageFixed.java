@@ -1,6 +1,7 @@
 package etomica.data;
 
 import etomica.api.IData;
+import etomica.api.IFunction;
 import etomica.util.Function;
 
 /**
@@ -20,6 +21,13 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     
     public AccumulatorAverageFixed(int blockSize) {
         super(blockSize);
+        // this chops negative values to be 0, used in cases where value
+        // is non-zero due to roundoff and happens to be negative
+        negativeChop = new IFunction(){
+            public double f(double x) {
+                return x > 0 ? x : 0;
+            }
+        };
     }
 
     /**
@@ -91,15 +99,16 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             error.E(sumBlockSquare);
             error.TE(1 / (double) count);
             error.ME(work);
+            error.map(negativeChop);
 
             // error's intermediate value is useful for calculating block correlation
             blockCorrelation.E(average);
-            blockCorrelation.TE(2*count);
-            blockCorrelation.ME(firstBlock);
-            blockCorrelation.ME(mostRecentBlock);
+            blockCorrelation.TE(-2*count);
+            blockCorrelation.PE(firstBlock);
+            blockCorrelation.PE(mostRecentBlock);
             blockCorrelation.TE(average);
-            blockCorrelation.ME(correlationSum);
-            blockCorrelation.TE(1.0/(1-count));
+            blockCorrelation.PE(correlationSum);
+            blockCorrelation.TE(1.0/(count-1));
             blockCorrelation.PE(work);
             blockCorrelation.DE(error);
             
@@ -122,6 +131,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             standardDeviation.E(sumSquare);
             standardDeviation.TE(1.0 / nTotalData);
             standardDeviation.ME(work);
+            standardDeviation.map(negativeChop);
             standardDeviation.map(Function.Sqrt.INSTANCE);
         }
         else {
@@ -176,4 +186,5 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData sumSquare;//sum(value^2)
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work;
+    protected final IFunction negativeChop;
 }

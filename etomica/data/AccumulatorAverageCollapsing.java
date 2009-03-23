@@ -149,6 +149,9 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
             // calculate block properties (these require 2 or more blocks)
             double blockAvg = (totalSum-currentBlockSum) / (count*blockSize);
             double err = totalSumBlockSq / count - blockAvg * blockAvg;
+            if (err < 0) {
+                err = 0;
+            }
             error.E(Math.sqrt(err / (count-1)));
 
             blockCorrelation.E((((2 * (totalSum-currentBlockSum) / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
@@ -163,7 +166,11 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         if (nTotalData > 0) {
             double avg = totalSum / nTotalData;
             average.E(avg);
-            standardDeviation.E(Math.sqrt(totalSumSquare / nTotalData - avg*avg));
+            double variance = totalSumSquare / nTotalData - avg*avg;
+            if (variance < 0) {
+                variance = 0;
+            }
+            standardDeviation.E(Math.sqrt(variance));
         }
         return dataGroup;
     }
