@@ -49,8 +49,8 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
         assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
 
         double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
-        // block correlation should be ~0, but actual value will depend on # of blocks 
-        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation) < 3.0/Math.sqrt(accumulator.getBlockCount()));
+        // block correlation should be ~0, but actual value will depend on # of blocks
+        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation) < 4.0/Math.sqrt(accumulator.getBlockCount()));
 
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
         assertTrue("standard devation "+stdev, Math.abs(stdev-Math.sqrt(1.0/12.0)) < 5.e-4);
@@ -71,8 +71,8 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
         IData accData = accumulator.getData();
         double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
         assertTrue("average "+avg, Math.abs(avg-rawData.x) < 1.e-10);
-        
-        accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
+
+        //double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be 0/0, actual value might be 0, some number, Infinity or NaN 
         
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
