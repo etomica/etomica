@@ -42,20 +42,20 @@ public class AccumulatorAverageCollapsingTest extends AccumulatorAverageTestBase
         }
         
         // might change... we'd also need to update expectation values below
-        assertEquals("block count", accumulator.getBlockCount(), 250);
+        assertEquals("block count "+accumulator.getBlockCount(), accumulator.getBlockCount(), 250);
         
         IData accData = accumulator.getData();
         double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        assertTrue(Math.abs(avg-0.5) < 0.01);
+        assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
         
         double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be ~0, but actual value will depend on # of blocks 
-        assertTrue("block correlation", Math.abs(blockCorrelation/0.27 + 0.27/blockCorrelation - 2) < 0.4);
+        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation/0.27 + 0.27/blockCorrelation - 2) < 0.4);
         
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-        assertTrue("stdev", Math.abs(stdev/0.046345 + 0.046345/stdev - 2) < 0.015);
+        assertTrue("stdev "+stdev, Math.abs(stdev/0.046345 + 0.046345/stdev - 2) < 0.015);
 
         double error = accData.getValue(AccumulatorAverage.StatType.ERROR.index);
-        assertTrue("error ", error/0.0023 + 0.0023/error - 2 < 0.2);
+        assertTrue("error "+error, error/0.0023 + 0.0023/error - 2 < 0.2);
     }
 }
