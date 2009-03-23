@@ -7,13 +7,9 @@ import etomica.data.types.DataDouble;
 import etomica.units.Null;
 import etomica.util.RandomNumberGenerator;
 
-public abstract class AccumulatorAverageTest extends TestCase {
+public abstract class AccumulatorAverageTestBase extends TestCase {
 
-    public AccumulatorAverageTest() {
-        throw new RuntimeException("This constructor exists only because the folks at junit.org are morons.  Please go away.  Thanks.");
-    }
-    
-    public AccumulatorAverageTest(AccumulatorAverage accumulator) {
+    public AccumulatorAverageTestBase(AccumulatorAverage accumulator) {
         this.accumulator = accumulator;
     }
 

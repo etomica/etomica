@@ -7,7 +7,7 @@ import etomica.data.types.DataDouble;
 import etomica.units.Null;
 import etomica.util.RandomNumberGenerator;
 
-public class AccumulatorAverageCollapsingTest extends AccumulatorAverageTest {
+public class AccumulatorAverageCollapsingTest extends AccumulatorAverageTestBase {
 
     public AccumulatorAverageCollapsingTest() {
         super(new AccumulatorAverageCollapsing(400));
