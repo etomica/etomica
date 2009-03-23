@@ -9,6 +9,10 @@ import etomica.util.RandomNumberGenerator;
 
 public abstract class AccumulatorAverageTest extends TestCase {
 
+    public AccumulatorAverageTest() {
+        throw new RuntimeException("This constructor exists only because the folks at Sun are morons.  Please go away.  Thanks.");
+    }
+    
     public AccumulatorAverageTest(AccumulatorAverage accumulator) {
         this.accumulator = accumulator;
     }
