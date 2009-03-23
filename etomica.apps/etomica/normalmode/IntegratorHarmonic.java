@@ -89,8 +89,8 @@ public class IntegratorHarmonic extends IntegratorMD {
                 if (omega[iVector][j] == Double.POSITIVE_INFINITY) continue;
                 
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                Qr[iVector][j] = Math.cos(omega[iVector][j]*currentTime) *sqrtT;
-                Qi[iVector][j] = Math.sin(omega[iVector][j]*currentTime) *sqrtT;
+                Qr[iVector][j] = Math.cos(-omega[iVector][j]*currentTime) *sqrtT;
+                Qi[iVector][j] = Math.sin(-omega[iVector][j]*currentTime) *sqrtT;
                 
             }
         }
