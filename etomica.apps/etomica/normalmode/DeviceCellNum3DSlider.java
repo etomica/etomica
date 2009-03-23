@@ -48,7 +48,6 @@ public class DeviceCellNum3DSlider extends Device {
         nCellNumSlider.setMinimum(DEFAULT_MIN_nCells);
         nCellNumSlider.setMaximum(DEFAULT_MAX_nCells);
         nCellNumSlider.setNMajor(5);
-        nCellNumSlider.setNMajor(1);
         nCellNumSlider.getSlider().setEnabled(true);
         nCellNumSlider.getTextField().setEnabled(true);
 

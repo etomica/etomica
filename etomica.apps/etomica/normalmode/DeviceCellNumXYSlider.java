@@ -271,9 +271,6 @@ public class DeviceCellNumXYSlider extends Device {
         return yCellNumSlider.getModifier();
         
     }
-
-    
-    
     
 	/**
 	 * Set the x- and y- Cell # slider controller.
@@ -362,9 +359,6 @@ public class DeviceCellNumXYSlider extends Device {
         }
     }
 
-
-
-    
     //
     //main method to test device
     //
