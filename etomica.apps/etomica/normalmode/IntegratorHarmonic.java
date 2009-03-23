@@ -69,8 +69,8 @@ public class IntegratorHarmonic extends IntegratorMD {
 
         int totalWV = waveVectors.length;
         
-        rRand = new double[totalWV][coordinateDim];
-        iRand = new double[totalWV][coordinateDim];
+        Qr = new double[totalWV][coordinateDim];
+        Qi = new double[totalWV][coordinateDim];
     }
 
     public void doStepInternal() {
@@ -89,8 +89,8 @@ public class IntegratorHarmonic extends IntegratorMD {
                 if (omega[iVector][j] == Double.POSITIVE_INFINITY) continue;
                 
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                rRand[iVector][j] = Math.cos(omega[iVector][j]*currentTime) *sqrtT;
-                iRand[iVector][j] = Math.sin(omega[iVector][j]*currentTime) *sqrtT;
+                Qr[iVector][j] = Math.cos(omega[iVector][j]*currentTime) *sqrtT;
+                Qi[iVector][j] = Math.sin(omega[iVector][j]*currentTime) *sqrtT;
                 
             }
         }
@@ -105,7 +105,9 @@ public class IntegratorHarmonic extends IntegratorMD {
             //loop over wavevectors and sum contribution of each to the generalized coordinates
             
             /*
-             * u here is the normal mode coordinate
+             * u up to this point here is the normal mode coordinate
+             * 	and then tranformed back to real coordinate in 
+             * 	the next part
              */
             if (isOneWV()){
             	int wvNum = getWaveVectorNum();
@@ -117,7 +119,7 @@ public class IntegratorHarmonic extends IntegratorMD {
                 for (int i=0; i<coordinateDim; i++) {
                     for (int j=0; j<coordinateDim; j++) {
                         u[j] += waveVectorCoefficients[wvNum]*eigenVectors[wvNum][i][j]*
-                                  2.0*(rRand[wvNum][i]*coskR - iRand[wvNum][i]*sinkR);
+                                  2.0*(Qr[wvNum][i]*coskR - Qi[wvNum][i]*sinkR);
                     }
                 }
             } else {
@@ -131,7 +133,7 @@ public class IntegratorHarmonic extends IntegratorMD {
 	                for (int i=0; i<coordinateDim; i++) {
 	                    for (int j=0; j<coordinateDim; j++) {
 	                        u[j] += waveVectorCoefficients[iVector]*eigenVectors[iVector][i][j]*
-	                                  2.0*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+	                                  2.0*(Qr[iVector][i]*coskR - Qi[iVector][i]*sinkR);
 	                    }
 	                }
 	            }
@@ -169,8 +171,8 @@ public class IntegratorHarmonic extends IntegratorMD {
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     protected double[] u;
-    protected double[][] rRand;
-    protected double[][] iRand;
+    protected double[][] Qr;
+    protected double[][] Qi;
     protected double lastEnergy;
     protected double temperature;
     protected boolean isRejectable;
