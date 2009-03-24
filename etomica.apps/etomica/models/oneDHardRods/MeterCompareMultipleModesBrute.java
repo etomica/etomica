@@ -5,6 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
@@ -32,7 +33,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-//    public MeterCompareSingleModeBrute single;
     
     public boolean isA;
     
@@ -52,7 +52,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
-//        single = new MeterCompareSingleModeBrute("single", potentialMaster, cd, box);
     }
     
     
@@ -68,21 +67,10 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
         
-        IAtomList atoms = ((Box)coordinateDefinition.getBox()).getLeafList();
-        System.out.println("OLD OLD OLD");
-        for (int ii = 0; ii<cells.length; ii++) {
-            System.out.println(ii+"  " + ((IAtomPositioned)atoms.getAtom(ii)).getPosition());
-        }
-
-//        System.out.println("single: " + single.getDataAsScalar());
-        
-        
         //Get the normal mode coordinates of the compared waveVectors, and
         // store them in realCoord and imagCoord for further use.
         for(int wvcount = 0; wvcount < numWV; wvcount++){
             coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
-//            System.out.println("real " +realT[0]);
-//            System.out.println("imag " +imagT[0]);
             realCoord[wvcount] = 0.0;
             imagCoord[wvcount] = 0.0;
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
@@ -100,7 +88,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             //store the original positions of the cell.
             uNow = coordinateDefinition.calcU(cell.molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            
             
             for(int wvcount = 0; wvcount < numWV; wvcount++){
                 for(int j = 0; j < coordinateDim; j++){
@@ -133,27 +120,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         }//end of wvcount loop
         energyHardRod = meterPE.getDataAsScalar();
         
-//        for(int wvcount = 0; wvcount < numWV; wvcount++){
-//            coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
-////            System.out.println("real " +realT[0]);
-////            System.out.println("imag " +imagT[0]);
-//            double realdork = 0.0;
-//            double imagdork = 0.0;
-//            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-//                for(int j = 0; j < coordinateDim; j++){
-//                    realdork += eigenVectors[comparedWVs[wvcount]][i][j] * realT[j];
-//                    imagdork += eigenVectors[comparedWVs[wvcount]][i][j] * imagT[j];
-//                }
-//            }
-//        
-//        System.out.println("realdork: " + realdork);
-//        System.out.println("imagdork: " + imagdork);
-//        System.out.println("realCoord: " +realCoord[0]);
-//        System.out.println("imagCoord: " + imagCoord[0]);
-//                }
-        
-        
-        
         //Calculate the energy due to the compared modes
         for(int wvcount = 0; wvcount < numWV; wvcount++){
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
@@ -168,23 +134,12 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         }
         
         
-        
-        atoms = ((Box)coordinateDefinition.getBox()).getLeafList();
-        System.out.println("NEW NEW NEW");
-        for (int ii = 0; ii<cells.length; ii++) {
-            System.out.println(ii +"   " + ((IAtomPositioned)atoms.getAtom(ii)).getPosition());
-        }
-
-        
      // Set all the atoms back to the old values of u
         for (int iCell = 0; iCell<cells.length; iCell++) {
             cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
 
-        
-//        System.out.println("multiple: "+ (energyHardRod +energyHarmonic));
-        
         return energyHardRod + energyHarmonic;
     }
     
@@ -216,14 +171,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
     }
-
-//    public MeterCompareSingleModeBrute getSingle() {
-//        return single;
-//    }
-//
-//    public void setSingle(MeterCompareSingleModeBrute single) {
-//        this.single = single;
-//    }
 
     public boolean isA() {
         return isA;
