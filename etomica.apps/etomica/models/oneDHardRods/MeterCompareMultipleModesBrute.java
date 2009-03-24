@@ -1,9 +1,12 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -65,7 +68,11 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
         
-        
+        IAtomList atoms = ((Box)coordinateDefinition.getBox()).getLeafList();
+        System.out.println("OLD OLD OLD");
+        for (int ii = 0; ii<cells.length; ii++) {
+            System.out.println(ii+"  " + ((IAtomPositioned)atoms.getAtom(ii)).getPosition());
+        }
 
 //        System.out.println("single: " + single.getDataAsScalar());
         
@@ -160,17 +167,21 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             }
         }
         
+        
+        
+        atoms = ((Box)coordinateDefinition.getBox()).getLeafList();
+        System.out.println("NEW NEW NEW");
+        for (int ii = 0; ii<cells.length; ii++) {
+            System.out.println(ii +"   " + ((IAtomPositioned)atoms.getAtom(ii)).getPosition());
+        }
+
+        
      // Set all the atoms back to the old values of u
         for (int iCell = 0; iCell<cells.length; iCell++) {
             cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
-        
-//        if(isA){
-//            System.out.println("single: " + single.getDataAsScalar());
-//            System.out.println("HR: " + energyHardRod);
-//            System.out.println("Harm: " + energyHarmonic);
-//        }
+
         
 //        System.out.println("multiple: "+ (energyHardRod +energyHarmonic));
         

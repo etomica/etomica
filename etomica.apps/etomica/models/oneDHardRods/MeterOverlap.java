@@ -47,11 +47,11 @@ public class MeterOverlap implements IEtomicaDataSource {
         
         
         
-        if(Double.isNaN(eAeB[1])){
-            System.out.println("AARH?");
-            System.out.println("B: " +dataSourceB.getDataAsScalar());
-            System.out.println("A: " +dataSourceA.getDataAsScalar());
-        }
+//        if(Double.isNaN(eAeB[1])){
+//            System.out.println("AARH?");
+//            System.out.println("B: " +dataSourceB.getDataAsScalar());
+//            System.out.println("A: " +dataSourceA.getDataAsScalar());
+//        }
         
 //        System.out.println("meter overlap getdata");
         return dda;

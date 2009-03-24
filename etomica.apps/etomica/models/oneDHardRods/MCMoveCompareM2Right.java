@@ -60,7 +60,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 
     public boolean doTrial() {
         
-        System.out.println("NRGStart " + energyMeter.getDataAsScalar());
+//        System.out.println("NRGStart " + energyMeter.getDataAsScalar());
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -92,7 +92,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
         }
         for(int countWV= comparedWV; countWV <comparedWV+2; countWV++){
-            System.out.println("Chunk 1 count " + countWV);
+//            System.out.println("Chunk 1 count " + countWV);
             
             for(int iCell = 0; iCell < cells.length; iCell++){
                 
@@ -123,7 +123,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                    System.out.println("1-unow " + uNow[i]);
+//                    System.out.println("1-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 
@@ -132,7 +132,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         }
         
         energyOld = energyMeter.getDataAsScalar();
-        System.out.println("NRGOld: " + energyOld);
+//        System.out.println("NRGOld: " + energyOld);
         if(energyOld != 0.0){
 //            for(int k = 0; k < waveVectors.length; k++){
 //                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
@@ -185,14 +185,14 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 }
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                    System.out.println("2-unow " + uNow[i]);
+//                    System.out.println("2-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
         
         energyNew = energyMeter.getDataAsScalar();
-        System.out.println("youNou " + energyNew);
+//        System.out.println("youNou " + energyNew);
 
 //        for(int k = 0; k < 32; k++){
 //            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
@@ -204,7 +204,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         double sqrtT = Math.sqrt(temperature);
 
         for(int countWV = comparedWV; countWV < comparedWV+2; countWV++){
-            System.out.println("Chunk 3 count " + countWV);
+//            System.out.println("Chunk 3 count " + countWV);
             for (int j=0; j<coordinateDim; j++) {
                 if (stdDev[countWV][j] == 0) continue;
                 //generate real and imaginary parts of random normal-mode coordinate Q
@@ -250,13 +250,13 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 
                 for(int i = 0; i < coordinateDim; i++) {
                     uNow[i] += deltaU[i];
-                    System.out.println("3-unow " + uNow[i]);
+//                    System.out.println("3-unow " + uNow[i]);
                 }
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
         energyEvenLater = energyMeter.getDataAsScalar();
-        System.out.println("NRGevenl8r: " + energyEvenLater);
+//        System.out.println("NRGevenl8r: " + energyEvenLater);
         
         return true;
     }
@@ -270,7 +270,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
+//        System.out.println("  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
 //        count ++;
     }
 
