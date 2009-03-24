@@ -47,7 +47,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
 
         mostRecent.E(data);
         currentBlockSum.PE(data);
-        sum.PE(data);
         work.E(data);
         work.TE(data);
         sumSquare.PE(work);
@@ -62,6 +61,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      */
     protected void doBlockSum() {
         count++;
+        sum.PE(currentBlockSum);
         blockCountDown = blockSize;
         currentBlockSum.TE(1 / (double) blockSize);//compute block average
         work.E(currentBlockSum);
@@ -92,7 +92,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             
             // block average (later discarded)
             average.E(sum);
-            average.ME(currentBlockSum);
             average.TE(1.0 / (count*blockSize));
             work.E(average);
             work.TE(average);
@@ -125,6 +124,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         if (nTotalData > 0) {
             // now use *all* of the data
             average.E(sum);
+            average.PE(currentBlockSum);
             average.TE(1.0 / nTotalData);
             work.E(average);
             work.TE(average);
