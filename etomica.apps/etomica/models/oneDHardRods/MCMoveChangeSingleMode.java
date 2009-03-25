@@ -170,7 +170,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("accept");
+        System.out.println("accept MCMoveChangeSingleMode");
     }
 
     public double energyChange() {
@@ -178,7 +178,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject");
+        System.out.println("reject MCMoveChangeSingleMode");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
