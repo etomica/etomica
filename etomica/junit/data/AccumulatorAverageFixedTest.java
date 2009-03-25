@@ -41,16 +41,16 @@ public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
         
         IData accData = accumulator.getData();
         double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        assertTrue(Math.abs(avg-0.5) < 0.01);
+        assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
         
         double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be ~0, but actual value will depend on # of blocks 
-        assertTrue("block correlation", Math.abs(blockCorrelation-0.7196) < 0.004);
+        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation-0.7196) < 0.004);
         
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-        assertTrue("stdev", Math.abs(stdev-0.046345) < 5.e-4);
+        assertTrue("stdev "+stdev, Math.abs(stdev-0.046345) < 5.e-4);
 
         double error = accData.getValue(AccumulatorAverage.StatType.ERROR.index);
-        assertTrue("error ", error/1.35e-4 + 1.35e-4/error - 2 < 0.02);
+        assertTrue("error "+error, error/1.35e-4 + 1.35e-4/error - 2 < 0.02);
     }
 }
