@@ -69,6 +69,6 @@ public class SimCalcSLJTest extends TestCase {
         sWriter.actionPerformed();
         double A = sWriter.getLastA();
         
-        assertTrue("harmonic reference free energy within expected limits "+A, Math.abs(A-45.3) < 0.3);
+        assertTrue("harmonic reference free energy within expected limits "+A, Math.abs(A-45.3) < 0.4);
     }
 }
