@@ -706,34 +706,34 @@ public class SimOverlapn32m2Right extends Simulation {
 //        meterBinA.setComparedWV(new int[] {13, 14});
 //        meterBinB.setComparedWV(new int[] {13, 14});
 //        
-//        compareMove.setComparedWV(15);
-//        changeMove.setHarmonicWV(-1);
-//        meterBinA.setComparedWV(new int[] {15, 16});
-//        meterBinB.setComparedWV(new int[] {15, 16});
+        compareMove.setComparedWV(15);
+        changeMove.setHarmonicWV(16);
+        meterBinA.setComparedWV(new int[] {15, 16});
+        meterBinB.setComparedWV(new int[] {15, 16});
 //        
-        
-        compareMove.setComparedWV(2);
-        changeMove.setHarmonicWV(4);
-        meterBinA.setComparedWV(new int[] {2, 3});
-        meterBinB.setComparedWV(new int[] {2, 3});
+//        
+//        compareMove.setComparedWV(2);
+//        changeMove.setHarmonicWV(4);
+//        meterBinA.setComparedWV(new int[] {2, 3});
+//        meterBinB.setComparedWV(new int[] {2, 3});
     }
     public static class SimOverlapn32m4RightParam extends ParameterBase {
-        public int numAtoms = 8;
+        public int numAtoms = 32;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
         
-        public int numSteps = 400000;
-        public int runBlockSize = 1000;
-        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int numSteps = 40000000;
+        public int runBlockSize = 100000;
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 40000;  
-        public int eqBlockSize = 10;
+        public int eqNumSteps = 4000000;  
+        public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 40000;
-        public int benBlockSize = 10;
+        public int bennettNumSteps = 4000000;
+        public int benBlockSize = 1000;
 
     }
     

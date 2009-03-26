@@ -43,9 +43,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     double[] uNow;
     
     
-    
-//    int count;
-    
     public MCMoveCompareM2Right(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
@@ -53,7 +50,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
-//        count = 0;
         comparedWV = 13;
     }
 
@@ -79,7 +75,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             //store old positions.
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            cell = cells[iCell];
             //rezero deltaU
             for(int j = 0; j < coordinateDim; j++){
                 deltaU[j] = 0.0;
@@ -90,6 +85,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             coordinateDefinition.calcT(waveVectors[countWV], realT, imagT);
 
             for(int iCell = 0; iCell < cells.length; iCell++){
+                cell = cells[iCell];
                 //Calculate the contributions to the current position of the zeroed
                 //mode, and subtract it from the overall position
                 double kR = waveVectors[countWV].dot(cell.cellPosition);
@@ -172,10 +168,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         
         energyNew = energyMeter.getDataAsScalar();
 
-        System.out.println("After Chunk 1:");
-        for(int k = 0; k < 8; k++){
-            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
-        }
+//        System.out.println("After Chunk 2:");
+//        for(int k = 0; k < ; k++){
+//            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
+//        }
         
 //MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
         //set up the gaussian values
@@ -243,7 +239,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept MCMoveCompareM2Right");
+//        System.out.println("accept MCMoveCompareM2Right");
     }
 
     public double energyChange() {
@@ -251,7 +247,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject MCMoveCompareM2Right");
+//        System.out.println("reject MCMoveCompareM2Right");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

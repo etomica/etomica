@@ -64,9 +64,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
 
     public boolean doTrial() {
         
-//        compLeft.doTrial();
-        
-        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
