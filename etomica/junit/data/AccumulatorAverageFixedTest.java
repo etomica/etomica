@@ -45,7 +45,7 @@ public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
         
         double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be ~0, but actual value will depend on # of blocks 
-        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation-0.7196) < 0.004);
+        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation-0.7196) < 0.005);
         
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
         assertTrue("stdev "+stdev, Math.abs(stdev-0.046345) < 5.e-4);
