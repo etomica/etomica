@@ -80,7 +80,6 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
                     v /= (expX[j] + 1.0/value1);
                 }
             }
-            overlapSum[j] += v;
             blockOverlapSum[j] += v;
             overlapSumSquare[j] += v*v;
         }
@@ -92,6 +91,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     protected void doBlockSum() {
         long blockSizeSq = blockSize * blockSize;
         for (int j=0; j<nBennetPoints; j++) {
+            overlapSum[j] += blockOverlapSum[j];
 			// this is actually blockSum[1], but for all the various values of the overlap parameter
             overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j] / blockSizeSq;
             blockOverlapSum[j] = 0.0;
@@ -126,7 +126,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * Bennet parameter (value[1]/(value[1]+expX[iParam]).
      */
     public double getBennetAverage(int iParam) {
-        return overlapSum[iParam]/((double)count*blockSize+(blockSize-blockCountDown));
+        return (overlapSum[iParam]+blockOverlapSum[iParam])/((double)count*blockSize+(blockSize-blockCountDown));
     }
 
     /**
