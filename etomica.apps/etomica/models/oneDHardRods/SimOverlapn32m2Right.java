@@ -74,6 +74,7 @@ public class SimOverlapn32m2Right extends Simulation {
         
         IRandom rand = new RandomNumberGenerator((long)3.0);
         this.setRandom(rand);
+        System.out.println("Random seed explicitly set.");
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -154,19 +155,7 @@ public class SimOverlapn32m2Right extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        
-//        meterTestBinA = new MeterConvertTest("meterBinA", potentialMasterTarget, 
-//                coordinateDefinitionTarget, boxTarget);
-//        meterTestBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
-//        meterTestBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
-//        meterTestBinA.setTemperature(temperature);
-//        meterTestBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
-//        meterTestBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-//        AccumulatorAverageFixed binaSink = new AccumulatorAverageFixed();
-//        DataPump pumpTestBinA = new DataPump(meterTestBinA, binaSink);
-//        integratorTarget.addIntervalAction(pumpTestBinA);
-//        integratorTarget.setActionInterval(pumpTestBinA, 1000000);
-//        integratorTarget.setIntervalActionPriority(pumpTestBinA, 198);
+        meterBinA.setA(true);
         
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
@@ -246,21 +235,6 @@ public class SimOverlapn32m2Right extends Simulation {
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
         
-//        meterTestBinB = new MeterConvertTest(potentialMasterRef,
-//                coordinateDefinitionRef, boxRef);
-//        meterTestBinB.setCoordinateDefinition(coordinateDefinitionRef);
-//        meterTestBinB.setEigenVectors(nm.getEigenvectors(boxRef));
-//        meterTestBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
-//        meterTestBinB.setTemperature(temperature);
-//        meterTestBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-//        meterTestBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-//        integratorRef.setMeterPotentialEnergy(meterTestBinB);
-//        AccumulatorAverageFixed binbSink = new AccumulatorAverageFixed();
-//        DataPump pumpTestBinB = new DataPump(meterTestBinB, binbSink);
-//        integratorRef.addIntervalAction(pumpTestBinB);
-//        integratorRef.setActionInterval(pumpTestBinB, 1000000);
-//        integratorRef.setIntervalActionPriority(pumpTestBinB, 199);
-        
         MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
@@ -330,18 +304,6 @@ public class SimOverlapn32m2Right extends Simulation {
         }
         
         if (bennettParam == -1) {
-            
-//            int oldBlockSize = blockSize;
-//            long newBlockSize = initSteps*integratorSim.getNumSubSteps()/1000;
-//            //Make sure the new block size is reasonable.
-//            if(newBlockSize < 1000){
-//                newBlockSize = 1000;
-//            }
-//            if(newBlockSize > 1000000){
-//                newBlockSize = 1000000;
-//            }
-//            setAccumulatorBlockSize((int)newBlockSize);
-            
             // equilibrate off the lattice to avoid anomolous contributions
             activityIntegrate.setMaxSteps(initSteps);
             setAccumulatorBlockSize(initBlockSize);
@@ -424,19 +386,6 @@ public class SimOverlapn32m2Right extends Simulation {
         activityIntegrate.setMaxSteps(initSteps);
         setAccumulatorBlockSize(initBlockSize);
         integratorSim.getMoveManager().setEquilibrating(true);
-        
-        //This code allows the computer to set the block size for the main
-        //simulation and equilibration/finding alpha separately.
-//        int oldBlockSize = blockSize;
-//        long newBlockSize = initSteps*integratorSim.getNumSubSteps()/1000;
-//        //make sure new block size is reasonablel
-//        if(newBlockSize < 1000){
-//            newBlockSize = 1000;
-//        }
-//        if (newBlockSize >1000000) {
-//            newBlockSize = 1000000;
-//        }
-//        setAccumulatorBl ockSize((int)newBlockSize);
         
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
@@ -534,6 +483,7 @@ public class SimOverlapn32m2Right extends Simulation {
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
         sim.setAccumulatorBlockSize(benBlockSize);
+//        sim.setBennettParameter(1.4491113335815968);
         sim.initBennettParameter(filename, numBenSteps, benBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
@@ -548,15 +498,6 @@ public class SimOverlapn32m2Right extends Simulation {
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
-        
-//        sim.meterBinA.histogramNRG.reset();
-//        sim.meterBinA.histogramRealCoord.reset();
-//        sim.meterBinA.histogramImagCoord.reset();
-//        sim.meterBinB.histogramNRG.reset();
-//        sim.meterBinB.histogramRealCoord.reset();
-//        sim.meterBinB.histogramImagCoord.reset();
-        
-        
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.setAccumulatorBlockSize(runBlockSize);
@@ -620,96 +561,49 @@ public class SimOverlapn32m2Right extends Simulation {
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
-//        System.out.println(" ");
-//        System.out.println("Harmonic Energies - Meter B in A");
-//        double[] xval = sim.meterBinA.histogramNRG.xValues();
-//        double[] histval = sim.meterBinA.histogramNRG.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
-//        
-//        System.out.println(" ");
-//        System.out.println("Harmonic Energies - Meter B in B");
-//        xval = sim.meterBinB.histogramNRG.xValues();
-//        histval = sim.meterBinB.histogramNRG.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
-//        
-//        System.out.println(" ");
-//        System.out.println("Real Coord - Meter B in A");
-//        xval = sim.meterBinA.histogramRealCoord.xValues();
-//         histval = sim.meterBinA.histogramRealCoord.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
-//        
-//        System.out.println(" ");
-//        System.out.println("Real Coord - Meter B in B");
-//        xval = sim.meterBinB.histogramRealCoord.xValues();
-//         histval = sim.meterBinB.histogramRealCoord.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
-//        
-//        System.out.println(" ");
-//        System.out.println("Imag Coord - Meter B in A");
-//        xval = sim.meterBinA.histogramImagCoord.xValues();
-//        histval = sim.meterBinA.histogramImagCoord.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
-//        
-//        System.out.println(" ");
-//        System.out.println("Imag Coord - Meter B in B");
-//        xval = sim.meterBinB.histogramImagCoord.xValues();
-//        histval = sim.meterBinB.histogramImagCoord.getHistogram();
-//        for(int i = 0; i < xval.length; i++){
-//            System.out.println("xval " + xval[i] + " "+histval[i]);
-//        }
     }
       
     
     public void setComparedWV(){
 //        compareMove.setComparedWV(1);
-//        changeMove.setHarmonicWV(3);
+//        changeMove.setHarmonicWV(2);
 //        meterBinA.setComparedWV(new int[] {1, 2});
 //        meterBinB.setComparedWV(new int[] {1, 2});
 //        
 //        compareMove.setComparedWV(3);
-//        changeMove.setHarmonicWV(5);
+//        changeMove.setHarmonicWV(4);
 //        meterBinA.setComparedWV(new int[] {3, 4});
 //        meterBinB.setComparedWV(new int[] {3, 4});
 //        
 //        compareMove.setComparedWV(5);
-//        changeMove.setHarmonicWV(7);
+//        changeMove.setHarmonicWV(6);
 //        meterBinA.setComparedWV(new int[] {5, 6});
 //        meterBinB.setComparedWV(new int[] {5, 6});
 //        
 //        compareMove.setComparedWV(7);
-//        changeMove.setHarmonicWV(9);
+//        changeMove.setHarmonicWV(8);
 //        meterBinA.setComparedWV(new int[] {7, 8});
 //        meterBinB.setComparedWV(new int[] {7, 8});
 //        
 //        compareMove.setComparedWV(9);
-//        changeMove.setHarmonicWV(11);
+//        changeMove.setHarmonicWV(10);
 //        meterBinA.setComparedWV(new int[] {9, 10});
 //        meterBinB.setComparedWV(new int[] {9, 10});
 //        
 //        compareMove.setComparedWV(11);
-//        changeMove.setHarmonicWV(13);
+//        changeMove.setHarmonicWV(12);
 //        meterBinA.setComparedWV(new int[] {11, 12});
 //        meterBinB.setComparedWV(new int[] {11, 12});
 //        
-//        compareMove.setComparedWV(13);
-//        changeMove.setHarmonicWV(15);
-//        meterBinA.setComparedWV(new int[] {13, 14});
-//        meterBinB.setComparedWV(new int[] {13, 14});
+        compareMove.setComparedWV(13);
+        changeMove.setHarmonicWV(14);
+        meterBinA.setComparedWV(new int[] {13, 14});
+        meterBinB.setComparedWV(new int[] {13, 14});
 //        
-        compareMove.setComparedWV(15);
-        changeMove.setHarmonicWV(16);
-        meterBinA.setComparedWV(new int[] {15, 16});
-        meterBinB.setComparedWV(new int[] {15, 16});
+//        compareMove.setComparedWV(15);
+//        changeMove.setHarmonicWV(16);
+//        meterBinA.setComparedWV(new int[] {15, 16});
+//        meterBinB.setComparedWV(new int[] {15, 16});
 //        
 //        
 //        compareMove.setComparedWV(2);
@@ -730,10 +624,10 @@ public class SimOverlapn32m2Right extends Simulation {
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
         public int eqNumSteps = 4000000;  
-        public int eqBlockSize = 1000;
+        public int eqBlockSize = 10000;
         
         public int bennettNumSteps = 4000000;
-        public int benBlockSize = 1000;
+        public int benBlockSize = 10000;
 
     }
     

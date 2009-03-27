@@ -115,7 +115,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         changedWV = random.nextInt(harmonicWV);
         changedWV +=1;
         
-        System.out.println(changedWV);
+//        System.out.println(changedWV);
         
         //calculate the new positions of the atoms.
         //loop over cells

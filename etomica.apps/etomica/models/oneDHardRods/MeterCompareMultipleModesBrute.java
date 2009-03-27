@@ -5,9 +5,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -18,7 +16,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
-    
     private double eigenVectors[][][];
     private IVectorMutable[] waveVectors;
     int[] comparedWVs;
@@ -30,12 +27,8 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     private double[] uNow, deltaU;
     int coordinateDim;
     private double energyHardRod, energyHarmonic;
-    
     private static final long serialVersionUID = 1L;
-    
-    
     public boolean isA;
-    
     
     public MeterCompareMultipleModesBrute(IPotentialMaster potentialMaster, 
             CoordinateDefinition cd, IBox box){
@@ -53,8 +46,6 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         meterPE.setBox(box);
         
     }
-    
-    
     
     public double getDataAsScalar(){
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -119,6 +110,14 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             }//end of cell loop
         }//end of wvcount loop
         energyHardRod = meterPE.getDataAsScalar();
+        if(((Double)energyHardRod).isInfinite() && isA) {
+            IAtomList list = coordinateDefinition.getBox().getLeafList();
+            for(int i = 0; i < list.getAtomCount(); i++){
+                System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+            }
+            throw new IllegalArgumentException("Bailing - bad overlap");
+        }
+        
         
         //Calculate the energy due to the compared modes
         for(int wvcount = 0; wvcount < numWV; wvcount++){
