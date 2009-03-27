@@ -94,7 +94,7 @@ public class TestHSMD3D extends Simulation {
         System.out.println("Z="+Z);
         
         // compressibility factor for this system should be 5.22
-        if (Double.isNaN(Z) || Math.abs(Z-5.22) > 0.03) {
+        if (Double.isNaN(Z) || Math.abs(Z-5.22) > 0.04) {
             System.exit(1);
         }
     }
