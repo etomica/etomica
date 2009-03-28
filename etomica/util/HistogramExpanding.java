@@ -141,6 +141,17 @@ public class HistogramExpanding extends HistogramSimple {
         setXRange(new DoubleRange(xMin,xMin+deltaX*(n-0.5)));
     }
 
+    public double getDeltaX(){
+    	return deltaX;
+    }
+    
+    public void setDeltaX(double dx){
+    	if (dx == deltaX) return;
+    	deltaX = dx;
+    	
+    	setXRange(new DoubleRange(xMin, xMax));
+    }
+    
     private static final long serialVersionUID = 1L;
     public static final Histogram.Factory FACTORY = new Factory(1.0);
     
