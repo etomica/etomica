@@ -90,7 +90,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     // of time.  There are no global moves.
     public void doStepInternal() {
         for (int i=0; i<nIntegrators; i++) {
-            int iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]); 
+            int iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]);
             for (int j=0; j<iSubSteps; j++) {
                 integrators[i].doStep();
             }

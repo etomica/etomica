@@ -134,16 +134,18 @@ public class VirialLJMultiOverlap {
         
         System.out.println("equilibration finished");
 
-        IAction progressReport = new IAction() {
-            public void actionPerformed() {
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
-                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-            }
-        };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(numSteps/10));
+        if (false) {
+            IAction progressReport = new IAction() {
+                public void actionPerformed() {
+                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                    double ratio = sim.dsvo.getDataAsScalar();
+                    double error = sim.dsvo.getError();
+                    System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                }
+            };
+            sim.integratorOS.addIntervalAction(progressReport);
+            sim.integratorOS.setActionInterval(progressReport, (int)(numSteps/10));
+        }
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(numSteps);
@@ -153,6 +155,7 @@ public class VirialLJMultiOverlap {
         sim.getController().actionPerformed();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
