@@ -52,7 +52,7 @@ public class VirialLJTest extends TestCase {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        assertTrue("Ref pref (alpha) within expected limits: "+sim.refPref, Math.abs(sim.refPref - 1.34) < 0.11);
+        assertTrue("Ref pref (alpha) within expected limits: "+sim.refPref, Math.abs(sim.refPref - 1.34) < 0.12);
         
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
