@@ -28,7 +28,7 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     int coordinateDim;
     private double energyHardRod, energyHarmonic;
     private static final long serialVersionUID = 1L;
-    public boolean isA;
+    public boolean isOnlyHardRod;
     
     public MeterCompareMultipleModesBrute(IPotentialMaster potentialMaster, 
             CoordinateDefinition cd, IBox box){
@@ -110,7 +110,8 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             }//end of cell loop
         }//end of wvcount loop
         energyHardRod = meterPE.getDataAsScalar();
-        if(((Double)energyHardRod).isInfinite() && isA) {
+        
+        if(((Double)energyHardRod).isInfinite() && !isOnlyHardRod) {
             IAtomList list = coordinateDefinition.getBox().getLeafList();
             for(int i = 0; i < list.getAtomCount(); i++){
                 System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
@@ -171,11 +172,11 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         omegaSquared = sc;
     }
 
-    public boolean isA() {
-        return isA;
+    public boolean isOnlyHardRod() {
+        return isOnlyHardRod;
     }
 
-    public void setA(boolean isA) {
-        this.isA = isA;
+    public void setIsOnlyHardRod(boolean isA) {
+        this.isOnlyHardRod = isA;
     }
 }

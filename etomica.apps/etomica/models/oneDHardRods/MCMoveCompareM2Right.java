@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -71,6 +72,8 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 
         
 //ZERO OUT NORMAL MODES.)
+        
+        //Store old positions and rezero deltaU
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -80,6 +83,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 deltaU[j] = 0.0;
             }
         }
+        
         for(int countWV= comparedWV; countWV <comparedWV+2; countWV++){
             //Get normal mode coordinate information for a given wavevector
             coordinateDefinition.calcT(waveVectors[countWV], realT, imagT);
@@ -95,12 +99,16 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                     //Calculate the current coordinate:
                     double realCoord = 0, imagCoord = 0;
                     for (int j=0; j<coordinateDim; j++) {
-                        realCoord += eigenVectors[countWV][i][j] * realT[j];
-                        imagCoord += eigenVectors[countWV][i][j] * imagT[j];
+                        realCoord += waveVectorCoefficients[countWV] * 
+                                eigenVectors[countWV][i][j] * realT[j];
+                        imagCoord += waveVectorCoefficients[countWV] * 
+                                eigenVectors[countWV][i][j] * imagT[j];
+                        
                     }
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] -= waveVectorCoefficients[countWV]*eigenVectors[countWV][i][j] * 2.0 *
-                            (realCoord*coskR - imagCoord*sinkR);
+                        deltaU[j] -= waveVectorCoefficients[countWV] * 
+                                eigenVectors[countWV][i][j] * 2.0 *
+                                (realCoord*coskR - imagCoord*sinkR);
                     }
                 }
                 for(int i = 0; i < coordinateDim; i++){
@@ -115,7 +123,11 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
             
         }
-        
+        IAtomList list = coordinateDefinition.getBox().getLeafList();
+        System.out.println(".");
+        for(int i = 0; i < list.getAtomCount(); i++){
+            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+        }
         energyOld = energyMeter.getDataAsScalar();
         if(energyOld != 0.0){
             throw new IllegalStateException("Overlap after the removal of a mode!");
@@ -166,6 +178,11 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
         }
         
+        list = coordinateDefinition.getBox().getLeafList();
+        System.out.println(".");
+        for(int i = 0; i < list.getAtomCount(); i++){
+            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+        }
         energyNew = energyMeter.getDataAsScalar();
 
 //        System.out.println("After Chunk 2:");
@@ -225,8 +242,12 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
-        energyEvenLater = energyMeter.getDataAsScalar();
         
+         list = coordinateDefinition.getBox().getLeafList();
+         System.out.println(".");
+        for(int i = 0; i < list.getAtomCount(); i++){
+            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+        }
         return true;
     }
     

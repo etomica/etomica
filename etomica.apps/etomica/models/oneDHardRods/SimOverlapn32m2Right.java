@@ -72,9 +72,10 @@ public class SimOverlapn32m2Right extends Simulation {
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
-        IRandom rand = new RandomNumberGenerator((long)3.0);
+        long seed = 15;
+        IRandom rand = new RandomNumberGenerator(seed);
         this.setRandom(rand);
-        System.out.println("Random seed explicitly set.");
+        System.out.println("Random seed explicitly set to " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -155,7 +156,7 @@ public class SimOverlapn32m2Right extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        meterBinA.setA(true);
+        meterBinA.setIsOnlyHardRod(true);
         
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
@@ -619,15 +620,15 @@ public class SimOverlapn32m2Right extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         
-        public int numSteps = 40000000;
-        public int runBlockSize = 100000;
-        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        public int numSteps = 400000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000000;  
-        public int eqBlockSize = 10000;
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 100;
         
-        public int bennettNumSteps = 4000000;
-        public int benBlockSize = 10000;
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 100;
 
     }
     
