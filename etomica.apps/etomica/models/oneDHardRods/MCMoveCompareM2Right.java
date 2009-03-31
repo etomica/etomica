@@ -56,6 +56,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 
 
     public boolean doTrial() {
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
 //        System.out.println("NRGStart " + energyMeter.getDataAsScalar());
         int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -71,25 +75,27 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         double normalization = 1/Math.sqrt(cells.length);
 
         
-//ZERO OUT NORMAL MODES.)
+//ZERO OUT NORMAL MODES.
         
-        //Store old positions and rezero deltaU
+        //Store old positions
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
-            //rezero deltaU
-            for(int j = 0; j < coordinateDim; j++){
-                deltaU[j] = 0.0;
-            }
         }
         
         for(int countWV= comparedWV; countWV <comparedWV+2; countWV++){
             //Get normal mode coordinate information for a given wavevector
             coordinateDefinition.calcT(waveVectors[countWV], realT, imagT);
-
+            
             for(int iCell = 0; iCell < cells.length; iCell++){
                 cell = cells[iCell];
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                //rezero deltaU
+                for(int j = 0; j < coordinateDim; j++){
+                    deltaU[j] = 0.0;
+                }
+                
                 //Calculate the contributions to the current position of the zeroed
                 //mode, and subtract it from the overall position
                 double kR = waveVectors[countWV].dot(cell.cellPosition);
@@ -121,12 +127,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
                 
             }
-            
-        }
-        IAtomList list = coordinateDefinition.getBox().getLeafList();
-        System.out.println(".");
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
         }
         energyOld = energyMeter.getDataAsScalar();
         if(energyOld != 0.0){
@@ -177,18 +177,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             }
         }
-        
-        list = coordinateDefinition.getBox().getLeafList();
-        System.out.println(".");
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
         energyNew = energyMeter.getDataAsScalar();
-
-//        System.out.println("After Chunk 2:");
-//        for(int k = 0; k < ; k++){
-//            System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
-//        }
         
 //MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
         //set up the gaussian values
@@ -243,11 +232,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
         }
         
-         list = coordinateDefinition.getBox().getLeafList();
-         System.out.println(".");
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
         return true;
     }
     

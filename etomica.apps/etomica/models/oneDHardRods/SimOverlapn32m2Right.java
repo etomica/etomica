@@ -69,13 +69,13 @@ public class SimOverlapn32m2Right extends Simulation {
     MeterCompareMultipleModesBrute meterBinA, meterBinB;    
     
     public SimOverlapn32m2Right(Space _space, int numAtoms, double density, double 
-            temperature, String filename, double harmonicFudge){
+            temperature, String filename, double harmonicFudge, int cpwv){
         super(_space, true);
         
-        long seed = 15;
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
-        System.out.println("Random seed explicitly set to " + seed);
+//        long seed = 15;
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
+//        System.out.println("Random seed explicitly set to " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -246,7 +246,7 @@ public class SimOverlapn32m2Right extends Simulation {
         
 //JOINT
         //Set up the rest of the joint stuff
-        setComparedWV();
+        setComparedWV(cpwv);
         
         integratorSim = new IntegratorOverlap(random, new 
                 IntegratorMC[]{integratorRef, integratorTarget});
@@ -446,12 +446,13 @@ public class SimOverlapn32m2Right extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
+        int comparedWV = params.comparedWV;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
         SimOverlapn32m2Right sim = new SimOverlapn32m2Right(Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge);
+                density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
@@ -563,54 +564,13 @@ public class SimOverlapn32m2Right extends Simulation {
         }
         
     }
-      
     
-    public void setComparedWV(){
-//        compareMove.setComparedWV(1);
-//        changeMove.setHarmonicWV(2);
-//        meterBinA.setComparedWV(new int[] {1, 2});
-//        meterBinB.setComparedWV(new int[] {1, 2});
-//        
-//        compareMove.setComparedWV(3);
-//        changeMove.setHarmonicWV(4);
-//        meterBinA.setComparedWV(new int[] {3, 4});
-//        meterBinB.setComparedWV(new int[] {3, 4});
-//        
-//        compareMove.setComparedWV(5);
-//        changeMove.setHarmonicWV(6);
-//        meterBinA.setComparedWV(new int[] {5, 6});
-//        meterBinB.setComparedWV(new int[] {5, 6});
-//        
-//        compareMove.setComparedWV(7);
-//        changeMove.setHarmonicWV(8);
-//        meterBinA.setComparedWV(new int[] {7, 8});
-//        meterBinB.setComparedWV(new int[] {7, 8});
-//        
-//        compareMove.setComparedWV(9);
-//        changeMove.setHarmonicWV(10);
-//        meterBinA.setComparedWV(new int[] {9, 10});
-//        meterBinB.setComparedWV(new int[] {9, 10});
-//        
-//        compareMove.setComparedWV(11);
-//        changeMove.setHarmonicWV(12);
-//        meterBinA.setComparedWV(new int[] {11, 12});
-//        meterBinB.setComparedWV(new int[] {11, 12});
-//        
-        compareMove.setComparedWV(13);
-        changeMove.setHarmonicWV(14);
-        meterBinA.setComparedWV(new int[] {13, 14});
-        meterBinB.setComparedWV(new int[] {13, 14});
-//        
-//        compareMove.setComparedWV(15);
-//        changeMove.setHarmonicWV(16);
-//        meterBinA.setComparedWV(new int[] {15, 16});
-//        meterBinB.setComparedWV(new int[] {15, 16});
-//        
-//        
-//        compareMove.setComparedWV(2);
-//        changeMove.setHarmonicWV(4);
-//        meterBinA.setComparedWV(new int[] {2, 3});
-//        meterBinB.setComparedWV(new int[] {2, 3});
+    public void setComparedWV(int comp){
+        System.out.println("Wavevectors in question " + comp + " "+ (comp+1));
+        compareMove.setComparedWV(comp);
+        changeMove.setHarmonicWV(comp+1);
+        meterBinA.setComparedWV(new int[] {comp, comp+1});
+        meterBinB.setComparedWV(new int[] {comp, comp+1});
     }
     public static class SimOverlapn32m4RightParam extends ParameterBase {
         public int numAtoms = 32;
@@ -620,16 +580,17 @@ public class SimOverlapn32m2Right extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         
-        public int numSteps = 400000;
+        public int numSteps = 40000;
         public int runBlockSize = 1000;
         public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 40000;  
+        public int eqNumSteps = 4000;  
         public int eqBlockSize = 100;
         
-        public int bennettNumSteps = 40000;
+        public int bennettNumSteps = 4000;
         public int benBlockSize = 100;
 
+        public int comparedWV = 15;
     }
     
 }
