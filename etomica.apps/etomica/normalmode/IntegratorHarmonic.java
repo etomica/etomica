@@ -33,12 +33,14 @@ public class IntegratorHarmonic extends IntegratorMD {
 
     public void setOmegaSquared(double[][] omega2, double[] coeff) {
         omega = new double[omega2.length][omega2[0].length];
-        for (int i=0; i<omega.length; i++) {
-            for (int j=0; j<omega[i].length; j++) {
-                omega[i][j] = Math.sqrt(omega2[i][j]);
-            } 
-        }
+   
+       	for (int i=0; i<omega.length; i++) {
+       		for (int j=0; j<omega[i].length; j++) {
+       			omega[i][j] = Math.sqrt(omega2[i][j]);
+       		} 
+       	}
     }
+    
     
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
@@ -48,7 +50,7 @@ public class IntegratorHarmonic extends IntegratorMD {
         waveVectors = newWaveVectors;
     }
     
-    public IVectorMutable[] getWaVectors(){
+    public IVectorMutable[] getWaveVectors(){
     	return waveVectors;
     }
     
@@ -57,7 +59,7 @@ public class IntegratorHarmonic extends IntegratorMD {
     }
     
     public void setEigenVectors(double[][][] newEigenVectors) {
-        eigenVectors = newEigenVectors;
+   		eigenVectors = newEigenVectors;
     }
     
     public void setBox(IBox newBox) {
@@ -83,18 +85,19 @@ public class IntegratorHarmonic extends IntegratorMD {
 
         int totalWV = waveVectors.length;
     
-        for (int iVector=0; iVector< totalWV; iVector++) {
-        
-            for (int j=0; j<coordinateDim; j++) {
-                if (omega[iVector][j] == Double.POSITIVE_INFINITY) continue;
+   
+       	for (int iVector=0; iVector< totalWV; iVector++) {
+       
+       		for (int j=0; j<coordinateDim; j++) {
+       			if (omega[iVector][j] == Double.POSITIVE_INFINITY) continue;
                 
-                //generate real and imaginary parts of random normal-mode coordinate Q
-                Qr[iVector][j] = Math.cos(-omega[iVector][j]*currentTime) *sqrtT;
-                Qi[iVector][j] = Math.sin(-omega[iVector][j]*currentTime) *sqrtT;
+       			//generate real and imaginary parts of random normal-mode coordinate Q
+       			Qr[iVector][j] = Math.cos(-omega[iVector][j]*currentTime) *sqrtT;
+       			Qi[iVector][j] = Math.sin(-omega[iVector][j]*currentTime) *sqrtT;
                 
-            }
-        }
-        
+       		}
+       	}
+       
         
         for (int iCell = 0; iCell<cells.length; iCell++) {
 
@@ -111,17 +114,28 @@ public class IntegratorHarmonic extends IntegratorMD {
              */
             if (isOneWV()){
             	int wvNum = getWaveVectorNum();
+            	int eValNum = getEValNum();
             	
             	double kR = waveVectors[wvNum].dot(cell.cellPosition);//getLatticePositions()[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                  
-                for (int i=0; i<coordinateDim; i++) {
-                    for (int j=0; j<coordinateDim; j++) {
-                        u[j] += waveVectorCoefficients[wvNum]*eigenVectors[wvNum][i][j]*
+                if (isOneEVal()){
+                	for (int i=0; i<coordinateDim; i++) {
+                		for (int j=0; j<coordinateDim; j++) {
+                			u[j] += waveVectorCoefficients[wvNum]*eigenVectors[wvNum][eValNum][j]*
+                                  2.0*(Qr[wvNum][eValNum]*coskR - Qi[wvNum][eValNum]*sinkR);
+                		}
+                	}
+                } else {
+                	for (int i=0; i<coordinateDim; i++) {
+                		for (int j=0; j<coordinateDim; j++) {
+                			u[j] += waveVectorCoefficients[wvNum]*eigenVectors[wvNum][i][j]*
                                   2.0*(Qr[wvNum][i]*coskR - Qi[wvNum][i]*sinkR);
-                    }
+                		}
+                	}
                 }
+                
             } else {
             
 	            for (int iVector=0; iVector< totalWV; iVector++) {
@@ -162,8 +176,24 @@ public class IntegratorHarmonic extends IntegratorMD {
 	public void setWaveVectorNum(int waveVectorNum) {
 		this.waveVectorNum = waveVectorNum;
 	}
+	
+	public boolean isOneEVal() {
+		return oneEVal;
+	}
 
-    private static final long serialVersionUID = 1L;
+	public void setOneEVal(boolean oneEVal) {
+		this.oneEVal = oneEVal;
+	}
+
+	public int getEValNum() {
+		return eValNum;
+	}
+
+	public void setEValNum(int valNum) {
+		eValNum = valNum;
+	}
+
+	private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final MoleculeIteratorAllMolecules iterator;
     private double[][] omega;
@@ -177,7 +207,7 @@ public class IntegratorHarmonic extends IntegratorMD {
     protected double temperature;
     protected boolean isRejectable;
     protected double[][] uOld;
-    protected boolean oneWV = false;
-    protected int waveVectorNum;
+    protected boolean oneWV = false, oneEVal = false;
+    protected int waveVectorNum, eValNum;
 
 }
