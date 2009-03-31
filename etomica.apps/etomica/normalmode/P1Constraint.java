@@ -61,6 +61,14 @@ public class P1Constraint extends Potential1{
 		
 		
 	}//End of Constructor
+	
+	public double getInnerRadius(){
+		return radiusInner;
+	}
+	
+	public double getOuterRadius(){
+		return radiusOuter;
+	}
 
 	@Override
 	public double energy(IAtomList atoms) {
