@@ -25,9 +25,9 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.math.SpecialFunctions;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -99,7 +99,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
@@ -150,7 +150,7 @@ public class SimOverlapSoftSphere extends Simulation {
         /*
          * nuke this line if it is overlap between DB and harmonic
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
@@ -200,12 +200,22 @@ public class SimOverlapSoftSphere extends Simulation {
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
-        newAccumulator.setBlockSize(100);
+        newAccumulator.setBlockSize(100); // setting the block size = 100
+        
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
+            	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
+            		
+            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 100);
+            	
+            	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
+                
+            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 300);
+            	} else 
+            		
+            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {
@@ -300,6 +310,9 @@ public class SimOverlapSoftSphere extends Simulation {
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+            
+            System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
+            
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
@@ -365,11 +378,6 @@ public class SimOverlapSoftSphere extends Simulation {
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
 
-//        StopWatcher stopWatcher = new StopWatcher("stop", sim, filename);
-//        IntervalActionAdapter iaa = new IntervalActionAdapter(stopWatcher);
-//        iaa.setActionInterval(100);
-//        sim.integratorOverlap.addListener(iaa);
-
         sim.initRefPref(refFileName, numSteps/20);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
@@ -380,7 +388,7 @@ public class SimOverlapSoftSphere extends Simulation {
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
-        
+       
         System.out.println("equilibration finished");
         System.out.flush();
         final long startTime = System.currentTimeMillis();
@@ -415,17 +423,25 @@ public class SimOverlapSoftSphere extends Simulation {
         final double temp = temperature;
         final double AHarm = AHarmonic;
         
+        //final FileWriter fileWriterBen = fileWriter;
+        
         IAction output = new IAction(){
         	public void actionPerformed(){
         		double ratio = sim.dsvo.getDataAsScalar();
+        		double error = sim.dsvo.getError();
+        		
         	    long currentTime = System.currentTimeMillis();
-        	 	System.out.println("Time: " + (currentTime - startTime)+ 
-        				" ,Targ_FE/N: "+temp*(AHarm-Math.log(ratio))/numMolecules);
+      
+        	    System.out.println("Time: " + (currentTime - startTime)+     				
+        	    		" ,Targ_FE/N: "+temp*(AHarm-Math.log(ratio))/numMolecules + " ,error: " + temp*(error/ratio)/numMolecules+
+        	 			" ;ratio: " + ratio + " ,error:" + error);
+        	 	
+        	 	
         	}
         };
         
 		sim.integratorOverlap.addIntervalAction(output);
-	    sim.integratorOverlap.setActionInterval(output, 2500);
+	    sim.integratorOverlap.setActionInterval(output, (int)numSteps/200);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
@@ -434,8 +450,8 @@ public class SimOverlapSoftSphere extends Simulation {
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
-        System.out.println("\nratio average: "+ratio+", error: "+error);
-        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
+        System.out.println("\nratio average: "+ratio+" ,error: "+error);
+        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
         System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
         System.out.println("target free energy per particle: "+temperature*(AHarmonic-Math.log(ratio))/numMolecules);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
@@ -450,6 +466,7 @@ public class SimOverlapSoftSphere extends Simulation {
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);
         System.out.println("Time taken: " + (endTime - startTime));
+
     }
 
     private static final long serialVersionUID = 1L;
@@ -472,13 +489,13 @@ public class SimOverlapSoftSphere extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =32;
+        public int numMolecules =108;
         public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "CB_FCC_n12_T01";
-        public double temperature = 0.1;
+        public String filename = "CB_FCC_n12_T14";
+        public double temperature = 1.4;
     }
 }

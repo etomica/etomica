@@ -2,6 +2,7 @@ package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
@@ -46,7 +47,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public SimUmbrellaSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space, true);
 
-        String refFileName = filename +"_ref1";
+        String refFileName = filename +"_ref";
         FileReader refFileReader;
         try {
         	refFileReader = new FileReader(refFileName);
@@ -96,7 +97,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
@@ -148,7 +149,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        
+    	
         SimBennetParam params = new SimBennetParam();
         String inputFilename = null;
         if (args.length > 0) {
@@ -180,7 +181,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
+        final SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
@@ -198,8 +199,9 @@ public class SimUmbrellaSoftSphere extends Simulation {
         
         final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
+        dataAverageSamplingHarmonic.setBlockSize(100);
         sim.integrator.addIntervalAction(pumpSamplingHarmonic);
-        sim.integrator.setActionInterval(pumpSamplingHarmonic, 1);
+    
         
         // Target Sampling
         
@@ -209,8 +211,24 @@ public class SimUmbrellaSoftSphere extends Simulation {
         
         final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
+        dataAverageSamplingTarget.setBlockSize(100);
         sim.integrator.addIntervalAction(pumpSamplingTarget);
-        sim.integrator.setActionInterval(pumpSamplingTarget, 1);
+        
+        if (numAtoms == 32){
+            sim.integrator.setActionInterval(pumpSamplingHarmonic, 100);
+            sim.integrator.setActionInterval(pumpSamplingTarget, 100);
+        } else if (numAtoms == 108){
+        	sim.integrator.setActionInterval(pumpSamplingHarmonic, 300);
+            sim.integrator.setActionInterval(pumpSamplingTarget, 300);
+            if (temperature >= 1.1){
+            	dataAverageSamplingHarmonic.setBlockSize(200);
+            	dataAverageSamplingTarget.setBlockSize(200);
+            }
+        } else {
+        	sim.integrator.setActionInterval(pumpSamplingHarmonic, 1);
+            sim.integrator.setActionInterval(pumpSamplingTarget, 1);
+        }
+       
         
 		double[][] omega2 = sim.normalModes.getOmegaSquared(sim.box);
 		double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
@@ -236,10 +254,23 @@ public class SimUmbrellaSoftSphere extends Simulation {
 		System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 		System.out.println(" ");
 		
-
+		FileWriter fileWriterHarm, fileWriterTarget;
+		
+		try{
+			fileWriterHarm = new FileWriter(filename+"_Qharm");
+			fileWriterTarget = new FileWriter(filename+"_Qtarg");
+			
+		} catch (IOException e){
+			fileWriterHarm = null;
+			fileWriterTarget = null;
+		}
+		
         final double temp = temperature;
         final double AHarm = AHarmonic;
-		
+        
+        final FileWriter fHarm = fileWriterHarm;
+        final FileWriter fTarg = fileWriterTarget;
+        
 		IAction output = new IAction(){
 			public void actionPerformed(){
 				/*
@@ -247,26 +278,51 @@ public class SimUmbrellaSoftSphere extends Simulation {
 				 *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 				 * 
 				 */
-				double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-				double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+				long currentStep = sim.integrator.getStepCount();
+	
+				double aveQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+				double aveQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 				
-				/*
+				double Qharmonic = meterSamplingHarmonic.getData().getValue(0);
+				double Qtarget = meterSamplingTarget.getData().getValue(0);
+				
+			    double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+			    double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+				
+			    /*
 				 * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
 				 *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
 				 */
-				double deltaFE_harmonic = - Math.log(Qharmonic);
-				double deltaFE_target = - Math.log(Qtarget);
+				double deltaFE_harmonic = - Math.log(aveQharmonic);
+				double deltaFE_target = - Math.log(aveQtarget);
 				double deltaFE = temp*deltaFE_target - temp*deltaFE_harmonic;
         
 				long currentTime = System.currentTimeMillis();
-				System.out.println("Time: " + (currentTime - startTime)+ 
-						" ,Targ_FE/N: "+(temp*AHarm+ deltaFE)/numAtoms);
-
+				double error = temp*Math.sqrt( (eQharmonic/aveQharmonic)*(eQharmonic/aveQharmonic) 
+						+ (eQtarget/aveQtarget)*(eQtarget/aveQtarget))/numAtoms;
+				/*
+				if (Double.isNaN(error)){
+					System.out.println("error: "+ error);
+				}
+				System.out.println(currentStep+ " : Time: " + (currentTime - startTime)+ 
+						" ,Targ_FE/N: "+(temp*AHarm+ deltaFE)/numAtoms +
+						" ,error: "+error+
+						" ,Qharmonic: " + aveQharmonic + " , " + eQharmonic +
+						" ,Qtarget: " + aveQtarget + " , "+ eQtarget);
+				*/
+				try {	
+					fHarm.write(currentStep + " " + Qharmonic + " " + aveQharmonic + " " + eQharmonic + "\n");
+					fTarg.write(currentStep + " " + Qtarget + " " + aveQtarget + " " + eQtarget + "\n");
+					
+				} catch (IOException e){
+					
+				}
+				
 			}
 		};
 		
 		sim.integrator.addIntervalAction(output);
-	    sim.integrator.setActionInterval(output, 2500000);
+	    sim.integrator.setActionInterval(output, 300);//(int)numSteps/200);
 	    
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
@@ -290,21 +346,32 @@ public class SimUmbrellaSoftSphere extends Simulation {
 	    double deltaFE_harmonic = - Math.log(Qharmonic);
 	    double deltaFE_target = - Math.log(Qtarget);
 	    double deltaFE = temperature*deltaFE_target - temperature*deltaFE_harmonic;
-	       
-	    System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temperature*deltaFE_harmonic) + "; error: " + eQharmonic/Qharmonic);
-	    System.out.println("free energy difference (umbrella --> target): "+ (temperature*deltaFE_target) + "; error: " + eQtarget/Qtarget);
+	      
+	    System.out.println("Qharmonic: "+ Qharmonic+ " ;error: " +eQharmonic);
+	    System.out.println("Qtarget: "+ Qtarget+ " ;error: " +eQtarget);
+	    System.out.println("Q: " +(Qtarget/Qharmonic) + " ;error: "+ (Qtarget/Qharmonic)*Math.sqrt((eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget)));
+	    System.out.println("\nfree energy difference (umbrella --> harmonic): "+ (temperature*deltaFE_harmonic) + "; error: " + temperature*eQharmonic/Qharmonic);
+	    System.out.println("free energy difference (umbrella --> target): "+ (temperature*deltaFE_target) + "; error: " + temperature*eQtarget/Qtarget);
 	    	        
 	    System.out.println(" beta*deltaFE (harmonic): " + deltaFE_harmonic);
 	    System.out.println(" beta*deltaFE (target): " + deltaFE_target);
 			        
 	    System.out.println("\nHarmonic-reference free energy: " + temperature*AHarmonic);
 	    System.out.println("free energy difference (harmonic --> target): " + deltaFE 
-	    		           	+ ", error: " + Math.sqrt( (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget) ));
+	    		           	+ ", error: " + temperature*Math.sqrt( (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget) ));
 		System.out.println("target free energy: " + (temperature*AHarmonic+ deltaFE));
 		System.out.println("target free energy per particle: " + (temperature*AHarmonic+ deltaFE)/numAtoms);
 		long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Total time taken: " + (endTime - startTime));
+		
+		try {
+			fileWriterHarm.close();
+			fileWriterTarget.close();
+			
+		} catch (IOException e){
+			
+		}
 		
     }
 
@@ -327,14 +394,14 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public double refPref;
     
     public static class SimBennetParam extends ParameterBase {
-    	public int numMolecules = 32;
+    	public int numMolecules = 108;
     	public double density = 1256;
     	public int exponentN = 12;
     	public int D = 3;
-    	public long numSteps = 100000;
+    	public long numSteps = 1000000;
     	public double harmonicFudge =1;
-    	public String filename = "CB_FCC_n12_T01";
-    	public double temperature = 0.1;
+    	public String filename = "CB_FCC_n12_T14";
+    	public double temperature = 1.4;
     }
 
 }

@@ -216,7 +216,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
-        newAccumulator.setBlockSize(1);
+        newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -414,9 +414,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         
         System.out.println("equilibration finished");
         System.out.flush();
-
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        sim.integrators[0].resetStepCount();
+        sim.integrators[1].resetStepCount();
 
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         IEtomicaDataSource[] workBennets = new IEtomicaDataSource[2];
@@ -550,11 +549,35 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
          sim.integrators[1].addIntervalAction(pumpTargetBennet);
          sim.integrators[1].setActionInterval(pumpTargetBennet, numMolecules*2);
         
+         
+         
          //Histogram Target--> Bennett's
          final AccumulatorHistogram histogramTargetBenn = new AccumulatorHistogram(new HistogramSimple(2500,new DoubleRange(-50,200)));
          dataForkTargetBennet.addDataSink(histogramTargetBenn);
 
-
+         double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
+	        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
+	        double AHarmonic = 0;
+	        for(int i=0; i<omega2.length; i++) {
+	            for(int j=0; j<omega2[0].length; j++) {
+	                if (!Double.isInfinite(omega2[i][j])) {
+	                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
+	                }
+	            }           
+	            
+	        }
+	
+	        int totalCells = 1;
+	        for (int i=0; i<D; i++) {
+	            totalCells *= sim.nCells[i];
+	        }
+	        int basisSize = sim.basis.getScaledCoordinates().length;
+	        double fac = 1;
+	        if (totalCells % 2 == 0) {
+	            fac = Math.pow(2,D);
+	        }
+	        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
+	  
         
         FileWriter fileWriter, fileWriterBennet, 
         		   fileWriterHarmonic, fileWriterTarget;
@@ -572,7 +595,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         }
         
         final double temp = temperature;
-        final int dimension = D;
+        final double Aharm = AHarmonic;
         final String outFileName = filename;
         final FileWriter fileWriterDSFE = fileWriter;
         final FileWriter fileWriterBen = fileWriterBennet;
@@ -582,94 +605,7 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         IAction outputActionOverlap = new IAction(){
         	public void actionPerformed(){
         		long idStep = sim.integratorOverlap.getStepCount();
-     
-		        /*
-		         * Histogram
-		         */
-		        //Target ---> Harmonic
-				DataLogger dataLogger1 = new DataLogger();
-				DataTableWriter dataTableWriter1 = new DataTableWriter();
-				dataLogger1.setFileName(outFileName + "_hist_TargHarm");
-				dataLogger1.setDataSink(dataTableWriter1);
-				dataTableWriter1.setIncludeHeader(false);
-				dataLogger1.putDataInfo(histogramTargetHarmonic.getDataInfo());
-				
-				dataLogger1.setWriteInterval(1);
-				dataLogger1.setAppending(false); //overwrite data
-				dataLogger1.putData(histogramTargetHarmonic.getData());
-				
-				dataLogger1.closeFile();
-		       
-				//Harmonic ---> Target
-				DataLogger dataLogger2 = new DataLogger();
-				DataTableWriter dataTableWriter2 = new DataTableWriter();
-				dataLogger2.setFileName(outFileName + "_hist_HarmTarg");
-		        dataLogger2.setDataSink(dataTableWriter2);
-				dataTableWriter2.setIncludeHeader(false);
-				dataLogger2.putDataInfo(histogramHarmonicTarget.getDataInfo());
-		        
-				dataLogger2.setWriteInterval(1);
-				dataLogger2.setAppending(false); //overwrite data
-		        dataLogger2.putData(histogramHarmonicTarget.getData());
-
-		        dataLogger2.closeFile();
-		        
-		        
-				//Harmonic ---> Bennett's 
-				DataLogger dataLogger3 = new DataLogger();
-				DataTableWriter dataTableWriter3 = new DataTableWriter();
-				dataLogger3.setFileName(outFileName + "_hist_HarmBenn");
-				dataLogger3.setDataSink(dataTableWriter3);
-				dataTableWriter3.setIncludeHeader(false);
-				dataLogger3.putDataInfo(histogramHarmonicBenn.getDataInfo());
-				
-				dataLogger3.setWriteInterval(1);
-				dataLogger3.setAppending(false); //overwrite data
-				dataLogger3.putData(histogramHarmonicBenn.getData());
-				dataLogger3.closeFile();
-			
-		        
-		        //Target ---> Bennet's
-				DataLogger dataLogger4 = new DataLogger();
-				DataTableWriter dataTableWriter4 = new DataTableWriter();
-				dataLogger4.setFileName(outFileName + "_hist_TargBenn");
-				dataLogger4.setDataSink(dataTableWriter4);
-				dataTableWriter4.setIncludeHeader(false);
-				dataLogger4.putDataInfo(histogramTargetBenn.getDataInfo());
-				
-				
-				dataLogger4.setWriteInterval(1);
-				dataLogger4.setAppending(false); //overwrite data
-				dataLogger4.putData(histogramTargetBenn.getData());
-				dataLogger4.closeFile();
-		        
-		        /*
-		         * 
-		         */
-
-		        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
-		        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-		        double AHarmonic = 0;
-		        for(int i=0; i<omega2.length; i++) {
-		            for(int j=0; j<omega2[0].length; j++) {
-		                if (!Double.isInfinite(omega2[i][j])) {
-		                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temp*Math.PI));
-		                }
-		            }           
-		            
-		        }
-		
-		        int totalCells = 1;
-		        for (int i=0; i<dimension; i++) {
-		            totalCells *= sim.nCells[i];
-		        }
-		        int basisSize = sim.basis.getScaledCoordinates().length;
-		        double fac = 1;
-		        if (totalCells % 2 == 0) {
-		            fac = Math.pow(2,dimension);
-		        }
-		        AHarmonic -= Math.log(Math.pow(2.0, basisSize*dimension*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*dimension));
-		  
+     		       
 		        /*
 		         * ratio = Q_target/Q_reference
 		         * delta_FE = FE_target- FE_reference = - ln (ratio)
@@ -684,17 +620,17 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        double ratio = sim.dsvo.getDataAsScalar();
 		        double error = sim.dsvo.getError();
 		        double deltaFE = -Math.log(ratio);
-		        double targetFE = temp*(AHarmonic + deltaFE);
+		        double targetFE = temp*(Aharm + deltaFE);
 		        double errorFE = temp*(error/ratio);
 		        
 		        /*
 		         * Direct Sampling 
 		         */
 		        double boltzmannHarmonicAverage = dataAverageBoltzmannHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double boltzmannHarmonicError = dataAverageBoltzmannHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double boltzmannHarmonicError = dataAverageBoltzmannHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        double boltzmannTargetAverage = dataAverageBoltzmannTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double boltzmannTargetError = dataAverageBoltzmannTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double boltzmannTargetError = dataAverageBoltzmannTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        double deltaFE_DSHarmonic = -Math.log(boltzmannHarmonicAverage);
 		        double deltaFE_DSTarget = -Math.log(boltzmannTargetAverage);
@@ -702,8 +638,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		
-		        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-		        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        /*
 		         * s_A = (u_B - u_A) - (FE_B - FE_A) 
@@ -719,8 +655,8 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        double sHarmonic = wHarmonic - deltaFE;
 		        double sTarget =   wTarget + deltaFE;
 		        
-		        double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (error/ratio)*(error/ratio));
-		        double er_sTarget = Math.sqrt(eTarget*eTarget + (error/ratio)*(error/ratio));
+		        //double er_sHarmonic = Math.sqrt(eHarmonic*eHarmonic + (error/ratio)*(error/ratio));
+		        //double er_sTarget = Math.sqrt(eTarget*eTarget + (error/ratio)*(error/ratio));
 		        
 		        
 		        /*
@@ -740,18 +676,18 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 		        double wHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double wTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		
-		        double eHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-		        double eTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double eHarmonicBennet = dataAverageHarmonicBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        //double eTargetBennet = dataAverageTargetBennet.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
 		        
 		        
 		        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
 		        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-		        double ratioHarmonicError = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+		        //double ratioHarmonicError = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
 		        double deltaFEHarmonic = -Math.log(ratioHarmonicAverage);
 
 		        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
 		        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-		        double ratioTargetError = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+		        //double ratioTargetError = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
 		        double deltaFETarget = -Math.log(ratioTargetAverage);
 		        
 		        double sHarmonicBennet = wHarmonicBennet - deltaFEHarmonic;
@@ -792,191 +728,73 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         IAction outputActionHarmonic = new IAction(){
         	public void actionPerformed(){
 
-        		long idStep = sim.integrators[0].getStepCount();
-        		
-				/*
-				 * Histogram
-				 */
-				//Harmonic ---> Target
-				DataLogger dataLogger1 = new DataLogger();
-				DataTableWriter dataTableWriter1 = new DataTableWriter();
-				dataLogger1.setFileName(outFileName + "_histDS_HarmTarg");
-		        dataLogger1.setDataSink(dataTableWriter1);
-				dataTableWriter1.setIncludeHeader(false);
-				dataLogger1.putDataInfo(histogramHarmonicTarget.getDataInfo());
-		        
-				dataLogger1.setWriteInterval(1);
-				dataLogger1.setAppending(false); //overwrite data
-		        dataLogger1.putData(histogramHarmonicTarget.getData());
-
-		        dataLogger1.closeFile();
-
-		        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
-		        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-		        double AHarmonic = 0;
-		        for(int i=0; i<omega2.length; i++) {
-		            for(int j=0; j<omega2[0].length; j++) {
-		                if (!Double.isInfinite(omega2[i][j])) {
-		                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temp*Math.PI));
-		                }
-		            }           
-		            
-		        }
-		
-		        int totalCells = 1;
-		        for (int i=0; i<dimension; i++) {
-		            totalCells *= sim.nCells[i];
-		        }
-		        int basisSize = sim.basis.getScaledCoordinates().length;
-		        double fac = 1;
-		        if (totalCells % 2 == 0) {
-		            fac = Math.pow(2,dimension);
-		        }
-		        AHarmonic -= Math.log(Math.pow(2.0, basisSize*dimension*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*dimension));
- 
-		        /*
-		         * ratio = Q_target/Q_reference
-		         * delta_FE = FE_target- FE_reference = - ln (ratio)
-		         * 
-		         * FE_target = FE_reference + deltaFE
-		         * 
-		         * free energy difference = temp * (FE_reference + FE_target)
-		         * 
-		         *  note: Aharmonic has not been timed temperature yet
-		         *        that is why FE_reference * temp
-		         */
-		        double ratio = sim.dsvo.getDataAsScalar();
-		        double deltaFE = -Math.log(ratio);
-		        
+        		long idStep = sim.integrators[0].getStepCount(); 
+ 		       
 		        double boltzmannHarmonicAverage = dataAverageBoltzmannHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double deltaFE_DSHarmonic = -Math.log(boltzmannHarmonicAverage);
-		        
-		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		
+        
 		        /*
-		         * s_A = (u_B - u_A) - (FE_B - FE_A) 
-		         * s_B = (u_A - u_B) + (FE_B - FE_A)
+		         * relative entropy in reversed-direction:
+		         * 	sR = - < beta * W >_overlap + beta * deltaF
+		         * 		w = U_B - U_A
+		         * 		deltaF = F_B - F_A 
 		         * 
-		         * 	[  deltaFE = FE_B - FE_A  ]
-		         *  
-		         *  
-		         *  A: target system
-		         *  B: reference system
+		         * 		B: overlap
+		         * 		A: harmonic
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE_DSHarmonic;
-		        double sTarget =   wTarget + deltaFE_DSHarmonic;
-		        
+		        double reweightedWorkBennHarm = meterWorkHarmonicBennet.getDataReweighted();
+		        double sBennetHarmonic = -reweightedWorkBennHarm + deltaFE_DSHarmonic;
+		        double M = Math.sqrt(4*Math.PI*sBennetHarmonic*Math.exp(2*sBennetHarmonic))+1;
+		        		        
 		        DataGroup allYourBase0 = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
 		        double ratioHarmonicAverage = ((DataDoubleArray)allYourBase0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
 		        double deltaFEHarmonic = -Math.log(ratioHarmonicAverage);
-		        
-		        double biasF = -temp*Math.log(0.5 * SpecialFunctions.erfc( Math.sqrt(sHarmonic)* 
-		        		( 1- Math.sqrt( (0.5/sTarget)*Math.log ((0.5/Math.PI)*(idStep-1)*(idStep-1))))));
+		       
 		        
 		        try {
 		        	
-		        	fileWriterHarm.write(idStep + " " + temp*deltaFE_DSHarmonic + " " + temp*deltaFEHarmonic + " "+ biasF +  "\n");
+		        	fileWriterHarm.write(idStep + " " + reweightedWorkBennHarm + " " + sBennetHarmonic + " " + M + " " +
+		        			deltaFE_DSHarmonic + " " + deltaFEHarmonic +"\n");
 		        	
 		        } catch (IOException e){
 		        	
 		        }
         	}
 
-        	
         };
         
         IAction outputActionTarget = new IAction(){
         	public void actionPerformed(){
 
-        		long idStep = sim.integrators[1].getStepCount(); // /sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
-     
-		        /*
-		         * Histogram
-		         */
-		        //Target ---> Harmonic
-				DataLogger dataLogger1 = new DataLogger();
-				DataTableWriter dataTableWriter1 = new DataTableWriter();
-				dataLogger1.setFileName(outFileName + "_histDS_TargHarm");
-				dataLogger1.setDataSink(dataTableWriter1);
-				dataTableWriter1.setIncludeHeader(false);
-				dataLogger1.putDataInfo(histogramTargetHarmonic.getDataInfo());
-				
-				dataLogger1.setWriteInterval(1);
-				dataLogger1.setAppending(false); //overwrite data
-				dataLogger1.putData(histogramTargetHarmonic.getData());
-				
-				dataLogger1.closeFile();
-
-		        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
-		        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-		        double AHarmonic = 0;
-		        for(int i=0; i<omega2.length; i++) {
-		            for(int j=0; j<omega2[0].length; j++) {
-		                if (!Double.isInfinite(omega2[i][j])) {
-		                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temp*Math.PI));
-		                }
-		            }           
-		            
-		        }
-		
-		        int totalCells = 1;
-		        for (int i=0; i<dimension; i++) {
-		            totalCells *= sim.nCells[i];
-		        }
-		        int basisSize = sim.basis.getScaledCoordinates().length;
-		        double fac = 1;
-		        if (totalCells % 2 == 0) {
-		            fac = Math.pow(2,dimension);
-		        }
-		        AHarmonic -= Math.log(Math.pow(2.0, basisSize*dimension*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*dimension));
-		     
-		        /*
-		         * ratio = Q_target/Q_reference
-		         * delta_FE = FE_target- FE_reference = - ln (ratio)
-		         * 
-		         * FE_target = FE_reference + deltaFE
-		         * 
-		         * free energy difference = temp * (FE_reference + FE_target)
-		         * 
-		         *  note: Aharmonic has not been timed temperature yet
-		         *        that is why FE_reference * temp
-		         */
-		        double ratio = sim.dsvo.getDataAsScalar();
-		        double deltaFE = -Math.log(ratio);
+        		long idStep = sim.integrators[1].getStepCount(); //sim.integrators[1].getActionInterval(sim.accumulatorPumps[1]);
 		       
 		        double boltzmannTargetAverage = dataAverageBoltzmannTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		        double deltaFE_DSTarget = -Math.log(boltzmannTargetAverage);
         
-		        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		
 		        /*
-		         * s_A = (u_B - u_A) - (FE_B - FE_A) 
-		         * s_B = (u_A - u_B) + (FE_B - FE_A)
+		         * relative entropy in reversed-direction:
+		         * 	sR = - < beta * W >_overlap + beta * deltaF
+		         * 		w = U_B - U_A
+		         * 		deltaF = F_B - F_A 
 		         * 
-		         * 	[  deltaFE = FE_B - FE_A  ]
-		         *  
-		         *  
-		         *  A: target system
-		         *  B: reference system
+		         * 		B: overlap
+		         * 		A: target
 		         */
 		        
-		        double sHarmonic = wHarmonic - deltaFE_DSTarget;
-		        double sTarget =   wTarget + deltaFE_DSTarget;
-		        
+		        double reweightedWorkBennTarg = meterWorkTargetBennet.getDataReweighted();
+		        double sBennetTarget = -reweightedWorkBennTarg + deltaFE_DSTarget;
+		        double M = Math.sqrt(4*Math.PI*sBennetTarget*Math.exp(2*sBennetTarget))+1;
+		        		        
 		        DataGroup allYourBase1 = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
 		        double ratioTargetAverage = ((DataDoubleArray)allYourBase1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
 		        double deltaFETarget = -Math.log(ratioTargetAverage);
 		        
 		        
-		        double biasR = -temp*Math.log(0.5 * SpecialFunctions.erfc( Math.sqrt(sTarget)* 
-		        		( 1- Math.sqrt( (0.5/sHarmonic)*Math.log ((0.5/Math.PI)*(idStep-1)*(idStep-1))))));
-		        
 		        try {
 		        	
-		        	fileWriterTarg.write(idStep + " " + temp*deltaFE_DSTarget + " " + temp*deltaFETarget+ " "+ biasR +"\n");
+		        	fileWriterTarg.write(idStep + " " + reweightedWorkBennTarg + " " + sBennetTarget + " " + M + " " +
+		        			deltaFE_DSTarget + " " + deltaFETarget +"\n");
 		        	
 		        } catch (IOException e){
 		        	
@@ -999,28 +817,6 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
-        
-        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
-        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
-                }
-            }
-        }
-
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
         double ratio = sim.dsvo.getDataAsScalar();
@@ -1042,6 +838,68 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         System.out.println("Average-Pressure: "+ ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
 				 " ,Error-Pressure: "+ ((DataGroup)pressureTargetAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
 
+
+        /*
+         * Histogram
+         */
+        //Target ---> Harmonic
+		DataLogger dataLogger1 = new DataLogger();
+		DataTableWriter dataTableWriter1 = new DataTableWriter();
+		dataLogger1.setFileName(outFileName + "_hist_TargHarm");
+		dataLogger1.setDataSink(dataTableWriter1);
+		dataTableWriter1.setIncludeHeader(false);
+		dataLogger1.putDataInfo(histogramTargetHarmonic.getDataInfo());
+		
+		dataLogger1.setWriteInterval(1);
+		dataLogger1.setAppending(false); //overwrite data
+		dataLogger1.putData(histogramTargetHarmonic.getData());
+		
+		dataLogger1.closeFile();
+       
+		//Harmonic ---> Target
+		DataLogger dataLogger2 = new DataLogger();
+		DataTableWriter dataTableWriter2 = new DataTableWriter();
+		dataLogger2.setFileName(outFileName + "_hist_HarmTarg");
+        dataLogger2.setDataSink(dataTableWriter2);
+		dataTableWriter2.setIncludeHeader(false);
+		dataLogger2.putDataInfo(histogramHarmonicTarget.getDataInfo());
+        
+		dataLogger2.setWriteInterval(1);
+		dataLogger2.setAppending(false); //overwrite data
+        dataLogger2.putData(histogramHarmonicTarget.getData());
+
+        dataLogger2.closeFile();
+        
+        
+		//Harmonic ---> Bennett's 
+		DataLogger dataLogger3 = new DataLogger();
+		DataTableWriter dataTableWriter3 = new DataTableWriter();
+		dataLogger3.setFileName(outFileName + "_hist_HarmBenn");
+		dataLogger3.setDataSink(dataTableWriter3);
+		dataTableWriter3.setIncludeHeader(false);
+		dataLogger3.putDataInfo(histogramHarmonicBenn.getDataInfo());
+		
+		dataLogger3.setWriteInterval(1);
+		dataLogger3.setAppending(false); //overwrite data
+		dataLogger3.putData(histogramHarmonicBenn.getData());
+		dataLogger3.closeFile();
+	
+        
+        //Target ---> Bennet's
+		DataLogger dataLogger4 = new DataLogger();
+		DataTableWriter dataTableWriter4 = new DataTableWriter();
+		dataLogger4.setFileName(outFileName + "_hist_TargBenn");
+		dataLogger4.setDataSink(dataTableWriter4);
+		dataTableWriter4.setIncludeHeader(false);
+		dataLogger4.putDataInfo(histogramTargetBenn.getDataInfo());
+		
+		
+		dataLogger4.setWriteInterval(1);
+		dataLogger4.setAppending(false); //overwrite data
+		dataLogger4.putData(histogramTargetBenn.getData());
+		dataLogger4.closeFile();
+       
+        
         try{
 	        fileWriterDSFE.close();
 	        fileWriterBen.close();
@@ -1077,16 +935,16 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
     public double latticeEnergy;
 
     /**
-     * Inner class for parameters understood by the HSMD3D constructor
+     * Inner class for parameters understood by the DSBenOverlapSoftSphereFCC constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =32;
+        public int numMolecules =108;
         public double density = 1256;
         public int exponentN = 12;
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "DB_FCC_n12_T16";
-        public double temperature = 1.6;
+        public String filename = "CB_FCC_n12_T14";
+        public double temperature = 1.4;
     }
 }
