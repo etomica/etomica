@@ -3,6 +3,8 @@ package etomica.normalmode;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.event.ChangeEvent;
+
 import etomica.api.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -81,9 +83,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		 */
 		temperatureSetter = new DeviceThermoSlider(sim.getController());
 		temperatureSetter.setIsothermalButtonsVisibility(false);
-		temperatureSetter.setPrecision(1);
+		temperatureSetter.setPrecision(2);
 		temperatureSetter.setMinimum(0.0);
-		temperatureSetter.setMaximum(10.0);
+		temperatureSetter.setMaximum(1.0);
 		temperatureSetter.setSliderMajorValues(5);
 		temperatureSetter.setIntegrator(sim.integrator);
 		temperatureSetter.setIsothermal();
@@ -169,12 +171,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		cellSlider.setBox(sim.box);
 		cellSlider.setSpecies(sim.species);
 		cellSlider.setMaximum(sim.getN());
-		System.out.println(sim.getN());
-		System.out.println("before: "+ cellSlider.getNCellNum());
 		cellSlider.setNCellNum(sim.n);
-		System.out.println("after: "+ cellSlider.getNCellNum());
+		
         int m = sim.nm.getOmegaSquared(null).length;
-        double[] omega2 = new double[m];
+		double[] omega2 = new double[m];
         stringWV = new String[m];
      
         if (sim.integrator.isOneWV()){
@@ -184,10 +184,12 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
             	
             	if(i==wvNumUsed){
             		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+        			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+        			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
             	} else {
-            		stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1));
+            		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+        			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+        			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2));
             	}
             }
         } else {
@@ -195,10 +197,11 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
             for (int i=0; i<m; i++){
             	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
             	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-            	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
+    			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+    			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
             }
         }
-        System.out.println("after: "+ cellSlider.getNCellNum());
+        
         data = new DataDoubleArray[1];
         data[0] = new DataDoubleArray(new int[]{m},omega2);
         omega2Table = new DataTable(data);
@@ -228,7 +231,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
        	  	 
                 if (oldn != n ) {
                 	int [] nCells = new int[]{n,n,n};
-                	                	              	       
+           
                 	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n*sim.L);
                 	sim.box.setBoundary(boundary);
                 	
@@ -243,10 +246,20 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
             	
                 	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
                 	sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
+                	sim.nm.setNCellNum(n);
                 	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
                 	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                                                
-                	int m = sim.nm.getOmegaSquared(sim.box).length;
+                	
+                	eValSlider.setMaximum(sim.nm.getOmegaSquared(null)[0].length);
+                    
+                	if (eValSlider.isOneEVal()){
+                		sim.integrator.setOneEVal(eValSlider.isOneEVal());
+                    	sim.integrator.setEValNum((int)eValSlider.getEValNum());
+                       	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                    	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                    }
+                	
+                	int m = sim.nm.getOmegaSquared(null).length;
                 	double[] omega2 = new double[m];
                 
                 	waveVectorSlider.setMaximum(m);
@@ -325,6 +338,56 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         //End of N-Cell Slider
 		
         /*
+         * Eigenvalues Slider
+         */
+        eValSlider = new DeviceEigenvaluesSlider(sim.getController());
+        eValSlider.setMinimum(0);
+        eValSlider.setMaximum(sim.nm.getOmegaSquared(null)[0].length-1);
+        
+        final IAction eValPostAction = new IAction(){
+        	public void actionPerformed() {
+        		
+                int eValNum = (int)eValSlider.getEValNum();
+                
+                
+                if (eValSlider.isOneEVal()){
+                	sim.integrator.setOneEVal(eValSlider.isOneEVal());
+                	
+                	if (eValNum != eValOld){
+                		sim.integrator.reset();
+                		sim.integrator.setEValNum(eValNum);
+                       	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                    	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                	}
+                	
+                	eValOld = eValNum;
+                	
+	            } else {
+	            	sim.integrator.reset();
+	            	sim.integrator.setOneEVal(false);
+	              	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+	            }
+                
+            	                
+                getController().getSimRestart().getDataResetAction().actionPerformed();
+                
+		    }
+        	int eValOld = (int)eValSlider.getEValNum();
+		};	
+		ActionListener isOneEvalListener = new ActionListener(){
+			public void actionPerformed (ActionEvent event){
+				eValPostAction.actionPerformed();
+			}
+		};
+        
+		eValSlider.setSliderPostAction(eValPostAction);
+		eValSlider.addRadioGroupActionListener(isOneEvalListener);
+		
+        
+        //End of Eigenvalues Slider
+        
+        /*
          *  Wave vectors Slider
          */ 
 
@@ -334,7 +397,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         waveVectorSlider.setOneWVButtonsVisibility(false);
         waveVectorSlider.setIntegrator(sim.integrator);
         
-        final IAction waveVectorAction = new IAction() {
+        final IAction waveVectorPostAction = new IAction() {
         	
         	public void actionPerformed() {
         		
@@ -382,14 +445,16 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		    }
 		};
 		
+		
+		
 		ActionListener isOneWVListener = new ActionListener(){
 			public void actionPerformed (ActionEvent event){
-				waveVectorAction.actionPerformed();
+				waveVectorPostAction.actionPerformed();
 				
 			}
 		};
         
-		waveVectorSlider.setSliderPostAction(waveVectorAction);
+		waveVectorSlider.setSliderPostAction(waveVectorPostAction);
 		waveVectorSlider.addRadioGroupActionListener(isOneWVListener);
 
         // end wave vectors slider
@@ -439,6 +504,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         add(temperatureSetter);
         add(waveVectorSlider);
         add(displayAHarmonic);
+        add(eValSlider);
         add(ePlot);
         add(heDisplay);
 	}
@@ -481,5 +547,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 	protected IData AHarm;
 	protected DisplayTextBox displayAHarmonic;
 	protected DataInfoDouble dataInfoA; 
+	protected DeviceEigenvaluesSlider eValSlider;
 
 }

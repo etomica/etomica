@@ -23,12 +23,11 @@ public class NormalModes3D implements NormalModes {
     	this.basis = basis;
     	waveVectorFactory = new WaveVectorFactorySimple(primitive, space);
         harmonicFudge = 1;
-        eigenvalues = ArrayReader1D.getFromFile("DB_FCC_n12_N5.val");
-        eigenvectors = ArrayReader2D.getFromFile("DB_FCC_n12_N5.vec");
+        
     }
 
     public double[][] getOmegaSquared(IBox box) {
-   
+    	eigenvalues = ArrayReader1D.getFromFile("DB_FCC_n12_N"+getNCellNum()+".val");
     	double[][] omega2 = new double[eigenvalues.length][eigenvalues[0].length];
     	for (int i=0; i<omega2.length; i++) {
     		for (int j=0; j<omega2[i].length; j++) {
@@ -59,7 +58,7 @@ public class NormalModes3D implements NormalModes {
     }
 
     public double[][][] getEigenvectors(IBox box) {
-  
+    	eigenvectors = ArrayReader2D.getFromFile("DB_FCC_n12_N"+getNCellNum()+".vec");
     	/*
     	for(int i=0; i<numWV; i++){
     		for(int j=0; j<numEigen; j++){
@@ -91,38 +90,17 @@ public class NormalModes3D implements NormalModes {
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
-
-
     
-    public static void main(String[] args){
-    	double[][] array = {{1,-1,0},{-1,2,-1},{0,-1,1}};
-    	Matrix matrix = new Matrix(array);
-    	for (int i=0; i<3; i++){
-    		for (int j=0; j<3; j++){
-    			System.out.print(matrix.get(i, j)+ " ");
-    		}
-    		System.out.println("");
-    	}
-    	
-    	EigenvalueDecomposition ed = matrix.eig();
-    	double[] eVal = ed.getRealEigenvalues();
-    	double[][] eVec = ed.getV().getArray();
-    	
-    	System.out.print("\nEigenvalues: ");
-    	for (int i=0; i<3; i++){
+    public int getNCellNum() {
+		return nCellNum;
+	}
 
-    		System.out.print(eVal[i]+ " ");
-    		
-    	}
-    	
-    	System.out.println("\n\nEigenvectors: ");
-    	for (int i=0; i<3; i++){
-    		for (int j=0; j<3; j++){
-    			System.out.print(eVec[i][j]+ " ");
-    		}
-    		System.out.println("");
-    	}
-   		
+	public void setNCellNum(int cellNum) {
+		nCellNum = cellNum;
+	}
+
+	public static void main(String[] args){
+
    		
     }
     
@@ -134,5 +112,5 @@ public class NormalModes3D implements NormalModes {
     protected Basis basis;
     protected double[][][] eigenvectors;
     protected double[][] eigenvalues;
-
+    protected int nCellNum;
 }

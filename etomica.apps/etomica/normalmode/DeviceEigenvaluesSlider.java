@@ -266,7 +266,7 @@ public class DeviceEigenvaluesSlider extends Device {
 			}
 
 			public double getValue() {
-				return integrator.getWaveVectorNum();
+				return integrator.getEValNum();
 			}
 
 			public void setValue(double eValValue) {

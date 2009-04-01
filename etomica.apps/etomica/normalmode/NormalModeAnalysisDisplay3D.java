@@ -52,6 +52,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //String fileName = "CB_FCC_n12_T01_Mode01";
         nm = new NormalModes3D(space, primitive, basis);
         nm.setTemperature(temperature);
+        nm.setNCellNum(n);
+        
                 
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
@@ -65,7 +67,10 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setTemperature(temperature);
         integrator.setOneWV(true);
-        //integrator.setWaveVectorNum(0);
+        integrator.setWaveVectorNum(0);
+        //integrator.setOneEVal(true);
+        //integrator.setEValNum(4);
+        
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
@@ -120,7 +125,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	protected Basis basis;
 	protected int[] nCells;
 	protected SpeciesSpheresMono species;
-	protected NormalModes nm;
+	protected NormalModes3D nm;
 	protected WaveVectorFactory waveVectorFactory;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected ISpace space;
