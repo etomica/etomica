@@ -140,7 +140,7 @@ public class DeviceCellNumXYSlider extends Device {
 	 * will get invoked when the 'xCell #' and 'yCell #' slider value changes.
 	 * @param listener
 	 */
-	public void addWaveVectorNumSliderListener(ChangeListener listener) {
+	public void addXYCellNumSliderListener(ChangeListener listener) {
 		xCellNumSlider.getSlider().addChangeListener(listener);
 		yCellNumSlider.getSlider().addChangeListener(listener);
 	}
