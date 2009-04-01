@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -38,7 +37,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -64,7 +62,7 @@ public class SimOverlapn32m2Right extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeSingleMode changeMove;
-    MCMoveCompareM2Right compareMove;
+    MCMoveCompareM2RightMARK2 compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;    
     
@@ -209,7 +207,7 @@ public class SimOverlapn32m2Right extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        compareMove = new MCMoveCompareM2Right(potentialMasterRef, 
+        compareMove = new MCMoveCompareM2RightMARK2(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -567,7 +565,7 @@ public class SimOverlapn32m2Right extends Simulation {
     
     public void setComparedWV(int comp){
         System.out.println("Wavevectors in question " + comp + " "+ (comp+1));
-        compareMove.setComparedWV(comp);
+        compareMove.setComparedWV(comp, comp+1);
         changeMove.setHarmonicWV(comp+1);
         meterBinA.setComparedWV(new int[] {comp, comp+1});
         meterBinB.setComparedWV(new int[] {comp, comp+1});
