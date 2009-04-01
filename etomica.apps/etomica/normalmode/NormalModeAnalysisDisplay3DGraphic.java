@@ -19,6 +19,7 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable.DataInfoTable;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
@@ -86,7 +87,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		temperatureSetter.setSliderMajorValues(5);
 		temperatureSetter.setIntegrator(sim.integrator);
 		temperatureSetter.setIsothermal();
-		temperatureSetter.setTemperature(NormalModeAnalysisDisplay3D.temperature);
+		temperatureSetter.setTemperature(sim.temperature);
 		
 		temperatureSetter.setSliderPostAction(new IAction() {
             public void actionPerformed() {
@@ -167,11 +168,12 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		final DeviceCellNum3DSlider cellSlider = new DeviceCellNum3DSlider(sim.getController());
 		cellSlider.setBox(sim.box);
 		cellSlider.setSpecies(sim.species);
-		cellSlider.setMaximum(5);
+		cellSlider.setMaximum(sim.getN());
+		System.out.println(sim.getN());
+		System.out.println("before: "+ cellSlider.getNCellNum());
 		cellSlider.setNCellNum(sim.n);
-		
-        
-        int m = sim.nm.getOmegaSquared(sim.box).length;
+		System.out.println("after: "+ cellSlider.getNCellNum());
+        int m = sim.nm.getOmegaSquared(null).length;
         double[] omega2 = new double[m];
         stringWV = new String[m];
      
@@ -196,7 +198,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
             	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+">";
             }
         }
-        
+        System.out.println("after: "+ cellSlider.getNCellNum());
         data = new DataDoubleArray[1];
         data[0] = new DataDoubleArray(new int[]{m},omega2);
         omega2Table = new DataTable(data);
@@ -223,10 +225,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
        	  	public void actionPerformed() {
        	  		
        	  		int n = (int)cellSlider.getNCellNum(); 
-       	  	
+       	  	 
                 if (oldn != n ) {
-                	int[] nCells = new int[]{n, n, n};
-                	                	              	                	       	
+                	int [] nCells = new int[]{n,n,n};
+                	                	              	       
                 	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n*sim.L);
                 	sim.box.setBoundary(boundary);
                 	
@@ -236,82 +238,87 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 }            
                 
                 oldn = n;
-
-            	sim.integrator.reset();
+                try {
+                	sim.integrator.reset();
             	
-            	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
-                sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
-                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
+                	sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
+                	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
                                                 
-                int m = sim.nm.getOmegaSquared(sim.box).length;
-                double[] omega2 = new double[m];
+                	int m = sim.nm.getOmegaSquared(sim.box).length;
+                	double[] omega2 = new double[m];
                 
-                waveVectorSlider.setMaximum(m);
-                waveVectorSlider.setIntegrator(sim.integrator);
-                //Array
-                if(sim.integrator.getWaveVectorNum() >= m){
                 	waveVectorSlider.setMaximum(m);
-                	sim.integrator.setWaveVectorNum(m-1);
-                }
+                	waveVectorSlider.setIntegrator(sim.integrator);
+                	//Array
+                	if(sim.integrator.getWaveVectorNum() >= m){
+                		waveVectorSlider.setMaximum(m);
+                		sim.integrator.setWaveVectorNum(m-1);
+                	}
                 
-                
-                if (sim.integrator.isOneWV()){
-                	int wvNumUsed = sim.integrator.getWaveVectorNum();
-                	for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                   	if (sim.integrator.isOneWV()){
+                		int wvNumUsed = sim.integrator.getWaveVectorNum();
+                		for (int i=0; i<m; i++){
+                			omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
                     	
-                    	if(i==wvNumUsed){
-                    		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                    		+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
-                    		+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
-                    	} else {
-                    		stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                    		+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
-                    		+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2));
-                    	}
-                    }
-                } else {
+                			if(i==wvNumUsed){
+                				stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                				+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+                				+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
+                			} else {
+                				stringWV[i]= String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                				+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+                				+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2));
+                			}
+                		}
+                	} else {
                 
-                    for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
-                    	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
-                    	+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
-                    }
-                }
-                data[0] = new DataDoubleArray(new int[]{m},omega2);
-                omega2Table = new DataTable(data);
+                		for (int i=0; i<m; i++){
+                			omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                			stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+", "
+                			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(1))+", "
+                			+ String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(2))+">";
+                		}
+                	}
+                	data[0] = new DataDoubleArray(new int[]{m},omega2);
+                	omega2Table = new DataTable(data);
                
+                	
+                	/*
+                	 * Harmonic Energy
+                	 */
+                	AHarm = new DataDouble();
                 
-                /*
-                 * Harmonic Energy
-                 */
-                AHarm = new DataDouble();
+                	double AHarmonic =0;
+                	coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
                 
-                double AHarmonic =0;
-                coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
-                
-                for(int i=0; i<omega2.length; i++) {
-                        if (!Double.isInfinite(omega2[i])) {
+                	for(int i=0; i<omega2.length; i++) {
+                		if (!Double.isInfinite(omega2[i])) {
                             AHarmonic += coeffs[i] * Math.log(omega2[i]*coeffs[i] /
-                                    (sim.integrator.temperature*Math.PI));
-                    }
-                }
-                AHarm.E(AHarmonic);
-                DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
-                displayAHarmonic.putDataInfo(dataInfoA);
-                displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
+                            		(sim.integrator.temperature*Math.PI));
+                		}
+                	}
+                	AHarm.E(AHarmonic);
+                	DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
+                	displayAHarmonic.putDataInfo(dataInfoA);
+                	displayAHarmonic.putData(AHarm);
+                	displayAHarmonic.repaint();
                 
-                DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
-                DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
-                sink.putDataInfo(dataInfo);
-                sink.putData(omega2Table);
-
+                	DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
+                	DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
+                	sink.putDataInfo(dataInfo);
+                	sink.putData(omega2Table);
+                }
+                
+                catch (ConfigurationOverlapException e) {
+                    throw new RuntimeException(e);
+                }
+                
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
-            }
+       	  	}
+       	  	
        	  	int oldn = (int)cellSlider.getNCellNum();
         });
         

@@ -35,11 +35,12 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         
         box = new Box(space);
         addBox(box);
-        box.setNMolecules(species, numAtoms);
+        
+        box.setNMolecules(species, 4*n*n*n);
         
         L = Math.pow(4.0/density, 1.0/3.0);
         primitive = new PrimitiveCubic(space, L);
-        n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        
         nCells = new int[]{n, n, n};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
         basis = new BasisCubicFcc();
@@ -64,7 +65,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setTemperature(temperature);
         integrator.setOneWV(true);
-        integrator.setWaveVectorNum(0);
+        //integrator.setWaveVectorNum(0);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
@@ -72,6 +73,22 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         getController().addAction(activityIntegrate);
         integrator.setBox(box);
         
+	}
+	
+	public int[] getNCells() {
+		return nCells;
+	}
+
+	public void setNCells(int[] cells) {
+		nCells = cells;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setN(int n) {
+		this.n = n;
 	}
 	
 	/**
@@ -108,10 +125,9 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected ISpace space;
 	protected double L;
-	protected int n;
+	protected int n = 5;
 	
-	protected static int numAtoms = 500;
-	protected static double density = 1;
-	protected static double temperature = 0.1;
+	protected double density = 1.256;
+	protected double temperature = 0.1;
 	
 }
