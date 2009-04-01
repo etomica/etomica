@@ -30,7 +30,7 @@ public class ModifierCells3D implements Modifier, java.io.Serializable {
     }
 
     public double getValue() {
-        return Math.pow(box.getNMolecules(species)/4, 1/3);
+        return Math.pow(box.getNMolecules(species)/4, 1.0/3);
     }
 
     public Dimension getDimension() {
