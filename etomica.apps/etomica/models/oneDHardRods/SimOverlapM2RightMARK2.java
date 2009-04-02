@@ -44,7 +44,7 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapn32m2Right extends Simulation {
+public class SimOverlapM2RightMARK2 extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
@@ -64,18 +64,18 @@ public class SimOverlapn32m2Right extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeSingleMode changeMove;
-    MCMoveCompareM2Right compareMove;
+    MCMoveCompareM2RightMARK2 compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;    
     
-    public SimOverlapn32m2Right(Space _space, int numAtoms, double density, double 
+    public SimOverlapM2RightMARK2(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int cpwv){
         super(_space, true);
         
-//        long seed = 15;
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
-//        System.out.println("Random seed explicitly set to " + seed);
+        long seed = 15;
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
+        System.out.println("Random seed explicitly set to " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -209,7 +209,7 @@ public class SimOverlapn32m2Right extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        compareMove = new MCMoveCompareM2Right(potentialMasterRef, 
+        compareMove = new MCMoveCompareM2RightMARK2(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -451,7 +451,7 @@ public class SimOverlapn32m2Right extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        SimOverlapn32m2Right sim = new SimOverlapn32m2Right(Space.getInstance(D), numMolecules,
+        SimOverlapM2RightMARK2 sim = new SimOverlapM2RightMARK2(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
@@ -567,7 +567,7 @@ public class SimOverlapn32m2Right extends Simulation {
     
     public void setComparedWV(int comp){
         System.out.println("Wavevectors in question " + comp + " "+ (comp+1));
-        compareMove.setComparedWV(comp);
+        compareMove.setComparedWV(comp, comp+1);
         changeMove.setHarmonicWV(comp+1);
         meterBinA.setComparedWV(new int[] {comp, comp+1});
         meterBinB.setComparedWV(new int[] {comp, comp+1});

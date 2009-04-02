@@ -38,7 +38,7 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
     private double[] gaussian;
     protected double temperature;
     private double[][] stdDev;
-    private double[] rRand1, iRand1, rRand2, iRand2, realT, imagT;
+    private double[] rRand1, iRand1, rRand2, iRand2, realT1, imagT1, realT2, imagT2;
     private double[] waveVectorCoefficients;
     double[] uNow;
     
@@ -62,8 +62,10 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
         iRand1 = new double[coordinateDim];
         rRand2 = new double[coordinateDim];
         iRand2 = new double[coordinateDim];
-        realT = new double[coordinateDim];
-        imagT = new double[coordinateDim];
+        realT1 = new double[coordinateDim];
+        imagT1 = new double[coordinateDim];
+        realT2 = new double[coordinateDim];
+        imagT2 = new double[coordinateDim];
         
         //nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
@@ -71,7 +73,7 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
         double normalization = 1/Math.sqrt(cells.length);
 
         //Get normal mode coordinate information
-        coordinateDefinition.calcT(waveVectors[comparedWV1], realT, imagT);
+        coordinateDefinition.calcT(waveVectors[comparedWV1], realT1, imagT1);
         
 //ZERO OUT A NORMAL MODE.
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -93,8 +95,8 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
                 //Calculate the current coordinate:
                 double realCoord = 0, imagCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
-                    realCoord += eigenVectors[comparedWV1][i][j] * realT[j];
-                    imagCoord += eigenVectors[comparedWV1][i][j] * imagT[j];
+                    realCoord += eigenVectors[comparedWV1][i][j] * realT1[j];
+                    imagCoord += eigenVectors[comparedWV1][i][j] * imagT1[j];
                 }
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] -= waveVectorCoefficients[comparedWV1]*eigenVectors[comparedWV1][i][j] * 2.0 *
@@ -109,8 +111,8 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
                 //Calculate the current coordinate:
                 double realCoord = 0, imagCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
-                    realCoord += eigenVectors[comparedWV2][i][j] * realT[j];
-                    imagCoord += eigenVectors[comparedWV2][i][j] * imagT[j];
+                    realCoord += eigenVectors[comparedWV2][i][j] * realT2[j];
+                    imagCoord += eigenVectors[comparedWV2][i][j] * imagT2[j];
                 }
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] -= waveVectorCoefficients[comparedWV2]*eigenVectors[comparedWV2][i][j] * 2.0 *
@@ -188,7 +190,6 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
         }
         energyNew = energyMeter.getDataAsScalar();
         
-        
 //MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
         //set up the gaussian values
         double sqrtT = Math.sqrt(temperature);
@@ -197,7 +198,7 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
             //generate real and imaginary parts of random normal-mode coordinate Q
             double realGauss = random.nextGaussian() * sqrtT;
             double imagGauss = random.nextGaussian() * sqrtT;
-                        
+            
             //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
             // it's hard to know which.  So long as we don't put an atom at the origin
             // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
@@ -208,7 +209,7 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
             gaussian[1] = imagGauss;
             
             
-            if (stdDev[comparedWV1][j] == 0) continue;
+            if (stdDev[comparedWV2][j] == 0) continue;
             //generate real and imaginary parts of random normal-mode coordinate Q
             realGauss = random.nextGaussian() * sqrtT;
             imagGauss = random.nextGaussian() * sqrtT;
@@ -238,7 +239,8 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += waveVectorCoefficients[comparedWV1]*eigenVectors[comparedWV1][i][j] * 2.0 *
+                    deltaU[j] += waveVectorCoefficients[comparedWV1] *
+                        eigenVectors[comparedWV1][i][j] * 2.0 *
                         (rRand1[i]*coskR - iRand1[i]*sinkR);
                 }
             }
@@ -248,7 +250,8 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
             sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += waveVectorCoefficients[comparedWV2]*eigenVectors[comparedWV2][i][j] * 2.0 *
+                    deltaU[j] += waveVectorCoefficients[comparedWV2] *
+                        eigenVectors[comparedWV2][i][j] * 2.0 *
                         (rRand2[i]*coskR - iRand2[i]*sinkR);
                 }
             }
@@ -275,7 +278,7 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
+        System.out.println("accept MCMoveCompareM2RightMARK2");
 //        count ++;
     }
 
@@ -305,8 +308,10 @@ public class MCMoveCompareM2RightMARK2 extends MCMoveBoxStep{
         coordinateDefinition = newCD;
         deltaU = new double[coordinateDefinition.getCoordinateDim()];
         uOld = null;
-        realT = new double[coordinateDefinition.getCoordinateDim()];
-        imagT = new double[coordinateDefinition.getCoordinateDim()];
+        realT1 = new double[coordinateDefinition.getCoordinateDim()];
+        imagT1 = new double[coordinateDefinition.getCoordinateDim()];
+        realT2 = new double[coordinateDefinition.getCoordinateDim()];
+        imagT2 = new double[coordinateDefinition.getCoordinateDim()];
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
