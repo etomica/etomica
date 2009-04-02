@@ -398,66 +398,13 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         //End of N-Cell Slider
 		
         /*
-         * Eigenvalues Slider
-         */
-        eValSlider = new DeviceEigenvaluesSlider(sim.getController());
-        eValSlider.setMinimum(0);
-        eValSlider.setMaximum(sim.nm.getOmegaSquared(null)[0].length);
-        eValSlider.setIntegrator(sim.integrator);
-        sim.integrator.setOneWV(true);
-        final IAction eValPostAction = new IAction(){
-        	public void actionPerformed() {
-        		
-                int eValNum = (int)eValSlider.getEValNum();
-                if (eValSlider.isOneEVal()){
-                	sim.integrator.setOneEVal(eValSlider.isOneEVal());
-                	
-                	if (eValNum != eValOld){
-                		sim.integrator.reset();
-                		sim.integrator.setEValNum(eValNum);
-                       	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                    	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                	}
-                	
-                	eValOld = eValNum;
-                	
-                	sim.integrator.reset();
-            		sim.integrator.setEValNum(eValNum);
-                   	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-                	
-	            } else {
-	            	sim.integrator.reset();
-	            	sim.integrator.setOneEVal(false);
-	              	sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                	sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
-	            }
-                
-            	                
-                getController().getSimRestart().getDataResetAction().actionPerformed();
-                
-		    }
-        	int eValOld = (int)eValSlider.getEValNum();
-		};	
-		ActionListener isOneEvalListener = new ActionListener(){
-			public void actionPerformed (ActionEvent event){
-				eValPostAction.actionPerformed();
-			}
-		};
-        
-		eValSlider.setSliderPostAction(eValPostAction);
-		eValSlider.addRadioGroupActionListener(isOneEvalListener);
-		
-        
-        //End of Eigenvalues Slider
-        
-        /*
          *  Wave vectors Slider
          */ 
 
         waveVectorSlider = new DeviceWaveVectorSlider(sim.getController());
         waveVectorSlider.setMinimum(0);
         waveVectorSlider.setMaximum(sim.nm.getOmegaSquared(null).length-1);
+        waveVectorSlider.setOneWV();
         waveVectorSlider.setOneWVButtonsVisibility(false);
         waveVectorSlider.setIntegrator(sim.integrator);
         
@@ -522,6 +469,43 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		waveVectorSlider.addRadioGroupActionListener(isOneWVListener);
 
         // end wave vectors slider
+        
+        /*
+         * Eigenvalues Slider
+         */
+        eValSlider = new DeviceEigenvaluesSlider(sim.getController());
+        eValSlider.setMinimum(0);
+        eValSlider.setMaximum(sim.nm.getOmegaSquared(null)[0].length);
+        eValSlider.setIntegrator(sim.integrator);
+        sim.integrator.setOneWV(true);
+        final IAction eValPostAction = new IAction(){
+        	public void actionPerformed() {
+        		
+                int eValNum = (int)eValSlider.getEValNum();
+                
+                sim.integrator.setOneEVal(true);
+                sim.integrator.reset();
+            	sim.integrator.setEValNum(eValNum);
+                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
+                sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                	            
+                getController().getSimRestart().getDataResetAction().actionPerformed();
+                
+		    }
+		};	
+		ActionListener isOneEvalListener = new ActionListener(){
+			public void actionPerformed (ActionEvent event){
+				eValPostAction.actionPerformed();
+			}
+		};
+        
+		eValSlider.setSliderPostAction(eValPostAction);
+		eValSlider.addRadioGroupActionListener(isOneEvalListener);
+		
+        
+        //End of Eigenvalues Slider
+        
+
         
 		/*
 		 * Display Table WV-Eigenvalues and Eigenvalues-Eigenvectors

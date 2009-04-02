@@ -42,8 +42,8 @@ public class DeviceEigenvaluesSlider extends Device {
 		
         //using all eigenvalues or individual radio button
         ButtonGroup eValGroup = new ButtonGroup();
-        buttonAllEVal = new JRadioButton("All Eigenvalues");
-        buttonOneEVal = new JRadioButton("One Eigenvalue");
+        buttonAllEVal = new JRadioButton("All Normal Modes");
+        buttonOneEVal = new JRadioButton("One Normal Mode");
         eValGroup.add(buttonAllEVal);
         eValGroup.add(buttonOneEVal);
 
@@ -68,7 +68,7 @@ public class DeviceEigenvaluesSlider extends Device {
         buttonOneEVal.addActionListener(myListener);
 
         eValNumPanel = new JPanel(new GridBagLayout());
-        eValNumPanel.setBorder(new TitledBorder(null, "Set Eigenvalues", TitledBorder.CENTER, TitledBorder.TOP));
+        eValNumPanel.setBorder(new TitledBorder(null, "Set Normal Modes", TitledBorder.CENTER, TitledBorder.TOP));
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;  gbc1.gridy = 1;
         gbc1.gridwidth = 1;
@@ -284,11 +284,15 @@ public class DeviceEigenvaluesSlider extends Device {
 
         addRadioGroupActionListener(actionListen);
         
-        if (i.isOneEVal()) {
+        if (integrator.isOneEVal()) {
+        	integrator.setOneEVal(true);
+        	integrator.setOneWV(true);
         	setOneEVal();
         	
         }
         else {
+        	integrator.setOneEVal(false);
+        	integrator.setOneWV(true);
             setAllEVal();
         }
         
@@ -305,6 +309,8 @@ public class DeviceEigenvaluesSlider extends Device {
         if(buttonAllEVal.isSelected()) {
         	eValNumSlider.getSlider().setEnabled(false);
         	eValNumSlider.getTextField().setEnabled(false);
+        	integrator.setOneWV(true);
+        	integrator.setOneEVal(false);
         }
         else {
         	eValNumSlider.getSlider().setEnabled(true);
