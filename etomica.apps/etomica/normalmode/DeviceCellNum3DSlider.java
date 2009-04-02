@@ -3,12 +3,8 @@
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 
@@ -67,7 +63,7 @@ public class DeviceCellNum3DSlider extends Device {
 	 * will get invoked when the 'nCell #' slider value changes.
 	 * @param listener
 	 */
-	public void addWaveVectorNumSliderListener(ChangeListener listener) {
+	public void addCellNumSliderListener(ChangeListener listener) {
 		nCellNumSlider.getSlider().addChangeListener(listener);
 	}
 	
@@ -140,15 +136,14 @@ public class DeviceCellNum3DSlider extends Device {
     public void setController(IController cont) {
     	super.setController(cont);
     	nCellNumSlider.setController(cont);
-       
     }
 
 	/**
 	 * Set the post slider value changed action.
 	 */
     public void setNSliderPostAction(IAction action) {
+    	setNCellModifier(new ModifierCells3D(box, species));
     	nCellNumSlider.setPostAction(action);
-       	setNCellModifier(new ModifierCells3D(box, species));
     }
 
     

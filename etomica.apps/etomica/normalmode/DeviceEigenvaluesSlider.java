@@ -284,15 +284,11 @@ public class DeviceEigenvaluesSlider extends Device {
 
         addRadioGroupActionListener(actionListen);
         
-        if (integrator.isOneEVal()) {
-        	integrator.setOneEVal(true);
-        	integrator.setOneWV(true);
+        if (i.isOneEVal()) {
         	setOneEVal();
         	
         }
         else {
-        	integrator.setOneEVal(false);
-        	integrator.setOneWV(true);
             setAllEVal();
         }
         
@@ -300,7 +296,7 @@ public class DeviceEigenvaluesSlider extends Device {
 
     private IAction integratorBoxChangeSetOneEval = new IAction() {
         public void actionPerformed() {
-        	integrator.setOneWV(isOneEVal());
+        	integrator.setOneEVal(isOneEVal());
         	
         }
     };
@@ -309,8 +305,6 @@ public class DeviceEigenvaluesSlider extends Device {
         if(buttonAllEVal.isSelected()) {
         	eValNumSlider.getSlider().setEnabled(false);
         	eValNumSlider.getTextField().setEnabled(false);
-        	integrator.setOneWV(true);
-        	integrator.setOneEVal(false);
         }
         else {
         	eValNumSlider.getSlider().setEnabled(true);
