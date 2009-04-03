@@ -105,10 +105,8 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                     //Calculate the current coordinate:
                     double realCoord = 0, imagCoord = 0;
                     for (int j=0; j<coordinateDim; j++) {
-                        realCoord += waveVectorCoefficients[countWV] * 
-                                eigenVectors[countWV][i][j] * realT[j];
-                        imagCoord += waveVectorCoefficients[countWV] * 
-                                eigenVectors[countWV][i][j] * imagT[j];
+                        realCoord += eigenVectors[countWV][i][j] * realT[j];
+                        imagCoord += eigenVectors[countWV][i][j] * imagT[j];
                         
                     }
                     for(int j = 0; j < coordinateDim; j++){
