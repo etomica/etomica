@@ -32,7 +32,7 @@ import etomica.units.Energy;
 import etomica.units.Null;
 
 /**
- * 
+ * Harmonic Oscillator 3D
  * 
  * @author Tai Boon Tan
  */
@@ -99,10 +99,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 if(sim.integrator.getWaveVectorNum() >= numWV){
                 	waveVectorSlider.setMaximum(numWV);
                 	sim.integrator.setWaveVectorNum(numWV-1);
-                	
-                	//table display for the eigenslider is bad!!
-                	//still need to make changes to the eigenSlider
-                	// there is still bug running around!!
+                
                 }
                
                 /*
@@ -144,11 +141,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         cellSlider.setNSliderPostAction(new IAction() {
         	
        	  	public void actionPerformed() {
-       	  		/*
-       	  		 * the changes:
-       	  		 * 1. the number of Wave Vectors
-       	  		 * 2. 
-       	  		 */
+       	  		
        	  		int n = (int)cellSlider.getNCellNum(); 
        	  	 
                 if (oldn != n ) {
@@ -165,15 +158,13 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                     numEval = sim.nm.getOmegaSquared(null)[0].length;
                     
                     omega2 = new double[numWV][numEval];
+                    eigenVectors = new double[numWV][numEval][numEval];
                     
-                    // when the 
-                    //if()
                 }            
                 
                 oldn = n;
                 
                 int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
-                int eValNum = (int)eValSlider.getEValNum();
                 
                 sim.integrator.reset();
                 
@@ -244,9 +235,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 
                 // end of change for wave vectors
                 
-                
-        
-      
                 waveVectorPostAction.actionPerformed();
                 eValPostAction.actionPerformed();
                 
@@ -396,7 +384,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 				so2[(nEval*numEval)+nEval2] = " ";
                 			}
                 			
-                			eVec[(nEval*numEval)+nEval2] = eigenVectors[sim.integrator.getWaveVectorNum()][nEval][nEval2];
+                			eVec[(nEval*numEval)+nEval2] = sim.nm.eigenvectors[sim.integrator.getWaveVectorNum()][nEval][nEval2];
                 		}
                 		
                 	}
@@ -419,7 +407,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 				so2[(nEval*numEval)+nEval2] = " ";
                 			}
                 			
-                			eVec[(nEval*numEval)+nEval2] = eigenVectors[sim.integrator.getWaveVectorNum()][nEval][nEval2];
+                			eVec[(nEval*numEval)+nEval2] = sim.nm.eigenvectors[sim.integrator.getWaveVectorNum()][nEval][nEval2];
                 		}
                 		
                 	}
