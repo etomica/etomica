@@ -72,7 +72,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-//        IRandom rand = new RandomNumberGenerator((long)3.0);
+//        long seed = 3;
+//        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
         
         //Set up some of the joint stuff
