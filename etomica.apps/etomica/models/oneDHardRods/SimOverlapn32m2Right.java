@@ -9,10 +9,12 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
+import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -25,6 +27,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.DataProcessorBoltzmannFactor;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
@@ -38,7 +41,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -66,7 +68,12 @@ public class SimOverlapn32m2Right extends Simulation {
     MCMoveChangeSingleMode changeMove;
     MCMoveCompareM2Right compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterCompareMultipleModesBrute meterBinA, meterBinB;    
+    MeterCompareMultipleModesBrute meterBinA, meterBinB;
+    
+    DataProcessorBoltzmannFactor boltz1;
+    DataPump boltz1Pump;
+    AccumulatorAverage boltz1Acc;
+    MeterCompareMultipleModesBrute boltzMeter;
     
     public SimOverlapn32m2Right(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int cpwv){
@@ -258,6 +265,16 @@ public class SimOverlapn32m2Right extends Simulation {
         
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
+        
+        
+        
+        //TESTING STUFF - EXTRAS!!
+//        boltz1 = new DataProcessorBoltzmannFactor();
+//        boltz1.setTemperature(temperature);
+//        boltzMeter = new MCMoveCompareSingleModeBrute();
+        boltz1Acc = new AccumulatorAverageFixed();
+        boltz1Pump = new DataPump((IEtomicaDataSource)boltz1, (IDataSink)boltz1Acc);
+        
     }
     
     /*
@@ -309,7 +326,6 @@ public class SimOverlapn32m2Right extends Simulation {
             activityIntegrate.setMaxSteps(initSteps);
             setAccumulatorBlockSize(initBlockSize);
             
-//            System.out.println("initBennetParam activityIntegrate" + numBenSteps+ " steps set");
             getController().actionPerformed();
             getController().reset();
 
@@ -318,9 +334,6 @@ public class SimOverlapn32m2Right extends Simulation {
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(initSteps);
             
-
-//            System.out.println("initBennetParam activityIntegrate" + numBenSteps + " steps set");
-
             getController().actionPerformed();
             getController().reset();
 
@@ -372,7 +385,6 @@ public class SimOverlapn32m2Right extends Simulation {
 //        blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
-//            System.out.println("setAccumlatorBlockSize [] set to " + newBlockSize + " blocksize");
         }
         try {
             // reset the integrator so that it will re-adjust step frequency
@@ -485,7 +497,6 @@ public class SimOverlapn32m2Right extends Simulation {
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
         sim.setAccumulatorBlockSize(benBlockSize);
-//        sim.setBennettParameter(1.4491113335815968);
         sim.initBennettParameter(filename, numBenSteps, benBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){

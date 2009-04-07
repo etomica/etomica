@@ -156,19 +156,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         
-//        meterTestBinA = new MeterConvertTest("meterBinA", potentialMasterTarget, 
-//                coordinateDefinitionTarget, boxTarget);
-//        meterTestBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
-//        meterTestBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
-//        meterTestBinA.setTemperature(temperature);
-//        meterTestBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
-//        meterTestBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-//        AccumulatorAverageFixed binaSink = new AccumulatorAverageFixed();
-//        DataPump pumpTestBinA = new DataPump(meterTestBinA, binaSink);
-//        integratorTarget.addIntervalAction(pumpTestBinA);
-//        integratorTarget.setActionInterval(pumpTestBinA, 1000000);
-//        integratorTarget.setIntervalActionPriority(pumpTestBinA, 198);
-        
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
@@ -246,21 +233,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
-        
-//        meterTestBinB = new MeterConvertTest(potentialMasterRef,
-//                coordinateDefinitionRef, boxRef);
-//        meterTestBinB.setCoordinateDefinition(coordinateDefinitionRef);
-//        meterTestBinB.setEigenVectors(nm.getEigenvectors(boxRef));
-//        meterTestBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
-//        meterTestBinB.setTemperature(temperature);
-//        meterTestBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-//        meterTestBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-//        integratorRef.setMeterPotentialEnergy(meterTestBinB);
-//        AccumulatorAverageFixed binbSink = new AccumulatorAverageFixed();
-//        DataPump pumpTestBinB = new DataPump(meterTestBinB, binbSink);
-//        integratorRef.addIntervalAction(pumpTestBinB);
-//        integratorRef.setActionInterval(pumpTestBinB, 1000000);
-//        integratorRef.setIntervalActionPriority(pumpTestBinB, 199);
         
         MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
@@ -347,7 +319,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
             activityIntegrate.setMaxSteps(initSteps);
             setAccumulatorBlockSize(initBlockSize);
             
-//            System.out.println("initBennetParam activityIntegrate" + numBenSteps+ " steps set");
             getController().actionPerformed();
             getController().reset();
 
@@ -356,9 +327,6 @@ public class SimOverlapSingleWaveVector extends Simulation {
             setBennettParameter(1e40,40);
             activityIntegrate.setMaxSteps(initSteps);
             
-
-//            System.out.println("initBennetParam activityIntegrate" + numBenSteps + " steps set");
-
             getController().actionPerformed();
             getController().reset();
 
