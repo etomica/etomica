@@ -70,10 +70,10 @@ public class SimOverlapn32m2Right extends Simulation {
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;
     
-    DataProcessorBoltzmannFactor boltz1;
+    DataProcessorBoltzmannFactor boltz1Process;
     DataPump boltz1Pump;
     AccumulatorAverage boltz1Acc;
-    MeterCompareMultipleModesBrute boltzMeter;
+    MeterCompareSingleModeBrute boltz1Meter;
     
     public SimOverlapn32m2Right(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int cpwv){
@@ -271,9 +271,9 @@ public class SimOverlapn32m2Right extends Simulation {
         //TESTING STUFF - EXTRAS!!
 //        boltz1 = new DataProcessorBoltzmannFactor();
 //        boltz1.setTemperature(temperature);
-//        boltzMeter = new MCMoveCompareSingleModeBrute();
+//        boltz1Meter = new MeterCompareSingleModeBrute("boltzMeter", potentialMaster, coordinateDefinition, box);
         boltz1Acc = new AccumulatorAverageFixed();
-        boltz1Pump = new DataPump((IEtomicaDataSource)boltz1, (IDataSink)boltz1Acc);
+        boltz1Pump = new DataPump((IEtomicaDataSource)boltz1Meter, (IDataSink)boltz1Acc);
         
     }
     
