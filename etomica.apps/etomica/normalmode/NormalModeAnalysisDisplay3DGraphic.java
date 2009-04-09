@@ -105,19 +105,32 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 /*
                  * Harmonic Free Energy
                  */
-                AHarm = new DataDouble();
                 double AHarmonic =0;
+                int wvNum = (int)waveVectorSlider.getWaveVectorNum();
+                int eValNum = (int)eValSlider.getEValNum();
                 
                 coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
-                for(int i=0; i<omega2.length; i++) {
-                	for (int j=0; j<omega2[0].length; j++){
-                        if (!Double.isInfinite(omega2[i][j])) {
-                            AHarmonic += coeffs[i] * Math.log(omega2[i][j]*coeffs[i] /
-                                    (sim.integrator.temperature*Math.PI));
-                        }
+       
+                if (sim.integrator.isOneWV()){
+                	
+                	if (sim.integrator.isOneEVal()){
+                		AHarmonic=0;
+                		AHarmonic = coeffs[wvNum] * Math.log(omega2[wvNum][eValNum]*coeffs[wvNum] /
+                				(sim.integrator.temperature*Math.PI));
+                		
+                	} else {
+                		AHarmonic=0;
+                		for (int j=0; j<omega2[0].length; j++){
+                			if (!Double.isInfinite(omega2[wvNum][j])) {
+                				AHarmonic += coeffs[wvNum] * Math.log(omega2[wvNum][j]*coeffs[wvNum] /
+                						(sim.integrator.temperature*Math.PI));
+                        	}
+                		}
                 	}
+                	
                 }
                 AHarm.E(AHarmonic);
+                DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
                 displayAHarmonic.repaint();
@@ -425,6 +438,38 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 
                 // end of eigenvectors
                 
+                /*
+                 * Harmonic Free Energy
+                 */
+                double AHarmonic =0;
+                
+                coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
+       
+                if (sim.integrator.isOneWV()){
+                	
+                	if (sim.integrator.isOneEVal()){
+                		AHarmonic=0;
+                		AHarmonic = coeffs[wvNum] * Math.log(omega2[wvNum][eValNum]*coeffs[wvNum] /
+                				(sim.integrator.temperature*Math.PI));
+                		
+                	} else {
+                		AHarmonic=0;
+                		for (int j=0; j<omega2[0].length; j++){
+                			if (!Double.isInfinite(omega2[wvNum][j])) {
+                				AHarmonic += coeffs[wvNum] * Math.log(omega2[wvNum][j]*coeffs[wvNum] /
+                						(sim.integrator.temperature*Math.PI));
+                        	}
+                		}
+                	}
+                	
+                }
+                AHarm.E(AHarmonic);
+                DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
+                displayAHarmonic.putDataInfo(dataInfoA);
+                displayAHarmonic.putData(AHarm);
+                displayAHarmonic.repaint();
+                
+                
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 
 		    }
@@ -597,6 +642,18 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                             (sim.integrator.temperature*Math.PI));
                 }
         	}
+        }
+        
+        if (sim.integrator.isOneWV()){
+        	AHarmonic=0;
+        	int wvNum = (int)waveVectorSlider.getWaveVectorNum();
+        	for (int j=0; j<omega2[0].length; j++){
+                if (!Double.isInfinite(omega2[wvNum][j])) {
+                    AHarmonic += coeffs[wvNum] * Math.log(omega2[wvNum][j]*coeffs[wvNum] /
+                            (sim.integrator.temperature*Math.PI));
+                }
+        	}
+        	
         }
         AHarm.E(AHarmonic);
         
