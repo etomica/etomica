@@ -6,6 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
+import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -58,6 +59,13 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
         
+//        System.out.println("At the start of the meter:");
+//        System.out.println("Energy: " + meterPE.getDataAsScalar());
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
         //Get the normal mode coordinates of the compared waveVectors, and
         // store them in realCoord and imagCoord for further use.
         for(int wvcount = 0; wvcount < numWV; wvcount++){
@@ -107,15 +115,23 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
                     uNow[i] += deltaU[i];
                 }
                 coordinateDefinition.setToU(cell.molecules, uNow);
-            }//end of cell loop
-        }//end of wvcount loop
+            }//end of wvcount loop
+        }//end of cell loop
         energyHardRod = meterPE.getDataAsScalar();
         
+//        System.out.println("After the modes have been removed:");
+//        System.out.println("Energy: " + meterPE.getDataAsScalar());
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
         if(((Double)energyHardRod).isInfinite() && !isOnlyHardRod) {
-            IAtomList list = coordinateDefinition.getBox().getLeafList();
-            for(int i = 0; i < list.getAtomCount(); i++){
+            IAtomList crashlist = coordinateDefinition.getBox().getLeafList();
+            for(int i = 0; i < crashlist.getAtomCount(); i++){
                 System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
             }
+            System.out.println();
             throw new IllegalArgumentException("Bailing - bad overlap");
         }
         
@@ -140,6 +156,13 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
 
+//        System.out.println("At the end of the meter:");
+//        System.out.println("Energy: " + meterPE.getDataAsScalar());
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
         return energyHardRod + energyHarmonic;
     }
     

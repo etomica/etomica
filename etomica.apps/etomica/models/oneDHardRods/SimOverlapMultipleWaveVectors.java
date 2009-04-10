@@ -73,7 +73,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             int[] compWV, int[] harmWV){
         super(_space, true);
         
-        IRandom rand = new RandomNumberGenerator((long)3.0);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
         this.setRandom(rand);
         
         //Set up some of the joint stuff
@@ -581,7 +583,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
-        sim.setBennettParameter(0.573265415766427);
+//        sim.setBennettParameter(0.573265415766427);
         sim.setAccumulatorBlockSize((int)runBlockSize);
         
         sim.integratorSim.getMoveManager().setEquilibrating(false);
@@ -663,23 +665,23 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 8;
         public double density = 0.5;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {5};
-        public int[] harmonicWV = {};
+        public int[] comparedWV = {3};
+        public int[] harmonicWV = {4};
         
-        public int numSteps = 400000;
+        public int numSteps = 40000;
         public int runBlockSize = 1000;
-        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 40000;  
-        public int eqBlockSize = 100;
+        public int eqNumSteps = 4000;  
+        public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 40000;
-        public int benBlockSize = 100;
+        public int bennettNumSteps = 4000;
+        public int benBlockSize = 1000;
     }
 }

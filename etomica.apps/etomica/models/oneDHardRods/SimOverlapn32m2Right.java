@@ -272,8 +272,8 @@ public class SimOverlapn32m2Right extends Simulation {
 //        boltz1 = new DataProcessorBoltzmannFactor();
 //        boltz1.setTemperature(temperature);
 //        boltz1Meter = new MeterCompareSingleModeBrute("boltzMeter", potentialMaster, coordinateDefinition, box);
-        boltz1Acc = new AccumulatorAverageFixed();
-        boltz1Pump = new DataPump((IEtomicaDataSource)boltz1Meter, (IDataSink)boltz1Acc);
+//        boltz1Acc = new AccumulatorAverageFixed();
+//        boltz1Pump = new DataPump((IEtomicaDataSource)boltz1Meter, (IDataSink)boltz1Acc);
         
     }
     
@@ -591,15 +591,15 @@ public class SimOverlapn32m2Right extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         
-        public int numSteps = 40000;
+        public int numSteps = 400000;
         public int runBlockSize = 1000;
-        public int subBlockSize = 10;    //# of steps in subintegrator per integrator step
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
         public int eqNumSteps = 4000;  
-        public int eqBlockSize = 100;
+        public int eqBlockSize = 1000;
         
         public int bennettNumSteps = 4000;
-        public int benBlockSize = 100;
+        public int benBlockSize = 1000;
 
         public int comparedWV = 15;
     }

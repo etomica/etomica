@@ -37,24 +37,18 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     int[] harmonicWaveVectors;  //all wvs from the harmonic wv are not changed.
     
     
-//    MCMoveChangeSingleLEFT singleft;
-    
     public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        
-//        singleft = new MCMoveChangeSingleLEFT(potentialMaster, random);
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
         deltaU = new double[coordinateDefinition.getCoordinateDim()];
         uOld = null;
-        
-//        singleft.setCoordinateDefinition(newCoordinateDefinition);
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -71,8 +65,6 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             System.out.println("FEAR THE INFINiTE LOOP!!");
             throw new IllegalArgumentException("all wave vectors are harmonic!");
         }
-        
-//        singleft.setHarmonicWV(hwv[0]);
     }
 
     /**
@@ -83,13 +75,9 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     public void setWaveVectors(IVectorMutable[] wv){
         waveVectors = new IVectorMutable[wv.length];
         waveVectors = wv;
-        
-//        singleft.setWaveVectors(wv);
     }
     public void setWaveVectorCoefficients(double[] coeff){
         waveVectorCoefficients = coeff;
-        
-//        singleft.setWaveVectorCoefficients(coeff);
     }
     /**
      * Informs the move of the eigenvectors for the selected wave vector.  The
@@ -97,34 +85,21 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
      */
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
-        
-//        singleft.setEigenVectors(newEigenVectors);
     }
     
     public void setBox(IBox newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
-        
-//        singleft.setBox(newBox);
     }
 
     public AtomIterator affectedAtoms() {
         return iterator;
     }
 
-//    public void setWaveVectorAndEigenVectorsChanged(int wv, int[] evectors){
-//        //we will need some flag to indicate that these were set, and not
-          //randomly assign them.
-//    }
-//    
     public boolean doTrial() {
+        System.out.println("MCMoveChangeMode doTrial");
         
-//        singleft.doTrial();
-        
-        
-        
-//        System.out.println("MCMoveChangeMode doTrial");
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -203,7 +178,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("accept");
+        System.out.println("accept MCMoveChangeMultipleModes");
 //        iterator.reset();
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
@@ -216,7 +191,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject");
+        System.out.println("reject MCMoveChangeMultipleModes ");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
