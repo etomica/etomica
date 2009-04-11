@@ -335,7 +335,33 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
                 sink.putDataInfo(dataInfo);
                 sink.putData(omega2Table);
-            	                
+            	
+                /*
+                 * Harmonic Free Energy
+                 */
+                AHarm = new DataDouble();
+                double AHarmonic;
+                int wvNum = (int)waveVectorSlider.getWaveVectorNum();
+                
+                coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
+                if(waveVectorSlider.isOneWV()){
+                	AHarmonic = coeffs[wvNum] * Math.log(omega2[wvNum]*coeffs[wvNum] /
+                					(sim.integrator.temperature*Math.PI));
+                		
+                } else {
+                	AHarmonic =0;
+                	for(int i=0; i<omega2.length; i++) {
+                		if (!Double.isInfinite(omega2[i])) {
+                			AHarmonic += coeffs[i] * Math.log(omega2[i]*coeffs[i] /
+                					(sim.integrator.temperature*Math.PI));
+                		}
+                	}
+                }
+                AHarm.E(AHarmonic);
+                displayAHarmonic.putDataInfo(dataInfoA);
+                displayAHarmonic.putData(AHarm);
+                displayAHarmonic.repaint();
+                
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 
 		    }
