@@ -279,6 +279,8 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 sink.putDataInfo(dataInfo);
                 sink.putData(omega2Table);
 
+                waveVectorAction.actionPerformed();
+                
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
@@ -297,7 +299,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         waveVectorSlider.setMaximum(m);
         waveVectorSlider.setIntegrator(sim.integrator);
         
-        final IAction waveVectorAction = new IAction() {
+        waveVectorAction = new IAction() {
         	
         	public void actionPerformed() {
         		
@@ -441,5 +443,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	protected IData AHarm;
 	protected DisplayTextBox displayAHarmonic;
 	protected DataInfoDouble dataInfoA; 
+	protected final IAction waveVectorAction;
 
 }
