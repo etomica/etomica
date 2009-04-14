@@ -1,5 +1,7 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -98,11 +100,21 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
 
     public boolean doTrial() {
-        System.out.println("MCMoveChangeMode doTrial");
+//        System.out.println("MCMoveChangeMode doTrial");
         
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
+        
+        
+//        System.out.println("At start of move: " + energyMeter.getDataAsScalar());
+//        System.out.println("Energy: " + energyOld);
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
+        
         
         //nan These lines make it a single atom-per-molecule class, and
         // assume that the first cell is the same as every other cell.
@@ -148,7 +160,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += waveVectorCoefficients[changedWV]*
+                    deltaU[j] += /*waveVectorCoefficients[changedWV]*/
                         eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                 }
             }
@@ -166,6 +178,16 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         }
         
         energyNew = energyMeter.getDataAsScalar();
+        
+        
+//        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
+//        System.out.println("Energy: " + energyNew);
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
+        
         return true;
     }
     
@@ -178,7 +200,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept MCMoveChangeMultipleModes");
+//        System.out.println("accept MCMoveChangeMultipleModes");
 //        iterator.reset();
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
@@ -191,7 +213,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject MCMoveChangeMultipleModes ");
+//        System.out.println("reject MCMoveChangeMultipleModes ");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

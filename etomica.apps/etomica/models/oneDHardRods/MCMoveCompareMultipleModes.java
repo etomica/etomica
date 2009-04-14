@@ -68,11 +68,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         
-        System.out.println("Starting energy: " + energyMeter.getDataAsScalar());
-        IAtomList list = coordinateDefinition.getBox().getLeafList();
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("Starting energy: " + energyMeter.getDataAsScalar());
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
         
         // nan These lines make it a single atom-per-molecule class.
@@ -131,11 +131,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             }//end of cell loop
         }// end of wvCount loop
 
-        System.out.println("After zeroing energy: " + energyMeter.getDataAsScalar());
-        list = coordinateDefinition.getBox().getLeafList();
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("After zeroing energy: " + energyMeter.getDataAsScalar());
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
         energyOld = energyMeter.getDataAsScalar();
         if (energyOld != 0.0) {
@@ -207,11 +207,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }//end wvCount loop
         
         
-        System.out.println("after hardrod move: " + energyMeter.getDataAsScalar());
-        list = coordinateDefinition.getBox().getLeafList();
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("after hardrod move: " + energyMeter.getDataAsScalar());
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         energyNew = energyMeter.getDataAsScalar();
         
 // MOVE EACH NORMAL MODE THAT WAS ZEROED OUT.
@@ -271,11 +271,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 
         } // end wvCount loop
         
-        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
-        list = coordinateDefinition.getBox().getLeafList();
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
+//        list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         return true;
     }
 
@@ -288,7 +288,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void acceptNotify() {
-      System.out.println("accept MCMoveCompareMultipleModes");
+//      System.out.println("accept MCMoveCompareMultipleModes");
     }
 
     public double energyChange() {
@@ -296,7 +296,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
 
     public void rejectNotify() {
-      System.out.println("reject MCMoveCompareMultipleModes");
+//      System.out.println("reject MCMoveCompareMultipleModes");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell < cells.length; iCell++) {
