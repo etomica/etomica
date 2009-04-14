@@ -113,17 +113,17 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         // The zero wavevector is center of mass motion, and is rejected as
         // a possibility.
-        boolean success = true;
+        boolean isAccepted = true;
         do{
-            success = true;
+            isAccepted = true;
             changedWV = random.nextInt(waveVectorCoefficients.length-1);
             changedWV += 1;
             for(int i = 0; i < harmonicWaveVectors.length; i++){
                 if (changedWV == harmonicWaveVectors[i]) {
-                    success = false;
+                    isAccepted = false;
                 }
             }
-        } while (!success);
+        } while (!isAccepted);
         
 //        System.out.println( changedWV );
         
