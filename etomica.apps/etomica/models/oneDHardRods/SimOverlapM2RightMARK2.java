@@ -156,7 +156,6 @@ public class SimOverlapM2RightMARK2 extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        meterBinA.setIsOnlyHardRod(true);
         
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);

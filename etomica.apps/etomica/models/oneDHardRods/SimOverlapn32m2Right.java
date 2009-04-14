@@ -149,7 +149,7 @@ public class SimOverlapn32m2Right extends Simulation {
                 waveVectorFactoryTarget.getCoefficients());
         changeMove.setEigenVectors(nm.getEigenvectors(boxTarget));
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
-        changeMove.setBox((IBox)boxTarget);
+        changeMove.setBox(boxTarget);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
         
@@ -163,7 +163,6 @@ public class SimOverlapn32m2Right extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        meterBinA.setIsOnlyHardRod(true);
         
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
                 meterAinA, meterBinA, temperature);
@@ -226,7 +225,7 @@ public class SimOverlapn32m2Right extends Simulation {
         compareMove.setEigenVectors(nm.getEigenvectors(boxRef));
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
         compareMove.setTemperature(temperature);
-        compareMove.setBox((IBox)boxRef);
+        compareMove.setBox(boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
         
@@ -401,12 +400,12 @@ public class SimOverlapn32m2Right extends Simulation {
         integratorSim.getMoveManager().setEquilibrating(true);
         
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+            integrators[i].getMoveManager().setEquilibrating(true);
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+            integrators[i].getMoveManager().setEquilibrating(false);
         }
         
         if (bennettParam == -1) {
@@ -595,7 +594,7 @@ public class SimOverlapn32m2Right extends Simulation {
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000;  
+        public int eqNumSteps = 4000;
         public int eqBlockSize = 1000;
         
         public int bennettNumSteps = 4000;
