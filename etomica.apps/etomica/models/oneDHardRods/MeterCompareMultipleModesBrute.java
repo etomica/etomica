@@ -126,14 +126,14 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
 //            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
 //        }
         
-        if(((Double)energyHardRod).isInfinite() && !isOnlyHardRod) {
-            IAtomList crashlist = coordinateDefinition.getBox().getLeafList();
-            for(int i = 0; i < crashlist.getAtomCount(); i++){
-                System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-            }
-            System.out.println();
-            throw new IllegalArgumentException("Bailing - bad overlap");
-        }
+//        if(((Double)energyHardRod).isInfinite() && !isOnlyHardRod) {
+//            IAtomList crashlist = coordinateDefinition.getBox().getLeafList();
+//            for(int i = 0; i < crashlist.getAtomCount(); i++){
+//                System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//            }
+//            System.out.println();
+//            throw new IllegalArgumentException("Bailing - bad overlap");
+//        }
         
         
         //Calculate the energy due to the compared modes
@@ -195,11 +195,11 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
         omegaSquared = sc;
     }
 
-    public boolean isOnlyHardRod() {
-        return isOnlyHardRod;
-    }
-
-    public void setIsOnlyHardRod(boolean isA) {
-        this.isOnlyHardRod = isA;
-    }
+//    public boolean isOnlyHardRod() {
+//        return isOnlyHardRod;
+//    }
+//
+//    public void setIsOnlyHardRod(boolean isA) {
+//        this.isOnlyHardRod = isA;
+//    }
 }
