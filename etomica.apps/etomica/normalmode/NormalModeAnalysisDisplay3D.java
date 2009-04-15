@@ -1,13 +1,19 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -46,9 +52,21 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         basis = new BasisCubicFcc();
         box.setBoundary(boundary);
 
+        Potential2SoftSpherical potential= new P2SoftSphere(space, 1.0, 1.0, 12);
+        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+        IAtomType sphereType = species.getLeafType();
+        
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setBox(box);
+        
+        
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
+        latticeEnergy = meterPE.getDataAsScalar();
         //String fileName = "CB_FCC_n12_T01_Mode01";
         nm = new NormalModes3D(space, primitive, basis);
         nm.setTemperature(temperature);
@@ -128,11 +146,13 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	protected NormalModes3D nm;
 	protected WaveVectorFactory waveVectorFactory;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
+	protected MeterPotentialEnergy meterPE;
 	protected ISpace space;
 	protected double L;
 	protected int n = 5;
 	
 	protected double density = 1.256;
 	protected double temperature = 0.1;
+	protected double latticeEnergy;
 	
 }

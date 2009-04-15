@@ -9,10 +9,13 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataInfo;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.IDataSink;
+import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
@@ -30,6 +33,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.units.Energy;
 import etomica.units.Null;
+import etomica.util.HistoryScrolling;
 
 /**
  * Harmonic Oscillator 3D
@@ -62,18 +66,86 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(hePump);
         sim.integrator.setActionInterval(hePump, 60);
         heHistory.setPushInterval(5);
+
+        final DisplayTextBoxesCAE heDisplay = new DisplayTextBoxesCAE();
+        heDisplay.setAccumulator(heAccumulator);
+        
+        
+        /*
+         * harmonic energy as a function of atomic displacement Q
+         */
+        //HistoryScrolling is keeping track of the harmonic energy 
+        final AccumulatorHistory heQHistory = new AccumulatorHistory(new HistoryScrolling(1)); 
+        heFork.addDataSink(heQHistory);
+   
+        meterHarmonicCoordinate = new MeterHarmonicCoordinate(sim.coordinateDefinition);
+
+        /*
+         * soft-sphere potential energy as a function of atomic displacement Q
+         */
+		AccumulatorHistory peHistory = new AccumulatorHistory();
+		peHistory.setTimeDataSource(timeCounter);
 		
+        final AccumulatorHistory peQHistory = new AccumulatorHistory(new HistoryScrolling(1)); 
+        
+        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peQHistory});
+        
+        DataProcessor dataProcessor = new DataProcessor() {
+		
+			public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
+				return null;
+			}
+		
+			protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+				dataInfo = new DataInfoDouble("Potential Energy",Energy.DIMENSION);
+				data = new DataDouble();
+								
+				return dataInfo;
+			}
+		
+			protected IData processData(IData inputData) {
+				data.x = inputData.getValue(0)-sim.latticeEnergy;
+				return data;
+			}
+			
+			IEtomicaDataInfo dataInfo;
+			DataDouble data;
+		};
+		
+        DataPump pePump = new DataPump(sim.meterPE, dataProcessor);
+        dataProcessor.setDataSink(peFork);
+        
+        
+        sim.integrator.addIntervalAction(pePump);
+        sim.integrator.setActionInterval(pePump, 60);
+        peHistory.setPushInterval(5);
+       
+        /*
+         * Potential Well Plot
+         */
+        DisplayPlot eQPlot = new DisplayPlot();
+        peQHistory.setDataSink(eQPlot.getDataSet().makeDataSink());
+        heQHistory.setDataSink(eQPlot.getDataSet().makeDataSink());
+        eQPlot.getPlot().setYLabel("Energy");
+        eQPlot.setLabel("Potential Well");
+        eQPlot.setDoDrawLines(new DataTag[]{peQHistory.getTag(), heQHistory.getTag()}, false);
+        
+        heQHistory.setTimeDataSource(meterHarmonicCoordinate);
+        peQHistory.setTimeDataSource(meterHarmonicCoordinate);
+        
+        eQPlot.setDoClear(false);
+        
+		/*
+		 * Energy Plot
+		 */
         DisplayPlot ePlot = new DisplayPlot();
+        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         heHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{heHistory.getTag()}, "Harmonic Energy");
+        ePlot.getPlot().setYLabel("Energy");
         
         ePlot.getPlot().setTitle("Energy History");
         ePlot.setDoLegend(true);
-        ePlot.setLabel("Energy");
-        
-        final DisplayTextBoxesCAE heDisplay = new DisplayTextBoxesCAE();
-        heDisplay.setAccumulator(heAccumulator);
-   
+        ePlot.setLabel("Energy History");
         
         /*
 		 * Temperature Slider
@@ -166,6 +238,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.setNCells(nCells);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
+                	sim.latticeEnergy = sim.meterPE.getDataAsScalar();
                 	
                 	numWV = sim.nm.getOmegaSquared(null).length;
                     numEval = sim.nm.getOmegaSquared(null)[0].length;
@@ -398,9 +471,12 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 			}
                 			
                 			eVec[(nEval*numEval)+nEval2] = sim.nm.eigenvectors[sim.integrator.getWaveVectorNum()][nEval][nEval2];
-                		}
-                		
+                		}                   		
                 	}
+                	
+                	meterHarmonicCoordinate.setEigenvectors(eigenVectors[wvNum][eValNum]);
+                    meterHarmonicCoordinate.setWaveVector(sim.waveVectorFactory.getWaveVectors()[wvNum]);
+                	
                 } else {
                 	sim.integrator.reset();
                 	sim.integrator.setOneWV(true);
@@ -591,6 +667,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         		}
         		
         	}
+        	        	
         } else {
         	for (int nEval=0; nEval<numEval; nEval++){
         		for (int nEval2=0; nEval2<numEval; nEval2++){
@@ -671,9 +748,14 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         		heDisplay.putData(heAccumulator.getData());
         		heDisplay.repaint();
         		
+        		heQHistory.reset();
+        		peQHistory.reset();
         		getDisplayBox(sim.box).graphic().repaint();
         	}
         };
+        
+        meterHarmonicCoordinate.setEigenvectors(eigenVectors[sim.integrator.getWaveVectorNum()][sim.integrator.eValNum]);
+        meterHarmonicCoordinate.setWaveVector(sim.waveVectorFactory.getWaveVectors()[sim.integrator.getWaveVectorNum()]);
         
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
@@ -684,7 +766,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         add(displayAHarmonic);
         add(eValSlider);
         add(ePlot);
+        add(eQPlot);
         add(heDisplay);
+        
 	}
 	
 	
@@ -734,5 +818,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 	protected double[][] omega2;
 	protected double[][][] eigenVectors;
 	protected final IAction waveVectorPostAction, eValPostAction;
+	protected MeterHarmonicCoordinate meterHarmonicCoordinate;
 	
 }
