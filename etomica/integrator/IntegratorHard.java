@@ -418,7 +418,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     }
 
     public void actionPerformed(IEvent boxEvent) {
-        super.actionPerformed(boxEvent);
+        // we should call this, but it has unfortunate (sometimes catastrophic)
+        // side-effects.  we try to update the collision times of this new
+        // atom, which will fail if the NeighborListManager hasn't updated yet.
+//        super.actionPerformed(boxEvent);
         if (boxEvent instanceof BoxEventNeighborsUpdated) {
             resetCollisionTimes();
         }
