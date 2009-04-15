@@ -73,10 +73,10 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             int[] compWV, int[] harmWV){
         super(_space, true);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 2;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -674,14 +674,14 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] comparedWV = {3};
         public int[] harmonicWV = {4};
         
-        public int numSteps = 40000;
-        public int runBlockSize = 1000;
-        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        public int numSteps = 40000000;
+        public int runBlockSize = 100000;
+        public int subBlockSize = 100000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 4000;  
-        public int eqBlockSize = 1000;
+        public int eqNumSteps = 4000000;  
+        public int eqBlockSize = 10000;
         
-        public int bennettNumSteps = 4000;
-        public int benBlockSize = 1000;
+        public int bennettNumSteps = 4000000;
+        public int benBlockSize = 10000;
     }
 }
