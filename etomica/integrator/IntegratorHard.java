@@ -66,6 +66,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
 
     protected AtomLeafAgentManager agentManager;
     protected final AtomTypeAgentManager nullPotentialManager;
+    protected boolean handlingEvent;
 
     public IntegratorHard(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -418,13 +419,19 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
     }
 
     public void actionPerformed(IEvent boxEvent) {
-        // we should call this, but it has unfortunate (sometimes catastrophic)
+        // super.actionPerformed has unfortunate (sometimes catastrophic)
         // side-effects.  we try to update the collision times of this new
         // atom, which will fail if the NeighborListManager hasn't updated yet.
-//        super.actionPerformed(boxEvent);
+        // so remember that we're handling an event and suppress our own attempt
+        // to calculate collision times in randomizeMomentum.  whoever added the
+        // atom to the system will need to call integrator.reset to actually get
+        // us into a happy state.
+        handlingEvent = true;
+        super.actionPerformed(boxEvent);
         if (boxEvent instanceof BoxEventNeighborsUpdated) {
             resetCollisionTimes();
         }
+        handlingEvent = false;
     }
 
     /**
@@ -479,7 +486,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, AtomTyp
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        updateAtom((IAtom)atom);
+        if (!handlingEvent) {
+            updateAtom((IAtom)atom);
+        }
     }
 
     /**
