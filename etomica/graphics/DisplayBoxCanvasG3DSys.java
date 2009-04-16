@@ -95,6 +95,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         work3 = space.makeVector();
 	}
 
+	public G3DSys getG3DSys() {
+	    return gsys;
+	}
+
 	/**
 	 * Sets the size of the display to a new value and scales the image so that
 	 * the box fits in the canvas in the same proportion as before.
