@@ -42,7 +42,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     public Controller() {
         actionStatusMap = new HashMap<IAction, ActionStatus>();
-        actionExceptionMap = new HashMap<IAction, Exception>();
+        actionExceptionMap = new HashMap<IAction, Throwable>();
         waitObject = new WaitObject();
         urgentWaitObject = new UrgentWaitObject();
         eventManager = new ControllerEventManager();
@@ -87,7 +87,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * Returns null if the given action did not throw an exception or is not 
      * held by the controller.
      */
-    public synchronized Exception getException(IAction action) {
+    public synchronized Throwable getException(IAction action) {
         return actionExceptionMap.get(action);
     }
     
@@ -118,7 +118,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                         try {
                             currentAction.actionPerformed();
                         }
-                        catch (RuntimeException e) {
+                        catch (Throwable e) {
                             synchronized(waitObject) {
                                 waitObject.actionException = e;
                             }
@@ -294,12 +294,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     protected static class WaitObject implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
         boolean currentActionDone;
-        Exception actionException;
+        Throwable actionException;
     };
 
     private static final long serialVersionUID = 1L;
     protected final HashMap<IAction,ActionStatus> actionStatusMap;
-    protected final HashMap<IAction,Exception> actionExceptionMap;
+    protected final HashMap<IAction,Throwable> actionExceptionMap;
     
     /**
      * Enumerated type describing the status of an action.

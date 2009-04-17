@@ -24,7 +24,7 @@ public interface IController extends ActivityGroup {
      * Returns null if the given action did not throw an exception or is not 
      * held by the controller.
      */
-    public Exception getException(IAction action);
+    public Throwable getException(IAction action);
 
     /**
      * Pauses current activity, executes given action, then resumes current
