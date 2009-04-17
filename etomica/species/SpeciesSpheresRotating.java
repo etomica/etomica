@@ -17,7 +17,7 @@ import etomica.space.ISpace;
 public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     
     public SpeciesSpheresRotating(ISimulation sim, ISpace _space) {
-        super(_space, sim.isDynamic(), new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0));
+        super(_space, sim.isDynamic(), new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0, _space));
     }
 
     protected IAtom makeLeafAtom() {

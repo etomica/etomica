@@ -14,12 +14,26 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-public class AtomTypeLeaf extends AtomType implements Comparable<IAtomType> {
+public class AtomTypeLeaf implements IAtomType, Comparable<IAtomType> {
 
     public AtomTypeLeaf(Element element) {
         super();
         this.element = element;
         index = -1;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#setIndex(int)
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.atom.IAtomType#getIndex()
+     */
+    public int getIndex() {
+        return index;
     }
 
     /* (non-Javadoc)
@@ -91,6 +105,7 @@ public class AtomTypeLeaf extends AtomType implements Comparable<IAtomType> {
     }
 
     private static final long serialVersionUID = 1L;
+    protected int index;
     protected final Element element;
     protected ISpecies parentType;
     protected int childIndex;

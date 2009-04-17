@@ -4,7 +4,6 @@ import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.IConformation;
 import etomica.api.ISpecies;
-import etomica.atom.AtomType;
 import etomica.util.Arrays;
 
 /**
@@ -13,7 +12,7 @@ import etomica.util.Arrays;
  * 
  * @author andrew
  */
-public abstract class Species /*extends AtomType*/ implements ISpecies {
+public abstract class Species implements ISpecies {
 
     protected int index;
 
