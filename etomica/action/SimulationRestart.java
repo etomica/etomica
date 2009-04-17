@@ -27,15 +27,17 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected void setSimulation(ISimulation sim, ISpace _space, IController _controller) {
         super.setSimulation(sim, _space);
         controller = _controller;
-        if (space.D() == 3) {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(space), space));
-        }
-        else if (space.D() == 2) {
-            setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space));
-        }
-        else {
-        	Space sp = Space.getInstance(1);
-            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp));
+        if (space != null) {
+            if (space.D() == 3) {
+                setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(space), space));
+            }
+            else if (space.D() == 2) {
+                setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space));
+            }
+            else {
+            	Space sp = Space.getInstance(1);
+                setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp));
+            }
         }
         ignoreOverlap = false;
         accumulatorAction = new SimulationDataAction(new ResetAccumulatorsAveraged());
