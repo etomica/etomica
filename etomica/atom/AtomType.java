@@ -30,8 +30,6 @@ public abstract class AtomType implements java.io.Serializable, IAtomType {
 
     protected int index;
 
-    private boolean isInteracting = false;
-
     /**
      * Primary constructor called by subclasses to make the instance.
      * 
@@ -68,20 +66,6 @@ public abstract class AtomType implements java.io.Serializable, IAtomType {
 	 */
     public abstract ISpecies getSpecies();
 
-    /* (non-Javadoc)
-	 * @see etomica.atom.IAtomType#setInteracting(boolean)
-	 */
-    public void setInteracting(boolean b) {
-        isInteracting = b;
-    }
-
-    /* (non-Javadoc)
-	 * @see etomica.atom.IAtomType#isInteracting()
-	 */
-    public boolean isInteracting() {
-        return isInteracting;
-    }
-    
     /* (non-Javadoc)
 	 * @see etomica.atom.IAtomType#toString()
 	 */
