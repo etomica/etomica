@@ -9,12 +9,11 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
-import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -41,6 +40,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -79,10 +79,10 @@ public class SimOverlapn32m2Right extends Simulation {
             temperature, String filename, double harmonicFudge, int cpwv){
         super(_space, true);
         
-//        long seed = 15;
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
-//        System.out.println("Random seed explicitly set to " + seed);
+        long seed = 15;
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
+        System.out.println("Random seed explicitly set to " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -583,7 +583,7 @@ public class SimOverlapn32m2Right extends Simulation {
         meterBinB.setComparedWV(new int[] {comp, comp+1});
     }
     public static class SimOverlapn32m4RightParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 10;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -600,7 +600,7 @@ public class SimOverlapn32m2Right extends Simulation {
         public int bennettNumSteps = 4000;
         public int benBlockSize = 1000;
 
-        public int comparedWV = 15;
+        public int comparedWV = 2;
     }
     
 }
