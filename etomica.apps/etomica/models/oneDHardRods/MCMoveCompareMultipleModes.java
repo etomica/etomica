@@ -44,8 +44,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
     double[] uNow;
-
-    int howManyChangesToHardRodModes;
+    int changedWV, howManyChangesToHardRodModes;
     int[] comparedWVs, harmonicWVs;
     
     public MCMoveCompareMultipleModes(IPotentialMaster potentialMaster,
@@ -58,12 +57,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         gaussian = new double[2];
         howManyChangesToHardRodModes = 1;
     }
-
-    public boolean doTrial(){
-        return false;
-    }
     
-    public boolean doTrial(int changedWV, double[] rG, double[] iG, double delta1, double delta2) {
+    public boolean doTrial() {
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -91,6 +86,13 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
          * removed, and calculates what happens if it is.
          */
 // ZERO OUT A NORMAL MODE.
+        
+        //Store old positions
+        for(int iCell = 0; iCell < cells.length; iCell++){
+            //store old positions.
+            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+        }
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
             int comparedwv = comparedWVs[wvCount];
             
@@ -98,9 +100,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
-                // store old positions.
-                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
-                System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
                 cell = cells[iCell];
                 // rezero deltaU
                 for (int j = 0; j < coordinateDim; j++) {
@@ -160,24 +159,24 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             // The zero wavevector is center of mass motion, and is rejected as
             // a possibility.
             boolean isAccepted = true;
-//            do{
-//                isAccepted = true;
-//                changedWV = random.nextInt(waveVectorCoefficients.length-1);
-//                changedWV += 1;
-//                for(int i = 0; i < harmonicWVs.length; i++){
-//                    if (changedWV == harmonicWVs[i]) {
-//                        isAccepted = false;
-//                    }
-//                }
-//            } while (!isAccepted);
+            do{
+                isAccepted = true;
+                changedWV = random.nextInt(waveVectorCoefficients.length-1);
+                changedWV += 1;
+                for(int i = 0; i < harmonicWVs.length; i++){
+                    if (changedWV == harmonicWVs[i]) {
+                        isAccepted = false;
+                    }
+                }
+            } while (!isAccepted);
             
 //            System.out.println("multiple changed in chunk 2: " + changedWV);
             
             // calculate the new positions of the atoms.
             // loop over cells
-//            double delta1 = (2 * random.nextDouble() - 1) * stepSize;
-//            double delta2 = (2 * random.nextDouble() - 1) * stepSize;
-//            System.out.println("multiple deltas " + delta1 + "  "+ delta2);
+            double delta1 = (2 * random.nextDouble() - 1) * stepSize;
+            double delta2 = (2 * random.nextDouble() - 1) * stepSize;
+            System.out.println("multiple deltas " + delta1 + "  "+ delta2);
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -228,10 +227,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 // coordinate Q
                 double realGauss = random.nextGaussian() * sqrtT;
                 double imagGauss = random.nextGaussian() * sqrtT;
-                
-                realGauss = rG[wvCount];
-                imagGauss = iG[wvCount];
-                
                 
                 // XXX we know that if c(k) = 0.5, one of the gaussians will be
                 // ignored, but it's hard to know which. So long as we don't put

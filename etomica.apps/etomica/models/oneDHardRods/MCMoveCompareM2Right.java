@@ -43,7 +43,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     private double[] waveVectorCoefficients;
     double[] uNow;
     
-    public MCMoveCompareMultipleModes mult;
     
     public MCMoveCompareM2Right(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -52,28 +51,9 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
-        
-        mult = new MCMoveCompareMultipleModes(potentialMaster, random);
     }
 
-
     public boolean doTrial() {
-        
-        double[] rG = new double[2];
-        double[] iG = new double[2];
-        
-        int changedWV = random.nextInt(comparedWV-1);
-        changedWV += 1;
-        double delta1 = (2*random.nextDouble()-1) * stepSize;
-        double delta2 = (2*random.nextDouble()-1) * stepSize;
-        double sqrtT = Math.sqrt(temperature);
-    
-        rG[0] = random.nextGaussian() * sqrtT;;
-        iG[0] = random.nextGaussian() * sqrtT;;
-        rG[1] = random.nextGaussian() * sqrtT;;
-        iG[1] = random.nextGaussian() * sqrtT;;
-        
-        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -81,21 +61,17 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        System.out.println("Before Anything! " + energyMeter.getDataAsScalar());
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
+        
+        
         //nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1/Math.sqrt(cells.length);
-
-        mult.doTrial(changedWV, rG, iG, delta1, delta2);
-        mult.rejectNotify();
-        
-      
-        System.out.println("M2M2M2M2M2M2M2MM2M2M2M2M2M2M2MM2M2M2M2");
-      IAtomList list = coordinateDefinition.getBox().getLeafList();
-      System.out.println("NRGStart M2  " + energyMeter.getDataAsScalar());
-      for(int i = 0; i < list.getAtomCount(); i++){
-          System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-      }
         
 //ZERO OUT NORMAL MODES.
         
@@ -153,10 +129,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             throw new IllegalStateException("Overlap after the removal of a mode!");
         }
         
-        System.out.println("NRG after remove  " + energyOld);
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("NRG after remove  " + energyOld);
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
@@ -165,15 +141,14 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             //The zero wavevector is center of mass motion, and is rejected as a 
             //possibility, as is the compared wavevector and any wavevector
             //number higher than it.
-//            int changedWV = random.nextInt(comparedWV-1);
-//            changedWV += 1;
+            int changedWV = random.nextInt(comparedWV-1);
+            changedWV += 1;
             
             //calculate the new positions of the atoms.
             //loop over cells
-//            double delta1 = (2*random.nextDouble()-1) * stepSize;
-//            double delta2 = (2*random.nextDouble()-1) * stepSize;
+            double delta1 = (2*random.nextDouble()-1) * stepSize;
+            double delta2 = (2*random.nextDouble()-1) * stepSize;
             
-//            delta1 = 0.0; delta2 = 0.5;  //nork
             for(int iCell = 0; iCell < cells.length; iCell++){
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
@@ -205,38 +180,32 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         }
         energyNew = energyMeter.getDataAsScalar();
         
-        System.out.println("NRG after HR move  " + energyNew);
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("NRG after HR move  " + energyNew);
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
 //MOVE THE NORMAL MODE THAT WAS ZEROED OUT.
 //        //set up the gaussian values
-//        double sqrtT = Math.sqrt(temperature);
+        double sqrtT = Math.sqrt(temperature);
 
         for(int countWV = comparedWV; countWV < comparedWV+2; countWV++){
 //            System.out.println("Chunk 3 count " + countWV);
             for (int j=0; j<coordinateDim; j++) {
                 if (stdDev[countWV][j] == 0) continue;
                 //generate real and imaginary parts of random normal-mode coordinate Q
-//                double realGauss = random.nextGaussian() * sqrtT;
-//                double imagGauss = random.nextGaussian() * sqrtT;
+                double realGauss = random.nextGaussian() * sqrtT;
+                double imagGauss = random.nextGaussian() * sqrtT;
                 
                 //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                 // it's hard to know which.  So long as we don't put an atom at the origin
                 // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-//                if (waveVectorCoefficients[countWV] == 0.5) imagGauss = 0;
-//                rRand[j] = realGauss * stdDev[countWV][j];
-//                iRand[j] = imagGauss * stdDev[countWV][j];
-//                gaussian[0] = realGauss;
-//                gaussian[1] = imagGauss;
+                if (waveVectorCoefficients[countWV] == 0.5) imagGauss = 0;
+                rRand[j] = realGauss * stdDev[countWV][j];
+                iRand[j] = imagGauss * stdDev[countWV][j];
+                gaussian[0] = realGauss;
+                gaussian[1] = imagGauss;
                 
-                
-                if (waveVectorCoefficients[countWV] == 0.5) iG[countWV - comparedWV] = 0;
-                rRand[j] = rG[countWV - comparedWV] * stdDev[countWV][j];
-                iRand[j] = iG[countWV - comparedWV] * stdDev[countWV][j];
-                gaussian[0] = rG[countWV - comparedWV];
-                gaussian[1] = iG[countWV - comparedWV];
             }
 
             //calculate the new positions of the atoms.
@@ -269,10 +238,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
         }
         
-        System.out.println("NRG at move end  " + energyMeter.getDataAsScalar());
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("NRG at move end  " + energyMeter.getDataAsScalar());
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
         return true;
     }
@@ -307,8 +276,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);
-        
-        mult.setBox(newBox);
     }
 
     public AtomIterator affectedAtoms() {return iterator;}
@@ -319,8 +286,6 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         uOld = null;
         realT = new double[coordinateDefinition.getCoordinateDim()];
         imagT = new double[coordinateDefinition.getCoordinateDim()];
-        
-        mult.setCoordinateDefinition(newCD);
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -335,21 +300,15 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
     public void setWaveVectors(IVectorMutable[] wv){
         waveVectors = new IVectorMutable[wv.length];
         waveVectors = wv;
-        
-        mult.setWaveVectors(wv);
     }    
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
         waveVectorCoefficients = newWaveVectorCoefficients;
-        
-        mult.setWaveVectorCoefficients(newWaveVectorCoefficients);
     }
     /**
      * Informs the move of the eigenvectors 
      */
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
-        
-        mult.setEigenVectors(newEigenVectors);
     }
     
     public void setOmegaSquared(double[][] omega2, double[] coeff) {
@@ -359,13 +318,10 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
                 stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
             }
         }
-        
-        mult.setOmegaSquared(omega2, coeff);
     }
+    
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
-        
-        mult.setTemperature(newTemperature);
     }
     public double[] getGaussian(){
         return gaussian;
@@ -377,8 +333,5 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
 
     public void setComparedWV(int wv){
         comparedWV = wv;
-        
-        mult.setComparedWV(new int[] {wv, wv+1} );
-        mult.setHarmonicWV(new int[] {wv+2, wv+3} );
     }
 }
