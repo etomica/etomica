@@ -36,7 +36,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
             }
             fileReader.close();
         } catch(IOException e) {
-            throw new RuntimeException("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
+            throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
         }
     }
         
