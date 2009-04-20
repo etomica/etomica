@@ -174,7 +174,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             // loop over cells
             double delta1 = (2 * random.nextDouble() - 1) * stepSize;
             double delta2 = (2 * random.nextDouble() - 1) * stepSize;
-            System.out.println("multiple deltas " + delta1 + "  "+ delta2);
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
