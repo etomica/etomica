@@ -39,11 +39,6 @@ public interface Unit extends java.io.Serializable {
 	public double fromSim(double x);
     
 	/**
-	 * Accessor for common name of unit, such as "grams".  Given in plural form.
-	 */
-	public String toString();
-    
-	/**
 	 * Returns the symbol of unit, such as "g" for grams.
 	 */
 	public String symbol();
