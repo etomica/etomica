@@ -50,7 +50,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     public MCMoveCompareMultipleModes(IPotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster);
-
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -67,12 +66,11 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         
-        System.out.println("MULTIPLE MULTIPLE MULTIPLE MULTIPLE");
-        System.out.println("Starting energy: " + energyMeter.getDataAsScalar());
-        IAtomList list = coordinateDefinition.getBox().getLeafList();
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("Starting energy: " + energyMeter.getDataAsScalar());
+//        IAtomList list = coordinateDefinition.getBox().getLeafList();
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
         
         // nan These lines make it a single atom-per-molecule class.
@@ -146,10 +144,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             throw new IllegalStateException(
                     "Overlap after the removal of a mode!");
         }
-        System.out.println("After zeroing energy: " + energyOld);
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("After zeroing energy: " + energyOld);
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
 
 // MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
@@ -209,10 +207,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }//end wvCount loop
         energyNew = energyMeter.getDataAsScalar();
         
-        System.out.println("after hardrod move: " + energyNew);
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("after hardrod move: " + energyNew);
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         
 // MOVE EACH NORMAL MODE THAT WAS ZEROED OUT.
         // set up the gaussian values
@@ -270,10 +268,10 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 
         } // end wvCount loop
         
-        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
-        for(int i = 0; i < list.getAtomCount(); i++){
-            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-        }
+//        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
+//        for(int i = 0; i < list.getAtomCount(); i++){
+//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
+//        }
         return true;
     }
 

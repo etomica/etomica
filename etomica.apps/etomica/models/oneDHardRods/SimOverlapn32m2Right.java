@@ -79,10 +79,10 @@ public class SimOverlapn32m2Right extends Simulation {
             temperature, String filename, double harmonicFudge, int cpwv){
         super(_space, true);
         
-        long seed = 15;
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
-        System.out.println("Random seed explicitly set to " + seed);
+//        long seed = 15;
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
+//        System.out.println("Random seed explicitly set to " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);

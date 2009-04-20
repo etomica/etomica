@@ -665,23 +665,23 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
-        public int numAtoms = 10;
+        public int numAtoms = 32;
         public double density = 0.5;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {2, 3};
-        public int[] harmonicWV = {4, 5};
+        public int[] comparedWV = {1, 2};
+        public int[] harmonicWV = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15 , 16};
         
-        public int numSteps = 40000000;
-        public int runBlockSize = 100000;
-        public int subBlockSize = 100000;    //# of steps in subintegrator per integrator step
+        public int numSteps = 400000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 4000000;  
-        public int eqBlockSize = 10000;
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 4000000;
-        public int benBlockSize = 10000;
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 1000;
     }
 }
