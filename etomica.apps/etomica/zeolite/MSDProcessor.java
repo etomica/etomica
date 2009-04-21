@@ -76,7 +76,7 @@ public class MSDProcessor {
         double[][] RsquaredXYZ = new double[deltaTmax][3];
         
         //Fills Block1 and 2, subtracts, and fills totalRsquared.  Repeat.
-        for (int i=1; i<deltaTmax+1; i++){
+        for (int i=1; i<numBlocks; i++){
             System.out.println("Solving for iteration "+i);
         	try{
             	fileReader = new FileReader(msdInput);
@@ -98,6 +98,9 @@ public class MSDProcessor {
                 //Block 2 Loop - Restricts number of block pairs subtracted
                 for (int deltaT=1; deltaT<deltaTmax+1; deltaT++){
                     //Block 2 Loop - Adds XYZ lines from block 2
+                    if (i + deltaT > numBlocks) {
+                        continue;
+                    }
                     for (int iatom=0; iatom<numAtoms; iatom++){
                         String positionLine = buffReader.readLine();
                         String [] coordString = positionLine.split("\t");
@@ -129,10 +132,10 @@ public class MSDProcessor {
          * These sums are being divided by the number of atoms, and the respective
          * deltaT
          */
-        for (int ideltaT=0; ideltaT<deltaTmax; ideltaT++){
-            totalRsquared[ideltaT] /= (numAtoms*(numBlocks-ideltaT+1));
+        for (int ideltaT=1; ideltaT<deltaTmax+1; ideltaT++){
+            totalRsquared[ideltaT-1] /= (numAtoms*(numBlocks-ideltaT));
             for(int j=0;j<3;j++){
-            	RsquaredXYZ[ideltaT][j] /= (numAtoms*(numBlocks-ideltaT+1));
+            	RsquaredXYZ[ideltaT-1][j] /= (numAtoms*(numBlocks-ideltaT));
             }
         }
         
