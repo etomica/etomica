@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -25,7 +24,10 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MeterNormalMode;
+import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
+import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.P2HardSphere;
@@ -38,7 +40,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -49,7 +50,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
     int[] nCells;
-    NormalModes1DHR nm;
+    NormalModes nm;
     double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorSim; //integrator for the whole simulation
     public DataSourceVirialOverlap dsvo;
@@ -66,7 +67,9 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MCMoveChangeSingleMode changeMove;
     MCMoveCompareSingleMode compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterCompareSingleModeBrute meterBinA, meterBinB;    
+    MeterCompareSingleModeBrute meterBinA, meterBinB;
+    
+    MeterNormalMode mnm;
     
     public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -121,7 +124,11 @@ public class SimOverlapSingleWaveVector extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModes1DHR(space.D());
+        if(awv == numAtoms/2){
+            nm = new NormalModes1DHR(space.D());
+        } else {
+            nm = new NormalModesFromFile(filename, space.D());
+        }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -200,7 +207,11 @@ public class SimOverlapSingleWaveVector extends Simulation {
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
         
-        nm = new NormalModes1DHR(space.D());
+        if(awv == numAtoms/2){
+            nm = new NormalModes1DHR(space.D());
+        } else {
+            nm = new NormalModesFromFile(filename, space.D());
+        }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -256,6 +267,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
+        
     }
     
     /*
@@ -654,7 +666,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 2;
+        public int comparedWV = 3;
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;
