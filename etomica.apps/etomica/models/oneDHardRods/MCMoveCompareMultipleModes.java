@@ -99,6 +99,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 cell = cells[iCell];
+                uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 // rezero deltaU
                 for (int j = 0; j < coordinateDim; j++) {
                     deltaU[j] = 0.0;
