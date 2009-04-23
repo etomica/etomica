@@ -10,6 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -70,6 +71,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MeterCompareSingleModeBrute meterBinA, meterBinB;
     
     MeterNormalMode mnm;
+    AccumulatorAverageFixed mnmAccumulator;
+    DataPump mnmPump;
     
     public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -131,6 +134,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
+        nm.getOmegaSquared(boxTarget);
         
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
@@ -252,6 +256,15 @@ public class SimOverlapSingleWaveVector extends Simulation {
         integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
+        
+        mnm = new MeterNormalMode();
+        mnm.setBox(boxRef);
+        mnm.setCoordinateDefinition(coordinateDefinitionRef);
+        mnm.setWaveVectorFactory(waveVectorFactoryRef);
+        
+        mnmAccumulator = new AccumulatorAverageFixed();
+//        integratorRef.set
+        mnmPump = new DataPump(mnm, mnmAccumulator);
         
 //JOINT
         //Set up the rest of the joint stuff
@@ -660,13 +673,13 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 6;
+        public int numAtoms = 10000;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 3;
+        public int comparedWV = 5000;
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;
