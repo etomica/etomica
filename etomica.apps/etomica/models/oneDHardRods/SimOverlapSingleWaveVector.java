@@ -31,6 +31,7 @@ import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -71,8 +72,9 @@ public class SimOverlapSingleWaveVector extends Simulation {
     MeterCompareSingleModeBrute meterBinA, meterBinB;
     
     MeterNormalMode mnm;
-    AccumulatorAverageFixed mnmAccumulator;
+    public AccumulatorAverageFixed mnmAccumulator;
     DataPump mnmPump;
+    WriteS sWriter;
     
     public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -256,15 +258,21 @@ public class SimOverlapSingleWaveVector extends Simulation {
         integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
-        
+        //Stuff to take care of recording spring constant!!
         mnm = new MeterNormalMode();
-        mnm.setBox(boxRef);
         mnm.setCoordinateDefinition(coordinateDefinitionRef);
         mnm.setWaveVectorFactory(waveVectorFactoryRef);
-        
+        mnm.setBox(boxRef);
         mnmAccumulator = new AccumulatorAverageFixed();
-//        integratorRef.set
         mnmPump = new DataPump(mnm, mnmAccumulator);
+        integratorRef.addIntervalAction(mnmPump);
+        integratorRef.setActionInterval(mnmPump, 1000);
+        
+        sWriter = new WriteS(space);
+        sWriter.setFilename(filename + "_output");
+        sWriter.setMeter(mnm);
+        sWriter.setWaveVectorFactory(mnm.getWaveVectorFactory());
+        sWriter.setOverwrite(true);
         
 //JOINT
         //Set up the rest of the joint stuff
@@ -616,6 +624,12 @@ public class SimOverlapSingleWaveVector extends Simulation {
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
+
+        System.out.println(".");
+        sim.sWriter.actionPerformed();
+//        System.out.println("New value for omega squared:  "+ sim.mnmAccumulator.getDataAsScalar());
+        
+        
 //        System.out.println(" ");
 //        System.out.println("Harmonic Energies - Meter B in A");
 //        double[] xval = sim.meterBinA.histogramNRG.xValues();
@@ -673,13 +687,13 @@ public class SimOverlapSingleWaveVector extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 10000;
+        public int numAtoms = 6;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 5000;
+        public int comparedWV = 3;
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;
