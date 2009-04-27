@@ -16,8 +16,6 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSplitter;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceButton;
@@ -33,6 +31,7 @@ import etomica.nbr.cell.Cell;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Null;
@@ -93,14 +92,21 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-        DeviceSlider radiusSlider = new DeviceSlider(sim.getController(), new Modifier() {
+        DeviceSlider radiusSlider = new DeviceSlider(sim.getController());
+        radiusSlider.setPrecision(1);
+        radiusSlider.setMinimum(0.2);
+        radiusSlider.setMaximum(0.8);
+        radiusSlider.setNMajor(4);
+        radiusSlider.setShowBorder(true);
+        radiusSlider.setLabel("Droplet Size");
+        radiusSlider.setModifier(new Modifier() {
 
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
 
             public String getLabel() {
-                return "Droplet Radius";
+                return "Droplet Radius ("+Angstrom.UNIT.symbol()+")";
             }
 
             public double getValue() {
@@ -120,12 +126,6 @@ public class DropletAtomicGraphic extends SimulationGraphic {
                 getDisplayBox(sim.box).repaint();
             }
         });
-        radiusSlider.setPrecision(1);
-        radiusSlider.setMinimum(0.2);
-        radiusSlider.setMaximum(0.8);
-        radiusSlider.setNMajor(4);
-        radiusSlider.setShowBorder(true);
-        radiusSlider.setLabel("Droplet Size");
       //  add(radiusSlider);
 
         DeviceSlider squeezeSlider = new DeviceSlider(sim.getController());
@@ -136,8 +136,15 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         squeezeSlider.setMaximum(10);
         squeezeSlider.setNMajor(4);
         squeezeSlider.setShowValues(true);
-        squeezeSlider.setLabel("Squeezing force (A^2/ps)");
+        squeezeSlider.setLabel("Squeezing force ("+Angstrom.UNIT.symbol()+"/ps^2)");
         add(squeezeSlider);
+        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getDimensions().x(0));
+        final EllipseDisplayAction ellipseDisplayAction = new EllipseDisplayAction(this, dropDiameter);
+        squeezeSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
+                ellipseDisplayAction.displayEllipse(sim.p1Smash.g);
+            }
+        });
         
 //        nSlider = new DeviceNSelector(sim.getController());
 //        nSlider.setSpecies(sim.species);
@@ -214,31 +221,33 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        peAvg.setPushInterval(1);
 //        add(peBox);
 
-        MeterKineticEnergy meterKE = new MeterKineticEnergy();
-        meterKE.setBox(sim.box);
-        DataFork keFork = new DataFork();
-        DataPump kePump = new DataPump(meterKE, keFork);
-        dataStreamPumps.add(kePump);
-        sim.integrator.addIntervalAction(kePump);
-        sim.integrator.setActionInterval(kePump, 10);
-        AccumulatorHistory keHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        keFork.addDataSink(keHistory);
-        keHistory.setTimeDataSource(timeCounter);
+//        MeterKineticEnergy meterKE = new MeterKineticEnergy();
+//        meterKE.setBox(sim.box);
+//        DataFork keFork = new DataFork();
+//        DataPump kePump = new DataPump(meterKE, keFork);
+//        dataStreamPumps.add(kePump);
+//        sim.integrator.addIntervalAction(kePump);
+//        sim.integrator.setActionInterval(kePump, 10);
+//        AccumulatorHistory keHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+//        keFork.addDataSink(keHistory);
+//        keHistory.setTimeDataSource(timeCounter);
         
-        MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
-        DataFork eFork = new DataFork();
-        DataPump ePump = new DataPump(meterE, eFork);
-        dataStreamPumps.add(ePump);
-        sim.integrator.addIntervalAction(ePump);
-        sim.integrator.setActionInterval(ePump, 10);
-        AccumulatorHistory eHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        eFork.addDataSink(eHistory);
-        eHistory.setTimeDataSource(timeCounter);
+//        MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
+//        DataFork eFork = new DataFork();
+//        DataPump ePump = new DataPump(meterE, eFork);
+//        dataStreamPumps.add(ePump);
+//        sim.integrator.addIntervalAction(ePump);
+//        sim.integrator.setActionInterval(ePump, 10);
+//        AccumulatorHistory eHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+//        eFork.addDataSink(eHistory);
+//        eHistory.setTimeDataSource(timeCounter);
         
         DisplayPlot ePlot = new DisplayPlot();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        eHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.getPlot().setYLabel("Potential Energy");
+        ePlot.setDoLegend(false);
         ePlot.setLabel("Energy");
         add(ePlot);
         
@@ -260,6 +269,8 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         DisplayPlot deformationPlot = new DisplayPlot();
         dHistory.setDataSink(deformationPlot.getDataSet().makeDataSink());
         deformationPlot.setLabel("Deformation");
+        deformationPlot.getPlot().setYLabel("Deformation");
+        deformationPlot.setDoLegend(false);
         add(deformationPlot);
         
         DataFork rFork = new DataFork();
@@ -271,6 +282,8 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         DisplayPlot radiusPlot = new DisplayPlot();
         rHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
         radiusPlot.setLabel("Radius");
+        radiusPlot.getPlot().setYLabel("Radius ("+Angstrom.UNIT.symbol()+")");
+        radiusPlot.setDoLegend(false);
         add(radiusPlot);
         
 //        
