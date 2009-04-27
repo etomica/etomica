@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.api.IAction;
+import etomica.api.IAtomList;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
@@ -40,6 +42,7 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsing;
+import g3dsys.images.Ellipse;
 
 /**
  * Graphic UI for Droplet module.  Design by Ludwig Nitsche.
@@ -52,7 +55,8 @@ public class DropletGraphic extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 1;
     protected Droplet sim;
     protected final DeviceNSelector nSlider;
-    
+    protected Ellipse ellipse = null;
+
     public DropletGraphic(final Droplet simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
@@ -67,16 +71,38 @@ public class DropletGraphic extends SimulationGraphic {
     	        getDisplayBox(sim.box).repaint();
     	    }
     	});
+    	
+    	
+        IAction recenterAction = new IAction() {
+            public void actionPerformed() {
+                IAtomList leafList = sim.box.getLeafList();
+                center.E(0);
+                for (int i=0; i<leafList.getAtomCount(); i++) {
+                    center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+                }
+                center.TE(1.0/leafList.getAtomCount());
+
+                for (int i=0; i<leafList.getAtomCount(); i++) {
+                    ((IAtomPositioned)leafList.getAtom(i)).getPosition().ME(center);
+                }
+            }
+            final IVectorMutable center = sim.getSpace().makeVector();
+        };
+        sim.integrator.addIntervalAction(recenterAction);
+        sim.integrator.setActionInterval(recenterAction, 10);
+
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
         getPanel().controlPanel.add(displayTimer.graphic(), SimulationPanel.getVertGBC());
         displayTimer.setUpdateInterval(1);
         
+        double timeStep = sim.integrator.getTimeStep();
         DeviceSlider timeStepSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.integrator, "timeStep"));
         timeStepSlider.setPrecision(1);
         timeStepSlider.setMinimum(0);
         timeStepSlider.setMaximum(1);
         timeStepSlider.setNMajor(4);
+        timeStepSlider.setValue(timeStep);
         timeStepSlider.setShowValues(true);
         timeStepSlider.setLabel("time step");
         timeStepSlider.setShowBorder(true);
@@ -111,22 +137,22 @@ public class DropletGraphic extends SimulationGraphic {
             }
         });
         defSlider.setPrecision(1);
-        defSlider.setMinimum(-0.6);
-        defSlider.setMaximum(0.6);
-        defSlider.setNMajor(3);
+        defSlider.setMinimum(-0.5);
+        defSlider.setMaximum(0.5);
+        defSlider.setNMajor(5);
         defSlider.setShowValues(true);
         defSlider.setLabel("initial deformation");
         defSlider.setShowBorder(true);
 
-        DeviceSlider cohesionEpsilon = new DeviceSlider(sim.getController());
+        final DeviceSlider cohesionEpsilon = new DeviceSlider(sim.getController());
         cohesionEpsilon.setShowBorder(true);
         cohesionEpsilon.setModifier(new ModifierGeneral(sim.p2, "epsilon"));
         cohesionEpsilon.setPrecision(2);
-        cohesionEpsilon.setMinimum(0.5);
+        cohesionEpsilon.setMinimum(0.4);
         cohesionEpsilon.setMaximum(1);
-        cohesionEpsilon.setNMajor(5);
+        cohesionEpsilon.setNMajor(3);
         cohesionEpsilon.setShowValues(true);
-        cohesionEpsilon.setLabel("Cohesion Radius");
+        cohesionEpsilon.setLabel("Cohesion Strength");
 
         DeviceSlider squeeze = new DeviceSlider(sim.getController());
         squeeze.setShowBorder(true);
@@ -136,10 +162,35 @@ public class DropletGraphic extends SimulationGraphic {
         squeeze.setNMajor(5);
         squeeze.setShowValues(true);
         squeeze.setLabel("Squeezing Force");
+        final EllipseDisplayAction ellipseDisplayAction = new EllipseDisplayAction(this, 1);
+        squeeze.setPostAction(new IAction() {
+            public void actionPerformed() {
+                ellipseDisplayAction.displayEllipse(sim.p1Smash.g);
+            }
+        });
 
 
         ModifierBoolean surfaceCohesionModifier = new ModifierBoolean(){
-            public void setBoolean(boolean b) {sim.p2.setUseSurfaceOnly(b);}
+            public void setBoolean(boolean b) {
+                sim.p2.setUseSurfaceOnly(b);
+                if (!b) {
+                    if (sim.p2.getEpsilon() > 1) {
+                        sim.p2.setEpsilon(1);
+                        cohesionEpsilon.doUpdate();
+                    }
+                    cohesionEpsilon.setPrecision(2);
+                    cohesionEpsilon.setMinimum(0.4);
+                    cohesionEpsilon.setMaximum(1);
+                    cohesionEpsilon.setNMajor(3);
+                }
+                else {
+                    cohesionEpsilon.setMaximum(20);
+                    cohesionEpsilon.setMinimum(0);
+                    cohesionEpsilon.setNMajor(4);
+                    cohesionEpsilon.setPrecision(1);
+                }
+                cohesionEpsilon.doUpdate();
+            }
             public boolean getBoolean() {return sim.p2.getUseSurfaceOnly();}
         };
         DeviceToggleButton surfaceCohesionButton = new DeviceToggleButton(sim.getController(), surfaceCohesionModifier, "Use Bulk Cohesion", "Use Surface Cohesion");
