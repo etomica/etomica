@@ -424,7 +424,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     	    scaleSlider.getSlider().setValue(100);
     	    scaleSlider.setNMajor(0);
     	    scaleSlider.setSliderVerticalOrientation(false);
-    	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
+    	    java.util.Hashtable<Integer,JLabel> scaleLabels = new java.util.Hashtable<Integer,JLabel>();
     	    scaleLabels.put(new Integer(10), new JLabel( "min", JLabel.CENTER ));
     	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
     	    scaleSlider.getSlider().setLabelTable(scaleLabels);
