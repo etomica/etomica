@@ -39,9 +39,6 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
             nLiquid += nbrs > maxNbrsVapor ? 1 : 0;
             agentManager.setAgent(atom, nbrs > maxNbrsVapor);
         }
-        if (new Random().nextInt(100) == 5) {
-            System.out.println("numLiquid "+nLiquid);
-        }
     }
     
     public boolean accept(IAtom a) {
