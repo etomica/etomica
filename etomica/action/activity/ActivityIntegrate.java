@@ -24,7 +24,7 @@ public class ActivityIntegrate extends Activity {
         this.integrator = integrator;
         this.ignoreOverlap = ignoreOverlap;
         this.sleepPeriod = sleepPeriod;
-        setMaxSteps(Integer.MAX_VALUE);
+        setMaxSteps(Long.MAX_VALUE);
 	}
     
     /**
