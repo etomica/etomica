@@ -54,6 +54,7 @@ public class MeterDeformation implements IEtomicaDataSource {
 
     public IData getData() {
         IAtomList leafList = box.getLeafList();
+        center.E(0);
         for (int i=0; i<leafList.getAtomCount(); i++) {
             if (!filter.accept(leafList.getAtom(i))) {
                 continue;
