@@ -109,7 +109,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         
         public P0Lrc(ISpace space, Potential2Soft truncatedPotential, 
                 Potential2Soft potential, IAtomType[] types) {
-            super(space, types, (Potential2SoftSpherical)truncatedPotential);
+            super(space, types, truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension
