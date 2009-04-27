@@ -30,8 +30,6 @@ public class MCMoveStepTracker extends MCMoveTracker {
         if (nTrials == 0) {
             return;
         }
-        nTrialsSum += nTrials;
-        nAcceptSum += nAccept;
         double stepSize = mcMove.getStepSize();
         if (nAccept > (int) (acceptanceTarget * nTrials)) {
             if (stepSize < mcMove.getStepSizeMax()) {
@@ -124,8 +122,6 @@ public class MCMoveStepTracker extends MCMoveTracker {
         adjustInterval = defaultAdjustInterval;
         adjustStep = defaultAdjustStep;
         lastAdjust = 0;
-        nTrialsSum = 0;
-        nAcceptSum = 0;
         chiSum = 0.0;
         nTrials = 0;
         nAccept = 0;
@@ -143,12 +139,12 @@ public class MCMoveStepTracker extends MCMoveTracker {
      * also resets the acceptance averages and other step adjustment 
      * parameters to their default values.
      */
-    public void setAdjustInterval(int i) {
+    public void setAdjustInterval(long i) {
         defaultAdjustInterval = i;
         resetAdjustStep();
     }
 
-    public final int getAdjustInterval() {
+    public final long getAdjustInterval() {
         return adjustInterval;
     }
 
@@ -193,12 +189,12 @@ public class MCMoveStepTracker extends MCMoveTracker {
     private static final long serialVersionUID = 1L;
     protected MCMoveStepDependent mcMove;
     protected double acceptanceTarget;
-    protected int nTrialsSum, nAcceptSum, adjustInterval;
+    protected long adjustInterval;
     protected boolean tunable = true;
-    protected int lastAdjust;
+    protected long lastAdjust;
     protected double adjustStep;
     protected double defaultAdjustStep = 1.05;
-    protected int defaultAdjustInterval = 100;
+    protected long defaultAdjustInterval = 100;
     protected boolean noisyAdjustment = false;
     protected boolean noReset = false;
 }

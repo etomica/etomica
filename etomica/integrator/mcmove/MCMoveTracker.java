@@ -48,7 +48,7 @@ public class MCMoveTracker implements Serializable {
         return ((nTrials > 0) ? chiSum / nTrials : Double.NaN);
     }
     
-    protected int nTrials, nAccept;
+    protected long nTrials, nAccept;
     protected double chiSum;
     private static final long serialVersionUID = 1L;
 }
