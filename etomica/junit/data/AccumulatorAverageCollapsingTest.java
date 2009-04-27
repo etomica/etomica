@@ -49,7 +49,6 @@ public class AccumulatorAverageCollapsingTest extends AccumulatorAverageTestBase
         assertTrue("average "+avg, Math.abs(avg-0.5) < 0.015);
         
         double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
-        // block correlation should be ~0, but actual value will depend on # of blocks 
         assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation/0.27 + 0.27/blockCorrelation - 2) < 0.4);
         
         double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
