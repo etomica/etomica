@@ -14,6 +14,7 @@ public class ConfigurationDroplet implements Configuration {
     public ConfigurationDroplet(IRandom random, ISpace space) {
         this.random = random;
         axis = space.makeVector();
+        center = space.makeVector();
     }
     
     public void initializeCoordinates(IBox box) {
@@ -29,6 +30,16 @@ public class ConfigurationDroplet implements Configuration {
             ((IVectorRandom)r).setRandomInSphere(random);
             r.TE(axis);
         }
+
+        center.E(0);
+        for (int i=0; i<leafList.getAtomCount(); i++) {
+            center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+        }
+        center.TE(1.0/leafList.getAtomCount());
+
+        for (int i=0; i<leafList.getAtomCount(); i++) {
+            ((IAtomPositioned)leafList.getAtom(i)).getPosition().ME(center);
+        }
     }
     
     public void setDeformation(double newDeformation) {
@@ -41,5 +52,5 @@ public class ConfigurationDroplet implements Configuration {
     
     protected double deformation;
     protected final IRandom random;
-    protected final IVectorMutable axis;
+    protected final IVectorMutable axis, center;
 }
