@@ -263,10 +263,12 @@ public class SimOverlapSingleWaveVector extends Simulation {
         mnm.setCoordinateDefinition(coordinateDefinitionRef);
         mnm.setWaveVectorFactory(waveVectorFactoryRef);
         mnm.setBox(boxRef);
-        mnmAccumulator = new AccumulatorAverageFixed();
-        mnmPump = new DataPump(mnm, mnmAccumulator);
-        integratorRef.addIntervalAction(mnmPump);
-        integratorRef.setActionInterval(mnmPump, 1000);
+        integratorRef.addIntervalAction(mnm);
+        integratorRef.setActionInterval(mnm, 1000);
+//        mnmAccumulator = new AccumulatorAverageFixed();
+//        mnmPump = new DataPump(mnm, mnmAccumulator);
+//        integratorRef.addIntervalAction(mnmPump);
+//        integratorRef.setActionInterval(mnmPump, 1000);
         
         sWriter = new WriteS(space);
         sWriter.setFilename(filename + "_output");
@@ -561,7 +563,8 @@ public class SimOverlapSingleWaveVector extends Simulation {
 //        sim.meterBinB.histogramImagCoord.reset();
         
         
-        
+        sim.mnm.reset();
+//        sim.mnmAccumulator.reset();
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.setAccumulatorBlockSize(runBlockSize);
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -695,14 +698,14 @@ public class SimOverlapSingleWaveVector extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = 3;
         
-        public int numSteps = 40000000;
-        public int runBlockSize = 100000;
+        public int numSteps = 4000000;
+        public int runBlockSize = 10000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000000;  
+        public int eqNumSteps = 40000;  
         public int eqBlockSize = 10000;
         
-        public int bennettNumSteps = 4000000;
+        public int bennettNumSteps = 40000;
         public int benBlockSize = 10000;
 
     }
