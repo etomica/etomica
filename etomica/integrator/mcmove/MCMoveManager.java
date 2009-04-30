@@ -196,7 +196,7 @@ public class MCMoveManager implements Serializable {
     private MCMoveLinker selectedLink;
     private int frequencyTotal;
     private int moveCount;
-    private boolean isEquilibrating;
+    private boolean isEquilibrating = true;
     private final IRandom random;
 
     /**
@@ -218,7 +218,7 @@ public class MCMoveManager implements Serializable {
         /**
          * Updates the full frequency based on the current value of the
          * frequency, the status of the perParticleFrequency flag, and the
-         * current number of molecules in the boxs affected by the move.
+         * current number of molecules in the boxes affected by the move.
          */
         void resetFullFrequency() {
             fullFrequency = (int)(frequency * move.getNominalFrequency());
