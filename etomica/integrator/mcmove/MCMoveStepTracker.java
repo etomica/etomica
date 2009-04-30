@@ -92,6 +92,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
         noReset = false;
         nTrials = 0;
         nAccept = 0;
+        chiSum = 0;
     }
 
     /**
