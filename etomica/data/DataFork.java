@@ -22,6 +22,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * removed after construction using appropriate method calls.  
      */
     public DataFork() {
+        tag = new DataTag();
     }
     
     /**
@@ -34,7 +35,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     }
 
     public DataTag getTag() {
-        return null;
+        return tag;
     }
     
     /**
@@ -61,10 +62,11 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * a data caster before any sinks needing one.
      */
     public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
-        dataInfo = incomingDataInfo;
+        dataInfo = incomingDataInfo.getFactory().makeDataInfo();
+        dataInfo.addTag(tag);
         for(int i=dataSinkList.length-1; i>=0; i--) {
             insertTransformerIfNeeded(i);
-            dataSinkList[i].dataSink.putDataInfo(incomingDataInfo);
+            dataSinkList[i].dataSink.putDataInfo(dataInfo);
         }
     }
 
@@ -142,6 +144,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected DataSinkWrapper[] dataSinkList = new DataSinkWrapper[0];
     protected IEtomicaDataInfo dataInfo;
+    protected final DataTag tag;
     
     private static class DataSinkWrapper implements Serializable {
         private static final long serialVersionUID = 1L;
