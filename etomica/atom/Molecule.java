@@ -59,7 +59,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
                 if (childList.getAtomCount() > i) {
                     // reassign the old last Atom (which is now in the removed
                     // Atom's place) to have the old Atom's index.
-                    ((IAtom)childList.getAtom(i)).setIndex(i);
+                    childList.getAtom(i).setIndex(i);
                 }
                 return;
             }
