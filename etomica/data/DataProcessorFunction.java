@@ -10,9 +10,7 @@ import etomica.api.IFunction;
  * cannot be subsequently changed.
  *
  * @author David Kofke
- *
  */
-
 public class DataProcessorFunction extends DataProcessor {
 
     public DataProcessorFunction(IFunction function) {
@@ -21,24 +19,20 @@ public class DataProcessorFunction extends DataProcessor {
     
     /**
      * Applies the function to all elements of the input data.
-     * Uses the map method of the DataArithmetic interface.  
-     * 
-     * @throws ClassCastException if the input data does not implement DataArithmetic
      */
     protected IData processData(IData inputData) {
-        inputData.map(function);
-        return inputData;
+        data.E(inputData);
+        data.map(function);
+        return data;
     }
 
     /**
-     * Returns the given DataInfo unchanged.
-     * 
-     * @throws IllegalArgumentException if the input data class does not 
-     * implement DataArithmetic
+     * Returns a copy of the given dataInfo
      */
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(getTag());
+        data = dataInfo.makeData();
         return dataInfo;
     }
 
@@ -51,4 +45,5 @@ public class DataProcessorFunction extends DataProcessor {
 
     private static final long serialVersionUID = 1L;
     private final IFunction function;
+    protected IData data;
 }
