@@ -161,11 +161,8 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
             IAtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
-            if (!(atomType instanceof IAtomType)) {
-                return;
-            }
             int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
-            int newIndex = ((IAtomType)atomType).getIndex();
+            int newIndex = atomType.getIndex();
             if (newIndex >= agents.length) {
                 agents = Arrays.resizeArray(agents, newIndex+1);
             }
