@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 6, 2004 by kofke
- */
 package etomica.util;
 
 /**
@@ -58,12 +54,4 @@ public interface Histogram {
      * resets all histogram values and counts to zero
      */
 	public void reset();
-
-    /**
-     * Interface for a Factory that will return Histogram objects.
-     */
-	public interface Factory {
-		public Histogram makeHistogram();
-	}
-	
 }

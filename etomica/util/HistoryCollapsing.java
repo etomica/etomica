@@ -108,15 +108,7 @@ public class HistoryCollapsing implements History {
     public double[] getHistory() {
         return history;
     }
-    	
-    /**
-     * Factory that creates an instance of this class.
-     */
-    public static final History.Factory FACTORY = new History.Factory() {
-        public History makeHistory() {return new HistoryCollapsing();}
-        public History makeHistory(int n) {return new HistoryCollapsing(n);}
-    };
-	
+
     protected double[] history = new double[0];
     protected int cursor;
     protected double[] xValues = new double[0];

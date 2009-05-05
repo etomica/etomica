@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 4, 2004 by kofke
- */
 package etomica.data;
 
 import etomica.api.IData;
@@ -23,27 +19,18 @@ import etomica.util.HistogramSimple;
 public class DataHistogram extends DataProcessor {
 
     /**
-     * Creates instance using HistogramSimple factory and specifying histograms
+     * Creates instance using HistogramSimple and specifying histograms
      * having the given number of bins and the given range.
      */
     public DataHistogram(int nBins, DoubleRange range) {
-        this(new HistogramSimple.Factory(nBins, range), nBins);
+        this(new HistogramSimple(nBins, range));
     }
 
     /**
-     * Creates instance using given histogram factory with default nBins of 100.
+     * Creates instance using the given histogram.
      */
-    public DataHistogram(Histogram.Factory factory) {
-        this(factory, 100);
-    }
-
-    /**
-     * Creates instance using the given histogram factory making histograms having
-     * the given number of bins.
-     */
-    public DataHistogram(Histogram.Factory factory, int nBins) {
-        this.nBins = nBins;
-        histogramFactory = factory;
+    public DataHistogram(Histogram histogram) {
+        this.histogram = histogram;
     }
 
     /**
@@ -86,8 +73,6 @@ public class DataHistogram extends DataProcessor {
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
-        histogram = histogramFactory.makeHistogram();
-        histogram.setNBins(nBins);
         setupData();
         return dataInfo;
     }
@@ -113,27 +98,6 @@ public class DataHistogram extends DataProcessor {
         dataInfo.addTags(binnedDataInfo.getTags());
         dataInfo.addTag(getTag());
     }
-    
-    /**
-     * @return the number of bins in the histogram.
-     */
-    public int getNBins() {
-        return nBins;
-    }
-
-    /**
-     * Sets the number of bins in each histogram. Calls setNBins method of
-     * the histogram, which will discard data or modify itself
-     * depending on how its own implementation.
-     */
-    public void setNBins(int nBins) {
-        this.nBins = nBins;
-        histogram.setNBins(nBins);
-        setupData();
-        if(dataSink != null) {
-            dataSink.putDataInfo(dataInfo);
-        }
-    }
 
     public Histogram getHistogram() {
         return histogram;
@@ -152,6 +116,4 @@ public class DataHistogram extends DataProcessor {
     private DataFunction data;
     private IEtomicaDataInfo binnedDataInfo;
     protected int nData;
-    private Histogram.Factory histogramFactory;
-    private int nBins;
 }

@@ -104,15 +104,7 @@ public class HistoryComplete implements History {
     public boolean isCollapseOnReset() {
         return doCollapseOnReset;
     }
-    	
-    /**
-     * Factory that creates an instance of this class.
-     */
-    public static final History.Factory FACTORY = new History.Factory() {
-        public History makeHistory() {return new HistoryComplete();}
-        public History makeHistory(int n) {return new HistoryComplete(n);}
-    };
-    
+
     private double[] history = new double[0];
     private double[] xValues = new double[0];
     private int cursor;

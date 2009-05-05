@@ -14,7 +14,7 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     
     public HistoryCollapsingAverage() {this(100);}
     public HistoryCollapsingAverage(int n) {
-        super(n);
+        super(n, 2);
         tempXBin = 0;
         tempBin = 0;
     }

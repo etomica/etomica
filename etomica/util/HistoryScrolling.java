@@ -1,9 +1,5 @@
-/* History
- * 08/09/04 (DAK, AS, NC) new from History (when it was defined as a class)
- */
 package etomica.util;
 
-import java.io.Serializable;
 
 /**
  * History that records a number of values, with new ones replacing the
@@ -95,19 +91,7 @@ public class HistoryScrolling implements History, java.io.Serializable {
 		
 		return tempY;
     }
-    	
-	/**
-	 * Factory that creates an instance of this class.
-	 */
-    public static final History.Factory FACTORY = new ScrollingFactory(); 
-        
-        
-    public static class ScrollingFactory implements History.Factory, Serializable {
-		public History makeHistory() {return new HistoryScrolling();}
-		public History makeHistory(int n) {return new HistoryScrolling(n);}
-        private static final long serialVersionUID = 1L;
-    }
-	
+
     private static final long serialVersionUID = 1L;
     private double[] history = new double[0];
     private int cursor;

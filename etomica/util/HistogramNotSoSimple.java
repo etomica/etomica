@@ -1,21 +1,19 @@
 package etomica.util;
 
-import java.io.Serializable;
-
-
-/* History
- * 09/08/02 (DAK) added set/get methods for xMin, xMax, nBins
- * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
- */
 
 /**
- * Simple Histogram implementation with a static x range and number of bins.
+ * Histogram implementation with a static x range and number of bins.
  * If an x value is given that falls outside the histogram's x range, the 
  * value is dropped.  The x range and number of bins can be changed explicitly,
  * but doing so will reset the histogram (losing all previously collected data).
+ * 
+ * Values are added in pairs (x and y).  The average value of y is calculated
+ * for each x bin.
  */
 public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
-	protected double deltaX;
+
+    private static final long serialVersionUID = 1L;
+    protected double deltaX;
 	private long sum;
 	protected int[] counts;
 	protected double[] sums;
@@ -101,7 +99,7 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
         //returns an array representing the present histogram
         if (sum != 0) {
 		    for(int i=0; i<nBins; i++) {
-		        histogram[i] = (double)sums[i]/counts[i];
+		        histogram[i] = sums[i]/counts[i];
 		    }
         }
 	    return histogram;
@@ -113,19 +111,5 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
  
     public double[] xValues() {
         return xValues;
-    }
-    
-    public static class Factory implements Histogram.Factory, Serializable {
-        public Factory(int n, DoubleRange xRange) {
-            nBins = n;
-            this.xRange = xRange;
-        }
-        
-        public Histogram makeHistogram() {
-            return new HistogramNotSoSimple(nBins, xRange);
-        }
-        
-        private int nBins;
-        private DoubleRange xRange;
     }
 }

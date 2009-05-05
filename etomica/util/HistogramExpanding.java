@@ -1,7 +1,5 @@
 package etomica.util;
 
-import java.io.Serializable;
-
 
 /**
  * Histogram implementation with dynamic x range and number of bins.  If an x 
@@ -153,18 +151,4 @@ public class HistogramExpanding extends HistogramSimple {
     }
     
     private static final long serialVersionUID = 1L;
-    public static final Histogram.Factory FACTORY = new Factory(1.0);
-    
-    public static class Factory implements Histogram.Factory, Serializable {
-        public Factory(double deltaX) {
-            this.deltaX = deltaX;
-        }
-        
-        public Histogram makeHistogram() {
-            return new HistogramExpanding(deltaX);
-        }
-        
-        private final double deltaX;
-    }
-
 }

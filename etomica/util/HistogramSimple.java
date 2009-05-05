@@ -1,6 +1,5 @@
 package etomica.util;
 
-import java.io.Serializable;
 
 /**
  * Simple Histogram implementation with a static x range and number of bins.
@@ -9,7 +8,9 @@ import java.io.Serializable;
  * but doing so will reset the histogram (losing all previously collected data).
  */
 public class HistogramSimple implements Histogram, java.io.Serializable {
-	protected double deltaX;
+
+    private static final long serialVersionUID = 1L;
+    protected double deltaX;
 	private long sum;
 	protected long[] counts;
 	protected double[] histogram;
@@ -97,19 +98,5 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
  
     public double[] xValues() {
         return xValues;
-    }
-    
-    public static class Factory implements Histogram.Factory, Serializable {
-        public Factory(int n, DoubleRange xRange) {
-            nBins = n;
-            this.xRange = xRange;
-        }
-        
-        public Histogram makeHistogram() {
-            return new HistogramSimple(nBins, xRange);
-        }
-        
-        private int nBins;
-        private DoubleRange xRange;
     }
 }

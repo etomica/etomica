@@ -1,13 +1,5 @@
 package etomica.util;
 
-import java.io.Serializable;
-
-
-/* History
- * 09/08/02 (DAK) added set/get methods for xMin, xMax, nBins
- * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
- */
-
 /**
  * Simple Histogram implementation with a static number of bins, but dynamic
  * x range. If an x value is given that falls outside the histogram's x range, 
@@ -19,6 +11,7 @@ import java.io.Serializable;
  * @author Andrew Schultz
  */
 public class HistogramCollapsing extends HistogramSimple {
+    private static final long serialVersionUID = 1L;
     private boolean firstValue;
 
     /**
@@ -98,19 +91,5 @@ public class HistogramCollapsing extends HistogramSimple {
         for(int i=0; i<nBins; i++) {
             xValues[i] = xMin + (i+0.5)*deltaX;
         }
-    }
-    
-    public static final Histogram.Factory FACTORY = new Factory(100);
-    
-    public static class Factory implements Histogram.Factory, Serializable {
-        public Factory(int n) {
-            nBins = n;
-        }
-        
-		public Histogram makeHistogram() {
-            return new HistogramCollapsing(nBins);
-        }
-        
-        private final int nBins;
     }
 }

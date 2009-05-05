@@ -44,15 +44,4 @@ public interface History {
      * History.
      */
 	public double[] getHistory();
-	
-	/**
-	 * Interface for a class that can make a History instance. An instance
-	 * of such a factory is needed to instantiate an AccumulatorHistory
-	 * object.
-	 */
-	public interface Factory {
-		public History makeHistory();
-		public History makeHistory(int n);
-	}
-
 }

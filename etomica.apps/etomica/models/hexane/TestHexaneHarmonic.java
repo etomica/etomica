@@ -239,7 +239,7 @@ public class TestHexaneHarmonic extends Simulation {
         boltz = new BoltzmannProcessor();
         boltz.setTemperature(1);
         DataPump pumpSingle = new DataPump(harmonicSingleEnergy, boltz);
-        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
+        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple(50, new DoubleRange(0, 1)));
         AccumulatorAverageCollapsing harmonicSingleAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
