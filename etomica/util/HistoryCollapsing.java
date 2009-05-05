@@ -12,9 +12,14 @@ package etomica.util;
  */
 public class HistoryCollapsing implements History {
     
-    public HistoryCollapsing() {this(100);}
+    public HistoryCollapsing() {this(102);}
     public HistoryCollapsing(int n) {
-        setHistoryLength(n);
+        this(n, 3);
+    }
+    
+    public HistoryCollapsing(int nBins, int nCollapseBins) {
+        setNumCollapseBins(nCollapseBins);
+        setHistoryLength(nBins);
         reset();
     }
     
@@ -26,8 +31,11 @@ public class HistoryCollapsing implements History {
      */
     public void setHistoryLength(int n) {
         if (n==history.length) return;
-        if (n < 2) {
+        if (n < numCollapseBins) {
             throw new IllegalArgumentException("You have GOT to be kidding.  History length must be greater than 1");
+        }
+        if (n % numCollapseBins != 0) {
+            throw new IllegalArgumentException("History length ("+n+") must be an integer multiple of the # of collapse bins ("+numCollapseBins+")");
         }
         while (n < cursor) {
             collapseData();
@@ -52,6 +60,25 @@ public class HistoryCollapsing implements History {
         return history.length;
     }
 	
+    /**
+     * Sets the number of "collapse" bins.  When the data is collapsed, one
+     * value will be taken from each consecutive n bins, where n is the number
+     * of bins set by this method.  The value will be taken from the middle bin
+     * or (for an even number of bins), taken from the bin to the left of the
+     * middle.
+     */
+    public void setNumCollapseBins(int newNumCollapseBins) {
+        numCollapseBins = newNumCollapseBins;
+        if (xValues.length % numCollapseBins != 0) {
+            System.err.println("History length ("+xValues.length+") must be an integer multiple of the # of collapse bins ("+numCollapseBins+")");
+        }
+        reset();
+    }
+    
+    public int getNumCollapseBins() {
+        return numCollapseBins;
+    }
+    
     /**
      * Removes entire history, setting all values to NaN.
      * After calling reset, data will be recorded at every interval.
@@ -80,7 +107,7 @@ public class HistoryCollapsing implements History {
         if (++intervalCount != interval) {
             return;
         }
-        intervalCount = 0;
+        intervalCount = -(numCollapseBins-1)/2;
         if (cursor == history.length) {
             collapseData();
         }
@@ -90,16 +117,17 @@ public class HistoryCollapsing implements History {
     }
 
     protected void collapseData() {
-        for (int i=1; i<cursor/2; i++) {
-            history[i] = history[i*2];
-            xValues[i] = xValues[i*2];
+        for (int i=0; i<cursor/numCollapseBins; i++) {
+            int j = i*numCollapseBins+(numCollapseBins-1)/2;
+            history[i] = history[j];
+            xValues[i] = xValues[j];
         }
-        for(int i=cursor/2+1; i<cursor; i++) {
+        for(int i=cursor/numCollapseBins+1; i<cursor; i++) {
             history[i] = Double.NaN;
             xValues[i] = Double.NaN;
         }
-        cursor /= 2;
-        interval *= 2;
+        cursor /= numCollapseBins;
+        interval *= numCollapseBins;
     }
     
     /**
@@ -112,6 +140,7 @@ public class HistoryCollapsing implements History {
     protected double[] history = new double[0];
     protected int cursor;
     protected double[] xValues = new double[0];
-    protected int interval = 1;
-    protected int intervalCount = 0;
+    protected int interval;
+    protected int intervalCount;
+    protected int numCollapseBins;
 }
