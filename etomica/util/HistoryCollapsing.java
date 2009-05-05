@@ -104,16 +104,17 @@ public class HistoryCollapsing implements History {
      * future data is taken half as often.
      */
     public void addValue(double x, double y) {
-        if (++intervalCount != interval) {
-            return;
+        if (++intervalCount == (interval+1)/2) {
+            if (cursor == history.length) {
+                collapseData();
+            }
+            xValues[cursor] = x;
+            history[cursor] = y;
+            cursor++;
         }
-        intervalCount = -(numCollapseBins-1)/2;
-        if (cursor == history.length) {
-            collapseData();
+        if (intervalCount == interval) {
+            intervalCount = 0;
         }
-        xValues[cursor] = x;
-        history[cursor] = y;
-        cursor++;
     }
 
     protected void collapseData() {
