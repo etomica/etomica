@@ -12,9 +12,9 @@ package etomica.util;
  */
 public class HistoryCollapsing implements History {
     
-    public HistoryCollapsing() {this(102);}
+    public HistoryCollapsing() {this(100);}
     public HistoryCollapsing(int n) {
-        this(n, 3);
+        this(n, 2);
     }
     
     public HistoryCollapsing(int nBins, int nCollapseBins) {
@@ -32,7 +32,7 @@ public class HistoryCollapsing implements History {
     public void setHistoryLength(int n) {
         if (n==history.length) return;
         if (n < numCollapseBins) {
-            throw new IllegalArgumentException("You have GOT to be kidding.  History length must be greater than 1");
+            throw new IllegalArgumentException("You have GOT to be kidding.  History length must be greater than "+numCollapseBins);
         }
         if (n % numCollapseBins != 0) {
             throw new IllegalArgumentException("History length ("+n+") must be an integer multiple of the # of collapse bins ("+numCollapseBins+")");
@@ -119,6 +119,7 @@ public class HistoryCollapsing implements History {
 
     protected void collapseData() {
         for (int i=0; i<cursor/numCollapseBins; i++) {
+            // j is the middle bin of the to-be-collapsed bins
             int j = i*numCollapseBins+(numCollapseBins-1)/2;
             history[i] = history[j];
             xValues[i] = xValues[j];
