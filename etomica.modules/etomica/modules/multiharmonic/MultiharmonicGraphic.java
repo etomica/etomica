@@ -35,7 +35,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 	private final static String APP_NAME = "Multiharmonic";
 	private final static int REPAINT_INTERVAL = 30;
 
-    private final Multiharmonic sim;
+    protected final Multiharmonic sim;
 
     /**
      * 
@@ -52,15 +52,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         final DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
-          public double f(double x) {
-              return -Math.log(x);
-          }
-          public double dfdx(double x) {
-              return 0.0;
-          }
-          public double inverse(double f) {
-              return 0.0;
-          }});
+            public double f(double x) {return -Math.log(x);}
+        });
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
         AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing());
         history.setTimeDataSource(sim.timeCounter);
@@ -117,7 +110,9 @@ public class MultiharmonicGraphic extends SimulationGraphic {
             }
         };
         
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
+        int historyLength = sim.historyEnergy.getHistory().getHistoryLength();
+        int nCollapseBins = ((HistoryCollapsing)sim.historyEnergy.getHistory()).getNumCollapseBins();
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(exactPump);
@@ -125,7 +120,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
-        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
+        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(uPump);
@@ -168,7 +163,6 @@ public class MultiharmonicGraphic extends SimulationGraphic {
                 uAPump.actionPerformed();
                 uBPump.actionPerformed();
             }
-            public String getLabel() {return "";}
         };
         omegaASlider.setPostAction(uUpdate);
         omegaBSlider.setPostAction(uUpdate);
