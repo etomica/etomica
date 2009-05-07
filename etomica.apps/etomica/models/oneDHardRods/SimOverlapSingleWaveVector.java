@@ -131,8 +131,10 @@ public class SimOverlapSingleWaveVector extends Simulation {
         
         if(awv == numAtoms/2){
             nm = new NormalModes1DHR(space.D());
+            System.out.println("Perfect 1DHR springs in use");
         } else {
             nm = new NormalModesFromFile(filename, space.D());
+            System.out.println("Calculated springs in use");
         }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
