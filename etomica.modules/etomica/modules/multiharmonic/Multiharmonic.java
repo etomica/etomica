@@ -20,6 +20,7 @@ import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
@@ -38,11 +39,11 @@ public class Multiharmonic extends Simulation {
     public Multiharmonic() {
         super(Space1D.getInstance());
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        double x0 = 1;
+        double x0 = 0;
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
-        box = new Box(space);
+        box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
@@ -51,7 +52,6 @@ public class Multiharmonic extends Simulation {
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);
-        box.setNMolecules(species, 20);
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
