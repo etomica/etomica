@@ -18,6 +18,7 @@ import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.graphics.Device;
+import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
@@ -112,6 +113,15 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         omegaBSlider.setMaximum(10.0);
         omegaBSlider.setValue(1.0);
 
+        DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
+        nSlider.setBox(sim.box);
+        nSlider.setSpecies(sim.species);
+        nSlider.setMaximum(50);
+        nSlider.setMinimum(1);
+        nSlider.setShowValues(true);
+        nSlider.setLabel("Number of atoms");
+        nSlider.setShowBorder(true);
+
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
                 return 0.5*sim.box.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
@@ -169,8 +179,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         uB.getXSource().setXMin(-sim.box.getBoundary().getDimensions().x(0));
         uA.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
         uB.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
-        uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
-        uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
+        final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
+        final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         IAction uUpdate = new IAction() {
             public void actionPerformed() {
                 uA.update();
@@ -199,9 +209,14 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         JPanel topPanel = new JPanel(new GridBagLayout());
         JPanel displayPanel = new JPanel(new GridBagLayout());
         topPanel.add(sliderPanel);
+        topPanel.add(nSlider.graphic(), vertGBC);
         displayPanel.add(uPlot.graphic(), vertGBC);
         displayPanel.add(displayBox.graphic(), vertGBC);
-        topPanel.add(displayPanel, horizGBC);
+        GridBagConstraints mygbc = new GridBagConstraints();
+        mygbc.gridx = 1;
+        mygbc.gridy = 0;
+        mygbc.gridheight = 2;
+        topPanel.add(displayPanel, mygbc);
         
         plot.setSize(350, 250);
         uPlot.setSize(450, 250);
@@ -224,7 +239,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         });
 
         uUpdate.actionPerformed();
-        
+
         AccumulatorAverageCollapsingLog accumulatorEnergy = new AccumulatorAverageCollapsingLog(sim.getRandom());
         DataPump dataPumpEnergy = new DataPump(sim.meter, accumulatorEnergy);
         dataStreamPumps.add(dataPumpEnergy);
@@ -332,21 +347,10 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         tab3.add(dfunPlot.graphic(), horizGBC);
     }
 
-    /**
-     * This pulls the data from the DataSourceFunctions and pushes them to the
-     * plot.  Doing this before was ineffective because the plot was not visible
-     * and DispalyPlot refuses to update in that situation. 
-     */
-    void initUPlot() {
-        uAPump.actionPerformed();
-        uBPump.actionPerformed();
-    }
-    
     public static void main(String[] args) {
         final Multiharmonic sim = new Multiharmonic();
         MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim, sim.getSpace());
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
-        simGraphic.initUPlot();
     }
 
     public static class Applet extends javax.swing.JApplet {
@@ -355,11 +359,6 @@ public class MultiharmonicGraphic extends SimulationGraphic {
             final Multiharmonic sim = new Multiharmonic();
             MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim, sim.getSpace());
             getContentPane().add(simGraphic.getPanel());
-            simGraphic.initUPlot();
         }
     }
-
-    JPanel panel;
-    DataPump uAPump;
-    DataPump uBPump;
 }
