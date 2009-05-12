@@ -35,6 +35,7 @@ import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicSimple;
+import etomica.listener.IntegratorListenerAction;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
@@ -120,8 +121,9 @@ public class Osmosis extends SimulationGraphic {
         final AccumulatorAverageCollapsing osmosisPMeterAvg = new AccumulatorAverageCollapsing();
         final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         dataStreamPumps.add(osmosisPump);
-        sim.integrator.addIntervalAction(osmosisPump);
-        sim.integrator.setActionInterval(osmosisPump, 40);
+        IntegratorListenerAction osmosisPumpListener = new IntegratorListenerAction(osmosisPump);
+        sim.integrator.getEventManager().addListener(osmosisPumpListener);
+        osmosisPumpListener.setInterval(40);
         sim.integrator.setTimeStep(0.01);
         final DisplayTextBoxesCAE osmoticBox = new DisplayTextBoxesCAE();
         osmoticBox.setAccumulator(osmosisPMeterAvg);
@@ -153,7 +155,7 @@ public class Osmosis extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
-        sim.integrator.addIntervalAction(tempPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(tempPump));
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
@@ -176,7 +178,7 @@ public class Osmosis extends SimulationGraphic {
         final AccumulatorAverageCollapsing moleFractionAvgRight = new AccumulatorAverageCollapsing();
         final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
         dataStreamPumps.add(molePumpRight);
-        sim.integrator.addIntervalAction(molePumpRight);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(molePumpRight));
         final DisplayTextBoxesCAE rightMFBox = new DisplayTextBoxesCAE();
         rightMFBox.setAccumulator(moleFractionAvgRight);
         rightMFBox.setPrecision(5);
@@ -200,7 +202,7 @@ public class Osmosis extends SimulationGraphic {
         final AccumulatorAverageCollapsing moleFractionAvgLeft = new AccumulatorAverageCollapsing();
         final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
         dataStreamPumps.add(molePumpLeft);
-        sim.integrator.addIntervalAction(molePumpLeft);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(molePumpLeft));
         final DisplayTextBoxesCAE leftMFBox = new DisplayTextBoxesCAE();
         leftMFBox.setAccumulator(moleFractionAvgLeft);
         leftMFBox.setPrecision(5);

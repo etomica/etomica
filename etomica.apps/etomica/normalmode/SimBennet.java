@@ -24,6 +24,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -189,8 +190,9 @@ public class SimBennet extends Simulation {
         final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
         
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
-        sim.integrator.addIntervalAction(pumpHarmonic);
-        sim.integrator.setActionInterval(pumpHarmonic, 1);
+        IntegratorListenerAction pumpHarmonicListener = new IntegratorListenerAction(pumpHarmonic);
+        pumpHarmonicListener.setInterval(1);
+        sim.integrator.getEventManager().addListener(pumpHarmonicListener);
         
         //Histogram Harmonic
         final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(1500, new DoubleRange(-50,100)));
@@ -209,8 +211,9 @@ public class SimBennet extends Simulation {
         final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
 
         dataForkTarget.addDataSink(dataAverageTarget);
-        sim.integrator.addIntervalAction(pumpTarget);
-        sim.integrator.setActionInterval(pumpTarget, numAtoms*2);
+        IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpHarmonic);
+        pumpTargetListener.setInterval(numAtoms*2);
+        sim.integrator.getEventManager().addListener(pumpTargetListener);
 
         //Histogram Target
         final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(1500, new DoubleRange(-50,100)));
@@ -298,17 +301,16 @@ public class SimBennet extends Simulation {
         	}
         };
         
-       sim.integrator.addIntervalAction(outputAction);
-       sim.integrator.setActionInterval(outputAction, 200000);
+        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(pumpHarmonic);
+        outputActionListener.setInterval(200000);
+        sim.integrator.getEventManager().addListener(outputActionListener);
        
-       sim.activityIntegrate.setMaxSteps(numSteps);
-       sim.getController().actionPerformed();
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().actionPerformed();
         
-       try {
-    	   fileWriterSimBen.close();
-       } catch(IOException e){
-    	   
-       }
+        try {
+    	    fileWriterSimBen.close();
+        } catch(IOException e){ }
     }
 
     private static final long serialVersionUID = 1L;

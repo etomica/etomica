@@ -36,7 +36,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -49,6 +48,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -94,14 +94,16 @@ public class LjmdGraphic extends SimulationGraphic {
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
-        sim.integrator.addIntervalAction(rdfMeter);
-        sim.integrator.setActionInterval(rdfMeter, 10);
+        IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
+        sim.integrator.getEventManager().addListener(rdfMeterListener);
+        rdfMeterListener.setInterval(10);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(rdfPump);
-        sim.integrator.setActionInterval(rdfPump, 10);
+        IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
+        sim.integrator.getEventManager().addListener(rdfPumpListener);
+        rdfPumpListener.setInterval(10);
         dataStreamPumps.add(rdfPump);
         
         rdfPlot.setDoLegend(false);
@@ -122,8 +124,9 @@ public class LjmdGraphic extends SimulationGraphic {
         meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
-        sim.integrator.addIntervalAction(velocityPump);
-        sim.integrator.setActionInterval(velocityPump, 10);
+        IntegratorListenerAction velocityPumpListener = new IntegratorListenerAction(velocityPump);
+        sim.integrator.getEventManager().addListener(velocityPumpListener);
+        velocityPumpListener.setInterval(10);
         rmsAverage.setPushInterval(10);
         dataStreamPumps.add(velocityPump);
         
@@ -153,8 +156,9 @@ public class LjmdGraphic extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
-        sim.integrator.addIntervalAction(temperaturePump);
-        sim.integrator.setActionInterval(temperaturePump, 10);
+        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
+        sim.integrator.getEventManager().addListener(temperaturePumpListener);
+        temperaturePumpListener.setInterval(10);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
 		final DisplayTextBox tBox = new DisplayTextBox();
@@ -173,8 +177,9 @@ public class LjmdGraphic extends SimulationGraphic {
         densityMeter.setBox(sim.box);
 	    final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
-        sim.integrator.addIntervalAction(densityPump);
-        sim.integrator.setActionInterval(densityPump, 10);
+        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
+        sim.integrator.getEventManager().addListener(densityPumpListener);
+        densityPumpListener.setInterval(10);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Number Density");
 	    
@@ -182,8 +187,9 @@ public class LjmdGraphic extends SimulationGraphic {
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
-        sim.integrator.addIntervalAction(energyPump);
-        sim.integrator.setActionInterval(energyPump, 60);
+        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+        sim.integrator.getEventManager().addListener(energyPumpListener);
+        energyPumpListener.setInterval(60);
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 		
@@ -195,8 +201,9 @@ public class LjmdGraphic extends SimulationGraphic {
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
-        sim.integrator.addIntervalAction(pePump);
-        sim.integrator.setActionInterval(pePump, 60);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        sim.integrator.getEventManager().addListener(pePumpListener);
+        pePumpListener.setInterval(60);
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
 		
@@ -209,8 +216,9 @@ public class LjmdGraphic extends SimulationGraphic {
         keFork.addDataSink(keHistory);
         final AccumulatorAverage keAvg = new AccumulatorAverageCollapsing();
         keFork.addDataSink(keAvg);
-        sim.integrator.addIntervalAction(kePump);
-        sim.integrator.setActionInterval(kePump, 60);
+        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
+        sim.integrator.getEventManager().addListener(kePumpListener);
+        kePumpListener.setInterval(60);
         keHistory.setPushInterval(5);
         dataStreamPumps.add(kePump);
         
@@ -232,7 +240,7 @@ public class LjmdGraphic extends SimulationGraphic {
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         final DataPump pPump = new DataPump(pMeter, tracer);
         tracer.setDataSink(pAccumulator);
-        sim.integrator.addIntervalAction(pPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
 
@@ -255,8 +263,9 @@ public class LjmdGraphic extends SimulationGraphic {
             }
         };
             
-        sim.integrator.addIntervalAction(mbAction);
-        sim.integrator.setActionInterval(mbAction, 100);
+        IntegratorListenerAction mbActionListener = new IntegratorListenerAction(mbAction);
+        sim.integrator.getEventManager().addListener(mbActionListener);
+        mbActionListener.setInterval(100);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);

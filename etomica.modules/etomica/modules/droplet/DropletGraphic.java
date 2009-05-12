@@ -31,6 +31,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
@@ -88,8 +89,9 @@ public class DropletGraphic extends SimulationGraphic {
             }
             final IVectorMutable center = sim.getSpace().makeVector();
         };
-        sim.integrator.addIntervalAction(recenterAction);
-        sim.integrator.setActionInterval(recenterAction, 10);
+        IntegratorListenerAction recenterActionListener = new IntegratorListenerAction(recenterAction);
+        sim.integrator.getEventManager().addListener(recenterActionListener);
+        recenterActionListener.setInterval(10);
 
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
@@ -217,7 +219,7 @@ public class DropletGraphic extends SimulationGraphic {
         DataSplitter splitter = new DataSplitter();
         DataPump deformationPump = new DataPump(sim.meterDeformation, splitter);
         dataStreamPumps.add(deformationPump);
-        sim.integrator.addIntervalAction(deformationPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(deformationPump));
 
         DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
         

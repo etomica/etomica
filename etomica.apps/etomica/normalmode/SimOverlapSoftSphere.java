@@ -25,8 +25,8 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
@@ -204,18 +204,19 @@ public class SimOverlapSoftSphere extends Simulation {
         
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
             	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
             		
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 100);
+            	    pumpListener.setInterval(100);
             	
             	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
                 
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 300);
+            	    pumpListener.setInterval(300);
             	} else 
             		
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
+            	    pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {
@@ -440,8 +441,9 @@ public class SimOverlapSoftSphere extends Simulation {
         	}
         };
         
-		sim.integratorOverlap.addIntervalAction(output);
-	    sim.integratorOverlap.setActionInterval(output, (int)numSteps/200);
+        IntegratorListenerAction outputListener = new IntegratorListenerAction(output);
+        outputListener.setInterval((int)numSteps/200);
+		sim.integratorOverlap.getEventManager().addListener(outputListener);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();

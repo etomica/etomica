@@ -16,6 +16,7 @@ import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -87,8 +88,8 @@ public class GEMCWithRotation extends Simulation {
 
         potentialMaster.addPotential(potential,new IAtomType[] {species.getLeafType(), species.getLeafType()});
 
-        integratorMC1.addIntervalAction(new BoxImposePbc(box1, space));
-        integratorMC2.addIntervalAction(new BoxImposePbc(box2, space));
+        integratorMC1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box1, space)));
+        integratorMC2.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box2, space)));
 
         BoxInflate inflater = new BoxInflate(box2, space);
         inflater.setTargetDensity(0.1);

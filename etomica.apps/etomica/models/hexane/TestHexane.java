@@ -17,6 +17,8 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
+import etomica.listener.IntegratorListenerAction;
+import etomica.listener.IntegratorListenerGroupSeries;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
@@ -279,10 +281,11 @@ public class TestHexane extends Simulation {
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
-            sim.integrator.addIntervalAction(meterNormalMode);
-//            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
-            sim.integrator.setActionInterval(meterNormalMode, 10000);
-            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
+            IntegratorListenerGroupSeries listenerGroup = new IntegratorListenerGroupSeries();
+            
+            IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+            meterListener.setInterval(10000);
+            listenerGroup.addListener(meterListener);
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
 //            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
@@ -298,10 +301,11 @@ public class TestHexane extends Simulation {
             sWriter.setMeter(meterNormalMode);
             sWriter.setWaveVectorFactory(waveVectorFactory);
             sWriter.setTemperature(sim.integrator.getTemperature());
-        
-            sim.integrator.addIntervalAction(sWriter);
-            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-            sim.integrator.setIntervalActionPriority(sWriter, 150);
+            
+            IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+            sWriterListener.setInterval((int)nSteps/10);
+            listenerGroup.addListener(sWriterListener);
+            sim.integrator.getEventManager().addListener(listenerGroup);
             
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();

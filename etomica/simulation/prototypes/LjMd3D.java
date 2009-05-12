@@ -16,6 +16,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -62,7 +63,7 @@ public class LjMd3D extends Simulation {
         integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
-        integrator.addIntervalAction(imposepbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 		
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
@@ -71,8 +72,9 @@ public class LjMd3D extends Simulation {
         avgEnergy = new AccumulatorAverageCollapsing();
         avgEnergy.setPushInterval(10);
         pump = new DataPump(energy, avgEnergy);
-        integrator.addIntervalAction(pump);
-        integrator.setActionInterval(pump, 10);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(10);
+        integrator.getEventManager().addListener(pumpListener);
     }
 
     public static class Applet extends javax.swing.JApplet {

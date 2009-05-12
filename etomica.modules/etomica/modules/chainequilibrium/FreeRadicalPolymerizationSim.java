@@ -15,6 +15,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -62,7 +63,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
         addBox(box);
         integratorHard.setBox(box);
-        integratorHard.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integratorHard.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)));
         
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);

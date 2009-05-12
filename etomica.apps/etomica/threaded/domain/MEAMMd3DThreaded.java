@@ -29,6 +29,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.meam.DataProcessorCvMD;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
@@ -177,7 +178,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
         potentialMaster.setRange(potentialThreaded.getRange()*1.1);
         potentialMaster.setCriterion(potentialThreaded, new CriterionSimple(this, space, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)));
         
         
         integrator.setBox(box);
@@ -241,8 +242,8 @@ public class MEAMMd3DThreaded extends Simulation {
     	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
     	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
 
-        sim.integrator.addIntervalAction(energyPump);
-    	sim.integrator.addIntervalAction(kineticPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
+    	sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();

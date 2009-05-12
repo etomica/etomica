@@ -5,6 +5,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.P2MoleculeMonatomic;
 import etomica.potential.P2SoftSphere;
@@ -246,8 +247,9 @@ public class SingleAssociationSiteFluid4Points {
                 System.out.println("abs average: "+ratio*HSB[nBody]+", error: "+error*HSB[nBody]);
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(numSteps/10));
+        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+        progressReportListener.setInterval((int)(numSteps/10));
+        sim.integratorOS.getEventManager().addListener(progressReportListener);
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(numSteps);

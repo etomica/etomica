@@ -26,6 +26,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -66,7 +67,7 @@ public class MEAM_MC extends Simulation {
 	    energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
 	    DataPump energyPump = new DataPump(energyMeter,energyAccumulator);
 	    //energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalAction(energyPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
 
 	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space, sim.getController());
         simgraphic.getController().getDataStreamPumps().add(energyPump);
@@ -170,7 +171,7 @@ public class MEAM_MC extends Simulation {
 	    integrator.setBox(box);
 	    BoxImposePbc imposepbc = new BoxImposePbc(space);
 	    imposepbc.setBox(box);
-	    integrator.addIntervalAction(imposepbc);
+	    integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 			
 	    // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
 	    //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");

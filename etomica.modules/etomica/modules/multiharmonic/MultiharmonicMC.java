@@ -2,12 +2,10 @@ package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IController;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -16,6 +14,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -62,13 +61,13 @@ public class MultiharmonicMC extends Simulation {
         meter.setBox(box);
         accumulator = new AccumulatorAverageCollapsing();
         dataPump = new DataPump(meter, accumulator);
-        integrator.addIntervalAction(dataPump);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
         
         meterEnergy = new MeterPotentialEnergy(potentialMaster);
         meterEnergy.setBox(box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
-        integrator.addIntervalAction(dataPumpEnergy);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
         
         historyEnergy = new AccumulatorHistory(new HistoryCollapsing(102, 3));
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});

@@ -32,7 +32,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.math.SpecialFunctions;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -219,18 +219,19 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
             	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
             		
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 500);
+            	    pumpListener.setInterval(500);
             	
             	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
                 
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1000);
+            	    pumpListener.setInterval(1000);
             	} else 
             		
-            		integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
+            	    pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {
@@ -439,8 +440,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         final AccumulatorAverageFixed dataAverageBoltzmannHarmonic = new AccumulatorAverageFixed(1);
         DataPump pumpBoltzmannHarmonic = new DataPump(boltzmannDirectSampling[0], dataAverageBoltzmannHarmonic);
         
-        sim.integrators[0].addIntervalAction(pumpBoltzmannHarmonic);
-        sim.integrators[0].setActionInterval(pumpBoltzmannHarmonic, 1);
+        IntegratorListenerAction pumpBoltzmannHarmonicListener = new IntegratorListenerAction(pumpBoltzmannHarmonic);
+        pumpBoltzmannHarmonicListener.setInterval(1);
+        sim.integrators[0].getEventManager().addListener(pumpBoltzmannHarmonicListener);
         
         // Work Harmonic --> Target
         MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMasterTarget);
@@ -453,8 +455,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         
         final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed(1);
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
-        sim.integrators[0].addIntervalAction(pumpHarmonic);
-        sim.integrators[0].setActionInterval(pumpHarmonic, 1);
+        IntegratorListenerAction pumpHarmonicListener = new IntegratorListenerAction(pumpHarmonic);
+        pumpHarmonicListener.setInterval(1);
+        sim.integrators[0].getEventManager().addListener(pumpHarmonicListener);
        
         //Histogram Work Harmonic ---> Target
         final AccumulatorHistogram histogramHarmonicTarget = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-50, 200)));
@@ -479,8 +482,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         final AccumulatorAverageFixed dataAverageBoltzmannTarget = new AccumulatorAverageFixed();
         DataPump pumpBoltzmannTarget = new DataPump(boltzmannDirectSampling[1], dataAverageBoltzmannTarget);
         
-        sim.integrators[1].addIntervalAction(pumpBoltzmannTarget);
-        sim.integrators[1].setActionInterval(pumpBoltzmannTarget, 1);
+        IntegratorListenerAction pumpBoltzmannTargetListener = new IntegratorListenerAction(pumpBoltzmannTarget);
+        pumpBoltzmannTargetListener.setInterval(1);
+        sim.integrators[1].getEventManager().addListener(pumpBoltzmannTargetListener);
         
         // Work Target --> Harmonic
         MeterWorkTargetPhaseSpace meterWorkTarget =  new MeterWorkTargetPhaseSpace(sim.integratorTarget, sim.meterHarmonicEnergy);
@@ -492,8 +496,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         
         final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed(1);
         dataForkTarget.addDataSink(dataAverageTarget);
-        sim.integrators[1].addIntervalAction(pumpTarget);
-        sim.integrators[1].setActionInterval(pumpTarget, 1);
+        IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpTarget);
+        pumpTargetListener.setInterval(1);
+        sim.integrators[1].getEventManager().addListener(pumpTargetListener);
         
         //Histogram Work Target ---> Harmonic
         final AccumulatorHistogram histogramTargetHarmonic = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-50, 200)));
@@ -505,8 +510,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         
         final AccumulatorAverage pressureTargetAverage = new AccumulatorAverageCollapsing();
         DataPump pumpPressureTarget = new DataPump(meterPressureTarget, pressureTargetAverage);
-        sim.integrators[1].addIntervalAction(pumpPressureTarget);
-        sim.integrators[1].setActionInterval(pumpPressureTarget, 100);
+        IntegratorListenerAction pumpPressureTargetListener = new IntegratorListenerAction(pumpPressureTarget);
+        pumpPressureTargetListener.setInterval(100);
+        sim.integrators[1].getEventManager().addListener(pumpPressureTargetListener);
         // end of Target
     
         
@@ -526,8 +532,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
          final AccumulatorAverageFixed dataAverageHarmonicBennet = new AccumulatorAverageFixed(1);
           
          dataForkHarmonicBennet.addDataSink(dataAverageHarmonicBennet);
-         sim.integrators[0].addIntervalAction(pumpHarmonicBennet);
-         sim.integrators[0].setActionInterval(pumpHarmonicBennet, 1);
+         IntegratorListenerAction pumpHarmonicBennetListener = new IntegratorListenerAction(pumpHarmonicBennet);
+         pumpHarmonicBennetListener.setInterval(1);
+         sim.integrators[0].getEventManager().addListener(pumpHarmonicBennetListener);
         
          //Histogram Harmonic--> Bennett's
          final AccumulatorHistogram histogramHarmonicBenn = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-50,200)));
@@ -546,8 +553,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
          final AccumulatorAverageFixed dataAverageTargetBennet = new AccumulatorAverageFixed();
         
          dataForkTargetBennet.addDataSink(dataAverageTargetBennet);
-         sim.integrators[1].addIntervalAction(pumpTargetBennet);
-         sim.integrators[1].setActionInterval(pumpTargetBennet, numMolecules*2);
+         IntegratorListenerAction pumpTargetBennetListener = new IntegratorListenerAction(pumpTargetBennet);
+         pumpTargetBennetListener.setInterval(numMolecules*2);
+         sim.integrators[1].getEventManager().addListener(pumpTargetBennetListener);
         
          
          
@@ -803,15 +811,15 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 
         	
         };
-        
-        sim.integratorOverlap.addIntervalAction(outputActionOverlap);
-        sim.integratorOverlap.setActionInterval(outputActionOverlap, 100); //100
-        
-        sim.integrators[0].addIntervalAction(outputActionHarmonic);
-        sim.integrators[0].setActionInterval(outputActionHarmonic, 10000); //2000
-        
-        sim.integrators[1].addIntervalAction(outputActionTarget);
-        sim.integrators[1].setActionInterval(outputActionTarget, 100000); //8000
+        IntegratorListenerAction outputActionOverlapListener = new IntegratorListenerAction(outputActionOverlap);
+        outputActionOverlapListener.setInterval(100);
+        sim.integratorOverlap.getEventManager().addListener(outputActionOverlapListener);
+        IntegratorListenerAction outputActionHarmonicListener = new IntegratorListenerAction(outputActionHarmonic);
+        outputActionHarmonicListener.setInterval(10000);
+        sim.integrators[0].getEventManager().addListener(outputActionHarmonicListener);
+        IntegratorListenerAction outputActionTargetListener = new IntegratorListenerAction(outputActionTarget);
+        outputActionTargetListener.setInterval(100000);
+        sim.integrators[1].getEventManager().addListener(outputActionTargetListener);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();

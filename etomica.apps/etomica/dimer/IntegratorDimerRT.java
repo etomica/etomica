@@ -21,9 +21,9 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
@@ -307,7 +307,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box2);
 		
 		if(potentialMaster instanceof PotentialMasterListDimer){
-		   this.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box1)); 
+		   this.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box1))); 
 		}
 		
 		energyBox0 = new MeterPotentialEnergy(potentialMaster);

@@ -28,6 +28,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.space.ISpace;
@@ -81,8 +82,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    boxB.setLabel("# Green Atoms");
 	    final DataPump meterAPump = new DataPump(meterA,boxA);
 	    final DataPump meterBPump = new DataPump(meterB,boxB);
-        sim.integratorDCV.addIntervalAction(meterAPump);
-        sim.integratorDCV.addIntervalAction(meterBPump);
+        sim.integratorDCV.getEventManager().addListener(new IntegratorListenerAction(meterAPump));
+        sim.integratorDCV.getEventManager().addListener(new IntegratorListenerAction(meterBPump));
 	    meterAPump.actionPerformed();
 	    meterBPump.actionPerformed();
 
@@ -124,8 +125,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    //Display to see adjusted temperature
 		DisplayTextBox box1 = new DisplayTextBox(sim.thermometer.getDataInfo());
 	    final DataPump tpump = new DataPump(sim.thermometer, box1);
-        sim.integratorDCV.addIntervalAction(tpump);
-		sim.integratorDCV.setActionInterval(tpump, 100);
+	    IntegratorListenerAction tpumpListener = new IntegratorListenerAction(tpump);
+        sim.integratorDCV.getEventManager().addListener(tpumpListener);
+        tpumpListener.setInterval(100);
 	    box1.setUnit((Kelvin.UNIT));
 	    box1.setLabel("Measured Temperature");
 		temperatureSlider.setSliderPostAction(new IAction() {

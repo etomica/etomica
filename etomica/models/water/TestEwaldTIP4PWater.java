@@ -25,6 +25,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
 import etomica.potential.P2LennardJones;
@@ -105,7 +106,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         configuration.initializeCoordinates(box);
         
         integrator.setBox(box);
-        integrator.addIntervalAction(imposePBC);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposePBC));
 		
 	}
 	
@@ -125,8 +126,9 @@ public class TestEwaldTIP4PWater extends Simulation {
 		DataPump PEpump = new DataPump(meterPE, PEbox);
 		dataStreamPumps.add(PEpump);
 		
-	    sim.integrator.addIntervalAction(PEpump);
-	    sim.integrator.setActionInterval(PEpump, 1);
+		IntegratorListenerAction pumpListener = new IntegratorListenerAction(PEpump);
+		pumpListener.setInterval(1);
+	    sim.integrator.getEventManager().addListener(pumpListener);
 		
 	    simGraphic.add(PEbox);
 	    //////////////////////////////////////////////////////////

@@ -14,6 +14,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -97,7 +98,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        integratorHard1.addIntervalAction(new BoxImposePbc(box, space));
+        integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 	}
     
     public Class getAgentClass() {

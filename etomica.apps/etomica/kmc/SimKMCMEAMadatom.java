@@ -24,6 +24,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
@@ -318,7 +319,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
-        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
+        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -346,7 +347,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorKMCCluster.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorKMCCluster.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

@@ -30,6 +30,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
@@ -356,7 +357,7 @@ public class SimDimerMEAMGB extends Simulation{
         integratorMD.setBox(box);
         //pcGB = new PotentialCalculationForcePressureSumGB(space, box);
         //integratorMD.setForceSum(pcGB);
-        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        integratorMD.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -379,7 +380,7 @@ public class SimDimerMEAMGB extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
+        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -390,7 +391,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space);
         integratorDimerMin.setBox(box);
-        integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box)); 
+        integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box))); 
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);
@@ -506,7 +507,7 @@ public class SimDimerMEAMGB extends Simulation{
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));        
         simGraphic.add(plotPE);
         
-        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorMD.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
         
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
 

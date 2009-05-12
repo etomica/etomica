@@ -9,6 +9,7 @@ import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
+import etomica.listener.IntegratorListenerAction;
 import etomica.space.ISpace;
 import etomica.units.Undefined;
 
@@ -32,15 +33,20 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
         super("Mean square displacement", Undefined.DIMENSION);
+        throw new RuntimeException("MeterMeanSquareDisplacement class is currently unusable.");
+/*
         this.space = space;
         this.integrator = integrator;
         setIterator(iter);
         BeforePbc beforePbc = new BeforePbc(this);
-        integrator.addIntervalAction(beforePbc);
-        integrator.setIntervalActionPriority(beforePbc, 50);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(beforePbc));
+        // FIX THIS
+//        integrator.setIntervalActionPriority(beforePbc, 50);
         AfterPbc afterPbc = new AfterPbc(this);
-        integrator.addIntervalAction(afterPbc);
-        integrator.setIntervalActionPriority(afterPbc, 200);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(afterPbc));
+        // FIX THIS
+//        integrator.setIntervalActionPriority(afterPbc, 200);
+*/
     }
     
     public static EtomicaInfo getEtomicaInfo() {

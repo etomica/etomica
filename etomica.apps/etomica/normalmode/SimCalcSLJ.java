@@ -12,6 +12,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -142,8 +143,9 @@ public class SimCalcSLJ extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        sim.integrator.addIntervalAction(meterNormalMode);
-        sim.integrator.setActionInterval(meterNormalMode, nA);
+        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+        meterListener.setInterval(nA);
+        sim.integrator.getEventManager().addListener(meterListener);
 
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
@@ -182,8 +184,9 @@ public class SimCalcSLJ extends Simulation {
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
-        sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, (int)simSteps/10);
+        IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+        sWriterListener.setInterval((int)simSteps/10);
+        sim.integrator.getEventManager().addListener(sWriterListener);
         
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();

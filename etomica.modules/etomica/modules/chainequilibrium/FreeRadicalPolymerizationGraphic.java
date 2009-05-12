@@ -36,6 +36,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
@@ -124,8 +125,9 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         tPlot.getPlot().setYLabel("Temperature (K)");
         tPlot.setDoLegend(false);
         add(tPlot);
-        sim.integratorHard.addIntervalAction(tPump);
-        sim.integratorHard.setActionInterval(tPump, dataInterval);
+        IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
+        sim.integratorHard.getEventManager().addListener(tPumpListener);
+        tPumpListener.setInterval(dataInterval);
 
         final MeterChainLength molecularCount = new MeterChainLength(sim.agentManager);
         molecularCount.setIgnoredAtomType(sim.speciesA.getLeafType());
@@ -136,8 +138,9 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         final DataPump mwPump = new DataPump(molecularCount,mwFork);
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(mwPump);
-        sim.integratorHard.addIntervalAction(mwPump);
-        sim.integratorHard.setActionInterval(mwPump, dataInterval);
+        IntegratorListenerAction mwPumpListener = new IntegratorListenerAction(mwPump);
+        sim.integratorHard.getEventManager().addListener(mwPumpListener);
+        mwPumpListener.setInterval(dataInterval);
         
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
@@ -167,8 +170,9 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         AccumulatorHistory conversionHistoryAcc = new AccumulatorHistory(conversionHistory);
         conversionHistoryAcc.setTimeDataSource(timer);
         final DataPump conversionPump = new DataPump(reactionConversion, conversionHistoryAcc);
-        sim.integratorHard.addIntervalAction(conversionPump);
-        sim.integratorHard.setActionInterval(conversionPump, dataInterval);
+        IntegratorListenerAction conversionPumpListener = new IntegratorListenerAction(conversionPump);
+        sim.integratorHard.getEventManager().addListener(conversionPumpListener);
+        conversionPumpListener.setInterval(dataInterval);
         dataStreamPumps.add(conversionPump);
 
         final IAction resetData = new IAction() {

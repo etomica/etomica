@@ -21,6 +21,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMasterMonatomic;
@@ -88,7 +89,7 @@ public class HSMD2D_noNbr extends Simulation {
         MeterTemperature meterTemperature = new MeterTemperature(box, space.D());
         temperatureAverage = new AccumulatorAverageCollapsing();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
-        integrator.addIntervalAction(temperaturePump);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(temperaturePump));
 
 //        pressureHistory = new AccumulatorHistory();
 //        pressureAverage.makeDataPusher(
@@ -128,7 +129,7 @@ public class HSMD2D_noNbr extends Simulation {
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);
 
-        sim.integrator.addIntervalAction(repaintAction);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(repaintAction));
 
         DeviceThermoSlider thermo = new DeviceThermoSlider(sim.getController());
         thermo.setIntegrator(sim.integrator);

@@ -34,6 +34,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
@@ -121,8 +122,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         tPlot.getPlot().setYLabel("Temperature (K)");
         tPlot.setDoLegend(false);
         add(tPlot);
-        sim.integratorHard.addIntervalAction(tPump);
-        sim.integratorHard.setActionInterval(tPump, dataInterval);
+        IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
+        sim.integratorHard.getEventManager().addListener(tPumpListener);
+        tPumpListener.setInterval(dataInterval);
 
         final MeterChainLength molecularCount = new MeterChainLength(sim.agentManager);
         molecularCount.setBox(sim.box);
@@ -132,8 +134,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         final DataPump mwPump = new DataPump(molecularCount,mwFork);
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(mwPump);
-        sim.integratorHard.addIntervalAction(mwPump);
-        sim.integratorHard.setActionInterval(mwPump, dataInterval);
+        IntegratorListenerAction mwPumpListener = new IntegratorListenerAction(mwPump);
+        sim.integratorHard.getEventManager().addListener(mwPumpListener);
+        mwPumpListener.setInterval(dataInterval);
         
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
@@ -163,8 +166,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AccumulatorHistory conversionHistoryAccDiol = new AccumulatorHistory(conversionHistoryDiol);
         conversionHistoryAccDiol.setTimeDataSource(timer);
         final DataPump conversionPumpDiol = new DataPump(reactionConversionDiol, conversionHistoryAccDiol);
-        sim.integratorHard.addIntervalAction(conversionPumpDiol);
-        sim.integratorHard.setActionInterval(conversionPumpDiol, dataInterval);
+        IntegratorListenerAction conversionPumpDiolListener = new IntegratorListenerAction(conversionPumpDiol);
+        sim.integratorHard.getEventManager().addListener(conversionPumpDiolListener);
+        conversionPumpDiolListener.setInterval(dataInterval);
         dataStreamPumps.add(conversionPumpDiol);
 
         MeterConversion reactionConversionAcid = new MeterConversion(sim.box, sim.agentManager);
@@ -173,8 +177,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AccumulatorHistory conversionHistoryAccAcid = new AccumulatorHistory(conversionHistoryAcid);
         conversionHistoryAccAcid.setTimeDataSource(timer);
         final DataPump conversionPumpAcid = new DataPump(reactionConversionAcid, conversionHistoryAccAcid);
-        sim.integratorHard.addIntervalAction(conversionPumpAcid);
-        sim.integratorHard.setActionInterval(conversionPumpAcid, dataInterval);
+        IntegratorListenerAction conversionPumpAcidListener = new IntegratorListenerAction(conversionPumpAcid);
+        sim.integratorHard.getEventManager().addListener(conversionPumpAcidListener);
+        conversionPumpAcidListener.setInterval(dataInterval);
         dataStreamPumps.add(conversionPumpAcid);
 
         final IAction resetData = new IAction() {

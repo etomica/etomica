@@ -25,6 +25,7 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.CellLattice;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
@@ -209,8 +210,9 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         DataPump pePump = new DataPump(meterPE, foo);
         foo.setDataSink(peFork);
         dataStreamPumps.add(pePump);
-        sim.integrator.addIntervalAction(pePump);
-        sim.integrator.setActionInterval(pePump, 10);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        sim.integrator.getEventManager().addListener(pePumpListener);
+        pePumpListener.setInterval(10);
         AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         peFork.addDataSink(peHistory);
         peHistory.setTimeDataSource(timeCounter);
@@ -257,8 +259,9 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         DataSplitter dSplitter = new DataSplitter();
         DataPump dPump = new DataPump(meterDeformation, dSplitter);
         dataStreamPumps.add(dPump);
-        sim.integrator.addIntervalAction(dPump);
-        sim.integrator.setActionInterval(dPump, 10);
+        IntegratorListenerAction dPumpListener = new IntegratorListenerAction(dPump);
+        sim.integrator.getEventManager().addListener(dPumpListener);
+        dPumpListener.setInterval(10);
         
         DataFork dFork = new DataFork();
         dSplitter.setDataSink(1, dFork);

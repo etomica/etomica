@@ -13,11 +13,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.api.ISimulation;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -58,7 +58,7 @@ public class HSMD3DNoNbr extends Simulation {
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setBox(box);
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);

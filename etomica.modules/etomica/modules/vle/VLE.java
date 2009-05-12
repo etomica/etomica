@@ -16,6 +16,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
 import etomica.units.Angstrom;
@@ -141,8 +142,9 @@ public class VLE extends SimulationGraphic {
         AccumulatorHistory historyDensityLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
         historyDensityLiquid.setTimeDataSource(stepCounter);
         fork.addDataSink(historyDensityLiquid);
-        sim.integratorLiquid.addIntervalAction(pumpLiquidDensity);
-        sim.integratorLiquid.setActionInterval(pumpLiquidDensity, 100);
+        IntegratorListenerAction pumpLiquidDensityListener = new IntegratorListenerAction(pumpLiquidDensity);
+        sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensityListener);
+        pumpLiquidDensityListener.setInterval(100);
         
         MeterDensity meterDensityVapor = new MeterDensity(sim.getSpace());
         meterDensityVapor.setBox(sim.boxVapor);
@@ -157,8 +159,9 @@ public class VLE extends SimulationGraphic {
         AccumulatorHistory historyDensityVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));
         historyDensityVapor.setTimeDataSource(stepCounter);
         fork.addDataSink(historyDensityVapor);
-        sim.integratorVapor.addIntervalAction(pumpVaporDensity);
-        sim.integratorVapor.setActionInterval(pumpVaporDensity, 100);
+        IntegratorListenerAction pumpVaporDensityListener = new IntegratorListenerAction(pumpVaporDensity);
+        sim.integratorVapor.getEventManager().addListener(pumpVaporDensityListener);
+        pumpVaporDensityListener.setInterval(100);
         
 
 //        DisplayPlot liquidDensityHistogramPlot = new DisplayPlot();
@@ -209,16 +212,18 @@ public class VLE extends SimulationGraphic {
             AccumulatorHistory historyNMoleculesLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
             historyNMoleculesLiquid.setTimeDataSource(stepCounter);
             DataPump pumpNMoleculesLiquid = new DataPump(meterNMoleculesLiquid, historyNMoleculesLiquid);
-            sim.integratorLiquid.addIntervalAction(pumpNMoleculesLiquid);
-            sim.integratorLiquid.setActionInterval(pumpNMoleculesLiquid, 100);
+            IntegratorListenerAction pumpNMoleculesLiquidListener = new IntegratorListenerAction(pumpNMoleculesLiquid);
+            sim.integratorLiquid.getEventManager().addListener(pumpNMoleculesLiquidListener);
+            pumpNMoleculesLiquidListener.setInterval(100);
             getController().getDataStreamPumps().add(pumpNMoleculesLiquid);
             MeterNMolecules meterNMoleculesVapor = new MeterNMolecules();
             meterNMoleculesVapor.setBox(sim.boxVapor);
             AccumulatorHistory historyNMoleculesVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));
             historyNMoleculesVapor.setTimeDataSource(stepCounter);
             DataPump pumpNMoleculesVapor = new DataPump(meterNMoleculesVapor, historyNMoleculesVapor);
-            sim.integratorVapor.addIntervalAction(pumpNMoleculesVapor);
-            sim.integratorVapor.setActionInterval(pumpNMoleculesVapor, 100);
+            IntegratorListenerAction pumpNMoleculesVaporListener = new IntegratorListenerAction(pumpNMoleculesVapor);
+            sim.integratorVapor.getEventManager().addListener(pumpNMoleculesVaporListener);
+            pumpNMoleculesVaporListener.setInterval(100);
             getController().getDataStreamPumps().add(pumpNMoleculesVapor);
             
             DisplayPlot nMoleculesLiquidHistoryPlot = new DisplayPlot();
@@ -269,8 +274,9 @@ public class VLE extends SimulationGraphic {
         add(displayPressureLiquid);
         historyPressureLiquid.addDataSink(plotHistoryPressure.getDataSet().makeDataSink());
         plotHistoryPressure.setLegend(new DataTag[]{meterPressureLiquid.getTag()}, "Liquid (MPa)");
-        sim.integratorLiquid.addIntervalAction(pumpPressureLiquid);
-        sim.integratorLiquid.setActionInterval(pumpPressureLiquid, 500);
+        IntegratorListenerAction pumpPressureLiquidListener = new IntegratorListenerAction(pumpPressureLiquid);
+        sim.integratorLiquid.getEventManager().addListener(pumpPressureLiquidListener);
+        pumpPressureLiquidListener.setInterval(500);
         
         DisplayTextBoxesCAE displayPressureVapor = new DisplayTextBoxesCAE();
         displayPressureVapor.setUnit(new PrefixedUnit(Prefix.MEGA, Pascal.UNIT));
@@ -280,8 +286,9 @@ public class VLE extends SimulationGraphic {
         historyPressureVapor.addDataSink(plotHistoryPressure.getDataSet().makeDataSink());
         plotHistoryPressure.setLegend(new DataTag[]{meterPressureVapor.getTag()}, "Vapor (MPa)");
         add(plotHistoryPressure);
-        sim.integratorVapor.addIntervalAction(pumpPressureVapor);
-        sim.integratorVapor.setActionInterval(pumpPressureVapor, 500);
+        IntegratorListenerAction pumpPressureVaporListener = new IntegratorListenerAction(pumpPressureVapor);
+        sim.integratorVapor.getEventManager().addListener(pumpPressureVaporListener);
+        pumpPressureVaporListener.setInterval(500);
     }
     
     public static void main(String[] args) {

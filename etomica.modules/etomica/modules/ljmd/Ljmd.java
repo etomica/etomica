@@ -8,6 +8,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -61,7 +62,7 @@ public class Ljmd extends Simulation {
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
 
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
     }
     
     public static void main(String[] args) {

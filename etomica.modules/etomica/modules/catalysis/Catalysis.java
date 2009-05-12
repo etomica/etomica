@@ -11,6 +11,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
@@ -74,7 +75,7 @@ public class Catalysis extends Simulation {
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
 
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
     
     public static void main(String[] args) {

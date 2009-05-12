@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -173,8 +174,9 @@ public class TestMCMoveCompareSingleMode extends Simulation {
         mnm.setBox(sim.box);
         mnm.reset();
         
-        sim.integrator.addIntervalAction(mnm);
-        sim.integrator.setActionInterval(mnm, 2);
+        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
+        mnmListener.setInterval(2);
+        sim.integrator.getEventManager().addListener(mnmListener);
         
         ((Controller)sim.getController()).actionPerformed();
         

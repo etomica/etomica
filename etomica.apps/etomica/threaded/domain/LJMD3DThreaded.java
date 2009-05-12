@@ -11,6 +11,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -103,7 +104,7 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
-        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)));
         potentialMaster.setNumThreads(numThreads, box);
     }
 

@@ -28,6 +28,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -63,8 +64,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         heAccumulator.setPushInterval(10);
         DataFork heFork = new DataFork(new IDataSink[]{heHistory, heAccumulator});
         DataPump hePump = new DataPump(heMeter, heFork);
-        sim.integrator.addIntervalAction(hePump);
-        sim.integrator.setActionInterval(hePump, 60);
+        IntegratorListenerAction hePumpListener = new IntegratorListenerAction(hePump);
+        hePumpListener.setInterval(60);
+        sim.integrator.getEventManager().addListener(hePumpListener);
         heHistory.setPushInterval(5);
 
         final DisplayTextBoxesCAE heDisplay = new DisplayTextBoxesCAE();
@@ -115,9 +117,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         DataPump pePump = new DataPump(sim.meterPE, dataProcessor);
         dataProcessor.setDataSink(peFork);
         
-        
-        sim.integrator.addIntervalAction(pePump);
-        sim.integrator.setActionInterval(pePump, 60);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(hePump);
+        pePumpListener.setInterval(60);
+        sim.integrator.getEventManager().addListener(pePumpListener);
         peHistory.setPushInterval(5);
        
         /*

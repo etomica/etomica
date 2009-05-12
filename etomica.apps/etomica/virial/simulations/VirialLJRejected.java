@@ -16,6 +16,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
@@ -165,8 +166,9 @@ public class VirialLJRejected {
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
             errorBox.setUnit(unit);
-            sim.integratorOS.addIntervalAction(pushAnswer);
-            sim.integratorOS.setActionInterval(pushAnswer, 1);
+            IntegratorListenerAction pushAnswerListener = new IntegratorListenerAction(pushAnswer);
+            pushAnswerListener.setInterval(1);
+            sim.integratorOS.getEventManager().addListener(pushAnswerListener);
             
             return;
         }
@@ -191,8 +193,9 @@ public class VirialLJRejected {
                 System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+        progressReportListener.setInterval((int)(steps/10));
+        sim.integratorOS.getEventManager().addListener(progressReportListener);
         
 //        VirialHistogram virialHistogram = new VirialHistogram(new P2HardSphere(space, sigmaHSRef, false), pTarget, sim.box[1]);
 //        virialHistogram.setBinFac(100);

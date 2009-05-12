@@ -15,6 +15,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -69,7 +70,7 @@ public class DipoleBoxMatrix extends Simulation {
         
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
     }
     
     public static void main(String[] args) {

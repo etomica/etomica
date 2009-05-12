@@ -14,6 +14,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -150,9 +151,9 @@ public class SimulationVirialOverlapRejected extends Simulation {
     public void setMeter(MeterVirialRejected newMeter, int iBox) {
         // we need a new accumulator so nuke the old one now.
         if (accumulatorPumps[iBox] != null) {
-            integrators[iBox].removeIntervalAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().removeListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
             accumulatorPumps[iBox] = new DataPump(newMeter, accumulators[iBox]);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
         }
         if (meters[iBox] != null) {
             integrators[iBox].getMoveEventManager().removeListener(meters[iBox]);
@@ -170,7 +171,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

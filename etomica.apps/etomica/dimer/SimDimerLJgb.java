@@ -23,6 +23,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -74,7 +75,7 @@ public class SimDimerLJgb extends Simulation{
     	integratorMD.setIsothermal(true);
     	integratorMD.setBox(box);
     	activityIntegrateMD = new ActivityIntegrate(integratorMD);
-    	integratorMD.addIntervalAction(imposePbc);
+    	integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
     	
     //SPECIES
     	double sigma = 1.0;
@@ -166,11 +167,11 @@ public class SimDimerLJgb extends Simulation{
 
         simGraphic.add(plotPE);
     	
-        sim.integratorMD.addIntervalAction(energyPump);
-        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorMD.getEventManager().addListener(new IntegratorListenerAction(energyPump));
+        sim.integratorMD.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
         
-        sim.integratorDimer.addIntervalAction(energyPump);
-    	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimer.getEventManager().addListener(new IntegratorListenerAction(energyPump));
+    	sim.integratorDimer.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
     	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());

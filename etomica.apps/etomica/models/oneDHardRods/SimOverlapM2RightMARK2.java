@@ -22,6 +22,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -352,10 +353,11 @@ public class SimOverlapM2RightMARK2 extends Simulation {
 //        System.out.println("setAccumlator set to " + blockSize + " blocksize");
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            pumpListener.setInterval(1);
+            integrators[iBox].getEventManager().addListener(pumpListener);
 //            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
 //                    boxRef.getLeafList().getAtomCount()*2);
-            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

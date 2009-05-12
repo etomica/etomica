@@ -7,6 +7,7 @@ import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -66,7 +67,7 @@ public class TestHSMD3D extends Simulation {
         box.setNMolecules(species2, numAtoms/100);
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addIntervalAction(nbrManager);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(box);

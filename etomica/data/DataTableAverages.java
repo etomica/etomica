@@ -1,8 +1,10 @@
 package etomica.data;
 
-import etomica.action.ActionGroupSeries;
 import etomica.api.IIntegrator;
+import etomica.api.IIntegratorListener;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.listener.IntegratorListenerAction;
+import etomica.listener.IntegratorListenerGroupSeries;
 
 /**
  * Data table that collects the AccumulatorAverage statistics for a collection
@@ -39,8 +41,9 @@ public class DataTableAverages extends DataSinkTable {
         super();
         this.types = types.clone();
         this.integrator = integrator;
-        actionGroup = new ActionGroupSeries();
-        integrator.addIntervalAction(actionGroup);
+        listenerGroup = new IntegratorListenerGroupSeries();
+//        integrator.addIntervalAction(actionGroup);
+        integrator.getEventManager().addListener(listenerGroup);
         this.blockSize = blockSize;
         if (sources != null) {
             for (int i = 0; i < sources.length; i++) {
@@ -55,7 +58,7 @@ public class DataTableAverages extends DataSinkTable {
     public void addDataSource(IEtomicaDataSource newSource) {
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(blockSize);
         DataPump dataPump = new DataPump(newSource, accumulator);
-        actionGroup.addAction(dataPump);
+        listenerGroup.addListener(new IntegratorListenerAction(dataPump));
         accumulator.setPushInterval(tableUpdateInterval);
         accumulator.addDataSink(makeDataSink(),types);
     }
@@ -94,7 +97,7 @@ public class DataTableAverages extends DataSinkTable {
      */
     public void setAccumulatorUpdateInterval(int accumulatorUpdateInterval) {
         this.accumulatorUpdateInterval = accumulatorUpdateInterval;
-        integrator.setActionInterval(actionGroup, accumulatorUpdateInterval);
+        listenerGroup.setInterval(accumulatorUpdateInterval);
     }
 
     /**
@@ -109,7 +112,7 @@ public class DataTableAverages extends DataSinkTable {
     private static final long serialVersionUID = 1L;
     private AccumulatorAverage[] accumulators = new AccumulatorAverage[0];
     private final StatType[] types;
-    private final ActionGroupSeries actionGroup;
+    private final IntegratorListenerGroupSeries listenerGroup;
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
     private int blockSize;

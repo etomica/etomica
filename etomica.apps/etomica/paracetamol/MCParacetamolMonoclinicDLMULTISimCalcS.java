@@ -3,6 +3,7 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfiguration;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.normalmode.WriteS;
@@ -73,8 +74,9 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
        
-        sim.integrator.addIntervalAction(meterNormalMode);
-        sim.integrator.setActionInterval(meterNormalMode, 300);
+        IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
+        meterNormalModeListener.setInterval(300);
+        sim.integrator.getEventManager().addListener(meterNormalModeListener);
     
         //Write S-Vectors
         WriteS sWriter = new WriteS(sim.getSpace());
@@ -84,8 +86,9 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         sWriter.setTemperature(temperature);
         sWriter.setOverwrite(true);
        
-        sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, 1000);
+        IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+        sWriterListener.setInterval(1000);
+        sim.integrator.getEventManager().addListener(sWriterListener);
        
         sim.getController().actionPerformed();
         

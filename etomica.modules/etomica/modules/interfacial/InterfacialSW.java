@@ -7,8 +7,8 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -17,6 +17,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
@@ -133,8 +134,7 @@ public class InterfacialSW extends Simulation {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
         integrator.setBox(box);
-
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
     }
     
     public static void main(String[] args) {

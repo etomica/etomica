@@ -20,6 +20,7 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardPeriodic;
@@ -169,8 +170,9 @@ public class SimTarget extends Simulation {
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setBox(sim.box);
         DataPump pump = new DataPump(harmonicSingleEnergy, null);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 50);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(50);
 
         DataFork harmonicSingleFork = new DataFork();
         pump.setDataSink(harmonicSingleFork);

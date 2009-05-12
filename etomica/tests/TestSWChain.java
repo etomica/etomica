@@ -18,6 +18,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
@@ -93,7 +94,7 @@ public class TestSWChain extends Simulation {
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         box.setNMolecules(species, numMolecules);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addIntervalAction(nbrManager);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
 
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
@@ -114,7 +115,7 @@ public class TestSWChain extends Simulation {
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalAction(energyManager);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
         
         sim.getController().actionPerformed();
         

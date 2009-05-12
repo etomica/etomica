@@ -9,6 +9,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.listener.IntegratorListenerAction;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 
@@ -74,8 +75,8 @@ public class MEAMMd3DforCluster {
     	accumulatorAveragePE.setPushInterval(1);
     	accumulatorAverageKE.setPushInterval(1);
 
-        sim.integrator.addIntervalAction(energyManager);
-        sim.integrator.addIntervalAction(kineticManager);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticManager));
         
         sim.getController().addAction(sim.activityIntegrate);
         sim.activityIntegrate.setMaxSteps(1000000);

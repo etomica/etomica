@@ -17,6 +17,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -94,13 +95,14 @@ public class TestLJMC3D extends Simulation {
         pMeter.setIntegrator(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(10);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
-        sim.integrator.addIntervalAction(pPump);
-        sim.integrator.setActionInterval(pPump,2*numAtoms);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pPump);
+        pumpListener.setInterval(2*numAtoms);
+        sim.integrator.getEventManager().addListener(pumpListener);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalAction(energyManager);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
         
         sim.getController().actionPerformed();
         

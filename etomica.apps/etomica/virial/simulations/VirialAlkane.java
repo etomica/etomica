@@ -24,6 +24,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
@@ -264,7 +265,7 @@ public class VirialAlkane {
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
             errorBox.setUnit(unit);
-            sim.integratorOS.addIntervalAction(pushAnswer);
+            sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
             
             return;
         }

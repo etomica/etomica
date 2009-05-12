@@ -23,6 +23,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
@@ -243,7 +244,7 @@ public class TestHexaneFileConfig extends Simulation {
             AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
             DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
             pressureAccumulator.setBlockSize(50);
-            sim.integrator.addIntervalAction(pressureManager);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pressureManager));
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
@@ -252,9 +253,9 @@ public class TestHexaneFileConfig extends Simulation {
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
-            sim.integrator.addIntervalAction(meterNormalMode);
-            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
-            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
+            IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+            meterListener.setInterval((int)nSteps/10);
+            sim.integrator.getEventManager().addListener(meterListener);
             
 //            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
 //            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));

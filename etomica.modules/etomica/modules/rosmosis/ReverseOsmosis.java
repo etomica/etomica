@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.PotentialMaster;
@@ -135,7 +136,7 @@ public class ReverseOsmosis extends Simulation {
 
 //        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 //        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         forceSum = new PotentialCalculationForceSumWallForce(potentialTether);
         integrator.setForceSum(forceSum);
     }

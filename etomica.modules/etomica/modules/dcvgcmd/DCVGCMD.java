@@ -18,6 +18,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
@@ -201,7 +202,7 @@ public class DCVGCMD extends Simulation {
         integratorMD.setTimeStep(0.005);
         //integrator.setInterval(10);
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integratorMD.addIntervalAction(nbrManager);
+        integratorMD.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
@@ -270,11 +271,11 @@ public class DCVGCMD extends Simulation {
 
         accumulator1 = new AccumulatorAverageFixed();
         profile1pump = new DataPump(profile1, accumulator1);
-        integratorDCV.addIntervalAction(profile1pump);
+        integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile1pump));
 
         accumulator2 = new AccumulatorAverageFixed();
         profile2pump = new DataPump(profile2, accumulator2);
-        integratorDCV.addIntervalAction(profile2pump);
+        integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile2pump));
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }

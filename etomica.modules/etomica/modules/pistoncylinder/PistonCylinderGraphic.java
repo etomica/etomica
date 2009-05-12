@@ -25,8 +25,8 @@ import etomica.api.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -60,6 +60,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.graphics.DeviceBox.LabelType;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
@@ -176,7 +177,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
 
     public void setRepaintInterval(int newRepaintInterval) {
-        pc.integrator.setActionInterval(getPaintAction(pc.box), newRepaintInterval);
+        setPaintInterval(pc.box, newRepaintInterval);
     }
     
     public void setDoFastButton(boolean newDoFastButton) {
@@ -198,7 +199,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         displayBox.setColorScheme(new ColorSchemeByType(simulation));
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
-            pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
+            setPaintInterval(pc.box, 1);
             ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(space, pistonPotential));
         }
         
@@ -563,7 +564,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         meterCycles = new DataSourceCountTime(pc.integrator);
         displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
-        pc.integrator.addIntervalAction(pump);
+        pc.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
         
         //  state panel
@@ -672,8 +673,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new IDataSink[]{temperatureHistory,temperatureAvg}));
         dataStreamPumps.add(pump);
-        pc.integrator.addIntervalAction(pump);
-        pc.integrator.setActionInterval(pump, dataInterval);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pc.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(dataInterval);
         temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setLegend(new DataTag[]{thermometer.getTag()}, "measured");
         temperatureDisplayTextBox.setAccumulator(temperatureAvg);
@@ -688,8 +690,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         targetTemperatureHistory.setTimeDataSource(meterCycles);
         targetTemperatureHistory.getHistory().setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
-        pc.integrator.addIntervalAction(targetTemperatureDataPump);
-        pc.integrator.setActionInterval(targetTemperatureDataPump, dataInterval);
+        IntegratorListenerAction targetTemperatureDataPumpListener = new IntegratorListenerAction(targetTemperatureDataPump);
+        pc.integrator.getEventManager().addListener(targetTemperatureDataPumpListener);
+        targetTemperatureDataPumpListener.setInterval(dataInterval);
         targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         dataStreamPumps.add(targetTemperatureDataPump);
@@ -703,8 +706,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new IDataSink[]{pressureHistory,pressureAvg}));
         dataStreamPumps.add(pump);
-        pc.integrator.addIntervalAction(pump);
-        pc.integrator.setActionInterval(pump, dataInterval);
+        pumpListener = new IntegratorListenerAction(pump);
+        pc.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(dataInterval);
         pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLegend(new DataTag[]{pressureMeter.getTag()}, "measured");
         pressureDisplayTextBox.setAccumulator(pressureAvg);
@@ -719,8 +723,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         targetPressureHistory.setTimeDataSource(meterCycles);
         targetPressureHistory.getHistory().setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
-        pc.integrator.addIntervalAction(pump);
-        pc.integrator.setActionInterval(pump, dataInterval);
+        pumpListener = new IntegratorListenerAction(pump);
+        pc.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         dataStreamPumps.add(pump);
@@ -734,8 +739,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new IDataSink[]{densityAvg, densityHistory}));
         dataStreamPumps.add(pump);
-        pc.integrator.addIntervalAction(pump);
-        pc.integrator.setActionInterval(pump, dataInterval);
+        pumpListener = new IntegratorListenerAction(pump);
+        pc.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(dataInterval);
         densityHistory.addDataSink(plotD.getDataSet().makeDataSink());
         plotD.setLegend(new DataTag[]{densityMeter.getTag()}, "measured");
         densityDisplayTextBox.setAccumulator(densityAvg);
@@ -773,10 +779,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             meterRDF.getXDataSource().setXMax(rdfCutoff);
             meterRDF.setPotential(pistonPotential);
             pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
-            pc.integrator.addIntervalAction(meterRDF);
+            IntegratorListenerAction meterRDFListener = new IntegratorListenerAction(meterRDF);
+            pc.integrator.getEventManager().addListener(meterRDFListener);
             dataStreamPumps.add(pump);
-            pc.integrator.addIntervalAction(pump);
-            pc.integrator.setActionInterval(pump, dataInterval);
+            pc.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
+            meterRDFListener.setInterval(dataInterval);
             final DataPump rdfPump = doRDF ? pump : null;
             
             getController().getResetAveragesButton().setPostAction(new IAction() {
@@ -787,6 +794,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             });
         }
         final DataPump rdfPump = doRDF ? pump : null;
+        final IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
 
         fixPistonButton.setPostAction(new IAction() {
             public void actionPerformed() {
@@ -794,11 +802,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 dataResetAction.actionPerformed();
                 if (doRDF) {
                     if (fixPistonModulator.getBoolean()) {
-                        pc.integrator.addIntervalAction(rdfPump);
-                        pc.integrator.setActionInterval(rdfPump, dataInterval);
+                        pc.integrator.getEventManager().addListener(rdfPumpListener);
+                        rdfPumpListener.setInterval(dataInterval);
                     }
                     else {
-                        pc.integrator.removeIntervalAction(rdfPump);
+                        pc.integrator.getEventManager().removeListener(rdfPumpListener);
                     }
                 }
             }
@@ -853,7 +861,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pressureHistory.setActive(true);
                         targetTemperatureHistory.setActive(true);
                         targetPressureHistory.setActive(true);
-                        pc.integrator.setActionInterval(rdfPump, 10);
+                        rdfPumpListener.setInterval(10);
                     }
                     else {
                         isFast = true;
@@ -866,7 +874,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pressureHistory.setActive(false);
                         targetTemperatureHistory.setActive(false);
                         targetPressureHistory.setActive(false);
-                        pc.integrator.setActionInterval(rdfPump, 10000);
+                        rdfPumpListener.setInterval(10000);
                     }
                 }
                 

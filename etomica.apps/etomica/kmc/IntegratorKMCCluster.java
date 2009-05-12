@@ -16,8 +16,8 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
@@ -28,6 +28,7 @@ import etomica.dimer.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.units.Joule;
@@ -394,7 +395,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin2.setBox(box);
         
         if(potentialMaster instanceof PotentialMasterListDimer){
-            integratorMin2.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
+            integratorMin2.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box))); 
         }
                 
         xyzMin1 = new XYZWriter(box);
@@ -402,14 +403,18 @@ public class IntegratorKMCCluster extends IntegratorBox{
         xyzMin1.setIsAppend(true);
         xyzMin2.setIsAppend(true);
         
-        integratorMin1.addIntervalAction(xyzMin1);
-        integratorMin2.addIntervalAction(xyzMin2);
-        integratorMin1.setActionInterval(xyzMin1, 5);
-        integratorMin2.setActionInterval(xyzMin2, 5);
-        integratorMin1.addIntervalAction(imposePbc);
-        integratorMin2.addIntervalAction(imposePbc);
-        integratorMin1.setActionInterval(imposePbc, 1);
-        integratorMin2.setActionInterval(imposePbc, 1);
+        IntegratorListenerAction xyzMin1Listener = new IntegratorListenerAction(xyzMin1);
+        xyzMin1Listener.setInterval(5);
+        IntegratorListenerAction xyzMin2Listener = new IntegratorListenerAction(xyzMin2);
+        xyzMin2Listener.setInterval(5);
+        integratorMin1.getEventManager().addListener(xyzMin1Listener);
+        integratorMin2.getEventManager().addListener(xyzMin2Listener);
+        IntegratorListenerAction imposePbc1Listener = new IntegratorListenerAction(imposePbc);
+        imposePbc1Listener.setInterval(1);
+        IntegratorListenerAction imposePbc2Listener = new IntegratorListenerAction(imposePbc);
+        imposePbc2Listener.setInterval(1);
+        integratorMin1.getEventManager().addListener(imposePbc1Listener);
+        integratorMin2.getEventManager().addListener(imposePbc2Listener);
         
         //Limit MSD calculation to a specific species
         AtomIterator aif = new AtomIteratorLeafFilteredType(box, species[0].getChildType(0));

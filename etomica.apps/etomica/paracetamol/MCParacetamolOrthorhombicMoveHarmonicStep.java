@@ -12,6 +12,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -321,8 +322,9 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);
         
-        sim.integrator.addIntervalAction(writeConfig);
-        sim.integrator.setActionInterval(writeConfig, 100);
+        IntegratorListenerAction writeConfigListener = new IntegratorListenerAction(writeConfig);
+        writeConfigListener.setInterval(100);
+        sim.integrator.getEventManager().addListener(writeConfigListener);
       
 
  /**********************************************************************/   

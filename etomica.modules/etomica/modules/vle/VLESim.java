@@ -15,9 +15,9 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveRotate;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LJQ;
@@ -105,11 +105,13 @@ public class VLESim extends Simulation {
 
         if (!doNBR) {
             BoxImposePbc pbc = new BoxImposePbc(boxLiquid, space);
-            integratorLiquid.addIntervalAction(pbc);
-            integratorLiquid.setActionInterval(pbc, 100);
+            IntegratorListenerAction pbcListener = new IntegratorListenerAction(pbc);
+            integratorLiquid.getEventManager().addListener(pbcListener);
+            pbcListener.setInterval(100);
             pbc = new BoxImposePbc(boxVapor, space);
-            integratorVapor.addIntervalAction(pbc);
-            integratorVapor.setActionInterval(pbc, 100);
+            pbcListener = new IntegratorListenerAction(pbc);
+            integratorVapor.getEventManager().addListener(pbcListener);
+            pbcListener.setInterval(100);
         }
         
         integratorGEMC = new IntegratorManagerMC(random);

@@ -29,6 +29,7 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BoltzmannProcessor;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MeterHarmonicEnergy;
@@ -223,8 +224,9 @@ public class TestHexaneHarmonic extends Simulation {
         AccumulatorAverageCollapsing harmonicAvg = new AccumulatorAverageCollapsing();
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
         harmonicFork.addDataSink(harmonicAvg);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 100);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(100);
+        sim.integrator.getEventManager().addListener(pumpListener);
         BoltzmannProcessor boltz = new BoltzmannProcessor();
         boltz.setTemperature(1.0);
         harmonicFork.addDataSink(boltz);
@@ -245,8 +247,9 @@ public class TestHexaneHarmonic extends Simulation {
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
         harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
-        sim.integrator.addIntervalAction(pumpSingle);
-        sim.integrator.setActionInterval(pumpSingle, 100);
+        IntegratorListenerAction singlePumpListener = new IntegratorListenerAction(pumpSingle);
+        singlePumpListener.setInterval(100);
+        sim.integrator.getEventManager().addListener(singlePumpListener);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
 

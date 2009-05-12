@@ -16,6 +16,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -77,12 +78,12 @@ public class Multiharmonic extends Simulation {
         meter.setBox(box);
         accumulator = new AccumulatorAverageCollapsing();
         dataPump = new DataPump(meter, accumulator);
-        integrator.addIntervalAction(dataPump);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
         
         meterEnergy = new MeterEnergy(potentialMaster, box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
-        integrator.addIntervalAction(dataPumpEnergy);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
         
         historyEnergy = new AccumulatorHistory(new HistoryCollapsing(102, 3));
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});

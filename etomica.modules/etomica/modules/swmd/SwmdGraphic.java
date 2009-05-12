@@ -61,6 +61,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2HardSphere;
@@ -177,7 +178,7 @@ public class SwmdGraphic extends SimulationGraphic {
         final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
@@ -262,14 +263,16 @@ public class SwmdGraphic extends SimulationGraphic {
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
-        sim.integrator.addIntervalAction(rdfMeter);
-        sim.integrator.setActionInterval(rdfMeter, 10);
+        IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
+        sim.integrator.getEventManager().addListener(rdfMeterListener);
+        rdfMeterListener.setInterval(10);
         rdfMeter.getXDataSource().setXMax(12.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(rdfPump);
-        sim.integrator.setActionInterval(rdfPump, 10);
+        IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
+        sim.integrator.getEventManager().addListener(rdfPumpListener);
+        rdfPumpListener.setInterval(10);
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 rdfMeter.reset();
@@ -287,8 +290,9 @@ public class SwmdGraphic extends SimulationGraphic {
         meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
-        sim.integrator.addIntervalAction(velocityPump);
-        sim.integrator.setActionInterval(velocityPump, 10);
+        IntegratorListenerAction velocityPumpListener = new IntegratorListenerAction(velocityPump);
+        sim.integrator.getEventManager().addListener(velocityPumpListener);
+        velocityPumpListener.setInterval(10);
         rmsAverage.setPushInterval(1);
         dataStreamPumps.add(velocityPump);
         
@@ -311,8 +315,9 @@ public class SwmdGraphic extends SimulationGraphic {
 		mbX.setXMax(vMax);
 		mbSource.update();
         DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(mbPump);
-        sim.integrator.setActionInterval(mbPump, 10);
+        IntegratorListenerAction mbPumpListener = new IntegratorListenerAction(mbPump);
+        sim.integrator.getEventManager().addListener(mbPumpListener);
+        mbPumpListener.setInterval(10);
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
@@ -321,8 +326,9 @@ public class SwmdGraphic extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
-        sim.integrator.addIntervalAction(temperaturePump);
-        sim.integrator.setActionInterval(temperaturePump, 1);
+        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
+        sim.integrator.getEventManager().addListener(temperaturePumpListener);
+        temperaturePumpListener.setInterval(1);
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
@@ -341,8 +347,9 @@ public class SwmdGraphic extends SimulationGraphic {
 	    final DisplayTextBox densityBox = new DisplayTextBox();
 	    densityBox.setUnit(dUnit);
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
-        sim.integrator.addIntervalAction(densityPump);
-        sim.integrator.setActionInterval(densityPump, 1);
+        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
+        sim.integrator.getEventManager().addListener(densityPumpListener);
+        densityPumpListener.setInterval(1);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Density");
 	    
@@ -352,7 +359,8 @@ public class SwmdGraphic extends SimulationGraphic {
         final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();
         eExcludeOverlap.setDataSink(energyHistory);
         final DataPump energyPump = new DataPump(eMeter, eExcludeOverlap);
-        sim.integrator.addIntervalAction(energyPump);
+        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+        sim.integrator.getEventManager().addListener(energyPumpListener);
         dataStreamPumps.add(energyPump);
 		
 		MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
@@ -364,7 +372,8 @@ public class SwmdGraphic extends SimulationGraphic {
         final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
         peExcludeOverlap.setDataSink(peFork);
         final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
-        sim.integrator.addIntervalAction(pePump);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        sim.integrator.getEventManager().addListener(pePumpListener);
         dataStreamPumps.add(pePump);
 
 		MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
@@ -374,12 +383,13 @@ public class SwmdGraphic extends SimulationGraphic {
         final DataSinkExcludeOverlap keExcludeOverlap = new DataSinkExcludeOverlap();
         keExcludeOverlap.setDataSink(keHistory);
         final DataPump kePump = new DataPump(keMeter, keExcludeOverlap);
-        sim.integrator.addIntervalAction(kePump);
+        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
+        sim.integrator.getEventManager().addListener(kePumpListener);
         dataStreamPumps.add(kePump);
         int numAtoms = sim.box.getLeafList().getAtomCount();
-        sim.integrator.setActionInterval(energyPump, numAtoms > 120 ? 1 : 120/numAtoms);
-        sim.integrator.setActionInterval(kePump, numAtoms > 120 ? 1 : 120/numAtoms);
-        sim.integrator.setActionInterval(pePump, numAtoms > 120 ? 1 : 120/numAtoms);
+        energyPumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
+        kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
+        pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         
         final DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -398,7 +408,7 @@ public class SwmdGraphic extends SimulationGraphic {
         pMeter.setIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPump pPump = new DataPump(pMeter, pAccumulator);
-        sim.integrator.addIntervalAction(pPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
         pAccumulator.setPushInterval(50);
         dataStreamPumps.add(pPump);
 

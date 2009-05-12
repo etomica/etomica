@@ -24,6 +24,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -198,7 +199,8 @@ public class SimUmbrella extends Simulation {
         final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
         dataAverageHarmonic.setBlockSize(100);
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
-        sim.integrator.addIntervalAction(pumpHarmonic);
+        IntegratorListenerAction pumpHarmonicListener = new IntegratorListenerAction(pumpHarmonic);
+        sim.integrator.getEventManager().addListener(pumpHarmonicListener);
         
         //Histogram Harmonic
         final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramExpanding(1, new DoubleRange(0,1)));
@@ -215,7 +217,8 @@ public class SimUmbrella extends Simulation {
         final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
         dataAverageTarget.setBlockSize(100);
         dataForkTarget.addDataSink(dataAverageTarget);
-        sim.integrator.addIntervalAction(pumpTarget);
+        IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpTarget);
+        sim.integrator.getEventManager().addListener(pumpTargetListener);
         
         
         //Histogram Target
@@ -235,7 +238,8 @@ public class SimUmbrella extends Simulation {
         final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         dataAverageSamplingHarmonic.setBlockSize(100);
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
-        sim.integrator.addIntervalAction(pumpSamplingHarmonic);
+        IntegratorListenerAction pumpSamplingHarmonicListener = new IntegratorListenerAction(pumpSamplingHarmonic);
+        sim.integrator.getEventManager().addListener(pumpSamplingHarmonicListener);
         
         // Umbrella Sampling --> Target System
         
@@ -246,19 +250,20 @@ public class SimUmbrella extends Simulation {
         final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
         dataAverageSamplingTarget.setBlockSize(100);
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
-        sim.integrator.addIntervalAction(pumpSamplingTarget);
+        IntegratorListenerAction pumpSamplingTargetListener = new IntegratorListenerAction(pumpSamplingTarget);
+        sim.integrator.getEventManager().addListener(pumpSamplingTargetListener);
         
         
         if (numAtoms == 32){
-            sim.integrator.setActionInterval(pumpHarmonic, 100);
-        	sim.integrator.setActionInterval(pumpTarget, 100);
-            sim.integrator.setActionInterval(pumpSamplingHarmonic, 100);
-            sim.integrator.setActionInterval(pumpSamplingTarget, 100);
+            pumpHarmonicListener.setInterval(100);
+            pumpTargetListener.setInterval(100);
+            pumpSamplingHarmonicListener.setInterval(100);
+            pumpSamplingTargetListener.setInterval(100);
         } else if (numAtoms == 108){
-            sim.integrator.setActionInterval(pumpHarmonic, 300);
-        	sim.integrator.setActionInterval(pumpTarget, 300);
-        	sim.integrator.setActionInterval(pumpSamplingHarmonic, 300);
-            sim.integrator.setActionInterval(pumpSamplingTarget, 300);
+            pumpHarmonicListener.setInterval(300);
+            pumpTargetListener.setInterval(300);
+            pumpSamplingHarmonicListener.setInterval(300);
+            pumpSamplingTargetListener.setInterval(300);
             if (temperature >= 1.1){
             	dataAverageHarmonic.setBlockSize(200);
             	dataAverageTarget.setBlockSize(200);
@@ -266,10 +271,10 @@ public class SimUmbrella extends Simulation {
             	dataAverageSamplingTarget.setBlockSize(200);
             }
         } else {
-        	sim.integrator.setActionInterval(pumpHarmonic, 1);
-         	sim.integrator.setActionInterval(pumpTarget, 1);
-        	sim.integrator.setActionInterval(pumpSamplingHarmonic, 1);
-            sim.integrator.setActionInterval(pumpSamplingTarget, 1);
+            pumpHarmonicListener.setInterval(1);
+            pumpTargetListener.setInterval(1);
+            pumpSamplingHarmonicListener.setInterval(1);
+            pumpSamplingTargetListener.setInterval(1);
         }
         
         
@@ -370,8 +375,9 @@ public class SimUmbrella extends Simulation {
         	}
         };
         
-        sim.integrator.addIntervalAction(outputAction);
-        sim.integrator.setActionInterval(outputAction, (int)numSteps/100);
+        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
+        outputActionListener.setInterval((int)numSteps/100);
+        sim.integrator.getEventManager().addListener(outputActionListener);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();

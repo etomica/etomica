@@ -9,6 +9,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
@@ -108,7 +109,7 @@ public class SimulationVirial extends Simulation {
 		meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {
-                integrator.removeIntervalAction(accumulatorPump);
+                integrator.getEventManager().removeListener(new IntegratorListenerAction(accumulatorPump));
                 accumulatorPump = null;
             }
             setAccumulator(accumulator);
@@ -119,7 +120,7 @@ public class SimulationVirial extends Simulation {
 		accumulator = newAccumulator;
 		if (accumulatorPump == null) {
 			accumulatorPump = new DataPump(meter,accumulator);
-            integrator.addIntervalAction(accumulatorPump);
+            integrator.getEventManager().addListener(new IntegratorListenerAction(accumulatorPump));
 		}
 		else {
 			accumulatorPump.setDataSink(accumulator);

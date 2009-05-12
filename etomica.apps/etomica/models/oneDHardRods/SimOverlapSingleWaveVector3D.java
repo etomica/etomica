@@ -10,7 +10,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -22,6 +21,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -257,8 +257,10 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         mnm.setCoordinateDefinition(coordinateDefinitionRef);
         mnm.setWaveVectorFactory(waveVectorFactoryRef);
         mnm.setBox(boxRef);
-        integratorRef.addIntervalAction(mnm);
-        integratorRef.setActionInterval(mnm, 1000);
+        
+        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
+        integratorRef.getEventManager().addListener(mnmListener);
+        mnmListener.setInterval(1000);
         
         sWriter = new WriteS(space);
         sWriter.setFilename(filename + "_output");
@@ -384,10 +386,11 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
 //        System.out.println("setAccumlator set to " + blockSize + " blocksize");
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListener);
 //            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
 //                    boxRef.getLeafList().getAtomCount()*2);
-            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 1);
+            pumpListener.setInterval(1);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

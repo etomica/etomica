@@ -15,6 +15,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -67,7 +68,7 @@ public class TestYukawaMD3D extends Simulation{
         addBox(box);
         box.setNMolecules(species, numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addIntervalAction(nbrManager);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
 		potential = new P2Yukawa(space);
 		
 		double truncationRadius = 2.5*potential.getKappa();

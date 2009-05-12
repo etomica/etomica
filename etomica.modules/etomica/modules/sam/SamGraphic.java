@@ -40,6 +40,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
@@ -68,7 +69,7 @@ public class SamGraphic extends SimulationGraphic {
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
         getDisplayBox(sim.box).setPixelUnit(new Pixel(8));
-        sim.integrator.setActionInterval(getPaintAction(sim.box), 1);
+        setPaintInterval(sim.box, 1);
         getDisplayBox(sim.box).setShowBoundary(false);
         
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
@@ -131,7 +132,7 @@ public class SamGraphic extends SimulationGraphic {
         DisplayTextBox temperatureDisplay = new DisplayTextBox();
         temperatureDisplay.setUnit(Kelvin.UNIT);
         DataPump pump = new DataPump(thermometer, temperatureDisplay);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         add(temperatureDisplay);
 
         Modifier wallPositionModifier = new ModifierWallPosition(sim);
@@ -245,23 +246,26 @@ public class SamGraphic extends SimulationGraphic {
         historyKE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterKE, historyKE);
         getController().getDataStreamPumps().add(pump);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 10);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(10);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
         meterPE.setBox(sim.box);
         AccumulatorHistory historyPE = new AccumulatorHistory();
         historyPE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterPE, historyPE);
         getController().getDataStreamPumps().add(pump);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 10);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(10);
         MeterEnergy meterEnergy = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory historyE = new AccumulatorHistory();
         historyE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterEnergy, historyE);
         getController().getDataStreamPumps().add(pump);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 10);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(10);
 
         Modifier nCellsModifier = new Modifier() {
             public Dimension getDimension() {
@@ -308,7 +312,7 @@ public class SamGraphic extends SimulationGraphic {
         pressureDisplay.setUnit(Bar.UNIT);
         pressureDisplay.setLabel("Wall Stress (bar)");
         pressureDisplay.setAccumulator(wallPressureAvg);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         wallPressureAvg.setPushInterval(10);
         add(pressureDisplay);
 
@@ -337,8 +341,9 @@ public class SamGraphic extends SimulationGraphic {
         tiltDisplay.setAccumulator(tiltAvg);
         tiltDisplay.setUnit(Degree.UNIT);
         tiltDisplay.setLabel("Tilt angle");
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 10);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(10);
         add(tiltDisplay);
         
         AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -376,8 +381,9 @@ public class SamGraphic extends SimulationGraphic {
             }
         });
         DataPump energyTiltPump = new DataPump(meterPE, energyTilt);
-        sim.integrator.addIntervalAction(energyTiltPump);
-        sim.integrator.setActionInterval(energyTiltPump, 10);
+        IntegratorListenerAction energyTiltPumpListener = new IntegratorListenerAction(energyTiltPump);
+        sim.integrator.getEventManager().addListener(energyTiltPumpListener);
+        energyTiltPumpListener.setInterval(10);
         final DisplayPlot energyTiltPlot = new DisplayPlot();
         energyTiltPlot.setXUnit(Degree.UNIT);
         energyTilt.setDataSink(energyTiltPlot.getDataSet().makeDataSink());
@@ -433,8 +439,9 @@ public class SamGraphic extends SimulationGraphic {
         add(plot);
         
         moveWallAction = new ActionMoveWall(wallPositionSlider, sim, moveWallToggle);
-        sim.integrator.addIntervalAction(moveWallAction);
-        sim.integrator.setActionInterval(moveWallAction, 200);
+        IntegratorListenerAction moveWallActionListener = new IntegratorListenerAction(moveWallAction);
+        sim.integrator.getEventManager().addListener(moveWallActionListener);
+        moveWallActionListener.setInterval(200);
     }
     
     public static void main(String[] args) {

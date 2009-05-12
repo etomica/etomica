@@ -10,6 +10,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
@@ -225,8 +226,9 @@ public class VirialAlkaneMix {
                 System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+        progressReportListener.setInterval((int)(steps/10));
+        sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);

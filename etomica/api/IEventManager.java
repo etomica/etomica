@@ -1,11 +1,8 @@
 package etomica.api;
 
 public interface IEventManager {
-
-    /**
-     * Notifies listeners held by this event manager of the given event.
-     */
-    public void fireEvent(IEvent event);
+	
+	public void fireEvent(IEvent e);
 
     /**
      * Adds the given listener to this event manager.
@@ -18,5 +15,4 @@ public interface IEventManager {
 	 * Removes the given listener from this event manager.
 	 */
 	public void removeListener(IListener listener);
-
 }

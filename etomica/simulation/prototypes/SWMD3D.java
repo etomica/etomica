@@ -17,6 +17,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
@@ -109,7 +110,7 @@ public class SWMD3D extends Simulation {
     potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
 
     integrator.setBox(box);
-    integrator.addIntervalAction(new BoxImposePbc(box, space));
+    integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(box0));
 //	nControl.setMaximum(108);

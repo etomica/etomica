@@ -20,6 +20,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -327,8 +328,9 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         dataStreamPumps.add(PEpump);
         
         sim.actionIntegrate.setMaxSteps(5);
-        sim.integrator.addIntervalAction(PEpump);
-        sim.integrator.setActionInterval(PEpump, 500);
+        IntegratorListenerAction PEpumpListener = new IntegratorListenerAction(PEpump);
+        PEpumpListener.setInterval(500);
+        sim.integrator.getEventManager().addListener(PEpumpListener);
            
         simGraphic.add(PEbox);
         

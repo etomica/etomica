@@ -41,6 +41,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
@@ -86,7 +87,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         config.initializeCoordinates(sim.box);
 
 		temperatureSelect = new DeviceThermoSlider(sim.controller1);
-        sim.integratorHard1.addIntervalAction(this.getPaintAction(sim.box));
+        sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));
         temperatureSelect.setIntegrator(sim.integratorHard1);
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
@@ -225,8 +226,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         final AccumulatorAverageCollapsing tempAccum = new AccumulatorAverageCollapsing();
         final DataPump tPump = new DataPump (sim.thermometer, tempAccum);
-        sim.integratorHard1.addIntervalAction(tPump);
-        sim.integratorHard1.setActionInterval(tPump, 10);
+        IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
+        sim.integratorHard1.getEventManager().addListener(tPumpListener);
+        tPumpListener.setInterval(10);
         tempAccum.setPushInterval(10);
         tPump.setDataSink(tempAccum);
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
@@ -246,8 +248,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//display of averages
         DataFork dimerFork = new DataFork();
 		dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
-        sim.integratorHard1.addIntervalAction(dimerPump);
-        sim.integratorHard1.setActionInterval(dimerPump, 100);
+        IntegratorListenerAction dimerPumpListener = new IntegratorListenerAction(dimerPump);
+        sim.integratorHard1.getEventManager().addListener(dimerPumpListener);
+        dimerPumpListener.setInterval(100);
         getController().getDataStreamPumps().add(dimerPump);
 
         DataGroupFilter filter1 = new DataGroupFilter(0);

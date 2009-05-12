@@ -8,8 +8,8 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
@@ -36,11 +36,11 @@ import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterKineticEnergyRigid;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
@@ -716,7 +716,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         if (periodic) {
             BoxImposePbc pbc = new BoxImposePbc(box, space);
             pbc.setApplyToMolecules(true);
-            integrator.addIntervalAction(pbc);
+            integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
             double boxlength = box.getBoundary().getDimensions().x(0);
 

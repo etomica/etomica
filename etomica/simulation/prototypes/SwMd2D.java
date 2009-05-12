@@ -11,6 +11,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -54,6 +55,6 @@ public class SwMd2D extends Simulation {
         potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
         
         integrator.setBox(box);
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     } 
 }

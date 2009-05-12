@@ -24,6 +24,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -210,9 +211,10 @@ public class SimOverlapLJ extends Simulation {
         newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                integrators[iBox].setActionInterval(accumulatorPumps[iBox], boxTarget.getMoleculeList().getMoleculeCount());
+                pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
             }
         }
         else {

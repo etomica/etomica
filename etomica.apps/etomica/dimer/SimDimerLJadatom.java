@@ -19,12 +19,12 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -193,7 +193,7 @@ public class SimDimerLJadatom extends Simulation{
         integratorMD.setBox(box);
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
-        integratorMD.addIntervalAction(imposePbc);
+        integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
     }
@@ -269,7 +269,7 @@ public class SimDimerLJadatom extends Simulation{
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,1, sim.getSpace(), sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         

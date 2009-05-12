@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidIterative;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
@@ -63,7 +64,7 @@ public class WaterBox {
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         double boxlength = box.getBoundary().getDimensions().x(0);
         System.out.println(boxlength);

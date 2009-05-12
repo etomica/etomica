@@ -8,6 +8,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
+import etomica.listener.IntegratorListenerAction;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsing;
 
@@ -44,8 +45,9 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	//enAcc.setPushInterval(20);
         	//DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
         	DataPump energyPump = new DataPump(eMeter, energyHistory);
-            sim.integrator.addIntervalAction(energyPump);
-            sim.integrator.setActionInterval(energyPump, 10);
+        	IntegratorListenerAction pumpListener = new IntegratorListenerAction(energyPump);
+        	pumpListener.setInterval(10);
+            sim.integrator.getEventManager().addListener(pumpListener);
         	energyHistory.setPushInterval(50);
             //XXX BORK!  This class needs to be rewritten
         	//sim.register(eMeter,energyPump);

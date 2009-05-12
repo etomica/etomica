@@ -10,10 +10,10 @@ import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IIntegrator;
 import etomica.api.IListener;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.listener.IntegratorListenerAction;
 import etomica.space.ISpace;
 
 /* =====SUMMARY======
@@ -48,12 +48,16 @@ import etomica.space.ISpace;
 
 public class MSDCoordWriter implements IAction, IListener {
 	
-	public MSDCoordWriter(ISpace _space, String fileName){
+	public MSDCoordWriter(ISpace _space, String fileName) throws RuntimeException {
+	    throw new RuntimeException("MSDCoordWriter is not usable due to the removal of " +
+	                               "action priorities.");
+/*
 		// Creates an instance of subclass AfterPBC
 		iterator = new AtomIteratorLeafAtoms();
         afterPBCinstance = new AfterPBC(_space,iterator);
 		this.fileName = fileName;
 		setWriteInterval(1);
+*/
 	}
 	
 	public void setBox(IBox newBox){
@@ -69,10 +73,10 @@ public class MSDCoordWriter implements IAction, IListener {
     }
 	
 	public void setIntegrator(IIntegrator integrator){
-		integrator.addIntervalAction(this);
-        integrator.setIntervalActionPriority(this, 50);
-		integrator.addIntervalAction(afterPBCinstance);
-        integrator.setIntervalActionPriority(afterPBCinstance, 200);
+		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
+//        integrator.setIntervalActionPriority(this, 50);
+		integrator.getEventManager().addListener(new IntegratorListenerAction(afterPBCinstance));
+//        integrator.setIntervalActionPriority(afterPBCinstance, 200);
 	}
 	
 	// Methods involved with file creation/closing

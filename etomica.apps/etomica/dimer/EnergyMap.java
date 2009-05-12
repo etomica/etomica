@@ -16,6 +16,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.potential.PotentialMaster;
@@ -198,7 +199,7 @@ public class EnergyMap extends Simulation{
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-    	sim.integratorMAP.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	sim.integratorMAP.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
 

@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;
@@ -75,6 +76,6 @@ public class MaterialFracture extends Simulation {
         };
         config.initializeCoordinates(box);
 
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
 }

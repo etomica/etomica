@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -139,8 +140,9 @@ public class TestB extends Simulation {
         MeterOverlapTestB meterOverlapB = new MeterOverlapTestB(meterAinB, meterBinB, temperature);
         avgOverlap = new AccumulatorAverageFixed();
         DataPump pumpOverlap = new DataPump(meterOverlapB, avgOverlap);
-        integrator.addIntervalAction(pumpOverlap);
-        integrator.setActionInterval(pumpOverlap, 100);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pumpOverlap);
+        pumpListener.setInterval(100);
+        integrator.getEventManager().addListener(pumpListener);
     }
     
     /**
@@ -195,8 +197,9 @@ public class TestB extends Simulation {
         mnm.setBox(sim.box);
         mnm.reset();
         
-        sim.integrator.addIntervalAction(mnm);
-        sim.integrator.setActionInterval(mnm, 2);
+        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
+        mnmListener.setInterval(2);
+        sim.integrator.getEventManager().addListener(mnmListener);
         
         
         

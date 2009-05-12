@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -144,8 +145,9 @@ public class TestA extends Simulation {
         MeterOverlapTestA meterOA = new MeterOverlapTestA(meterAinA, meterBinA, temperature);
         avgOverlap = new AccumulatorAverageFixed();
         DataPump pumpOverlap = new DataPump(meterOA, avgOverlap);
-        integrator.addIntervalAction(pumpOverlap);
-        integrator.setActionInterval(pumpOverlap, 100);
+        IntegratorListenerAction pumpOverlapListener = new IntegratorListenerAction(pumpOverlap);
+        pumpOverlapListener.setInterval(100);
+        integrator.getEventManager().addListener(pumpOverlapListener);
         
         MeterF meterF = new MeterF(coordinateDefinition);
         meterF.setEigenVectors(nm.getEigenvectors(box));
@@ -154,8 +156,9 @@ public class TestA extends Simulation {
         
         avgF = new AccumulatorAverageFixed();
         DataPump pumpF = new DataPump(meterF, avgF);
-        integrator.addIntervalAction(pumpF);
-        integrator.setActionInterval(pumpF, 100);
+        IntegratorListenerAction pumpFListener = new IntegratorListenerAction(pumpOverlap);
+        pumpFListener.setInterval(100);
+        integrator.getEventManager().addListener(pumpFListener);
         
         
         
@@ -212,8 +215,9 @@ public class TestA extends Simulation {
         mnm.setBox(sim.box);
         mnm.reset();
         
-        sim.integrator.addIntervalAction(mnm);
-        sim.integrator.setActionInterval(mnm, 2);
+        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
+        mnmListener.setInterval(2);
+        sim.integrator.getEventManager().addListener(mnmListener);
         
         
         ((Controller)sim.getController()).actionPerformed();

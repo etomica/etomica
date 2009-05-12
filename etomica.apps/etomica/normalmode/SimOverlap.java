@@ -23,6 +23,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardPeriodic;
@@ -196,7 +197,7 @@ public class SimOverlap extends Simulation {
         accumulators[iBox] = newAccumulator;
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

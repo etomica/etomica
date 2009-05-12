@@ -45,6 +45,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
@@ -157,7 +158,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
         DataPump pump = new DataPump(meterCycles,displayCycles);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
@@ -301,8 +302,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
-        sim.integrator.addIntervalAction(temperaturePump);
-        sim.integrator.setActionInterval(temperaturePump, 10);
+        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
+        sim.integrator.getEventManager().addListener(temperaturePumpListener);
+        temperaturePumpListener.setInterval(10);
 		dataStreamPumps.add(temperaturePump);
         tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
@@ -314,8 +316,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         DataSinkExcludeOverlap foo = new DataSinkExcludeOverlap(sim.box);
         final DataPump energyPump = new DataPump(eMeter, foo);
         foo.setDataSink(energyHistory);
-        sim.integrator.addIntervalAction(energyPump);
-        sim.integrator.setActionInterval(energyPump, 10);
+        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+        sim.integrator.getEventManager().addListener(energyPumpListener);
+        energyPumpListener.setInterval(10);
         dataStreamPumps.add(energyPump);
 		
 		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
@@ -328,8 +331,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         final DataPump pePump = new DataPump(peMeter, foo);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         foo.setDataSink(peFork);
-        sim.integrator.addIntervalAction(pePump);
-        sim.integrator.setActionInterval(pePump, 10);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        sim.integrator.getEventManager().addListener(pePumpListener);
+        pePumpListener.setInterval(10);
         dataStreamPumps.add(pePump);
 
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
@@ -340,8 +344,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         foo = new DataSinkExcludeOverlap(sim.box);
         final DataPump kePump = new DataPump(keMeter, foo);
         foo.setDataSink(keHistory);
-        sim.integrator.addIntervalAction(kePump);
-        sim.integrator.setActionInterval(kePump, 10);
+        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
+        sim.integrator.getEventManager().addListener(kePumpListener);
+        kePumpListener.setInterval(10);
         dataStreamPumps.add(kePump);
 
         MeterFlux meterFlux = new MeterFlux(sim, space);
@@ -353,7 +358,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         AccumulatorHistory fluxHistory = new AccumulatorHistory(new HistoryCollapsingAverage(20));
         fluxHistory.setTimeDataSource(timeCounter);
         DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
-        sim.integrator.addIntervalAction(fluxPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(fluxPump));
         dataStreamPumps.add(fluxPump);
 
         MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim.forceSum, sim.box);
@@ -362,7 +367,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         DataFork pressureFork = new DataFork();
         DataPump pressurePump = new DataPump(meterOsmoticPressure, pressureFork);
         pressureFork.addDataSink(pressureAvg);
-        sim.integrator.addIntervalAction(pressurePump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pressurePump));
         dataStreamPumps.add(pressurePump);
         AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         pressureFork.addDataSink(pressureHistory);
@@ -385,13 +390,15 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         AccumulatorAverageFixed profSoluteAvg = new AccumulatorAverageFixed(10);
         profSoluteAvg.setPushInterval(10);
         DataPump profPumpSolute = new DataPump(meterProfileSolute, profSoluteAvg);
-        sim.integrator.addIntervalAction(profPumpSolute);
-        sim.integrator.setActionInterval(profPumpSolute, 2);
+        IntegratorListenerAction profPumpSoluteListener = new IntegratorListenerAction(profPumpSolute);
+        sim.integrator.getEventManager().addListener(profPumpSoluteListener);
+        profPumpSoluteListener.setInterval(2);
         AccumulatorAverageFixed profSolventAvg = new AccumulatorAverageFixed(10);
         profSolventAvg.setPushInterval(10);
         DataPump profPumpSolvent = new DataPump(meterProfileSolvent, profSolventAvg);
-        sim.integrator.addIntervalAction(profPumpSolvent);
-        sim.integrator.setActionInterval(profPumpSolvent, 2);
+        IntegratorListenerAction profPumpSolventListener = new IntegratorListenerAction(profPumpSolvent);
+        sim.integrator.getEventManager().addListener(profPumpSolventListener);
+        profPumpSolventListener.setInterval(2);
         dataStreamPumps.add(profPumpSolute);
         dataStreamPumps.add(profPumpSolvent);
 

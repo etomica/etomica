@@ -7,6 +7,7 @@ import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerletShake;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -53,7 +54,7 @@ public class SingleDumbellShake {
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (false) {
             ai.setMaxSteps(100);

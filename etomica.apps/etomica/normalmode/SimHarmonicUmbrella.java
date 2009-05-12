@@ -24,6 +24,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -192,8 +193,9 @@ public class SimHarmonicUmbrella extends Simulation {
         
         final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
         dataFork.addDataSink(dataAverageHarmonic);
-        sim.integrator.addIntervalAction(pumpHarmonic);
-        sim.integrator.setActionInterval(pumpHarmonic, 1);
+        IntegratorListenerAction pumpHarmonicListener = new IntegratorListenerAction(pumpHarmonic);
+        pumpHarmonicListener.setInterval(1);
+        sim.integrator.getEventManager().addListener(pumpHarmonicListener);
         
         //Histogram Harmonic
         final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(600, new DoubleRange(-150,450)));
@@ -247,8 +249,9 @@ public class SimHarmonicUmbrella extends Simulation {
         	}
         };
         
-        sim.integrator.addIntervalAction(outputAction);
-        sim.integrator.setActionInterval(outputAction, 20000);
+        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
+        outputActionListener.setInterval(20000);
+        sim.integrator.getEventManager().addListener(outputActionListener);
         
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();

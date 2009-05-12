@@ -24,6 +24,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
@@ -138,16 +139,18 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(exactPump);
-        sim.integrator.setActionInterval(exactPump, (int)sim.accumulator.getBlockSize());
+        IntegratorListenerAction exactPumpListener = new IntegratorListenerAction(exactPump);
+        sim.integrator.getEventManager().addListener(exactPumpListener);
+        exactPumpListener.setInterval((int)sim.accumulator.getBlockSize());
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-        sim.integrator.addIntervalAction(uPump);
-        sim.integrator.setActionInterval(uPump, (int)sim.accumulatorEnergy.getBlockSize());
+        IntegratorListenerAction uPumpListener = new IntegratorListenerAction(uPump);
+        sim.integrator.getEventManager().addListener(uPumpListener);
+        uPumpListener.setInterval((int)sim.accumulatorEnergy.getBlockSize());
         dataStreamPumps.add(uPump);
         uAvgHistory.setTimeDataSource(sim.timeCounter);
         
@@ -243,7 +246,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsingLog accumulatorEnergy = new AccumulatorAverageCollapsingLog(sim.getRandom());
         DataPump dataPumpEnergy = new DataPump(sim.meter, accumulatorEnergy);
         dataStreamPumps.add(dataPumpEnergy);
-        sim.integrator.addIntervalAction(dataPumpEnergy);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
 
         DataFork feFork = new DataFork();
         DataProcessorFunction negative = new DataProcessorFunction(new Function() {

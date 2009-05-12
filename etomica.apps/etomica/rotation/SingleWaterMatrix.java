@@ -16,6 +16,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3POriented;
 import etomica.potential.PotentialMaster;
@@ -60,7 +61,7 @@ public class SingleWaterMatrix {
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (true) {
             final boolean isWriting = false;
@@ -130,8 +131,9 @@ public class SingleWaterMatrix {
                 RotationTensor3D A = (RotationTensor3D)space.makeRotationTensor();
                 RotationTensor3D Aex = (RotationTensor3D)space.makeRotationTensor();
             };
-            integrator.addIntervalAction(writeA);
-            integrator.setActionInterval(writeA, 100);
+            IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
+            writeAListener.setInterval(100);
+            integrator.getEventManager().addListener(writeAListener);
             sim.getController().actionPerformed();
         }
         else {

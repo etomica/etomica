@@ -18,6 +18,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMasterMonatomic;
@@ -82,7 +83,7 @@ public class SoftSphere3d extends Simulation {
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);
@@ -118,7 +119,7 @@ public class SoftSphere3d extends Simulation {
        
         accumulator.setPushInterval(1);
         pump.setDataSink(accumulator);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         
         sim.getController().actionPerformed();
         

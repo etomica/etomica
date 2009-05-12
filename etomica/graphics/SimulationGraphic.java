@@ -23,6 +23,7 @@ import etomica.api.ISimulation;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
+import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.SimulationContainer;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -52,7 +53,7 @@ public class SimulationGraphic implements SimulationContainer {
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
-    private HashMap<IBox,IAction> repaintActions = new HashMap<IBox,IAction>();
+    private HashMap<IBox,IntegratorListenerAction> repaintActions = new HashMap<IBox,IntegratorListenerAction>();
     private int graphicType = GRAPHIC_ONLY;
     protected final ISpace space;
 
@@ -171,9 +172,11 @@ public class SimulationGraphic implements SimulationContainer {
 	        display.canvas.setVisible(false);
 	        display.canvas.setVisible(true);
 	         
-            IAction repaintAction = createDisplayBoxPaintAction(box);
-	        integrator.addIntervalAction(repaintAction);
-	        integrator.setActionInterval(repaintAction, updateInterval);
+            IntegratorListenerAction repaintAction = new IntegratorListenerAction(createDisplayBoxPaintAction(box));
+            repaintAction.setInterval(updateInterval);
+            integrator.getEventManager().addListener(repaintAction);
+//	        integrator.addIntervalAction(repaintAction);
+//	        integrator.setActionInterval(repaintAction, updateInterval);
 	        repaintActions.put(box, repaintAction);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
@@ -192,43 +195,8 @@ public class SimulationGraphic implements SimulationContainer {
 	  * specified for the given Box.
 	  */
     public void setPaintInterval(IBox box, int interval) {
-
-    	IAction repaintAction = repaintActions.get(box);
-	    IAction[] controllerActions = controller.getAllActions();
-
-	    for (int i = 0;  i < controllerActions.length;  i++) {
-	        if (controllerActions[i] instanceof ActivityIntegrate) {
-
-	        	IIntegrator integrator = ((ActivityIntegrate)controllerActions[i]).getIntegrator();
-	        	
-	     
-	            if(integrator instanceof IntegratorBox && box == ((IntegratorBox)integrator).getBox()) {
-
-            	    for (int j = 0;  j < integrator.getIntervalActionCount();  j++) {
-            	    	IAction boxAction = integrator.getIntervalAction(j);
-                        if(boxAction == repaintAction) {
-                            integrator.setActionInterval(boxAction, interval);
-                        }
-                    }
-		        } else if (integrator instanceof IntegratorManagerMC) {
-
-		        	IIntegrator[] integrators = ((IntegratorManagerMC) integrator).getIntegrators();
-		        	
-		        	for (int k = 0; k < integrators.length; k++) {
-		        		
-		        		if(integrators[k] instanceof IntegratorBox && box == ((IntegratorBox)integrators[k]).getBox()) {
-
-		            	    for (int j = 0;  j < integrators[k].getIntervalActionCount();  j++) {
-		            	    	IAction boxAction = integrators[k].getIntervalAction(j);
-		                        if(boxAction == repaintAction) {
-		                            integrators[k].setActionInterval(boxAction, interval);
-		                        }
-		                    }
-		        		}
-		        	}
-		        }
-	        }
-	    }
+        IntegratorListenerAction repaintAction = repaintActions.get(box);
+	    repaintAction.setInterval(interval);
     }
 
 	/**
@@ -237,7 +205,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * @return Returns the paint action associated with the given Box.
 	  */
     public IAction getPaintAction(IBox box) {
-	    return repaintActions.get(box);
+	    return repaintActions.get(box).getAction();
     }
    
     public void add(final Display display) {

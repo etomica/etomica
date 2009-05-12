@@ -16,6 +16,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -118,7 +119,7 @@ public class DensityOfState extends Simulation{
 		
 
 		sim.activityIntegrate.setMaxSteps(maxSteps);
-		sim.integrator.addIntervalAction(energyManager);
+		sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 		sim.getController().reset();
 		sim.getController().actionPerformed();
 		

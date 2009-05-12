@@ -22,6 +22,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.rowley.EthanolPotentialHelper;
 import etomica.models.rowley.MethanolPotentialHelper;
 import etomica.models.rowley.SpeciesEthanol;
@@ -276,7 +277,7 @@ public class VirialRowleyAlcohol {
     		DataFork dataForkDistance = new DataFork();
     		DataPump dataPumpDistance = new DataPump(dataDistance1, dataForkDistance);
              
-    		sim.integrators[1].addIntervalAction(dataPumpDistance); // measure data at each step
+    		sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(dataPumpDistance)); // measure data at each step
     		
     		IMoleculeList moleculeList = targetBox.getMoleculeList();
     		IMolecule monomerA = moleculeList.getMolecule(0);
@@ -320,8 +321,8 @@ public class VirialRowleyAlcohol {
 
     		DataPump dataPumpPi2 = new DataPump(meterPi, dataForkPi);
     		
-    		sim.integrators[1].addIntervalAction(dataPumpPi);
-    		sim.integrators[1].addIntervalAction(dataPumpPi2);
+    		sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(dataPumpPi));
+    		sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(dataPumpPi2));
     		
     		//dataForkPi.addDataSink(dataLoggerPi);
     		
@@ -610,8 +611,9 @@ public class VirialRowleyAlcohol {
             	}
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+        progressReportListener.setInterval((int)(steps/10));
+        sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);

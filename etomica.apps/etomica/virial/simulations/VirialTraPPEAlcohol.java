@@ -13,6 +13,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.traPPE.MethanolPotentialHelper;
 import etomica.models.traPPE.SpeciesFactoryMethanol;
 import etomica.models.traPPE.SpeciesMethanol;
@@ -375,8 +376,9 @@ public class VirialTraPPEAlcohol {
                 System.out.println("Calculated B" + numMolecules +  " = " +ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");
             }
         };
-        sim.integratorOS.addIntervalAction(progressReport);
-        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+        progressReportListener.setInterval((int)(steps/10));
+        sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);

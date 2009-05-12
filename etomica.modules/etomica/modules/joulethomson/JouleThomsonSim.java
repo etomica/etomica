@@ -18,6 +18,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -93,7 +94,7 @@ public class JouleThomsonSim extends Simulation {
         config.initializeCoordinates(box);
         
         integratorJT = new IntegratorJT(getRandom(), integrator, integratorNVE);
-        integratorJT.addIntervalAction(new BoxImposePbc(box, space));
+        integratorJT.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         integrator.setBox(box);
         integratorNVE.setBox(box);
 
@@ -112,7 +113,7 @@ public class JouleThomsonSim extends Simulation {
         final DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
         sim.activityIntegrate.setSleepPeriod(10);
 
-        sim.integratorJT.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorJT.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
 
     }
 }

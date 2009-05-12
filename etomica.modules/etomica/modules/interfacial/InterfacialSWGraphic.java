@@ -61,6 +61,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.nbr.list.PotentialMasterList;
@@ -97,6 +98,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected final MeterProfile muProfileMeter;
     protected boolean isExpanded;
     protected final DataPump surfactantProfilePump, orientationProfilePump;
+    protected IntegratorListenerAction surfactantProfilePumpL, orientationProfilePumpL;
     protected final DisplayPlot profilePlot, orientationPlot;
     
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
@@ -152,10 +154,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.integrator.reset();
 
                 if (numSurfactants > 0) {
-                    sim.integrator.addIntervalAction(surfactantProfilePump);
-                    sim.integrator.setActionInterval(surfactantProfilePump, 10);
-                    sim.integrator.addIntervalAction(orientationProfilePump);
-                    sim.integrator.setActionInterval(orientationProfilePump, 10);
+                    surfactantProfilePumpL = new IntegratorListenerAction(surfactantProfilePump);
+                    sim.integrator.getEventManager().addListener(surfactantProfilePumpL);
+                    surfactantProfilePumpL.setInterval(10);
+                    IntegratorListenerAction orientationProfilePumpL = new IntegratorListenerAction(orientationProfilePump);
+                    sim.integrator.getEventManager().addListener(orientationProfilePumpL);
+                    orientationProfilePumpL.setInterval(10);
                 }
 
                 nSlider.setEnabled(false);
@@ -205,8 +209,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 muProfileMeter.reset();
                 
                 if ((int)nSurfactantSlider.getValue() > 0) {
-                    sim.integrator.removeIntervalAction(surfactantProfilePump);
-                    sim.integrator.removeIntervalAction(orientationProfilePump);
+                    sim.integrator.getEventManager().removeListener(surfactantProfilePumpL);
+                    sim.integrator.getEventManager().removeListener(orientationProfilePumpL);
                     profilePlot.getDataSet().reset();
                     profilePlot.setDoLegend(false);
                     profilePlot.setDoLegend(true);
@@ -268,8 +272,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
             }
         };
-        sim.integrator.addIntervalAction(recenterAction);
-        sim.integrator.setActionInterval(recenterAction, 100);
+        IntegratorListenerAction recenterActionListener = new IntegratorListenerAction(recenterAction);
+        sim.integrator.getEventManager().addListener(recenterActionListener);
+        recenterActionListener.setInterval(100);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
@@ -280,8 +285,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
-        sim.integrator.addIntervalAction(temperaturePump);
-        sim.integrator.setActionInterval(temperaturePump, 20);
+        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
+        sim.integrator.getEventManager().addListener(temperaturePumpListener);
+        temperaturePumpListener.setInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
 		final DisplayTextBox tBox = new DisplayTextBox();
@@ -300,8 +306,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         densityMeter.setBox(sim.box);
 	    final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
-        sim.integrator.addIntervalAction(densityPump);
-        sim.integrator.setActionInterval(densityPump, 10);
+        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
+        sim.integrator.getEventManager().addListener(densityPumpListener);
+        densityPumpListener.setInterval(10);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Number Density");
 	    
@@ -321,8 +328,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
-        sim.integrator.addIntervalAction(pePump);
-        sim.integrator.setActionInterval(pePump, 10);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        sim.integrator.getEventManager().addListener(pePumpListener);
+        pePumpListener.setInterval(10);
         peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
 		
@@ -352,8 +360,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             pDisplay[i].setLabel(comp[i]+" Virial");
             pDisplay[i].setAccumulator(pAccumulator[i]);
         }
-        sim.integrator.addIntervalAction(pPump);
-        sim.integrator.setActionInterval(pPump, 20);
+        IntegratorListenerAction pPumpListener = new IntegratorListenerAction(pPump);
+        sim.integrator.getEventManager().addListener(pPumpListener);
+        pPumpListener.setInterval(20);
         dataStreamPumps.add(pPump);
 
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
@@ -373,8 +382,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DataPump virialProfilePump = new DataPump(virialProfileMeter, virialProfileFork);
         DataGroupSplitter virialSplitter = new DataGroupSplitter();
         virialProfileFork.addDataSink(virialSplitter);
-        sim.integrator.addIntervalAction(virialProfilePump);
-        sim.integrator.setActionInterval(virialProfilePump, 20);
+        IntegratorListenerAction virialProfilePumpListener = new IntegratorListenerAction(virialProfilePump);
+        sim.integrator.getEventManager().addListener(virialProfilePumpListener);
+        virialProfilePumpListener.setInterval(20);
         AccumulatorAverageFixed[] virialProfileAvg = new AccumulatorAverageFixed[space.D()];
         DisplayPlot virialPlot = new DisplayPlot();
         for (int i=0; i<space.D(); i++) {
@@ -410,8 +420,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DataPump profilePump = new DataPump(densityProfileMeter, densityProfileAvg);
         DataDump profileDump = new DataDump();
         densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        sim.integrator.addIntervalAction(profilePump);
-        sim.integrator.setActionInterval(profilePump, 10);
+        IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
+        sim.integrator.getEventManager().addListener(profilePumpListener);
+        profilePumpListener.setInterval(10);
         dataStreamPumps.add(profilePump);
 
         surfactantProfileMeter = new MeterProfileByVolume(space);
@@ -478,8 +489,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
             DataDouble data = new DataDouble();
         };
-        sim.integrator.addIntervalAction(pullParams);
-        sim.integrator.setActionInterval(pullParams, 10);
+        IntegratorListenerAction pullParamsListener = new IntegratorListenerAction(pullParams);
+        sim.integrator.getEventManager().addListener(pullParamsListener);
+        pullParamsListener.setInterval(10);
         
         DisplayPlot muPlot = new DisplayPlot();
         muProfileMeter = new MeterProfile(space, sim.getRandom());
@@ -514,8 +526,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         muPlot.setLabel("Chemical Potential");
         muPlot.setDoLegend(false);
         add(muPlot);
-        sim.integrator.addIntervalAction(muProfilePump);
-        sim.integrator.setActionInterval(muProfilePump, 50);
+        IntegratorListenerAction muProfilePumpListener = new IntegratorListenerAction(muProfilePump);
+        sim.integrator.getEventManager().addListener(muProfilePumpListener);
+        muProfilePumpListener.setInterval(50);
         dataStreamPumps.add(muProfilePump);
 
         nSlider = new DeviceNSelector(sim.getController());

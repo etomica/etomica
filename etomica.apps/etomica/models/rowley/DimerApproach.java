@@ -19,6 +19,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -176,7 +177,7 @@ public class DimerApproach extends Simulation {
 		
 		dataForkPE.addDataSink(dataLoggerPE);
 		
-		sim.dimerApproach.addIntervalAction(dataPumpPE); // measure data at each step
+		sim.dimerApproach.getEventManager().addListener(new IntegratorListenerAction(dataPumpPE)); // measure data at each step
 		
 		dataLoggerPE.setFileName("Potential energy");
 		DataWriter dataWriterR = new DataTableWriter();

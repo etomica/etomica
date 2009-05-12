@@ -40,6 +40,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3P;
 import etomica.potential.P2Electrostatic;
@@ -582,7 +583,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         ActivityIntegrate ai = new ActivityIntegrate(integrator);
         sim.getController().addAction(ai);
         BoxImposePbcMolecule pbc = new BoxImposePbcMolecule(box, space);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
         double oCharge = Electron.UNIT.toSim(-0.82);
         double hCharge = Electron.UNIT.toSim(0.41);
         P2Electrostatic pOO = new P2Electrostatic(sim.getSpace());

@@ -11,6 +11,7 @@ import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -60,7 +61,7 @@ public class HsMc2d extends Simulation {
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addIntervalAction(new BoxImposePbc(box, space));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);

@@ -29,12 +29,14 @@ public interface IIntegrator {
      */
     public void resetStepCount();
 
+    public IIntegratorEventManager getEventManager();
+    
     /**
      * Adds the given interval action to those that receive interval events
      * fired by this integrator.  Do not add an interval action that is already
      * an interval listener to this integrator.  Do not add a null listener.
      */
-    public void addIntervalAction(IAction newIntervalAction);
+//    public void addIntervalAction(IAction newIntervalAction);
 
     /**
      * Sets the "priority" of the given intervalAction (which must have already
@@ -44,28 +46,28 @@ public interface IIntegrator {
      * are enforced, they are enforced with a priority of 100.  Interval
      * actions with the same priority may be fired in any order.
      */
-    public void setIntervalActionPriority(IAction intervalAction, int newPriority);
+//    public void setIntervalActionPriority(IAction intervalAction, int newPriority);
 
     /**
      * Sets the number of integration steps between calls to the
      * intervalAction's actionPerformed method.  The interval must be positive.
      */
-    public void setActionInterval(IAction intervalAction, int newInterval);
+//    public void setActionInterval(IAction intervalAction, int newInterval);
 
     /**
      * Removes given interval action from those notified of interval events
      * fired by this integrator.  Do not try to remove an interval action that
      * is not a listener to this integrator.
      */
-    public void removeIntervalAction(IAction intervalAction);
+//    public void removeIntervalAction(IAction intervalAction);
 
     /**
      * Returns the number of interval actions held by the integrator.
      */
-    public int getIntervalActionCount();
+//    public int getIntervalActionCount();
 
     /**
      * Returns the requested interval action.
      */
-    public IAction getIntervalAction(int index);
+//    public IAction getIntervalAction(int index);
 }

@@ -24,6 +24,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.NeighborListManager;
@@ -129,7 +130,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         box.setNMolecules(species, 96);
         
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.addIntervalAction(nbrManager);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
                
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(intramolecularpotential, new ISpecies[]{species});
@@ -402,27 +403,27 @@ public class MDParacetamolMonoclinic extends Simulation {
         meterKE.setBox(sim.box);
         DisplayTextBox KEbox = new DisplayTextBox();
         DataPump KEpump = new DataPump(meterKE, KEbox);
-        sim.integrator.addIntervalAction(KEpump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(KEpump));
         dataStreamPumps.add(KEpump);
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setBox(sim.box);
         DisplayTextBox PEbox = new DisplayTextBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
-        sim.integrator.addIntervalAction(PEpump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(PEpump));
         dataStreamPumps.add(PEpump);
         
         MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster, sim.box);
         DisplayTextBox meterTotalbox = new DisplayTextBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);
-        sim.integrator.addIntervalAction(meterTotalpump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterTotalpump));
         dataStreamPumps.add(meterTotalpump);
            
         MeterTemperature meterTemp = new MeterTemperature(sim.box, sim.space.D());
         DisplayTextBox tempBox = new DisplayTextBox();
         tempBox.setUnit(Kelvin.UNIT);
         DataPump tempPump = new DataPump(meterTemp, tempBox);
-        sim.integrator.addIntervalAction(tempPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(tempPump));
         dataStreamPumps.add(tempPump);
   
         

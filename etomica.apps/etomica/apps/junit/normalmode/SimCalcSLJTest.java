@@ -3,6 +3,7 @@ package etomica.apps.junit.normalmode;
 import junit.framework.TestCase;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Primitive;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.SimCalcSLJ;
 import etomica.normalmode.WaveVectorFactory;
@@ -45,8 +46,9 @@ public class SimCalcSLJTest extends TestCase {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        sim.integrator.addIntervalAction(meterNormalMode);
-        sim.integrator.setActionInterval(meterNormalMode, nA);
+        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+        meterListener.setInterval(nA);
+        sim.integrator.getEventManager().addListener(meterListener);
         
         ((MCMoveStepTracker)sim.integrator.getMoveManager().getMCMoves()[0].getTracker()).setNoisyAdjustment(false);
 

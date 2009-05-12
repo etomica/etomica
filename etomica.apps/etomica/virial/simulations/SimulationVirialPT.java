@@ -13,6 +13,7 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -137,7 +138,7 @@ public class SimulationVirialPT extends Simulation {
 	public void setMeter(int i, MeterVirial newMeter) {
 		if (accumulator[i] != null) { 
 			if (accumulatorPump[i] != null) {
-                integrator[i].removeIntervalAction(accumulatorPump[i]);
+                integrator[i].getEventManager().removeListener(new IntegratorListenerAction(accumulatorPump[i]));
 				accumulatorPump[i] = null;
 			}
 			accumulator[i] = null;
@@ -156,7 +157,8 @@ public class SimulationVirialPT extends Simulation {
 		else {
 			accumulatorPump[i].setDataSink(accumulator[i]);
 		}
-		integrator[i].addIntervalAction(accumulatorPump[i]);
+
+		integrator[i].getEventManager().addListener(new IntegratorListenerAction(accumulatorPump[i]));
 	}
 }
 

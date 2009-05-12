@@ -16,6 +16,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
@@ -74,8 +75,9 @@ public class Heisenberg extends Simulation {
         dAcc = new AccumulatorAverageCollapsing();
         pump = new DataPump(meter, dAcc);
         dAcc.setPushInterval(10);
-        integrator.addIntervalAction(pump);
-        integrator.setActionInterval(pump, 10);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(10);
+        integrator.getEventManager().addListener(pumpListener);
     }
 
     private static final long serialVersionUID = 2L;

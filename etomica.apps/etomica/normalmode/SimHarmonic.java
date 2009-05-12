@@ -20,6 +20,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -172,7 +173,7 @@ public class SimHarmonic extends Simulation {
         AccumulatorAverage avgBoltzmann = new AccumulatorAverageFixed(1);
         bp.setDataSink(avgBoltzmann);
         avgBoltzmann.setPushInterval(5);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
 
 //         MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
 //         MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
@@ -195,7 +196,7 @@ public class SimHarmonic extends Simulation {
             AccumulatorAverage harmonicAvg = new AccumulatorAverageFixed(5);
             DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);
             harmonicFork.addDataSink(harmonicAvg);
-            sim.integrator.addIntervalAction(pumpHarmonic);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pumpHarmonic));
 
             //histogram energy of individual modes
 //            MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);

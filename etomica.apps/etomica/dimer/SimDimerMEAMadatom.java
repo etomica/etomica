@@ -30,6 +30,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
@@ -329,7 +330,7 @@ public class SimDimerMEAMadatom extends Simulation{
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
         integratorMD.setBox(box);
-        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        integratorMD.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -352,7 +353,7 @@ public class SimDimerMEAMadatom extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        integratorDimer.addIntervalAction(potentialMasterD.getNeighborManager(box));  
+        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -364,7 +365,7 @@ public class SimDimerMEAMadatom extends Simulation{
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
         integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
-        integratorDimerMin.addIntervalAction(potentialMasterD.getNeighborManager(box)); 
+        integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box))); 
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);
@@ -414,16 +415,16 @@ public class SimDimerMEAMadatom extends Simulation{
         DisplayPlot plotPE = new DisplayPlot();
         plotPE.setLabel("PE Plot");
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        accumulatorAveragePE.setPushInterval(1);      
-        sim.integratorDimerMin.addIntervalAction(energyPump);
-        sim.integratorDimerMin.setActionInterval(energyPump,1);
-        
+        accumulatorAveragePE.setPushInterval(1);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(energyPump);
+        pumpListener.setInterval(1);
+        sim.integratorDimerMin.getEventManager().addListener(pumpListener);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1, sim.space, sim.getController());
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));        
         simGraphic.add(plotPE);
         //sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        sim.integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(simGraphic.getPaintAction(sim.box)));
 
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	

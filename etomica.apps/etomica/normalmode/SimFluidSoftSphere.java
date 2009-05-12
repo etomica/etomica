@@ -21,6 +21,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -210,8 +211,9 @@ public class SimFluidSoftSphere extends Simulation {
         
         final AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-	    sim.integrator.addIntervalAction(pressurePump);
-	    sim.integrator.setActionInterval(pressurePump, nA/10);
+        IntegratorListenerAction pressurePumpListener = new IntegratorListenerAction(pressurePump);
+        pressurePumpListener.setInterval(nA/10);
+	    sim.integrator.getEventManager().addListener(pressurePumpListener);
         
         final double d = density; 
         final double temp = temperature;
@@ -223,9 +225,9 @@ public class SimFluidSoftSphere extends Simulation {
                 
         	}
         };
-        
-        sim.integrator.addIntervalAction(pressureCheck);
-        sim.integrator.setActionInterval(pressureCheck, (int)simSteps/10);
+        IntegratorListenerAction pressureCheckListener = new IntegratorListenerAction(pressureCheck);
+        pressureCheckListener.setInterval((int)simSteps/10);
+        sim.integrator.getEventManager().addListener(pressureCheckListener);
         
         /*
         SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space, sim.getController());
@@ -238,8 +240,9 @@ public class SimFluidSoftSphere extends Simulation {
               
         AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(meterEnergy, energyAverage);
-        sim.integrator.addIntervalAction(energyPump);
-        sim.integrator.setActionInterval(energyPump, 100);
+        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+        energyPumpListener.setInterval(100);
+        sim.integrator.getEventManager().addListener(energyPumpListener);
         
         
         /*

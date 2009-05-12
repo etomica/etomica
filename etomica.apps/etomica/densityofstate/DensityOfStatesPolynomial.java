@@ -18,6 +18,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -120,7 +121,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		AccumulatorHistory accumulatorHistory = new AccumulatorHistory(new HistoryCollapsingAverage(200));
 		AccumulatorAverage accumulatorAverage = new AccumulatorAverageFixed(200);
 		DataPump dataPumpE = new DataPump(energyMeter, accumulatorAverage);
-		sim.integrator.addIntervalAction(dataPumpE);
+		sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpE));
 		
 		
 		//
@@ -130,7 +131,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		
 		
 		DataPump dataPump = new DataPump(energyMeter, phi);
-		sim.integrator.addIntervalAction(dataPump);
+		sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
 		
 		AccumulatorAverage b = new AccumulatorAverageFixed();
 		phi.setDataSink(b);

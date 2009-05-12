@@ -18,6 +18,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -148,8 +149,9 @@ public class SimCalcSSoftSphere2D extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        sim.integrator.addIntervalAction(meterNormalMode);
-        sim.integrator.setActionInterval(meterNormalMode, nA);
+        IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
+        meterNormalModeListener.setInterval(nA);
+        sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
   
         MeterPressure meterPressure = new MeterPressure(sim.space);
@@ -167,14 +169,16 @@ public class SimCalcSSoftSphere2D extends Simulation {
         AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
 	    
-	    sim.integrator.addIntervalAction(pressurePump);
-	    sim.integrator.setActionInterval(pressurePump, 100);
+        IntegratorListenerAction pressurePumpListener = new IntegratorListenerAction(pressurePump);
+        pressurePumpListener.setInterval(100);
+	    sim.integrator.getEventManager().addListener(pressurePumpListener);
 	    
         AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(meterEnergy, energyAverage);
         
-        sim.integrator.addIntervalAction(energyPump);
-        sim.integrator.setActionInterval(energyPump, 100);
+        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+        energyPumpListener.setInterval(100);
+        sim.integrator.getEventManager().addListener(energyPumpListener);
         
         sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
         sim.getController().actionPerformed();
@@ -189,8 +193,9 @@ public class SimCalcSSoftSphere2D extends Simulation {
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
-        sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, (int)simSteps/10);
+        IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+        sWriterListener.setInterval((int)simSteps/10);
+        sim.integrator.getEventManager().addListener(sWriterListener);
         
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();

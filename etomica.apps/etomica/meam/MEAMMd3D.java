@@ -30,6 +30,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -125,8 +126,8 @@ public class MEAMMd3D extends Simulation {
     	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
     	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
 
-        sim.integrator.addIntervalAction(energyPump);
-        sim.integrator.addIntervalAction(kineticPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));
        
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -243,7 +244,7 @@ public class MEAMMd3D extends Simulation {
         this.potentialMaster.addPotential(potentialN, new IAtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
         
         integrator.setBox(box);
 		

@@ -17,6 +17,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -80,6 +81,7 @@ public class SimulationVirialMultiOverlap extends Simulation {
         }
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPump[sampleClusters.length];
+        pumpListeners = new IntegratorListenerAction[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
@@ -163,8 +165,9 @@ public class SimulationVirialMultiOverlap extends Simulation {
         if (accumulators[iBox] != null) {
             // we need a new accumulator so nuke the old one now.
             if (accumulatorPumps[iBox] != null) {
-                integrators[iBox].removeIntervalAction(accumulatorPumps[iBox]);
+                integrators[iBox].getEventManager().removeListener(pumpListeners[iBox]);
                 accumulatorPumps[iBox] = null;
+                pumpListeners[iBox] = null;
             }
             accumulators[iBox] = null;
         }
@@ -177,7 +180,8 @@ public class SimulationVirialMultiOverlap extends Simulation {
         accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
+            pumpListeners[iBox] = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(pumpListeners[iBox]);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -305,6 +309,7 @@ public class SimulationVirialMultiOverlap extends Simulation {
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     protected DataPump[] accumulatorPumps;
+    protected IntegratorListenerAction[] pumpListeners;
 	protected final ClusterWeight[] sampleClusters;
     public BoxCluster[] box;
     public ISpecies[] species;

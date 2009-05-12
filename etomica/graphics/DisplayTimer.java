@@ -2,6 +2,7 @@ package etomica.graphics;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorMD;
+import etomica.listener.IntegratorListenerAction;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Second;
@@ -22,7 +23,8 @@ public class DisplayTimer extends DisplayTextBox {
         this.timer = timer;
         this.integrator = integrator;
         dataPump = new DataPump(timer, this);
-        integrator.addIntervalAction(dataPump);
+        pumpListener = new IntegratorListenerAction(dataPump);
+        integrator.getEventManager().addListener(pumpListener);
         setUpdateInterval(10);
         this.setUnit(new PrefixedUnit(Second.UNIT));
         ((PrefixedUnit)unit).setPrefix(Prefix.PICO);
@@ -36,14 +38,14 @@ public class DisplayTimer extends DisplayTextBox {
      * value displayed; affects only how often it is updated.
      */
     public void setUpdateInterval(int interval) {
-        integrator.setActionInterval(dataPump, interval);
+        pumpListener.setInterval(interval);
     }
 
     /**
      * Unhooks the DisplayTimer from the integrator
      */
     public void dispose() {
-        integrator.removeIntervalAction(dataPump);
+        integrator.getEventManager().removeListener(pumpListener);
     }
     
     /**
@@ -55,6 +57,7 @@ public class DisplayTimer extends DisplayTextBox {
         return timer;
     }
     
+    private  IntegratorListenerAction pumpListener;
     protected final DataPump dataPump;
     protected final IntegratorMD integrator;
     protected final DataSourceCountTime timer;

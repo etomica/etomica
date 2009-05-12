@@ -19,6 +19,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -95,7 +96,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		AccumulatorAverageCollapsing energyAccumulator = new AccumulatorAverageCollapsing();
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalAction(energyManager);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 		
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);

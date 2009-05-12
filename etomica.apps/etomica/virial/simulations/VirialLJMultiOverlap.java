@@ -5,6 +5,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
@@ -143,8 +144,9 @@ public class VirialLJMultiOverlap {
                     System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
                 }
             };
-            sim.integratorOS.addIntervalAction(progressReport);
-            sim.integratorOS.setActionInterval(progressReport, (int)(numSteps/10));
+            IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+            progressReportListener.setInterval((int)(numSteps/10));
+            sim.integratorOS.getEventManager().addListener(progressReportListener);
         }
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);

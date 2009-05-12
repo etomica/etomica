@@ -12,6 +12,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -136,8 +137,9 @@ public class SimCalcS extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        sim.integrator.addIntervalAction(meterNormalMode);
-        sim.integrator.setActionInterval(meterNormalMode, 2);
+        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+        meterListener.setInterval(2);
+        sim.integrator.getEventManager().addListener(meterListener);
         
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);

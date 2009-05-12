@@ -17,6 +17,7 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Pixel;
 import etomica.units.Pressure2D;
@@ -50,7 +51,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         DataFork strainFork = new DataFork();
         DataPump strainPump = new DataPump(meterStrain, strainFork);
         getController().getDataStreamPumps().add(strainPump);
-        sim.integrator.addIntervalAction(strainPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(strainPump));
         AccumulatorAverageCollapsing strainAverage = new AccumulatorAverageCollapsing();
         strainFork.addDataSink(strainAverage);
     
@@ -59,7 +60,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         DataFork stressFork = new DataFork();
         DataPump stressPump = new DataPump(meterStress, stressFork);
         getController().getDataStreamPumps().add(stressPump);
-        sim.integrator.addIntervalAction(stressPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(stressPump));
         AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryScrolling(1));
         stressHistory.setTimeDataSource(meterStrain);
         stressFork.addDataSink(stressHistory);
@@ -102,7 +103,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         DataPump internalStressPump = new DataPump(meterPressure, pressureToStress);
         getController().getDataStreamPumps().add(internalStressPump);
-        sim.integrator.addIntervalAction(internalStressPump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(internalStressPump));
 
         DataFork internalStressFork = new DataFork();
         pressureToStress.setDataSink(internalStressFork);

@@ -16,6 +16,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -241,8 +242,9 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
        DataPump PEpump = new DataPump(meterPE, dataLoggerPE);
        sim.getController().getEventManager().addListener(dataLoggerPE);
        
-       sim.integrator.addIntervalAction(PEpump);
-       sim.integrator.setActionInterval(PEpump, 1);
+       IntegratorListenerAction PEpumpListener = new IntegratorListenerAction(PEpump);
+       PEpumpListener.setInterval(1);
+       sim.integrator.getEventManager().addListener(PEpumpListener);
        
        
        sim.getController().actionPerformed();

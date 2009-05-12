@@ -44,6 +44,7 @@ import etomica.integrator.IntegratorGear4NPH.MeterEnthalpy;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
@@ -167,8 +168,9 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorHistory densityHistoryAcc = new AccumulatorHistory();
         densityHistoryAcc.setTimeDataSource(time);
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
-        sim.integratorJT.addIntervalAction(densityPump);
-        sim.integratorJT.setActionInterval(densityPump, 20);
+        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
+        sim.integratorJT.getEventManager().addListener(densityPumpListener);
+        densityPumpListener.setInterval(20);
 
         sim.activityIntegrate.setSleepPeriod(1);
 
@@ -181,8 +183,9 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
         targetPressureHistory.setTimeDataSource(time);
         DataPump pump = new DataPump(targetPressureDataSource, targetPressureHistory);
-        sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 20);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        sim.integratorJT.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
 
         //set-pressure history
         IEtomicaDataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature",Temperature.DIMENSION) {
@@ -194,8 +197,9 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
         targetTemperatureHistory.setTimeDataSource(time);
         pump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
-        sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 20);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integratorJT.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
 
         //plot of pressure-density-temperature setpoints and averages
         DisplayPlot plotT = new DisplayPlot();
@@ -222,8 +226,9 @@ public class JouleThomson extends SimulationGraphic {
         pressureHistory.setTimeDataSource(time);
         pump = new DataPump(meterPressure, pressureFork);
         pressureFork.addDataSink(pressureHistory);
-        sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 20);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integratorJT.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
         pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setUnit(new DataTag[]{pressureHistory.getTag()}, pUnit);
         AccumulatorAverageCollapsing pressureAverage = new AccumulatorAverageCollapsing();
@@ -236,8 +241,9 @@ public class JouleThomson extends SimulationGraphic {
         temperatureHistory.setTimeDataSource(time);
         pump = new DataPump(meterTemperature, temperatureFork);
         temperatureFork.addDataSink(temperatureHistory);
-        sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 20);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integratorJT.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
         temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setUnit(new DataTag[]{temperatureHistory.getTag()}, tUnit);
         AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
@@ -250,8 +256,9 @@ public class JouleThomson extends SimulationGraphic {
         enthalpyHistory.setTimeDataSource(time);
         pump = new DataPump(meterEnthalpy, enthalpyFork);
         enthalpyFork.addDataSink(enthalpyHistory);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 20);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integrator.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
         enthalpyHistory.addDataSink(plotH.getDataSet().makeDataSink());
         plotH.setUnit(new DataTag[]{enthalpyHistory.getTag()}, hUnit);
         AccumulatorAverageCollapsing enthalpyAverage = new AccumulatorAverageCollapsing();
@@ -264,8 +271,9 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorAverageCollapsing densityAverage = new AccumulatorAverageCollapsing();
         pump = new DataPump(densityMeter, densityAverage);
         densityAverage.setPushInterval(10);
-        sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 20);
+        pumpListener = new IntegratorListenerAction(pump);
+        sim.integratorJT.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(20);
 
         DisplayTextBoxesCAE densityDisplay = new DisplayTextBoxesCAE();
         densityDisplay.setAccumulator(densityAverage);

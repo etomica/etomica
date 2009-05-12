@@ -10,6 +10,7 @@ import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sodium;
 import etomica.integrator.IntegratorRigidIterative;
+import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
@@ -241,7 +242,7 @@ public class ReverseOsmosisWater extends Simulation {
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
-        integrator.addIntervalAction(pbc);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
         
         torqueSum = new PotentialCalculationTorqueSumWallForce(potentialTether);
         integrator.setTorqueSum(torqueSum);

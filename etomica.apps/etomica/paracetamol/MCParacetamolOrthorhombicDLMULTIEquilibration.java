@@ -6,6 +6,7 @@ import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Kelvin;
@@ -78,8 +79,9 @@ public class MCParacetamolOrthorhombicDLMULTIEquilibration extends Simulation {
        DataPump PEpump = new DataPump(meterPE, dataLoggerPE);
        sim.getController().getEventManager().addListener(dataLoggerPE);
        
-       sim.integrator.addIntervalAction(PEpump);
-       sim.integrator.setActionInterval(PEpump, 1);
+       IntegratorListenerAction PEpumpListener = new IntegratorListenerAction(PEpump);
+       PEpumpListener.setInterval(1);
+       sim.integrator.getEventManager().addListener(PEpumpListener);
        
        
        sim.getController().actionPerformed();

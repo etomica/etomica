@@ -19,6 +19,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BoltzmannProcessor;
 import etomica.normalmode.CoordinateDefinition;
@@ -197,7 +198,7 @@ public class SimHarmonicHexane extends Simulation {
         AccumulatorAverage avgBoltzmann = new AccumulatorAverageFixed(1);
         bp.setDataSink(avgBoltzmann);
         avgBoltzmann.setPushInterval(5);
-        sim.integrator.addIntervalAction(pump);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         
         //set up things for determining energy of harmonic system
         //read and set up wave vectors
@@ -213,7 +214,7 @@ public class SimHarmonicHexane extends Simulation {
             AccumulatorAverage harmonicAvg = new AccumulatorAverageFixed(5);
             DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);
             harmonicFork.addDataSink(harmonicAvg);
-            sim.integrator.addIntervalAction(pumpHarmonic);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pumpHarmonic));
             
             //set up measurement of S matrix, to check that configurations are
             // generated as expected
