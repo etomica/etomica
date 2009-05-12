@@ -178,24 +178,25 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         });
         
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
-        solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
+        solventChamberDensitySlider = new DeviceSlider(sim.getController()/*, modifier*/);
         solventChamberDensitySlider.setPrecision(1);
         solventChamberDensitySlider.setMaximum(30);
         solventChamberDensitySlider.setNMajor(3);
-//        solventChamberDensitySlider.setValue(sim.configMembrane.getSolventChamberDensity());
         solventChamberDensitySlider.setShowValues(true);
         solventChamberDensitySlider.setUnit(dUnit);
+        solventChamberDensitySlider.setModifier(modifier);
         solventChamberDensitySlider.doUpdate();
         solventChamberDensitySlider.setShowBorder(true);
         solventChamberDensitySlider.setLabel("Solvent Density (mol/L)");
         
         modifier = new ModifierGeneral(sim.configMembrane, "solutionChamberDensity");
-        soluteChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
+        soluteChamberDensitySlider = new DeviceSlider(sim.getController()/*, modifier*/);
         soluteChamberDensitySlider.setPrecision(1);
         soluteChamberDensitySlider.setMaximum(30);
         soluteChamberDensitySlider.setNMajor(3);
         soluteChamberDensitySlider.setShowValues(true);
         soluteChamberDensitySlider.setUnit(dUnit);
+        soluteChamberDensitySlider.setModifier(modifier);
         soluteChamberDensitySlider.doUpdate();
         soluteChamberDensitySlider.setShowBorder(true);
         soluteChamberDensitySlider.setLabel("Solution Density (mol/L)");
