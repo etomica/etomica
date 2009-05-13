@@ -27,7 +27,7 @@ public class MCMoveTracker implements Serializable {
         nTrials++;
         if (moveWasAccepted)
             nAccept++;
-        chiSum += chi;
+        chiSum += chi > 1 ? 1 : chi;
     }
 
     /**
@@ -35,8 +35,7 @@ public class MCMoveTracker implements Serializable {
      * this tracker.
      */
     public double acceptanceRatio() {
-        return (nTrials > 0) ? (double) nAccept / (double) nTrials
-                        : Double.NaN;
+        return (nTrials > 0) ? (double) nAccept / nTrials : Double.NaN;
     }
 
 
