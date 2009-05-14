@@ -22,7 +22,8 @@ public class AtomTypeOrientedSphere extends AtomTypeSphere implements IAtomTypeO
     
     protected void updateI() {
         //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
-        I.E(0.1*this.getMass()*diameter*diameter);
+        if(I != null)
+            I.E(0.1*this.getMass()*diameter*diameter);
     }
     
     public void setDiameter(double d) {
