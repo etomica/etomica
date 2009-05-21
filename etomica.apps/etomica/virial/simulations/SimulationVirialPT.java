@@ -4,7 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.data.IEtomicaDataSource;
@@ -13,7 +13,6 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -50,7 +49,7 @@ public class SimulationVirialPT extends Simulation {
         integrator = new IntegratorMC[temperature.length];
         meter = new MeterVirial[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
-        accumulatorPump = new DataPump[temperature.length];
+        accumulatorPump = new DataPumpListener[temperature.length];
         mcMoveMulti = new MCMoveBoxStep[temperature.length];
         mcMoveRotate = new MCMoveBoxStep[temperature.length];
         meterAccept = new IEtomicaDataSource[temperature.length-1];
@@ -124,7 +123,7 @@ public class SimulationVirialPT extends Simulation {
     public IEtomicaDataSource[] meterAccept;
     public IEtomicaDataSource[] meterAcceptP;
 	public DataAccumulator[] accumulator;
-	public DataPump[] accumulatorPump;
+	public DataPumpListener[] accumulatorPump;
 	public ISpecies species;
 	public ActivityIntegrate ai;
 	public IntegratorMC[] integrator;
@@ -138,7 +137,7 @@ public class SimulationVirialPT extends Simulation {
 	public void setMeter(int i, MeterVirial newMeter) {
 		if (accumulator[i] != null) { 
 			if (accumulatorPump[i] != null) {
-                integrator[i].getEventManager().removeListener(new IntegratorListenerAction(accumulatorPump[i]));
+                integrator[i].getEventManager().removeListener(accumulatorPump[i]);
 				accumulatorPump[i] = null;
 			}
 			accumulator[i] = null;
@@ -152,13 +151,13 @@ public class SimulationVirialPT extends Simulation {
 	public void setAccumulator(int i, DataAccumulator newAccumulator) {
 		accumulator[i] = newAccumulator;
 		if (accumulatorPump[i] == null) {
-			accumulatorPump[i] = new DataPump(meter[i],accumulator[i]);
+			accumulatorPump[i] = new DataPumpListener(meter[i],accumulator[i]);
 		}
 		else {
 			accumulatorPump[i].setDataSink(accumulator[i]);
 		}
 
-		integrator[i].getEventManager().addListener(new IntegratorListenerAction(accumulatorPump[i]));
+		integrator[i].getEventManager().addListener(accumulatorPump[i]);
 	}
 }
 

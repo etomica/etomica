@@ -4,12 +4,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
@@ -93,7 +92,7 @@ public class SimulationVirial extends Simulation {
     private static final long serialVersionUID = 1L;
 	public IEtomicaDataSource meter;
 	public DataAccumulator accumulator;
-	public DataPump accumulatorPump;
+	public DataPumpListener accumulatorPump;
 	public ISpecies species;
 	public ActivityIntegrate ai;
 	public IntegratorMC integrator;
@@ -109,7 +108,7 @@ public class SimulationVirial extends Simulation {
 		meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {
-                integrator.getEventManager().removeListener(new IntegratorListenerAction(accumulatorPump));
+                integrator.getEventManager().removeListener(accumulatorPump);
                 accumulatorPump = null;
             }
             setAccumulator(accumulator);
@@ -119,8 +118,8 @@ public class SimulationVirial extends Simulation {
 	public void setAccumulator(DataAccumulator newAccumulator) {
 		accumulator = newAccumulator;
 		if (accumulatorPump == null) {
-			accumulatorPump = new DataPump(meter,accumulator);
-            integrator.getEventManager().addListener(new IntegratorListenerAction(accumulatorPump));
+			accumulatorPump = new DataPumpListener(meter,accumulator);
+            integrator.getEventManager().addListener(accumulatorPump);
 		}
 		else {
 			accumulatorPump.setDataSink(accumulator);

@@ -9,12 +9,11 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -68,7 +67,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         species = speciesFactory.makeSpecies(this, space);
         getSpeciesManager().addSpecies(species);
         accumulators = new AccumulatorRatioAverage[sampleClusters.length];
-        accumulatorPumps = new DataPump[sampleClusters.length];
+        accumulatorPumps = new DataPumpListener[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirialRejected[sampleClusters.length];
@@ -151,9 +150,9 @@ public class SimulationVirialOverlapRejected extends Simulation {
     public void setMeter(MeterVirialRejected newMeter, int iBox) {
         // we need a new accumulator so nuke the old one now.
         if (accumulatorPumps[iBox] != null) {
-            integrators[iBox].getEventManager().removeListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
-            accumulatorPumps[iBox] = new DataPump(newMeter, accumulators[iBox]);
-            integrators[iBox].getEventManager().addListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
+            integrators[iBox].getEventManager().removeListener(accumulatorPumps[iBox]);
+            accumulatorPumps[iBox] = new DataPumpListener(newMeter, accumulators[iBox]);
+            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
         }
         if (meters[iBox] != null) {
             integrators[iBox].getMoveEventManager().removeListener(meters[iBox]);
@@ -170,8 +169,8 @@ public class SimulationVirialOverlapRejected extends Simulation {
         accumulators[iBox] = newAccumulator;
         accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
-            integrators[iBox].getEventManager().addListener(new IntegratorListenerAction(accumulatorPumps[iBox]));
+            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
+            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -321,7 +320,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
 //	protected DisplayPlot plot;
 	public DataSourceVirialOverlapRejected dsvo;
     public AccumulatorRatioAverage[] accumulators;
-    protected DataPump[] accumulatorPumps;
+    protected DataPumpListener[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public BoxCluster[] box;
     public ISpecies species;
