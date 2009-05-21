@@ -129,8 +129,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 128);
 
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
  
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(intramolecularpotential, new ISpecies[]{species});

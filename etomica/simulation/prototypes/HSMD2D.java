@@ -7,8 +7,6 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -72,8 +70,7 @@ public class HSMD2D extends Simulation {
         addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
     }

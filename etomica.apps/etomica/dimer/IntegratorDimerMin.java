@@ -22,7 +22,6 @@ import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
@@ -216,7 +215,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         sim.addBox(boxMin);
         
         if(potentialMaster instanceof PotentialMasterListDimer){
-            getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin))); 
+            getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
          }
         
         energyBox0 = new MeterPotentialEnergy(potentialMaster);

@@ -357,7 +357,7 @@ public class SimDimerMEAMGB extends Simulation{
         integratorMD.setBox(box);
         //pcGB = new PotentialCalculationForcePressureSumGB(space, box);
         //integratorMD.setForceSum(pcGB);
-        integratorMD.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));  
+        integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -380,7 +380,7 @@ public class SimDimerMEAMGB extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
+        integratorDimer.getEventManager().addListener(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -391,7 +391,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{dimer}, normalDir, space);
         integratorDimerMin.setBox(box);
-        integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box))); 
+        integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box)); 
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);

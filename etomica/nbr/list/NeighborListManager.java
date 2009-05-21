@@ -3,11 +3,12 @@ package etomica.nbr.list;
 import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
-import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IEvent;
+import etomica.api.IIntegratorListener;
 import etomica.api.IPotential;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -33,7 +34,7 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IAction, AgentSource, Serializable {
+public class NeighborListManager implements IIntegratorListener, AgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -43,7 +44,6 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
-        setPriority(200);
         pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
@@ -78,16 +78,19 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
         }
     }
 
-    /**
-     * Reacts to an interval event, with every updateInterval calls causing
-     * this to invoke updateNbrsIfNeeded.
-     */
-    public void actionPerformed() {
+
+    public void integratorInitialized(IEvent e) {
+        reset();
+    }
+
+    public void integratorStepFinished(IEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
+
+    public void integratorStepStarted(IEvent e) {}
 
     /**
      * For each box in the array, applies central image, 
@@ -193,24 +196,6 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
 
     public NeighborCriterion[] getCriterion(IAtomType atomType) {
         return potentialMaster.getRangedPotentials(atomType).getCriteria();
-    }
-
-    /**
-     * @return Returns the interval-listener priority.
-     */
-    public int getPriority() {
-        return priority;
-    }
-
-    /**
-     * Sets the interval-listener priority. Default value is 300, which puts
-     * this after central-image enforcement.
-     * 
-     * @param priority
-     *            The priority to set.
-     */
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
     /**
@@ -364,23 +349,14 @@ public class NeighborListManager implements IAction, AgentSource, Serializable {
     }
     
     public IAtomList[] getUpList(IAtom atom) {
-        if (!initialized) {
-            reset();
-        }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
     public IAtomList[] getDownList(IAtom atom) {
-        if (!initialized) {
-            reset();
-        }
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 
     public AtomPotentialList getPotential1BodyList(IAtom atom) {
-        if (!initialized) {
-            reset();
-        }
         return (AtomPotentialList)agentManager1Body.getAgent(atom);
     }
     

@@ -178,7 +178,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
         potentialMaster.setRange(potentialThreaded.getRange()*1.1);
         potentialMaster.setCriterion(potentialThreaded, new CriterionSimple(this, space, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box)));
+        integrator.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         
         
         integrator.setBox(box);

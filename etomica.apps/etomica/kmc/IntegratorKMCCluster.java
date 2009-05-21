@@ -395,7 +395,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin2.setBox(box);
         
         if(potentialMaster instanceof PotentialMasterListDimer){
-            integratorMin2.getEventManager().addListener(new IntegratorListenerAction(((PotentialMasterList)potentialMaster).getNeighborManager(box))); 
+            integratorMin2.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box)); 
         }
                 
         xyzMin1 = new XYZWriter(box);

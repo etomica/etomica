@@ -319,7 +319,7 @@ public void enableDimerSearch(String fileName, long maxSteps){
         integratorDimer.setBox(box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
-        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
+        integratorDimer.getEventManager().addListener(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);

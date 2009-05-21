@@ -19,7 +19,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -118,8 +117,7 @@ public class ZeoliteSimulation extends Simulation {
         
         box = new Box(space);
         addBox(box);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this, space);

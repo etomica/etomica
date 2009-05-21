@@ -244,7 +244,7 @@ public class MEAMMd3D extends Simulation {
         this.potentialMaster.addPotential(potentialN, new IAtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         
         integrator.setBox(box);
 		

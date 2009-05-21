@@ -22,7 +22,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
@@ -93,8 +92,7 @@ public class TestSWChain extends Simulation {
         addBox(box);
         box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
         box.setNMolecules(species, numMolecules);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));

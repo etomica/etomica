@@ -27,7 +27,6 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2Dreiding;
 import etomica.potential.P2Exp6;
@@ -129,8 +128,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 96);
         
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
                
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(intramolecularpotential, new ISpecies[]{species});

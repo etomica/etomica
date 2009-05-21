@@ -330,7 +330,7 @@ public class SimDimerMEAMadatom extends Simulation{
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
         integratorMD.setBox(box);
-        integratorMD.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));  
+        integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));  
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
@@ -353,7 +353,7 @@ public class SimDimerMEAMadatom extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        integratorDimer.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box)));  
+        integratorDimer.getEventManager().addListener(potentialMasterD.getNeighborManager(box));  
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         getController().addAction(activityIntegrateDimer);
@@ -365,7 +365,7 @@ public class SimDimerMEAMadatom extends Simulation{
         integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
         integratorDimerMin.setBox(box);
         integratorDimerMin.setFileName(fileName);
-        integratorDimerMin.getEventManager().addListener(new IntegratorListenerAction(potentialMasterD.getNeighborManager(box))); 
+        integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box)); 
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
         integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         getController().addAction(activityIntegrateMin);
