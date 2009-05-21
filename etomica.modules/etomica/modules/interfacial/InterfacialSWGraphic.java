@@ -99,7 +99,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected final MeterProfile muProfileMeter;
     protected boolean isExpanded;
     protected final DataPumpListener surfactantProfilePump, orientationProfilePump;
-    protected IntegratorListenerAction surfactantProfilePumpL, orientationProfilePumpL;
     protected final DisplayPlot profilePlot, orientationPlot;
     
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
@@ -206,8 +205,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 muProfileMeter.reset();
                 
                 if ((int)nSurfactantSlider.getValue() > 0) {
-                    sim.integrator.getEventManager().removeListener(surfactantProfilePumpL);
-                    sim.integrator.getEventManager().removeListener(orientationProfilePumpL);
+                    sim.integrator.getEventManager().removeListener(surfactantProfilePump);
+                    sim.integrator.getEventManager().removeListener(orientationProfilePump);
                     profilePlot.getDataSet().reset();
                     profilePlot.setDoLegend(false);
                     profilePlot.setDoLegend(true);
