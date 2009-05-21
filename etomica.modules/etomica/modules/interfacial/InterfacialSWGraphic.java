@@ -31,6 +31,7 @@ import etomica.data.DataProcessor;
 import etomica.data.DataProcessorChemicalPotential;
 import etomica.data.DataProcessorInterfacialTension;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSplitter;
@@ -97,7 +98,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected final MeterProfileByAtoms orientationProfileMeter;
     protected final MeterProfile muProfileMeter;
     protected boolean isExpanded;
-    protected final DataPump surfactantProfilePump, orientationProfilePump;
+    protected final DataPumpListener surfactantProfilePump, orientationProfilePump;
     protected IntegratorListenerAction surfactantProfilePumpL, orientationProfilePumpL;
     protected final DisplayPlot profilePlot, orientationPlot;
     
@@ -154,12 +155,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 sim.integrator.reset();
 
                 if (numSurfactants > 0) {
-                    surfactantProfilePumpL = new IntegratorListenerAction(surfactantProfilePump);
-                    sim.integrator.getEventManager().addListener(surfactantProfilePumpL);
-                    surfactantProfilePumpL.setInterval(10);
-                    IntegratorListenerAction orientationProfilePumpL = new IntegratorListenerAction(orientationProfilePump);
-                    sim.integrator.getEventManager().addListener(orientationProfilePumpL);
-                    orientationProfilePumpL.setInterval(10);
+                    sim.integrator.getEventManager().addListener(surfactantProfilePump);
+                    sim.integrator.getEventManager().addListener(orientationProfilePump);
                 }
 
                 nSlider.setEnabled(false);
@@ -432,7 +429,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         surfactantProfileMeter.setDataSource(meterNMolecules);
         AccumulatorAverageFixed surfactantProfileAvg = new AccumulatorAverageFixed(10);
         surfactantProfileAvg.setPushInterval(10);
-        surfactantProfilePump = new DataPump(surfactantProfileMeter, surfactantProfileAvg);
+        surfactantProfilePump = new DataPumpListener(surfactantProfileMeter, surfactantProfileAvg, 10);
         dataStreamPumps.add(surfactantProfilePump);
         
         orientationProfileMeter = new MeterProfileByAtoms(space);
@@ -446,7 +443,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         orientationPlot.setLabel("Orientation");
         orientationPlot.getPlot().setTitle("Surfactant Orientation");
         add(orientationPlot);
-        orientationProfilePump = new DataPump(orientationProfileMeter, orientationPlot.getDataSet().makeDataSink());
+        orientationProfilePump = new DataPumpListener(orientationProfileMeter, orientationPlot.getDataSet().makeDataSink(), 10);
         dataStreamPumps.add(orientationProfilePump);
         
         final FitTanh fitTanh = new FitTanh();
