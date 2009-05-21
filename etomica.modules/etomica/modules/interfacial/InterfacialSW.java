@@ -17,7 +17,6 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
@@ -134,7 +133,7 @@ public class InterfacialSW extends Simulation {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
         integrator.setBox(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     
     public static void main(String[] args) {

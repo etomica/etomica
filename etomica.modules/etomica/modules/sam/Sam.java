@@ -23,7 +23,6 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
@@ -271,7 +270,7 @@ public class Sam extends Simulation {
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
 
-        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         updateRCut();
     }

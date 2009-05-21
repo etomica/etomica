@@ -22,7 +22,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.nbr.list.NeighborListManager;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -201,8 +200,7 @@ public class DCVGCMD extends Simulation {
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.005);
         //integrator.setInterval(10);
-        final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
-        integratorMD.getEventManager().addListener(new IntegratorListenerAction(nbrManager));
+        integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;

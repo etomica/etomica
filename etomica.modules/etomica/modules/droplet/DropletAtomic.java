@@ -14,7 +14,6 @@ import etomica.chem.elements.Argon;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -91,7 +90,7 @@ public class DropletAtomic extends Simulation {
 
         makeDropShape();
         
-        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     
     public void makeDropShape() {

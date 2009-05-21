@@ -62,7 +62,7 @@ public class Ljmd extends Simulation {
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
 
-        integrator.getEventManager().addListener(new IntegratorListenerAction(potentialMaster.getNeighborManager(box)));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     
     public static void main(String[] args) {
