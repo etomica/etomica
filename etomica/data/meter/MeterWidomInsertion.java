@@ -28,6 +28,9 @@ import etomica.units.Null;
  * the species number density in the box in its current configuration.  Default
  * behavior will give residual chemical potential.
  * 
+ * The actual chemical potential can be calculated as -kT ln(<x>) where x is
+ * the value returned by getDataAsScalar.
+ * 
  * @author David Kofke
  */
 public class MeterWidomInsertion extends DataSourceScalar {
