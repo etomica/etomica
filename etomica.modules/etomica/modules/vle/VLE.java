@@ -97,8 +97,8 @@ public class VLE extends SimulationGraphic {
         sigmaSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 resetMCMoves.actionPerformed();
-                getPaintAction(sim.boxLiquid).actionPerformed();
-                getPaintAction(sim.boxVapor).actionPerformed();
+                getDisplayBox(sim.boxLiquid).repaint();
+                getDisplayBox(sim.boxVapor).repaint();
             }
         });
         

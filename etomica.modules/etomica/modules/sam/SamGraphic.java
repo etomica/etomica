@@ -178,7 +178,7 @@ public class SamGraphic extends SimulationGraphic {
                     sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {}
-                getPaintAction(sim.box).actionPerformed();
+                getDisplayBox(sim.box).repaint();
                 resetAction.actionPerformed();
             }
         };
@@ -294,7 +294,7 @@ public class SamGraphic extends SimulationGraphic {
         numCellsSlider.doUpdate();
         numCellsSlider.setPostAction(new IAction() {
             public void actionPerformed() {
-                getPaintAction(sim.box).actionPerformed();
+                getDisplayBox(sim.box).repaint();
                 resetAction.actionPerformed();
             }
         });
@@ -426,7 +426,7 @@ public class SamGraphic extends SimulationGraphic {
                     sim.integrator.reset();
                 }
                 catch (ConfigurationOverlapException e) {}
-                getPaintAction(sim.box).actionPerformed();
+                getDisplayBox(sim.box).repaint();
                 resetAction.actionPerformed();
                 corrugationButton.setLabel(sinusoidalEnabled ? "Use harmonic corrugation" : "Use sinusoidal corrugation");
             }
