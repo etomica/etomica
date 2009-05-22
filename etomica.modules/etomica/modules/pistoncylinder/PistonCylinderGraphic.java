@@ -33,6 +33,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
@@ -116,6 +117,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
     public DisplayPlot plotRDF;
+    public DataPumpListener rdfPump;
+    public IntegratorListenerAction rdfListener;
     public Unit tUnit, dUnit, pUnit, mUnit;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public DeviceBox densityBox;
@@ -778,13 +781,13 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             meterRDF.setBox(pc.box);
             meterRDF.getXDataSource().setXMax(rdfCutoff);
             meterRDF.setPotential(pistonPotential);
-            pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
-            IntegratorListenerAction meterRDFListener = new IntegratorListenerAction(meterRDF);
-            pc.integrator.getEventManager().addListener(meterRDFListener);
-            dataStreamPumps.add(pump);
-            pc.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
-            meterRDFListener.setInterval(dataInterval);
-            final DataPump rdfPump = doRDF ? pump : null;
+            rdfPump = new DataPumpListener(meterRDF, plotRDF.getDataSet().makeDataSink(), dataInterval);
+            pc.integrator.getEventManager().addListener(rdfPump);
+            dataStreamPumps.add(rdfPump);
+            rdfListener = new IntegratorListenerAction(meterRDF);
+            rdfListener.setInterval(dataInterval);
+            pc.integrator.getEventManager().addListener(rdfListener);
+            
             
             getController().getResetAveragesButton().setPostAction(new IAction() {
                 public void actionPerformed() {
@@ -793,20 +796,19 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 }
             });
         }
-        final DataPump rdfPump = doRDF ? pump : null;
-        final IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
 
         fixPistonButton.setPostAction(new IAction() {
             public void actionPerformed() {
-                new ActionPistonUpdate(pc.integrator).actionPerformed();
+                pc.integrator.pistonUpdateRequested();
                 dataResetAction.actionPerformed();
                 if (doRDF) {
                     if (fixPistonModulator.getBoolean()) {
-                        pc.integrator.getEventManager().addListener(rdfPumpListener);
-                        rdfPumpListener.setInterval(dataInterval);
+                        pc.integrator.getEventManager().addListener(rdfPump);
+                        pc.integrator.getEventManager().addListener(rdfListener);
                     }
                     else {
-                        pc.integrator.getEventManager().removeListener(rdfPumpListener);
+                        pc.integrator.getEventManager().removeListener(rdfPump);
+                        pc.integrator.getEventManager().removeListener(rdfListener);
                     }
                 }
             }
@@ -861,7 +863,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pressureHistory.setActive(true);
                         targetTemperatureHistory.setActive(true);
                         targetPressureHistory.setActive(true);
-                        rdfPumpListener.setInterval(10);
+                        rdfPump.setInterval(dataInterval);
                     }
                     else {
                         isFast = true;
@@ -874,7 +876,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         pressureHistory.setActive(false);
                         targetTemperatureHistory.setActive(false);
                         targetPressureHistory.setActive(false);
-                        rdfPumpListener.setInterval(10000);
+                        rdfPump.setInterval(10000);
                     }
                 }
                 
