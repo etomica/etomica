@@ -11,8 +11,12 @@ public class IntegratorListenerAction implements IIntegratorListener {
     private int intervalCount;
     
     public IntegratorListenerAction(IAction a) {
+        this(a, 1);
+    }
+    
+    public IntegratorListenerAction(IAction a, int interval) {
         action = a;
-        interval = 1;
+        this.interval = interval;
         intervalCount = 0;
     }
     
