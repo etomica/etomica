@@ -3,6 +3,7 @@ package etomica.species;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.IConformation;
+import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.util.Arrays;
 
@@ -97,6 +98,9 @@ public abstract class Species implements ISpecies {
      */
     public IConformation getConformation() {return conformation;}
  
+    public void initializeConformation(IMolecule molecule) {
+        conformation.initializePositions(molecule.getChildList());
+    }
     
     /* (non-Javadoc)
      * @see etomica.atom.IAtomType#getPositionDefinition()

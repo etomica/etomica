@@ -92,8 +92,7 @@ public abstract class CoordinateDefinition {
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             // initialize coordinates of child atoms
-            IConformation config = molecule.getType().getConformation();
-            config.initializePositions(molecule.getChildList());
+            molecule.getType().initializeConformation(molecule);
 
             int[] ii = indexIterator.next();
             position.E((IVector)lattice.site(ii));

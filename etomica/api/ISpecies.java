@@ -46,10 +46,10 @@ public interface ISpecies {
     public IAtomType getAtomType(int index);
 
     /**
-     * Returns the conformation used to set the standard arrangement of
-     * the atoms/atom-groups produced by this factory.
-     */
-    public IConformation getConformation();
+     * Initializes the molecule's IAtoms in their standard arrangement.
+     * The overall position of the molecule may be changed by this method.
+     */ 
+    public void initializeConformation(IMolecule molecule);
 
     /**
      * The position definition held by the type provides an appropriate default

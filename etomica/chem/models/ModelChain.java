@@ -8,6 +8,7 @@ import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
+import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -132,7 +133,7 @@ public class ModelChain extends Model {
         }
         
         if (conformation == null) {
-            ISpecies species = new SpeciesSpheres(sim, space, numAtoms, element);
+            Species species = new SpeciesSpheres(sim, space, numAtoms, element);
             setConformation(species.getConformation());
         }
         

@@ -121,8 +121,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         for (int i=0; i<nMolecules; i++) {
             IMolecule a = moleculeList.getMolecule(i);
             // initialize coordinates of child atoms
-            IConformation config = a.getType().getConformation();
-            config.initializePositions(a.getChildList());
+            a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);

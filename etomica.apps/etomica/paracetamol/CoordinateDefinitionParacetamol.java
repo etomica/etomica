@@ -121,8 +121,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             if (configuration == null) {
                 // initialize coordinates of child atoms
-                IConformation config = molecule.getType().getConformation();
-                config.initializePositions(molecule.getChildList());
+                molecule.getType().initializeConformation(molecule);
             }
             
             int[] ii = indexIterator.next();
@@ -501,8 +500,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	for (int a=0; a<3; a++){
 	      		t.setComponent(a, a, basisOrientation[i][a]);
 	      	}
-            IConformation config = molecule.getType().getConformation();
-            config.initializePositions(molecule.getChildList());
+            molecule.getType().initializeConformation(molecule);
 	      	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(t);
 	      	atomGroupAction.actionPerformed(molecule);
 

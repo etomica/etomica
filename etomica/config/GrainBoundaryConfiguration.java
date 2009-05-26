@@ -11,7 +11,6 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -163,8 +162,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             	//System.out.println(ii[2] + "  |  " + a);
             }
             // initialize coordinates of child atoms
-            IConformation config = a.getType().getConformation();
-            config.initializePositions(a.getChildList());
+            a.getType().initializeConformation(a);
             IVectorMutable site = (IVectorMutable) myLatA.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
@@ -186,8 +184,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             	a = listMobileB.getMolecule(iMobileB);
             }
             // initialize coordinates of child atoms
-            IConformation config = a.getType().getConformation();
-            config.initializePositions(a.getChildList());
+            a.getType().initializeConformation(a);
             IVectorMutable site = (IVectorMutable) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);

@@ -31,8 +31,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 		for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             // initialize coordinates of child atoms
 		    IMolecule a = moleculeList.getMolecule(i);
-            IConformation config = a.getType().getConformation();
-            config.initializePositions(a.getChildList());
+            a.getType().initializeConformation(a);
         }
 
         BoxCluster boxCluster = (BoxCluster)box;

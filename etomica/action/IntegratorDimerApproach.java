@@ -45,11 +45,9 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		 * *****************************************************************
 		 */
 		
-        IConformation configA = monomerA.getType().getConformation();
-        configA.initializePositions(monomerA.getChildList());
+        monomerA.getType().initializeConformation(monomerA);
         
-        IConformation configB = monomerB.getType().getConformation();
-        configB.initializePositions(monomerB.getChildList());
+        monomerB.getType().initializeConformation(monomerB);
         
         /* *****************************************************************
 		 * *****************************************************************

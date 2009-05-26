@@ -190,8 +190,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             }
             // initialize coordinates of child atoms
         	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
-            IConformation config = a.getType().getConformation();
-            config.initializePositions(a.getChildList());
+            a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
