@@ -42,7 +42,7 @@ public class SpeciesMethanol extends Species {
      }
 
      public IMolecule makeMolecule() {
-         Molecule methanol = new Molecule(this);
+         Molecule methanol = new Molecule(this, 7);
          
          // The order in which the child atoms are added is important; it must match the site indices.
          methanol.addChildAtom(new Atom(space, oType));

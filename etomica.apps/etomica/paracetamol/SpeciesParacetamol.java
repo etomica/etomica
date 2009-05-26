@@ -46,7 +46,7 @@ public class SpeciesParacetamol extends Species {
     
     public IMolecule makeMolecule() {
 
-        Molecule moleculeParacetamol = new Molecule(this);
+        Molecule moleculeParacetamol = new Molecule(this, 20);
 
         int countC = 0;
         int countH = 0;

@@ -7,7 +7,6 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.ISpace;
@@ -37,7 +36,7 @@ public class SpeciesMethanol extends Species {
      }
 
      public IMolecule makeMolecule() {
-         Molecule methanol = new Molecule(this);
+         Molecule methanol = new Molecule(this, 3);
          
          // The order in which the child atoms are added is important; it must match the site indices.
          methanol.addChildAtom(new Atom(space, cH3Type));

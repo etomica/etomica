@@ -44,7 +44,7 @@ public class SpeciesEthanol extends Species {
      }
 
      public IMolecule makeMolecule() {
-         Molecule ethanol = new Molecule(this);
+         Molecule ethanol = new Molecule(this, 10);
          
          // The order in which the child atoms are added is important; it must match the order of site indices below.
          ethanol.addChildAtom(new Atom(space, oType));
