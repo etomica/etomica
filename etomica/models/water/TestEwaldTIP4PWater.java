@@ -138,9 +138,9 @@ public class TestEwaldTIP4PWater extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getChildType(0), java.awt.Color.white);
-        colorScheme.setColor(sim.species.getChildType(1), java.awt.Color.blue);
-        ((IAtomTypeSphere)sim.species.getChildType(2)).setDiameter(0);
+        colorScheme.setColor(sim.species.getAtomType(0), java.awt.Color.white);
+        colorScheme.setColor(sim.species.getAtomType(1), java.awt.Color.blue);
+        ((IAtomTypeSphere)sim.species.getAtomType(2)).setDiameter(0);
         
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

@@ -169,7 +169,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.species1.getLeafType(), speciesColors[0]);
 		colorScheme.setColor(sim.species2.getLeafType(), speciesColors[1]);
-		colorScheme.setColor(sim.speciesTube.getChildType(0),java.awt.Color.cyan);
+		colorScheme.setColor(sim.speciesTube.getAtomType(0),java.awt.Color.cyan);
 
 
 	    //panel for Mu's

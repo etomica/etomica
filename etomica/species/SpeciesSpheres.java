@@ -49,7 +49,7 @@ public class SpeciesSpheres extends Species {
     }
     
     public IAtomType getLeafType() {
-        return getChildType(0);
+        return getAtomType(0);
     }
     
     /**

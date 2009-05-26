@@ -44,12 +44,12 @@ public interface ISpecies {
     /**
      * Returns the number of child types of this group.
      */
-    public int getChildTypeCount();
+    public int getAtomTypeCount();
 
     /**
      * Returns the child types of this group for the specified index.
      */
-    public IAtomType getChildType(int index);
+    public IAtomType getAtomType(int index);
 
     /**
      * Returns the conformation used to set the standard arrangement of

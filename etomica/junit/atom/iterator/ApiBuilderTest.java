@@ -100,8 +100,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //test 3-atom type and 4-atom type, no target
         basisPair.atom0 = moleculeList0.getMolecule(2);
         basisPair.atom1 = moleculeList1.getMolecule(1);
-        types[0] = species0.getChildType(0);
-        types[1] = species1.getChildType(0);
+        types[0] = species0.getAtomType(0);
+        types[1] = species1.getAtomType(0);
         ApiIntergroup api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         LinkedList list0 = generalIteratorMethodTests(api);
@@ -133,8 +133,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //test 3-atom type and 4-atom type, no target
         basisPair.atom1 = moleculeList0.getMolecule(2);
         basisPair.atom0 = moleculeList1.getMolecule(1);
-        types[0] = species0.getChildType(0);
-        types[1] = species1.getChildType(0);
+        types[0] = species0.getAtomType(0);
+        types[1] = species1.getAtomType(0);
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         testNoIterates(api);
@@ -151,8 +151,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //test 3-atom type and 4-atom type, no target
         basisPair.atom1 = moleculeList0.getMolecule(2);
         basisPair.atom0 = moleculeList1.getMolecule(1);
-        types[1] = species0.getChildType(0);
-        types[0] = species1.getChildType(0);
+        types[1] = species0.getAtomType(0);
+        types[0] = species1.getAtomType(0);
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
@@ -171,8 +171,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //test 3-atom type and 1-atom type, no target
         basisPair.atom0 = moleculeList0.getMolecule(2);
         basisPair.atom1 = moleculeList1.getMolecule(1);
-        types[0] = species0.getChildType(0);
-        types[1] = species1.getChildType(1);
+        types[0] = species0.getAtomType(0);
+        types[1] = species1.getAtomType(1);
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
@@ -202,8 +202,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
         basisPair.atom0 = moleculeList0.getMolecule(2);
         basisPair.atom1 = moleculeList1.getMolecule(1);
-        types[0] = species0.getChildType(0);
-        types[1] = species1.getChildType(0);
+        types[0] = species0.getAtomType(0);
+        types[1] = species1.getAtomType(0);
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list1 = generalIteratorMethodTests(api);

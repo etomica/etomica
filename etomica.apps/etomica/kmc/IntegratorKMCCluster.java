@@ -226,7 +226,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         search = true;
         saddleVib = new double[totalSearches];
         saddleEnergies = new double[totalSearches];
-        massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
+        massSec = Math.sqrt(species[0].getAtomType(0).getMass()) * 0.000000000001;
         msd = space.makeVector();
         tau = 0;
         searchNum = 0;
@@ -417,7 +417,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin2.getEventManager().addListener(imposePbc2Listener);
         
         //Limit MSD calculation to a specific species
-        AtomIterator aif = new AtomIteratorLeafFilteredType(box, species[0].getChildType(0));
+        AtomIterator aif = new AtomIteratorLeafFilteredType(box, species[0].getAtomType(0));
         msd1 = new MeterMeanSquareDisplacement(space, integratorMin1);
         msd2 = new MeterMeanSquareDisplacement(space, integratorMin2);
         msd1.setIterator((AtomIteratorBoxDependent)aif);

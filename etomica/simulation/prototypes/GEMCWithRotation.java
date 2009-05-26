@@ -44,7 +44,7 @@ public class GEMCWithRotation extends Simulation {
 	    
 	    species = new SpeciesSpheresRotating(this, space);
         getSpeciesManager().addSpecies(species);
-        ((IAtomTypeSphere)species.getChildType(0)).setDiameter(sigma);
+        ((IAtomTypeSphere)species.getAtomType(0)).setDiameter(sigma);
 
 	    box1 = new Box(space);
         addBox(box1);

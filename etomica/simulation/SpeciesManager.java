@@ -38,15 +38,15 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
             if (speciesList[i] == species) {
                 throw new IllegalArgumentException("Species already exists");
             }
-            atomTypeMaxIndex += speciesList[i].getChildTypeCount();
+            atomTypeMaxIndex += speciesList[i].getAtomTypeCount();
         }
         int index = speciesList.length;
         species.setIndex(index);
         speciesList = (ISpecies[])Arrays.addObject(speciesList,species);
 	    
-        for(int i = 0; i < species.getChildTypeCount(); i++) {
-            species.getChildType(i).setIndex(atomTypeMaxIndex++);
-            atomTypeAddedNotify(species.getChildType(i));
+        for(int i = 0; i < species.getAtomTypeCount(); i++) {
+            species.getAtomType(i).setIndex(atomTypeMaxIndex++);
+            atomTypeAddedNotify(species.getAtomType(i));
         }
 
         int boxCount = sim.getBoxCount();
@@ -80,18 +80,18 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
             sim.getEventManager().fireEvent(evt);
         }
 
-        for(int j = 0; j < removedSpecies.getChildTypeCount(); j++) {
-            atomTypeRemovedNotify(removedSpecies.getChildType(j));
+        for(int j = 0; j < removedSpecies.getAtomTypeCount(); j++) {
+            atomTypeRemovedNotify(removedSpecies.getAtomType(j));
         }
 
 
         int atomTypeMaxIndex = 0;
         for(int i = 0; i < speciesList.length; i++) {
-            for(int j = 0; j < speciesList[j].getChildTypeCount(); j++) {
-                if(speciesList[i].getChildType(j).getIndex() != atomTypeMaxIndex) {
-                    int oldIndex = speciesList[i].getChildType(j).getIndex();
-                    speciesList[i].getChildType(j).setIndex(atomTypeMaxIndex);
-                    IEvent evt = new SimulationAtomTypeIndexChangedEvent(speciesList[i].getChildType(j), oldIndex);
+            for(int j = 0; j < speciesList[j].getAtomTypeCount(); j++) {
+                if(speciesList[i].getAtomType(j).getIndex() != atomTypeMaxIndex) {
+                    int oldIndex = speciesList[i].getAtomType(j).getIndex();
+                    speciesList[i].getAtomType(j).setIndex(atomTypeMaxIndex);
+                    IEvent evt = new SimulationAtomTypeIndexChangedEvent(speciesList[i].getAtomType(j), oldIndex);
                     sim.getEventManager().fireEvent(evt);
                 }
                 atomTypeMaxIndex++;

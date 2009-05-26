@@ -91,8 +91,8 @@ public class InterfacialSW extends Simulation {
         ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);
         getSpeciesManager().addSpecies(surfactant);
         leafType = species.getLeafType();
-        headType = surfactant.getChildType(0); // head likes the monatomic species
-        tailType = surfactant.getChildType(1);
+        headType = surfactant.getAtomType(0); // head likes the monatomic species
+        tailType = surfactant.getAtomType(1);
 
         //instantiate several potentials for selection in combo-box
         P2SquareWell p2SW = new P2SquareWell(space, 1.0, 1.5, 1.0, true);

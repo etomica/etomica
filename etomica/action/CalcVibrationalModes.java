@@ -51,7 +51,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
 
     public void setup(IBox aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
         ms = movableSet; 
-        mass = ms.getMolecule(0).getType().getChildType(0).getMass();
+        mass = ms.getMolecule(0).getType().getAtomType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);
         d = new int[movableSet.getMoleculeCount()*3];
         positions = new double[d.length];

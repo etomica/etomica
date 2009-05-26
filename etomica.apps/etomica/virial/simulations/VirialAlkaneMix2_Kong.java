@@ -190,10 +190,10 @@ public class VirialAlkaneMix2_Kong {
 
         SpeciesAlkane species1 = (SpeciesAlkane)sim.species[0];
         SpeciesAlkane species2 = (SpeciesAlkane)sim.species[1];
-        IAtomType typeCH3A = species1.getChildType(0);
-        IAtomType typeCH3B = species2.getChildType(0);
-        IAtomType typeCH2A = species1.getChildType(1);
-        IAtomType typeCH2B = species2.getChildType(1);
+        IAtomType typeCH3A = species1.getAtomType(0);
+        IAtomType typeCH3B = species2.getAtomType(0);
+        IAtomType typeCH2A = species1.getAtomType(1);
+        IAtomType typeCH2B = species2.getAtomType(1);
         pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH2A}));
         pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3A, typeCH2B}));
         pComp1Comp2Group.addPotential(p2CH3CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH3B, typeCH2A}));

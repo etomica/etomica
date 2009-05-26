@@ -65,11 +65,11 @@ public abstract class Species implements ISpecies {
         return this;
     }
 
-    public IAtomType getChildType(int index) {
+    public IAtomType getAtomType(int index) {
     	return childTypes[index];
     }
 
-    public int getChildTypeCount() {
+    public int getAtomTypeCount() {
     	return childTypes.length;
     }
 

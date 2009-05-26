@@ -48,8 +48,8 @@ public class SpeciesManagerTest extends TestCase {
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
 			assertSame(i, species[i].getIndex());
-			for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-			    assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+			    assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}
 		}
@@ -73,8 +73,8 @@ public class SpeciesManagerTest extends TestCase {
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
 			assertSame(i, species[i].getIndex());
-	        for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-	            assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+	        for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+	            assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
 	            expectedChildIndex++;
 	        }
 		}
@@ -88,8 +88,8 @@ public class SpeciesManagerTest extends TestCase {
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i));
 			assertSame(i, species[i].getIndex());
-            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+            for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
             }
 		}
@@ -103,8 +103,8 @@ public class SpeciesManagerTest extends TestCase {
 		for(int i = 1; i < sm.getSpeciesCount(); i++) {
 			assertSame(species[i], sm.getSpecies(i-1));
 			assertSame(i-1, species[i].getIndex());
-            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+            for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
             }
 		}
@@ -129,8 +129,8 @@ public class SpeciesManagerTest extends TestCase {
 		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
 			assertEquals(i, sm.getSpecies(i).getIndex());
-            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                assertSame(expectedChildIndex, species[i].getChildType(j).getIndex());
+            for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
             }
 		}
@@ -153,7 +153,7 @@ public class SpeciesManagerTest extends TestCase {
 		        assertEquals(i, newSpecies.getIndex());
 		    }
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(expectedChildIndex, sm.getSpecies(i).getChildType(j).getIndex());
+			    assertEquals(expectedChildIndex, sm.getSpecies(i).getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}
 		}
@@ -179,8 +179,8 @@ public class SpeciesManagerTest extends TestCase {
         int expectedChildIndex = 0;
         for(int i = 0; i < numSpecies; i++) {
             assertEquals(i, species[i].getIndex());
-            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+            for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
             }
         }
@@ -194,15 +194,15 @@ public class SpeciesManagerTest extends TestCase {
         for(int i = 0; i < sm.getSpeciesCount(); i++) {
             if(i < REMOVE_INDEX) {
                 assertEquals(i, species[i].getIndex());
-                for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
                     expectedChildIndex++;
                 }
             }
             else {
                 assertEquals(i, species[i+1].getIndex());
-                for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
-                    assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+                for(int j = 0; j < species[i+1].getAtomTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i+1].getAtomType(j).getIndex());
                     expectedChildIndex++;
                 }
             }
@@ -228,8 +228,8 @@ public class SpeciesManagerTest extends TestCase {
 		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
 		    assertEquals(i, species[i].getIndex());
-			for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-			    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+			    assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}
 		}
@@ -243,15 +243,15 @@ public class SpeciesManagerTest extends TestCase {
 		for(int i = 0; i < sm.getSpeciesCount(); i++) {
 		    if(i < REMOVE_INDEX) {
 		        assertEquals(i, species[i].getIndex());
-		        for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-		            assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+		        for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+		            assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
 		            expectedChildIndex++;
 		        }
 		    }
 		    else {
 		        assertEquals(i, species[i+1].getIndex());
-	            for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
-	                assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+	            for(int j = 0; j < species[i+1].getAtomTypeCount(); j++) {
+	                assertEquals(expectedChildIndex, species[i+1].getAtomType(j).getIndex());
 	                expectedChildIndex++;
 	            }
 		    }
@@ -278,8 +278,8 @@ public class SpeciesManagerTest extends TestCase {
         int expectedChildIndex = 0;
         for(int i = 0; i < numSpecies; i++) {
             assertEquals(i, species[i].getIndex());
-            for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+            for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
             }
         }
@@ -293,15 +293,15 @@ public class SpeciesManagerTest extends TestCase {
         for(int i = 0; i < sm.getSpeciesCount(); i++) {
             if(i < REMOVE_INDEX) {
                 assertEquals(i, species[i].getIndex());
-                for(int j = 0; j < species[i].getChildTypeCount(); j++) {
-                    assertEquals(expectedChildIndex, species[i].getChildType(j).getIndex());
+                for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i].getAtomType(j).getIndex());
                     expectedChildIndex++;
                 }
             }
             else {
                 assertEquals(i, species[i+1].getIndex());
-                for(int j = 0; j < species[i+1].getChildTypeCount(); j++) {
-                    assertEquals(expectedChildIndex, species[i+1].getChildType(j).getIndex());
+                for(int j = 0; j < species[i+1].getAtomTypeCount(); j++) {
+                    assertEquals(expectedChildIndex, species[i+1].getAtomType(j).getIndex());
                     expectedChildIndex++;
                 }
             }

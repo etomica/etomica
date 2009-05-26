@@ -124,8 +124,8 @@ public class VirialAlkane {
 //        sim.integratorOS.setStepFreq0(1);
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
-        IAtomType typeCH3 = species.getChildType(0);
-        IAtomType typeCH2 = species.getChildType(1);
+        IAtomType typeCH3 = species.getAtomType(0);
+        IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
         // CH2 on molecule1 to CH3 on molecule2
         pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH3}));

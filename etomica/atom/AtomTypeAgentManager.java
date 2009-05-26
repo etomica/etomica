@@ -67,8 +67,8 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
      * Releases the agents associated with the given AtomType and its children.
      */
     private void releaseAgents(ISpecies parentType) {
-        for (int i=0; i<parentType.getChildTypeCount(); i++) {
-            IAtomType leafType = parentType.getChildType(i);
+        for (int i=0; i<parentType.getAtomTypeCount(); i++) {
+            IAtomType leafType = parentType.getAtomType(i);
             Object agent = agents[leafType.getIndex()];
             if (agent != null) {
                 agentSource.releaseAgent(agent, leafType);
@@ -80,8 +80,8 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
     private void makeAllAgents() {
         for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
             ISpecies parentType = speciesManager.getSpecies(i);
-            for (int j=0; j<parentType.getChildTypeCount(); j++) {
-                addAgent(parentType.getChildType(j));
+            for (int j=0; j<parentType.getAtomTypeCount(); j++) {
+                addAgent(parentType.getAtomType(j));
             }
         }
     }
@@ -108,9 +108,9 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
      */
     private static int getMaxIndexOfChildren(ISpecies parentType) {
         int max = 0;
-        for (int i=0; i<parentType.getChildTypeCount(); i++) {
-            if (parentType.getChildType(i).getIndex() > max) {
-                max = parentType.getChildType(i).getIndex();
+        for (int i=0; i<parentType.getAtomTypeCount(); i++) {
+            if (parentType.getAtomType(i).getIndex() > max) {
+                max = parentType.getAtomType(i).getIndex();
             }
         }
         return max;
@@ -152,8 +152,8 @@ public class AtomTypeAgentManager implements IListener, java.io.Serializable {
         }
         else if (evt instanceof SimulationSpeciesAddedEvent) {
             ISpecies species = ((SimulationSpeciesAddedEvent)evt).getSpecies();
-            for(int i = 0; i < species.getChildTypeCount(); i++) {
-                IAtomType newType = species.getChildType(i);
+            for(int i = 0; i < species.getAtomTypeCount(); i++) {
+                IAtomType newType = species.getAtomType(i);
                 int indexMax = newType.getIndex();
                 agents = Arrays.resizeArray(agents, indexMax+1);
                 addAgent(newType);

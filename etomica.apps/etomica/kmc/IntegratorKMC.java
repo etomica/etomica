@@ -157,7 +157,7 @@ public class IntegratorKMC extends IntegratorBox{
         search = true;
         saddleVib = new double[searchlimit];
         saddleEnergies = new double[searchlimit];
-        massSec = Math.sqrt(species[0].getChildType(0).getMass()) * 0.000000000001;
+        massSec = Math.sqrt(species[0].getAtomType(0).getMass()) * 0.000000000001;
         rates = new double[searchlimit];
         beta = 1.0/(temperature*1.3806503E-023);
         stepCounter = 0;     

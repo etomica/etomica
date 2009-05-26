@@ -434,11 +434,11 @@ public class MDParacetamolOrthorhombic extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getChildType(0), java.awt.Color.red);
-        colorScheme.setColor(sim.species.getChildType(1), java.awt.Color.gray);
-        colorScheme.setColor(sim.species.getChildType(2), java.awt.Color.blue);
-        colorScheme.setColor(sim.species.getChildType(3), java.awt.Color.white);
-        colorScheme.setColor(sim.species.getChildType(4), java.awt.Color.white);
+        colorScheme.setColor(sim.species.getAtomType(0), java.awt.Color.red);
+        colorScheme.setColor(sim.species.getAtomType(1), java.awt.Color.gray);
+        colorScheme.setColor(sim.species.getAtomType(2), java.awt.Color.blue);
+        colorScheme.setColor(sim.species.getAtomType(3), java.awt.Color.white);
+        colorScheme.setColor(sim.species.getAtomType(4), java.awt.Color.white);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
