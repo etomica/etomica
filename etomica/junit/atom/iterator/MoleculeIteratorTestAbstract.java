@@ -79,7 +79,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      *            will be performed repeatedly on the iterator
      * @return a list of ListerMolecule instances for the atoms given by the iterator
      */
-    protected java.util.LinkedList generalIteratorMethodTests(
+    protected java.util.LinkedList<String> generalIteratorMethodTests(
             MoleculesetIterator iterator) {
         ListerMolecule[] listerMolecule = ListerMolecule.listerArray(2);
 

@@ -22,7 +22,7 @@ public class MoleculeArrayListTest extends TestCase {
 		MoleculeArrayList arrayList = new MoleculeArrayList(size + 10);
 		IMolecule[] listOfAtoms = new Molecule[size];
 		for(int i = 0; i < size; i++) {
-			listOfAtoms[i] = new Molecule(species);
+			listOfAtoms[i] = new Molecule(species, 0);
 		    arrayList.add(listOfAtoms[i]);
 		}
 
@@ -58,7 +58,7 @@ public class MoleculeArrayListTest extends TestCase {
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		arrayList.setTrimThreshold(trimThreshold);
 		for(int i = 0; i < size/2; i++) {
-			arrayList.add(new Molecule(species));
+			arrayList.add(new Molecule(species, 0));
 		}
         arrayList.maybeTrimToSize();
         assertEquals(size, arrayList.sizeOfArray());
@@ -69,7 +69,7 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList = new MoleculeArrayList(size);
 		arrayList.setTrimThreshold(trimThreshold);
 		for(int i = 0; i < size/2-1; i++) {
-			arrayList.add(new Molecule(species));
+			arrayList.add(new Molecule(species, 0));
 		}
         arrayList.maybeTrimToSize();
         assertEquals(size/2 - 1, arrayList.sizeOfArray());
@@ -87,7 +87,7 @@ public class MoleculeArrayListTest extends TestCase {
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		IMolecule[] atomList = new IMolecule[5];
 		for(int i = 0; i < 5; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 		arrayList.ensureCapacity(15);
@@ -103,7 +103,7 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList = new MoleculeArrayList(size);
 		atomList = new IMolecule[5];
 		for(int i = 0; i < 5; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 		arrayList.ensureCapacity(21); 
@@ -123,7 +123,7 @@ public class MoleculeArrayListTest extends TestCase {
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);	
 		assertTrue(arrayList.isEmpty());
 
-		arrayList.add(new Molecule(species));
+		arrayList.add(new Molecule(species, 0));
 		assertFalse(arrayList.isEmpty());
 
 		arrayList.remove(0);		
@@ -137,10 +137,10 @@ public class MoleculeArrayListTest extends TestCase {
 		int size = 20;
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
-		IMolecule notInList = new Molecule(species);
+		IMolecule notInList = new Molecule(species, 0);
 		assertEquals(-1, arrayList.indexOf(notInList));
 		
-		IMolecule inList = new Molecule(species);
+		IMolecule inList = new Molecule(species, 0);
 		arrayList.add(inList);
 		assertEquals(0, arrayList.indexOf(inList));
 		
@@ -161,7 +161,7 @@ public class MoleculeArrayListTest extends TestCase {
 
 		IMolecule[] atomList = new IMolecule[numElems];
         for(int i = 0; i < numElems; i++) {
-        	atomList[i] = new Molecule(species);
+        	atomList[i] = new Molecule(species, 0);
         	arrayList.add(atomList[i]);
         }
 
@@ -178,7 +178,7 @@ public class MoleculeArrayListTest extends TestCase {
 	public void testSet() {
 		int size = 20;
 		int numElems = 5;
-        IMolecule newElem = new Molecule(species);
+        IMolecule newElem = new Molecule(species, 0);
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
         IMolecule resultAtom = null;
@@ -195,7 +195,7 @@ public class MoleculeArrayListTest extends TestCase {
 		IMolecule[] atomList = new IMolecule[numElems];
 
         for(int i = 0; i < numElems; i++) {
-        	atomList[i] = new Molecule(species);
+        	atomList[i] = new Molecule(species, 0);
         	arrayList.add(atomList[i]);
         }
 
@@ -251,7 +251,7 @@ public class MoleculeArrayListTest extends TestCase {
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			addResult = arrayList.add(atomList[i]);
 			assertTrue(addResult);
 		}
@@ -261,7 +261,7 @@ public class MoleculeArrayListTest extends TestCase {
 		}
 
 		// Storage array is now full (10).  Add another atom
-		IMolecule overTheTop = new Molecule(species);
+		IMolecule overTheTop = new Molecule(species, 0);
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
 		assertSame(overTheTop, arrayList.getMolecule(size));
@@ -289,13 +289,13 @@ public class MoleculeArrayListTest extends TestCase {
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 
 		MoleculeArrayList atomSet = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-		    atomsetList[i] = new Molecule(species);
+		    atomsetList[i] = new Molecule(species, 0);
 			atomSet.add(atomsetList[i]);
 		}
 		arrayList.addAll(atomSet);
@@ -318,7 +318,7 @@ public class MoleculeArrayListTest extends TestCase {
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 
@@ -362,7 +362,7 @@ public class MoleculeArrayListTest extends TestCase {
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 
@@ -416,7 +416,7 @@ public class MoleculeArrayListTest extends TestCase {
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		for(int i = 0; i < size; i++) {
-			atomList[i] = new Molecule(species);
+			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
 		assertFalse(arrayList.isEmpty());

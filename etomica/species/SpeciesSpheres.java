@@ -56,7 +56,7 @@ public class SpeciesSpheres extends Species {
      * Constructs a new group.
      */
      public IMolecule makeMolecule() {
-         Molecule group = new Molecule(this);
+         Molecule group = new Molecule(this, atomsPerGroup);
          for(int i=0; i<atomsPerGroup; i++) {
              group.addChildAtom(makeLeafAtom());
          }

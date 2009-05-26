@@ -26,7 +26,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates
-        LinkedList list = generalIteratorMethodTests(iterator);
+        LinkedList<String> list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
         
         // make empty list to start
@@ -37,7 +37,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         for(int i=0; i<=10; i++) {
             list = generalIteratorMethodTests(iterator);
             assertEquals(list.size(), i);
-            atomList.add(new Molecule(species));
+            atomList.add(new Molecule(species, 0));
         }
         list = generalIteratorMethodTests(iterator);
         
@@ -46,7 +46,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
         iterator.setList(arrayList);
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
-        arrayList.add(new Molecule(species));
+        arrayList.add(new Molecule(species, 0));
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         

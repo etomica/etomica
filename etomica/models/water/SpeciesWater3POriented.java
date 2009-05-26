@@ -26,8 +26,8 @@ public class SpeciesWater3POriented extends SpeciesOriented {
     }
     
     public IMolecule makeMolecule() {
-        MoleculeOriented water = isDynamic ? new MoleculeOrientedDynamic(space, this) :
-                                             new MoleculeOriented(space, this);
+        MoleculeOriented water = isDynamic ? new MoleculeOrientedDynamic(space, this, 3) :
+                                             new MoleculeOriented(space, this, 3);
         water.addChildAtom(new Atom(space, hType));
         water.addChildAtom(new Atom(space, hType));
         water.addChildAtom(new Atom(space, oType));

@@ -86,7 +86,7 @@ public class SpeciesSpheresHetero extends Species {
      * each sub-type.
      */
     public IMolecule makeMolecule() {
-        Molecule group = new Molecule(this);
+        Molecule group = new Molecule(this, totalChildCount);
         // make block copolymers
         for (int i = 0; i < childTypes.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {

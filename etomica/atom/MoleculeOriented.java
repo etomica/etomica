@@ -13,8 +13,8 @@ import etomica.space3d.OrientationFull3D;
  */
 public class MoleculeOriented extends Molecule implements IAtomOriented {
 
-    public MoleculeOriented(ISpace space, ISpecies species) {
-        super(species);
+    public MoleculeOriented(ISpace space, ISpecies species, int numLeafAtoms) {
+        super(species, numLeafAtoms);
         orientation = new OrientationFull3D(space);
         position = space.makeVector();
     }

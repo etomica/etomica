@@ -53,7 +53,7 @@ public class SpeciesSpheresMono extends Species {
      * Constructs a new group.
      */
      public IMolecule makeMolecule() {
-         Molecule group = new Molecule(this);
+         Molecule group = new Molecule(this, 1);
          group.addChildAtom(makeLeafAtom());
          return group;
      }

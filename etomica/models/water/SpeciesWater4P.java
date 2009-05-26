@@ -37,7 +37,7 @@ public class SpeciesWater4P extends Species {
      }
 
      public IMolecule makeMolecule() {
-         Molecule water = new Molecule(this);
+         Molecule water = new Molecule(this, 4);
          water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
          water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
          water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));

@@ -7,9 +7,9 @@ import etomica.api.ISpecies;
 
 public class Molecule implements IMolecule, java.io.Serializable {
 
-    public Molecule(ISpecies species) {
+    public Molecule(ISpecies species, int numLeafAtoms) {
         this.species = species;
-        childList = new AtomArrayList(species.getNumLeafAtoms());
+        childList = new AtomArrayList(numLeafAtoms);
     }
     
     /**

@@ -40,8 +40,8 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
      * Constructs a new group.
      */
      public IMolecule makeMolecule() {
-         MoleculeOriented group = isDynamic ? new MoleculeOrientedDynamic(space, this)
-                                            : new MoleculeOriented(space, this);
+         MoleculeOriented group = isDynamic ? new MoleculeOrientedDynamic(space, this, 1)
+                                            : new MoleculeOriented(space, this, 1);
          group.addChildAtom(makeLeafAtom());
          return group;
      }

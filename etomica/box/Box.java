@@ -160,14 +160,24 @@ public class Box implements java.io.Serializable, IBox {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
         int currentNMolecules = moleculeList.getMoleculeCount();
-        notifyNewMolecules(species, (n-currentNMolecules));
+        int moleculeLeafAtoms = 0;
+        IMolecule newMolecule0 = null;
+        if (currentNMolecules > 0) {
+            moleculeLeafAtoms = moleculeList.getMolecule(0).getChildList().getAtomCount();
+        }
+        else if (n > currentNMolecules) {
+            newMolecule0 = species.makeMolecule();
+            moleculeLeafAtoms = newMolecule0.getChildList().getAtomCount();
+        }
+        notifyNewMolecules(species, (n-currentNMolecules), moleculeLeafAtoms);
         if(n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
-            leafList.ensureCapacity(leafList.getAtomCount()+(n-currentNMolecules)*species.getNumLeafAtoms());
-            for(int i=currentNMolecules; i<n; i++) {
+            leafList.ensureCapacity(leafList.getAtomCount()+(n-currentNMolecules)*moleculeLeafAtoms);
+            addMolecule(newMolecule0);
+            for(int i=currentNMolecules+1; i<n; i++) {
                 addMolecule(species.makeMolecule());
             }
         }
@@ -230,13 +240,13 @@ public class Box implements java.io.Serializable, IBox {
      * adding atoms, but if adding many Atoms, calling this will improve
      * performance.
      */
-    protected void notifyNewMolecules(ISpecies species, int numNewMolecules) {
+    protected void notifyNewMolecules(ISpecies species, int numNewMolecules, int moleculeLeafAtoms) {
         if (numNewMolecules < 1) return;
         // has no actual effect within this object.  We just notify things to 
         // prepare for an increase in the max index.  If things assume that the
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
-        int numNewLeafAtoms = numNewMolecules * species.getNumLeafAtoms();
+        int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
         if (numNewLeafAtoms + numNewMolecules > reservoirCount) {
             BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(this, maxIndex + numNewMolecules + numNewLeafAtoms - reservoirCount);
             eventManager.fireEvent(event);

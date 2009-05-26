@@ -13,8 +13,8 @@ import etomica.space.ISpace;
  */
 public class MoleculeOrientedDynamic extends MoleculeOriented implements IAtomOrientedKinetic {
 
-    public MoleculeOrientedDynamic(ISpace space, ISpecies species) {
-        super(space, species);
+    public MoleculeOrientedDynamic(ISpace space, ISpecies species, int numLeafAtoms) {
+        super(space, species, numLeafAtoms);
         angularMomentum = space.makeVector();
         velocity = space.makeVector();
     }
