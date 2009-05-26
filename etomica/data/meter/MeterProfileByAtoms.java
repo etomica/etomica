@@ -1,4 +1,5 @@
 package etomica.data.meter;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
@@ -6,6 +7,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;
@@ -52,6 +54,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
 
     public IEtomicaDataInfo getDataInfo() {
@@ -107,7 +110,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
             IMolecule a = moleculeList.getMolecule(iMolecule);
             double value = ((DataDouble)meter.getData(a)).x;
-            position.E(a.getType().getPositionDefinition().position(a));
+            position.E(positionDefinition.position(a));
             position.PE(boundary.centralImage(position));
             int i = xDataSource.getIndex(position.x(profileDim));
             y[i] += value;
@@ -171,10 +174,19 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         }
     }
 
+    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+        this.positionDefinition = positionDefinition;
+    }
+
+    public IAtomPositionDefinition getPositionDefinition() {
+        return positionDefinition;
+    }
+
     private static final long serialVersionUID = 1L;
     protected IBox box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
+    private IAtomPositionDefinition positionDefinition;
     protected double[] y;
     protected int[] nAtoms;
     protected IEtomicaDataInfo dataInfo;

@@ -34,9 +34,8 @@ public abstract class Species implements ISpecies {
     /**
      * Simple invokes parent constructor with same arguments.
      */
-    public Species(IAtomPositionDefinition positionDefinition) {
+    public Species() {
         super();
-        this.positionDefinition = positionDefinition;
     }
 
     /* (non-Javadoc)
@@ -101,23 +100,7 @@ public abstract class Species implements ISpecies {
     public void initializeConformation(IMolecule molecule) {
         conformation.initializePositions(molecule.getChildList());
     }
-    
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#getPositionDefinition()
-     */
-    public IAtomPositionDefinition getPositionDefinition() {
-        return positionDefinition;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.atom.IAtomType#setPositionDefinition(etomica.atom.AtomPositionDefinition)
-     */
-    public void setPositionDefinition(IAtomPositionDefinition newPositionDefinition) {
-        positionDefinition = newPositionDefinition;
-    }
-
     private static final long serialVersionUID = 2L;
     protected IConformation conformation;
-    protected IAtomPositionDefinition positionDefinition;
     protected IAtomType[] childTypes = new IAtomType[0];
 }

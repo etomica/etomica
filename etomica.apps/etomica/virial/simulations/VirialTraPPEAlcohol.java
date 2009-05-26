@@ -146,7 +146,7 @@ public class VirialTraPPEAlcohol {
         ClusterAbstract targetCluster = Standard.virialCluster(numMolecules, fTarget, numMolecules>3, eTarget, true);
         
         // These models have point charges
-        targetCluster = new ClusterCoupledFlipped(targetCluster);
+        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 
         targetCluster.setTemperature(temperature);
          

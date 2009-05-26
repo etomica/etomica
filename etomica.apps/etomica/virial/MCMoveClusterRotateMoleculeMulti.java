@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.action.MoleculeAction;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
@@ -54,7 +55,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             molecule = moleculeList.getMolecule(i);
             IAtomList leafAtoms = molecule.getChildList();
-            r0.E(molecule.getType().getPositionDefinition().position(molecule));
+            r0.E(positionDefinition.position(molecule));
 
             double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(random.nextInt(3),dTheta);
@@ -117,5 +118,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     private IVectorMutable[][] oldPositions;
     private int trialCount, relaxInterval = 100;
     private MoleculeAction relaxAction;
+    protected IAtomPositionDefinition positionDefinition;
     private final ISpace space;
 }

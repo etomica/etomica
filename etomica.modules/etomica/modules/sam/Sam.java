@@ -2,6 +2,7 @@ package etomica.modules.sam;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
@@ -13,6 +14,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
@@ -57,6 +59,7 @@ public class Sam extends Simulation {
     public IBox box;
     public IntegratorVelocityVerletSAM integrator;
     public ActivityIntegrate activityIntegrate;
+    public IAtomPositionDefinition positionDefinition;
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
     public final P1Sinusoidal p1SurfaceBond;
@@ -84,6 +87,7 @@ public class Sam extends Simulation {
 
     public Sam() {
         super(Space.getInstance(3));
+        positionDefinition = new AtomPositionGeometricCenter(space);
         sigmaCH2 = 3.95;
         potentialMaster = new PotentialMasterList(this,2.8*sigmaCH2, space); //List(this, 2.0);
 
@@ -112,7 +116,6 @@ public class Sam extends Simulation {
         speciesSurface = new SpeciesSpheresMono(this, space);
         ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
-        speciesSurface.setPositionDefinition(new AtomPositionFirstAtom());
         getSpeciesManager().addSpecies(speciesSurface);
 
         bondL_CC = 1.54;
@@ -300,7 +303,7 @@ public class Sam extends Simulation {
         if (iChain == 0) {
             IMolecule molecule = species.makeMolecule();
             IVectorMutable moleculePos = space.makeVector();
-            moleculePos.E(molecule.getType().getPositionDefinition().position(molecule));
+            moleculePos.E(positionDefinition.position(molecule));
             IVectorMutable sulfurPosition = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
             sulfurPosition.ME(moleculePos);
             molecule = null;

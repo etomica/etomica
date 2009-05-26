@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 public abstract class SpeciesOriented extends Species implements ISpeciesOriented {
 
     public SpeciesOriented(ISpace space) {
-        super(new AtomPositionCOM(space));
+        super();
         moment = space.makeVector();
         this.space = space;
         // we could call init here, but the subclass might not be ready to make
@@ -31,7 +31,8 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         IAtomList children = molecule.getChildList();
         conformation.initializePositions(children);
         IVectorMutable com = space.makeVector();
-        com.E(positionDefinition.position(molecule));
+        AtomPositionCOM positionCOM = new AtomPositionCOM(space);
+        com.E(positionCOM.position(molecule));
         double[] I = new double[3];
         IVectorMutable xWork = space.makeVector();
         mass = 0;

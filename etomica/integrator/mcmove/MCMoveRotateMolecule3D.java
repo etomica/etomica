@@ -1,9 +1,11 @@
 package etomica.integrator.mcmove;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 
@@ -13,6 +15,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     private static final long serialVersionUID = 2L;
     protected transient IVectorMutable r0;
     protected transient RotationTensor rotationTensor;
+    protected IAtomPositionDefinition positionDefinition;
     public int count;
     public int count1;
     public boolean flag = false;
@@ -23,6 +26,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
      
     public boolean doTrial() {
@@ -40,7 +44,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-        r0.E(molecule.getType().getPositionDefinition().position(molecule));
+        r0.E(positionDefinition.position(molecule));
         doTransform();
         
         energyMeter.setTarget(molecule);

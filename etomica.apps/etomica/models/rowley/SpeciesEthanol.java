@@ -21,7 +21,7 @@ public class SpeciesEthanol extends Species {
 
     public SpeciesEthanol(ISpace space, boolean pointCharges) {
     	
-        super(new AtomPositionGeometricCenter(space));
+        super();
         
         this.space = space;
         

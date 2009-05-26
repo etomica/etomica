@@ -6,7 +6,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -39,7 +38,7 @@ public class SpeciesSpheres extends Species {
     }
     
     public SpeciesSpheres(ISpace _space, boolean isDynamic, int nA, IAtomType leafAtomType, IConformation conformation) {
-        super(new AtomPositionGeometricCenter(_space));
+        super();
         this.space = _space;
         addChildType(leafAtomType);
         setNumLeafAtoms(nA);

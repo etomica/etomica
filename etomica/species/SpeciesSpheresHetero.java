@@ -5,7 +5,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -70,7 +69,7 @@ public class SpeciesSpheresHetero extends Species {
     }
     
     public SpeciesSpheresHetero(ISpace space, boolean isDynamic, IAtomType[] atomTypes) {
-        super(new AtomPositionGeometricCenter(space));
+        super();
         this.space = space;
         this.isDynamic = isDynamic;
         numberFraction = new double[atomTypes.length];

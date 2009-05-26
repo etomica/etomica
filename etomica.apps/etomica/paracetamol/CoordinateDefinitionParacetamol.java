@@ -5,12 +5,11 @@ import java.io.Serializable;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeArrayList;
@@ -164,7 +163,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         initNominalU(cells[totalCells-1].molecules);
 
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space));
+        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
         siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     

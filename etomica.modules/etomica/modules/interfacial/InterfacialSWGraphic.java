@@ -17,6 +17,7 @@ import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenterPBC;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -421,8 +422,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         profilePumpListener.setInterval(10);
         dataStreamPumps.add(profilePump);
 
+        AtomPositionGeometricCenterPBC positionDefinitionPBC = new AtomPositionGeometricCenterPBC(space, sim.box.getBoundary());
         surfactantProfileMeter = new MeterProfileByVolume(space);
         surfactantProfileMeter.setBox(sim.box);
+        surfactantProfileMeter.setPositionDefinition(positionDefinitionPBC);
         meterNMolecules = new MeterNMolecules();
         meterNMolecules.setSpecies(sim.surfactant);
         surfactantProfileMeter.setDataSource(meterNMolecules);
@@ -434,6 +437,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         orientationProfileMeter = new MeterProfileByAtoms(space);
         orientationProfileMeter.setBox(sim.box);
         orientationProfileMeter.setSpecies(sim.surfactant);
+        orientationProfileMeter.setPositionDefinition(positionDefinitionPBC);
         MeterOrientation meterOrientation = new MeterOrientation(space);
         meterOrientation.setBox(sim.box);
         orientationProfileMeter.setDataSource(meterOrientation);

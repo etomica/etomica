@@ -3,7 +3,6 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
@@ -21,15 +20,15 @@ public class SpeciesWater3P extends Species {
     }
     
     public SpeciesWater3P(ISpace space, boolean isDynamic) {
-        super(new AtomPositionGeometricCenter(space));
-       this.space = space;
-       hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
-       oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
-       addChildType(hType);
-       addChildType(oType);
-       this.isDynamic = isDynamic;
+        super();
+        this.space = space;
+        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
+        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
+        addChildType(hType);
+        addChildType(oType);
+        this.isDynamic = isDynamic;
 
-       setConformation(new ConformationWater3P(space));
+        setConformation(new ConformationWater3P(space));
     }
     
     public IMolecule makeMolecule() {

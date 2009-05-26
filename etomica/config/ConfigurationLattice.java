@@ -1,15 +1,16 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -70,6 +71,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         this.indexIterator = indexIterator;
         this.space = space;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
+        positionDefinition = new AtomPositionGeometricCenter(space);
         setBoundaryPadding(0);
     }
 
@@ -189,7 +191,6 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 siteCount++;
             }
             // initialize coordinates of child atoms
-        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
@@ -257,6 +258,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected MyLattice myLat;
     protected double boundaryPadding;
     protected final ISpace space;
+    protected IAtomPositionDefinition positionDefinition;
     private static final long serialVersionUID = 3L;
 
     public static void main(String[] args) {

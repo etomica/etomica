@@ -1,5 +1,6 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IMolecule;
@@ -8,6 +9,7 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.DataTag;
@@ -17,7 +19,6 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -48,6 +49,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
                 Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,0}));
         tag = new DataTag();
         boundaries = new double[0];
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
     
     public void setBoundaries(int newDim, double[] newBoundaries, int[] newBoundaryCoefficients) {
@@ -125,7 +127,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
                 IMolecule atom = molecules.getMolecule(j);
                 IVectorMutable oldPosition = ((IVectorMutable)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
-                IVector newPosition = atom.getType().getPositionDefinition().position(atom);
+                IVector newPosition = positionDefinition.position(atom);
                 double newX = newPosition.x(dim);
                 for (int k=0; k<boundaries.length; k++) {
                     double newDelta = newX - boundaries[k];
@@ -181,7 +183,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
                 IVectorMutable vec = space.makeVector();
-                vec.E(a.getType().getPositionDefinition().position(a));
+                vec.E(positionDefinition.position(a));
                 return vec;
             }
         }
@@ -207,4 +209,5 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     protected double oldTime;
     protected long oldStep;
     private final ISpace space;
+    protected IAtomPositionDefinition positionDefinition;
 }

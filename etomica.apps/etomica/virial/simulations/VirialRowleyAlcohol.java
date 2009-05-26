@@ -196,7 +196,7 @@ public class VirialRowleyAlcohol {
         ClusterAbstract targetCluster = Standard.virialCluster(numMolecules, fTarget, numMolecules>3, eTarget, true);
         
         if (pointCharges) {
-        	targetCluster = new ClusterCoupledFlipped(targetCluster);
+        	targetCluster = new ClusterCoupledFlipped(targetCluster, space);
         }
         targetCluster.setTemperature(temperature);
          

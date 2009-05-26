@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -9,6 +10,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculeArrayList;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -46,6 +48,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
+        positionDefinition = new AtomPositionGeometricCenter(space);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
         probabilityReverseMap = new int[nBins+1];
@@ -167,7 +170,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         bias = 1;
 
         for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
-            oldCenter.E(selectedMolecules.getMolecule(i).getType().getPositionDefinition().position(selectedMolecules.getMolecule(i)));
+            oldCenter.E(positionDefinition.position(selectedMolecules.getMolecule(i)));
             IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
             int numChildren = childList.getAtomCount();
 
@@ -336,7 +339,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                     }
                 }
             }
-            oldCenter.ME(selectedMolecules.getMolecule(i).getType().getPositionDefinition().position(selectedMolecules.getMolecule(i)));
+            oldCenter.ME(positionDefinition.position(selectedMolecules.getMolecule(i)));
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change
@@ -373,7 +376,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             i++;
             selectedMolecules.add(a);
         } 
-      }
+    }
 
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
@@ -403,6 +406,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
+    protected IAtomPositionDefinition positionDefinition;
     protected final double[] probabilityBins;
     protected final double[] binSize;
     protected final int[] probabilityReverseMap;
@@ -414,4 +418,4 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected final IVectorMutable oldCenter;
     protected double wOld, wNew, bias;
     protected double beta;
-    }
+}

@@ -1,13 +1,15 @@
 package etomica.action;
 
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.ISpace;
 
 /**
@@ -26,6 +28,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	public BoxImposePbc(ISpace space) {
 		setApplyToMolecules(false);
 		this.space = space;
+		setPositionDefinition(new AtomPositionGeometricCenter(space));
 	}
     
     public int getPriority() {return 100;}//100-199 is priority range for classes imposing PBC
@@ -54,7 +57,7 @@ public class BoxImposePbc extends BoxActionAdapter {
                     position.PE(shift);
                 }
                 else {
-                    shift = boundary.centralImage(molecule.getType().getPositionDefinition().position(molecule));
+                    shift = boundary.centralImage(positionDefinition.position(molecule));
                 }
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
@@ -103,10 +106,19 @@ public class BoxImposePbc extends BoxActionAdapter {
 		}
 	}
 
+    public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+        this.positionDefinition = positionDefinition;
+    }
+
+    public IAtomPositionDefinition getPositionDefinition() {
+        return positionDefinition;
+    }
+
     private static final long serialVersionUID = 1L;
     private AtomActionTranslateBy translator;
     private MoleculeChildAtomAction moleculeTranslator;
     private ISpace space;
+    private IAtomPositionDefinition positionDefinition;
 
 	private boolean applyToMolecules;
 }

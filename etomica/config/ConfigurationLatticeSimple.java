@@ -123,7 +123,6 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
 
-            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             destinationVector.Ev1Pv2((IVector)lattice.site(indexIterator.next()), offset);
             atomActionTranslateTo.actionPerformed(a);
         }

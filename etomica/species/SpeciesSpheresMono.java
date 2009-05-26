@@ -5,7 +5,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
@@ -37,7 +36,7 @@ public class SpeciesSpheresMono extends Species {
     }
     
     public SpeciesSpheresMono(ISpace space, boolean isDynamic, AtomTypeSphere leafAtomType) {
-        super(new AtomPositionFirstAtom());
+        super();
         this.space = space;
         this.leafAtomType = leafAtomType;
         addChildType(leafAtomType);

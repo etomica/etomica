@@ -3,7 +3,6 @@ package etomica.models.traPPE;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
@@ -19,7 +18,7 @@ public class SpeciesMethanol extends Species {
 
     public SpeciesMethanol(ISpace space) {
     	
-        super(new AtomPositionGeometricCenter(space));
+        super();
         
         this.space = space;
         

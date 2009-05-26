@@ -4,11 +4,10 @@ package etomica.models.rowley;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.ISpace;
@@ -21,7 +20,7 @@ public class SpeciesMethanol extends Species {
 
     public SpeciesMethanol(ISpace space, boolean pointCharges) {
     	
-        super(new AtomPositionGeometricCenter(space));
+        super();
         
         this.space = space;
         

@@ -67,7 +67,7 @@ public class VirialGCPM {
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
         ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
-        targetCluster = new ClusterCoupledFlipped(targetCluster);
+        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 
    	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
 

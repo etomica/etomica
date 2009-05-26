@@ -7,7 +7,6 @@ import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
@@ -21,7 +20,7 @@ import etomica.units.ElectronVolt;
 public class SpeciesParacetamol extends Species {
 
 	public SpeciesParacetamol(ISimulation sim, ISpace _space) {
-		super(new AtomPositionGeometricCenter(_space));
+		super();
 		space = _space;
 		isDynamic = sim.isDynamic();
         

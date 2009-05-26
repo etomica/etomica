@@ -5,9 +5,10 @@ import java.io.Serializable;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAction;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -20,6 +21,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPositionCOM;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
@@ -31,7 +33,6 @@ import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.meter.MeterKineticEnergyRigid;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
@@ -678,6 +679,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             this.box = box;
             translateBy = new AtomActionTranslateBy(space);
             translator = new MoleculeChildAtomAction(translateBy);
+            positionDefinition = new AtomPositionGeometricCenter(space);
         }
         public void actionPerformed() {
             IMoleculeList molecules = box.getMoleculeList();
@@ -694,7 +696,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                     position.PE(shift);
                 }
                 else {
-                    IVector position = molecule.getType().getPositionDefinition().position(molecule);
+                    IVector position = positionDefinition.position(molecule);
                     IVector shift = boundary.centralImage(position);
                     if (!shift.isZero()) {
                         translateBy.setTranslationVector(shift);
@@ -706,5 +708,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         protected Box box;
         protected final AtomActionTranslateBy translateBy;
         protected final MoleculeChildAtomAction translator;
+        protected final IAtomPositionDefinition positionDefinition;
     }
 }

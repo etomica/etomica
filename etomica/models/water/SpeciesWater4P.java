@@ -4,7 +4,6 @@ import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
@@ -23,7 +22,7 @@ public class SpeciesWater4P extends Species {
     }
     
     public SpeciesWater4P(ISpace space, boolean isDynamic) {
-        super(new AtomPositionGeometricCenter(space));
+        super();
         this.space = space;
         this.isDynamic = isDynamic;
         hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);

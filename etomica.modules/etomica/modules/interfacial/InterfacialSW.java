@@ -74,20 +74,6 @@ public class InterfacialSW extends Simulation {
         surfactant = new SpeciesSpheresHetero(this, space, 2);
         surfactant.setChildCount(new int[]{1,1});
         surfactant.setTotalChildren(2);
-        surfactant.setPositionDefinition(new IAtomPositionDefinition() {
-            public IVector position(IMolecule atom) {
-                IAtomList children = atom.getChildList();
-                IVectorMutable pos0 = ((IAtomPositioned)children.getAtom(0)).getPosition();
-                IVectorMutable pos1 = ((IAtomPositioned)children.getAtom(1)).getPosition();
-                dr.Ev1Mv2(pos1, pos0);
-                box.getBoundary().nearestImage(dr);
-                dr.TE(0.5);
-                dr.PE(pos0);
-                dr.ME(box.getBoundary().centralImage(dr));
-                return dr;
-            }
-            final IVectorMutable dr = space.makeVector();
-        });
         ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);
         getSpeciesManager().addSpecies(surfactant);
         leafType = species.getLeafType();

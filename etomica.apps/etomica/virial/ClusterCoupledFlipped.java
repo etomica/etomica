@@ -1,23 +1,27 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.space3d.Vector3D;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
+import etomica.space.ISpace;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {
 
-    public ClusterCoupledFlipped(ClusterAbstract cluster) {
+    public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space) {
+        this.space = space;
         wrappedCluster = cluster;
-        childAtomVector = new Vector3D();
+        childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterCoupledFlipped(wrappedCluster.makeCopy());
+        return new ClusterCoupledFlipped(wrappedCluster.makeCopy(), space);
     }
 
     public int pointCount() {
@@ -84,7 +88,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     private void flip(IMolecule flippedMolecule) {
-        IVector COM = flippedMolecule.getType().getPositionDefinition().position(flippedMolecule);
+        IVector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
@@ -98,8 +102,10 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     private final ClusterAbstract wrappedCluster;
+    protected final ISpace space;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
     private IVectorMutable childAtomVector;
+    protected IAtomPositionDefinition positionDefinition;
 }

@@ -1,9 +1,11 @@
 package etomica.virial;
 
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.ISpace;
 import etomica.util.Debug;
 
@@ -30,6 +32,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         setAtoms(list);
         dr = space.makeVector();
         iPosition = space.makeVector();
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
     
     /**
@@ -49,10 +52,10 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
             IMolecule iAtom = atoms[i];
-            iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
+            iPosition.E(positionDefinition.position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 IMolecule jAtom = atoms[j];
-                IVector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
+                IVector jPosition = positionDefinition.position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }
@@ -79,5 +82,6 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     protected final IVectorMutable dr;
     private final IVectorMutable iPosition;
     private int ID;
+    protected IAtomPositionDefinition positionDefinition;
     private static int staticID;
 }

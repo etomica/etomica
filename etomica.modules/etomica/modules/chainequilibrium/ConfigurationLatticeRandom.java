@@ -125,7 +125,6 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
                 siteCount++;
             }
             // initialize coordinates of child atoms
-            atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));

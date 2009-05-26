@@ -3,14 +3,16 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -31,6 +33,7 @@ public class ConfigurationMembrane implements Configuration {
         membraneWidth = 4;
         this.sim = sim;
         this.space = _space;
+        positionDefinition = new AtomPositionGeometricCenter(space);
     }
 
     public void initializeCoordinates(IBox box) {
@@ -79,18 +82,18 @@ public class ConfigurationMembrane implements Configuration {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
             for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule atom = molecules.getMolecule(i);
-                pretendBox.removeMolecule(atom);
+                IMolecule molecule = molecules.getMolecule(i);
+                pretendBox.removeMolecule(molecule);
                 // we need to translate the molecules into the proper chamber
-                double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
+                double x = positionDefinition.position(molecule).x(membraneDim);
                 if (x < 0) {
                     translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
                 }
                 else {
                     translationVector.setX(membraneDim, 0.5*chamberLength + membraneThickness);
                 }
-                translator.actionPerformed(atom);
-                box.addMolecule(atom);
+                translator.actionPerformed(molecule);
+                box.addMolecule(molecule);
             }
         }
         
@@ -247,4 +250,5 @@ public class ConfigurationMembrane implements Configuration {
     protected int membraneDim;
     protected final ISimulation sim;
     private final ISpace space;
+    protected IAtomPositionDefinition positionDefinition;
 }

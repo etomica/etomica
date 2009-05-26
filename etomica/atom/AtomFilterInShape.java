@@ -33,9 +33,6 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
         if (atom instanceof IAtomPositioned) {
             return shape.contains(((IAtomPositioned)atom).getPosition());
         }
-        if(positionDefinition == null) {
-            return shape.contains(((IMolecule)atom).getType().getPositionDefinition().position((IMolecule)atom));
-        }
         return shape.contains(positionDefinition.position((IMolecule)atom));
     }
 

@@ -107,7 +107,7 @@ public class VirialWaterOverlap {
         ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
 
         if (nPoints == 2) {
-            targetCluster = new ClusterCoupledFlipped(targetCluster);
+            targetCluster = new ClusterCoupledFlipped(targetCluster, space);
             targetCluster.setTemperature(temperature);
             targetSampleCluster = new ClusterWeightAbs(targetCluster);
         }

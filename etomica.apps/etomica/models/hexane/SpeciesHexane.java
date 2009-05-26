@@ -3,10 +3,9 @@
  */
 package etomica.models.hexane;
 
-import etomica.atom.AtomPositionCOM;
+import etomica.api.ISimulation;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.ISpace;
-import etomica.api.ISimulation;
 
 /**
  * Species used to create hexane molecules per Dr. Monson's data. Hydrogen
@@ -19,8 +18,6 @@ public class SpeciesHexane extends etomica.species.SpeciesSpheres {
     public SpeciesHexane(ISimulation sim, ISpace _space){
         super(sim, 6, new ElementSimple("M", 1.0), 
               new ConformationHexane(_space), _space);
-        setPositionDefinition(new AtomPositionCOM(_space));
-    
         
         bondLength = 0.4;
 //        bondAngle = 109.47 * 2.0 * Math.PI/360.0;

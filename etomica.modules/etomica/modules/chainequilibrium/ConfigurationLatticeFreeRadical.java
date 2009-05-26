@@ -142,7 +142,6 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             }
             // initialize coordinates of child atoms
             IMolecule a = moleculeList.getMolecule(i);
-        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
             a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setDestination((IVectorMutable)myLat.site(ii));
