@@ -13,6 +13,8 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -36,6 +38,10 @@ public class SimulationVirial extends Simulation {
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
 	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+	    this(space, speciesFactory, temperature, aSampleCluster, refCluster, targetClusters, false);
+	}
+
+	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
 		super(space,false);
         PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
@@ -56,15 +62,15 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
 		
-        if (species.getNumLeafAtoms() == 1) {
-            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, space);
+        if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
+            mcMoveTranslate = new MCMoveClusterAtomMulti(this, potentialMaster, space);
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
-                if (species.getNumLeafAtoms() > 2) {
+                if (doWiggle) {
                     mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules, space);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
                     mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);
