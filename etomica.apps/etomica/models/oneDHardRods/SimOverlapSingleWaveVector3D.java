@@ -33,11 +33,13 @@ import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
@@ -101,10 +103,8 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
         
-        Potential2 p2 = new P2HardSphere(space, 1.0, true);
-        p2.setBox(boxTarget);
-        potentialMasterTarget.addPotential(p2, new IAtomType[]
-                {species.getLeafType(), species.getLeafType()});
+//        Potential2 p2 = new P2HardSphere(space, 1.0, true);
+//        p2.setBox(boxTarget);
         
         primitiveTarget = new PrimitiveCubic(space, 1.0);
         double v = primitiveTarget.unitCell().getVolume();
@@ -118,6 +118,13 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
                 CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
+        
+        Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        P2SoftSphericalTruncatedShifted pTruncated = new 
+                P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
+        potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
+                {species.getLeafType(), species.getLeafType()});
         
         double neighborRange = 1.01/density;
         potentialMasterTarget.setRange(neighborRange);
@@ -184,12 +191,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
-        
-        p2 = new P2HardSphere(space, 1.0, true);
-        p2.setBox(boxRef);
-        potentialMasterRef.addPotential(p2, new IAtomType[]
-                {species.getLeafType(), species.getLeafType()});
-        
+
         primitiveRef = new PrimitiveCubic(space, 1.0);
         v = primitiveRef.unitCell().getVolume();
         primitiveRef.scaleSize(Math.pow(v*density/4, -1.0/3.0));
@@ -203,6 +205,12 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
                 CoordinateDefinitionLeaf(this, boxRef, primitiveRef, basisRef, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
        
+        p2 = new P2LennardJones(space, 1.0, 1.0);
+        truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
+        potentialMasterRef.addPotential(pTruncated, new IAtomType[]
+                {species.getLeafType(), species.getLeafType()});
+        
         neighborRange = 1.01/density;
         potentialMasterRef.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
@@ -629,7 +637,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         public double density = 1.3;
         public int D = 3;
         public double harmonicFudge = 1.0;
-        public String filename = "HS3D_";
+        public String filename = "normal_modes_LJ_3D_32";
         public double temperature = 1.0;
         public int comparedWV = 4;
         
