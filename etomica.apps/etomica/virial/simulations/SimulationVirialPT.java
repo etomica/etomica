@@ -16,6 +16,8 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -88,17 +90,15 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (species.getNumLeafAtoms() == 0) {
+            if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
                 mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {
-                if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
-                    moveManager.addMCMove(mcMoveMulti[iTemp]);
-                    mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
-                    moveManager.addMCMove(mcMoveRotate[iTemp]);
-                }
+                mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
+                moveManager.addMCMove(mcMoveMulti[iTemp]);
+                mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
+                moveManager.addMCMove(mcMoveRotate[iTemp]);
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(space);
