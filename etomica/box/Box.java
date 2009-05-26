@@ -176,8 +176,11 @@ public class Box implements java.io.Serializable, IBox {
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
             leafList.ensureCapacity(leafList.getAtomCount()+(n-currentNMolecules)*moleculeLeafAtoms);
-            addMolecule(newMolecule0);
-            for(int i=currentNMolecules+1; i<n; i++) {
+            if (newMolecule0 != null) {
+                addMolecule(newMolecule0);
+                currentNMolecules++;
+            }
+            for(int i=currentNMolecules; i<n; i++) {
                 addMolecule(species.makeMolecule());
             }
         }
