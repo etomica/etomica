@@ -36,12 +36,6 @@ public interface ISpecies {
     public IMolecule makeMolecule();
 
     /**
-     * Returns the number of leaf atoms descended from the Atom returned 
-     * by makeAtom.  This will be 1 if makeAtom returns a leaf atom.
-     */
-    public int getNumLeafAtoms();
-
-    /**
      * Returns the number of child types of this group.
      */
     public int getAtomTypeCount();
