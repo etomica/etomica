@@ -2,6 +2,8 @@ package etomica.virial.simulations;
 
 import etomica.api.IAction;
 import etomica.api.IData;
+import etomica.api.IEvent;
+import etomica.api.IIntegratorListener;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverage;
@@ -91,8 +93,7 @@ public class Virial2CLJQ {
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
-        System.out.println(steps+" steps ("+steps/1000+" blocks of 1000)");
-        steps /= 1000;
+        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         ConformationLinear conformation = new ConformationLinear(space, bondL);
         final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactoryTangentSpheres(2, conformation), temperature,refCluster,targetCluster);
@@ -151,17 +152,21 @@ public class Virial2CLJQ {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
-        
-//        IAction progressReport = new IAction() {
-//            public void actionPerformed() {
-//                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-//                double ratio = sim.dsvo.getDataAsScalar();
-//                double error = sim.dsvo.getError();
-//                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-//            }
-//        };
-//        sim.integratorOS.addIntervalAction(progressReport);
-//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+
+        if (false) {
+            IIntegratorListener progressReport = new IIntegratorListener() {
+                public void integratorInitialized(IEvent e) {}
+                public void integratorStepStarted(IEvent e) {}
+                public void integratorStepFinished(IEvent e) {
+                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                    double ratio = sim.dsvo.getDataAsScalar();
+                    double error = sim.dsvo.getError();
+                    System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                }
+            };
+            sim.integratorOS.getEventManager().addListener(progressReport);
+        }
         
         sim.getController().actionPerformed();
 

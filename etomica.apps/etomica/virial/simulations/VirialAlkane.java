@@ -9,6 +9,8 @@ import etomica.api.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IData;
+import etomica.api.IEvent;
+import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
@@ -291,17 +293,21 @@ public class VirialAlkane {
             System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
                     torsionMoves[1].getTracker().acceptanceRatio());
         }
-        
-        IAction progressReport = new IAction() {
-            public void actionPerformed() {
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
-                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-            }
-        };
-//        sim.integratorOS.addIntervalAction(progressReport);
-//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+
+        if (false) {
+            IIntegratorListener progressReport = new IIntegratorListener() {
+                public void integratorInitialized(IEvent e) {}
+                public void integratorStepStarted(IEvent e) {}
+                public void integratorStepFinished(IEvent e) {
+                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                    double ratio = sim.dsvo.getDataAsScalar();
+                    double error = sim.dsvo.getError();
+                    System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                }
+            };
+            sim.integratorOS.getEventManager().addListener(progressReport);
+        }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
