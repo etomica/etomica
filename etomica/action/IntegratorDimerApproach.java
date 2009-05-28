@@ -88,7 +88,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		 * *****************************************************************
 		 */
 		double r0 = r;
-        delta = r0/60;
+        delta = r0/75;
 		translationVector();
 		translateMonomerB(); 
 		
@@ -325,7 +325,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected static IAtomPositioned atom_aH_B;
     
     // The distance between the alpha carbons of the two monomers
-    protected double r = 50.0;  
+    protected double r = 16.0;  
     
     // The size of the change in r for each translation of monomer B
 	protected double delta;
