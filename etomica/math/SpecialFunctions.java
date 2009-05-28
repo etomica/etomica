@@ -48,22 +48,18 @@ public final class SpecialFunctions {
         if (n < 2) {
             return 0;
         }
-        double sum = Math.log(n);
-        for (int i=n-1; i>1; i--) {
-            sum += Math.log(i);
+        long p = 1;
+        double sum = 0;
+        for (int i=n; i>1; i--) {
+            p *= i;
+            if (p > Integer.MAX_VALUE/(p-1)) {
+                sum += Math.log(p);
+                p = 1;
+            }
         }
+        sum += Math.log(p);
         return sum;
     }
-        
-    //non-recursive version
-//	public static int factorial(int n) {
-//		if(n < 0) throw new IllegalArgumentException("Illegal to pass negative value to factorial");
-//		int factorial = 1;
-//		for (int i=2; i<=n; i++) {
-//		   factorial *= i;
-//		}
-//		return factorial;	
-//	}
 
     /**
      * The sign function, returning -1 if x < 0, zero if x == 0, and +1 if x > 0.
@@ -72,44 +68,42 @@ public final class SpecialFunctions {
         return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
     }
 
-
     /**
      * Returns the ln(gamma), the natural logarithm of the gamma function.
-     * This method is not tested.
+     * Lanczos approximation, with precision ~15 digits
+     * coefficients from GSL (GNU Scientific Library) with g=7
      */
     public static double lnGamma(double x) {
-    	double tmp = x+5.5;
-    	double y = x;
-    	double stp = 2.5066282746310005;
-    	tmp = (x+0.5)*Math.log(tmp) - tmp;
-    	double ser = 1.000000000190015;
-    	for(int i=0; i<5; i++) {
-    		y += 1.0;
-    		ser += lnGammaCoeff[i]/y;
-    	}
-    	return tmp + Math.log(stp*ser/x);
+        if (x < 0) {
+            throw new IllegalArgumentException("x must not be negative");
+        }
+        if (x == 0) {
+            return 0;
+        }
+        if (x < 0.5) {
+            return Math.log(Math.PI / (Math.sin(Math.PI*x))) - lnGamma(1-x);
+        }
+        double tmp = x + 7 - 0.5;
+        double ser = 0.99999999999980993;
+        for(int i=7; i>-1; i--) {
+            ser += lnGammaCoeff2[i]/(x+i);
+        }
+        return lnsqrt2Pi + (x-0.5)*Math.log(tmp) - tmp + Math.log(ser);
     }
-    private static final double[] lnGammaCoeff = new double[] {
-    		+76.18009172947146,
-			-86.50532032941677,
-			+24.01409824083091,
-			-1.231739572450155,
-			+0.1208650973866179e-02,
-			-0.5395239384953e-05};
-    
+    private static final double lnsqrt2Pi = 0.5*Math.log(2*Math.PI);
+    private static final double[] lnGammaCoeff2 = new double[] {
+                                 676.5203681218851, -1259.1392167224028,
+            771.32342877765313, -176.61502916214059, 12.507343278686905,
+            -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
+
     public static double gamma(double x) {
-        if (x > 0) {
-            return Math.exp(lnGamma(x));
+        if (x == 0) {
+            return 1;
         }
-        int n = -(int)x;
-        if (n != -x) {
-            n++;
+        if (x < 0.5) {
+            return Math.PI / (Math.sin(Math.PI*x)*gamma(1-x));
         }
-        double d = 1;
-        for (int i=0; i<n; i++) {
-            d *= (x+i);
-        }
-        return Math.exp(lnGamma(x+n))/d;
+        return Math.exp(lnGamma(x));
     }
     
     /**
@@ -258,5 +252,20 @@ public final class SpecialFunctions {
     
     public static void main(String[] args) {
     	System.out.println(confluentHypergeometric1F1(-0.25,0.5,1.0));
+        System.out.println();
+
+        for (int i=-10; i<2; i++) {
+            double g = SpecialFunctions.gamma(i-0.5);
+            System.out.println((i-0.5)+" "+g); 
+        }
+        System.out.println(0+" "+SpecialFunctions.gamma(0));
+        System.out.println(0.25+" "+SpecialFunctions.gamma(0.25)+" "+Math.exp(SpecialFunctions.lnGamma(0.25)));
+        System.out.println(0.5+" "+SpecialFunctions.gamma(0.5)+" "+Math.exp(SpecialFunctions.lnGamma(0.5)));
+        System.out.println(1+" "+SpecialFunctions.gamma(1));
+        System.out.println();
+    	for (int i=2; i<1000; i++) {
+    	    double lnfac = SpecialFunctions.lnFactorial(i);
+    	    System.out.println(i+" "+lnfac+" "+(SpecialFunctions.lnGamma(i+1)-lnfac)/lnfac);
+    	}
     }
 }
