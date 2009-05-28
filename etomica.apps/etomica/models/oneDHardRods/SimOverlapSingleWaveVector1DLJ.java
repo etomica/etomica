@@ -9,8 +9,8 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -19,8 +19,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -30,29 +28,32 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
+import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.NormalModesFromFile;
+import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
+import etomica.potential.P2HardSphere;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapSingleWaveVector3D extends Simulation {
+public class SimOverlapSingleWaveVector1DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
-    Primitive primitiveTarget, primitiveRef;
+    Primitive primitive;
     int[] nCells;
     NormalModes nm;
     double bennettParam;       //adjustable parameter - Bennett's parameter
@@ -74,15 +75,17 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
     MeterCompareSingleModeBrute meterBinA, meterBinB;
     
     MeterNormalMode mnm;
+    public AccumulatorAverageFixed mnmAccumulator;
+    DataPump mnmPump;
     WriteS sWriter;
     
-    public SimOverlapSingleWaveVector3D(Space _space, int numAtoms, double density, double 
+    public SimOverlapSingleWaveVector1DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-        long seed = 5;
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -102,22 +105,10 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
-        
-//        Potential2 p2 = new P2HardSphere(space, 1.0, true);
-//        p2.setBox(boxTarget);
-        
-        primitiveTarget = new PrimitiveCubic(space, 1.0);
-        double v = primitiveTarget.unitCell().getVolume();
-        primitiveTarget.scaleSize(Math.pow(v*density/4, -1.0/3.0));
-        int numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
-        boundaryTarget = new BoundaryDeformableLattice(primitiveTarget, nCells);
+        primitive = new PrimitiveCubic(space, 1.0/density);
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        nCells = new int[]{numAtoms};
         boxTarget.setBoundary(boundaryTarget);
-        Basis basisTarget = new BasisCubicFcc();
-        
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
-        coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
@@ -125,6 +116,11 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
+        
+
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
+                CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
+        coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         double neighborRange = 1.01/density;
         potentialMasterTarget.setRange(neighborRange);
@@ -137,8 +133,13 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModesFromFile(filename, space.D());
-        
+//        if(awv == numAtoms/2){
+            nm = new NormalModes1DHR(space.D());
+            System.out.println("Perfect 1DHR springs in use");
+//        } else {
+//            nm = new NormalModesFromFile(filename, space.D());
+//            System.out.println("Calculated springs in use");
+//        }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         nm.getOmegaSquared(boxTarget);
@@ -191,25 +192,21 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
-
-        primitiveRef = new PrimitiveCubic(space, 1.0);
-        v = primitiveRef.unitCell().getVolume();
-        primitiveRef.scaleSize(Math.pow(v*density/4, -1.0/3.0));
-        numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
-        boundaryRef  = new BoundaryDeformableLattice(primitiveRef, nCells);
-        boxRef.setBoundary(boundaryRef);
-        Basis basisRef = new BasisCubicFcc();
         
-        CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitiveRef, basisRef, space);
-        coordinateDefinitionRef.initializeCoordinates(nCells);
-       
         p2 = new P2LennardJones(space, 1.0, 1.0);
         truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
+        
+        primitive = new PrimitiveCubic(space, 1.0/density);
+        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        nCells = new int[]{numAtoms};
+        boxRef.setBoundary(boundaryRef);
+        
+        CoordinateDefinitionLeaf coordinateDefinitionRef = new 
+                CoordinateDefinitionLeaf(this, boxRef, primitive, space);
+        coordinateDefinitionRef.initializeCoordinates(nCells);
         
         neighborRange = 1.01/density;
         potentialMasterRef.setRange(neighborRange);
@@ -222,8 +219,11 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
         
-        nm = new NormalModesFromFile(filename, space.D());
-        
+//        if(awv == numAtoms/2){
+            nm = new NormalModes1DHR(space.D());
+//        } else {
+//            nm = new NormalModesFromFile(filename, space.D());
+//        }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -269,10 +269,14 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         mnm.setCoordinateDefinition(coordinateDefinitionRef);
         mnm.setWaveVectorFactory(waveVectorFactoryRef);
         mnm.setBox(boxRef);
-        
-        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
-        integratorRef.getEventManager().addListener(mnmListener);
-        mnmListener.setInterval(1000);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnm);
+        integratorRef.getEventManager().addListener(pumpListener);
+        pumpListener.setInterval(1000);
+//        mnmAccumulator = new AccumulatorAverageFixed();
+//        mnmPump = new DataPump(mnm, mnmAccumulator);
+//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnmPump);
+//        pumpListener.setInterval(1000);
+//        integratorRef.getEventManager().addListener(pumpListener);
         
         sWriter = new WriteS(space);
         sWriter.setFilename(filename + "_output");
@@ -399,10 +403,10 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
+            pumpListener.setInterval(1);
             integrators[iBox].getEventManager().addListener(pumpListener);
 //            integrators[iBox].setActionInterval(accumulatorPumps[iBox], 
 //                    boxRef.getLeafList().getAtomCount()*2);
-            pumpListener.setInterval(1);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -485,7 +489,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
     }
     
     public static void main(String args[]){
-        SimOverlapSingleWaveVector3DParam params = new SimOverlapSingleWaveVector3DParam();
+        SimOverlapSingleWaveVectorParam params = new SimOverlapSingleWaveVectorParam();
         String inputFilename = null;
         if(args.length > 0){
             inputFilename = args[0];
@@ -510,7 +514,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        SimOverlapSingleWaveVector3D sim = new SimOverlapSingleWaveVector3D  (Space.getInstance(D), numMolecules,
+        SimOverlapSingleWaveVector1DLJ sim = new SimOverlapSingleWaveVector1DLJ(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
@@ -522,7 +526,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         int numBenSteps = params.bennettNumSteps;
         int benBlockSize = params.benBlockSize;
         
-        System.out.println("Running Nancy's single 3D hard sphere simulation");
+        System.out.println("Running Nancy's single 1DHR simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
@@ -560,6 +564,16 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         }
         System.out.println("equilibration finished.");
         
+//        sim.meterBinA.histogramNRG.reset();
+//        sim.meterBinA.histogramRealCoord.reset();
+//        sim.meterBinA.histogramImagCoord.reset();
+//        sim.meterBinB.histogramNRG.reset();
+//        sim.meterBinB.histogramRealCoord.reset();
+//        sim.meterBinB.histogramImagCoord.reset();
+        
+        
+        sim.mnm.reset();
+//        sim.mnmAccumulator.reset();
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.setAccumulatorBlockSize(runBlockSize);
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -622,9 +636,61 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
+
+        System.out.println(".");
         sim.sWriter.actionPerformed();
+//        System.out.println("New value for omega squared:  "+ sim.mnmAccumulator.getDataAsScalar());
+        
+        
+//        System.out.println(" ");
+//        System.out.println("Harmonic Energies - Meter B in A");
+//        double[] xval = sim.meterBinA.histogramNRG.xValues();
+//        double[] histval = sim.meterBinA.histogramNRG.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
+//        
+//        System.out.println(" ");
+//        System.out.println("Harmonic Energies - Meter B in B");
+//        xval = sim.meterBinB.histogramNRG.xValues();
+//        histval = sim.meterBinB.histogramNRG.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
+//        
+//        System.out.println(" ");
+//        System.out.println("Real Coord - Meter B in A");
+//        xval = sim.meterBinA.histogramRealCoord.xValues();
+//         histval = sim.meterBinA.histogramRealCoord.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
+//        
+//        System.out.println(" ");
+//        System.out.println("Real Coord - Meter B in B");
+//        xval = sim.meterBinB.histogramRealCoord.xValues();
+//         histval = sim.meterBinB.histogramRealCoord.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
+//        
+//        System.out.println(" ");
+//        System.out.println("Imag Coord - Meter B in A");
+//        xval = sim.meterBinA.histogramImagCoord.xValues();
+//        histval = sim.meterBinA.histogramImagCoord.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
+//        
+//        System.out.println(" ");
+//        System.out.println("Imag Coord - Meter B in B");
+//        xval = sim.meterBinB.histogramImagCoord.xValues();
+//        histval = sim.meterBinB.histogramImagCoord.getHistogram();
+//        for(int i = 0; i < xval.length; i++){
+//            System.out.println("xval " + xval[i] + " "+histval[i]);
+//        }
     }
-    
+      
     
     public void setComparedWV(int awv){
         compareMove.setComparedWV(awv);
@@ -632,23 +698,23 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         meterBinA.setComparedWV(awv);
         meterBinB.setComparedWV(awv);
     }
-    public static class SimOverlapSingleWaveVector3DParam extends ParameterBase {
-        public int numAtoms = 32;
-        public double density = 1.3;
-        public int D = 3;
+    public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
+        public int numAtoms = 6;
+        public double density = 0.50;
+        public int D = 1;
         public double harmonicFudge = 1.0;
-        public String filename = "normal_modes_LJ_3D_32";
+        public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int comparedWV = 4;
+        public int comparedWV = 2;
         
-        public int numSteps = 40000000;
-        public int runBlockSize = 100000;
+        public int numSteps = 400000;
+        public int runBlockSize = 10000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
-        public int eqNumSteps = 4000000;  
+        public int eqNumSteps = 40000;  
         public int eqBlockSize = 10000;
         
-        public int bennettNumSteps = 4000000;
+        public int bennettNumSteps = 40000;
         public int benBlockSize = 10000;
 
     }
