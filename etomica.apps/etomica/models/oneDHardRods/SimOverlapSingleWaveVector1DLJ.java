@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
@@ -29,15 +30,12 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
-import etomica.potential.P2HardSphere;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -45,6 +43,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -83,9 +82,10 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-//        long seed = 3;
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
+        System.out.println("THE RANDOM SEED IS SET TO " + seed);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -100,8 +100,8 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         
 //TARGET
         //Set up target system   - A - 1
-        PotentialMasterList potentialMasterTarget = new 
-            PotentialMasterList(this, space);
+        PotentialMasterMonatomic potentialMasterTarget = new 
+            PotentialMasterMonatomic(this);
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
@@ -121,12 +121,6 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
                 CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
-        
-        double neighborRange = 1.01/density;
-        potentialMasterTarget.setRange(neighborRange);
-        //find neighbors now.  Don't hook up NeighborListManager since the
-        //  neighbors won't change
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, 
                 random, temperature);
@@ -179,22 +173,20 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
         
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
-        
+        integratorTarget.reset();
         
         
 //REFERENCE        
         //Set up REFERENCE system - System B - 0 - hybrid system
-        PotentialMasterList potentialMasterRef = new 
-            PotentialMasterList(this, space);
+        PotentialMasterMonatomic potentialMasterRef = new 
+            PotentialMasterMonatomic(this);
         boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
         
         p2 = new P2LennardJones(space, 1.0, 1.0);
-        truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
@@ -207,12 +199,6 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
                 CoordinateDefinitionLeaf(this, boxRef, primitive, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
-        
-        neighborRange = 1.01/density;
-        potentialMasterRef.setRange(neighborRange);
-        //find neighbors now.  Don't hook up NeighborListManager since the
-        //  neighbors won't change
-        potentialMasterRef.getNeighborManager(boxRef).reset();
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
                 random, temperature);
@@ -262,27 +248,27 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         meters[0] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
-        potentialMasterRef.getNeighborManager(boxRef).reset();
         
-        //Stuff to take care of recording spring constant!!
-        mnm = new MeterNormalMode();
-        mnm.setCoordinateDefinition(coordinateDefinitionRef);
-        mnm.setWaveVectorFactory(waveVectorFactoryRef);
-        mnm.setBox(boxRef);
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnm);
-        integratorRef.getEventManager().addListener(pumpListener);
-        pumpListener.setInterval(1000);
-//        mnmAccumulator = new AccumulatorAverageFixed();
-//        mnmPump = new DataPump(mnm, mnmAccumulator);
-//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnmPump);
-//        pumpListener.setInterval(1000);
+//        //Stuff to take care of recording spring constant!!
+//        mnm = new MeterNormalMode();
+//        mnm.setCoordinateDefinition(coordinateDefinitionRef);
+//        mnm.setWaveVectorFactory(waveVectorFactoryRef);
+//        mnm.setBox(boxRef);
+//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnm);
 //        integratorRef.getEventManager().addListener(pumpListener);
-        
-        sWriter = new WriteS(space);
-        sWriter.setFilename(filename + "_output");
-        sWriter.setMeter(mnm);
-        sWriter.setWaveVectorFactory(mnm.getWaveVectorFactory());
-        sWriter.setOverwrite(true);
+//        pumpListener.setInterval(1000);
+//        
+////        mnmAccumulator = new AccumulatorAverageFixed();
+////        mnmPump = new DataPump(mnm, mnmAccumulator);
+////        IntegratorListenerAction pumpListener = new IntegratorListenerAction(mnmPump);
+////        pumpListener.setInterval(1000);
+////        integratorRef.getEventManager().addListener(pumpListener);
+//        
+//        sWriter = new WriteS(space);
+//        sWriter.setFilename(filename + "_output");
+//        sWriter.setMeter(mnm);
+//        sWriter.setWaveVectorFactory(mnm.getWaveVectorFactory());
+//        sWriter.setOverwrite(true);
         
 //JOINT
         //Set up the rest of the joint stuff
