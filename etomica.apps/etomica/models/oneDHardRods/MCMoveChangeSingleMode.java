@@ -1,9 +1,11 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -35,6 +37,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     
+    int count;
     
     public MCMoveChangeSingleMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -42,6 +45,8 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        
+        count = 0;
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -99,7 +104,19 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
 //    
     public boolean doTrial() {
 //        System.out.println("MCMoveChangeMode doTrial");
+//        int ats = box.getLeafList().getAtomCount();
+//        IAtomList list = box.getLeafList();
+//        int coordinateDim = coordinateDefinition.getCoordinateDim();
+//        for(int i = 0; i < ats; i++){
+//            System.out.println("Atom " + i);
+//            for(int j = 0; j < coordinateDim; j++){
+//                System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
+//                
+//            }
+//        }
+        
         energyOld = energyMeter.getDataAsScalar();
+//        System.out.println("energyOld " +energyOld);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
@@ -155,6 +172,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         }
         
         energyNew = energyMeter.getDataAsScalar();
+//        System.out.println("energyNew " + energyNew);
         return true;
     }
     
@@ -168,6 +186,20 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     
     public void acceptNotify() {
 //        System.out.println("accept MCMoveChangeSingleMode");
+//        if(count == 1000){
+//           int ats = box.getLeafList().getAtomCount();
+//            IAtomList list = box.getLeafList();
+//            int coordinateDim = coordinateDefinition.getCoordinateDim();
+//            for(int i = 0; i < ats; i++){
+//                System.out.println("Atom " + i);
+//                for(int j = 0; j < coordinateDim; j++){
+//                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
+//                }
+//            }
+//            count = 0;
+//        } else {
+//            count++;
+//        }
     }
 
     public double energyChange() {
