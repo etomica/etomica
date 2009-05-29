@@ -48,7 +48,7 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapSingleWaveVector extends Simulation {
+public class SimOverlapSingleWaveVector1DHR extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
@@ -77,7 +77,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
     DataPump mnmPump;
     WriteS sWriter;
     
-    public SimOverlapSingleWaveVector(Space _space, int numAtoms, double density, double 
+    public SimOverlapSingleWaveVector1DHR(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
@@ -511,7 +511,7 @@ public class SimOverlapSingleWaveVector extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        SimOverlapSingleWaveVector sim = new SimOverlapSingleWaveVector(Space.getInstance(D), numMolecules,
+        SimOverlapSingleWaveVector1DHR sim = new SimOverlapSingleWaveVector1DHR(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
