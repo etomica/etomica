@@ -36,6 +36,7 @@ import etomica.normalmode.WriteS;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -49,7 +50,7 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapSingleWaveVector3D extends Simulation {
+public class SimOverlapSingleWaveVector3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitiveTarget, primitiveRef;
@@ -76,7 +77,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
     MeterNormalMode mnm;
     WriteS sWriter;
     
-    public SimOverlapSingleWaveVector3D(Space _space, int numAtoms, double density, double 
+    public SimOverlapSingleWaveVector3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
@@ -97,8 +98,8 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         
 //TARGET
         //Set up target system   - A - 1
-        PotentialMasterList potentialMasterTarget = new 
-            PotentialMasterList(this, space);
+        PotentialMasterMonatomic potentialMasterTarget = new 
+            PotentialMasterMonatomic(this);
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
@@ -125,12 +126,6 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
-        
-        double neighborRange = 1.01/density;
-        potentialMasterTarget.setRange(neighborRange);
-        //find neighbors now.  Don't hook up NeighborListManager since the
-        //  neighbors won't change
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, 
                 random, temperature);
@@ -178,15 +173,14 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
         
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         
         
         
 //REFERENCE        
         //Set up REFERENCE system - System B - 0 - hybrid system
-        PotentialMasterList potentialMasterRef = new 
-            PotentialMasterList(this, space);
+        PotentialMasterMonatomic potentialMasterRef = new 
+            PotentialMasterMonatomic(this);
         boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
@@ -210,12 +204,6 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
-        
-        neighborRange = 1.01/density;
-        potentialMasterRef.setRange(neighborRange);
-        //find neighbors now.  Don't hook up NeighborListManager since the
-        //  neighbors won't change
-        potentialMasterRef.getNeighborManager(boxRef).reset();
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
                 random, temperature);
@@ -262,7 +250,6 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         meters[0] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
-        potentialMasterRef.getNeighborManager(boxRef).reset();
         
         //Stuff to take care of recording spring constant!!
         mnm = new MeterNormalMode();
@@ -510,7 +497,7 @@ public class SimOverlapSingleWaveVector3D extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        SimOverlapSingleWaveVector3D sim = new SimOverlapSingleWaveVector3D  (Space.getInstance(D), numMolecules,
+        SimOverlapSingleWaveVector3DLJ sim = new SimOverlapSingleWaveVector3DLJ  (Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
