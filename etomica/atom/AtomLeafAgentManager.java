@@ -6,14 +6,12 @@ import java.lang.reflect.Array;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomLeafIndexChangedEvent;
-import etomica.api.IBoxMoleculeAddedEvent;
-import etomica.api.IBoxMoleculeRemovedEvent;
-import etomica.api.IEvent;
-import etomica.api.IListener;
+import etomica.api.IBoxAtomIndexEvent;
+import etomica.api.IBoxIndexEvent;
+import etomica.api.IBoxMoleculeEvent;
 import etomica.api.IMolecule;
-import etomica.box.BoxGlobalAtomLeafIndexEvent;
+import etomica.box.BoxListenerAdapter;
+import etomica.nbr.list.NeighborCellManagerList;
 import etomica.util.Arrays;
 
 /**
@@ -25,7 +23,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class AtomLeafAgentManager implements IListener, Serializable {
+public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializable {
 
     public AtomLeafAgentManager(AgentSource source, IBox box) {
         this(source, box, true);
@@ -135,48 +133,49 @@ public class AtomLeafAgentManager implements IListener, Serializable {
         }
     }
     
-    public void actionPerformed(IEvent evt) {
+    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+        IMolecule mole = e.getMolecule();
+        // add all leaf atoms below this atom
+        IAtomList childList = mole.getChildList();
 
-        if (evt instanceof IBoxMoleculeAddedEvent) {
-            IMolecule mole = ((IBoxMoleculeAddedEvent)evt).getMolecule();
-            // add all leaf atoms below this atom
-            IAtomList childList = mole.getChildList();
-            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                addAgent(childList.getAtom(iChild));
+        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+            addAgent(childList.getAtom(iChild));
+        }
+    }
+    
+    public void boxMoleculeRemoved(IBoxMoleculeEvent e) {
+        IMolecule mole = e.getMolecule();
+        // IAtomGroups don't have agents, but nuke all atoms below this atom
+        IAtomList childList = mole.getChildList();
+        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+            IAtom childAtom = childList.getAtom(iChild);
+            int index = childAtom.getLeafIndex();
+            if (agents[index] != null) {
+                // Atom used to have an agent.  nuke it.
+                agentSource.releaseAgent(agents[index], childAtom);
+                agents[index] = null;
             }
         }
-        else if (evt instanceof IBoxMoleculeRemovedEvent) {
-            IMolecule mole = ((IBoxMoleculeRemovedEvent)evt).getMolecule();
-            // IAtomGroups don't have agents, but nuke all atoms below this atom
-            IAtomList childList = mole.getChildList();
-            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                IAtom childAtom = childList.getAtom(iChild);
-                int index = childAtom.getLeafIndex();
-                if (agents[index] != null) {
-                    // Atom used to have an agent.  nuke it.
-                    agentSource.releaseAgent(agents[index], childAtom);
-                    agents[index] = null;
-                }
-            }
-        }
-        else if (evt instanceof IBoxAtomLeafIndexChangedEvent) {
-            IAtom a = ((IBoxAtomLeafIndexChangedEvent)evt).getAtom();
-            // the atom's index changed.  assume it would get the same agent
-            int oldIndex = ((IBoxAtomLeafIndexChangedEvent)evt).getOldIndex();
-            agents[((IAtom)a).getLeafIndex()] = agents[oldIndex];
-            agents[oldIndex] = null;
-        }
-        else if (evt instanceof BoxGlobalAtomLeafIndexEvent) {
-            // don't use leafList.size() since the SpeciesMaster might be notifying
-            // us that it's about to add leaf atoms
-            int newMaxIndex = ((BoxGlobalAtomLeafIndexEvent)evt).getMaxIndex();
-            if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
-                // indices got compacted.  If our array is a lot bigger than it
-                // needs to be, shrink it.
-                // ... or we've been notified that atoms are about to get added to the 
-                // system.  Make room for them
-                agents = Arrays.resizeArray(agents,newMaxIndex+1+reservoirSize);
-            }
+    }
+    
+    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {
+        IAtom a = e.getAtom();
+        // the atom's index changed.  assume it would get the same agent
+        int oldIndex = e.getIndex();
+        agents[((IAtom)a).getLeafIndex()] = agents[oldIndex];
+        agents[oldIndex] = null;
+    }
+    
+    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {
+        // don't use leafList.size() since the SpeciesMaster might be notifying
+        // us that it's about to add leaf atoms
+        int newMaxIndex = e.getIndex();
+        if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
+            // indices got compacted.  If our array is a lot bigger than it
+            // needs to be, shrink it.
+            // ... or we've been notified that atoms are about to get added to the 
+            // system.  Make room for them
+            agents = Arrays.resizeArray(agents,newMaxIndex+1+reservoirSize);
         }
     }
     

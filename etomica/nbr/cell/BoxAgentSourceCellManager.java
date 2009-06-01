@@ -27,7 +27,7 @@ public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serial
     
     public Object makeAgent(IBox box) {
         NeighborCellManager cellManager = new NeighborCellManager(sim, box,range,positionDefinition, space);
-        box.getEventManager().addListener(cellManager);
+        box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
     

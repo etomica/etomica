@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IBox;
-import etomica.api.IBoxMoleculeAddedEvent;
-import etomica.api.IBoxMoleculeRemovedEvent;
+import etomica.api.IBoxMoleculeCountEvent;
+import etomica.api.IBoxMoleculeEvent;
+import etomica.api.IBoxMoleculeIndexEvent;
 import etomica.api.IEvent;
 import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.box.BoxMoleculeIndexChangedEvent;
-import etomica.box.BoxNumMoleculesEvent;
+import etomica.box.BoxListenerAdapter;
 import etomica.simulation.SimulationSpeciesAddedEvent;
 import etomica.simulation.SimulationSpeciesEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
@@ -26,7 +26,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager implements IListener, Serializable {
+public class MoleculeAgentManager extends BoxListenerAdapter implements IListener, Serializable {
 
     public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source) {
         this(sim, box, source, true);
@@ -132,44 +132,48 @@ public class MoleculeAgentManager implements IListener, Serializable {
         }
     }
     
+    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+        IMolecule mole = e.getMolecule();
+        addAgent(mole);
+    }
+    
+    public void boxMoleculeRemoved(IBoxMoleculeEvent e) {
+        IMolecule mole = e.getMolecule();
+        int index = mole.getIndex();
+        int typeIndex = mole.getType().getIndex();
+        Object[] speciesAgents = agents[typeIndex];
+        if (speciesAgents[index] != null) {
+            // Atom used to have an agent.  nuke it.
+            agentSource.releaseAgent(speciesAgents[index], mole);
+            speciesAgents[index] = null;
+        }
+    }
+    
+    public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e) {
+        IMolecule mole = e.getMolecule();
+        // the atom's index changed.  assume it would get the same agent
+        int oldIndex = e.getIndex();
+        int typeIndex = mole.getType().getIndex();
+        Object[] speciesAgents = agents[typeIndex];
+        speciesAgents[mole.getIndex()] = speciesAgents[oldIndex];
+        speciesAgents[oldIndex] = null;
+    }
+    
+    public void boxNumberMolecules(IBoxMoleculeCountEvent e) {
+        int speciesIndex = e.getSpecies().getIndex();
+        int newMaxIndex = e.getCount();
+        if (agents[speciesIndex].length > newMaxIndex+reservoirSize || agents[speciesIndex].length < newMaxIndex) {
+            // indices got compacted.  If our array is a lot bigger than it
+            // needs to be, shrink it.
+            // ... or we've been notified that atoms are about to get added to the 
+            // system.  Make room for them
+            agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
+        }
+    }
+    
     public void actionPerformed(IEvent evt) {
 
-        if (evt instanceof IBoxMoleculeAddedEvent) {
-            IMolecule mole = ((IBoxMoleculeAddedEvent)evt).getMolecule();
-            addAgent(mole);
-        }
-        else if (evt instanceof IBoxMoleculeRemovedEvent) {
-            IMolecule mole = ((IBoxMoleculeRemovedEvent)evt).getMolecule();
-            int index = mole.getIndex();
-            int typeIndex = mole.getType().getIndex();
-            Object[] speciesAgents = agents[typeIndex];
-            if (speciesAgents[index] != null) {
-                // Atom used to have an agent.  nuke it.
-                agentSource.releaseAgent(speciesAgents[index], mole);
-                speciesAgents[index] = null;
-            }
-        }
-        else if (evt instanceof BoxMoleculeIndexChangedEvent) {
-            IMolecule mole = ((BoxMoleculeIndexChangedEvent)evt).getMolecule();
-            // the atom's index changed.  assume it would get the same agent
-            int oldIndex = ((BoxMoleculeIndexChangedEvent)evt).getOldIndex();
-            int typeIndex = mole.getType().getIndex();
-            Object[] speciesAgents = agents[typeIndex];
-            speciesAgents[mole.getIndex()] = speciesAgents[oldIndex];
-            speciesAgents[oldIndex] = null;
-        }
-        else if (evt instanceof BoxNumMoleculesEvent) {
-            int speciesIndex = ((BoxNumMoleculesEvent)evt).getSpecies().getIndex();
-            int newMaxIndex = ((BoxNumMoleculesEvent)evt).getNewNumMolecules();
-            if (agents[speciesIndex].length > newMaxIndex+reservoirSize || agents[speciesIndex].length < newMaxIndex) {
-                // indices got compacted.  If our array is a lot bigger than it
-                // needs to be, shrink it.
-                // ... or we've been notified that atoms are about to get added to the 
-                // system.  Make room for them
-                agents[speciesIndex] = Arrays.resizeArray(agents[speciesIndex],newMaxIndex+reservoirSize);
-            }
-        }
-        else if (evt instanceof SimulationSpeciesEvent) {
+        if (evt instanceof SimulationSpeciesEvent) {
             if (evt instanceof SimulationSpeciesAddedEvent) {
                 agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
                 agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);

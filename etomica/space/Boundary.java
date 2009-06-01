@@ -1,9 +1,9 @@
 package etomica.space;
 
 import etomica.api.IBoundary;
+import etomica.api.IBoundaryEvent;
+import etomica.api.IBoundaryEventManager;
 import etomica.api.IBox;
-import etomica.api.IBoxEvent;
-import etomica.box.BoxInflateEvent;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
 
@@ -25,6 +25,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     public Boundary(ISpace space, Polytope shape) {
         this.space = space;
         this.shape = shape;
+        eventManager = new BoundaryEventManager();
     }
 
     /**
@@ -37,7 +38,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
             inflateEvent = null;
         }
         else {
-            inflateEvent = new BoxInflateEvent(box);
+            inflateEvent = new BoundaryEvent(this);
         }
     }
 
@@ -63,6 +64,10 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
         return shape.getVolume();
     }
 
+    public IBoundaryEventManager getEventManager() {
+        return eventManager;
+    }
+    
     /* (non-Javadoc)
 	 * @see etomica.space.IBoundary#getIndexIterator()
 	 */
@@ -83,5 +88,6 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     protected final Polytope shape;
     protected final ISpace space;
     protected IBox box;
-    protected IBoxEvent inflateEvent;
+    protected IBoundaryEvent inflateEvent;
+    protected BoundaryEventManager eventManager;
 }

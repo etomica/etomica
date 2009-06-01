@@ -23,7 +23,7 @@ public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource, java.i
     
     public Object makeAgent(IBox box) {
         NeighborCellManagerThreaded cellManager = new NeighborCellManagerThreaded(sim, box, 0, positionDefinition, space);
-        box.getEventManager().addListener(cellManager);
+        box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
     

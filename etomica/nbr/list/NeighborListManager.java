@@ -52,10 +52,10 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
         agentManager2Body = new AtomLeafAgentManager(this, box);
         agentManager1Body = new AtomLeafAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
-        boxEvent = new BoxEventNeighborsUpdated(box);
         initialized = false;
         doApplyPBC = true;
         atomSetSinglet = new AtomSetSinglet();
+        eventManager = new NeighborListEventManager();
     }
 
     public void setDoApplyPBC(boolean newDoApplyPBC) {
@@ -173,7 +173,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
                 pbcEnforcer.actionPerformed();
             }
             neighborSetup();
-            box.getEventManager().fireEvent(boxEvent);
+            eventManager.neighborsUpdated();
         }
     }
 
@@ -365,6 +365,10 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         agentManager2Body.dispose();
     }
 
+    public NeighborListEventManager getEventManager() {
+        return eventManager;
+    }
+    
     private static final long serialVersionUID = 1L;
     private int updateInterval;
     private int iieCount;
@@ -377,9 +381,9 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     private boolean quiet;
     private final AtomLeafAgentManager agentManager2Body;
     private final AtomLeafAgentManager agentManager1Body;
+    private NeighborListEventManager eventManager;
     protected IBox box;
     private NeighborCriterion[] oldCriteria;
-    protected final BoxEventNeighborsUpdated boxEvent;
     protected boolean initialized;
     protected boolean doApplyPBC;
 

@@ -14,13 +14,10 @@ public class BoxAtomEvent extends BoxEvent implements IBoxAtomEvent {
         this.atom = atom;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.box.IBoxAtomEvent#getAtom()
-     */
     public IAtom getAtom() {
         return atom;
     }
     
-    private final IAtom atom;
+    protected IAtom atom = null;
     private static final long serialVersionUID = 1L;
 }

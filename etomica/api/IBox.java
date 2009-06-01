@@ -71,7 +71,7 @@ public interface IBox {
      * Returns the event manager for this box.  
      * @return
      */
-    public IEventManager getEventManager();
+    public IBoxEventManager getEventManager();
 
     /**
      * Notifies the IBox that the given species has been added to the

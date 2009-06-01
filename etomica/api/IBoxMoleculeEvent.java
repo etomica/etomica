@@ -1,7 +1,6 @@
 package etomica.api;
 
-public interface IBoxMoleculeEvent extends IBoxEvent {
-
+public interface IBoxMoleculeEvent {
+    
     public IMolecule getMolecule();
-
 }

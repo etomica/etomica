@@ -5,9 +5,14 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IBoxMoleculeAddedEvent;
-import etomica.api.IEvent;
-import etomica.api.IListener;
+import etomica.api.IBoxAtomEvent;
+import etomica.api.IBoxAtomIndexEvent;
+import etomica.api.IBoxEvent;
+import etomica.api.IBoxIndexEvent;
+import etomica.api.IBoxListener;
+import etomica.api.IBoxMoleculeCountEvent;
+import etomica.api.IBoxMoleculeEvent;
+import etomica.api.IBoxMoleculeIndexEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -26,7 +31,7 @@ import etomica.util.EnumeratedType;
  * Extends the Integrator class by adding methods that 
  * set the time step.
  */
-public abstract class IntegratorMD extends IntegratorBox implements IListener {
+public abstract class IntegratorMD extends IntegratorBox implements IBoxListener {
 
     public IntegratorMD(IPotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature, ISpace _space) {
@@ -367,23 +372,39 @@ public abstract class IntegratorMD extends IntegratorBox implements IListener {
         meterTemperature = meter;
     }
     
-    public void actionPerformed(IEvent event) {
-        if (event instanceof IBoxMoleculeAddedEvent) {
-            IMolecule mole = ((IBoxMoleculeAddedEvent)event).getMolecule();
-            if (mole instanceof IAtomKinetic) {
-                randomizeMomentum((IAtomKinetic)mole);
-                return;
-            }
-            IAtomList atomList = mole.getChildList();
-            for(int i = 0; i < atomList.getAtomCount(); i++) {
-                IAtom a = atomList.getAtom(i);
-                if (a instanceof IAtomKinetic) {
-                    randomizeMomentum((IAtomKinetic)a);
-                }
+    public void boxMoleculeAdded(IBoxMoleculeEvent e) {
+
+        IMolecule mole = e.getMolecule();
+        if (mole instanceof IAtomKinetic) {
+            randomizeMomentum((IAtomKinetic)mole);
+            return;
+        }
+        IAtomList atomList = mole.getChildList();
+        for(int i = 0; i < atomList.getAtomCount(); i++) {
+            IAtom a = atomList.getAtom(i);
+            if (a instanceof IAtomKinetic) {
+                randomizeMomentum((IAtomKinetic)a);
             }
         }
-    }
 
+    }
+    
+    public void boxAtomAdded(IBoxAtomEvent e) { }
+    
+    public void boxAtomRemoved(IBoxAtomEvent e) { }
+    
+    public void boxMoleculeRemoved(IBoxMoleculeEvent e) { }
+    
+    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e) { }
+    
+    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) { }
+    
+    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) { }
+    
+    public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e) { }
+    
+    public void boxNumberMolecules(IBoxMoleculeCountEvent e) { }
+    
     private static final long serialVersionUID = 2L;
     /**
      * Elementary time step for the MD simulation

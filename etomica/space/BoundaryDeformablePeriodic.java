@@ -393,9 +393,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
 
         // we get called when the boundary changes, so fire inflate event now
-        if (box != null) {
-            box.getEventManager().fireEvent(inflateEvent);
-        }
+        eventManager.inflate(this);
     }
 
     public IVector getEdgeVector(int d) {

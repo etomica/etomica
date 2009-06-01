@@ -5,6 +5,8 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
+import etomica.api.IBoundaryEvent;
+import etomica.api.IBoundaryListener;
 import etomica.api.IBox;
 import etomica.api.IEvent;
 import etomica.api.IListener;
@@ -15,7 +17,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
-import etomica.box.BoxInflateEvent;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
@@ -32,7 +33,7 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager.AgentSource, IListener, java.io.Serializable {
+public class NeighborCellManager implements BoxCellManager, IBoundaryListener, AtomLeafAgentManager.AgentSource, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
@@ -121,17 +122,15 @@ public class NeighborCellManager implements BoxCellManager, AtomLeafAgentManager
         checkDimensions();
     }
 
-    public void actionPerformed(IEvent evt) {
-        if (evt instanceof BoxInflateEvent) {
-            checkDimensions();
-            // we need to reassign cells even if checkDimensions didn't resize
-            // the lattice.  If the box size changed, the cell size changed,
-            // and the atom assignments need to change too.
-            //FIXME but only if we have multi-atomic molecules.  For monatomic
-            // molecules, we would only need to call this if the lattice size
-            // changes
-            assignCellAll();
-        }
+    public void boundaryInflate(IBoundaryEvent e) {
+        checkDimensions();
+        // we need to reassign cells even if checkDimensions didn't resize
+        // the lattice.  If the box size changed, the cell size changed,
+        // and the atom assignments need to change too.
+        //FIXME but only if we have multi-atomic molecules.  For monatomic
+        // molecules, we would only need to call this if the lattice size
+        // changes
+        assignCellAll();
     }
     
     /**

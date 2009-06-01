@@ -22,7 +22,7 @@ public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
     public Object makeAgent(IBox box) {
         NeighborCellManagerList cellManager = new NeighborCellManagerList(sim, box,range,positionDefinition, space);
         cellManager.setPotentialMaster(potentialMaster);
-        box.getEventManager().addListener(cellManager);
+        box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
 

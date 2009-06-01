@@ -1,7 +1,7 @@
 package etomica.space;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
@@ -90,13 +90,11 @@ public abstract class BoundaryRectangular extends Boundary {
         dimensions.E(v);
         updateDimensions();
 
-        if (box != null) {
-            box.getEventManager().fireEvent(inflateEvent);
-        }
+        eventManager.inflate(this);
     }
 
     /**
-     * Returns the "volume" of the retangular region defined by this Boundary.
+     * Returns the "volume" of the rectangular region defined by this Boundary.
      * For a 2D and 1D spaces, this volume is actually an area and length, respectively.
      */
     public double volume() {

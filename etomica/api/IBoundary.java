@@ -87,4 +87,6 @@ public interface IBoundary {
      * defined by the getEdgeVector method).
      */
    public boolean getPeriodicity(int d);
+   
+   public IBoundaryEventManager getEventManager();
 }

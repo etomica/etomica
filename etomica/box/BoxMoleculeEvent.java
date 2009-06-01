@@ -10,14 +10,12 @@ public class BoxMoleculeEvent extends BoxEvent implements IBoxMoleculeEvent {
             super(box);
             this.molecule = mole;
         }
-
-        /* (non-Javadoc)
-         * @see etomica.box.IBoxAtomEvent#getAtom()
-         */
+        
         public IMolecule getMolecule() {
             return molecule;
         }
+
         
-        private final IMolecule molecule;
+        protected IMolecule molecule = null;
         private static final long serialVersionUID = 1L;
 }
