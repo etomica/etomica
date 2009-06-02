@@ -1,9 +1,9 @@
 package etomica.threaded.domain;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.ISpace;
 

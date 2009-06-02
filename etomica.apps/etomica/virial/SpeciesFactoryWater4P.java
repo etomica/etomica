@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.models.water.SpeciesWater4P;
-import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.config.IConformation;
 import etomica.space.ISpace;
 
 

@@ -2,7 +2,6 @@ package etomica.nbr.list;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -14,6 +13,7 @@ import etomica.api.ISpecies;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;

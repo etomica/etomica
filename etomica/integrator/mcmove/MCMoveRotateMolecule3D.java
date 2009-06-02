@@ -1,11 +1,11 @@
 package etomica.integrator.mcmove;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 

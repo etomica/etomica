@@ -1,12 +1,12 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
+import etomica.config.IConformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
 import etomica.space.ISpace;

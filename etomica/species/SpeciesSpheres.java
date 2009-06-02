@@ -1,7 +1,6 @@
 package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
@@ -11,6 +10,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
+import etomica.config.IConformation;
 import etomica.space.ISpace;
 
 /**

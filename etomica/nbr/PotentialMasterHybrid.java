@@ -1,6 +1,5 @@
 package etomica.nbr;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotential;
@@ -8,6 +7,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.cell.NeighborCellManager;

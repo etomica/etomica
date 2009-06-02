@@ -2,7 +2,6 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -10,6 +9,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.lattice.crystal.Basis;

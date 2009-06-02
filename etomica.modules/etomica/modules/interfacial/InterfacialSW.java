@@ -1,7 +1,6 @@
 package etomica.modules.interfacial;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -9,6 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;

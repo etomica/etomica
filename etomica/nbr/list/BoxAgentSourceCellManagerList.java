@@ -1,8 +1,8 @@
 package etomica.nbr.list;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.space.ISpace;
 

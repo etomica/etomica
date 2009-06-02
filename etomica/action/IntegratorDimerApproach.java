@@ -2,11 +2,11 @@ package etomica.action;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
+import etomica.config.IConformation;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
 

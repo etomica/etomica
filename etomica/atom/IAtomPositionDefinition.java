@@ -1,4 +1,7 @@
-package etomica.api;
+package etomica.atom;
+
+import etomica.api.IMolecule;
+import etomica.api.IVector;
 
 
 

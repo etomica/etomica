@@ -3,7 +3,6 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;

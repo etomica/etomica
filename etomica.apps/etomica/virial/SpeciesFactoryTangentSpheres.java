@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.chem.elements.ElementSimple;
-import etomica.api.IConformation;
+import etomica.config.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.simulation.SpeciesManager;

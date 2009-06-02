@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.math.geometry.Shape;

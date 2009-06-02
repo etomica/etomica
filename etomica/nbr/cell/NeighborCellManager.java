@@ -2,7 +2,6 @@ package etomica.nbr.cell;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
@@ -15,6 +14,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;

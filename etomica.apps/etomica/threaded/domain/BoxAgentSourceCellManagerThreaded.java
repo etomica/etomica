@@ -1,8 +1,8 @@
 package etomica.threaded.domain;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.ISpace;
 

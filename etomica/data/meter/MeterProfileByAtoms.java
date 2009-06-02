@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IData;
@@ -8,6 +7,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;

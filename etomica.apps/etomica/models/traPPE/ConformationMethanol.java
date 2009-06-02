@@ -2,7 +2,7 @@ package etomica.models.traPPE;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
-import etomica.api.IConformation;
+import etomica.config.IConformation;
 import etomica.space.ISpace;
 
 /**

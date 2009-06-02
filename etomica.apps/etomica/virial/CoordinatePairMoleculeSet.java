@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.space.ISpace;
 import etomica.util.Debug;
 

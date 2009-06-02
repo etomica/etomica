@@ -3,11 +3,11 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.space.ISpace;
 
 /**

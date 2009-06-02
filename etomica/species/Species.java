@@ -1,10 +1,10 @@
 package etomica.species;
 
-import etomica.api.IAtomPositionDefinition;
 import etomica.api.IAtomType;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
+import etomica.atom.IAtomPositionDefinition;
+import etomica.config.IConformation;
 import etomica.util.Arrays;
 
 /**

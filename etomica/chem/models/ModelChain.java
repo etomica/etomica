@@ -1,11 +1,11 @@
 package etomica.chem.models;
 
-import etomica.api.IConformation;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.IConformation;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
 import etomica.species.Species;

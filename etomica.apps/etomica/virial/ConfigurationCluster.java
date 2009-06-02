@@ -1,11 +1,11 @@
 package etomica.virial;
 
 import etomica.api.IBox;
-import etomica.api.IConformation;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
+import etomica.config.IConformation;
 import etomica.space.ISpace;
 
 /**
