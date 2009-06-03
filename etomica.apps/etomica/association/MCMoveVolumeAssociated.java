@@ -142,7 +142,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
     }
     
     public double getA() {
-    	//System.out.println("getA, number of associated atoms = " +associationManager.getAssociatedAtoms().getAtomCount());
+    	System.out.println("getA, number of associated atoms = " +associationManager.getAssociatedAtoms().getAtomCount());
     	if (numAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){//numAssociatedAtoms after move
     		return 0;
     	}
