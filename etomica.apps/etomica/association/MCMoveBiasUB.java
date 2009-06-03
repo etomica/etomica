@@ -69,7 +69,7 @@ public class MCMoveBiasUB extends MCMoveBox {
             while(atomB == atomA) atomB = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
             meterPotentialEnergy.setTarget(atomA);
             uOld = meterPotentialEnergy.getDataAsScalar();
-            ni = associationManager.associationCount(atomA);
+            ni = associationManager.getAssociatedAtoms(atomA).getAtomCount();
             Nai = associationManager.getAssociatedAtoms().getAtomCount();
             oldPosition.E(((IAtomPositioned)atomA).getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
@@ -77,13 +77,13 @@ public class MCMoveBiasUB extends MCMoveBox {
             //System.out.println("atomA = " +atomA + " atomB = " +atomB);
          
         }//end bonding
-        else { // unbonding
+        else { // unbonding,breaking bond
         	IAtomList atoms = associationManager.getAssociatedAtoms();
         	if (atoms.getAtomCount() == 0) {
         		return false;
         	}
             atomA = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
-            ni = associationManager.associationCount(atomA);
+            ni = associationManager.getAssociatedAtoms(atomA).getAtomCount();
             Nai = associationManager.getAssociatedAtoms().getAtomCount();
             meterPotentialEnergy.setTarget(atomA);
             uOld = meterPotentialEnergy.getDataAsScalar();
@@ -100,12 +100,12 @@ public class MCMoveBiasUB extends MCMoveBox {
     }//end doTrial
     public double getB() {
     	uNew = meterPotentialEnergy.getDataAsScalar();
-//    	if (atomA.getParentGroup().getIndex() == 391 || atomA.getParentGroup().getIndex() == 247){
-//    		System.out.println("MCMoveBiasUB "+atomA);
-//        	System.out.println("uOld-uNew = "+(uOld-meterPotentialEnergy.getDataAsScalar()));
-//        	System.out.println("uOld = "+uOld);
-//        	System.out.println("isbonding = "+isbonding);
-//        }
+    	if (atomA.getParentGroup().getIndex() == 10 || atomA.getParentGroup().getIndex() == 452){
+    		System.out.println("MCMoveBiasUB "+atomA);
+        	System.out.println("uOld-uNew = "+(uOld-meterPotentialEnergy.getDataAsScalar()));
+        	System.out.println("uOld = "+uOld);
+        	System.out.println("isbonding = "+isbonding);
+        }
     	return uOld - uNew;
     }
     public double getA() {
@@ -114,7 +114,7 @@ public class MCMoveBiasUB extends MCMoveBox {
     	double phi = biasVolume.biasVolume()/box.getBoundary().volume();
     	//if (Naj == 0) System.out.println("A1 = " +(ni*Nai/((N-1)*phi)));
     	if(Naj == 0) return ni*Nai/((N-1)*phi);//acceptance criteria
-    	int nj = associationManager.associationCount(atomA);
+    	int nj = associationManager.getAssociatedAtoms(atomA).getAtomCount();
     	//if (Nai == 0) System.out.println("A2 = "+((N-1)*phi/(nj*Naj)));
         if(Nai == 0) return (N-1)*phi/(nj*Naj);
         int deltaj = (nj == 0) ? 0 : 1;

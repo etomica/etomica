@@ -84,6 +84,9 @@ public class AssociationManager implements AgentSource,IListener {
             	if (atomj == atomi){
             		atomj = atomij.getAtom(1);
             	}
+//            	if (atomi.getLeafIndex() == 500 ||atomj.getLeafIndex() == 500 ||atomi.getLeafIndex() == 501 ||atomj.getLeafIndex() == 501){
+//            		System.out.println("atomij= "+atomij);
+//            	}
             	if (associationDefinition.isAssociated(atomi, atomj)){ //they are associated
             		if (listi.indexOf(atomj) == -1) { // they were not associated
             			if (listi.getAtomCount() == 0) {
@@ -119,8 +122,8 @@ public class AssociationManager implements AgentSource,IListener {
     /**
      * Returns the number of atoms on the list of associations of the given atom.
      */
-    public int associationCount(IAtom atom) {
-       return ((AtomArrayList)agentManager.getAgent(atom)).getAtomCount();
+    public IAtomList getAssociatedAtoms(IAtom atom) {
+       return (AtomArrayList)agentManager.getAgent(atom);
     }
 
 	public Class getAgentClass() {
