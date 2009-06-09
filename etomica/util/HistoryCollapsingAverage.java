@@ -48,9 +48,9 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     
     protected void collapseData() {
         for (int i=0; i<cursor/numCollapseBins; i++) {
-            xValues[i] = 0;
-            history[i] = 0;
-            for (int j=i*numCollapseBins; j<(i+1)*numCollapseBins; j++) {
+            xValues[i] = xValues[i*numCollapseBins];
+            history[i] = history[i*numCollapseBins];
+            for (int j=i*numCollapseBins+1; j<(i+1)*numCollapseBins; j++) {
                 xValues[i] += xValues[j];
                 history[i] += history[j];
             }
