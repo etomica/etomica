@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -24,9 +25,9 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
@@ -50,6 +51,10 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
+/**
+ * MC simulation of Lennard-Jones system.
+ * @author cribbin
+ */
 public class SimOverlapSingleWaveVector3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
@@ -116,9 +121,14 @@ public class SimOverlapSingleWaveVector3DLJ extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         Basis basisTarget = new BasisCubicFcc();
         
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
+        
+        for(int k = 0; k < 32; k++){
+            System.out.println(k + " " +((IAtomPositioned)coordinateDefinitionTarget.getBox().getLeafList().getAtom(k)).getPosition());
+        }
+        
+        
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
@@ -626,7 +636,7 @@ public class SimOverlapSingleWaveVector3DLJ extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "normal_modes_LJ_3D_32";
         public double temperature = 1.0;
-        public int comparedWV = 4;
+        public int comparedWV = 8;
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;

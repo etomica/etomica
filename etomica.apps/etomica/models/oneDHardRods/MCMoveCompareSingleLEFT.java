@@ -121,7 +121,7 @@ public class MCMoveCompareSingleLEFT extends MCMoveBoxStep{
             
         }
         energyOld = energyMeter.getDataAsScalar();
-        if(energyOld != 0.0){
+        if(Double.isInfinite(energyOld)){
             for(int k = 0; k < waveVectors.length; k++){
 //                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
             }

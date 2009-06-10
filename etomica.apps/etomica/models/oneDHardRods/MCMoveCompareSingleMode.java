@@ -122,7 +122,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         }
         energyOld = energyMeter.getDataAsScalar();
 //        System.out.println("energyOld " + energyOld);
-        if(energyOld != 0.0){
+        if(Double.isInfinite(energyOld)){
             for(int k = 0; k < waveVectors.length; k++){
                 System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
             }
@@ -268,7 +268,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject " + energyNew);
+//        System.out.println("reject " + energyNew);
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

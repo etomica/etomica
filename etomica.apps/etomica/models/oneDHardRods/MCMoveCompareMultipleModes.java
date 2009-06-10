@@ -135,7 +135,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         }// end of wvCount loop
         
         energyOld = energyMeter.getDataAsScalar();
-        if (energyOld != 0.0) {
+        if (Double.isInfinite(energyOld)) {
             int limit = coordinateDefinition.getBox().getLeafList().getAtomCount();
             for (int k = 0; k < limit; k++) {
                 System.out.println(k + " " + ((IAtomPositioned) 

@@ -125,7 +125,7 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
             }
         }
         energyOld = energyMeter.getDataAsScalar();
-        if(energyOld != 0.0){
+        if(Double.isInfinite(energyOld)){
             throw new IllegalStateException("Overlap after the removal of a mode!");
         }
         
