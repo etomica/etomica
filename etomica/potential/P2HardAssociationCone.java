@@ -56,7 +56,7 @@ public class P2HardAssociationCone extends Potential2 {
      * Returns infinity.
      */
     public double getRange() {
-        return Double.POSITIVE_INFINITY;
+        return sigma*cutoffFactor;
     }
 
 
