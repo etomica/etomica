@@ -23,6 +23,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
     private final IRandom random;
     private IBoundary boundary;
     private double ec2;
+    private double ec1;
     
     public BiasVolumeSphereOriented(ISpace space, IRandom random){
         super(space);
@@ -47,27 +48,38 @@ public class BiasVolumeSphereOriented extends BiasVolume {
     public double getBiasSphereRadius() {return radius;}
     
     public double biasVolume() {
-    	if (true) {
-    		throw new RuntimeException ("This method has not been implemented.");
-    	}
-        double prod = 4.0/3.0*Math.PI*(radius*radius*radius-innerRadius*innerRadius*innerRadius);
-        return prod;
+    	double partialVolume = Math.PI*(radius*radius*radius-innerRadius*innerRadius*innerRadius)*(1.0/3.0*(ec1-ec1*ec2)+2.0/3.0-ec1+1.0/3.0*ec1*ec2);
+        double totalVolume = 4.0/3.0*Math.PI*(radius*radius*radius-innerRadius*innerRadius*innerRadius);
+        //System.out.println("biasVolume= "+partialVolume/totalVolume);
+        return partialVolume*partialVolume/totalVolume;
     }
     
     
-    // Insert atom1 in to the Bonding region of atom2 
+    // Insert atom1 in to the Bonding region of atom2 , randomly rotate/move atom1 and check the atom2 and then check the atom1
     //Bonding region is a cube /rectangle for 2 D
     public void biasInsert(IAtom atom1, IAtom atom2) {
-    	if (true) {
-    		throw new RuntimeException ("This method has not been implemented.");
-    	}
-        work.setRandomInSphere(random);
-        work.TE(radius);//multiply by radius
-        while (work.squared()<innerRadius*innerRadius){
-        	work.setRandomInSphere(random);
-        	work.TE(radius);
+        double er2;
+        do {
+            work.setRandomInSphere(random);//work =bond vector from atom2 to atom1
+            work.TE(radius);//multiply by radius
+			while (work.squared()<innerRadius*innerRadius){
+				work.setRandomInSphere(random);
+				work.TE(radius);
+			}
+			//compute the orientation
+			IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();//orientation of atom2
+			er2 = e2.dot(work);
         }
+        while ( er2 < 0.0 || er2*er2 < ec2*work.squared());
         ((IAtomPositioned) atom1).getPosition().Ev1Pv2(((IAtomPositioned) atom2).getPosition(), work);
+        //rotate atom2 to have a right orientation
+        double er1;
+        do{
+        	((IAtomOriented)atom1).getOrientation().randomRotation(random, 1.0);
+        	IVector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();//orientation of atom1
+            er1 = e1.dot(work);
+        }
+        while ( er1 > 0.0 || er1*er1 < ec2*work.squared());
     }
 
     /**
@@ -81,7 +93,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         work.ME(((IAtomPositioned) atom1).getPosition());
         boundary.nearestImage(work);
         double r2 = work.squared();
-//        if (atom1.getLeafIndex() == 500 ||atom2.getLeafIndex() == 500 ||atom1.getLeafIndex() == 501 ||atom2.getLeafIndex() == 501){
+//        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);
 //	        System.out.println ("r2 = "+r2);
 //        }
@@ -90,7 +102,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         }
         IVector e1 = ((IAtomOriented)atom1).getOrientation().getDirection();
         double er1 = e1.dot(work);
-//        if (atom1.getLeafIndex() == 500 ||atom2.getLeafIndex() == 500 ||atom1.getLeafIndex() == 501 ||atom2.getLeafIndex() == 501){
+//        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);
 //	        System.out.println ("er1 = "+er1);
 //        }
@@ -99,19 +111,19 @@ public class BiasVolumeSphereOriented extends BiasVolume {
         }
         IVector e2 = ((IAtomOriented)atom2).getOrientation().getDirection();
         double er2 = e2.dot(work);
-//        if (atom1.getLeafIndex() == 500 ||atom2.getLeafIndex() == 500 ||atom1.getLeafIndex() == 501 ||atom2.getLeafIndex() == 501){
+//        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){
 //	        System.out.println ("atom1 = "+atom1+ " atom2 = "+atom2);
 //	        System.out.println ("er2 = "+er2);
 //        }
         return er2 < 0.0 && er2*er2 > ec2*r2;   
     }
-public double getTheta() {return Math.acos(ec2);}
+public double getTheta() {return Math.acos(ec1);}
     
     /**
      * Accessor method for angle (in radians) describing width of cone.
      */
     public void setTheta(double t) {
-        ec2   = Math.cos(t);
-        ec2   = ec2*ec2;
+        ec1   = Math.cos(t);
+        ec2   = ec1*ec1;
     }
 }

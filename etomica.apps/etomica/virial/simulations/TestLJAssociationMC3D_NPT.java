@@ -4,9 +4,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.association.AssociationManager;
-import etomica.association.BiasVolumeSphere;
 import etomica.association.BiasVolumeSphereOriented;
+import etomica.association.MCMoveAtomDimer;
+import etomica.association.MCMoveAtomMonomer;
 import etomica.association.MCMoveBiasUB;
+import etomica.association.MCMoveDimer;
+import etomica.association.MCMoveDimerRotate;
 import etomica.association.MCMoveVolumeAssociated;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -23,8 +26,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveDimer;
-import etomica.integrator.mcmove.MCMoveDimerRotate;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
@@ -47,7 +48,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public MCMoveAtom mcMoveAtom;
+    public MCMoveAtomMonomer mcMoveAtomMonomer;
+    public MCMoveAtomDimer mcMoveAtomDimer;
     public MCMoveRotate mcMoveRotate;
     public SpeciesSpheresRotating species;
     public IBox box;
@@ -58,7 +60,6 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     public MCMoveVolumeAssociated mcMoveVolume;
     public ActivityIntegrate actionIntegrator;
     public MCMoveBiasUB mcMoveBiasUB;
-    public boolean UBIndex;
         
     
     public TestLJAssociationMC3D_NPT(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
@@ -75,31 +76,29 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         System.out.println("numSteps = " +numSteps);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.setTemperature(temperature);
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+	    mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+	    mcMoveAtomDimer = new MCMoveAtomDimer(this, potentialMaster, space);
 	    mcMoveRotate = new MCMoveRotate(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
-	    BiasVolumeSphere bvs = new BiasVolumeSphere(space, random);//radius=1.0
-	    bvs.setBiasSphereInnerRadius(0.86);
 	    box = new Box(space);
         addBox(box);
-        bvs.setBox(box);
-	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvs, random, space);
-	    AssociationManager associationManager =new AssociationManager(box, potentialMaster, bvs);
-	    mcMoveBiasUB.setAssociationManager(associationManager);
-	    BiasVolumeSphereOriented bvso = new BiasVolumeSphereOriented(space, random);
-	    bvso.setTheta(27);
-	    bvso.setBiasSphereInnerRadius(0.86);
+        BiasVolumeSphereOriented bvso = new BiasVolumeSphereOriented(space, random);
+	    bvso.setTheta(etomica.units.Degree.UNIT.toSim(27.0));
+	    bvso.setBiasSphereInnerRadius(0.0);
 	    bvso.setBox(box);
 	    AssociationManager associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);
+	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
+	    mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
+	    mcMoveAtomDimer.setAssociationManager(associationManagerOriented);
+	    mcMoveBiasUB.setAssociationManager(associationManagerOriented);
 	    
         //mcMoveAtom.setStepSize(0.2*sigma);
-        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)mcMoveAtomMonomer.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)mcMoveAtomDimer.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker)mcMoveRotate.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveAtomMonomer);
+        integrator.getMoveManager().addMCMove(mcMoveAtomDimer);
         integrator.getMoveManager().addMCMove(mcMoveRotate);
-        if (UBIndex = true){
-        	integrator.getMoveManager().addMCMove(mcMoveBiasUB);
-        }
-        integrator.getMoveEventManager().addListener(associationManager);
+        integrator.getMoveManager().addMCMove(mcMoveBiasUB);
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
         actionIntegrator = new ActivityIntegrate(integrator);
@@ -126,6 +125,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         mcMoveDimerRotate = new MCMoveDimerRotate(this, potentialMaster,space, potential);
         mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
         mcMoveVolume.setAssociationManager(associationManagerOriented);
+        mcMoveDimer.setAssociationManager(associationManagerOriented);
+	    mcMoveDimerRotate.setAssociationManager(associationManagerOriented);
         mcMoveVolume.setPressure(pressure);
         
         IAtomType leafType = species.getLeafType();
@@ -137,7 +138,6 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
-        associationManager.initialize();
         associationManagerOriented.initialize();
         integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -154,7 +154,6 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     	double density = params.density;
     	double wellConstant = params.wellConstant;
         double temperature = params.temperature;
-        boolean UBIndex = params.UBIndex;
         long numSteps = params.numSteps;
         if (args.length > 0) {
             numAtoms = Integer.parseInt(args[0]);;
@@ -162,12 +161,10 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
             density = Double.parseDouble(args[2]);
             wellConstant = Double.parseDouble(args[3]);
             temperature = Double.parseDouble(args[4]);
-            UBIndex = Boolean.parseBoolean(args [5]);
-            numSteps = Long.parseLong(args[6]);
+            numSteps = Long.parseLong(args[5]);
             
         }
         TestLJAssociationMC3D_NPT sim = new TestLJAssociationMC3D_NPT(numAtoms, pressure, density, wellConstant, temperature, numSteps);
-
         sim.actionIntegrator.setMaxSteps(numSteps/10);//equilibrium period
         System.out.println("equilibrium period = " +numSteps/10);
         sim.getController().actionPerformed();
@@ -205,7 +202,6 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(StatType.AVERAGE.index)).x;//average density
         System.out.println("average density=" +avgDensity);
-        System.out.println("UBIndex= "+UBIndex);
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numAtoms;
@@ -234,7 +230,6 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
 		public double density = 0.2;
 		public double wellConstant = 16.0;
 		public double temperature = 2.0;	
-		public boolean UBIndex = true;
 		public long numSteps = 200000;
 	}
 
