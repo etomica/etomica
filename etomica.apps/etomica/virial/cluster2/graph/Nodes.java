@@ -2,13 +2,9 @@ package etomica.virial.cluster2.graph;
 
 public interface Nodes {
 
-  public static final byte NODE_COLOR_DEFAULT = 0;
-  public static final byte NODE_COLOR_BLACK = 0;
-  public static final byte NODE_COLOR_RED = 1;
-
+  // how many nodes are there?
   public byte count();
-
-  public byte count(byte color);
-
-  public boolean hasColoredNode(byte color);
+  
+  // get the attributes of nodeID
+  public NodeAttributes getAttributes(int nodeID);
 }

@@ -1,55 +1,25 @@
 package etomica.virial.cluster2.graph.impl;
 
 import etomica.virial.cluster2.bitmap.Bitmap;
+import etomica.virial.cluster2.graph.EdgeAttributes;
 import etomica.virial.cluster2.graph.Edges;
-import etomica.virial.cluster2.graph.EdgesDecoder;
+import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.EdgesMetadata;
+import etomica.virial.cluster2.graph.GraphFactory;
 
-/**
- *  4 bytes instance overhead (experimental: CustomTestCase.testObjectMemoryFootprint()).
- * 12 bytes for data members.
- *  8 bytes of instance overhead for the Bitmap and EdgesDecoder private fields.
- * 12 bytes for data members of BitmapOfLong.
- *  4 bytes for data members of SimpleEdgesDecoder.
- *  0 bytes in EdgesMetadata.
- * ------------------------------
- * 40 bytes per SimpleEdges.
- * 
- * In an array, another 4 bytes are required for a reference to each SimpleEdges 
- * instance. Hence, the asymptotic memory usage for each SimpleEdges instance is
- * about 44 bytes/instance when using BitmapOfLong to encode the graphs.
- * 
- */
 public class SimpleEdges implements Edges {
 
   private Bitmap edges = null;
-  private EdgesDecoder edgesDecoder;
-  private EdgesMetadata edgesMetadata;
+  private EdgesMetadata metadata;
+  private EdgesRepresentation representation;
 
-  // ***********************
-  // * PUBLIC CONSTRUCTORS
-  // ***********************
+  public SimpleEdges(Bitmap edges, EdgesRepresentation representation,
+      EdgesMetadata metadata) {
 
-  public SimpleEdges(Bitmap edgesMap, EdgesDecoder decoder) {
-
-    this(edgesMap, decoder, 1.0);
+    this.edges = edges;
+    this.representation = representation;
+    this.metadata = metadata;
   }
-
-  public SimpleEdges(Bitmap edgesMap, EdgesDecoder decoder, double coefficient) {
-
-    this(edgesMap, decoder, new SimpleEdgesMetadata(coefficient));
-  }
-
-  public SimpleEdges(Bitmap edgesMap, EdgesDecoder decoder, EdgesMetadata metadata) {
-
-    edges = edgesMap;
-    edgesDecoder = decoder;
-    edgesMetadata = metadata;
-  }
-
-  // ***********************
-  // * PUBLIC METHODS
-  // ***********************
 
   @Override
   public int count() {
@@ -57,53 +27,21 @@ public class SimpleEdges implements Edges {
     return getEdges().bitCount();
   }
 
-  @Override
-  public int count(byte color) {
+  protected EdgesRepresentation getRepresentation() {
 
-    return (color == Edges.EDGE_COLOR_DEFAULT ? count() : 0);
-  }
-
-  @Override
-  public EdgesDecoder getDecoder() {
-
-    return edgesDecoder;
+    return representation;
   }
 
   @Override
   public EdgesMetadata getMetadata() {
 
-    return edgesMetadata;
-  }
-
-  @Override
-  public boolean hasColoredEdge(byte color, int edgeID) {
-
-    return (color == Edges.EDGE_COLOR_DEFAULT ? hasEdge(edgeID) : false);
-  }
-
-  @Override
-  public boolean hasColoredEdge(byte color, int fromNodeID, int toNodeID) {
-
-    return (color == Edges.EDGE_COLOR_DEFAULT ? hasEdge(fromNodeID, toNodeID)
-        : false);
-  }
-
-  @Override
-  public boolean hasEdge(int edgeID) {
-
-    return getEdges().testBit(getDecoder().getBitIndex(edgeID));
+    return metadata;
   }
 
   @Override
   public boolean hasEdge(int fromNodeID, int toNodeID) {
 
-    return getEdges().testBit(getDecoder().getBitIndex(fromNodeID, toNodeID));
-  }
-
-  @Override
-  public int hashCode() {
-
-    return getEdges().hashCode();
+    return getEdges().testBit(getRepresentation().getEdgeID(fromNodeID, toNodeID));
   }
 
   @Override
@@ -113,7 +51,7 @@ public class SimpleEdges implements Edges {
     Bitmap printSet = getEdges().copy();
     while (printSet.bitCount() > 0) {
       int bit = printSet.hsb();
-      result += getDecoder().toString(bit);
+      result += getRepresentation().toString(bit);
       printSet.clearBit(bit);
       if (printSet.bitCount() > 0) {
         result += ", ";
@@ -122,12 +60,68 @@ public class SimpleEdges implements Edges {
     return "<" + result + ">";
   }
 
-  // ***********************
-  // * PROTECTED METHODS
-  // ***********************
+  @Override
+  public EdgeAttributes getAttributes(int fromNodeID, int toNodeID) {
+
+    return GraphFactory.defaultEdgeAttributes();
+  }
 
   protected Bitmap getEdges() {
 
     return edges;
+  }
+
+  @Override
+  public int getInDegree(int nodeID) {
+
+    int result = 0;
+    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
+      if (i != nodeID) {
+        result += getEdges().testBit(getRepresentation().getEdgeID(i, nodeID)) ? 1 : 0;
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public int getInNode(int nodeID, int index) {
+
+    int found = 0;
+    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
+      if (i != nodeID) {
+        found += getEdges().testBit(getRepresentation().getEdgeID(i, nodeID)) ? 1 : 0;
+      }
+      if (index == found - 1) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  @Override
+  public int getOutDegree(int nodeID) {
+
+    int result = 0;
+    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
+      if (i != nodeID) {
+        result += getEdges().testBit(getRepresentation().getEdgeID(nodeID, i)) ? 1 : 0;
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public int getOutNode(int nodeID, int index) {
+
+    int found = 0;
+    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
+      if (i != nodeID) {
+        found += getEdges().testBit(getRepresentation().getEdgeID(nodeID, i)) ? 1 : 0;
+      }
+      if (index == found - 1) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

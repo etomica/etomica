@@ -10,22 +10,29 @@ import etomica.virial.cluster2.graph.Tagged;
 
 public class NautyInfo implements ProcessInfo, Tagged {
 
+  // public tags used by NautyInfo
+  public static final String TAG_MONOCHROMATIC = "Monochromatic";
+  public static final String TAG_BICHROMATIC = "Bichromatic";
+  public static final String TAG_ISOMORPH_FREE = "Isomorph-Free";
+  public static final String TAG_CONNECTED = "Connected";
+  public static final String TAG_BICONNECTED = "Biconnected";
+  public static final String TAG_UPPER_TRIANGLE = "Upper Triangle";
+  // private fields to parametrize calls to nauty
   private static final String SHELL = "/bin/bash";
   private static final String SHELL_FLAG = "-c";
-
   private static final String CMD_GENG = "./geng";
   private static final String CMD_GENBG = "./genbg";
-
   private static final String GEN_FLAG_CONNECTED = "-c";
   private static final String GEN_FLAG_BICONNECTED = "-C";
-
+  private static final String GEN_FLAG_UPPER_TRIANGLE = "-T";
+  // implementation fields
   private String basePath = "";
   private int numBlackNodes = 0;
   private int numWhiteNodes = 0;
-
   private boolean isMono = true;
   private boolean isConnected = false;
   private boolean isBiconnected = false;
+  private boolean isUpperTriangle;
   private Set<String> tags = new HashSet<String>();
 
   public NautyInfo(final String runFrom, int nodeCount) {
@@ -48,30 +55,40 @@ public class NautyInfo implements ProcessInfo, Tagged {
   protected void computeTags() {
     
     if (isMono()) {
-      tags.add("Monochromatic");
-    } else {
-      tags.add("Bichromatic");
+      tags.add(TAG_MONOCHROMATIC);
     }
-    tags.add("Isomorph-Free");
+    else {
+      tags.add(TAG_BICHROMATIC);
+    }
+    tags.add(TAG_ISOMORPH_FREE);
     if (isBiconnected()) {
-      tags.add("Biconnected");
-    } else if (isConnected()) {
-      tags.add("Connected");
+      tags.add(TAG_BICONNECTED);
+    }
+    else if (isConnected()) {
+      tags.add(TAG_CONNECTED);
+    }
+    if (isUpperTriangle()) {
+      tags.add(TAG_UPPER_TRIANGLE);
     }
   }
-  
+
   protected String getGenCommand() {
 
     String result = "";
     if (isMono()) {
-      result += NautyInfo.CMD_GENG;
-    } else {
-      result += NautyInfo.CMD_GENBG;
+      result += CMD_GENG;
+    }
+    else {
+      result += CMD_GENBG;
     }
     if (isBiconnected()) {
-      result += " " + NautyInfo.GEN_FLAG_BICONNECTED;
-    } else if (isConnected()) {
-      result += " " + NautyInfo.GEN_FLAG_CONNECTED;
+      result += " " + GEN_FLAG_BICONNECTED;
+    }
+    else if (isConnected()) {
+      result += " " + GEN_FLAG_CONNECTED;
+    }
+    if (isUpperTriangle()) {
+      result += " " + GEN_FLAG_UPPER_TRIANGLE;
     }
     result += " " + getNumBlackNodes();
     if (!isMono()) {
@@ -84,8 +101,8 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public List<String> getCommand() {
 
     List<String> result = new ArrayList<String>();
-    result.add(NautyInfo.SHELL);
-    result.add(NautyInfo.SHELL_FLAG);
+    result.add(SHELL);
+    result.add(SHELL_FLAG);
     result.add(getGenCommand());
     return result;
   }
@@ -95,7 +112,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return isMono;
   }
 
-  public void setConnected(final boolean value) {
+  public void setConnected(boolean value) {
 
     isConnected = value;
   }
@@ -105,7 +122,12 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return isConnected;
   }
 
-  public void setBiconnected(final boolean value) {
+  public boolean isUpperTriangle() {
+
+    return isUpperTriangle;
+  }
+
+  public void setBiconnected(boolean value) {
 
     isBiconnected = value;
   }
@@ -113,6 +135,11 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public boolean isBiconnected() {
 
     return isBiconnected;
+  }
+
+  public void setUpperTriangle(boolean value) {
+
+    isUpperTriangle = value;
   }
 
   public int getNumBlackNodes() {

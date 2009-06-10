@@ -1,29 +1,27 @@
-package etomica.virial.cluster2.graph;
+package etomica.virial.cluster2.graph.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import etomica.virial.cluster2.graph.Edges;
+import etomica.virial.cluster2.graph.EdgesFilter;
+
 public abstract class AbstractEdgesFilter implements EdgesFilter {
 
-  // ***********************
-  // * PUBLIC CONSTRUCTORS
-  // ***********************
+  private EdgesFilter nextFilter = null;
+  private Set<String> tags = new HashSet<String>();
 
   public AbstractEdgesFilter() {
 
     computetags();
   }
 
-  public AbstractEdgesFilter(AbstractEdgesFilter filter) {
+  public AbstractEdgesFilter(EdgesFilter filter) {
 
     setNextFilter(filter);
     computetags();
   }
-
-  // ***********************
-  // * PUBLIC METHODS
-  // ***********************
 
   @Override
   public boolean accept(Edges edges) {
@@ -43,10 +41,6 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     return Collections.unmodifiableSet(tags);
   }
 
-  // ***********************
-  // * PROTECTED METHODS
-  // ***********************
-
   protected boolean chainedAccept(Edges edges) {
 
     return (getNextFilter() == null || getNextFilter().accept(edges));
@@ -59,18 +53,22 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
 
   protected abstract boolean doAccept(Edges edges);
 
-  protected abstract boolean doPreAccept(Edges edges);
+  /**
+   * By default, doAccept should do all the work. Unless there is an obvious
+   * cost saving when using the pre-accept filter before the accept filter,
+   * there is really no point in separating the logic in two methods.
+   */
+  protected boolean doPreAccept(Edges edges) {
+
+    return true;
+  }
 
   protected abstract String tag();
 
-  protected final AbstractEdgesFilter getNextFilter() {
+  protected final EdgesFilter getNextFilter() {
 
     return nextFilter;
   }
-
-  // ***********************
-  // * PRIVATE METHODS
-  // ***********************
 
   private void computetags() {
 
@@ -80,15 +78,8 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     }
   }
 
-  private void setNextFilter(AbstractEdgesFilter filter) {
+  private void setNextFilter(EdgesFilter filter) {
 
     nextFilter = filter;
   }
-
-  // ***********************
-  // * PRIVATE FIELDS
-  // ***********************
-
-  private AbstractEdgesFilter nextFilter = null;
-  private Set<String> tags = new HashSet<String>();
 }

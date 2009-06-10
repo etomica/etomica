@@ -1,12 +1,11 @@
 package etomica.virial.cluster2.graph.test;
 
 import etomica.virial.cluster2.graph.Edges;
-import etomica.virial.cluster2.graph.EdgesGenerator;
+import etomica.virial.cluster2.graph.EdgesFilter;
 import etomica.virial.cluster2.graph.EdgesSetVisitor;
-import etomica.virial.cluster2.graph.GraphException;
-import etomica.virial.cluster2.graph.impl.NautyEdgesGenerator;
-import etomica.virial.cluster2.graph.impl.SimpleGraphSet;
-import etomica.virial.cluster2.graph.impl.NullEdgesFilter;
+import etomica.virial.cluster2.graph.GraphFactory;
+import etomica.virial.cluster2.graph.GraphSet;
+import etomica.virial.cluster2.graph.Nodes;
 import etomica.virial.cluster2.nauty.NautyInfo;
 import etomica.virial.cluster2.nauty.ProcessWrapper;
 import etomica.virial.cluster2.nauty.impl.SimpleProcessWrapper;
@@ -18,8 +17,7 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
   private boolean enumConnected = false;
   private boolean enumBiconnected = false;
   private boolean nullFiltered = false;
-  private SimpleGraphSet family;
-  private EdgesGenerator generator;
+  private GraphSet family;
   private double isomorphCount = 0;
   private EdgesSetVisitor nautyVisitor = new EdgesSetVisitor() {
 
@@ -56,16 +54,18 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
       expected = 0;
     }
     try {
-      family = new SimpleGraphSet((byte) numNodes, enumerated < M);
+      // create nodes
+      Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
+      // create generator
+      EdgesFilter filter = null;
       if (nullFiltered) {
-        generator = new NautyEdgesGenerator(family, getNautyProcess(numNodes),
-            new NullEdgesFilter());
-      } else {
-        generator = new NautyEdgesGenerator(family, getNautyProcess(numNodes));
+        filter = GraphFactory.nullFilter(null);
       }
       runGC();
       time1 = System.nanoTime();
-      family.generateEdgesSet(generator);
+      // create family
+      GraphFactory.DYNAMIC_ALLOCATION = enumerated < M;
+      family = GraphFactory.nautyGraphSet(nodes, filter, getNautyProcess(numNodes));
       elapsed = (System.nanoTime() - time1) / K; // µs
       runGC();
       memoryUse();
@@ -82,7 +82,7 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
       System.out.println();
       family.visitEdgesSet(nautyVisitor);
       assertEquals(expected, isomorphCount, 0.0001);
-    } catch (GraphException ge) {
+    } catch (RuntimeException ge) {
       fail("Unexpected exception: " + ge.getStackTrace());
     }
   }

@@ -31,33 +31,26 @@ public class BitmapFactory {
 
     if (bitmap.length() <= Bitmap.SZ_LONG) {
       return new BitmapOfLong(bitmap);
-    } else if (!BitmapFactory.useBigInteger) {
+    }
+    else if (!useBigInteger) {
       return new BitmapOfLongVector(bitmap);
-    } else {
+    }
+    else {
       return new BitmapOfBigInteger(bitmap);
     }
   }
 
   public static final Bitmap getBitmap(final int capacity, boolean isSet) {
-    // return new BitmapOfLongVector(capacity, isSet);
 
+    // return new BitmapOfLongVector(capacity, isSet);
     if (capacity <= Bitmap.SZ_LONG) {
       return new BitmapOfLong(capacity, isSet);
-    } else if (!BitmapFactory.useBigInteger) {
+    }
+    else if (!useBigInteger) {
       return new BitmapOfLongVector(capacity, isSet);
-    } else {
+    }
+    else {
       return new BitmapOfBigInteger(capacity, isSet);
     }
-  }
-
-  public static Bitmap upperTriangleBitmap(byte nodeCount, boolean isSet) {
-
-    if (nodeCount == 1) {
-      return BitmapFactory.ZERO;
-    } else if (nodeCount > 1) {
-      int numEdges = nodeCount * (nodeCount - 1) / 2;
-      return BitmapFactory.getBitmap(numEdges, isSet);
-    }
-    return BitmapFactory.EMPTY;
   }
 }

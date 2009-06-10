@@ -8,15 +8,11 @@ import etomica.virial.cluster2.bitmap.Bitmap;
  * of the represented object is known at construction time. Internally, a vector
  * of long values is used to maintain the bitmap. The space overhead for the
  * long array itself is no more than 63 bits and an additional 32 bits are used
- * to keep track of the actual number of encoded bits.
- * 
- * We denote by N the number of bits maintained by the Bitmap instance.
- * 
- * Storage: O(log N)
+ * to keep track of the actual number of encoded bits. We denote by N the number
+ * of bits maintained by the Bitmap instance. Storage: O(log N)
  * 
  * @author Demian Lessa
  * @date May 9-12th 2009
- * 
  */
 public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
 
@@ -26,19 +22,18 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
   // ***********************
   // * PUBLIC CONSTRUCTORS
   // ***********************
-
   public BitmapOfLongVector(final Bitmap other) {
 
     this(other.bitSize(), false);
     copyFrom(other);
   }
 
-  public BitmapOfLongVector(final int capacity) {
+  public BitmapOfLongVector(int capacity) {
 
     this(capacity, false);
   }
 
-  public BitmapOfLongVector(final int capacity, final boolean isSet) {
+  public BitmapOfLongVector(int capacity, final boolean isSet) {
 
     setBitSize(capacity);
     allocateBitmap();
@@ -54,10 +49,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
   // ***********************
   // * PUBLIC METHODS
   // ***********************
-
   /**
    * @TIME = O(log N) for a compatible instance of other.
-   * 
    */
   @Override
   public void and(final Bitmap other) {
@@ -67,7 +60,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
       for (int i = 0; i < size(); i++) {
         bitmap[i] &= bm.bitmap[i];
       }
-    } else {
+    }
+    else {
       super.and(other);
     }
   }
@@ -83,17 +77,15 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * at bit bitSize() - 1 of bitmap[size()-1].
    * 
    * @TIME = O(1).
-   * 
    */
   @Override
-  public void clearBit(final int bitIndex) {
+  public void clearBit(int bitIndex) {
 
     bitmap[longOffset(bitIndex)] &= ~maskSingleBit(bitIndex);
   }
 
   /**
    * @TIME = O(log N) for an instance of BitmapOfLongVector.
-   * 
    */
   @Override
   public boolean equals(Object other) {
@@ -109,14 +101,14 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
         i++;
       }
       return result;
-    } else {
+    }
+    else {
       return super.equals(other);
     }
   }
 
   /**
    * @TIME = O(log N).
-   * 
    */
   @Override
   public int hashCode() {
@@ -130,7 +122,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(log N) for a compatible instance.
-   * 
    */
   @Override
   public void nand(final Bitmap other) {
@@ -140,14 +131,14 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
       for (int i = 0; i < size(); i++) {
         bitmap[i] &= ~bm.bitmap[i];
       }
-    } else {
+    }
+    else {
       super.nand(other);
     }
   }
 
   /**
    * @TIME = O(log N).
-   * 
    */
   @Override
   public void not() {
@@ -159,7 +150,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(log N) for a compatible instance.
-   * 
    */
   @Override
   public void or(final Bitmap other) {
@@ -169,7 +159,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
       for (int i = 0; i < size(); i++) {
         bitmap[i] |= bm.bitmap[i];
       }
-    } else {
+    }
+    else {
       super.or(other);
     }
   }
@@ -179,17 +170,15 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * at bit bitSize() - 1 of bitmap[size()-1].
    * 
    * @TIME = O(1).
-   * 
    */
   @Override
-  public void setBit(final int bitIndex) {
+  public void setBit(int bitIndex) {
 
     bitmap[longOffset(bitIndex)] |= maskSingleBit(bitIndex);
   }
 
   /**
    * @TIME = O(log N).
-   * 
    */
   @Override
   public void setBits(final boolean value) {
@@ -201,10 +190,9 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1).
-   * 
    */
   @Override
-  public boolean testBit(final int bitIndex) {
+  public boolean testBit(int bitIndex) {
 
     long bm = maskSingleBit(bitIndex);
     return (bitmap[longOffset(bitIndex)] & bm) == bm;
@@ -212,7 +200,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(log N) for a compatible instance.
-   * 
    */
   @Override
   public void xor(final Bitmap other) {
@@ -222,7 +209,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
       for (int i = 0; i < size(); i++) {
         bitmap[i] ^= bm.bitmap[i];
       }
-    } else {
+    }
+    else {
       super.xor(other);
     }
   }
@@ -230,7 +218,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
   // ***********************
   // * PROTECTED METHODS
   // ***********************
-
   @Override
   protected void allocateBitmap() {
 
@@ -238,20 +225,20 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
     if ((bitSize() % Bitmap.SZ_LONG) > 0) {
       size++;
     }
-   bitmap = new long[size];
+    bitmap = new long[size];
   }
 
   /**
    * Returns the number of valid bits in the long with the given index.
    * 
    * @TIME = O(1).
-   * 
    */
-  protected int bitCount(final int longIndex) {
+  protected int bitCount(int longIndex) {
 
     if (longIndex == 0) {
       return bitSize() % Bitmap.SZ_LONG;
-    } else {
+    }
+    else {
       return Bitmap.SZ_LONG;
     }
   }
@@ -261,16 +248,14 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * at bit bitSize() - 1 of bitmap[size()-1].
    * 
    * @TIME = O(1).
-   * 
    */
-  protected int bitOffset(final int bitIndex) {
+  protected int bitOffset(int bitIndex) {
 
     return bitIndex % Bitmap.SZ_LONG;
   }
 
   /**
    * @TIME = O(log N).
-   * 
    */
   @Override
   protected void copyFrom(final Bitmap other) {
@@ -290,13 +275,13 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
   }
 
   @Override
-  protected Bitmap createInstance(final int capacity) {
+  protected Bitmap createInstance(int capacity) {
 
     return new BitmapOfLongVector(capacity);
   }
 
   @Override
-  protected Bitmap createInstance(final int capacity, final boolean isSet) {
+  protected Bitmap createInstance(int capacity, final boolean isSet) {
 
     return new BitmapOfLongVector(capacity, isSet);
   }
@@ -312,9 +297,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * at bit bitSize() - 1 of bitmap[size()-1].
    * 
    * @TIME = O(1).
-   * 
    */
-  protected int longOffset(final int bitIndex) {
+  protected int longOffset(int bitIndex) {
 
     return bitIndex / Bitmap.SZ_LONG;
   }
@@ -324,9 +308,8 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * the given bit index.
    * 
    * @TIME = O(1).
-   * 
    */
-  protected long maskSingleBit(final int bitIndex) {
+  protected long maskSingleBit(int bitIndex) {
 
     return Bitmap.LONG_ONE << bitOffset(bitIndex);
   }
@@ -336,25 +319,22 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * given index.
    * 
    * @TIME = O(1).
-   * 
    */
-  protected long maskSingleLong(final int longIndex) {
+  protected long maskSingleLong(int longIndex) {
 
     return Bitmap.LONG_MASK >>> (Bitmap.SZ_LONG - bitCount(longIndex));
   }
 
   /**
    * @TIME = O(1).
-   * 
    * @return number of long values held by the bitmap
-   * 
    */
   protected int size() {
 
     return bitmap.length;
   }
 
-  protected void setBitSize(final int capacity) {
+  protected void setBitSize(int capacity) {
 
     bitSize = capacity;
   }

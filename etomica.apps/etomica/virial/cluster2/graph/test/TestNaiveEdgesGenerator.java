@@ -1,20 +1,16 @@
 package etomica.virial.cluster2.graph.test;
 
 import etomica.virial.cluster2.graph.EdgesFilter;
-import etomica.virial.cluster2.graph.EdgesGenerator;
-import etomica.virial.cluster2.graph.GraphException;
-import etomica.virial.cluster2.graph.impl.ConnectedEdgesFilter;
-import etomica.virial.cluster2.graph.impl.NaiveEdgesGenerator;
-import etomica.virial.cluster2.graph.impl.SimpleGraphSet;
-import etomica.virial.cluster2.graph.impl.NullEdgesFilter;
+import etomica.virial.cluster2.graph.GraphSet;
+import etomica.virial.cluster2.graph.GraphFactory;
+import etomica.virial.cluster2.graph.Nodes;
 import etomica.virial.cluster2.test.CustomTestCase;
 
 public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   private boolean nullFiltered = false;
   private boolean connectedFiltered = true;
-  private SimpleGraphSet family;
-  private EdgesGenerator generator;
+  private GraphSet family;
 
   private void testCompleteFamilyN(int numNodes) {
 
@@ -27,30 +23,32 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     if (nullFiltered) {
       expected = 0;
     }
+    // TODO: factory for nodes, factory methods for generators and filters in
+    // the GraphFamilyFactory
     try {
-      family = new SimpleGraphSet((byte) numNodes, enumerated < M);
+      // create nodes
+      Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
+      // create generator
       EdgesFilter filter = null;
       if (connectedFiltered && nullFiltered) {
-        filter = new ConnectedEdgesFilter(family.getNodes(), new NullEdgesFilter());
-      } else if (connectedFiltered) {
-        filter = new ConnectedEdgesFilter(family.getNodes());
-      } else if (nullFiltered) {
-        filter = new NullEdgesFilter();
-      } else {
-        generator = new NaiveEdgesGenerator(family);
+        filter = GraphFactory.connectedFilter(nodes, GraphFactory
+            .nullFilter(null));
       }
-      if (filter == null) {
-        generator = new NaiveEdgesGenerator(family);
-      } else {
-        generator = new NaiveEdgesGenerator(family, filter);
+      else if (connectedFiltered) {
+        filter = GraphFactory.connectedFilter(nodes, null);
+      }
+      else if (nullFiltered) {
+        filter = GraphFactory.nullFilter(null);
       }
       runGC();
       time1 = System.nanoTime();
-      family.generateEdgesSet(generator);
+      // create family
+      GraphFactory.DYNAMIC_ALLOCATION = enumerated < M;
+      family = GraphFactory.naiveGraphSet(nodes, filter);
       elapsed = (System.nanoTime() - time1) / K; // µs
       runGC();
       memoryUse();
-      enumerated = family.getEdgesSetSize();
+      enumerated = family.getSize();
       printEnumerated(numNodes);
       printRuntime();
       printMemory();
@@ -59,8 +57,9 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
         printPermutations();
       }
       System.out.println();
-      assertEquals(expected, family.getEdgesSetSize());
-    } catch (GraphException ge) {
+      assertEquals(expected, family.getSize());
+    }
+    catch (RuntimeException ge) {
       fail("Unexpected exception: " + ge.getStackTrace());
     }
   }
@@ -121,8 +120,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
   }
 
   public void testCompleteNullFamily9() {
-    // requires approximately 6.5h
 
+    // requires approximately 6.5h
     // if (nullFiltered ) {
     // testCompleteFamilyN(9 );
     // }

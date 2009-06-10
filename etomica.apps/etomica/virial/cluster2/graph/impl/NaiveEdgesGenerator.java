@@ -2,60 +2,52 @@ package etomica.virial.cluster2.graph.impl;
 
 import etomica.virial.cluster2.bitmap.Bitmap;
 import etomica.virial.cluster2.bitmap.BitmapFactory;
-import etomica.virial.cluster2.graph.AbstractEdgesGenerator;
-import etomica.virial.cluster2.graph.EdgesDecoder;
-import etomica.virial.cluster2.graph.EdgesFactory;
+import etomica.virial.cluster2.graph.Edges;
+import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.EdgesFilter;
+import etomica.virial.cluster2.graph.GraphFactory;
 
 public class NaiveEdgesGenerator extends AbstractEdgesGenerator {
 
-  private static final String FLAG_COMPLETE = "Complete";
+  private static final String FLAG_COMPLETE = "Naive";
+  private EdgesRepresentation representation;
+  private Bitmap current;
+  private Bitmap maxEdges;
 
-  private EdgesDecoder decoder;
-  private Bitmap current = BitmapFactory.upperTriangleBitmap(getNodeCount(), false);
-  private final Bitmap maxEdges = BitmapFactory.upperTriangleBitmap(getNodeCount(), true);
+  public NaiveEdgesGenerator(EdgesRepresentation rep, Bitmap first, Bitmap max,
+      EdgesFilter filter) {
 
-  // ***********************
-  // * PUBLIC CONSTRUCTORS
-  // ***********************
-
-  public NaiveEdgesGenerator(SimpleGraphSet family, EdgesFilter filter) {
-
-    super(family, filter);
-    decoder = new SimpleEdgesDecoder(getNodeCount());
+    super(filter);
+    representation = rep;
+    current = first;
+    maxEdges = max;
   }
 
-  public NaiveEdgesGenerator(SimpleGraphSet family) {
+  public NaiveEdgesGenerator(EdgesRepresentation rep, Bitmap first, Bitmap max) {
 
-    this(family, null);
+    this(rep, first, max, null);
   }
-
-  // ***********************
-  // * PROTECTED METHODS
-  // ***********************
 
   @Override
   protected String getTag() {
 
-    return NaiveEdgesGenerator.FLAG_COMPLETE;
+    return FLAG_COMPLETE;
   }
 
   @Override
-  protected void pop() {
+  protected Edges push() {
 
     if (current == BitmapFactory.EMPTY) {
-      setTop(null);
-      return;
+      return null;
     }
-//    if (isStarted() && getTop() == null) {
-//      return;
-//    }
-    setTop(EdgesFactory.createSimpleEdges(current, decoder));
+    Edges e = GraphFactory.simpleEdges(current, representation);
     if (current.equals(maxEdges)) {
       current = BitmapFactory.EMPTY;
-    } else {
+    }
+    else {
       current = current.copy();
       current.inc();
     }
+    return e;
   }
 }
