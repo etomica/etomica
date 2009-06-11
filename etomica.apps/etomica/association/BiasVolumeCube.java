@@ -2,6 +2,8 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -13,6 +15,7 @@ public class BiasVolumeCube extends BiasVolume {
     private final IVectorMutable dimensions;
     private final IVectorRandom work;
     private final IRandom random;
+    private IBoundary boundary;
     
     public BiasVolumeCube(ISpace space, IRandom random){
         super(space);
@@ -27,6 +30,10 @@ public class BiasVolumeCube extends BiasVolume {
     }
     public void setBiasCubeDimensions(double d) {dimensions.E(d);}
     public IVector getBiasCubeDimensions() {return dimensions;}
+    
+    public void setBox(IBox box) {
+    	boundary = box.getBoundary();
+    }
     
     public double biasVolume() {
         double prod = 1.0;
@@ -53,9 +60,10 @@ public class BiasVolumeCube extends BiasVolume {
     
         work.E(((IAtomPositioned) atom2).getPosition());
         work.ME(((IAtomPositioned) atom1).getPosition());
+        boundary.nearestImage(work);
         work.DE(dimensions);
         for (int i = 0; i < work.getD(); i++) {
-        	if (Math.abs(work.x(i)) > 1 ) {
+        	if (Math.abs(work.x(i)) > 0.5 ) {
         		return false;
         	}
         }
