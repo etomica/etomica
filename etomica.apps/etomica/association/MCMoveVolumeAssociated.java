@@ -7,7 +7,6 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -67,7 +66,6 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-    	//System.out.println("doTrial, number of associated atoms = " +associationManager.getAssociatedAtoms().getAtomCount());
         double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
@@ -75,6 +73,35 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
         numAssociatedAtoms = associationManager.getAssociatedAtoms().getAtomCount();
+//        System.out.println("doTrial, associated atoms = " +associationManager.getAssociatedAtoms());//list of the associated atoms
+//        associationManager.initialize();
+//        if (numAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){//numAssociatedAtoms after move
+//        	System.out.println("doTrial, associated atoms .....= " +associationManager.getAssociatedAtoms());//list of the associated atoms
+//    		throw new RuntimeException("Oops");
+//    	}
+        if (numAssociatedAtoms %2 == 1){
+        	IAtomList list = associationManager.getAssociatedAtoms();
+        	for ( int i = 0; i< numAssociatedAtoms;i++){
+        		System.out.println("list "+list.getAtom(i)+":"+ associationManager.getAssociatedAtoms(list.getAtom(i)));
+        	}
+//        	list = box.getLeafList();
+//        	IAtomOriented a = (IAtomOriented)list.getAtom(354);
+//        	System.out.println("atom 354 " +a.getPosition()+ " " +a.getOrientation().getDirection());
+//        	a = (IAtomOriented)list.getAtom(68);
+//        	System.out.println("atom 68 " +a.getPosition()+ " " +a.getOrientation().getDirection());
+//        	a = (IAtomOriented)list.getAtom(409);
+//        	System.out.println("atom 409 " +a.getPosition()+ " " +a.getOrientation().getDirection());
+//        	System.out.println("bonded" +associationManager.getAssociationDefinition().isAssociated(list.getAtom(354), list.getAtom(68)));
+//        	System.out.println("bonded" +associationManager.getAssociationDefinition().isAssociated(list.getAtom(354), list.getAtom(409)));
+//        	System.out.println("bonded" +associationManager.getAssociationDefinition().isAssociated(list.getAtom(68), list.getAtom(409)));
+//        	P2HardAssociationCone p = new P2HardAssociationCone(Space3D.getInstance(), 1.0, 1.0, 6.0, 16.0);
+//        	p.setBox(box);
+//        	System.out.println("energy 354-68 = "+p.energy(new AtomPair(list.getAtom(354), list.getAtom(68))));
+//        	System.out.println("energy 354-409 = "+p.energy(new AtomPair(list.getAtom(354), list.getAtom(409))));
+//        	System.out.println("energy 68-409 = "+p.energy(new AtomPair(list.getAtom(68), list.getAtom(409))));
+        	throw new RuntimeException("***");
+        }
+        //System.out.println("rScale = "+rScale);
         scaleAtoms(rScale);//call the method
         uNew = energyMeter.getDataAsScalar();
         hNew = uNew + pressure*vNew;
@@ -82,52 +109,75 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
     }//end of doTrial
     
     protected void scaleAtoms(double rScale) {
+    	IAtomList atomList = box.getLeafList();
+    	for (int i=0; i< atomList.getAtomCount(); i++){
+        	IAtom atom = atomList.getAtom(i);
+        	IAtomList bondedAtoms = associationManager.getAssociatedAtoms(atom);
+        	if (bondedAtoms.getAtomCount() == 0) {
+        		continue;//go to another atom
+        	}
+        	if (atom.getLeafIndex() > bondedAtoms.getAtom(0).getLeafIndex()){
+        		continue; //we skip the movement 
+        	}
+//        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
+//    			System.out.println("atom1 = "+ atom+" "+((IAtomPositioned)atom).getPosition());
+//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+//    		}
+        	r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
+        	box.getBoundary().nearestImage(r);//choose the shorter distance
+//        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
+//        		System.out.println("rsquared "+ r.squared());
+//        	}
+        	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().Ev1Pv2(((IAtomPositioned)atom).getPosition(), r);//move atom2 to the outside of box
+        }
     	if (rScale > 1){//expanding
     		r.Ea1Tv1(rScale, box.getBoundary().getDimensions());
     		//System.out.println("box size = " +box.getBoundary().getDimensions());
     		//System.out.println("r = " +r);
             box.getBoundary().setDimensions(r);//scale the boundary
     	}
-        IAtomList atomList = box.getLeafList();
+        
         for (int i=0; i< atomList.getAtomCount(); i++){
         	IAtom atom = atomList.getAtom(i);
         	IAtomList bondedAtoms = associationManager.getAssociatedAtoms(atom);
         	if (bondedAtoms.getAtomCount() == 0) {
-//        		if (atom.getLeafIndex() == 501) {
-//        			System.out.println("atom = "+ ((IAtomPositioned)atom).getPosition());
+//        		if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402) {
+//        			System.out.println("atom  = "+ atom +" " +((IAtomPositioned)atom).getPosition());
 //        		}
         		((IAtomPositioned)atom).getPosition().TE(rScale);
-//        		if (atom.getLeafIndex() == 501) {
-//        			System.out.println("atom.. = "+ ((IAtomPositioned)atom).getPosition());
+//        		if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402) {
+//        			System.out.println("atom ... = "+ atom +" " +((IAtomPositioned)atom).getPosition());
 //        		}
         		continue;//go to another atom
         	}
         	if (atom.getLeafIndex() > bondedAtoms.getAtom(0).getLeafIndex()){
         		continue; //we skip the movement 
         	}
-//        	if (atom.getLeafIndex() == 501) {
-//    			System.out.println("atom1 = "+ ((IAtomPositioned)atom).getPosition());
-//    		}
-//        	if (bondedAtoms.getAtom(0).getLeafIndex() == 501) {
-//    			System.out.println("bondedAtom = "+ ((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+//        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
+//    			System.out.println("atom1 = "+ atom+" "+((IAtomPositioned)atom).getPosition());
+//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
 //    		}
         	r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
         	box.getBoundary().nearestImage(r);//choose the shorter distance
+//        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
+//        		System.out.println("rsquared "+ r.squared());
+//        	}
         	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().Ev1Pv2(((IAtomPositioned)atom).getPosition(), r);//move atom2 to the outside of box
         	r.TE(0.5);//half of the separation distance
         	r.PE(((IAtomPositioned)atom).getPosition());//atom1 position + half of the separation distance
         	r.PE(box.getBoundary().centralImage(r));// position in the box, prevent the position outside of the box
-        	r.TE(1-rScale);
+        	r.TE(rScale-1);
         	
         	((IAtomPositioned)atom).getPosition().PE(r);//new position of atom1
         	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().PE(r);//new position of atom2
-        	IVector dr = box.getBoundary().centralImage(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
-        	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().PE(dr);
-//        	if (atom.getLeafIndex() == 501) {
-//    			System.out.println("atom1... = "+ ((IAtomPositioned)atom).getPosition());
-//    		}
-//        	if (bondedAtoms.getAtom(0).getLeafIndex() == 501) {
-//    			System.out.println("bondedAtom... = "+ ((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+        	//IVector dr = box.getBoundary().centralImage(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+        	//((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().PE(dr)
+//        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
+//    			System.out.println("atom1 .....= "+ atom+" "+((IAtomPositioned)atom).getPosition());
+//    			System.out.println("bondedAtom .....= "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+//    			r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
+//            	box.getBoundary().nearestImage(r);//choose the shorter distance
+//            	System.out.println("after rsquared "+ r.squared());
 //    		}
         }
         if (rScale < 1){//compressing
@@ -142,11 +192,21 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
     }
     
     public double getA() {
-    	System.out.println("getA, number of associated atoms = " +associationManager.getAssociatedAtoms().getAtomCount());
+//    	int newnumAssociatedAtoms = associationManager.getAssociatedAtoms().getAtomCount();
+//    	associationManager.initialize();
+//    	if (newnumAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){
+//    		throw new RuntimeException("wrong");
+//    	}
+//    	System.out.println("getA, number of associated atoms = " +associationManager.getAssociatedAtoms().getAtomCount());
+//    	System.out.println("number of num.associated atoms = " +numAssociatedAtoms);
+//    	if (numAssociatedAtoms > associationManager.getAssociatedAtoms().getAtomCount()){
+//    		System.out.println("getA, associated atoms = " +associationManager.getAssociatedAtoms());//list of the associated atoms
+//    		throw new RuntimeException ("!!!");
+//    	}
     	if (numAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){//numAssociatedAtoms after move
     		return 0;
     	}
-        return Math.exp((box.getMoleculeList().getMoleculeCount()+1)*vScale);
+        return Math.exp((box.getMoleculeList().getMoleculeCount()-numAssociatedAtoms/2+1)*vScale);//num.monomer+num.dimer(not the total particle)
     }
     
     public double getB() {
@@ -158,6 +218,13 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
     public void rejectNotify() {
     	double rScale = Math.exp(vScale/D);
         scaleAtoms(1/rScale);
+//        int newnumAssociatedAtoms = associationManager.getAssociatedAtoms().getAtomCount();
+//    	associationManager.initialize();
+//    	if (newnumAssociatedAtoms != associationManager.getAssociatedAtoms().getAtomCount()){
+//    		System.out.println("newnumAssociatedAtoms= "+newnumAssociatedAtoms);
+//    		System.out.println("associationManager.getAssociatedAtoms().getAtomCount()= "+associationManager.getAssociatedAtoms().getAtomCount());
+//    		throw new RuntimeException("rejectNotify wrong");
+//    	}
     }
 
     public double energyChange() {return uNew - uOld;}

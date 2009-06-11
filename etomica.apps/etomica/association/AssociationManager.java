@@ -42,18 +42,26 @@ public class AssociationManager implements AgentSource,IListener {
         this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         }
     
+    public AssociationDefinition getAssociationDefinition() {
+    	return associationDefinition;
+    }
     public void initialize() {
-        IAtomList atomList = box.getLeafList();
+        IAtomList atomList = box.getLeafList();//list of all atoms in this box
         for (int i=0; i<atomList.getAtomCount();i+=1) {
         	IAtom atomi = atomList.getAtom(i);
-        	for (int j=0; j<atomList.getAtomCount();j+=1) {
+        	((AtomArrayList)agentManager.getAgent(atomi)).clear();
+        }
+        for (int i=0; i<atomList.getAtomCount()-1;i+=1) {
+        	IAtom atomi = atomList.getAtom(i);//definition of atom i
+        	for (int j=i+1; j<atomList.getAtomCount();j+=1) {
             	IAtom atomj = atomList.getAtom(j);
             	if(associationDefinition.isAssociated(atomi,atomj)) {
-                    ((AtomArrayList)agentManager.getAgent(atomi)).add(atomj);
+                    ((AtomArrayList)agentManager.getAgent(atomi)).add(atomj);//i and j are associated
                     ((AtomArrayList)agentManager.getAgent(atomj)).add(atomi);
                 }
         	}
          }
+        associatedAtoms.clear();
         for (int i=0; i<atomList.getAtomCount();i+=1) {
         	IAtom atomi = atomList.getAtom(i);
         	if(((AtomArrayList)agentManager.getAgent(atomi)).getAtomCount() > 0){
@@ -76,7 +84,20 @@ public class AssociationManager implements AgentSource,IListener {
         iterator.reset();
         neighborIterator.setBox(box);
         for (IAtom atomi = iterator.nextAtom();atomi != null; atomi =iterator.nextAtom()){
-        	AtomArrayList listi = (AtomArrayList)agentManager.getAgent(atomi);
+        	AtomArrayList listi = (AtomArrayList)agentManager.getAgent(atomi);//list of the old bonds
+        	if (listi.getAtomCount() > 0){
+        		for (int i = 0; i<listi.getAtomCount();i++){
+            		IAtom atomj = listi.getAtom(i);
+            		AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+        			listj.remove(listj.indexOf(atomi));//remove atom i from the listj
+        			if ( listj.getAtomCount() == 0) {
+        				associatedAtoms.remove(associatedAtoms.indexOf(atomj));
+        			}
+            	}
+            	listi.clear();//remove all the elements from listi
+            	associatedAtoms.remove(associatedAtoms.indexOf(atomi));
+        	}
+        	
         	neighborIterator.setTarget(atomi);
         	neighborIterator.reset();
         	for (IAtomList atomij = neighborIterator.next();atomij != null; atomij =neighborIterator.next()){
@@ -88,33 +109,37 @@ public class AssociationManager implements AgentSource,IListener {
 //            		System.out.println("atomij= "+atomij);
 //            	}
             	if (associationDefinition.isAssociated(atomi, atomj)){ //they are associated
-            		if (listi.indexOf(atomj) == -1) { // they were not associated
-            			if (listi.getAtomCount() == 0) {
-            				associatedAtoms.add(atomi);
-            			}
-            			listi.add(atomj);
-            			AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
-            			if (listj.getAtomCount() == 0) {
-            				associatedAtoms.add(atomj);
-            			}
-            			listj.add(atomi);
-            		}
-            	}
-            	else { 
-            		int indexj = listi.indexOf(atomj);
-            		if ( indexj > -1) {//they were associated
-            			listi.remove(indexj);//remove atom j from the listi
-            			if ( listi.getAtomCount() == 0) {
-            				associatedAtoms.remove(associatedAtoms.indexOf(atomi));
-            			}
-            			AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
-            			listj.remove(listj.indexOf(atomi));//remove atom i from the listj
-            			if ( listj.getAtomCount() == 0) {
-            				associatedAtoms.remove(associatedAtoms.indexOf(atomj));
-            			}
-            		}
+        			if (listi.getAtomCount() == 0) {
+        				associatedAtoms.add(atomi);
+        			}
+        			listi.add(atomj); //make atom i and atom j to be associated
+        			AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+        			if (listj.getAtomCount() == 0) {
+        				associatedAtoms.add(atomj);
+        			}
+        			listj.add(atomi);//make atom i and atom j to be associated
+
             	}
         	}
+        }
+//        int numAssociatedAtoms = associatedAtoms.getAtomCount();
+//        initialize();
+//        if (numAssociatedAtoms != associatedAtoms.getAtomCount()){
+//        	throw new RuntimeException ("-_-;");
+//        }
+        for (IAtom atomi = iterator.nextAtom();atomi != null; atomi =iterator.nextAtom()){
+        if (getAssociatedAtoms(atomi).getAtomCount() > 1) {
+        	System.out.println("atomi" +atomi);
+        } else if (getAssociatedAtoms(atomi).getAtomCount() == 1){
+        	IAtom atomj = getAssociatedAtoms(atomi).getAtom(0);
+        	if (getAssociatedAtoms(atomj).getAtomCount() == 0){
+        		System.out.println("Wrong");
+        	} else if(getAssociatedAtoms(atomj).getAtomCount() > 1){
+        		AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+        		System.out.println("Wrong:smer");
+        		System.out.println("listj = "+listj+" atomi= " +atomi+" atomj= "+atomj);
+        	} 
+        }
         }
     }
     

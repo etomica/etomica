@@ -2,8 +2,6 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.atom.AtomSourceRandomLeaf;
 
 public class AtomSourceRandomMonomer extends AtomSourceRandomLeaf {
