@@ -519,7 +519,7 @@ public class SimOverlapSingleWaveVector3DLJ extends Simulation {
         int numBenSteps = params.bennettNumSteps;
         int benBlockSize = params.benBlockSize;
         
-        System.out.println("Running Nancy's single 3D hard sphere simulation");
+        System.out.println("Running Nancy's single " +D+"D Lennard Jones simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
