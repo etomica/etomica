@@ -50,9 +50,10 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
       // create nodes
       Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
       // create generator
-      EdgesFilter filter = null;
+      // pass-through filter
+      EdgesFilter filter = GraphFactory.trueFilter();
       if (nullFiltered) {
-        filter = GraphFactory.nullFilter(null);
+        filter.chain(GraphFactory.falseFilter());
       }
       runGC();
       time1 = System.nanoTime();

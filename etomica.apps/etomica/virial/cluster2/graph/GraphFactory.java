@@ -18,8 +18,10 @@ public class GraphFactory {
   // default representation is adjacency matrix
   public static boolean USE_UPPER_TRIANGLE = false;
   // filter flags
-  public static final String FLAG_NULL_FILTER = "Null Filtered";
-  public static final String FLAG_CONNECTED = "Connected";
+  public static final String TAG_RANGE_FILTER = "EdgesRange";
+  public static final String TAG_FALSE_FILTER = "FALSE";
+  public static final String TAG_TRUE_FILTER = "TRUE";
+  public static final String TAG_CONNECTED = "Connected";
   // a class of edge attributes that are always compatible
   public static final EdgeAttributes COMPATIBLE_EDGE_ATTRIBUTES = new EdgeAttributes() {
 
@@ -164,9 +166,27 @@ public class GraphFactory {
   // EdgesFilter instances.
   //
   // **************************************************
-  public static EdgesFilter nullFilter(final EdgesFilter filter) {
+  public static EdgesFilter trueFilter() {
 
-    return new AbstractEdgesFilter(filter) {
+    return new AbstractEdgesFilter() {
+
+      @Override
+      protected boolean doAccept(Edges edges) {
+
+        return true;
+      }
+
+      @Override
+      protected String tag() {
+
+        return TAG_TRUE_FILTER;
+      }
+    };
+  }
+
+  public static EdgesFilter falseFilter() {
+
+    return new AbstractEdgesFilter() {
 
       @Override
       protected boolean doAccept(Edges edges) {
@@ -177,15 +197,14 @@ public class GraphFactory {
       @Override
       protected String tag() {
 
-        return FLAG_NULL_FILTER;
+        return TAG_FALSE_FILTER;
       }
     };
   }
 
-  public static EdgesFilter connectedFilter(final Nodes nodes,
-      final EdgesFilter filter) {
+  public static EdgesFilter connectedFilter(final Nodes nodes) {
 
-    return new AbstractEdgesFilter(filter) {
+    return new AbstractEdgesFilter() {
 
       @Override
       protected boolean doAccept(Edges edges) {
@@ -196,8 +215,38 @@ public class GraphFactory {
       @Override
       protected String tag() {
 
-        return FLAG_CONNECTED;
+        return TAG_CONNECTED;
       }
     };
+  }
+
+  public static EdgesFilter rangeFilter(int minEdges, int maxEdges) {
+
+    return new RangeFilter(minEdges, maxEdges);
+  }
+
+  static class RangeFilter extends AbstractEdgesFilter {
+
+    private static int maxEdges;
+    private static int minEdges;
+
+    RangeFilter(int min, int max) {
+
+      minEdges = min;
+      maxEdges = max;
+    }
+
+    @Override
+    protected boolean doAccept(Edges edges) {
+
+      int count = edges.count();
+      return (count >= minEdges) && (count <= maxEdges);
+    }
+
+    @Override
+    protected String tag() {
+
+      return TAG_RANGE_FILTER + ":" + minEdges + ":" + maxEdges;
+    }
   }
 }

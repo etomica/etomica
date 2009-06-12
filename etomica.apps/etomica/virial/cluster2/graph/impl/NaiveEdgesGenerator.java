@@ -9,7 +9,7 @@ import etomica.virial.cluster2.graph.GraphFactory;
 
 public class NaiveEdgesGenerator extends AbstractEdgesGenerator {
 
-  private static final String FLAG_COMPLETE = "Naive";
+  private static final String TAG_COMPLETE = "Naive";
   private EdgesRepresentationFactory factory;
   private Bitmap current;
   private Bitmap maxEdges;
@@ -36,7 +36,7 @@ public class NaiveEdgesGenerator extends AbstractEdgesGenerator {
   @Override
   protected String getTag() {
 
-    return FLAG_COMPLETE;
+    return TAG_COMPLETE;
   }
 
   @Override

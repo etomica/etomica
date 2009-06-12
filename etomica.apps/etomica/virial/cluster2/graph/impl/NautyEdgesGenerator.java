@@ -12,7 +12,7 @@ import etomica.virial.cluster2.nauty.ProcessWrapper;
 
 public class NautyEdgesGenerator extends AbstractEdgesGenerator {
 
-  private static final String FLAG_NAUTY = "Nauty";
+  private static final String TAG_NAUTY = "Nauty";
   private EdgesRepresentationFactory factory;
   private ProcessWrapper nauty;
   private BufferedReader nautyReader;
@@ -57,7 +57,7 @@ public class NautyEdgesGenerator extends AbstractEdgesGenerator {
   @Override
   protected String getTag() {
 
-    return NautyEdgesGenerator.FLAG_NAUTY;
+    return NautyEdgesGenerator.TAG_NAUTY;
   }
 
   @Override

@@ -8,6 +8,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 // private boolean enumBiconnected = false;
   private boolean nullFiltered = false;
   private int rangeEnd = 0;
+  private int minEdges = 0;
+  private int maxEdges = 0;
   private GraphSet family;
 
   private void testTemplate(int numNodes) {
@@ -22,17 +24,16 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     try {
       // create nodes
       Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
-      // create generator
-      EdgesFilter filter = null;
-      if (enumConnected && nullFiltered) {
-        filter = GraphFactory.connectedFilter(nodes, GraphFactory
-            .nullFilter(null));
+      // pass-through filter
+      EdgesFilter filter = GraphFactory.trueFilter();
+      if (minEdges != maxEdges) {
+        filter.chain(GraphFactory.rangeFilter(minEdges, maxEdges));
       }
-      else if (enumConnected) {
-        filter = GraphFactory.connectedFilter(nodes, null);
+      if (enumConnected) {
+        filter.chain(GraphFactory.connectedFilter(nodes));
       }
-      else if (nullFiltered) {
-        filter = GraphFactory.nullFilter(null);
+      if (nullFiltered) {
+        filter.chain(GraphFactory.falseFilter());
       }
       runGC();
       time1 = System.nanoTime();
@@ -51,7 +52,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
         permutations = family.toString();
         printPermutations();
       }
-      if (!enumConnected) {
+      if (!enumConnected && minEdges == maxEdges) {
         assertEquals(expected, family.getSize());
       }
     }
@@ -114,6 +115,13 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
     nullFiltered = true;
     enumConnected = true;
+    testGeneral();
+  }
+
+  public void testRangedEdgesGeneral() {
+
+    minEdges = 3;
+    maxEdges = 4;
     testGeneral();
   }
 // public void testNullFilteredBiconnected() {

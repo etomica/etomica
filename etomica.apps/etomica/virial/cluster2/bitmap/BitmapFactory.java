@@ -20,10 +20,7 @@ public class BitmapFactory {
     @Override
     public int compareTo(final Bitmap other) {
 
-      if (this == other) {
-        return 0;
-      }
-      return -1;
+      return (this == other) ? 0 : -1;
     }
   };
 

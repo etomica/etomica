@@ -19,8 +19,7 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
 
   public AbstractEdgesFilter(EdgesFilter filter) {
 
-    setNextFilter(filter);
-    computetags();
+    chain(filter);
   }
 
   @Override
@@ -39,6 +38,13 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
   public final Set<String> getTags() {
 
     return Collections.unmodifiableSet(tags);
+  }
+
+  @Override
+  public void chain(EdgesFilter filter) {
+
+    nextFilter = filter;
+    computetags();
   }
 
   protected boolean chainedAccept(Edges edges) {
@@ -76,10 +82,5 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     if (getNextFilter() != null) {
       tags.addAll(getNextFilter().getTags());
     }
-  }
-
-  private void setNextFilter(EdgesFilter filter) {
-
-    nextFilter = filter;
   }
 }
