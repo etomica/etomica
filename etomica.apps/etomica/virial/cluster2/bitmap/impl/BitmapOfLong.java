@@ -7,17 +7,15 @@ import etomica.virial.cluster2.bitmap.Bitmap;
  * This class is the most space efficient encoding of bitmaps, however it can
  * only encode up to 64 bits. Assume N is the number of nodes in an undirected
  * graph. The complete graph with N nodes has N(N-1)/2 edges. Hence, this class
- * can encode all graphs with N = 1..11.
- * 
- * NAUTY, the most efficient graph enumeration program as of today (May, 2009)
- * can enumerate graphs with non-isomorphs for N = 11 in 12 minutes (in an INTEL
- * CORE2 DUO T9400 2.53GHz with 4GB RAM). For N=12, it takes approximately 33h,
- * so it basically falls out of the online realm. Further, for N=12, the maximum
- * number of edges is 66, hence, we cannot use this class to encode the graphs
- * anyway. This is a rather convenient coincidence.
+ * can encode all graphs with N = 1..11. NAUTY, the most efficient graph
+ * enumeration program as of today (May, 2009) can enumerate graphs with
+ * non-isomorphs for N = 11 in 12 minutes (in an INTEL CORE2 DUO T9400 2.53GHz
+ * with 4GB RAM). For N=12, it takes approximately 33h, so it basically falls
+ * out of the online realm. Further, for N=12, the maximum number of edges is
+ * 66, hence, we cannot use this class to encode the graphs anyway. This is a
+ * rather convenient coincidence.
  * 
  * @author Demian Lessa
- * 
  */
 public class BitmapOfLong extends AbstractBitwiseBitmap {
 
@@ -27,7 +25,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
   // ***********************
   // * PUBLIC CONSTRUCTORS
   // ***********************
-
   public BitmapOfLong(final Bitmap other) {
 
     this(other.bitSize(), false);
@@ -55,19 +52,16 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
   // ***********************
   // * PROTECTED CONSTRUCTOR
   // ***********************
-
   protected BitmapOfLong() {
 
-    setBitSize((byte)0);
+    setBitSize((byte) 0);
   }
 
   // ***********************
   // * PUBLIC METHODS
   // ***********************
-
   /**
    * @TIME = O(1) for a compatible instance of other.
-   * 
    */
   @Override
   public void and(final Bitmap other) {
@@ -75,12 +69,12 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
     if (other instanceof BitmapOfLong) {
       BitmapOfLong bm = (BitmapOfLong) other;
       bitmap &= bm.bitmap;
-    } else {
+    }
+    else {
       super.and(other);
     }
   }
 
-  @Override
   public int bitSize() {
 
     return bitSize;
@@ -91,9 +85,7 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
    * bit bitSize() - 1 of bitmap.
    * 
    * @TIME = O(1).
-   * 
    */
-  @Override
   public void clearBit(final int bitIndex) {
 
     bitmap &= ~maskSingleBit(bitIndex);
@@ -101,7 +93,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1) for an instance of BitmapOfLong.
-   * 
    */
   @Override
   public boolean equals(Object other) {
@@ -109,14 +100,14 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
     if (other instanceof BitmapOfLong) {
       BitmapOfLong bm = (BitmapOfLong) other;
       return ((bitmap & maskSingleLong()) == (bm.bitmap & bm.maskSingleLong()));
-    } else {
+    }
+    else {
       return super.equals(other);
     }
   }
 
   /**
    * @TIME = O(1).
-   * 
    */
   @Override
   public int hashCode() {
@@ -126,7 +117,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1) for a compatible instance.
-   * 
    */
   @Override
   public void nand(final Bitmap other) {
@@ -134,14 +124,14 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
     if (other instanceof BitmapOfLong) {
       BitmapOfLong bm = (BitmapOfLong) other;
       bitmap &= ~bm.bitmap;
-    } else {
+    }
+    else {
       super.nand(other);
     }
   }
 
   /**
    * @TIME = O(1).
-   * 
    */
   @Override
   public void not() {
@@ -151,7 +141,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1) for a compatible instance.
-   * 
    */
   @Override
   public void or(final Bitmap other) {
@@ -159,7 +148,8 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
     if (other instanceof BitmapOfLong) {
       BitmapOfLong bm = (BitmapOfLong) other;
       bitmap |= bm.bitmap;
-    } else {
+    }
+    else {
       super.or(other);
     }
   }
@@ -169,9 +159,7 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
    * bit bitSize() - 1 of bitmap.
    * 
    * @TIME = O(1).
-   * 
    */
-  @Override
   public void setBit(final int bitIndex) {
 
     bitmap |= (maskSingleLong() & maskSingleBit(bitIndex));
@@ -179,7 +167,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1).
-   * 
    */
   @Override
   public void setBits(final boolean value) {
@@ -189,9 +176,7 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1).
-   * 
    */
-  @Override
   public boolean testBit(final int bitIndex) {
 
     long bm = maskSingleBit(bitIndex);
@@ -200,7 +185,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1) for a compatible instance.
-   * 
    */
   @Override
   public void xor(final Bitmap other) {
@@ -208,7 +192,8 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
     if (other instanceof BitmapOfLong) {
       BitmapOfLong bm = (BitmapOfLong) other;
       bitmap ^= bm.bitmap;
-    } else {
+    }
+    else {
       super.xor(other);
     }
   }
@@ -216,7 +201,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
   // ***********************
   // * PROTECTED METHODS
   // ***********************
-
   @Override
   protected void allocateBitmap() {
 
@@ -225,7 +209,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   /**
    * @TIME = O(1).
-   * 
    */
   @Override
   protected void copyFrom(final Bitmap other) {
@@ -265,7 +248,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
    * the given bit index.
    * 
    * @TIME = O(1).
-   * 
    */
   protected long maskSingleBit(final int bitIndex) {
 
@@ -277,7 +259,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
    * given index.
    * 
    * @TIME = O(1).
-   * 
    */
   protected long maskSingleLong() {
 
@@ -286,6 +267,6 @@ public class BitmapOfLong extends AbstractBitwiseBitmap {
 
   protected void setBitSize(final int capacity) {
 
-    bitSize = (byte)capacity;
+    bitSize = (byte) capacity;
   }
 }

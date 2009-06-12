@@ -109,7 +109,6 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
   /**
    * There should be no reason to override this method.
    */
-  @Override
   public final boolean traverseComponent(int nodeID, Nodes nodes, Edges edges,
       NodesVisitor visitor) {
 
@@ -125,7 +124,6 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
    * The only reason to override this method is to change the node choice before
    * traversing each component.
    */
-  @Override
   public void traverseAll(Nodes nodes, Edges edges, NodesVisitor visitor) {
 
     if (setup(nodes, edges, visitor)) {

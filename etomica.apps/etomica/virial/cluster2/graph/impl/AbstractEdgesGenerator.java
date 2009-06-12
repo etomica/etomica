@@ -49,13 +49,11 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     this(true, null, null);
   }
 
-  @Override
   public final Set<String> getTags() {
 
     return Collections.unmodifiableSet(tags);
   }
 
-  @Override
   public final boolean hasNext() {
 
     if (!isStarted()) {
@@ -64,7 +62,6 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     return (!stack.empty());
   }
 
-  @Override
   public final Edges next() throws NoSuchElementException {
 
     if (stack.empty()) {

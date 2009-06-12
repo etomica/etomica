@@ -21,19 +21,16 @@ public class SimpleGraphSet implements GraphSet {
     this.edgesList = edgesList;
   }
 
-  @Override
   public Set<Edges> getEdgesSet() {
 
     return new HashSet<Edges>(edgesList);
   }
 
-  @Override
   public int getSize() {
 
     return edgesList.size();
   }
 
-  @Override
   public Nodes getNodes() {
 
     return nodes;
@@ -49,7 +46,6 @@ public class SimpleGraphSet implements GraphSet {
     return result;
   }
 
-  @Override
   public void visitEdgesSet(EdgesSetVisitor visitor) {
 
     for (int i = 0; (i < getSize()) && visitor.visit(edgesList.get(i)); i++)
@@ -60,8 +56,7 @@ public class SimpleGraphSet implements GraphSet {
 
     this.tags = tags;
   }
-  
-  @Override
+
   public Set<String> getTags() {
 
     return tags;

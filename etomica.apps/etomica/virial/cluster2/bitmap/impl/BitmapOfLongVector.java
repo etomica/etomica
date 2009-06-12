@@ -66,7 +66,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
     }
   }
 
-  @Override
   public int bitSize() {
 
     return bitSize;
@@ -78,7 +77,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * 
    * @TIME = O(1).
    */
-  @Override
   public void clearBit(int bitIndex) {
 
     bitmap[longOffset(bitIndex)] &= ~maskSingleBit(bitIndex);
@@ -171,7 +169,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
    * 
    * @TIME = O(1).
    */
-  @Override
   public void setBit(int bitIndex) {
 
     bitmap[longOffset(bitIndex)] |= maskSingleBit(bitIndex);
@@ -191,7 +188,6 @@ public final class BitmapOfLongVector extends AbstractBitwiseBitmap {
   /**
    * @TIME = O(1).
    */
-  @Override
   public boolean testBit(int bitIndex) {
 
     long bm = maskSingleBit(bitIndex);

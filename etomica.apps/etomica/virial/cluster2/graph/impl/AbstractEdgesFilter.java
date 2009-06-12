@@ -22,25 +22,21 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     chain(filter);
   }
 
-  @Override
   public boolean accept(Edges edges) {
 
     return doAccept(edges) && chainedAccept(edges);
   }
 
-  @Override
   public boolean preAccept(Edges edges) {
 
     return doPreAccept(edges) && chainedPreAccept(edges);
   }
 
-  @Override
   public final Set<String> getTags() {
 
     return Collections.unmodifiableSet(tags);
   }
 
-  @Override
   public void chain(EdgesFilter filter) {
 
     nextFilter = filter;

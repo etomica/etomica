@@ -1,6 +1,5 @@
 package etomica.virial.cluster2.test;
 
-import etomica.virial.cluster2.bitmap.impl.BitmapOfLong;
 import etomica.virial.cluster2.bitmap.impl.BitmapOfLongVector;
 import junit.framework.TestCase;
 

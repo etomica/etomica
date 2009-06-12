@@ -25,13 +25,11 @@ public abstract class AbstractBitmapRepresentation implements
     return edges;
   }
 
-  @Override
   public byte getNodeCount() {
 
     return nodeCount;
   }
 
-  @Override
   public boolean hasEdge(int fromNodeID, int toNodeID) {
 
     return getEdges().testBit(getEdgeID(fromNodeID, toNodeID));
@@ -42,7 +40,6 @@ public abstract class AbstractBitmapRepresentation implements
     edges = edgesStore;
   }
 
-  @Override
   public String toString(int edgeID) {
 
     return "(" + getFromNodeID(edgeID) + "," + getToNodeID(edgeID) + ")";

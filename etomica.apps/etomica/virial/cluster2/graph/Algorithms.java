@@ -1,7 +1,6 @@
 package etomica.virial.cluster2.graph;
 
 import etomica.virial.cluster2.graph.impl.BFTraversal;
-import etomica.virial.cluster2.graph.impl.BitmapUtils;
 import etomica.virial.cluster2.graph.impl.DFTraversal;
 
 /**
@@ -88,7 +87,6 @@ public class Algorithms {
  */
 class CheckArticulatonPair implements GraphProperty {
 
-  @Override
   public boolean check(Nodes nodes, Edges edges) {
 
     // TODO Auto-generated method stub
@@ -150,7 +148,6 @@ class CheckBiconnected implements GraphProperty {
 // }
 // }
 //
-  @Override
   public boolean check(Nodes nodes, Edges edges) {
 
     // TODO Auto-generated method stub
@@ -168,7 +165,6 @@ class CheckBiconnected implements GraphProperty {
  */
 class CheckConnected implements GraphProperty {
 
-  @Override
   public boolean check(Nodes nodes, Edges edges) {
 
     if ((nodes == null) || (edges == null)) {
@@ -195,7 +191,6 @@ class CheckConnected implements GraphProperty {
  */
 class CheckIsomorphic implements GraphPairProperty {
 
-  @Override
   public boolean check(Nodes nodes, Edges edges1, Edges edges2) {
 
     // TODO Auto-generated method stub
@@ -210,7 +205,6 @@ class CheckIsomorphic implements GraphPairProperty {
  */
 class CheckNodalPoint implements GraphProperty {
 
-  @Override
   public boolean check(Nodes nodes, Edges edges) {
 
     // TODO Auto-generated method stub

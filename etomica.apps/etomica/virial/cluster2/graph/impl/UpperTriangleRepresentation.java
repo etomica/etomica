@@ -26,13 +26,13 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     super(numNodes);
   }
 
-  @Override
+  
   public int getEdgeCount() {
 
     return getEdges().bitCount();
   }
 
-  @Override
+  
   public int getEdgeID(int fromNodeID, int toNodeID) {
 
     if (fromNodeID > toNodeID) {
@@ -41,7 +41,7 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     return (toNodeID - fromNodeID - 1) + sumMaxEdges(0, fromNodeID - 1);
   }
 
-  @Override
+  
   public int getFromNodeID(int edgeID) {
 
     int fromNodeID = 0;
@@ -53,7 +53,7 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     return fromNodeID;
   }
 
-  @Override
+  
   public int getToNodeID(int edgeID) {
 
     int fromNodeID = getFromNodeID(edgeID);

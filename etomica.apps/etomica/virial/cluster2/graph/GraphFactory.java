@@ -25,7 +25,6 @@ public class GraphFactory {
   // a class of edge attributes that are always compatible
   public static final EdgeAttributes COMPATIBLE_EDGE_ATTRIBUTES = new EdgeAttributes() {
 
-    @Override
     public boolean isCompatible(final EdgeAttributes attr) {
 
       return equals(attr);
@@ -34,7 +33,6 @@ public class GraphFactory {
   // a class of node attributes that are always compatible
   public static final NodeAttributes COMPATIBLE_NODE_ATTRIBUTES = new NodeAttributes() {
 
-    @Override
     public boolean isCompatible(NodeAttributes attr) {
 
       return equals(attr);
@@ -91,7 +89,6 @@ public class GraphFactory {
 
     return new AbstractNodes(nodeCount) {
 
-      @Override
       public NodeAttributes getAttributes(int nodeID) {
 
         return COMPATIBLE_NODE_ATTRIBUTES;

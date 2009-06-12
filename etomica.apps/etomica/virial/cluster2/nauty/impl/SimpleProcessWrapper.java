@@ -20,25 +20,21 @@ public class SimpleProcessWrapper implements ProcessWrapper {
     environment = builder.environment();
   }
 
-  @Override
   public Map<String, String> getEnvironment() {
 
     return environment;
   }
 
-  @Override
   public Reader getProcessOutput() {
-    
+
     return output;
   }
-  
-//  @Override
-//  public List<String> getStdout() {
-//
-//    return stdout;
-//  }
 
-  @Override
+// @Override
+// public List<String> getStdout() {
+//
+// return stdout;
+// }
   public ProcessInfo getProcessInfo() {
 
     return processInfo;
@@ -49,7 +45,6 @@ public class SimpleProcessWrapper implements ProcessWrapper {
    * 
    * @throws IOException
    */
-  @Override
   public void run() throws IOException {
 
     builder.redirectErrorStream(processInfo.redirectErrorStream());

@@ -11,13 +11,11 @@ public class SimpleEdgesMetadata implements EdgesMetadata {
     coefficient = value;
   }
 
-  @Override
   public double getCoefficient() {
 
     return coefficient;
   }
 
-  @Override
   public void setCoefficient(double value) {
 
     coefficient = value;

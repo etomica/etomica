@@ -13,13 +13,11 @@ public abstract class AbstractSearchState implements SearchState {
     secondGraph = g2;
   }
 
-  @Override
   public Graph getG1() {
 
     return firstGraph;
   }
 
-  @Override
   public Graph getG2() {
 
     return secondGraph;

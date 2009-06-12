@@ -16,8 +16,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
   // ***********************
   // * PUBLIC METHODS
   // ***********************
-
-  @Override
   public void and(final Bitmap other) {
 
     Bitmap bm = comparableInstance(other);
@@ -26,7 +24,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     }
   }
 
-  @Override
   public int bitCount() {
 
     int result = 0;
@@ -38,17 +35,16 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return result;
   }
 
-  @Override
   public Bitmap comparableInstance(Bitmap other) {
 
     if (bitSize() <= other.bitSize()) {
       return other;
-    } else {
+    }
+    else {
       return other.copyLowest(bitSize());
     }
   }
 
-  @Override
   public int compareTo(final Bitmap other) {
 
     int thisHSB = hsb();
@@ -82,13 +78,11 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return -1;
   }
 
-  @Override
   public Bitmap copy() {
 
     return createInstance(this);
   }
 
-  @Override
   public Bitmap copyHighest(int numBits) {
 
     Bitmap copy = createInstance(numBits);
@@ -98,7 +92,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return copy;
   }
 
-  @Override
   public Bitmap copyLowest(int numBits) {
 
     Bitmap copy = createInstance(numBits);
@@ -108,7 +101,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return copy;
   }
 
-  @Override
   public void dec() {
 
     int bit = lsb();
@@ -119,19 +111,20 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
           setBit(i);
         }
       }
-    } else {
+    }
+    else {
       setBits(true);
     }
   }
 
-  @Override
   public void defBit(final int bitIndex, final boolean bitValue) {
 
     boolean oldValue = testBit(bitIndex);
     if (oldValue != bitValue) {
       if (oldValue) {
         clearBit(bitIndex);
-      } else {
+      }
+      else {
         setBit(bitIndex);
       }
     }
@@ -155,17 +148,16 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return result;
   }
 
-  @Override
   public void flipBit(final int bitIndex) {
 
     if (testBit(bitIndex)) {
       clearBit(bitIndex);
-    } else {
+    }
+    else {
       setBit(bitIndex);
     }
   }
 
-  @Override
   public int hsb() {
 
     // find the highest set bit
@@ -176,7 +168,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return (j == bitSize() ? -1 : j);
   }
 
-  @Override
   public int hub() {
 
     // find the highest unset bit
@@ -187,7 +178,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return (j == bitSize() ? -1 : j);
   }
 
-  @Override
   public void inc() {
 
     int bit = lub();
@@ -198,12 +188,12 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
           clearBit(i);
         }
       }
-    } else {
+    }
+    else {
       setBits(false);
     }
   }
 
-  @Override
   public int lsb() {
 
     // find the lowest set bit
@@ -214,7 +204,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return j;
   }
 
-  @Override
   public int lub() {
 
     // find the lowest unset bit
@@ -225,7 +214,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return j;
   }
 
-  @Override
   public void nand(final Bitmap other) {
 
     Bitmap bm = comparableInstance(other);
@@ -234,7 +222,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     }
   }
 
-  @Override
   public void not() {
 
     for (int i = 0; i < bitSize(); i++) {
@@ -242,7 +229,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     }
   }
 
-  @Override
   public void or(final Bitmap other) {
 
     Bitmap bm = comparableInstance(other);
@@ -251,7 +237,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     }
   }
 
-  @Override
   public void setBits(final boolean value) {
 
     for (int i = 0; i < bitSize(); i++) {
@@ -269,7 +254,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
     return result;
   }
 
-  @Override
   public void xor(final Bitmap other) {
 
     Bitmap bm = comparableInstance(other);
@@ -281,10 +265,8 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
   // ***********************
   // * PROTECTED METHODS
   // ***********************
-
   /**
    * Allocates the storage space for bitSize() bits.
-   * 
    */
   protected abstract void allocateBitmap();
 
@@ -305,7 +287,6 @@ public abstract class AbstractBitwiseBitmap implements Bitmap {
   /**
    * Creates an instance of the implementing class based on the given
    * parameters.
-   * 
    */
   protected abstract Bitmap createInstance(final Bitmap other);
 

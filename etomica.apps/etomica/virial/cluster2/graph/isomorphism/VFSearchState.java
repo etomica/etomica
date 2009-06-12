@@ -6,21 +6,21 @@ import etomica.virial.cluster2.graph.Graph;
 
 public class VFSearchState extends AbstractSearchState {
 
-  private final static int  NULL_NODE   = 0xFFFF;
-  private final static byte ST_CORE     = 0x01;
-  private final static byte ST_TERM_IN  = 0x02;
+  private final static int NULL_NODE = 0xFFFF;
+  private final static byte ST_CORE = 0x01;
+  private final static byte ST_TERM_IN = 0x02;
   private final static byte ST_TERM_OUT = 0x04;
-  private int               core_len;
-  private int               t1in_len;
-  private int               t1out_len;
-  private int               t2in_len;
-  private int               t2out_len;
-  private byte[]            node_flags_1;
-  private byte[]            node_flags_2;
-  private int               n1;
-  private int               n2;
-  private int[]             core_1;
-  private int[]             core_2;
+  private int core_len;
+  private int t1in_len;
+  private int t1out_len;
+  private int t2in_len;
+  private int t2out_len;
+  private byte[] node_flags_1;
+  private byte[] node_flags_2;
+  private int n1;
+  private int n2;
+  private int[] core_1;
+  private int[] core_2;
 
   public VFSearchState(Graph g1, Graph g2) {
 
@@ -68,7 +68,6 @@ public class VFSearchState extends AbstractSearchState {
     }
   }
 
-  @Override
   public void addPair(int node1, int node2) {
 
     // guarantee the preconditions for adding a new pair
@@ -150,19 +149,16 @@ public class VFSearchState extends AbstractSearchState {
     }
   }
 
-  @Override
   public void backTrack() {
 
     // TODO Auto-generated method stub
   }
 
-  @Override
   public SearchState copy() {
 
     return new VFSearchState(this);
   }
 
-  @Override
   public NodePair[] getCoreSet() {
 
     ArrayList<NodePair> pairList = new ArrayList<NodePair>();
@@ -174,19 +170,16 @@ public class VFSearchState extends AbstractSearchState {
     return pairList.toArray(new NodePair[] {});
   }
 
-  @Override
   public int getCoreLen() {
 
     return core_len;
   }
 
-  @Override
   public boolean isDead() {
 
     return (n1 != n2) || (t1out_len != t2out_len) || (t1in_len != t2in_len);
   }
 
-  @Override
   public boolean isFeasiblePair(int node1, int node2) {
 
     // guarantee the preconditions for testing a pair
@@ -288,13 +281,11 @@ public class VFSearchState extends AbstractSearchState {
     return (termin1 == termin2) && (termout1 == termout2) && (new1 == new2);
   }
 
-  @Override
   public boolean isGoal() {
 
     return (core_len == n1) && (core_len == n2);
   }
 
-  @Override
   public NodePair nextPair(int prev_n1, int prev_n2) {
 
     byte cond1 = 0, cond2 = 0;

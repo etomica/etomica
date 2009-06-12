@@ -15,13 +15,11 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
     super(numNodes);
   }
 
-  @Override
   public int getEdgeCount() {
 
     return getEdges().bitCount() / 2;
   }
 
-  @Override
   public int getEdgeID(int fromNodeID, int toNodeID) {
 
     if (fromNodeID > toNodeID) {
@@ -30,13 +28,11 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
     return fromNodeID * getNodeCount() + toNodeID;
   }
 
-  @Override
   public int getFromNodeID(int edgeID) {
 
     return edgeID / getNodeCount();
   }
 
-  @Override
   public int getToNodeID(int edgeID) {
 
     return edgeID % getNodeCount();

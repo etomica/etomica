@@ -17,7 +17,6 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
   private double isomorphCount = 0;
   private EdgesSetVisitor nautyVisitor = new EdgesSetVisitor() {
 
-    @Override
     public boolean visit(Edges edges) {
 
       enumerated++;
@@ -27,7 +26,6 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
   };
   private EdgesSetVisitor printVisitor = new EdgesSetVisitor() {
 
-    @Override
     public boolean visit(Edges edges) {
 
       System.out.println(index++ + ": " + edges.toString());

@@ -94,7 +94,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
     }
     if (isUpperTriangle()) {
       result += " " + GEN_FLAG_UPPER_TRIANGLE;
-    } 
+    }
     result += " " + getNumBlackNodes();
     if (!isMono()) {
       result += " " + getNumWhiteNodes();
@@ -102,7 +102,6 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return result;
   }
 
-  @Override
   public List<String> getCommand() {
 
     List<String> result = new ArrayList<String>();
@@ -160,13 +159,11 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return numWhiteNodes;
   }
 
-  @Override
   public String getPath() {
 
     return basePath;
   }
 
-  @Override
   public Set<String> getTags() {
 
     return Collections.unmodifiableSet(tags);
@@ -178,7 +175,6 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return getCommand().toString();
   }
 
-  @Override
   public boolean redirectErrorStream() {
 
     return true;

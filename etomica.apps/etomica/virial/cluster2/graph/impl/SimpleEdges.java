@@ -17,7 +17,6 @@ public class SimpleEdges implements Edges {
     this.metadata = metadata;
   }
 
-  @Override
   public int count() {
 
     return getRepresentation().getEdgeCount();
@@ -28,13 +27,11 @@ public class SimpleEdges implements Edges {
     return representation;
   }
 
-  @Override
   public EdgesMetadata getMetadata() {
 
     return metadata;
   }
 
-  @Override
   public boolean hasEdge(int fromNodeID, int toNodeID) {
 
     return getRepresentation().hasEdge(fromNodeID, toNodeID);
@@ -46,13 +43,11 @@ public class SimpleEdges implements Edges {
     return getRepresentation().toString();
   }
 
-  @Override
   public EdgeAttributes getAttributes(int fromNodeID, int toNodeID) {
 
     return GraphFactory.defaultEdgeAttributes();
   }
 
-  @Override
   public int getInDegree(int nodeID) {
 
     int result = 0;
@@ -64,7 +59,6 @@ public class SimpleEdges implements Edges {
     return result;
   }
 
-  @Override
   public int getInNode(int nodeID, int index) {
 
     int found = 0;
@@ -79,7 +73,6 @@ public class SimpleEdges implements Edges {
     return -1;
   }
 
-  @Override
   public int getOutDegree(int nodeID) {
 
     int result = 0;
@@ -91,7 +84,6 @@ public class SimpleEdges implements Edges {
     return result;
   }
 
-  @Override
   public int getOutNode(int nodeID, int index) {
 
     int found = 0;
