@@ -20,4 +20,9 @@ public final class NodePair {
 
     return secondNode;
   }
+
+  public static NodePair nullPair() {
+
+    return new NodePair(SearchState.NULL_NODE, SearchState.NULL_NODE);
+  }
 }

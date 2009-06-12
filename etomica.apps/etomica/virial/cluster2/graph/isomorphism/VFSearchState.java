@@ -6,7 +6,6 @@ import etomica.virial.cluster2.graph.Graph;
 
 public class VFSearchState extends AbstractSearchState {
 
-  private final static int NULL_NODE = 0xFFFF;
   private final static byte ST_CORE = 0x01;
   private final static byte ST_TERM_IN = 0x02;
   private final static byte ST_TERM_OUT = 0x04;
@@ -68,8 +67,11 @@ public class VFSearchState extends AbstractSearchState {
     }
   }
 
-  public void addPair(int node1, int node2) {
+  public void addPair(NodePair pair) {
 
+    assert (pair != null);
+    int node1 = pair.getFirstNode();
+    int node2 = pair.getSecondNode();
     // guarantee the preconditions for adding a new pair
     assert (node1 < n1);
     assert (node2 < n2);
@@ -151,7 +153,7 @@ public class VFSearchState extends AbstractSearchState {
 
   public void backTrack() {
 
-    // TODO Auto-generated method stub
+    // VF does not backtrack
   }
 
   public SearchState copy() {
@@ -180,8 +182,11 @@ public class VFSearchState extends AbstractSearchState {
     return (n1 != n2) || (t1out_len != t2out_len) || (t1in_len != t2in_len);
   }
 
-  public boolean isFeasiblePair(int node1, int node2) {
+  public boolean isFeasiblePair(NodePair pair) {
 
+    assert (pair != null);
+    int node1 = pair.getFirstNode();
+    int node2 = pair.getSecondNode();
     // guarantee the preconditions for testing a pair
     assert (node1 < n1);
     assert (node2 < n2);
@@ -201,8 +206,9 @@ public class VFSearchState extends AbstractSearchState {
         other2 = core_1[other1];
         if (!getG2().getEdges().hasEdge(node2, other2)
             || !getG1().getEdges().getAttributes(node1, other1).isCompatible(
-                getG2().getEdges().getAttributes(node2, other2)))
+                getG2().getEdges().getAttributes(node2, other2))) {
           return false;
+        }
       }
       else {
         if ((flags & ST_TERM_IN) != 0) {
@@ -223,8 +229,9 @@ public class VFSearchState extends AbstractSearchState {
         other2 = core_1[other1];
         if (!getG2().getEdges().hasEdge(other2, node2)
             || !getG1().getEdges().getAttributes(node1, other1).isCompatible(
-                getG2().getEdges().getAttributes(other2, node2)))
+                getG2().getEdges().getAttributes(other2, node2))) {
           return false;
+        }
       }
       else {
         if ((flags & ST_TERM_IN) != 0) {
@@ -243,8 +250,9 @@ public class VFSearchState extends AbstractSearchState {
       other2 = getG2().getEdges().getOutNode(node2, i);
       if (((flags = node_flags_2[other2]) & ST_CORE) != 0) {
         other1 = core_2[other2];
-        if (!getG1().getEdges().hasEdge(node1, other1))
+        if (!getG1().getEdges().hasEdge(node1, other1)) {
           return false;
+        }
       }
       else {
         if ((flags & ST_TERM_IN) != 0) {
@@ -263,8 +271,9 @@ public class VFSearchState extends AbstractSearchState {
       other2 = getG2().getEdges().getInNode(node2, i);
       if (((flags = node_flags_2[other2]) & ST_CORE) != 0) {
         other1 = core_2[other2];
-        if (!getG1().getEdges().hasEdge(other1, node1))
+        if (!getG1().getEdges().hasEdge(other1, node1)) {
           return false;
+        }
       }
       else {
         if ((flags & ST_TERM_IN) != 0) {
@@ -286,8 +295,11 @@ public class VFSearchState extends AbstractSearchState {
     return (core_len == n1) && (core_len == n2);
   }
 
-  public NodePair nextPair(int prev_n1, int prev_n2) {
+  public NodePair nextPair(NodePair prev) {
 
+    assert (prev != null);
+    int prev_n1 = prev.getFirstNode();
+    int prev_n2 = prev.getSecondNode();
     byte cond1 = 0, cond2 = 0;
     if (t1out_len > 0 && t2out_len > 0)
       cond1 = cond2 = ST_TERM_OUT;
