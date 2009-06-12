@@ -3,32 +3,33 @@ package etomica.virial.cluster2.graph.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import etomica.virial.cluster2.bitmap.BitmapFactory;
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;
-import etomica.virial.cluster2.graph.EdgesRepresentation;
+import etomica.virial.cluster2.graph.EdgesRepresentationFactory;
 import etomica.virial.cluster2.graph.GraphFactory;
 import etomica.virial.cluster2.nauty.ProcessWrapper;
 
 public class NautyEdgesGenerator extends AbstractEdgesGenerator {
 
   private static final String FLAG_NAUTY = "Nauty";
-  private EdgesRepresentation representation;
+  private EdgesRepresentationFactory factory;
   private ProcessWrapper nauty;
   private BufferedReader nautyReader;
 
-  public NautyEdgesGenerator(EdgesRepresentation rep,
+  public NautyEdgesGenerator(EdgesRepresentationFactory edgesFactory,
       ProcessWrapper nautyProcess, EdgesFilter filter) {
 
     super(false, filter);
+    factory = edgesFactory;
     nauty = nautyProcess;
-    representation = rep;
     computeTags();
   }
 
-  public NautyEdgesGenerator(EdgesRepresentation rep,
+  public NautyEdgesGenerator(EdgesRepresentationFactory edgesFactory,
       ProcessWrapper nautyProcess) {
 
-    this(rep, nautyProcess, null);
+    this(edgesFactory, nautyProcess, null);
   }
 
   protected void run() {
@@ -77,15 +78,15 @@ public class NautyEdgesGenerator extends AbstractEdgesGenerator {
       double coefficient = 1;
       int automorphismGroupSize = Integer.valueOf(line);
       if (automorphismGroupSize > 0) {
-        for (int i = 1; i <= representation.getNodeCount(); i++) {
+        for (int i = 1; i <= factory.getNodeCount(); i++) {
           coefficient *= i;
         }
         coefficient /= automorphismGroupSize;
       }
       // second line: encoding of the graph as a bit string; this
       // graph is the representative of its automorphism group
-      return GraphFactory.nautyEdges(nautyReader.readLine(), representation,
-          coefficient);
+      return GraphFactory.nautyEdges(factory.getRepresentation(BitmapFactory
+          .getBitmap(nautyReader.readLine())), coefficient);
     }
     catch (IOException e) {
       return null;

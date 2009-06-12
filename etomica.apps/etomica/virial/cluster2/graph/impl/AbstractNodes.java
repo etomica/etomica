@@ -9,6 +9,9 @@ public abstract class AbstractNodes implements Nodes {
 
   public AbstractNodes(byte numNodes) {
 
+    if (numNodes == 0) {
+      throw new RuntimeException("Invalid node count (N=0)");
+    }
     nodeCount = numNodes;
   }
 

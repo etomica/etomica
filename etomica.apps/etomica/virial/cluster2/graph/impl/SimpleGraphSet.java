@@ -13,6 +13,7 @@ public class SimpleGraphSet implements GraphSet {
 
   private Nodes nodes;
   private List<Edges> edgesList;
+  private Set<String> tags;
 
   public SimpleGraphSet(Nodes nodes, List<Edges> edgesList) {
 
@@ -53,5 +54,16 @@ public class SimpleGraphSet implements GraphSet {
 
     for (int i = 0; (i < getSize()) && visitor.visit(edgesList.get(i)); i++)
       ;
+  }
+
+  public void setTags(Set<String> tags) {
+
+    this.tags = tags;
+  }
+  
+  @Override
+  public Set<String> getTags() {
+
+    return tags;
   }
 }

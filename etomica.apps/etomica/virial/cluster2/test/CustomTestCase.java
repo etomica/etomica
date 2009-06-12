@@ -5,14 +5,12 @@ import junit.framework.TestCase;
 public class CustomTestCase extends TestCase {
 
   private Runtime rt = Runtime.getRuntime();
-
   protected static int K = 1000;
   protected static int M = K * K;
   protected static int G = M * K;
   protected static int T = G * K;
   protected static int KB = 1024;
   protected static int MB = KB * KB;
-
   protected long mem1 = 0;
   protected long mem2 = 0;
   protected long elapsed = 0;
@@ -53,9 +51,11 @@ public class CustomTestCase extends TestCase {
     System.out.println("nodes....: " + numNodes);
     if (enumerated > M) {
       System.out.println("graphs...: " + (enumerated / M) + "M");
-    } else if (enumerated > K) {
+    }
+    else if (enumerated > K) {
       System.out.println("graphs...: " + (enumerated / K) + "K");
-    } else {
+    }
+    else {
       System.out.println("graphs...: " + enumerated);
     }
   }
@@ -63,7 +63,6 @@ public class CustomTestCase extends TestCase {
   protected void printPermutations() {
 
     if (printPermutations) {
-      System.out.println();
       System.out.println(permutations);
     }
   }
@@ -73,21 +72,29 @@ public class CustomTestCase extends TestCase {
     if (printRuntime) {
       if (elapsed < K) {
         System.out.print("runtime..: " + (elapsed) + "µs (");
-      } else if (elapsed < M) {
+      }
+      else if (elapsed < M) {
         System.out.print("runtime..: " + (elapsed / K) + "ms (");
-      } else if (elapsed < G) {
+      }
+      else if (elapsed < G) {
         System.out.print("runtime..: " + (elapsed / M) + "sec (");
-      } else if (elapsed < (60 * G)) {
+      }
+      else if (elapsed < (60 * G)) {
         System.out.print("runtime..: " + (elapsed / (60 * M)) + "min (");
-      } else if (elapsed < (60 * 60 * G)) {
+      }
+      else if (elapsed < (60 * 60 * G)) {
         System.out.print("runtime..: " + (elapsed / (60 * 60 * M)) + "h (");
-      } 
+      }
       if (enumerated > 0) {
         if ((elapsed / enumerated) < K) {
           System.out.println((elapsed / enumerated) + "µs/graph)");
-        } else {
+        }
+        else {
           System.out.println(((elapsed / K) / enumerated) + "ms/graph)");
         }
+      }
+      else {
+        System.out.println(")");
       }
     }
   }
@@ -101,24 +108,36 @@ public class CustomTestCase extends TestCase {
       mem2 = usedMemory();
       if (mem1 > MB) {
         memoryUse += "memory...: " + (mem1 / MB) + "MB";
-      } else {
+      }
+      else {
         memoryUse += "memory...: " + (mem1 / KB) + "KB";
       }
       if (expected != 0) {
         if (expected > (mem1 / KB)) {
           memoryUse += " (" + (mem1 / expected) + "B/graph)\n";
-        } else {
+        }
+        else {
           memoryUse += " (" + (mem1 / expected / KB) + "KB/graph)\n";
         }
-      } else {
+      }
+      else {
         memoryUse += "\n";
       }
       if ((mem1 - mem2) > MB) {
         memoryUse += "reclaim..: " + ((mem1 - mem2) / MB) + "MB\n";
-      } else {
+      }
+      else {
         memoryUse += "reclaim..: " + ((mem1 - mem2) / KB) + "KB\n";
       }
     }
+  }
+
+  @Override
+  public void setUp() {
+
+    printMemory = false;
+    printRuntime = true;
+    printPermutations = false;
   }
 
   protected void printMemory() {
@@ -127,7 +146,6 @@ public class CustomTestCase extends TestCase {
       System.out.println(memoryUse);
     }
   }
-
   // Asymptotic Object overhead: 4 bytes/object.
   //
   // public void testObjectMemoryFootprint() {
@@ -141,7 +159,6 @@ public class CustomTestCase extends TestCase {
   // memoryUse();
   // printMemory();
   // }
-
   // Asymptotic SimpleEdges overhead: 4 bytes/object.
   //  
   // public void testObjectMemoryFootprint() {

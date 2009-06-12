@@ -1,7 +1,5 @@
 package etomica.virial.cluster2.graph.impl;
 
-import etomica.virial.cluster2.graph.EdgesRepresentation;
-
 /*
  * This class maps the edges of an N by N matrix onto a Bitmap using N(N-1)/2 
  * bits. The linearization that maps each edge (n1,n2) such that n1 > n2 onto 
@@ -21,13 +19,17 @@ import etomica.virial.cluster2.graph.EdgesRepresentation;
  * 
  * @author Demian Lessa
  */
-public class UpperTriangleRepresentation implements EdgesRepresentation {
-
-  private byte nodeCount;
+public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
 
   public UpperTriangleRepresentation(byte numNodes) {
 
-    nodeCount = numNodes;
+    super(numNodes);
+  }
+
+  @Override
+  public int getEdgeCount() {
+
+    return getEdges().bitCount();
   }
 
   @Override
@@ -59,11 +61,21 @@ public class UpperTriangleRepresentation implements EdgesRepresentation {
     return (fromNodeID + 1) + (edgeID - fromEdgeID);
   }
 
-  @Override
-  public String toString(int edgeID) {
-
-    return "(" + getFromNodeID(edgeID) + "," + getToNodeID(edgeID) + ")";
-  }
+//  @Override
+//  public String toString() {
+//
+//    String result = "";
+//    Bitmap printSet = getEdges().copy();
+//    while (printSet.bitCount() > 0) {
+//      int bit = printSet.hsb();
+//      result += toString(bit);
+//      printSet.clearBit(bit);
+//      if (printSet.bitCount() > 0) {
+//        result += ", ";
+//      }
+//    }
+//    return "<" + result + ">";
+//  }
 
   /*
    * Returns the largest number of edges encoded with the fromNodeID as the
@@ -81,11 +93,5 @@ public class UpperTriangleRepresentation implements EdgesRepresentation {
       result += maxEdges(nodeID);
     }
     return result;
-  }
-
-  @Override
-  public byte getNodeCount() {
-
-    return nodeCount;
   }
 }

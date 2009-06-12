@@ -1,7 +1,5 @@
 package etomica.virial.cluster2.graph.impl;
 
-import etomica.virial.cluster2.graph.EdgesRepresentation;
-
 /**
  * This class maps every edge of an N by N matrix onto a Bitmap using N^2 bits.
  * The edge (n1,n2) exists in the matrix iff the bit (n1*N + n2) is set. Since
@@ -10,18 +8,25 @@ import etomica.virial.cluster2.graph.EdgesRepresentation;
  * 
  * @author Demian Lessa
  */
-public class AdjacencyMatrixRepresentation implements EdgesRepresentation {
-
-  private byte nodeCount;
+public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation {
 
   public AdjacencyMatrixRepresentation(byte numNodes) {
 
-    nodeCount = numNodes;
+    super(numNodes);
+  }
+
+  @Override
+  public int getEdgeCount() {
+
+    return getEdges().bitCount() / 2;
   }
 
   @Override
   public int getEdgeID(int fromNodeID, int toNodeID) {
 
+    if (fromNodeID > toNodeID) {
+      return getEdgeID(toNodeID, fromNodeID);
+    }
     return fromNodeID * getNodeCount() + toNodeID;
   }
 
@@ -35,17 +40,5 @@ public class AdjacencyMatrixRepresentation implements EdgesRepresentation {
   public int getToNodeID(int edgeID) {
 
     return edgeID % getNodeCount();
-  }
-
-  @Override
-  public String toString(int edgeID) {
-
-    return "(" + getFromNodeID(edgeID) + "," + getToNodeID(edgeID) + ")";
-  }
-
-  @Override
-  public byte getNodeCount() {
-
-    return nodeCount;
   }
 }

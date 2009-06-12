@@ -101,8 +101,8 @@ public class VFSearchState extends AbstractSearchState {
     // increase the length of the matched core set
     core_len++;
     // update the flags of the nodes that have edges to node1
-    for (int i = 0; i < getG1().getInDegree(node1); i++) {
-      int other = getG1().getInNode(node1, i);
+    for (int i = 0; i < getG1().getEdges().getInDegree(node1); i++) {
+      int other = getG1().getEdges().getInNode(node1, i);
       if ((node_flags_1[other] & (ST_CORE | ST_TERM_IN)) == 0) {
         node_flags_1[other] |= ST_TERM_IN;
         t1in_len++;
@@ -113,8 +113,8 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // update the flags of the nodes that have edges from node1
-    for (int i = 0; i < getG1().getOutDegree(node1); i++) {
-      int other = getG1().getOutNode(node1, i);
+    for (int i = 0; i < getG1().getEdges().getOutDegree(node1); i++) {
+      int other = getG1().getEdges().getOutNode(node1, i);
       if ((node_flags_1[other] & (ST_CORE | ST_TERM_IN)) == 0) {
         node_flags_1[other] |= ST_TERM_IN;
         t1in_len++;
@@ -125,8 +125,8 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // update the flags of the nodes that have edges to node2
-    for (int i = 0; i < getG2().getInDegree(node2); i++) {
-      int other = getG2().getInNode(node2, i);
+    for (int i = 0; i < getG2().getEdges().getInDegree(node2); i++) {
+      int other = getG2().getEdges().getInNode(node2, i);
       if ((node_flags_2[other] & (ST_CORE | ST_TERM_IN)) == 0) {
         node_flags_2[other] |= ST_TERM_IN;
         t2in_len++;
@@ -137,8 +137,8 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // update the flags of the nodes that have edges from node2
-    for (int i = 0; i < getG2().getOutDegree(node2); i++) {
-      int other = getG2().getOutNode(node2, i);
+    for (int i = 0; i < getG2().getEdges().getOutDegree(node2); i++) {
+      int other = getG2().getEdges().getOutNode(node2, i);
       if ((node_flags_2[other] & (ST_CORE | ST_TERM_IN)) == 0) {
         node_flags_2[other] |= ST_TERM_IN;
         t2in_len++;
@@ -195,20 +195,20 @@ public class VFSearchState extends AbstractSearchState {
     assert ((node_flags_1[node1] & ST_CORE) == 0);
     assert ((node_flags_2[node2] & ST_CORE) == 0);
     // check if the node attributes of both nodes are compatible
-    if (!getG1().getNodeAttributes(node1).isCompatible(
-        getG2().getNodeAttributes(node2))) {
+    if (!getG1().getNodes().getAttributes(node1).isCompatible(
+        getG2().getNodes().getAttributes(node2))) {
       return false;
     }
     int i, other1, other2, flags;
     int termout1 = 0, termout2 = 0, termin1 = 0, termin2 = 0, new1 = 0, new2 = 0;
     // Check the 'out' edges of node1
-    for (i = 0; i < getG1().getOutDegree(node1); i++) {
-      other1 = getG1().getOutNode(node1, i);
+    for (i = 0; i < getG1().getEdges().getOutDegree(node1); i++) {
+      other1 = getG1().getEdges().getOutNode(node1, i);
       if (((flags = node_flags_1[other1]) & ST_CORE) != 0) {
         other2 = core_1[other1];
-        if (!getG2().hasEdge(node2, other2)
-            || !getG1().getEdgeAttributes(node1, other1).isCompatible(
-                getG2().getEdgeAttributes(node2, other2)))
+        if (!getG2().getEdges().hasEdge(node2, other2)
+            || !getG1().getEdges().getAttributes(node1, other1).isCompatible(
+                getG2().getEdges().getAttributes(node2, other2)))
           return false;
       }
       else {
@@ -224,13 +224,13 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // Check the 'in' edges of node1
-    for (i = 0; i < getG1().getInDegree(node1); i++) {
-      other1 = getG1().getInNode(node1, i);
+    for (i = 0; i < getG1().getEdges().getInDegree(node1); i++) {
+      other1 = getG1().getEdges().getInNode(node1, i);
       if (((flags = node_flags_1[other1]) & ST_CORE) != 0) {
         other2 = core_1[other1];
-        if (!getG2().hasEdge(other2, node2)
-            || !getG1().getEdgeAttributes(node1, other1).isCompatible(
-                getG2().getEdgeAttributes(other2, node2)))
+        if (!getG2().getEdges().hasEdge(other2, node2)
+            || !getG1().getEdges().getAttributes(node1, other1).isCompatible(
+                getG2().getEdges().getAttributes(other2, node2)))
           return false;
       }
       else {
@@ -246,11 +246,11 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // Check the 'out' edges of node2
-    for (i = 0; i < getG2().getOutDegree(node2); i++) {
-      other2 = getG2().getOutNode(node2, i);
+    for (i = 0; i < getG2().getEdges().getOutDegree(node2); i++) {
+      other2 = getG2().getEdges().getOutNode(node2, i);
       if (((flags = node_flags_2[other2]) & ST_CORE) != 0) {
         other1 = core_2[other2];
-        if (!getG1().hasEdge(node1, other1))
+        if (!getG1().getEdges().hasEdge(node1, other1))
           return false;
       }
       else {
@@ -266,11 +266,11 @@ public class VFSearchState extends AbstractSearchState {
       }
     }
     // Check the 'in' edges of node2
-    for (i = 0; i < getG2().getInDegree(node2); i++) {
-      other2 = getG2().getInNode(node2, i);
+    for (i = 0; i < getG2().getEdges().getInDegree(node2); i++) {
+      other2 = getG2().getEdges().getInNode(node2, i);
       if (((flags = node_flags_2[other2]) & ST_CORE) != 0) {
         other1 = core_2[other2];
-        if (!getG1().hasEdge(other1, node1))
+        if (!getG1().getEdges().hasEdge(other1, node1))
           return false;
       }
       else {

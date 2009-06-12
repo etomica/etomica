@@ -13,7 +13,7 @@ import java.util.Set;
  * @author Demian Lessa
  * 
  */
-public interface GraphSet {
+public interface GraphSet extends Tagged {
 
   public Set<Edges> getEdgesSet();
 

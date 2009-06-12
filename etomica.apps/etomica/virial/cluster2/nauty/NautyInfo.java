@@ -17,6 +17,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public static final String TAG_CONNECTED = "Connected";
   public static final String TAG_BICONNECTED = "Biconnected";
   public static final String TAG_UPPER_TRIANGLE = "Upper Triangle";
+  public static final String TAG_ADJACENCY_MATRIX = "Adjacency Matrix";
   // private fields to parametrize calls to nauty
   private static final String SHELL = "/bin/bash";
   private static final String SHELL_FLAG = "-c";
@@ -32,7 +33,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   private boolean isMono = true;
   private boolean isConnected = false;
   private boolean isBiconnected = false;
-  private boolean isUpperTriangle;
+  private boolean isUpperTriangle = true;
   private Set<String> tags = new HashSet<String>();
 
   public NautyInfo(final String runFrom, int nodeCount) {
@@ -53,7 +54,8 @@ public class NautyInfo implements ProcessInfo, Tagged {
   }
 
   protected void computeTags() {
-    
+
+    tags.clear();
     if (isMono()) {
       tags.add(TAG_MONOCHROMATIC);
     }
@@ -69,6 +71,9 @@ public class NautyInfo implements ProcessInfo, Tagged {
     }
     if (isUpperTriangle()) {
       tags.add(TAG_UPPER_TRIANGLE);
+    }
+    else {
+      tags.add(TAG_ADJACENCY_MATRIX);
     }
   }
 
@@ -89,7 +94,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
     }
     if (isUpperTriangle()) {
       result += " " + GEN_FLAG_UPPER_TRIANGLE;
-    }
+    } 
     result += " " + getNumBlackNodes();
     if (!isMono()) {
       result += " " + getNumWhiteNodes();
@@ -115,6 +120,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public void setConnected(boolean value) {
 
     isConnected = value;
+    computeTags();
   }
 
   public boolean isConnected() {
@@ -130,6 +136,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public void setBiconnected(boolean value) {
 
     isBiconnected = value;
+    computeTags();
   }
 
   public boolean isBiconnected() {
@@ -140,6 +147,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   public void setUpperTriangle(boolean value) {
 
     isUpperTriangle = value;
+    computeTags();
   }
 
   public int getNumBlackNodes() {
@@ -167,7 +175,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   @Override
   public String toString() {
 
-    return getCommand() + "\n" + getTags();
+    return getCommand().toString();
   }
 
   @Override
