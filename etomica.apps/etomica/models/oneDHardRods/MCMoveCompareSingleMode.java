@@ -268,7 +268,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject " + energyNew);
+//        System.out.println("MCMoveCompareSingleMode reject " + energyNew);
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

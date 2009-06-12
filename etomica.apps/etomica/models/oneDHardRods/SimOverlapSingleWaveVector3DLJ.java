@@ -124,9 +124,9 @@ public class SimOverlapSingleWaveVector3DLJ extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
-        for(int k = 0; k < 32; k++){
-            System.out.println(k + " " +((IAtomPositioned)coordinateDefinitionTarget.getBox().getLeafList().getAtom(k)).getPosition());
-        }
+//        for(int k = 0; k < 32; k++){
+//            System.out.println(k + " " +((IAtomPositioned)coordinateDefinitionTarget.getBox().getLeafList().getAtom(k)).getPosition());
+//        }
         
         
         
@@ -636,7 +636,7 @@ public class SimOverlapSingleWaveVector3DLJ extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "normal_modes_LJ_3D_32";
         public double temperature = 1.0;
-        public int comparedWV = 8;
+        public int comparedWV = 7;
         
         public int numSteps = 40000000;
         public int runBlockSize = 100000;
