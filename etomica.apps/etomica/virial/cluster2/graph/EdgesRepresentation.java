@@ -11,6 +11,10 @@ package etomica.virial.cluster2.graph;
  */
 public interface EdgesRepresentation {
 
+  public EdgesRepresentation complement();
+
+  public int getCapacity();
+
   public int getEdgeCount();
 
   public int getEdgeID(int fromNodeID, int toNodeID);
@@ -24,4 +28,6 @@ public interface EdgesRepresentation {
   public boolean hasEdge(int fromNodeID, int toNodeID);
 
   public String toString(int edgeID);
+
+  public void visitEdges(EdgeVisitor visitor);
 }

@@ -1,8 +1,14 @@
 package etomica.virial.cluster2.graph.impl;
 
 import etomica.virial.cluster2.bitmap.Bitmap;
+import etomica.virial.cluster2.graph.EdgeVisitor;
 import etomica.virial.cluster2.graph.EdgesRepresentation;
 
+/**
+ * Representation of an undirected graph.
+ * 
+ * @author Demian Lessa
+ */
 public abstract class AbstractBitmapRepresentation implements
     EdgesRepresentation {
 
@@ -32,7 +38,8 @@ public abstract class AbstractBitmapRepresentation implements
 
   public boolean hasEdge(int fromNodeID, int toNodeID) {
 
-    return getEdges().testBit(getEdgeID(fromNodeID, toNodeID));
+    return getEdges().testBit(getEdgeID(fromNodeID, toNodeID))
+        || getEdges().testBit(getEdgeID(toNodeID, fromNodeID));
   }
 
   public void setEdgesBitmap(Bitmap edgesStore) {
@@ -62,5 +69,18 @@ public abstract class AbstractBitmapRepresentation implements
       }
     }
     return "<" + result + ">";
+  }
+
+  public void visitEdges(EdgeVisitor visitor) {
+
+    for (int i = 0; i < getNodeCount(); i++) {
+      for (int j = i + 1; j < getNodeCount(); j++) {
+        if (hasEdge(i, j)) {
+          if (!visitor.visit(i, j)) {
+            return;
+          }
+        }
+      }
+    }
   }
 }

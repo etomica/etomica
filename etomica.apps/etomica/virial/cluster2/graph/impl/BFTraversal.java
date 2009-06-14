@@ -19,8 +19,9 @@ public class BFTraversal extends AbstractGraphTraversal {
       // remove the first node to explore from the queue
       int explore = toExploreQ.remove();
       // visit every unseen neighbor and enqueue them for traversal
-      for (int neighbor = 0; neighbor < nodes.count(); neighbor++) {
-        if (unseenNeighbor(explore, neighbor, edges)) {
+      for (int i = 0; i < edges.getOutDegree(explore); i++) {
+        int neighbor = edges.getOutNode(explore, i);
+        if (unseenNeighbor(explore, neighbor)) {
           visit(neighbor);
           toExploreQ.add(neighbor);
         }

@@ -10,9 +10,9 @@ import etomica.virial.cluster2.graph.GraphFactory;
 public class NaiveEdgesGenerator extends AbstractEdgesGenerator {
 
   private static final String TAG_COMPLETE = "Naive";
-  private EdgesRepresentationFactory factory;
   private Bitmap current;
   private Bitmap maxEdges;
+  private EdgesRepresentationFactory factory;
 
   public NaiveEdgesGenerator(EdgesRepresentationFactory edgesFactory,
       EdgesFilter filter) {
@@ -28,8 +28,8 @@ public class NaiveEdgesGenerator extends AbstractEdgesGenerator {
       maxEdges = BitmapFactory.ZERO;
     }
     else {
-      current = BitmapFactory.getBitmap(factory.getCapacity(), false);
-      maxEdges = BitmapFactory.getBitmap(factory.getCapacity(), true);
+      current = BitmapFactory.getBitmap(factory.getMaxEdges(), false);
+      maxEdges = BitmapFactory.getBitmap(factory.getMaxEdges(), true);
     }
   }
 

@@ -15,6 +15,7 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
   private GraphSet family;
   private int index = 0;
   private double isomorphCount = 0;
+  private FilterFactory ffactory = new FilterFactory();
   private EdgesSetVisitor nautyVisitor = new EdgesSetVisitor() {
 
     public boolean visit(Edges edges) {
@@ -49,9 +50,9 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
       Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
       // create generator
       // pass-through filter
-      EdgesFilter filter = GraphFactory.trueFilter();
+      EdgesFilter filter = ffactory.trueFilter();
       if (nullFiltered) {
-        filter.chain(GraphFactory.falseFilter());
+        filter.chain(ffactory.falseFilter());
       }
       runGC();
       time1 = System.nanoTime();

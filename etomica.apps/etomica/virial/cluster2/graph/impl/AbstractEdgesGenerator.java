@@ -2,11 +2,11 @@ package etomica.virial.cluster2.graph.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Stack;
 
-import etomica.virial.cluster2.graph.BatchEdgesGenerator;
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;
 import etomica.virial.cluster2.graph.EdgesGenerator;
@@ -16,37 +16,29 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
   private EdgesFilter edgesFilter = null;
   private Set<String> tags = new HashSet<String>();
   private boolean started = false;
-  private BatchEdgesGenerator batchGenerator = null;
   private Stack<Edges> stack = new Stack<Edges>();
 
-  protected AbstractEdgesGenerator(boolean computeTags, EdgesFilter filter,
-      BatchEdgesGenerator generator) {
+  protected AbstractEdgesGenerator(boolean computeTags, EdgesFilter filter) {
 
     edgesFilter = filter;
-    batchGenerator = generator;
     if (computeTags) {
       computeTags();
     }
   }
 
-  protected AbstractEdgesGenerator(boolean computeTags, EdgesFilter filter) {
-
-    this(computeTags, filter, null);
-  }
-
   protected AbstractEdgesGenerator(boolean computeTags) {
 
-    this(computeTags, null, null);
+    this(computeTags, null);
   }
 
   public AbstractEdgesGenerator(EdgesFilter filter) {
 
-    this(true, filter, null);
+    this(true, filter);
   }
 
   public AbstractEdgesGenerator() {
 
-    this(true, null, null);
+    this(true, null);
   }
 
   public final Set<String> getTags() {
@@ -54,25 +46,16 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     return Collections.unmodifiableSet(tags);
   }
 
-  public final boolean hasNext() {
+  public final Edges next(List<Edges> edgesList) throws NoSuchElementException {
 
-    if (!isStarted()) {
-      smartPush();
-    }
-    return (!stack.empty());
-  }
-
-  public final Edges next() throws NoSuchElementException {
-
+    smartPush(edgesList);
     if (stack.empty()) {
-      throw new NoSuchElementException();
+      return null;
     }
-    Edges next = stack.pop();
-    smartPush();
-    return next;
+    return stack.pop();
   }
 
-  protected final void smartPush() {
+  protected final void smartPush(List<Edges> edgesList) {
 
     // do we need to push anything at this time?
     if (!stack.empty()) {
@@ -87,27 +70,19 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     }
     // make sure the set of edges satisfies the chain of filters
     if (getEdgesFilter() != null) {
+//      if (e.toString().equals("<(1,3)>")) {
+//        System.out.println("here you are!");
+//      }
+//      if (e.toString().equals("<(2,3)>")) {
+//        System.out.println("no, here you are!");
+//      }
       while (e != null
-          && (!getEdgesFilter().preAccept(e) || !getEdgesFilter().accept(e))) {
+          && (!getEdgesFilter().preAccept(e, edgesList) || !getEdgesFilter().accept(e, edgesList))) {
         e = push();
       }
       // nothing to push
       if (e == null) {
         return;
-      }
-    }
-    // check whether we need to chain the generation
-    if (getBatchGenerator() != null) {
-      Set<Edges> candidates = getBatchGenerator().generate(e);
-      if (getEdgesFilter() == null) {
-        stack.addAll(candidates);
-      }
-      else {
-        for (Edges edgs : candidates) {
-          if (getEdgesFilter().preAccept(edgs) && getEdgesFilter().accept(edgs)) {
-            stack.push(edgs);
-          }
-        }
       }
     }
     stack.push(e);
@@ -125,11 +100,6 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     return tags;
   }
 
-  protected final BatchEdgesGenerator getBatchGenerator() {
-
-    return batchGenerator;
-  }
-
   protected final boolean isStarted() {
 
     return started;
@@ -144,9 +114,6 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
 
   protected void computeTags() {
 
-    if (getBatchGenerator() != null) {
-      getInternalTags().addAll(getBatchGenerator().getTags());
-    }
     getInternalTags().add(getTag());
     if (getEdgesFilter() != null) {
       getInternalTags().addAll(getEdgesFilter().getTags());

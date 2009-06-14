@@ -1,10 +1,8 @@
 package etomica.virial.cluster2.graph;
 
-import java.util.NoSuchElementException;
+import java.util.List;
 
 public interface EdgesGenerator extends Tagged {
 
-  public boolean hasNext();
-
-  public Edges next() throws NoSuchElementException;
+  public Edges next(List<Edges> edgesList);
 }

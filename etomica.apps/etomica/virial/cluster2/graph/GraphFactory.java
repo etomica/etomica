@@ -3,25 +3,19 @@ package etomica.virial.cluster2.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.virial.cluster2.graph.impl.AbstractEdgesFilter;
-import etomica.virial.cluster2.graph.impl.AbstractNodes;
 import etomica.virial.cluster2.graph.impl.NaiveEdgesGenerator;
 import etomica.virial.cluster2.graph.impl.NautyEdgesGenerator;
 import etomica.virial.cluster2.graph.impl.SimpleEdges;
 import etomica.virial.cluster2.graph.impl.SimpleEdgesMetadata;
 import etomica.virial.cluster2.graph.impl.SimpleGraphSet;
+import etomica.virial.cluster2.graph.isomorphism.Match;
 import etomica.virial.cluster2.nauty.NautyInfo;
 import etomica.virial.cluster2.nauty.ProcessWrapper;
 
 public class GraphFactory {
 
   // default representation is adjacency matrix
-  public static boolean USE_UPPER_TRIANGLE = false;
-  // filter flags
-  public static final String TAG_RANGE_FILTER = "EdgesRange";
-  public static final String TAG_FALSE_FILTER = "FALSE";
-  public static final String TAG_TRUE_FILTER = "TRUE";
-  public static final String TAG_CONNECTED = "Connected";
+  public static boolean USE_UPPER_TRIANGLE = true;
   // a class of edge attributes that are always compatible
   public static final EdgeAttributes COMPATIBLE_EDGE_ATTRIBUTES = new EdgeAttributes() {
 
@@ -72,6 +66,12 @@ public class GraphFactory {
     return new SimpleEdges(rep, simpleEdgesMetadata(coefficient));
   }
 
+
+  public static Edges complementEdges(final EdgesRepresentation rep) {
+
+    return new SimpleEdges(rep.complement(), simpleEdgesMetadata(DEFAULT_GRAPH_COEFFICIENT));
+  };
+
   /**
    * Edges attributes.
    */
@@ -87,13 +87,12 @@ public class GraphFactory {
   // **************************************************
   public static Nodes defaultNodes(byte nodeCount) {
 
-    return new AbstractNodes(nodeCount) {
+    return new SimpleNodes(nodeCount);
+  }
 
-      public NodeAttributes getAttributes(int nodeID) {
+  public static Nodes emptyNodes() {
 
-        return COMPATIBLE_NODE_ATTRIBUTES;
-      }
-    };
+    return new SimpleNodes((byte) 0);
   }
 
   // **************************************************
@@ -126,12 +125,33 @@ public class GraphFactory {
   public static GraphSet naiveGraphSet(final Nodes nodes,
       final EdgesFilter filter) {
 
+    return naiveGraphSet(nodes, filter, false);
+  }
+
+  public static GraphSet naiveGraphSet(final Nodes nodes,
+      final EdgesFilter filter, boolean isomorphFree) {
+
     EdgesRepresentationFactory factory = EdgesRepresentationFactory
         .getFactory(nodes.count());
-    EdgesGenerator generator = new NaiveEdgesGenerator(factory, filter);
     List<Edges> edgesList = createEdgesList(nodes.count());
-    while (generator.hasNext()) {
-      edgesList.add(generator.next());
+    EdgesFilter ef = filter;
+    if (isomorphFree) {
+      EdgesFilter isof = (new FilterFactory()).isomorphismFilter(nodes,
+          edgesList);
+      if (ef != null) {
+        ef.chain(isof);
+      }
+      else {
+        ef = isof;
+      }
+    }
+    EdgesGenerator generator = new NaiveEdgesGenerator(factory, ef);
+    int i = 0;
+    Edges e = generator.next(edgesList);
+    while (e != null) {
+      i++;
+      edgesList.add(e);
+      e = generator.next(edgesList);
     }
     SimpleGraphSet result = new SimpleGraphSet(nodes, edgesList);
     result.setTags(generator.getTags());
@@ -150,100 +170,40 @@ public class GraphFactory {
         ((NautyInfo) nauty.getProcessInfo()).isUpperTriangle(), nodes.count());
     EdgesGenerator generator = new NautyEdgesGenerator(factory, nauty, filter);
     List<Edges> edgesList = createEdgesList(nodes.count());
-    while (generator.hasNext()) {
-      edgesList.add(generator.next());
+    Edges e = generator.next(edgesList);
+    while (e != null) {
+      edgesList.add(e);
+      e = generator.next(edgesList);
     }
     SimpleGraphSet result = new SimpleGraphSet(nodes, edgesList);
     result.setTags(generator.getTags());
     return result;
   }
 
-  // **************************************************
-  //
-  // EdgesFilter instances.
-  //
-  // **************************************************
-  public static EdgesFilter trueFilter() {
+  /**
+   * Because a new constructor is needed for this Nodes class, a nested class
+   * had to be defined instead of using an anonymous class, which does not
+   * support non-default constructors.
+   * 
+   * @author Demian Lessa
+   */
+  static class SimpleNodes implements Nodes {
 
-    return new AbstractEdgesFilter() {
+    byte nodeCount = 0;
 
-      @Override
-      protected boolean doAccept(Edges edges) {
+    public SimpleNodes(byte nodeCount) {
 
-        return true;
-      }
-
-      @Override
-      protected String tag() {
-
-        return TAG_TRUE_FILTER;
-      }
-    };
-  }
-
-  public static EdgesFilter falseFilter() {
-
-    return new AbstractEdgesFilter() {
-
-      @Override
-      protected boolean doAccept(Edges edges) {
-
-        return false;
-      }
-
-      @Override
-      protected String tag() {
-
-        return TAG_FALSE_FILTER;
-      }
-    };
-  }
-
-  public static EdgesFilter connectedFilter(final Nodes nodes) {
-
-    return new AbstractEdgesFilter() {
-
-      @Override
-      protected boolean doAccept(Edges edges) {
-
-        return Algorithms.isConnected(nodes, edges);
-      }
-
-      @Override
-      protected String tag() {
-
-        return TAG_CONNECTED;
-      }
-    };
-  }
-
-  public static EdgesFilter rangeFilter(int minEdges, int maxEdges) {
-
-    return new RangeFilter(minEdges, maxEdges);
-  }
-
-  static class RangeFilter extends AbstractEdgesFilter {
-
-    private static int maxEdges;
-    private static int minEdges;
-
-    RangeFilter(int min, int max) {
-
-      minEdges = min;
-      maxEdges = max;
+      this.nodeCount = nodeCount;
     }
 
-    @Override
-    protected boolean doAccept(Edges edges) {
+    public byte count() {
 
-      int count = edges.count();
-      return (count >= minEdges) && (count <= maxEdges);
+      return nodeCount;
     }
 
-    @Override
-    protected String tag() {
+    public NodeAttributes getAttributes(int nodeID) {
 
-      return TAG_RANGE_FILTER + ":" + minEdges + ":" + maxEdges;
+      return COMPATIBLE_NODE_ATTRIBUTES;
     }
   }
 }

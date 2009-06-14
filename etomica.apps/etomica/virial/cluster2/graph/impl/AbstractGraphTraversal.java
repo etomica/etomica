@@ -55,14 +55,12 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
 
   protected boolean seenAll() {
 
-    return (getSeen() != getGoal());
+    return (getSeen() == getGoal());
   }
 
-  protected boolean unseenNeighbor(int nodeID, int neighborID, Edges edges) {
+  protected boolean unseenNeighbor(int nodeID, int neighborID) {
 
-    return (nodeID != neighborID)
-        && ((getSeen() & BitmapUtils.bitOnMask(neighborID)) == 0)
-        && edges.hasEdge(neighborID, nodeID);
+    return ((getSeen() & BitmapUtils.bitOnMask(neighborID)) == 0);
   }
 
   protected void visit(int nodeID) {
@@ -70,7 +68,9 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
     if (getLocalVisitor() != null) {
       getLocalVisitor().visit(nodeID);
     }
-    seen(nodeID);
+    if (nodeID >= 0) {
+      seen(nodeID);
+    }
   }
 
   protected boolean setup(Nodes nodes, Edges edges, NodesVisitor visitor) {

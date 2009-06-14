@@ -15,11 +15,13 @@ import java.util.Set;
  */
 public interface GraphSet extends Tagged {
 
+  public void addComplements();
+  
   public Set<Edges> getEdgesSet();
 
-  public int getSize();
-
   public Nodes getNodes();
+
+  public int getSize();
 
   public void visitEdgesSet(EdgesSetVisitor visitor);
 }

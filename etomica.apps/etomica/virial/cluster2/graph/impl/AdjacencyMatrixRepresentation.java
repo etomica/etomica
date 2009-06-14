@@ -1,5 +1,11 @@
 package etomica.virial.cluster2.graph.impl;
 
+import etomica.virial.cluster2.bitmap.Bitmap;
+import etomica.virial.cluster2.bitmap.BitmapFactory;
+import etomica.virial.cluster2.graph.EdgeVisitor;
+import etomica.virial.cluster2.graph.EdgesRepresentation;
+import etomica.virial.cluster2.graph.EdgesRepresentationFactory;
+
 /**
  * This class maps every edge of an N by N matrix onto a Bitmap using N^2 bits.
  * The edge (n1,n2) exists in the matrix iff the bit (n1*N + n2) is set. Since
@@ -15,6 +21,17 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
     super(numNodes);
   }
 
+  public EdgesRepresentation complement() {
+
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public int getCapacity() {
+
+    return getNodeCount() * getNodeCount();
+  }
+
   public int getEdgeCount() {
 
     return getEdges().bitCount() / 2;
@@ -22,9 +39,6 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
 
   public int getEdgeID(int fromNodeID, int toNodeID) {
 
-    if (fromNodeID > toNodeID) {
-      return getEdgeID(toNodeID, fromNodeID);
-    }
     return fromNodeID * getNodeCount() + toNodeID;
   }
 
@@ -36,5 +50,34 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
   public int getToNodeID(int edgeID) {
 
     return edgeID % getNodeCount();
+  }
+
+  public void setEdgesBitmap(Bitmap edgesStore) {
+
+    EdgesRepresentationFactory utf = EdgesRepresentationFactory.getFactory(
+        true, getNodeCount());
+    EdgesRepresentation ut = utf.getRepresentation(edgesStore);
+    Bitmap newStore = BitmapFactory.getBitmap(getCapacity(), false);
+    ut.visitEdges(new AdjacencyBuilder(newStore, this));
+    super.setEdgesBitmap(newStore);
+  }
+}
+
+class AdjacencyBuilder implements EdgeVisitor {
+
+  private Bitmap store;
+  private EdgesRepresentation rep;
+
+  public AdjacencyBuilder(Bitmap store, EdgesRepresentation rep) {
+
+    this.store = store;
+    this.rep = rep;
+  }
+
+  public boolean visit(int node1, int node2) {
+
+    store.setBit(rep.getEdgeID(node1, node2));
+    store.setBit(rep.getEdgeID(node2, node1));
+    return true;
   }
 }

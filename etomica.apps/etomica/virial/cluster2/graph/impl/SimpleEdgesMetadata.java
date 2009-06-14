@@ -20,4 +20,10 @@ public class SimpleEdgesMetadata implements EdgesMetadata {
 
     coefficient = value;
   }
+
+  @Override
+  public String toString() {
+
+    return String.valueOf(Double.valueOf(coefficient).longValue());
+  }
 }

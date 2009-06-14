@@ -2,6 +2,7 @@ package etomica.virial.cluster2.graph.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import etomica.virial.cluster2.graph.Edges;
@@ -14,7 +15,7 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
 
   public AbstractEdgesFilter() {
 
-    computetags();
+    computeTags();
   }
 
   public AbstractEdgesFilter(EdgesFilter filter) {
@@ -22,14 +23,14 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     chain(filter);
   }
 
-  public boolean accept(Edges edges) {
+  public boolean accept(Edges edges, List<Edges> edgesList) {
 
-    return doAccept(edges) && chainedAccept(edges);
+    return doAccept(edges, edgesList) && chainedAccept(edges, edgesList);
   }
 
-  public boolean preAccept(Edges edges) {
+  public boolean preAccept(Edges edges, List<Edges> edgesList) {
 
-    return doPreAccept(edges) && chainedPreAccept(edges);
+    return doPreAccept(edges, edgesList) && chainedPreAccept(edges, edgesList);
   }
 
   public final Set<String> getTags() {
@@ -39,28 +40,33 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
 
   public void chain(EdgesFilter filter) {
 
-    nextFilter = filter;
-    computetags();
+    if (nextFilter == null) {
+      nextFilter = filter;
+    }
+    else {
+      nextFilter.chain(filter);
+    }
+    computeTags();
   }
 
-  protected boolean chainedAccept(Edges edges) {
+  protected boolean chainedAccept(Edges edges, List<Edges> edgesList) {
 
-    return (getNextFilter() == null || getNextFilter().accept(edges));
+    return (getNextFilter() == null || getNextFilter().accept(edges, edgesList));
   }
 
-  protected boolean chainedPreAccept(Edges edges) {
+  protected boolean chainedPreAccept(Edges edges, List<Edges> edgesList) {
 
-    return (getNextFilter() == null || getNextFilter().preAccept(edges));
+    return (getNextFilter() == null || getNextFilter().preAccept(edges, edgesList));
   }
 
-  protected abstract boolean doAccept(Edges edges);
+  protected abstract boolean doAccept(Edges edges, List<Edges> edgesList);
 
   /**
    * By default, doAccept should do all the work. Unless there is an obvious
    * cost saving when using the pre-accept filter before the accept filter,
    * there is really no point in separating the logic in two methods.
    */
-  protected boolean doPreAccept(Edges edges) {
+  protected boolean doPreAccept(Edges edges, List<Edges> edgesList) {
 
     return true;
   }
@@ -72,8 +78,9 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     return nextFilter;
   }
 
-  private void computetags() {
+  protected void computeTags() {
 
+    tags.clear();
     tags.add(tag());
     if (getNextFilter() != null) {
       tags.addAll(getNextFilter().getTags());

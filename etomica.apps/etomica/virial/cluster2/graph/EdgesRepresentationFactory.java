@@ -12,10 +12,16 @@ public abstract class EdgesRepresentationFactory {
 
   public EdgesRepresentationFactory(byte nodeCount) {
 
+    if (nodeCount == 0) {
+      throw new RuntimeException("Invalid node count (0).");
+    }
     this.nodeCount = nodeCount;
   }
 
-  public abstract int getCapacity();
+  public int getMaxEdges() {
+
+    return getNodeCount() * (getNodeCount() - 1) / 2;
+  }
 
   public byte getNodeCount() {
 
@@ -36,12 +42,6 @@ public abstract class EdgesRepresentationFactory {
       return new EdgesRepresentationFactory(nodeCount) {
 
         @Override
-        public int getCapacity() {
-
-          return getNodeCount() * (getNodeCount() - 1) / 2;
-        }
-
-        @Override
         public EdgesRepresentation getRepresentation() {
 
           return new UpperTriangleRepresentation(getNodeCount());
@@ -50,12 +50,6 @@ public abstract class EdgesRepresentationFactory {
     }
     else {
       return new EdgesRepresentationFactory(nodeCount) {
-
-        @Override
-        public int getCapacity() {
-
-          return getNodeCount() * getNodeCount();
-        }
 
         @Override
         public EdgesRepresentation getRepresentation() {

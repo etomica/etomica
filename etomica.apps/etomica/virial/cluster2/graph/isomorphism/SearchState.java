@@ -12,6 +12,8 @@ public interface SearchState {
 
   public SearchState copy();
 
+  public void copy(SearchState fromState);
+
   public NodePair[] getCoreSet();
 
   public int getCoreLen();

@@ -17,6 +17,11 @@ public class SimpleEdges implements Edges {
     this.metadata = metadata;
   }
 
+  public Edges complement() {
+
+    return GraphFactory.complementEdges(representation);
+  }
+
   public int count() {
 
     return getRepresentation().getEdgeCount();

@@ -13,9 +13,9 @@ import etomica.virial.cluster2.nauty.ProcessWrapper;
 public class NautyEdgesGenerator extends AbstractEdgesGenerator {
 
   private static final String TAG_NAUTY = "Nauty";
-  private EdgesRepresentationFactory factory;
   private ProcessWrapper nauty;
   private BufferedReader nautyReader;
+  private EdgesRepresentationFactory factory;
 
   public NautyEdgesGenerator(EdgesRepresentationFactory edgesFactory,
       ProcessWrapper nautyProcess, EdgesFilter filter) {

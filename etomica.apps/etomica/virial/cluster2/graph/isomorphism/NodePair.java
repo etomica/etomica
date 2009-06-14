@@ -4,6 +4,8 @@ public final class NodePair {
 
   private int firstNode;
   private int secondNode;
+  private static NodePair NODE_PAIR_NULL = new NodePair(SearchState.NULL_NODE,
+      SearchState.NULL_NODE);
 
   public NodePair(Integer n1, Integer n2) {
 
@@ -11,18 +13,24 @@ public final class NodePair {
     secondNode = n2;
   }
 
-  public int getFirstNode() {
+  public int getN1() {
 
     return firstNode;
   }
 
-  public int getSecondNode() {
+  public int getN2() {
 
     return secondNode;
   }
 
   public static NodePair nullPair() {
 
-    return new NodePair(SearchState.NULL_NODE, SearchState.NULL_NODE);
+    return NODE_PAIR_NULL;
+  }
+
+  @Override
+  public String toString() {
+
+    return "(" + firstNode + "," + secondNode + ")";
   }
 }

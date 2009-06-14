@@ -21,8 +21,9 @@ public class DFTraversal extends AbstractGraphTraversal {
       // does the node we are exploring have an unseen neighbor?
       boolean unseenNeighbor = false;
       // visit the first unseen neighbor (if any) and enqueue it for traversal
-      for (int neighbor = 0; neighbor < nodes.count(); neighbor++) {
-        if (unseenNeighbor(explore, neighbor, edges)) {
+      for (int i = 0; i < edges.getOutDegree(explore); i++) {
+        int neighbor = edges.getOutNode(explore, i);
+        if (unseenNeighbor(explore, neighbor)) {
           visit(neighbor);
           toExploreQ.add(neighbor);
           unseenNeighbor = true;

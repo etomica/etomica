@@ -180,7 +180,7 @@ class CheckConnected implements GraphProperty {
     }
     // invoke a BF traversal starting at the first node (nodeID = 0) and
     // return true IFF all nodes in the graph are traversed
-    return Algorithms.traverseBF(0, nodes, edges, null);
+    return Algorithms.traverseDF(0, nodes, edges, null);
   }
 }
 

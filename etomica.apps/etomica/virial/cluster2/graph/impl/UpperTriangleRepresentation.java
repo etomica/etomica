@@ -1,5 +1,7 @@
 package etomica.virial.cluster2.graph.impl;
 
+import etomica.virial.cluster2.graph.EdgesRepresentation;
+
 /*
  * This class maps the edges of an N by N matrix onto a Bitmap using N(N-1)/2 
  * bits. The linearization that maps each edge (n1,n2) such that n1 > n2 onto 
@@ -26,22 +28,31 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     super(numNodes);
   }
 
-  
+  public EdgesRepresentation complement() {
+
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public int getCapacity() {
+
+    return getNodeCount() * (getNodeCount() - 1) / 2;
+  }
+
   public int getEdgeCount() {
 
     return getEdges().bitCount();
   }
 
-  
   public int getEdgeID(int fromNodeID, int toNodeID) {
 
+    assert (fromNodeID != toNodeID);
     if (fromNodeID > toNodeID) {
       return getEdgeID(toNodeID, fromNodeID);
     }
     return (toNodeID - fromNodeID - 1) + sumMaxEdges(0, fromNodeID - 1);
   }
 
-  
   public int getFromNodeID(int edgeID) {
 
     int fromNodeID = 0;
@@ -53,7 +64,6 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     return fromNodeID;
   }
 
-  
   public int getToNodeID(int edgeID) {
 
     int fromNodeID = getFromNodeID(edgeID);
@@ -61,22 +71,27 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     return (fromNodeID + 1) + (edgeID - fromEdgeID);
   }
 
-//  @Override
-//  public String toString() {
-//
-//    String result = "";
-//    Bitmap printSet = getEdges().copy();
-//    while (printSet.bitCount() > 0) {
-//      int bit = printSet.hsb();
-//      result += toString(bit);
-//      printSet.clearBit(bit);
-//      if (printSet.bitCount() > 0) {
-//        result += ", ";
-//      }
-//    }
-//    return "<" + result + ">";
-//  }
+  public boolean hasEdge(int fromNodeID, int toNodeID) {
 
+    return getEdges().testBit(getEdgeID(fromNodeID, toNodeID))
+        || getEdges().testBit(getEdgeID(toNodeID, fromNodeID));
+  }
+
+// @Override
+// public String toString() {
+//
+// String result = "";
+// Bitmap printSet = getEdges().copy();
+// while (printSet.bitCount() > 0) {
+// int bit = printSet.hsb();
+// result += toString(bit);
+// printSet.clearBit(bit);
+// if (printSet.bitCount() > 0) {
+// result += ", ";
+// }
+// }
+// return "<" + result + ">";
+// }
   /*
    * Returns the largest number of edges encoded with the fromNodeID as the
    * first node in the edge pair (fromNodeID, toNodeID).

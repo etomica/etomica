@@ -1,5 +1,6 @@
 package etomica.virial.cluster2.graph.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,15 @@ public class SimpleGraphSet implements GraphSet {
 
     this.nodes = nodes;
     this.edgesList = edgesList;
+  }
+
+  public void addComplements() {
+
+    List<Edges> complements = new ArrayList<Edges>(edgesList.size());
+    for (int i = 0; i < edgesList.size(); i++) {
+      complements.add(edgesList.get(i).complement());
+    }
+    edgesList.addAll(complements);
   }
 
   public Set<Edges> getEdgesSet() {
@@ -48,8 +58,11 @@ public class SimpleGraphSet implements GraphSet {
 
   public void visitEdgesSet(EdgesSetVisitor visitor) {
 
-    for (int i = 0; (i < getSize()) && visitor.visit(edgesList.get(i)); i++)
-      ;
+    for (int i = 0; i < getSize(); i++) {
+      if (!visitor.visit(edgesList.get(i))) {
+        break;
+      }
+    }
   }
 
   public void setTags(Set<String> tags) {

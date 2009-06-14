@@ -2,6 +2,8 @@ package etomica.virial.cluster2.graph;
 
 public interface Edges {
 
+  public Edges complement();
+
   public int count();
 
   // get the attributes of the edge (node1, node2)
