@@ -408,4 +408,10 @@ public class VF2SearchState extends AbstractSearchState {
     }
     return null;
   }
+
+  @Override
+  protected String getTag() {
+
+    return SearchState.VF2_ALGORITHM;
+  }
 }

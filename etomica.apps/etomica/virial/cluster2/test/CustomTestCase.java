@@ -146,6 +146,15 @@ public class CustomTestCase extends TestCase {
       System.out.println(memoryUse);
     }
   }
+  
+  protected void printTest(String testName) {
+
+    System.out.println();
+    System.out.println("************************");
+    System.out.println(testName);
+    System.out.println("========================");
+  }
+
   // Asymptotic Object overhead: 4 bytes/object.
   //
   // public void testObjectMemoryFootprint() {

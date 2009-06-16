@@ -1,20 +1,19 @@
 package etomica.virial.cluster2.graph.impl;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Stack;
 
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;
 import etomica.virial.cluster2.graph.EdgesGenerator;
+import etomica.virial.cluster2.util.TagsList;
 
 public abstract class AbstractEdgesGenerator implements EdgesGenerator {
 
   private EdgesFilter edgesFilter = null;
-  private Set<String> tags = new HashSet<String>();
+  private TagsList tags = new TagsList();
   private boolean started = false;
   private Stack<Edges> stack = new Stack<Edges>();
 
@@ -41,9 +40,9 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
     this(true, null);
   }
 
-  public final Set<String> getTags() {
+  public final List<String> getTags() {
 
-    return Collections.unmodifiableSet(tags);
+    return Collections.unmodifiableList(tags);
   }
 
   public final Edges next(List<Edges> edgesList) throws NoSuchElementException {
@@ -95,7 +94,7 @@ public abstract class AbstractEdgesGenerator implements EdgesGenerator {
 
   protected abstract String getTag();
 
-  protected Set<String> getInternalTags() {
+  protected TagsList getInternalTags() {
 
     return tags;
   }

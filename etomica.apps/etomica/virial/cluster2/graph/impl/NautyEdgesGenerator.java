@@ -71,7 +71,7 @@ public class NautyEdgesGenerator extends AbstractEdgesGenerator {
     try {
       // first line: size of the automorphism group associated with the graph
       line = nautyReader.readLine();
-      if (line == null || line.isEmpty()) {
+      if (line == null || line.trim().length() == 0) {
         return null;
       }
       // number of isomorphisms: N!/automorphism_group_size

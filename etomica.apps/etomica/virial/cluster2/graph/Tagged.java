@@ -1,6 +1,6 @@
 package etomica.virial.cluster2.graph;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * This is a generic interface that allows tagging an object. Tagging is a
@@ -19,5 +19,5 @@ import java.util.Set;
  */
 public interface Tagged {
 
-  public Set<String> getTags();
+  public List<String> getTags();
 }

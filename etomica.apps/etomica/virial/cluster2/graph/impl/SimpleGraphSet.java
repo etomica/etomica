@@ -9,12 +9,13 @@ import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesSetVisitor;
 import etomica.virial.cluster2.graph.GraphSet;
 import etomica.virial.cluster2.graph.Nodes;
+import etomica.virial.cluster2.util.TagsList;
 
 public class SimpleGraphSet implements GraphSet {
 
   private Nodes nodes;
   private List<Edges> edgesList;
-  private Set<String> tags;
+  private TagsList tags;
 
   public SimpleGraphSet(Nodes nodes, List<Edges> edgesList) {
 
@@ -65,12 +66,12 @@ public class SimpleGraphSet implements GraphSet {
     }
   }
 
-  public void setTags(Set<String> tags) {
+  public void setTags(List<String> tags) {
 
-    this.tags = tags;
+    this.tags = new TagsList(tags);
   }
 
-  public Set<String> getTags() {
+  public TagsList getTags() {
 
     return tags;
   }

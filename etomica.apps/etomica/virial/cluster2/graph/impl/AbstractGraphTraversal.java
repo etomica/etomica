@@ -4,6 +4,7 @@ import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.GraphTraversal;
 import etomica.virial.cluster2.graph.Nodes;
 import etomica.virial.cluster2.graph.NodesVisitor;
+import etomica.virial.cluster2.util.BitmapUtils;
 
 public abstract class AbstractGraphTraversal implements GraphTraversal {
 

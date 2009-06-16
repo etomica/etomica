@@ -1,4 +1,4 @@
-package etomica.virial.cluster2.graph.impl;
+package etomica.virial.cluster2.util;
 
 /*
  * BitmapUtils are used across all algorithm implementations below.

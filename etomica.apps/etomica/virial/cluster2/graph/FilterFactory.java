@@ -99,24 +99,24 @@ public class FilterFactory {
 
     return new AbstractEdgesFilter() {
 
-      private boolean hardStop = false;
+//      private boolean hardStop = false;
       
       @Override
       protected boolean doAccept(Edges edges, List<Edges> edgesList) {
 
-        Match.graphs++;
-        if (Match.graphs % 100000 == 0) {
-          System.out.println("===== MARK " + Match.graphs + "=====");
-        }
-        if (hardStop) {
-          return false;
-        }
-        if (edgesList.size() == Match.OPTIMAL_ISMORPHS_COUNT[nodes.count() - 1]) {
-          System.out.println("Optimal upper bound before computing complements.");
-          hardStop = true;
-          return false;
-        }
-        int edgesCount = edges.count();
+//        Match.graphs++;
+//        if (Match.graphs % 100000 == 0) {
+//          System.out.println("===== MARK " + Match.graphs + "=====");
+//        }
+//        if (hardStop) {
+//          return false;
+//        }
+//        if (edgesList.size() == Match.OPTIMAL_ISMORPHS_COUNT[nodes.count() - 1]) {
+//          System.out.println("Optimal upper bound before computing complements.");
+//          hardStop = true;
+//          return false;
+//        }
+//        int edgesCount = edges.count();
         Graph g2 = simpleGraph(nodes, edges);
         // if the new graph is isomorphic to some generated graph, reject it
         for (Edges e : edgesList) {
@@ -128,23 +128,23 @@ public class FilterFactory {
             return false;
           }
         }
-        System.out.println(Match.graphs
-            + "::"
-            + edgesList.size()
-            + "::"
-            + Match.calls
-            + "::"
-            + ((Match.graphs - 1 == Match.oldGraphs) ? 1 : Match.calls
-                / (Match.graphs - Match.oldGraphs)) + " [" + edgesCount + "]");
-        Match.oldGraphs = Match.graphs;
-        Match.calls = 0;
+//        System.out.println(Match.graphs
+//            + "::"
+//            + edgesList.size()
+//            + "::"
+//            + Match.calls
+//            + "::"
+//            + ((Match.graphs - 1 == Match.oldGraphs) ? 1 : Match.calls
+//                / (Match.graphs - Match.oldGraphs)) + " [" + edgesCount + "]");
+//        Match.oldGraphs = Match.graphs;
+//        Match.calls = 0;
         return true;
       }
 
       @Override
       protected String tag() {
 
-        return TAG_ISOMORPH_FREE;
+        return TAG_ISOMORPH_FREE + " (" + Match.DEF_ISOMORPHISM_ALGO + ")";
       }
     };
   }

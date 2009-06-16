@@ -8,29 +8,25 @@ import etomica.virial.cluster2.graph.Graph;
 
 public class Match {
 
-  public static final int SD_ALGO = 0x01;
-  public static final int ULLMAN_ALGO = 0x02;
-  public static final int VF_ALGO = 0x04;
-  public static final int VF2_ALGO = 0x08;
-  public static int DEF_ISOMORPHISM_ALGO = VF2_ALGO;
+  public static String DEF_ISOMORPHISM_ALGO = SearchState.VF2_ALGORITHM;
   // known isomorphism counts for N in {1,...,11}
   // for N > 11, the count falls beyond the range of 32 bit integers
   public static final int[] ISMORPHS_COUNT = { 1, 2, 4, 11, 34, 156, 1044,
-      12346, 274668, 12005168/**, 1018997864*/ };
+      12346, 274668, 12005168 /** , 1018997864 */
+  };
   // these are the counts for N in {1,...,11} considering
   // only the generation of graphs with 0..bin(n,2)/2 edges
-  // so that the complement operation (much cheaper) can 
+  // so that the complement operation (much cheaper) can
   // be then applied onto the graph set:
   //
-  // edges......: (1,0), (2,0), (3,1), (4,3), (5, 5), (6, 7), (7, 10), 
-  //              (8,  14), (9,    18), (10,     22), (11,         27)
-  // graphs.....: (1,1), (2,1), (3,2), (4,7), (5,20), (6,78), (7,522), 
-  //              (8,6996), (9,154354), (10,6002584), ...
-  // complement.: (1,1), (2,1), (3,2), (4,4), (5,14), (6,78), (7,522), 
-  //              (8,5350), (9,120314), (10,6002584), ...
-   
+  // edges......: (1,0), (2,0), (3,1), (4,3), (5, 5), (6, 7), (7, 10),
+  // (8, 14), (9, 18), (10, 22), (11, 27)
+  // graphs.....: (1,1), (2,1), (3,2), (4,7), (5,20), (6,78), (7,522),
+  // (8,6996), (9,154354), (10,6002584), ...
+  // complement.: (1,1), (2,1), (3,2), (4,4), (5,14), (6,78), (7,522),
+  // (8,5350), (9,120314), (10,6002584), ...
   public static final int[] OPTIMAL_ISMORPHS_COUNT = { 1, 1, 2, 7, 20, 78, 522,
-    6996, 154354, 6002584 };
+      6996, 154354, 6002584 };
   /**
    * Turns on a pre-matching filter that fast prunes impossible isomorphisms.
    * NOTE: turning this off causes a significant runtime penalty in the client
@@ -46,13 +42,13 @@ public class Match {
    */
   public static SearchState initialState(Graph g1, Graph g2) {
 
-    if (DEF_ISOMORPHISM_ALGO == VF_ALGO) {
+    if (DEF_ISOMORPHISM_ALGO.equals(SearchState.VF_ALGORITHM)) {
       return new VFSearchState(g1, g2);
     }
-    else if (DEF_ISOMORPHISM_ALGO == VF2_ALGO) {
+    else if (DEF_ISOMORPHISM_ALGO.equals(SearchState.VF2_ALGORITHM)) {
       return new VF2SearchState(g1, g2);
     }
-    else if (DEF_ISOMORPHISM_ALGO == ULLMAN_ALGO) {
+    else if (DEF_ISOMORPHISM_ALGO.equals(SearchState.ULLMAN_ALGORITHM)) {
       return new UllmanSearchState(g1, g2);
     }
     return null;

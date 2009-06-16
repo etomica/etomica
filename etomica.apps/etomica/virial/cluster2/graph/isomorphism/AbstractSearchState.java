@@ -1,12 +1,15 @@
 package etomica.virial.cluster2.graph.isomorphism;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import etomica.virial.cluster2.graph.EdgeAttributes;
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.Graph;
 import etomica.virial.cluster2.graph.NodeAttributes;
 import etomica.virial.cluster2.graph.Nodes;
+import etomica.virial.cluster2.util.TagsList;
 
 public abstract class AbstractSearchState implements SearchState {
 
@@ -15,6 +18,7 @@ public abstract class AbstractSearchState implements SearchState {
   protected int core_len;
   protected int n1, n2;
   protected int[] core_1, core_2;
+  private TagsList tags = new TagsList();
 
   protected AbstractSearchState() {
 
@@ -27,6 +31,7 @@ public abstract class AbstractSearchState implements SearchState {
     assert (g2 != null);
     firstGraph = g1;
     secondGraph = g2;
+    computeTags();
   }
 
   public void backTrack() {
@@ -100,6 +105,11 @@ public abstract class AbstractSearchState implements SearchState {
     return getN2().getAttributes(nodeID);
   }
 
+  public final List<String> getTags() {
+
+    return Collections.unmodifiableList(tags);
+  }
+
   protected void setG1(Graph g1) {
 
     firstGraph = g1;
@@ -108,5 +118,13 @@ public abstract class AbstractSearchState implements SearchState {
   protected void setG2(Graph g2) {
 
     secondGraph = g2;
+  }
+
+  protected abstract String getTag();
+
+  protected void computeTags() {
+    
+    tags.clear();
+    tags.add(getTag());
   }
 }

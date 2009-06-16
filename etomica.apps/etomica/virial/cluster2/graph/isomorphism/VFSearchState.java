@@ -330,4 +330,10 @@ public class VFSearchState extends AbstractSearchState {
     }
     return null;
   }
+
+  @Override
+  protected String getTag() {
+
+    return SearchState.VF_ALGORITHM;
+  }
 }

@@ -8,7 +8,6 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
   private boolean enumBiconnected = false;
   private boolean nullFiltered = false;
   private boolean isomorphFree = false;
-  private boolean isomorphOptimal = false;
   private int rangeBegin = 0;
   private int rangeEnd = 0;
   private int minEdges = 0;
@@ -53,18 +52,31 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
       // create nodes
       Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
       // pass-through filter
-      EdgesFilter filter = ffactory.trueFilter();
+// EdgesFilter filter = ffactory.trueFilter();
+      EdgesFilter filter = null;
       // ignore-all filter
       if (nullFiltered) {
-        filter.chain(ffactory.falseFilter());
+        filter = ffactory.falseFilter();
       }
       // cheap filter for number of edges within a range
       if (minEdges >= 0 && maxEdges >= 0) {
-        filter.chain(ffactory.rangeFilter(minEdges, maxEdges));
+        EdgesFilter chained = ffactory.rangeFilter(minEdges, maxEdges);
+        if (filter != null) {
+          filter.chain(chained);
+        }
+        else {
+          filter = chained;
+        }
       }
       // cheap filter for connected graph
       if (enumConnected) {
-        filter.chain(ffactory.connectedFilter(nodes));
+        EdgesFilter chained = ffactory.connectedFilter(nodes);
+        if (filter != null) {
+          filter.chain(chained);
+        }
+        else {
+          filter = chained;
+        }
       }
       runGC();
       time1 = System.nanoTime();
@@ -106,7 +118,6 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     printMemory = true;
     printPermutations = false;
     isomorphFree = false;
-    isomorphOptimal = false;
     GraphFactory.USE_UPPER_TRIANGLE = true;
   }
 
@@ -131,84 +142,95 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testGeneral() {
 
+    printTest("General");
     // OK: 09-06-13
-    // templateTest();
+    // baseTest();
   }
 
   public void testConnected() {
 
+    printTest("Connected");
     // OK: 09-06-13
     enumConnected = true;
-    // templateTest();
+    // baseTest();
   }
 
   public void testBiconnected() {
 
+    printTest("Biconnected");
     enumBiconnected = true;
-    // templateTest();
+    // baseTest();
   }
 
   public void testNullFilteredGeneral() {
 
+    printTest("Null Filtered");
 // OK: 09-06-13
     nullFiltered = true;
-// templateTest();
+// baseTest();
   }
 
   public void testNullFilteredConnected() {
 
+    printTest("Connected, Null Filtered");
     nullFiltered = true;
     enumConnected = true;
-// templateTest();
+// baseTest();
   }
 
   public void testRangedEdgesGeneral() {
 
+    printTest("Ranged Edges");
     // OK: 09-06-13
     minEdges = 3;
     maxEdges = 4;
-// templateTest();
+// baseTest();
   }
 
   public void testNullFilteredBiconnected() {
 
+    printTest("Biconnected, Null Filtered");
     nullFiltered = true;
     enumBiconnected = true;
-// templateTest();
+// baseTest();
   }
 
   public void testIsomorphFree() {
+
+    printTest("Isomorph-Free");
 // for N=7, about 12 minutes using VF2
-    
-//    rangeBegin = 7;
-//    rangeEnd = 7;
-//    isomorphFree = true;
-//    isomorphOptimal = false;
-//    for (int i = rangeBegin; i <= rangeEnd; i++) {
-//      testTemplate(i);
-//    }
+// rangeBegin = 7;
+// rangeEnd = 7;
+    isomorphFree = true;
+    for (int i = rangeBegin; i <= rangeEnd; i++) {
+      testTemplate(i);
+    }
+  }
+
+  public void testIsomorphFreeConnected() {
+
+    printTest("Isomorph-Free, Connected");
+    // for N=7, about 12 minutes using VF2
+    // rangeBegin = 7;
+    // rangeEnd = 7;
+    enumConnected = true;
+    isomorphFree = true;
+    for (int i = rangeBegin; i <= rangeEnd; i++) {
+      testTemplate(i);
+    }
   }
 
   public void testOptimizedIsomorphFree() {
 
-    rangeBegin = 8;
-    rangeEnd = 8;
+    printTest("Isomorph-Free (Optimized)");
+// rangeBegin = 8;
+// rangeEnd = 8;
     isomorphFree = true;
-    isomorphOptimal = false;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
       int numNodes = i * (i - 1) / 2;
-      if (isomorphOptimal) {
-        for (int j = 0; j <= (numNodes / 2); j++) {
-          minEdges = j;
-          maxEdges = j;
-          testTemplate(i);
-        }
-      }
-      else {
-        minEdges = 0;
-        maxEdges = numNodes / 2;
-        testTemplate(i);
-      }
+      minEdges = 0;
+      maxEdges = numNodes / 2;
+      testTemplate(i);
     }
   }
   // N=8

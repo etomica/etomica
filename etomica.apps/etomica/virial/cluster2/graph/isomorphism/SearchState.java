@@ -1,10 +1,14 @@
 package etomica.virial.cluster2.graph.isomorphism;
 
 import etomica.virial.cluster2.graph.Graph;
+import etomica.virial.cluster2.graph.Tagged;
 
-public interface SearchState {
+public interface SearchState extends Tagged {
 
   public final static int NULL_NODE = 0xFFFF;
+  public static final String ULLMAN_ALGORITHM = "Ullman";
+  public static final String VF_ALGORITHM = "VF";
+  public static final String VF2_ALGORITHM = "VF2";
 
   public void addPair(NodePair pair);
 

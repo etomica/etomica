@@ -1,9 +1,8 @@
 package etomica.virial.cluster2.graph.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;
@@ -11,7 +10,7 @@ import etomica.virial.cluster2.graph.EdgesFilter;
 public abstract class AbstractEdgesFilter implements EdgesFilter {
 
   private EdgesFilter nextFilter = null;
-  private Set<String> tags = new HashSet<String>();
+  private List<String> tags = new ArrayList<String>();
 
   public AbstractEdgesFilter() {
 
@@ -33,9 +32,9 @@ public abstract class AbstractEdgesFilter implements EdgesFilter {
     return doPreAccept(edges, edgesList) && chainedPreAccept(edges, edgesList);
   }
 
-  public final Set<String> getTags() {
+  public final List<String> getTags() {
 
-    return Collections.unmodifiableSet(tags);
+    return Collections.unmodifiableList(tags);
   }
 
   public void chain(EdgesFilter filter) {

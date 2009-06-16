@@ -2,11 +2,10 @@ package etomica.virial.cluster2.nauty;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import etomica.virial.cluster2.graph.Tagged;
+import etomica.virial.cluster2.util.TagsList;
 
 public class NautyInfo implements ProcessInfo, Tagged {
 
@@ -34,7 +33,7 @@ public class NautyInfo implements ProcessInfo, Tagged {
   private boolean isConnected = false;
   private boolean isBiconnected = false;
   private boolean isUpperTriangle = true;
-  private Set<String> tags = new HashSet<String>();
+  private List<String> tags = new TagsList();
 
   public NautyInfo(final String runFrom, int nodeCount) {
 
@@ -164,9 +163,9 @@ public class NautyInfo implements ProcessInfo, Tagged {
     return basePath;
   }
 
-  public Set<String> getTags() {
+  public List<String> getTags() {
 
-    return Collections.unmodifiableSet(tags);
+    return Collections.unmodifiableList(tags);
   }
 
   @Override

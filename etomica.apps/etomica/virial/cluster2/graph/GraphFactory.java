@@ -8,7 +8,6 @@ import etomica.virial.cluster2.graph.impl.NautyEdgesGenerator;
 import etomica.virial.cluster2.graph.impl.SimpleEdges;
 import etomica.virial.cluster2.graph.impl.SimpleEdgesMetadata;
 import etomica.virial.cluster2.graph.impl.SimpleGraphSet;
-import etomica.virial.cluster2.graph.isomorphism.Match;
 import etomica.virial.cluster2.nauty.NautyInfo;
 import etomica.virial.cluster2.nauty.ProcessWrapper;
 
