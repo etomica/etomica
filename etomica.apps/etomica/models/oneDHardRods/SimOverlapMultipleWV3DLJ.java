@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -19,27 +18,29 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.P2XOrder;
+import etomica.normalmode.MeterNormalMode;
+import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
-import etomica.potential.Potential2HardSpherical;
+import etomica.normalmode.WriteS;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -48,9 +49,9 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlapMultipleWV3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
-    Primitive primitive;
+    Primitive primitiveTarget, primitiveRef;
     int[] nCells;
-    NormalModes1DHR nm;
+    NormalModesFromFile nm;
     double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorSim; //integrator for the whole simulation
     public DataSourceVirialOverlap dsvo;
@@ -68,6 +69,8 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleModesBrute meterBinA, meterBinB;
     
+    MeterNormalMode mnm;
+    WriteS sWriter;
     
     public SimOverlapMultipleWV3DLJ(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
@@ -82,7 +85,6 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-//        basis = new BasisMonatomic(space);
         
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
@@ -91,50 +93,43 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         
         basis = new BasisMonatomic(space);
         
-        
-//        bMeters = new IEtomicaDataSource[2];
-//        bPumps = new DataPump[2];
-//        bAccs = new AccumulatorVirialOverlapSingleAverage[2];
-        
-        
-        
 //TARGET    
         // Set up target system - A, 1, hard rod
-        PotentialMasterList potentialMasterTarget = new PotentialMasterList(
-                this, space);
+        PotentialMasterMonatomic potentialMasterTarget = new 
+                PotentialMasterMonatomic(this);
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
         
-        Potential2 p2 = new P2HardSphere(space, 1.0, true);
-        p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
-        p2.setBox(boxTarget);
-        potentialMasterTarget.addPotential(p2, new IAtomType[] {
-                species.getLeafType(), species.getLeafType()});
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        nCells = new int[]{numAtoms};
+        primitiveTarget = new PrimitiveCubic(space, 1.0);
+        double v = primitiveTarget.unitCell().getVolume();
+        primitiveTarget.scaleSize(Math.pow(v*density/4, -1.0/3.0));
+        int numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
+        boundaryTarget = new BoundaryDeformableLattice(primitiveTarget, nCells);
         boxTarget.setBoundary(boundaryTarget);
+        Basis basisTarget = new BasisCubicFcc();
         
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
+                CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
-        double neighborRange = 1.01/density;
-        potentialMasterTarget.setRange(neighborRange);
-        // Find neighbors now.  Don't hook up the NieghborListManager since the
-        //  neighbors won't change.
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+        Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
+        P2SoftSphericalTruncatedShifted pTruncated = new 
+                P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
+        potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
+                {species.getLeafType(), species.getLeafType()});
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
                 random, temperature);
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
+        nm.getOmegaSquared(boxTarget);
         
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
@@ -170,7 +165,6 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
         
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
 //        meterBinA.getSingle().setCoordinateDefinition(coordinateDefinitionTarget);
 //        meterBinA.getSingle().setEigenVectors(nm.getEigenvectors(boxTarget));
@@ -199,38 +193,37 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         
 //REFERENCE
         // Set up REFERENCE system - System B - 0 - Hybrid system
-        PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
+        PotentialMasterMonatomic potentialMasterRef = new 
+                PotentialMasterMonatomic(this);
         boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, numAtoms);
         
-        p2 = new P2HardSphere(space, 1.0, true);
-        p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
-        p2.setBox(boxRef);
-        potentialMasterRef.addPotential(p2, new IAtomType[] {
-                species.getLeafType(), species.getLeafType()});
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        nCells = new int[]{numAtoms};
+        primitiveRef = new PrimitiveCubic(space, 1.0);
+        v = primitiveRef.unitCell().getVolume();
+        primitiveRef.scaleSize(Math.pow(v*density/4, -1.0/3.0));
+        numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
+        boundaryRef  = new BoundaryDeformableLattice(primitiveRef, nCells);
         boxRef.setBoundary(boundaryRef);
+        Basis basisRef = new BasisCubicFcc();
         
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitive, space);
+                CoordinateDefinitionLeaf(this, boxRef, primitiveRef, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
         
-        neighborRange = 1.01/density;
-        potentialMasterRef.setRange(neighborRange);
-        //find neighbors now.  Don't hook up NeighborListManager since the
-        //  neighbors won't change
-        potentialMasterRef.getNeighborManager(boxRef).reset();
+        p2 = new P2LennardJones(space, 1.0, 1.0);
+        truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
+        potentialMasterRef.addPotential(pTruncated, new IAtomType[]
+                {species.getLeafType(), species.getLeafType()});
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
                 random, temperature);
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -269,8 +262,22 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         meters[0] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
-        potentialMasterRef.getNeighborManager(boxRef).reset();
         
+        //Stuff to take care of recording spring constant!!
+        mnm = new MeterNormalMode();
+        mnm.setCoordinateDefinition(coordinateDefinitionRef);
+        mnm.setWaveVectorFactory(waveVectorFactoryRef);
+        mnm.setBox(boxRef);
+        
+        IntegratorListenerAction mnmListener = new IntegratorListenerAction(mnm);
+        integratorRef.getEventManager().addListener(mnmListener);
+        mnmListener.setInterval(1000);
+        
+        sWriter = new WriteS(space);
+        sWriter.setFilename(filename + "_output_" + compWV[0]);
+        sWriter.setMeter(mnm);
+        sWriter.setWaveVectorFactory(mnm.getWaveVectorFactory());
+        sWriter.setOverwrite(true);
         
 //        meterBinB.getSingle().setCoordinateDefinition(coordinateDefinitionRef);
 //        meterBinB.getSingle().setEigenVectors(nm.getEigenvectors(boxRef));
@@ -671,7 +678,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         public double density = 1.3;
         public int D = 3;
         public double harmonicFudge = 1.0;
-        public String filename = "HR1D_";
+        public String filename = "normal_modes_LJ_3D_32";
         public double temperature = 1.0;
         public int[] comparedWV = {1, 2};
         public int[] harmonicWV = {3, 4, 5, 6, 7};
