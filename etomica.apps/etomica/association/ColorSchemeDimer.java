@@ -1,6 +1,7 @@
 package etomica.association;
 
 import java.awt.Color;
+import java.util.HashMap;
 
 import etomica.api.IAtom;
 import etomica.api.IBox;
@@ -22,17 +23,46 @@ public class ColorSchemeDimer extends ColorScheme implements AtomLeafAgentManage
         this.associationManager = associationManager;
         dimerColorManager = new AtomLeafAgentManager(this, box);
         this.random = random;
+        oldColors = new HashMap<Color,Integer>();
     }
     
     public Color getAtomColor(IAtom a) {
+        Color color1 = (Color)dimerColorManager.getAgent(a);
         if (associationManager.getAssociatedAtoms(a).getAtomCount() == 0) {
+            if (color1 != null) {
+                if (oldColors.get(color1) == null) {
+                    // dimer bond was broken, return color to the hash for re-use
+                    oldColors.put(color1, 1);
+                }
+                // remember that atom is a monomer
+                dimerColorManager.setAgent(a, null);
+            }
             return monomerColor;
         }
-        Color color1 = (Color)dimerColorManager.getAgent(a);
         if (color1 != null && color1 == dimerColorManager.getAgent(associationManager.getAssociatedAtoms(a).getAtom(0))) {
+            // we already assigned a color
             return color1;
         }
-        Color newColor = new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
+        if (color1 != null && oldColors.get(color1) == null) {
+            // atom formed a new dimer with a different partner, put old color in the hash
+            oldColors.put(color1, 1);
+        }
+        Color color2 = (Color)dimerColorManager.getAgent(associationManager.getAssociatedAtoms(a).getAtom(0));
+        if (color2 != null && oldColors.get(color2) == null) {
+            // bonding parter had an old color from an old dimer, put old color in the hash
+            oldColors.put(color2, 1);
+        }
+        Color newColor;
+        if (oldColors.size() > 0) {
+            // retrieve a color from the hash
+            newColor = (Color)oldColors.keySet().toArray()[0];
+            oldColors.remove(newColor);
+        }
+        else {
+            // hash is empty, make a new color
+            newColor = new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
+        }
+        // remember our new color for bonded atoms
         dimerColorManager.setAgent(a, newColor);
         dimerColorManager.setAgent(associationManager.getAssociatedAtoms(a).getAtom(0), newColor);
         return newColor;
@@ -68,4 +98,5 @@ public class ColorSchemeDimer extends ColorScheme implements AtomLeafAgentManage
     protected AssociationManager associationManager;
     protected AtomLeafAgentManager dimerColorManager;
     protected IRandom random;
+    protected HashMap<Color,Integer> oldColors;
 }
