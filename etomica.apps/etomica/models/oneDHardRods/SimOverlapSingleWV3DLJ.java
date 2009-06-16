@@ -87,6 +87,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         super(_space, true);
         
 //        long seed = 5;
+//        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
         
@@ -104,13 +105,10 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
 //TARGET
         //Set up target system   - A - 1
         PotentialMasterMonatomic potentialMasterTarget = new 
-            PotentialMasterMonatomic(this);
+                PotentialMasterMonatomic(this);
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
-        
-//        Potential2 p2 = new P2HardSphere(space, 1.0, true);
-//        p2.setBox(boxTarget);
         
         primitiveTarget = new PrimitiveCubic(space, 1.0);
         double v = primitiveTarget.unitCell().getVolume();
