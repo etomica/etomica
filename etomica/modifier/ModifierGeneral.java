@@ -95,7 +95,14 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
     public void setValue(double d) {
         for(int j=0; j<nObjects; j++) {
             try {
-                writeMethod[j].invoke(object[j], new Object[] {new Double(d)});
+                Class[] argClasses = writeMethod[j].getParameterTypes();
+                // perhaps there's a better way to sniff than Class.getName().equals("int")
+                if (argClasses[0].getName().equals("double")) {
+                    writeMethod[j].invoke(object[j], new Object[] {new Double(d)});
+                }
+                else if (argClasses[0].getName().equals("int")) {
+                    writeMethod[j].invoke(object[j], new Object[] {new Integer((int)d)});
+                }
             }
             catch(InvocationTargetException ex) {
                 throw new RuntimeException(ex.getTargetException());
@@ -113,7 +120,13 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
     public double getValue() {
         double value = Double.NaN;
         try {
-            value = ((Double)readMethod[0].invoke(object[0], (Object[])null)).doubleValue();
+            Class returnType = readMethod[0].getReturnType();
+            if (returnType.getName().equals("double")) {
+                value = (Double)readMethod[0].invoke(object[0], (Object[])null);
+            }
+            else if (returnType.getName().equals("int")) {
+                value = (Integer)readMethod[0].invoke(object[0],  (Object[])null);
+            }
         }
         catch(InvocationTargetException ex) {
             System.err.println("InvocationTargetException in getValue");
@@ -147,32 +160,6 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
     
     public Object[] getObject() {return object;}
     public String getProperty() {return property;}
-    
-    /**
-     * Method to demonstrate how to implement and use a modifier
-     */
-/*    public static void main(String[] args) {
-        
-      //A typical class to demonstrate use of the Modifier
-      //Modifier will be used to set and get the pressure field of this class.
-        IntegratorMC integrator = new IntegratorMC();
-        MCMoveVolume target = new MCMoveVolume(integrator);
-      
-      //Pass the instance of the target object and a string indicating the name of the field
-      // to be accessed with the modifier
-        Modifier modifier = new Modifier(target, "pressure");
-        
-        System.out.println("Setting field to 10.5 using modifier");
-        modifier.setValue(10.5);
-        System.out.println("Value of field as obtained directly from object: "+target.getPressure());
-        System.out.println("Value of field as obtained using modifier: "+modifier.getValue());
-        System.out.println("Dimensions of field as obtained by modifier: "+modifier.getDimension().toString());
-        boolean isMass = modifier.getDimension() instanceof Dimension.Mass;
-        System.out.println("Does the field have dimensions of MASS? "+isMass);
-        boolean isPressure = modifier.getDimension() instanceof Dimension.Pressure;
-        System.out.println("Does the field have dimensions of PRESSURE? "+isPressure);
-    }
-    */
 }
     
     
