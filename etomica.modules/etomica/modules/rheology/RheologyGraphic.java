@@ -2,9 +2,11 @@ package etomica.modules.rheology;
 
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
+import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.modifier.ModifierGeneral;
 import etomica.space3d.Space3D;
 
@@ -93,6 +95,9 @@ public class RheologyGraphic extends SimulationGraphic {
         normalStress2Display.setAccumulator(avgNormalStress2);
         add(normalStress2Display);
         getController().getDataStreamPumps().add(normalStress2Pump);
+        
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
     }
     
     public static void main(String[] args) {
