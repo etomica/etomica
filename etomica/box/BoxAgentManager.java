@@ -25,13 +25,10 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
 
     public BoxAgentManager(BoxAgentSource source) {
         agentSource = source;
-        isBackend = true;
     }
 
-    public BoxAgentManager(BoxAgentSource source, ISimulation sim,
-            boolean isBackend) {
+    public BoxAgentManager(BoxAgentSource source, ISimulation sim) {
         agentSource = source;
-        this.isBackend = isBackend;
         setSimulation(sim);
     }
     
@@ -56,7 +53,7 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
     public void setSimulation(ISimulation sim) {
         simEventManager = sim.getEventManager();
         // this will crash if the given sim is in the middle of its constructor
-        simEventManager.addListener(this, isBackend);
+        simEventManager.addListener(this);
 
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
@@ -122,7 +119,6 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
     private final BoxAgentSource agentSource;
     protected IEventManager simEventManager;
     protected Object[] agents;
-    private final boolean isBackend;
     
     /**
      * Iterator that loops over the agents, skipping null elements

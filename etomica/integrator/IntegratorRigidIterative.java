@@ -114,7 +114,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
         tempAngularVelocity = space.makeVector();
         tempOrientation = new OrientationFull3D(space);
         atomPositionCOM = new AtomPositionCOM(space);

@@ -7,8 +7,6 @@ public interface IBoundaryEventManager {
      */
     public void addListener(IBoundaryListener listener);
 
-    public void addListener(IBoundaryListener listener, boolean doSerialize);
-
     /**
      * Removes the given listener from this event manager.
      */

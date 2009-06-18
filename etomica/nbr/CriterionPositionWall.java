@@ -28,7 +28,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         this.neighborRange = Double.NaN;
         setBoundaryWall(true);
         setSafetyFactor(0.8);
-        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim,true);
+        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim);
 	}
 
     /**

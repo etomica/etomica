@@ -8,7 +8,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryEventManager;
 import etomica.api.IBoundaryListener;
-import etomica.api.IBoxListener;
 
 public class BoundaryEventManager implements IBoundaryEventManager, java.io.Serializable {
 
@@ -21,15 +20,9 @@ public class BoundaryEventManager implements IBoundaryEventManager, java.io.Seri
             throw new RuntimeException(newListener+" is already an interval action");
         }
         intervalListeners.add(newListener);
+        serial.add(0, true);
     }
 
-    public synchronized void addListener(IBoundaryListener newListener, boolean doSerialize) {
-        if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Box");
-        if (intervalListeners.contains(newListener)) {
-            throw new RuntimeException(newListener+" is already an interval action");
-        }
-        intervalListeners.add(newListener);
-    }
 
     public synchronized void removeListener(IBoundaryListener listener) {
         intervalListeners.remove(listener);

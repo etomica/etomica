@@ -27,13 +27,11 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
 
     public SpeciesAgentManager(AgentSource source) {
         agentSource = source;
-        isBackend = true;
     }
     
     public SpeciesAgentManager(AgentSource source, ISpeciesManager speciesManager,
-            IEventManager simEventManager, boolean isBackend) {
+            IEventManager simEventManager) {
         agentSource = source;
-        this.isBackend = isBackend;
         init(speciesManager, simEventManager);
     }        
     
@@ -112,7 +110,7 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
     public void init(ISpeciesManager newSpeciesManager, IEventManager newSimEventManager) {
         simEventManager = newSimEventManager;
         speciesManager = newSpeciesManager;
-        simEventManager.addListener(this, isBackend);
+        simEventManager.addListener(this);
 
         int numTypes = getGlobalMaxIndex()+1;
         
@@ -179,7 +177,6 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
     protected Object[] agents;
     protected IEventManager simEventManager;
     protected ISpeciesManager speciesManager;
-    private final boolean isBackend;
 
     /**
      * Iterator that loops over the agents, skipping null elements

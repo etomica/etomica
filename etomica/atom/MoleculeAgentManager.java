@@ -29,12 +29,7 @@ import etomica.util.Arrays;
 public class MoleculeAgentManager extends BoxListenerAdapter implements IListener, Serializable {
 
     public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source) {
-        this(sim, box, source, true);
-    }
-    
-    public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source, boolean isBackend) {
         agentSource = source;
-        this.isBackend = isBackend;
         this.box = box;
         this.sim = sim;
         setReservoirSize(30);
@@ -118,8 +113,8 @@ public class MoleculeAgentManager extends BoxListenerAdapter implements IListene
      * Sets the Box in which this AtomAgentManager will manage molecule agents.
      */
     protected void setupBox() {
-        sim.getEventManager().addListener(this, isBackend);
-        box.getEventManager().addListener(this, isBackend);
+        sim.getEventManager().addListener(this);
+        box.getEventManager().addListener(this);
         agents = new Object[sim.getSpeciesManager().getSpeciesCount()][];
         for (int i=0; i<agents.length; i++) {
             agents[i] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(),
@@ -221,7 +216,6 @@ public class MoleculeAgentManager extends BoxListenerAdapter implements IListene
     protected Object[][] agents;
     protected final IBox box;
     protected final ISimulation sim;
-    protected final boolean isBackend;
     protected int reservoirSize;
     
     /**

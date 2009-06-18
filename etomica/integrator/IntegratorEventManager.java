@@ -18,10 +18,6 @@ public class IntegratorEventManager implements java.io.Serializable, IIntegrator
         intervalListeners.add(newListener);
     }
 
-    public synchronized void addListener(IIntegratorListener listener, boolean doSerialize) {
-        
-    }
-
     public synchronized void removeListener(IIntegratorListener listener) {
         intervalListeners.remove(listener);
     }

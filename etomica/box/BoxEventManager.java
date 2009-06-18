@@ -28,16 +28,13 @@ public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
     }
     
     public synchronized void addListener(IBoxListener newListener) {
-        addListener(newListener, true);
-    }
 
-    public synchronized void addListener(IBoxListener newListener, boolean doSerialize) {
         if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Box");
         if (intervalListeners.contains(newListener)) {
             throw new RuntimeException(newListener+" is already an interval action");
         }
         intervalListeners.add(0, newListener);
-        serial.add(0, doSerialize);
+        serial.add(0, true);
     }
 
     public synchronized void removeListener(IBoxListener listener) {

@@ -31,7 +31,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
 
     public PotentialMasterMonatomic(ISimulation sim) {
         super();
-        potentialAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        potentialAgentManager = new AtomTypeAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
         potentialIterator = potentialAgentManager.makeIterator();
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();

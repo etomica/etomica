@@ -42,7 +42,7 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
             int oldLength = colorMaps.length;
             colorMaps = (AtomTypeAgentManager[])Arrays.resizeArray(colorMaps, nBonds+1);
             for (int i=oldLength; i<colorMaps.length; i++) {
-                colorMaps[i] = new AtomTypeAgentManager(this, simulation.getSpeciesManager(), simulation.getEventManager(), false);
+                colorMaps[i] = new AtomTypeAgentManager(this, simulation.getSpeciesManager(), simulation.getEventManager());
             }
         }
         colorMaps[nBonds].setAgent(type, color);

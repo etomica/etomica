@@ -13,9 +13,9 @@ import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.iterator.MoleculeIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.atom.iterator.MoleculeIteratorMolecule;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.chem.models.Model;
 
@@ -29,27 +29,15 @@ import etomica.chem.models.Model;
  * @author Andrew Schultz
  */
 public class BondListener implements AtomLeafAgentManager.AgentSource, Serializable {
-
-    /**
-     * Creates a new BondListener for the given Box, using the given
-     * BondManager to actually create or remove bonds.  The BondListener
-     * (and its AtomAgentManager) are consdidered to be "backend".
-     */
-    public BondListener(IBox box, BondManager bondManager) {
-        this(box, bondManager, true);
-    }
     
     /**
      * Creates a new BondListener for the given Box, using the given
-     * BondManager to actually create or remove bonds.  The BondListener
-     * (and its AtomAgentManager, BondManager and bonds) are consdidered to be
-     * "backend" (they will be serialized along with the simulation) if the
-     * given isBackend parameter is true.  
+     * BondManager to actually create or remove bonds.
      */
-    public BondListener(IBox box, BondManager bondManager, boolean isBackend) {
+    public BondListener(IBox box, BondManager bondManager) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
-        atomAgentManager = new AtomLeafAgentManager(this, box, isBackend);
+        atomAgentManager = new AtomLeafAgentManager(this, box);
         this.bondManager = bondManager;
         atomSetSinglet = new MoleculeSetSinglet();
     }

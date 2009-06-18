@@ -102,7 +102,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         workTensor = space.makeTensor();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager(), true);
+        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
         angularVelocity = space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];

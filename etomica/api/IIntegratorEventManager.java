@@ -7,8 +7,6 @@ public interface IIntegratorEventManager {
      */
     public void addListener(IIntegratorListener listener);
 
-    public void addListener(IIntegratorListener listener, boolean doSerialize);
-
     /**
      * Removes the given listener from this event manager.
      */

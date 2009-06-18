@@ -101,7 +101,7 @@ public final class SceneManager {
         else if(!(newBox.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("Cannot use a box with a boundary that is not a subclass of etomica.space.Boundary.");
         }
-        agentManager = new AtomLeafAgentManager(new SphereShapeSource(), newBox, false);
+        agentManager = new AtomLeafAgentManager(new SphereShapeSource(), newBox);
         agentIterator = agentManager.makeIterator();
     	box = newBox;
         if (box != null) {

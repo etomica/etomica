@@ -7,8 +7,6 @@ public interface IBoxEventManager {
      */
     public void addListener(IBoxListener listener);
 
-    public void addListener(IBoxListener listener, boolean doSerialize);
-
     /**
      * Removes the given listener from this event manager.
      */

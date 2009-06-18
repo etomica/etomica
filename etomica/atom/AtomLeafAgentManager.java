@@ -11,7 +11,6 @@ import etomica.api.IBoxIndexEvent;
 import etomica.api.IBoxMoleculeEvent;
 import etomica.api.IMolecule;
 import etomica.box.BoxListenerAdapter;
-import etomica.nbr.list.NeighborCellManagerList;
 import etomica.util.Arrays;
 
 /**
@@ -24,14 +23,9 @@ import etomica.util.Arrays;
  * @author Andrew Schultz
  */
 public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializable {
-
-    public AtomLeafAgentManager(AgentSource source, IBox box) {
-        this(source, box, true);
-    }
     
-    public AtomLeafAgentManager(AgentSource source, IBox box, boolean isBackend) {
+    public AtomLeafAgentManager(AgentSource source, IBox box) {
         agentSource = source;
-        this.isBackend = isBackend;
         this.box = box;
         setReservoirSize(30);
         setupBox();
@@ -119,7 +113,7 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
      * Sets the Box in which this AtomAgentManager will manage Atom agents.
      */
     protected void setupBox() {
-        box.getEventManager().addListener(this, isBackend);
+        box.getEventManager().addListener(this);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 box.getLeafList().getAtomCount()+1+reservoirSize);
@@ -225,7 +219,6 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
     protected final AgentSource agentSource;
     protected Object[] agents;
     protected final IBox box;
-    protected final boolean isBackend;
     protected int reservoirSize;
     
     /**
