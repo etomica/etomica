@@ -15,8 +15,8 @@ import etomica.api.IRandom;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(IRandom random, IntegratorBox[] aIntegrators) {
-        super(random);
+    public IntegratorOverlap(IntegratorBox[] aIntegrators) {
+        super(null);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
             addIntegrator(aIntegrators[i]);

@@ -266,7 +266,7 @@ public class SimOverlapABC extends Simulation {
         //Set up the rest of the joint stuff
         setAffectedWaveVector(awv);
         
-        integratorSim = new IntegratorOverlap(random, new 
+        integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);

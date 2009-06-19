@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -39,7 +38,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -274,7 +272,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         //Set up the rest of the joint stuff
         setComparedWV(awv);
         
-        integratorSim = new IntegratorOverlap(random, new 
+        integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);

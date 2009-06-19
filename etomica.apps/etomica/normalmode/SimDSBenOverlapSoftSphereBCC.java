@@ -177,7 +177,7 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
         integratorHarmonic.setBox(boxHarmonic);
 
         // OVERLAP
-        integratorOverlap = new IntegratorOverlap(random, new IntegratorBox[]{integratorHarmonic, integratorTarget});
+        integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         //integratorOverlap.setAdjustStepFreq(false);
         //integratorOverlap.setStepFreq0(0.02); //to make the number of sampling the same!! 7/29/08
         

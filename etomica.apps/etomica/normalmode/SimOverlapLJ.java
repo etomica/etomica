@@ -174,7 +174,7 @@ public class SimOverlapLJ extends Simulation {
         }
 
         // OVERLAP
-        integratorOverlap = new IntegratorOverlap(random, new IntegratorBox[]{integratorHarmonic, integratorTarget});
+        integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         meterHarmonicEnergy.setBox(boxTarget);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
@@ -388,8 +388,6 @@ public class SimOverlapLJ extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        sim.integratorOverlap.setAdjustStepFreq(false);
-        sim.integratorOverlap.setStepFreq0(0);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
 

@@ -167,7 +167,7 @@ public class SimOverlap extends Simulation {
         }
 
         // OVERLAP
-        integratorOverlap = new IntegratorOverlap(random, new IntegratorBox[]{integratorHarmonic, integratorTarget});
+        integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         meterHarmonicEnergy.setBox(boxTarget);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
@@ -434,11 +434,11 @@ public class SimOverlap extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 32;
-        public double density = 1.2;
-        public int D = 3;
+        public int numMolecules = 5;
+        public double density = 0.1;
+        public int D = 1;
         public long numSteps = 100000;
-        public double harmonicFudge = .1;
+        public double harmonicFudge = 1;
         public String filename = "S_d120_N32_s1000";
         public double temperature = 1.0;
     }

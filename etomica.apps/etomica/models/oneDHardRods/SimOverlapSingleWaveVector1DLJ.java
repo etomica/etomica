@@ -25,7 +25,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
@@ -274,7 +273,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         //Set up the rest of the joint stuff
         setComparedWV(awv);
         
-        integratorSim = new IntegratorOverlap(random, new 
+        integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);

@@ -307,7 +307,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         setComparedWV(compWV);
         setHarmonicWV(harmWV);
         
-        integratorSim = new IntegratorOverlap(random, new 
+        integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
