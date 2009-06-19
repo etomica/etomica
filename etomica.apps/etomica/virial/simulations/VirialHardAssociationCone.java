@@ -1,7 +1,5 @@
 package etomica.virial.simulations;
 
-import com.ibm.dtfj.javacore.parser.j9.section.monitor.IMonitorTypes;
-
 import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeSphere;
