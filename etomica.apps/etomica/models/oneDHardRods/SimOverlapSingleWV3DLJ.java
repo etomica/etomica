@@ -368,6 +368,13 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             if (Double.isNaN(bennettParam) || bennettParam == 0 || Double.isInfinite(bennettParam)) {
+                if(Double.isNaN(bennettParam)){ System.out.println("isNan"); }
+                if(bennettParam == 0){ System.out.println("zero"); };
+                if(Double.isInfinite(bennettParam)){ System.out.println("isinfinite"); }
+                
+                System.out.println("numerator " + accumulators[0].getBennetAverage(newMinDiffLoc));
+                System.out.println("denominator " + accumulators[1].getBennetAverage(newMinDiffLoc));
+                
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
             System.out.println("setting ref pref to "+bennettParam);

@@ -90,8 +90,8 @@ public class SimCalcSLJ extends Simulation {
         // defaults
         int D = 3;
         int nA = 32;
-        double density = 1.3;
-        double temperature = 1;
+        double density = 0.962;
+        double temperature = 0.1378;
         if (D == 1) {
             nA = 3;
             density = 0.5;
