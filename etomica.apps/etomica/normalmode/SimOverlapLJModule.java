@@ -1,0 +1,304 @@
+package etomica.normalmode;
+
+import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomType;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.DataPump;
+import etomica.data.DataSourceScalar;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.ISpace;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
+import etomica.units.Energy;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
+import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
+import etomica.virial.overlap.DataSourceVirialOverlap;
+import etomica.virial.overlap.IntegratorOverlap;
+
+/**
+ * Main method that constructs an overlap sampling module to calculate the free
+ * energy difference between a harmonic system and a lennard jones solid.
+ * 
+ * @author Andrew Schultz
+ */
+public class SimOverlapLJModule {
+
+    /**
+     * @param args filename containing simulation parameters
+     * @see SimOverlapLJModule.SimOverlapParam
+     */
+    public static void main(String[] args) {
+        
+        //set up simulation parameters
+        SimOverlapParam params = new SimOverlapParam();
+        String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+        double density = params.density;
+        long numSteps = params.numSteps;
+        int numMolecules = params.numMolecules;
+        double temperature = params.temperature;
+        int D = params.D;
+        String filename = params.filename;
+        if (filename.length() == 0) {
+            filename = "normal_modes_LJ_3D_"+numMolecules;
+        }
+        String refFileName = args.length > 0 ? filename+"_ref" : null;
+
+        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere overlap simulation");
+        System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
+        System.out.println((numSteps/100)+" total steps of 1000");
+        System.out.println("output data to "+filename);
+
+        //instantiate simulation
+        ISpace space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
+        IntegratorBox[] integrators = new IntegratorBox[2];
+
+        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, space);
+        sim.getSpeciesManager().addSpecies(species);
+        
+        NormalModes normalModes = new NormalModesFromFile(filename, space.D());
+        normalModes.setTemperature(temperature);
+        
+        WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
+
+        // TARGET
+        
+        IBox boxTarget = new Box(space);
+        sim.addBox(boxTarget);
+        boxTarget.setNMolecules(species, numMolecules);
+
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature);
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, sim.getRandom(), space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
+        integratorTarget.getMoveManager().addMCMove(atomMove);
+        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+
+        integrators[1] = integratorTarget;
+
+        Primitive primitive;
+        IBoundary boundaryTarget;
+        int[] nCells;
+        Basis basis;
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0/density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numMolecules/density);
+            nCells = new int[]{numMolecules};
+            basis = new BasisMonatomic(space);
+        } else {
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            primitive = new PrimitiveCubic(space, L);
+            int n = (int)Math.round(Math.pow(numMolecules/4, 1.0/3.0));
+            nCells = new int[]{n,n,n};
+            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
+            basis = new BasisCubicFcc();
+        }
+        boxTarget.setBoundary(boundaryTarget);
+        waveVectorFactory.makeWaveVectors(boxTarget);
+
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(sim, boxTarget, primitive, basis, space);
+        coordinateDefinitionTarget.initializeCoordinates(nCells);
+
+        Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        IAtomType sphereType = species.getLeafType();
+        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        atomMove.setPotential(pTruncated);
+
+        integratorTarget.setBox(boxTarget);
+
+        potentialMasterTarget.lrcMaster().setEnabled(false);
+        integratorTarget.reset();
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(integratorTarget);
+        double latticeEnergy = meterPE.getDataAsScalar();
+        MeterPotentialEnergyDifference meterTarget = new MeterPotentialEnergyDifference(meterPE, latticeEnergy);
+        MeterHarmonicEnergy meterReferenceInTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
+        meterReferenceInTarget.setBox(boxTarget);
+        
+    
+        // HARMONIC
+        IBoundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
+        IBox boxHarmonic = new Box(boundaryHarmonic, space);
+        sim.addBox(boxHarmonic);
+        boxHarmonic.setNMolecules(species, numMolecules);
+
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0);
+
+        MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
+        integratorHarmonic.getMoveManager().addMCMove(move);
+        integrators[0] = integratorHarmonic;
+        
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numMolecules/density);
+        } else {
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            int n = (int)Math.round(Math.pow(numMolecules/4, 1.0/3.0));
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+        }
+        boxHarmonic.setBoundary(boundaryHarmonic);
+
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(sim, boxHarmonic, primitive, basis, space);
+        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
+        
+        move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
+        move.setWaveVectors(waveVectorFactory.getWaveVectors());
+        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setCoordinateDefinition(coordinateDefinitionHarmonic);
+        move.setTemperature(temperature);
+        
+        move.setBox(boxHarmonic);
+        
+        integratorHarmonic.setBox(boxHarmonic);
+
+        MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(potentialMasterTarget);
+        meterPEHarmonic.setBox(boxHarmonic);
+        MeterPotentialEnergyDifference meterTargetInReference = new MeterPotentialEnergyDifference(meterPEHarmonic, latticeEnergy);
+        MeterHarmonicEnergyFromMove meterReference = new MeterHarmonicEnergyFromMove(move);
+        
+        SimOverlapModule module = new SimOverlapModule(integrators, meterTarget, meterReference, meterTargetInReference, meterReferenceInTarget, temperature);
+        module.setTargetDataInterval(32);
+        module.setReferenceDataInterval(1);
+
+        //start simulation
+        module.getIntegratorOverlap().setNumSubSteps(1000);
+        numSteps /= 1000;
+
+        module.initRefPref(refFileName, numSteps/20);
+        double refPref = module.getRefPref();
+        if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
+            throw new RuntimeException("Simulation failed to find a valid ref pref");
+        }
+        System.out.flush();
+        
+        module.equilibrate(refFileName, numSteps/10);
+        refPref = module.getRefPref();
+        if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
+            throw new RuntimeException("Simulation failed to find a valid ref pref");
+        }
+        
+        System.out.println("equilibration finished");
+        System.out.flush();
+
+        module.getActivityIntegrate().setMaxSteps(numSteps);
+        module.getController().actionPerformed();
+
+        System.out.println("final reference optimal step frequency "+module.getIntegratorOverlap().getStepFreq0()+" (actual: "+module.getIntegratorOverlap().getActualStepFreq0()+")");
+        
+        double[][] omega2 = normalModes.getOmegaSquared(boxTarget);
+        double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
+        double AHarmonic = 0;
+        for(int i=0; i<omega2.length; i++) {
+            for(int j=0; j<omega2[0].length; j++) {
+                if (!Double.isInfinite(omega2[i][j])) {
+                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
+                }
+            }
+        }
+
+        int totalCells = 1;
+        for (int i=0; i<D; i++) {
+            totalCells *= nCells[i];
+        }
+        int basisSize = basis.getScaledCoordinates().length;
+        double fac = 1;
+        if (totalCells % 2 == 0) {
+            fac = Math.pow(2,D);
+        }
+        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
+        System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
+
+        double ratio = module.getDsvo().getDataAsScalar();
+        double error = module.getDsvo().getError();
+        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
+        System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
+        DataGroup allYourBase = (DataGroup)module.getAccumulators()[0].getData(module.getDsvo().minDiffLocation());
+        System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        
+        allYourBase = (DataGroup)module.getAccumulators()[1].getData(module.getDsvo().minDiffLocation());
+        System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+    }
+
+    private static final long serialVersionUID = 1L;
+    public IntegratorOverlap integratorOverlap;
+    public DataSourceVirialOverlap dsvo;
+    public IntegratorBox[] integrators;
+    public ActivityIntegrate activityIntegrate;
+    public IBox boxTarget, boxHarmonic;
+    public Boundary boundaryTarget, boundaryHarmonic;
+    public int[] nCells;
+    public Basis basis;
+    public NormalModes normalModes;
+    public Primitive primitive;
+    public double refPref;
+    public AccumulatorVirialOverlapSingleAverage[] accumulators;
+    public DataPump[] accumulatorPumps;
+    public IEtomicaDataSource[] meters;
+
+    /**
+     * Inner class for parameters understood by the HSMD3D constructor
+     */
+    public static class SimOverlapParam extends ParameterBase {
+        public int numMolecules = 32;
+        public double density = 1.0;
+        public int D = 3;
+        public long numSteps = 1000000;
+        public String filename = "d10_T02";
+        public double temperature = 0.186;
+    }
+    
+    public static class MeterPotentialEnergyDifference extends DataSourceScalar {
+
+        public MeterPotentialEnergyDifference(DataSourceScalar meter, double offset) {
+            super("energy", Energy.DIMENSION);
+            this.meter = meter;
+            this.offset = offset;
+        }
+        
+        public double getDataAsScalar() {
+            return meter.getDataAsScalar() - offset;
+        }
+
+        private static final long serialVersionUID = 1L;
+        protected final DataSourceScalar meter;
+        protected final double offset;
+    }
+}
