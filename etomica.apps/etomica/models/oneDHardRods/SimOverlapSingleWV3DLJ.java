@@ -82,10 +82,10 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-//        long seed = 5;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 5;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
