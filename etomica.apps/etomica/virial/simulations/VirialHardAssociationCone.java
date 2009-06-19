@@ -1,10 +1,16 @@
 package etomica.virial.simulations;
 
+import com.ibm.dtfj.javacore.parser.j9.section.monitor.IMonitorTypes;
+
 import etomica.api.IAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomTypeSphere;
+import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.P2MoleculeMonatomic;
@@ -23,7 +29,7 @@ import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /** 
- * Virial coefficients with AssociationCone Potential using Mayer Sampling 
+ * Virial coefficients with single attraction site AssociationCone Potential using Mayer Sampling 
  * @author hmkim3
  * */
 
@@ -32,12 +38,11 @@ public class VirialHardAssociationCone {
 
 
     public static void main(String[] args) {
-
         VirialLJParam params = new VirialLJParam();
-
 		final int nPoints;
 		double temperature;
 		double sigmaHSRef;
+		double wellConstant;
 		long steps ;
 		
 		if (args.length == 0) {
@@ -45,13 +50,15 @@ public class VirialHardAssociationCone {
 			temperature = params.temperature;
 			steps = params.numSteps;
 			sigmaHSRef = params.sigmaHSRef;
+			wellConstant = params.wellConstant;
 		}
-		else if (args.length == 4) {
+		else if (args.length == 5) {
 
         	nPoints = Integer.parseInt(args[0]);
             temperature = Double.parseDouble(args[1]);
             steps = Integer.parseInt(args[2]);
             sigmaHSRef = Double.parseDouble(args[3]);
+            wellConstant = Double.parseDouble(args[4]);
             params.writeRefPref = true;
              
         } else {
@@ -59,7 +66,6 @@ public class VirialHardAssociationCone {
         }
 		double sigma=1;
 		double epsilon=1;
-		double wellConstant = 16.0;
         
 
         final double[] HSB = new double[9];
@@ -100,6 +106,39 @@ public class VirialHardAssociationCone {
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryOrientedSpheres(), temperature, refCluster, targetCluster);
         //sim.integratorOS.setStepFreq0(0.5);
         //sim.integratorOS.setAdjustStepFreq(false);
+        /**sim.integratorOS.setNumSubSteps(1000);
+          if (true) {
+            sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
+            sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
+            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+            
+            ((IAtomTypeSphere)pMolecule).setDiameter(sigma);
+            ((IAtomTypeSphere)pMolecule).setDiameter(sigma);
+            simGraphic.makeAndDisplayFrame();
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.setAccumulatorBlockSize(1000);
+                
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            sim.getController().removeAction(sim.ai);
+            sim.getController().addAction(new IAction() {
+                public void actionPerformed() {
+                    sim.initRefPref(null, 100);
+                    sim.equilibrate(null, 200);
+                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+                }
+            });
+            sim.getController().addAction(sim.ai);
+            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+                throw new RuntimeException("Oops");
+            }
+
+            return;
+        }
+        **/
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
 		sim.setAccumulatorBlockSize((int)steps*10);
@@ -161,14 +200,13 @@ public class VirialHardAssociationCone {
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 	}
 
-    /**
-     * Inner class for parameters
-     */
+   
     public static class VirialLJParam extends ParameterBase {
         public int nPoints = 4;
         public double temperature = 1.5;
         public long numSteps = 1000000;
         public double sigmaHSRef = 1.5;
+        public double wellConstant = 16.0;
         public boolean writeRefPref = false;
     }
 }
