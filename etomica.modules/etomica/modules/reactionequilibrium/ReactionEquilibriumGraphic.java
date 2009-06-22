@@ -7,8 +7,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeSphere;
 import etomica.atom.AtomLeafAgentManager;

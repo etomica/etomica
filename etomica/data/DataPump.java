@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 
 /**

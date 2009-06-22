@@ -1,8 +1,8 @@
 package etomica.graphics;
 import java.awt.Component;
 
+import etomica.action.IAction;
 import etomica.action.activity.IController;
-import etomica.api.IAction;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
 import etomica.units.Unit;

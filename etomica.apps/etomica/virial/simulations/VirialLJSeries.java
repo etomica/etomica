@@ -2,7 +2,7 @@ package etomica.virial.simulations;
 
 import java.util.Arrays;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataGroup;

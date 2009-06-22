@@ -1,5 +1,5 @@
 package etomica.data.meter;
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;

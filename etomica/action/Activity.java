@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.api.IAction;
 
 /**
  * An Action that supports the capability of pausing/unpausing and terminating

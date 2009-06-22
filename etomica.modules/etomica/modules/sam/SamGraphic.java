@@ -6,7 +6,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IData;

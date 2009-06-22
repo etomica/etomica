@@ -3,9 +3,9 @@ package etomica.normalmode;
 import java.io.File;
 
 import etomica.action.BoxInflate;
+import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-import etomica.api.IAction;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;

@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.ActionGroupSeries;
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;

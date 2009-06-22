@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorHistory;

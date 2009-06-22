@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.api.IAction;
 import etomica.api.ISimulation;
 
 /**

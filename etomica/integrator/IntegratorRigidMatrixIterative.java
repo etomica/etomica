@@ -3,8 +3,8 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateBy;
+import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;

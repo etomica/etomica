@@ -1,6 +1,6 @@
 package etomica.modules.entropylottery;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IData;

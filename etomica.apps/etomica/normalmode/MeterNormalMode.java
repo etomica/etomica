@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IBox;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;

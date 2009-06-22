@@ -1,6 +1,6 @@
 package etomica.listener;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 

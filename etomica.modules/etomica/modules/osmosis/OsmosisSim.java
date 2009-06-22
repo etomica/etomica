@@ -2,8 +2,8 @@ package etomica.modules.osmosis;
 
 import java.awt.Color;
 
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;

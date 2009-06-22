@@ -1,6 +1,6 @@
 package etomica.graphics;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 
 /**
  * Wrapper of an etomica Action that permits it to be used as a java.awt action listener.

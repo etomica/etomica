@@ -8,9 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 
+import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
-import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.graphics.Device;

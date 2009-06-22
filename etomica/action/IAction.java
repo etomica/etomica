@@ -1,4 +1,4 @@
-package etomica.api;
+package etomica.action;
 
 public interface IAction {
 

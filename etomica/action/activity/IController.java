@@ -1,7 +1,7 @@
 package etomica.action.activity;
 
+import etomica.action.IAction;
 import etomica.action.activity.Controller.ActionStatus;
-import etomica.api.IAction;
 import etomica.util.IEventManager;
 
 public interface IController extends ActivityGroup {

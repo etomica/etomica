@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;

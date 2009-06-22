@@ -1,7 +1,7 @@
 package etomica.action.activity;
 
 import etomica.action.ActionGroup;
-import etomica.api.IAction;
+import etomica.action.IAction;
 
 public interface ActivityGroup extends ActionGroup {
 

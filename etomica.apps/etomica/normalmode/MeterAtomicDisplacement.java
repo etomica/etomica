@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;

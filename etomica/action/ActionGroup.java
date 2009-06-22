@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.api.IAction;
 
 public interface ActionGroup extends IAction {
 

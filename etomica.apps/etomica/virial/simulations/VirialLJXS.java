@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataGroup;

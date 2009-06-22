@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;

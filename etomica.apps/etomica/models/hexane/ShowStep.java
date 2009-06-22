@@ -1,6 +1,6 @@
 package etomica.models.hexane;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 
 public class ShowStep implements IAction {
 

@@ -2,7 +2,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;

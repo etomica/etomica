@@ -1,6 +1,6 @@
 package etomica.modifier;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.units.Dimension;
 
 

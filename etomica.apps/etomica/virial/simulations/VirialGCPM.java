@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.api.IPotentialMolecular;
 import etomica.data.AccumulatorRatioAverage;

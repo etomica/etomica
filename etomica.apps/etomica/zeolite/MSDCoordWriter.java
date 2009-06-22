@@ -3,8 +3,8 @@ package etomica.zeolite;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
-import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IIntegrator;

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.api.IAction;
 import etomica.api.ISimulation;
 import etomica.data.DataPump;
 import etomica.simulation.Simulation;

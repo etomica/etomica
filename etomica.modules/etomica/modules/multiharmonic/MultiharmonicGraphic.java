@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsingLog;
 import etomica.data.AccumulatorHistory;

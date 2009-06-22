@@ -14,7 +14,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.box.Box;

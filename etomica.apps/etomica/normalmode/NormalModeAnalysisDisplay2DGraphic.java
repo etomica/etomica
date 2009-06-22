@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorAverageCollapsing;

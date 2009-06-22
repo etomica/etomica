@@ -7,7 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;

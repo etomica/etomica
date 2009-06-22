@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IData;
 import etomica.api.ISpecies;

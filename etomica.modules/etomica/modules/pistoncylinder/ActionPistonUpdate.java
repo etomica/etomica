@@ -1,6 +1,6 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 
 /**
  * Action that informs the integrator that some property of the piston

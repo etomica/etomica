@@ -2,7 +2,6 @@ package etomica.action;
 
 import java.util.ArrayList;
 
-import etomica.api.IAction;
 import etomica.data.DataPump;
 import etomica.data.DataStreamAction;
 

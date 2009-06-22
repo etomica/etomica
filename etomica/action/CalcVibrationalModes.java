@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;

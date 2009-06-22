@@ -14,8 +14,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.api.IVector;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;

@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
+import etomica.action.IAction;
 import etomica.action.activity.IController;
-import etomica.api.IAction;
 import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;

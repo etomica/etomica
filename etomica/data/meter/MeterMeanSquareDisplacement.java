@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;

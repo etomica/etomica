@@ -9,7 +9,6 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.api.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;

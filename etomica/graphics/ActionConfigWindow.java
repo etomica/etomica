@@ -5,7 +5,7 @@ import java.awt.TextArea;
 
 import javax.swing.JFrame;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;

@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 
 public abstract class DataStreamAction implements IAction, java.io.Serializable {
 

@@ -2,7 +2,6 @@ package etomica.action;
 
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
-import etomica.api.IAction;
 
 /**
  * Action that toggles a boolean value. This action can connect to any object

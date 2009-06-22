@@ -5,7 +5,7 @@ import java.awt.TextArea;
 
 import javax.swing.JFrame;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.data.AccumulatorHistory;
 import etomica.data.types.DataFunction.DataInfoFunction;

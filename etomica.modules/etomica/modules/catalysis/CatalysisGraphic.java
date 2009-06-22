@@ -14,8 +14,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IData;
 import etomica.data.AccumulatorAverageCollapsing;

@@ -4,7 +4,6 @@
  */
 package etomica.action;
 
-import etomica.api.IAction;
 
 /**
  * Interface for an action that can be "undone", such that its effect

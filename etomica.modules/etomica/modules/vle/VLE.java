@@ -1,6 +1,6 @@
 package etomica.modules.vle;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;

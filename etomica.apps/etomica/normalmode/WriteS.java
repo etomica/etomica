@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;

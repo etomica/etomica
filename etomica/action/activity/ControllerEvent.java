@@ -1,6 +1,6 @@
 package etomica.action.activity;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.util.EnumeratedType;
 import etomica.util.IEvent;
 

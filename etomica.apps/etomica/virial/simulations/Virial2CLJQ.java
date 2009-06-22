@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;

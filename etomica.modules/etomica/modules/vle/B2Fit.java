@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DevicePlotPoints;
 import etomica.graphics.SimulationGraphic;

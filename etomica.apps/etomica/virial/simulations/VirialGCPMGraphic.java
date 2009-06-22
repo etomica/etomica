@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.models.water.PNWaterGCPM;

@@ -1,8 +1,6 @@
 package etomica.action;
 
-import etomica.api.IAction;
 import etomica.util.Arrays;
-import etomica.api.IAction;
 
 /**
  * A set of Action instances grouped and performed in series 

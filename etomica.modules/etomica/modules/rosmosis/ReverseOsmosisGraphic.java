@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import etomica.api.IAction;
+import etomica.action.IAction;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IData;

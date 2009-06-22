@@ -13,7 +13,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import etomica.api.IAction;
+
+import etomica.action.IAction;
 import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.data.DataPump;

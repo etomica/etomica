@@ -1,9 +1,9 @@
 package etomica.graphics;
 
 import etomica.action.ActionGroupSeries;
+import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.IController;
-import etomica.api.IAction;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.modifier.Modifier;
