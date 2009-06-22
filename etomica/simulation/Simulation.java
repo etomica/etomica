@@ -2,9 +2,9 @@ package etomica.simulation;
 
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
-import etomica.api.IEventManager;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISimulationEventManager;
 import etomica.api.ISpeciesManager;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
@@ -33,7 +33,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         boxList = new IBox[0];
         controller = new Controller();
         random = new RandomNumberGenerator();
-        eventManager = new SimulationEventManager();
+        eventManager = new SimulationEventManager(this);
         speciesManager = new SpeciesManager(this);
     }
 
@@ -46,7 +46,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         boxList = (IBox[])Arrays.addObject(boxList, newBox);
         newBox.setIndex(boxList.length-1);
         speciesManager.boxAddedNotify(newBox);
-        eventManager.fireEvent(new SimulationBoxAddedEvent(newBox));
+        eventManager.boxAdded(newBox);
     }
     
     public final void removeBox(IBox oldBox) {
@@ -67,7 +67,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
             boxList[i].setIndex(i);
         }
         
-        eventManager.fireEvent(new SimulationBoxRemovedEvent(oldBox));
+        eventManager.boxRemoved(oldBox);
 
         // notify oldBox that we no longer have it.  this will reset its index
         // to 0, so we need to do this after firing notification
@@ -118,7 +118,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         random = newRandom;
     }
 
-    public IEventManager getEventManager() {
+    public ISimulationEventManager getEventManager() {
         return eventManager;
     }
     
@@ -128,7 +128,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 
     private static final long serialVersionUID = 4L;
     protected final ISpace space;
-    protected final IEventManager eventManager;
+    protected final SimulationEventManager eventManager;
     private IBox[] boxList;
     private final ISpeciesManager speciesManager;
     protected IRandom random;

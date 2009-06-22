@@ -3,15 +3,15 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.api.IEvent;
-import etomica.api.IEventManager;
-import etomica.api.IListener;
+import etomica.api.ISimulationAtomTypeIndexEvent;
+import etomica.api.ISimulationBoxEvent;
+import etomica.api.ISimulationEventManager;
+import etomica.api.ISimulationIndexEvent;
+import etomica.api.ISimulationListener;
+import etomica.api.ISimulationSpeciesEvent;
+import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
-import etomica.simulation.SimulationSpeciesAddedEvent;
-import etomica.simulation.SimulationSpeciesIndexChangedEvent;
-import etomica.simulation.SimulationSpeciesMaxIndexEvent;
-import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
 
 /**
@@ -23,14 +23,14 @@ import etomica.util.Arrays;
  * would be stale at that point.
  * @author andrew
  */
-public class SpeciesAgentManager implements IListener, java.io.Serializable {
+public class SpeciesAgentManager implements ISimulationListener, java.io.Serializable {
 
     public SpeciesAgentManager(AgentSource source) {
         agentSource = source;
     }
     
     public SpeciesAgentManager(AgentSource source, ISpeciesManager speciesManager,
-            IEventManager simEventManager) {
+                               ISimulationEventManager simEventManager) {
         agentSource = source;
         init(speciesManager, simEventManager);
     }        
@@ -107,7 +107,8 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISpeciesManager newSpeciesManager, IEventManager newSimEventManager) {
+    public void init(ISpeciesManager newSpeciesManager,
+                     ISimulationEventManager newSimEventManager) {
         simEventManager = newSimEventManager;
         speciesManager = newSpeciesManager;
         simEventManager.addListener(this);
@@ -119,31 +120,38 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
         makeAllAgents();
     }
     
-    public void actionPerformed(IEvent evt) {
-        // we learn about new Species via AtomTypeAdded events
-        if (evt instanceof SimulationSpeciesRemovedEvent) {
-            releaseAgents(((SimulationSpeciesRemovedEvent)evt).getSpecies());
-        }
-        else if (evt instanceof SimulationSpeciesAddedEvent) {
-            ISpecies species = ((SimulationSpeciesAddedEvent)evt).getSpecies();
-            agents = Arrays.resizeArray(agents, species.getIndex()+1);
-            addAgent(species);
-        }
-        else if (evt instanceof SimulationSpeciesIndexChangedEvent) {
-            ISpecies species = ((SimulationSpeciesIndexChangedEvent)evt).getSpecies();
-            int oldIndex = ((SimulationSpeciesIndexChangedEvent)evt).getOldIndex();
-            int newIndex = species.getIndex();
-            if (newIndex >= agents.length) {
-                agents = Arrays.resizeArray(agents, newIndex+1);
-            }
-            agents[newIndex] = agents[oldIndex];
-            agents[oldIndex] = null;
-        }
-        else if (evt instanceof SimulationSpeciesMaxIndexEvent) {
-            int maxIndex = ((SimulationSpeciesMaxIndexEvent)evt).getMaxIndex();
-            agents = Arrays.resizeArray(agents, maxIndex+1);
-        }
+    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+        ISpecies species = e.getSpecies();
+        agents = Arrays.resizeArray(agents, species.getIndex()+1);
+        addAgent(species);
     }
+    
+    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+        releaseAgents(e.getSpecies());
+    }
+    
+    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {
+        ISpecies species = e.getSpecies();
+        int oldIndex = e.getIndex();
+        int newIndex = species.getIndex();
+        if (newIndex >= agents.length) {
+            agents = Arrays.resizeArray(agents, newIndex+1);
+        }
+        agents[newIndex] = agents[oldIndex];
+        agents[oldIndex] = null;
+    }
+    
+
+    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {
+        int maxIndex = e.getIndex();
+        agents = Arrays.resizeArray(agents, maxIndex+1);
+    }
+    
+    public void simulationBoxAdded(ISimulationBoxEvent e) {}
+    public void simulationBoxRemoved(ISimulationBoxEvent e) {}
+    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
+    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
+
     
     protected void addAgent(ISpecies type) {
         agents[type.getIndex()] = agentSource.makeAgent(type);
@@ -175,7 +183,7 @@ public class SpeciesAgentManager implements IListener, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected IEventManager simEventManager;
+    protected ISimulationEventManager simEventManager;
     protected ISpeciesManager speciesManager;
 
     /**

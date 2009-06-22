@@ -55,8 +55,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         }
 
         // this just fires an event for listeners to receive
-        IEvent evt = new SimulationSpeciesAddedEvent(species);
-	    sim.getEventManager().fireEvent(evt);
+        ((SimulationEventManager)sim.getEventManager()).speciesAdded(species);
 
     }
 
@@ -76,8 +75,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         for(int i = index; i < speciesList.length; i++) {
             int oldIndex = speciesList[i].getIndex();
             speciesList[i].setIndex(i);
-            IEvent evt = new SimulationSpeciesIndexChangedEvent(speciesList[i], oldIndex);
-            sim.getEventManager().fireEvent(evt);
+            ((SimulationEventManager)sim.getEventManager()).speciesIndexChanged(speciesList[i], oldIndex);
         }
 
         for(int j = 0; j < removedSpecies.getAtomTypeCount(); j++) {
@@ -91,8 +89,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
                 if(speciesList[i].getAtomType(j).getIndex() != atomTypeMaxIndex) {
                     int oldIndex = speciesList[i].getAtomType(j).getIndex();
                     speciesList[i].getAtomType(j).setIndex(atomTypeMaxIndex);
-                    IEvent evt = new SimulationAtomTypeIndexChangedEvent(speciesList[i].getAtomType(j), oldIndex);
-                    sim.getEventManager().fireEvent(evt);
+                    ((SimulationEventManager)sim.getEventManager()).atomTypeIndexChanged(speciesList[i].getAtomType(j), oldIndex);
                 }
                 atomTypeMaxIndex++;
             }
@@ -102,14 +99,11 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
         for (int j = 0; j < boxCount; j++) {
             sim.getBox(j).removeSpeciesNotify(removedSpecies);
         }
-        IEvent evt = new SimulationSpeciesRemovedEvent(removedSpecies);
-        sim.getEventManager().fireEvent(evt);
+        ((SimulationEventManager)sim.getEventManager()).speciesRemoved(removedSpecies);
 
-        IEvent maxEvt = new SimulationAtomTypeMaxIndexEvent(atomTypeMaxIndex);
-        sim.getEventManager().fireEvent(maxEvt);
+        ((SimulationEventManager)sim.getEventManager()).atomTypeMaxIndexChanged(atomTypeMaxIndex);
 
-        IEvent speciesMaxEvt = new SimulationSpeciesMaxIndexEvent(speciesList.length);
-        sim.getEventManager().fireEvent(speciesMaxEvt);
+        ((SimulationEventManager)sim.getEventManager()).speciesMaxIndexChanged(speciesList.length);
 
     }
 

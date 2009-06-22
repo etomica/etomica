@@ -4,18 +4,22 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IBox;
+import etomica.api.IBoxAtomEvent;
+import etomica.api.IBoxAtomIndexEvent;
+import etomica.api.IBoxIndexEvent;
+import etomica.api.IBoxListener;
 import etomica.api.IBoxMoleculeCountEvent;
 import etomica.api.IBoxMoleculeEvent;
 import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.box.BoxListenerAdapter;
-import etomica.simulation.SimulationSpeciesAddedEvent;
-import etomica.simulation.SimulationSpeciesEvent;
-import etomica.simulation.SimulationSpeciesRemovedEvent;
+import etomica.api.ISimulationAtomTypeIndexEvent;
+import etomica.api.ISimulationBoxEvent;
+import etomica.api.ISimulationIndexEvent;
+import etomica.api.ISimulationListener;
+import etomica.api.ISimulationSpeciesEvent;
+import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.util.Arrays;
 
 /**
@@ -26,7 +30,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class MoleculeAgentManager extends BoxListenerAdapter implements IListener, Serializable {
+public class MoleculeAgentManager implements IBoxListener, ISimulationListener, Serializable {
 
     public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source) {
         agentSource = source;
@@ -166,19 +170,29 @@ public class MoleculeAgentManager extends BoxListenerAdapter implements IListene
         }
     }
     
-    public void actionPerformed(IEvent evt) {
+    public void boxAtomAdded(IBoxAtomEvent e) {}
+    public void boxAtomRemoved(IBoxAtomEvent e) {}
+    public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {}
+    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e) {}
+    public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {}
+    
+    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {
+        agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
+        agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
+    }
+    
+    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {
+        agents = (Object[][])Arrays.removeObject(agents, agents[e.getSpecies().getIndex()]);
 
-        if (evt instanceof SimulationSpeciesEvent) {
-            if (evt instanceof SimulationSpeciesAddedEvent) {
-                agents = (Object[][])Arrays.resizeArray(agents, agents.length+1);
-                agents[agents.length-1] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(), 0);
-            }
-            else if (evt instanceof SimulationSpeciesRemovedEvent) {
-                agents = (Object[][])Arrays.removeObject(agents, agents[((SimulationSpeciesEvent)evt).getSpecies().getIndex()]);
-            }
-        }
     }
 
+    public void simulationBoxAdded(ISimulationBoxEvent e) {}
+    public void simulationBoxRemoved(ISimulationBoxEvent e) {}
+    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {}
+    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
+    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
+    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
+    
     protected void addAgent(IMolecule a) {
         int speciesIndex = a.getType().getIndex();
         if (agents[speciesIndex].length < a.getIndex()+1) {

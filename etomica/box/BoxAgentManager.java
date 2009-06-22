@@ -3,13 +3,15 @@ package etomica.box;
 import java.lang.reflect.Array;
 
 import etomica.api.IBox;
-import etomica.api.IEvent;
-import etomica.api.IEventManager;
-import etomica.api.IListener;
 import etomica.api.ISimulation;
-import etomica.simulation.SimulationBoxAddedEvent;
+import etomica.api.ISimulationAtomTypeIndexEvent;
+import etomica.api.ISimulationBoxEvent;
+import etomica.api.ISimulationEventManager;
+import etomica.api.ISimulationIndexEvent;
+import etomica.api.ISimulationListener;
+import etomica.api.ISimulationSpeciesEvent;
+import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.simulation.SimulationBoxEvent;
-import etomica.simulation.SimulationBoxRemovedEvent;
 import etomica.util.Arrays;
 
 /**
@@ -21,7 +23,7 @@ import etomica.util.Arrays;
  * point. 
  * @author andrew
  */
-public class BoxAgentManager implements IListener, java.io.Serializable {
+public class BoxAgentManager implements ISimulationListener, java.io.Serializable {
 
     public BoxAgentManager(BoxAgentSource source) {
         agentSource = source;
@@ -79,22 +81,28 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
         agents = null;
     }
     
-    public void actionPerformed(IEvent evt) {
-        if (evt instanceof SimulationBoxAddedEvent) {
-            addAgent(((SimulationBoxEvent)evt).getBox());
-        }
-        else if (evt instanceof SimulationBoxRemovedEvent) {
-            IBox box = ((SimulationBoxEvent)evt).getBox();
-            // The given Box got removed.  The remaining boxes got shifted
-            // down.
-            int index = box.getIndex();
-            agentSource.releaseAgent(agents[index]);
-            for (int i=index; i<agents.length-1; i++) {
-                agents[i] = agents[i+1];
-            }
-            agents = Arrays.resizeArray(agents,agents.length-1);
-        }
+    public void simulationBoxAdded(ISimulationBoxEvent e) {
+        addAgent(((SimulationBoxEvent)e).getBox());
     }
+    
+    public void simulationBoxRemoved(ISimulationBoxEvent e) {
+        IBox box = ((SimulationBoxEvent)e).getBox();
+        // The given Box got removed.  The remaining boxes got shifted
+        // down.
+        int index = box.getIndex();
+        agentSource.releaseAgent(agents[index]);
+        for (int i=index; i<agents.length-1; i++) {
+            agents[i] = agents[i+1];
+        }
+        agents = Arrays.resizeArray(agents,agents.length-1);
+    }
+    
+    public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {}
+    public void simulationSpeciesRemoved(ISimulationSpeciesEvent e) {}
+    public void simulationSpeciesIndexChanged(ISimulationSpeciesIndexEvent e) {}
+    public void simulationSpeciesMaxIndexChanged(ISimulationIndexEvent e) {}
+    public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
+    public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
     
     protected void addAgent(IBox box) {
         agents = Arrays.resizeArray(agents,box.getIndex()+1);
@@ -117,7 +125,7 @@ public class BoxAgentManager implements IListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     private final BoxAgentSource agentSource;
-    protected IEventManager simEventManager;
+    protected ISimulationEventManager simEventManager;
     protected Object[] agents;
     
     /**
