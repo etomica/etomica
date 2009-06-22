@@ -1,6 +1,6 @@
 package etomica.listener;
 
-import etomica.api.IEvent;
+import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.util.Arrays;
 
@@ -23,13 +23,13 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
         interval = 1;
     }
     
-    public void integratorInitialized(IEvent e) {
+    public void integratorInitialized(IIntegratorEvent e) {
         for(int i=0; i<listeners.length; i++) {
             listeners[i].integratorInitialized(e);
         }
     }
     
-    public void integratorStepStarted(IEvent e) {
+    public void integratorStepStarted(IIntegratorEvent e) {
         intervalCount++;
         if(intervalCount >= interval) {
             for(int i=0; i<listeners.length; i++) {
@@ -39,7 +39,7 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
         }
     }
     
-    public void integratorStepFinished(IEvent e) {
+    public void integratorStepFinished(IIntegratorEvent e) {
         if(intervalCount >= interval) {
             for(int i=0; i<listeners.length; i++) {
                 listeners[i].integratorStepFinished(e);

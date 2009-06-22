@@ -13,16 +13,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.activity.Controller;
+import etomica.action.activity.IController;
 import etomica.api.IAction;
 import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.api.ISpecies;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
-import etomica.units.Dimension;
-import etomica.units.Null;
 
 
 /**

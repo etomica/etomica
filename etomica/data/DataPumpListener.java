@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.api.IEvent;
+import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 
 public class DataPumpListener extends DataPump implements IIntegratorListener {
@@ -18,11 +18,11 @@ public class DataPumpListener extends DataPump implements IIntegratorListener {
         setInterval(interval);
     }
 
-    public void integratorInitialized(IEvent e) {}
+    public void integratorInitialized(IIntegratorEvent e) {}
     
-    public void integratorStepStarted(IEvent e) {}
+    public void integratorStepStarted(IIntegratorEvent e) {}
     
-    public void integratorStepFinished(IEvent e) {
+    public void integratorStepFinished(IIntegratorEvent e) {
         if(++intervalCount < interval) return;
         intervalCount = 0;
         actionPerformed();

@@ -5,8 +5,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -30,6 +28,8 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 public class VLESim extends Simulation {
 

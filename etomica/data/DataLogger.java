@@ -7,8 +7,8 @@ import java.util.Locale;
 
 import etomica.action.activity.ControllerEvent;
 import etomica.api.IData;
-import etomica.api.IEvent;
-import etomica.api.IListener;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * DataSink that manages a FileWriter and also listens to non-interval 

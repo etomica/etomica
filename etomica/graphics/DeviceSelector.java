@@ -3,8 +3,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 
+import etomica.action.activity.IController;
 import etomica.api.IAction;
-import etomica.api.IController;
 
 /**
  * Generic Device that has a combo box.  Selecting an item from the combo box

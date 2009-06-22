@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IController;
+import etomica.action.activity.IController;
 import etomica.modifier.Modifier;
 import etomica.units.Dimension;
 import etomica.units.Null;

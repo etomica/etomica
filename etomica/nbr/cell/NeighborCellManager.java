@@ -7,8 +7,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
 import etomica.api.IBox;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -23,6 +21,8 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
 import etomica.space.ISpace;
 import etomica.util.Debug;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * Class that defines and manages construction and use of lattice of cells 

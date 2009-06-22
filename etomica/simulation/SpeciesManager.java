@@ -5,12 +5,12 @@ import java.util.LinkedList;
 
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IEvent;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.chem.elements.Element;
 import etomica.util.Arrays;
+import etomica.util.IEvent;
 
 /**
  * The SpeciesManager manages Species and AtomTypes on behalf of the

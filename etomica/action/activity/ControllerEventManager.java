@@ -1,8 +1,8 @@
 package etomica.action.activity;
 
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.util.EventManager;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 public class ControllerEventManager extends EventManager {
 

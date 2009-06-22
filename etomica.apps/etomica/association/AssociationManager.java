@@ -2,8 +2,6 @@ package etomica.association;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -12,6 +10,8 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * Class to define and track atom associations.  Constructed given an iterator

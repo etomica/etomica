@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import etomica.api.IAction;
-import etomica.api.IController;
 import etomica.EtomicaInfo;
+import etomica.action.activity.IController;
+import etomica.api.IAction;
 import etomica.graphics.Device;
 
 /**

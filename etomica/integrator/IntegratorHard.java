@@ -8,7 +8,6 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
@@ -29,6 +28,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;
 import etomica.util.Debug;
+import etomica.util.IEvent;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 

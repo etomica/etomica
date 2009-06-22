@@ -4,10 +4,9 @@ import java.util.HashMap;
 
 import etomica.action.Activity;
 import etomica.api.IAction;
-import etomica.api.IController;
-import etomica.api.IEventManager;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
+import etomica.util.IEventManager;
 
 /**
  * Organizer and executor of actions performed by the simulation. The Controller

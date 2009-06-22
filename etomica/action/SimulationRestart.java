@@ -1,8 +1,8 @@
 package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.IController;
 import etomica.api.IAction;
-import etomica.api.IController;
 import etomica.api.IIntegrator;
 import etomica.api.ISimulation;
 import etomica.config.Configuration;

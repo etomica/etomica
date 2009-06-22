@@ -2,9 +2,9 @@ package etomica.graphics;
 
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.IController;
 import etomica.api.IAction;
 import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.api.ISpecies;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;

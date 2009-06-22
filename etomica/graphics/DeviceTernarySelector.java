@@ -4,9 +4,9 @@ import java.awt.FontMetrics;
 import java.awt.GridLayout;
 
 import etomica.EtomicaInfo;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.util.EventManager;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * Selector for fractions in a ternary system.  Presents a triangle that can

@@ -1,11 +1,11 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;

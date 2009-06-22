@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IEvent;
+import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotential;
 import etomica.atom.AtomArrayList;
@@ -79,18 +79,18 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     }
 
 
-    public void integratorInitialized(IEvent e) {
+    public void integratorInitialized(IIntegratorEvent e) {
         reset();
     }
 
-    public void integratorStepFinished(IEvent e) {
+    public void integratorStepFinished(IIntegratorEvent e) {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
 
-    public void integratorStepStarted(IEvent e) {}
+    public void integratorStepStarted(IIntegratorEvent e) {}
 
     /**
      * For each box in the array, applies central image, 

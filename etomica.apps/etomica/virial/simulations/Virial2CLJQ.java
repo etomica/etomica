@@ -2,7 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.api.IAction;
 import etomica.api.IData;
-import etomica.api.IEvent;
+import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConformationLinear;
@@ -155,9 +155,9 @@ public class Virial2CLJQ {
 
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
-                public void integratorInitialized(IEvent e) {}
-                public void integratorStepStarted(IEvent e) {}
-                public void integratorStepFinished(IEvent e) {
+                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double ratio = sim.dsvo.getDataAsScalar();

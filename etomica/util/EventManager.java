@@ -1,9 +1,6 @@
 package etomica.util;
 import java.io.IOException;
 
-import etomica.api.IEvent;
-import etomica.api.IEventManager;
-import etomica.api.IListener;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.

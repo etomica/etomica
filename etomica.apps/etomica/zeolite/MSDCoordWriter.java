@@ -7,14 +7,14 @@ import etomica.action.activity.ControllerEvent;
 import etomica.api.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IEvent;
 import etomica.api.IIntegrator;
-import etomica.api.IListener;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.ISpace;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,

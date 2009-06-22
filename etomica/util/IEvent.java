@@ -1,4 +1,4 @@
-package etomica.api;
+package etomica.util;
 
 public interface IEvent {
 

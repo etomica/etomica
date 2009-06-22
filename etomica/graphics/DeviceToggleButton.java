@@ -5,8 +5,8 @@ import java.awt.Color;
 import etomica.EtomicaInfo;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
+import etomica.action.activity.IController;
 import etomica.api.IAction;
-import etomica.api.IController;
 import etomica.modifier.ModifierBoolean;
 
 /**

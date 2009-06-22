@@ -3,8 +3,6 @@ package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IData;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.api.IRandom;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
@@ -18,6 +16,8 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.space.ISpace;
 import etomica.units.Null;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform

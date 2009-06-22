@@ -1,9 +1,8 @@
 package etomica.action.activity;
 
 import etomica.api.IAction;
-import etomica.api.IController;
-import etomica.api.IEvent;
 import etomica.util.EnumeratedType;
+import etomica.util.IEvent;
 
 public class ControllerEvent implements IEvent, java.io.Serializable {
     

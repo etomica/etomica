@@ -2,11 +2,11 @@ package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.IController;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.api.IController;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;

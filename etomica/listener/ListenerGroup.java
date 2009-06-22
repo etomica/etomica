@@ -1,6 +1,6 @@
 package etomica.listener;
 
-import etomica.api.IListener;
+import etomica.util.IListener;
 
 public interface ListenerGroup extends IListener {
 

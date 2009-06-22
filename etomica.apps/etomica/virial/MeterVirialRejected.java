@@ -1,13 +1,9 @@
 package etomica.virial;
 
-import java.util.Random;
-
 import etomica.api.IData;
-import etomica.api.IEvent;
-import etomica.api.IListener;
 import etomica.data.DataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataTag;
+import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
@@ -15,6 +11,8 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.units.Null;
+import etomica.util.IEvent;
+import etomica.util.IListener;
 
 /**
  * Measures value of clusters in a Box and returns the value of the system's

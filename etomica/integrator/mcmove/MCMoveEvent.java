@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
 
-import etomica.api.IEvent;
+import etomica.util.IEvent;
 
 public abstract class MCMoveEvent implements IEvent {
     

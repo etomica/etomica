@@ -25,7 +25,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
@@ -37,7 +36,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Simple Lennard-Jones + S-W Association Monte Carlo NPT simulation in 3D.
