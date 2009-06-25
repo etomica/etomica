@@ -13,8 +13,10 @@ import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
+import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
@@ -27,11 +29,14 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MeterBoltzmannTarget;
+import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
+import etomica.normalmode.SimOverlapLJModule.MeterPotentialEnergyDifference;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -41,6 +46,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Energy;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
 import etomica.util.RandomNumberGenerator;
@@ -167,6 +173,15 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         
+
+        MeterPotentialEnergyFromIntegrator meterPETarget = new MeterPotentialEnergyFromIntegrator(integratorTarget);
+        double latticeEnergy = meterPETarget.getDataAsScalar();
+//        MeterPotentialEnergyDifference meterTarget = new MeterPotentialEnergyDifference(meterPE, latticeEnergy);
+//        MeterHarmonicEnergy meterReferenceInTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
+//        meterReferenceInTarget.setBox(boxTarget);
+        
+        
+        
         meterBinA = new MeterCompareSingleModeBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
@@ -280,8 +295,22 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
+        MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, nm);
+        meterHarmonicEnergy.setBox(boxTarget); //sets e-vect, omega^2, wavevectors
+        MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
+        meterTarget.setLatticeEnergy(latticeEnergy);
+        meters[1] = meterTarget;
+        
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
+        
+        
+        
+        
+        
+        
+        
+        
         
         setBennettParameter(1.0, 30);
         
@@ -653,4 +682,21 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
 
     }
     
+    
+    public static class MeterPotentialEnergyDifference extends DataSourceScalar {
+
+        public MeterPotentialEnergyDifference(DataSourceScalar meter, double offset) {
+            super("energy", Energy.DIMENSION);
+            this.meter = meter;
+            this.offset = offset;
+        }
+        
+        public double getDataAsScalar() {
+            return meter.getDataAsScalar() - offset;
+        }
+
+        private static final long serialVersionUID = 1L;
+        protected final DataSourceScalar meter;
+        protected final double offset;
+    }
 }
