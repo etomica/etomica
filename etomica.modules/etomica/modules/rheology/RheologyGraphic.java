@@ -1,14 +1,20 @@
 package etomica.modules.rheology;
 
+import java.util.ArrayList;
+
+import etomica.action.IAction;
+import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.ModifierGeneral;
 import etomica.space3d.Space3D;
+import g3dsys.images.Figure;
 
 /**
  * Module for "Macromolecular dynamics related to rheological properties
@@ -18,9 +24,14 @@ import etomica.space3d.Space3D;
  */
 public class RheologyGraphic extends SimulationGraphic {
 
-    public RheologyGraphic(SimulationRheology sim) {
+    public RheologyGraphic(final SimulationRheology sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "Polymer Rheology", 1, sim.getSpace(), sim.getController());
         sim.setChainLength(10);
+        final Object bondObject = new Object();
+        final ArrayList<Figure> bondList = new ArrayList<Figure>();
+        for (int i=0; i<9; i++) {
+            bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
+        }
         
         DeviceSlider sliderA = new DeviceSlider(sim.getController());
         sliderA.setLabel("a");
@@ -57,7 +68,23 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderPolymerLength.setNMajor(4);
         sliderPolymerLength.setShowValues(true);
         add(sliderPolymerLength);
-        sliderPolymerLength.setPostAction(getPaintAction(sim.box));
+        sliderPolymerLength.setPreAction(new IAction() {
+            public void actionPerformed() {
+                for (int i=0; i<bondList.size(); i++) {
+                    ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).releaseBond(bondList.get(i));
+                }
+                bondList.clear();
+            }
+        });
+        sliderPolymerLength.setPostAction(new IAction() {
+            public void actionPerformed() {
+                for (int i=0; i<sim.box.getLeafList().getAtomCount()-1; i++) {
+                    bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
+                }
+
+                getPaintAction(sim.box).actionPerformed();
+            }
+        });
 
         final MeterViscosity meterViscosity = new MeterViscosity(sim.getSpace());
         meterViscosity.setIntegrator(sim.integrator);
