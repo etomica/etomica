@@ -53,7 +53,7 @@ public class IntegratorPolymer extends IntegratorMD {
             p0.PEa1Tv1(-omdth, drNext);
             if (a<0) {
                 p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) + a*srdt*p0.x(0) + sqdt*random.nextGaussian());
+                p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
             }
             else {
                 p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
@@ -67,17 +67,18 @@ public class IntegratorPolymer extends IntegratorMD {
                 p0 = p1;
                 p1 = ((IAtomPositioned)atoms.getAtom(j+1)).getPosition();
                 drNext.Ev1Mv2(p1, p0);
+                px = p0.x(0);
                 py = p0.x(1);
 
                 p0.PEa1Tv1(omdth, drPrev);
                 p0.PEa1Tv1(-omdth, drNext);
                 if (a<0) {
                     p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.x(1) + a*srdt*p0.x(0) + sqdt*random.nextGaussian());
+                    p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
                 }
-                else {   
-                    p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*p0.x(0) + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.x(1) - sqa*srdt*p0.x(1) + sqdt*random.nextGaussian());
+                else {
+                    p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
+                    p0.setX(1, p0.x(1) - sqa*srdt*py + sqdt*random.nextGaussian());
                 }
                 p0.setX(2, p0.x(2) + sqdt*random.nextGaussian());
                 center.PE(p0);
@@ -91,11 +92,11 @@ public class IntegratorPolymer extends IntegratorMD {
             p0.PEa1Tv1(omdth, drPrev);
             if (a<0) {
                 p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) + a*srdt*p0.x(0) + sqdt*random.nextGaussian());
+                p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
             }
             else {
                 p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) - sqa*srdt*p0.x(1) + sqdt*random.nextGaussian());
+                p0.setX(1, p0.x(1) - sqa*srdt*py + sqdt*random.nextGaussian());
             }
             p0.setX(2, p0.x(2) + sqdt*random.nextGaussian());
 
