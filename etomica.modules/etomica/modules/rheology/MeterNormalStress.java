@@ -44,7 +44,15 @@ public class MeterNormalStress extends DataSourceScalar {
             double dr1 = dr.x(d[1]);
             s += (dr0*dr0 - dr1*dr1);
         }
-        return s/shearRate;
+        s /= shearRate;
+        if (doDouble) {
+            s /= shearRate;
+        }
+        return s;
+    }
+    
+    public void setDoDouble(boolean newDoDouble) {
+        doDouble = newDoDouble;
     }
 
     public void setDims(int[] newDims) {
@@ -57,4 +65,5 @@ public class MeterNormalStress extends DataSourceScalar {
     protected IntegratorPolymer integrator;
     protected int[] d;
     protected int count;
+    protected boolean doDouble;
 }

@@ -33,7 +33,7 @@ public class RheologyGraphic extends SimulationGraphic {
             bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
         }
         
-        DeviceSlider sliderA = new DeviceSlider(sim.getController());
+        final DeviceSlider sliderA = new DeviceSlider(sim.getController());
         sliderA.setLabel("a");
         sliderA.setShowBorder(true);
         ModifierGeneral modifierA = new ModifierGeneral(sim.integrator, "a");
@@ -109,6 +109,12 @@ public class RheologyGraphic extends SimulationGraphic {
         normalStress1Display.setAccumulator(avgNormalStress1);
         add(normalStress1Display);
         getController().getDataStreamPumps().add(normalStress1Pump);
+        sliderA.setPostAction(new IAction() {
+            public void actionPerformed() {
+                meterNormalStress1.setDoDouble(sliderA.getValue() < 0);
+            }
+        });
+
 
         final MeterNormalStress meterNormalStress2 = new MeterNormalStress(sim.getSpace());
         meterNormalStress2.setIntegrator(sim.integrator);
