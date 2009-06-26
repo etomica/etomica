@@ -1,42 +1,23 @@
 package etomica.models.oneDHardRods;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.box.Box;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataPump;
-import etomica.data.DataSourceScalar;
-import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
-import etomica.math.SpecialFunctions;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MeterBoltzmannTarget;
-import etomica.normalmode.MeterHarmonicEnergy;
-import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.WriteS;
-import etomica.normalmode.SimOverlapLJModule.MeterPotentialEnergyDifference;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -45,15 +26,11 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Energy;
-import etomica.units.Null;
 import etomica.util.ParameterBase;
 import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
-import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * MC simulation of Lennard-Jones system.
@@ -67,9 +44,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     NormalModes nm;
     public BasisMonatomic basis;
     ActivityIntegrate activityIntegrate;
-    
     IntegratorMC integrator;
-    
     public IBox box;
     public Boundary boundary;
     MCMoveChangeSingleMode changeMove;
@@ -78,26 +53,24 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
-//        long seed = 5;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 5;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
         
-        
         basis = new BasisMonatomic(space);
         
-//TARGET
-        //Set up target system   - A - 1
         PotentialMasterMonatomic potentialMaster = new 
                 PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(this, potentialMaster);
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
+        integrator.setBox(box);
         
         primitive = new PrimitiveCubic(space, 1.0);
         double v = primitive.unitCell().getVolume();
@@ -110,12 +83,6 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
         
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
-//        for(int k = 0; k < 32; k++){
-//            System.out.println(k + " " +((IAtomPositioned)coordinateDefinitionTarget.getBox().getLeafList().getAtom(k)).getPosition());
-//        }
-        
-        
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getDimensions().x(0) * 0.495;
@@ -145,6 +112,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
         changeMove.setWaveVectorCoefficients(
                 waveVectorFactory.getCoefficients());
         changeMove.setEigenVectors(nm.getEigenvectors(box));
+        changeMove.setOmega2(nm.getOmegaSquared(box));
         changeMove.setCoordinateDefinition(coordinateDefinition);
         changeMove.setBox((IBox)box);
         changeMove.setStepSizeMin(0.001);
@@ -203,10 +171,40 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
         System.out.println("Total steps: "+params.numSteps);
         System.out.println("instantiated");
         
+        //collect initial location data
+        IVectorMutable[] locationsOld = new Vector3D[numMolecules];
+        IAtomList leaflist = sim.box.getLeafList();
+        double oldX = 0.0; double oldY = 0.0; double oldZ = 0.0;
+        for(int i = 0; i < numMolecules; i++){
+            //one d is assumed here.
+            locationsOld[i] = ( ((Atom)leaflist.getAtom(i)).getPosition() );
+        }
+        for(int i = 0; i < numMolecules; i++){
+            oldX += locationsOld[i].x(0);
+            oldY += locationsOld[i].x(1);
+            oldZ += locationsOld[i].x(2);
+        }
+        
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
+        
+        //see if anything moved:
+        IVectorMutable[] locationsNew = new Vector3D[numMolecules];
+        leaflist = sim.box.getLeafList();
+        double newX = 0.0; double newY = 0.0; double newZ = 0.0;
+        for(int i = 0; i < numMolecules; i++){
+            //one d is assumed here.
+            locationsNew[i] = ( ((Atom)leaflist.getAtom(i)).getPosition() );
+        }
+        for(int i = 0; i < numMolecules; i++){
+            newX += locationsOld[i].x(0);
+            newY += locationsOld[i].x(1);
+            newZ += locationsOld[i].x(2);
+        }
+        System.out.println("Old locations:  " + oldX + "  " + oldY + "  " + oldZ);
+        System.out.println("New locations:  " + newX + "  " + newY + "  " + newZ);
 
-
+        System.out.println("Fini.");
     }
     
     
@@ -216,15 +214,15 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     
     public static class SimOverlapSingleWaveVector3DParam extends ParameterBase {
         public int numAtoms = 32;
-        public double density = 1.3;
+        public double density = 0.962;
         public int D = 3;
         public double harmonicFudge = 1.0;
-        public double temperature = 1.0;
+        public double temperature = 0.1378;
         public int comparedWV = 7;
         
-        public int numSteps = 40000000;
+        public int numSteps = 10000;
         
-        public String filename = "testMCMoveChange3DLJ";
+        public String filename = "normal_modes_LJ_3D_32";
 
 
     }

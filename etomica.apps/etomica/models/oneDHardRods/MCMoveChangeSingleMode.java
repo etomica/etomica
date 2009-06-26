@@ -12,6 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space3d.Vector3D;
 
 /**
  * A Monte Carlo move which selects a wave vector, and changes the normal mode
@@ -33,11 +34,10 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     protected double energyOld, energyNew /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
+    private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
-    
-    int count;
     
     public MCMoveChangeSingleMode(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -45,8 +45,6 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        
-        count = 0;
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -87,6 +85,10 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         eigenVectors = newEigenVectors;
     }
     
+    public void setOmega2(double[][] o2){
+        omega2 = o2;
+    }
+    
     public void setBox(IBox newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
@@ -97,31 +99,13 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         return iterator;
     }
 
-//    public void setWaveVectorAndEigenVectorsChanged(int wv, int[] evectors){
-//        //we will need some flag to indicate that these were set, and not
-          //randomly assign them.
-//    }
-//    
+    
     public boolean doTrial() {
-//        System.out.println("MCMoveChangeMode doTrial");
-//        int ats = box.getLeafList().getAtomCount();
-//        IAtomList list = box.getLeafList();
-//        int coordinateDim = coordinateDefinition.getCoordinateDim();
-//        for(int i = 0; i < ats; i++){
-//            System.out.println("Atom " + i);
-//            for(int j = 0; j < coordinateDim; j++){
-//                System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
-//                
-//            }
-//        }
-        
         energyOld = energyMeter.getDataAsScalar();
 //        System.out.println("energyOld " +energyOld);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
-        //nan These lines make it a single atom-per-molecule class, and
-        // assume that the first cell is the same as every other cell.
         BasisCell cell = cells[0];
 //        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
@@ -129,10 +113,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         // Select the wave vector whose eigenvectors will be changed.
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
-        changedWV = random.nextInt(harmonicWV);
-        changedWV +=1; 
-        
-        System.out.println(changedWV);
+        changedWV = random.nextInt(harmonicWV + 1);
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -154,8 +135,8 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
-                for(int j = 0; j < coordinateDim; j++){
-                    if(eigenVectors[changedWV][i][j] != 0.0){
+                if( !(Double.isInfinite(omega2[changedWV][i])) ){
+                    for(int j = 0; j < coordinateDim; j++){
                         deltaU[j] += waveVectorCoefficients[changedWV] * 
                             eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
                     }
