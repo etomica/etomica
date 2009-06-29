@@ -8,9 +8,10 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
+import etomica.api.IIntegrator;
 import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -23,21 +24,30 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapModule {
 
-    public SimOverlapModule(IntegratorBox[] integrators, IEtomicaDataSource meterTarget,
-            IEtomicaDataSource meterReference, IEtomicaDataSource meterTargetInReference, IEtomicaDataSource meterReferenceInTarget,
+    public SimOverlapModule(IBox boxReference, IBox boxTarget,
+            IIntegrator integratorReference, IIntegrator integratorTarget,
+            IAPIPotential potentialReference, IAPIPotential potentialTarget,
             double temperature) {
-
-        this.integrators = integrators;
+        integrators = new IIntegrator[2];
+        integrators[0] = integratorReference;
+        integrators[1] = integratorTarget;
         accumulatorPumps = new DataPumpListener[2];
         meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        // OVERLAP
+        MeterAPIPotentialEnergy meterTarget = new MeterAPIPotentialEnergy(potentialTarget);
+        meterTarget.setBox(boxTarget);
+        MeterAPIPotentialEnergy meterTargetInReference = new MeterAPIPotentialEnergy(potentialTarget);
+        meterTargetInReference.setBox(boxReference);
+        MeterAPIPotentialEnergy meterReference = new MeterAPIPotentialEnergy(potentialReference);
+        meterReference.setBox(boxReference);
+        MeterAPIPotentialEnergy meterReferenceInTarget = new MeterAPIPotentialEnergy(potentialReference);
+        meterReferenceInTarget.setBox(boxTarget);
         integratorOverlap = new IntegratorOverlap(integrators);
-        meters[1] = new MeterOverlap(meterTarget, meterReferenceInTarget, temperature);
         meters[0] = new MeterOverlap(meterReference, meterTargetInReference, temperature);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
+        meters[1] = new MeterOverlap(meterTarget, meterReferenceInTarget, temperature);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
         
         setRefPref(1.0, 30);
         
@@ -45,7 +55,7 @@ public class SimOverlapModule {
         controller = new Controller();
         controller.addAction(activityIntegrate);
     }
-    
+
     public void setTargetDataInterval(int newTargetDataInterval) {
         targetDataInterval = newTargetDataInterval;
         accumulatorPumps[1].setInterval(targetDataInterval);
@@ -100,12 +110,7 @@ public class SimOverlapModule {
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
-        if (iBox == 0) {
-            newAccumulator.setBlockSize(100);
-        }
-        else {
-            newAccumulator.setBlockSize(100);
-        }
+        newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
             integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
@@ -230,7 +235,7 @@ public class SimOverlapModule {
     private static final long serialVersionUID = 1L;
     protected IntegratorOverlap integratorOverlap;
     protected DataSourceVirialOverlap dsvo;
-    protected IntegratorBox[] integrators;
+    protected IIntegrator[] integrators;
     protected ActivityIntegrate activityIntegrate;
     protected double refPref;
     protected AccumulatorVirialOverlapSingleAverage[] accumulators;

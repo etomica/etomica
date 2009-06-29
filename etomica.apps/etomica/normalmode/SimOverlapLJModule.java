@@ -4,12 +4,13 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -24,6 +25,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -93,6 +95,51 @@ public class SimOverlapLJModule {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
 
+        // HARMONIC
+        IBoundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
+        IBox boxHarmonic = new Box(boundaryHarmonic, space);
+        sim.addBox(boxHarmonic);
+        boxHarmonic.setNMolecules(species, numMolecules);
+
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0);
+
+        MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
+        integratorHarmonic.getMoveManager().addMCMove(move);
+        integrators[0] = integratorHarmonic;
+        
+        Primitive primitive;
+        int[] nCells;
+        Basis basis;
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0/density);
+            nCells = new int[]{numMolecules};
+            basis = new BasisMonatomic(space);
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numMolecules/density);
+        } else {
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            primitive = new PrimitiveCubic(space, L);
+            int n = (int)Math.round(Math.pow(numMolecules/4, 1.0/3.0));
+            nCells = new int[]{n,n,n};
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+            basis = new BasisCubicFcc();
+        }
+        boxHarmonic.setBoundary(boundaryHarmonic);
+
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(sim, boxHarmonic, primitive, basis, space);
+        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
+        
+        move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
+        move.setWaveVectors(waveVectorFactory.getWaveVectors());
+        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setCoordinateDefinition(coordinateDefinitionHarmonic);
+        move.setTemperature(temperature);
+        
+        move.setBox(boxHarmonic);
+        
+        integratorHarmonic.setBox(boxHarmonic);
+
+
         // TARGET
         
         IBox boxTarget = new Box(space);
@@ -108,22 +155,13 @@ public class SimOverlapLJModule {
 
         integrators[1] = integratorTarget;
 
-        Primitive primitive;
         IBoundary boundaryTarget;
-        int[] nCells;
-        Basis basis;
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, numMolecules/density);
-            nCells = new int[]{numMolecules};
-            basis = new BasisMonatomic(space);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numMolecules/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
         }
         boxTarget.setBoundary(boundaryTarget);
         waveVectorFactory.makeWaveVectors(boxTarget);
@@ -144,51 +182,20 @@ public class SimOverlapLJModule {
         integratorTarget.reset();
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(integratorTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
-        MeterPotentialEnergyDifference meterTarget = new MeterPotentialEnergyDifference(meterPE, latticeEnergy);
-        MeterHarmonicEnergy meterReferenceInTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         
     
-        // HARMONIC
-        IBoundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        IBox boxHarmonic = new Box(boundaryHarmonic, space);
-        sim.addBox(boxHarmonic);
-        boxHarmonic.setNMolecules(species, numMolecules);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0);
+        
+        MeterHarmonicEnergy meterReference = new MeterHarmonicEnergy(coordinateDefinitionHarmonic, normalModes);
+        MeterHarmonicEnergy meterHarmonicTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
+        
+        APIPotentialReference potentialReference = new APIPotentialReference(new MeterHarmonicEnergy[]{meterReference, meterHarmonicTarget});
 
-        MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
-        integratorHarmonic.getMoveManager().addMCMove(move);
-        integrators[0] = integratorHarmonic;
-        
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numMolecules/density);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numMolecules/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
-        boxHarmonic.setBoundary(boundaryHarmonic);
+        APIPotentialTarget potentialTarget = new APIPotentialTarget(potentialMasterTarget);
+        potentialTarget.setLatticeEnergy(latticeEnergy);
 
-        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(sim, boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
-        
-        move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
-        move.setWaveVectors(waveVectorFactory.getWaveVectors());
-        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setCoordinateDefinition(coordinateDefinitionHarmonic);
-        move.setTemperature(temperature);
-        
-        move.setBox(boxHarmonic);
-        
-        integratorHarmonic.setBox(boxHarmonic);
-
-        MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPEHarmonic.setBox(boxHarmonic);
-        MeterPotentialEnergyDifference meterTargetInReference = new MeterPotentialEnergyDifference(meterPEHarmonic, latticeEnergy);
-        MeterHarmonicEnergyFromMove meterReference = new MeterHarmonicEnergyFromMove(move);
-        
-        SimOverlapModule module = new SimOverlapModule(integrators, meterTarget, meterReference, meterTargetInReference, meterReferenceInTarget, temperature);
+        SimOverlapModule module = new SimOverlapModule(boxHarmonic, boxTarget, integrators[0], integrators[1], 
+                potentialReference, potentialTarget, temperature);
         module.setTargetDataInterval(32);
         module.setReferenceDataInterval(1);
 
@@ -300,4 +307,44 @@ public class SimOverlapLJModule {
         protected final DataSourceScalar meter;
         protected final double offset;
     }
+    
+    public static class APIPotentialTarget implements IAPIPotential {
+
+        public APIPotentialTarget(IPotentialMaster wrappedPotentialMaster) {
+            this.wrappedPotentialMaster = wrappedPotentialMaster;
+        }
+
+        public double calculateEnergy(IBox box) {
+            pc.zeroSum();
+            wrappedPotentialMaster.calculate(box, id, pc);
+            return pc.getSum() - latticeEnergy;
+        }
+
+        public void setLatticeEnergy(double newLatticeEnergy) {
+            latticeEnergy = newLatticeEnergy;
+        }
+
+        public double getLatticeEnergy() {
+            return latticeEnergy;
+        }
+
+        protected final IPotentialMaster wrappedPotentialMaster;
+        private final IteratorDirective id = new IteratorDirective();
+        private final PotentialCalculationEnergySum pc = new PotentialCalculationEnergySum();
+        protected double latticeEnergy;
+    }
+
+    public static class APIPotentialReference implements IAPIPotential {
+
+        public APIPotentialReference(MeterHarmonicEnergy[] meters) {
+            this.meters = meters;
+        }
+
+        public double calculateEnergy(IBox box) {
+            return meters[box.getIndex()].getDataAsScalar();
+        }
+
+        protected final MeterHarmonicEnergy[] meters;
+    }
+
 }
