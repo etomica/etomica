@@ -1,13 +1,11 @@
 package etomica.virial.overlap;
 
+import etomica.api.IIntegrator;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.util.Debug;
-import etomica.api.IRandom;
 
 /**
  * This integrator class manages (2) sub-integrators for an overlap
@@ -15,7 +13,7 @@ import etomica.api.IRandom;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(IntegratorBox[] aIntegrators) {
+    public IntegratorOverlap(IIntegrator[] aIntegrators) {
         super(null);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
