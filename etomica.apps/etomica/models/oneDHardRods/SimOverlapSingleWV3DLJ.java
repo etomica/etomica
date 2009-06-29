@@ -36,7 +36,6 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
-import etomica.normalmode.SimOverlapLJModule.MeterPotentialEnergyDifference;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -296,7 +295,6 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
                 IntegratorMC[]{integratorRef, integratorTarget});
         
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, nm);
-        meterHarmonicEnergy.setBox(boxTarget); //sets e-vect, omega^2, wavevectors
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;

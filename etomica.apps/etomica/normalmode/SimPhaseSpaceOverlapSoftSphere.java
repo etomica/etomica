@@ -172,7 +172,6 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-        meterHarmonicEnergy.setBox(boxTarget);
         
         // target ---> harmonic
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);

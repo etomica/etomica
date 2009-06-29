@@ -182,7 +182,6 @@ public class SimDSBenOverlapSoftSphereBCC extends Simulation {
         //integratorOverlap.setStepFreq0(0.02); //to make the number of sampling the same!! 7/29/08
         
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-        meterHarmonicEnergy.setBox(boxTarget);
         
         // target ---> harmonic
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);

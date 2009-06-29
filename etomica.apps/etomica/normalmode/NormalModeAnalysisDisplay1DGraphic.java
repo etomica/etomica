@@ -54,7 +54,6 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		 * harmonic energy
 		 */
 		MeterHarmonicEnergy heMeter = new MeterHarmonicEnergy(sim.coordinateDefinition, sim.nm);
-		heMeter.setBox(sim.box);
 		
 		AccumulatorHistory heHistory = new AccumulatorHistory();
 		heHistory.setTimeDataSource(timeCounter);

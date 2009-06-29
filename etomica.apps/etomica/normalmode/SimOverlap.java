@@ -169,7 +169,6 @@ public class SimOverlap extends Simulation {
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-        meterHarmonicEnergy.setBox(boxTarget);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
         // lattice energy is 0
         meters[1] = meterTarget;

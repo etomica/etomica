@@ -146,7 +146,6 @@ public class SimOverlapLJModule {
         double latticeEnergy = meterPE.getDataAsScalar();
         MeterPotentialEnergyDifference meterTarget = new MeterPotentialEnergyDifference(meterPE, latticeEnergy);
         MeterHarmonicEnergy meterReferenceInTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-        meterReferenceInTarget.setBox(boxTarget);
         
     
         // HARMONIC

@@ -161,7 +161,6 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        harmonicEnergyMeter.setBox(p);
         atomSource.setBox(p);
     }
     

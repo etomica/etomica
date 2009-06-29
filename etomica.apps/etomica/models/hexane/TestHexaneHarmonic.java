@@ -219,7 +219,6 @@ public class TestHexaneHarmonic extends Simulation {
         NormalModes normalModes = new NormalModesFromFile(filename, 3);
         
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
-        harmonicEnergy.setBox(sim.box);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverageCollapsing harmonicAvg = new AccumulatorAverageCollapsing();
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);

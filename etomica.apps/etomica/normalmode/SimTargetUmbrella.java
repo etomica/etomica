@@ -121,7 +121,6 @@ public class SimTargetUmbrella extends Simulation {
         integrator.getMoveManager().addMCMove(move);
       
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        meterHarmonicEnergy.setBox(box);
         
     }
 

@@ -130,7 +130,6 @@ public class SimUmbrellaSoftSphere extends Simulation {
         integrator.getMoveManager().addMCMove(move);
       
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        meterHarmonicEnergy.setBox(box);
         
         meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic);
         meterEnergy.setBox(box);

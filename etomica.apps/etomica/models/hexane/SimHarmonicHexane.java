@@ -209,7 +209,6 @@ public class SimHarmonicHexane extends Simulation {
             // boltzmann average
             MeterHarmonicEnergy harmonicEnergy = new 
                 MeterHarmonicEnergy(sim.coordinateDefinition, sim.normalModes);
-            harmonicEnergy.setBox(sim.box);
             DataFork harmonicFork = new DataFork();
             AccumulatorAverage harmonicAvg = new AccumulatorAverageFixed(5);
             DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);

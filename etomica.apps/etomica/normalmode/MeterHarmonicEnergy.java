@@ -26,6 +26,16 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         super("Harmonic Energy", Energy.DIMENSION);
         this.coordinateDefinition = coordinateDefinition;
         this.normalModes = normalModes;
+
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        realT = new double[coordinateDim];
+        imaginaryT = new double[coordinateDim];
+
+        IBox box = coordinateDefinition.getBox();
+        normalModes.getWaveVectorFactory().makeWaveVectors(box);
+        setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
+        setEigenvectors(normalModes.getEigenvectors(box));
+        setOmegaSquared(normalModes.getOmegaSquared(box));
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -59,25 +69,13 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(IBox newBox) {
-
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
-        realT = new double[coordinateDim];
-        imaginaryT = new double[coordinateDim];
-
-        normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
-        setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
-        setEigenvectors(normalModes.getEigenvectors(newBox));
-        setOmegaSquared(normalModes.getOmegaSquared(newBox));
-    }
-    
     protected void setWaveVectors(IVectorMutable[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
     
     protected void setEigenvectors(double[][][] eigenvectors) {
-        this.eigenvectors = (double[][][])eigenvectors.clone();
+        this.eigenvectors = eigenvectors.clone();
     }
     
     protected void setOmegaSquared(double[][] omega2) {
@@ -128,7 +126,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         NormalModes normalModes = new NormalModes1DHR(sim.getSpace().D());
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        meter.setBox(box);
         ((IAtomPositioned)atoms.getAtom(1)).getPosition().PE(0.5);
         ((IAtomPositioned)atoms.getAtom(6)).getPosition().PE(-1.5);
         System.out.println("Harmonic energy: "+meter.getDataAsScalar());
