@@ -73,16 +73,32 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
         
+        //CALCULATE THE HARMONIC PART OF THE ENERGY
         //get normal mode coordinate of "last" waveVector
         coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
         
-        double realCoord = 0.0, imagCoord = 0.0;
+        double[] realCoord = new double[coordinateDim];
+        double[] imagCoord = new double[coordinateDim];
+        double[] normalCoord = new double[coordinateDim];
+        for(int j = 0; j < coordinateDim; j++){
+            realCoord[j] = 0.0;
+            imagCoord[j] = 0.0;
+        }
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
             for(int j = 0; j < coordinateDim; j++){
-                realCoord += eigenVectors[comparedWV][i][j] * realT[j];
-                imagCoord += eigenVectors[comparedWV][i][j] * imagT[j];
+                realCoord[i] += eigenVectors[comparedWV][i][j] * realT[j];
+                imagCoord[i] += eigenVectors[comparedWV][i][j] * imagT[j];
             }
+            if(Double.isInfinite(omegaSquared[comparedWV][i])){
+                continue;
+            }
+            //Calculate the energy due to the Gaussian modes.
+            //NAN IS THIS RIGHT?
+            normalCoord[i] = realCoord[i]*realCoord[i] + imagCoord[i] * imagCoord[i];
+            energyHarmonic += wvc * normalCoord[comparedWV] * omegaSquared[comparedWV][i];
         }
+        
+//        histogramNRG.addValue(energyHarmonic);
 //        histogramRealCoord.addValue(realCoord);
 //        histogramImagCoord.addValue(imagCoord);
         
@@ -90,6 +106,7 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
 //        System.out.println("single imag: " + imagCoord);
         
         
+        //CALCULATE THE HARD ROD PART OF THE ENERGY
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -107,8 +124,9 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 //Calculate the current coordinates.
                 for(int j = 0; j < coordinateDim; j++){
+                    //NAN IS THIS RIGHT?
                     deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] *
-                        2.0 * (realCoord*coskR - imagCoord*sinkR);
+                        2.0 * (realCoord[j]*coskR - imagCoord[j]*sinkR);
                 }
             }
 
@@ -122,16 +140,6 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }
         energyHardRod = meterPE.getDataAsScalar();
-        
-        //Calculate the energy due to the Gaussian modes.
-        for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-            if(Double.isInfinite(omegaSquared[comparedWV][i])){
-                continue;
-            }
-            double normalCoord = realCoord*realCoord + imagCoord * imagCoord;
-            energyHarmonic += wvc * normalCoord * omegaSquared[comparedWV][i];
-        }
-//        histogramNRG.addValue(energyHarmonic);
         
         // Set all the atoms back to the old values of u
         for (int iCell = 0; iCell<cells.length; iCell++) {
