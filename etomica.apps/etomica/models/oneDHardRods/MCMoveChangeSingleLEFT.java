@@ -21,6 +21,7 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
     protected double energyOld, energyNew /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
+    private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
@@ -70,6 +71,10 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
      */
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
+    }
+    
+    public void setOmegaSquared(double[][] o2){
+        omega2 = o2;
     }
     
     public void setBox(IBox newBox) {
@@ -126,9 +131,11 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
-                for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += waveVectorCoefficients[changedWV] * 
-                        eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                if ( !(Double.isInfinite(omega2[changedWV][i])) ){
+                    for(int j = 0; j < coordinateDim; j++){
+                        deltaU[j] += waveVectorCoefficients[changedWV] * 
+                            eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                    }
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);

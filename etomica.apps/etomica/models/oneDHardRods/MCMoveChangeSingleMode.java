@@ -85,7 +85,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         eigenVectors = newEigenVectors;
     }
     
-    public void setOmega2(double[][] o2){
+    public void setOmegaSquared(double[][] o2){
         omega2 = o2;
     }
     
@@ -114,6 +114,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
         changedWV = random.nextInt(harmonicWV + 1);
+//        System.out.println(changedWV);
         
         //calculate the new positions of the atoms.
         //loop over cells

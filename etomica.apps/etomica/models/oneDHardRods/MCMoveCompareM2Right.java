@@ -51,6 +51,9 @@ public class MCMoveCompareM2Right extends MCMoveBoxStep{
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
+        
+        throw new IllegalStateException("MCMoveCompareM2Right has not been " +
+        "changed or tested for 3D");
     }
 
     public boolean doTrial() {

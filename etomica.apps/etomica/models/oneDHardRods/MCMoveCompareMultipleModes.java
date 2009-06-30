@@ -43,6 +43,7 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     private double[][] stdDev;
     private double[] rRand, iRand, realT, imagT;
     private double[] waveVectorCoefficients;
+    private double[][] omega2;
     double[] uNow;
     int changedWV, howManyChangesToHardRodModes;
     int[] comparedWVs, harmonicWVs;
@@ -58,7 +59,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         rRand = new double[coordinateDim];
@@ -66,14 +66,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         
-//        System.out.println("Starting energy: " + energyMeter.getDataAsScalar());
-//        IAtomList list = coordinateDefinition.getBox().getLeafList();
-//        for(int i = 0; i < list.getAtomCount(); i++){
-//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-//        }
-        
-        
-        // nan These lines make it a single atom-per-molecule class.
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1 / Math.sqrt(cells.length);
@@ -145,10 +137,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             throw new IllegalStateException(
                     "Overlap after the removal of a mode!");
         }
-//        System.out.println("After zeroing energy: " + energyOld);
-//        for(int i = 0; i < list.getAtomCount(); i++){
-//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-//        }
 
 // MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
@@ -160,16 +148,14 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
             boolean isAccepted = true;
             do{
                 isAccepted = true;
-                changedWV = random.nextInt(waveVectorCoefficients.length-1);
-                changedWV += 1;
+                changedWV = random.nextInt(waveVectorCoefficients.length);
                 for(int i = 0; i < harmonicWVs.length; i++){
                     if (changedWV == harmonicWVs[i]) {
                         isAccepted = false;
                     }
                 }
             } while (!isAccepted);
-            
-//            System.out.println("multiple changed in chunk 2: " + changedWV);
+//            System.out.println(changedWV);
             
             // calculate the new positions of the atoms.
             // loop over cells
@@ -190,10 +176,12 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < coordinateDim; i++) {
-                    for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] += waveVectorCoefficients[changedWV]
-                                * eigenVectors[changedWV][i][j] * 2.0
-                                * (delta1 * coskR - delta2 * sinkR);
+                    if( !(Double.isInfinite(omega2[changedWV][i]))) {
+                        for (int j = 0; j < coordinateDim; j++) {
+                            deltaU[j] += waveVectorCoefficients[changedWV]
+                                    * eigenVectors[changedWV][i][j] * 2.0
+                                    * (delta1 * coskR - delta2 * sinkR);
+                        }
                     }
                 }
                  for(int i = 0; i < coordinateDim; i++){
@@ -343,7 +331,8 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         eigenVectors = newEigenVectors;
     }
 
-    public void setOmegaSquared(double[][] omega2, double[] coeff) {
+    public void setOmegaSquared(double[][] o2, double[] coeff) {
+        this.omega2 = o2;
         stdDev = new double[omega2.length][omega2[0].length];
         for (int i = 0; i < stdDev.length; i++) {
             for (int j = 0; j < stdDev[i].length; j++) {
@@ -366,12 +355,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
      * @param wv the wavevectors that are removed.
      */
     public void setComparedWV(int[] wv){
-        for(int i = 0; i < wv.length; i++) {
-            if(wv[i] == 0) {
-                throw new IllegalArgumentException("Cannot compare the " +
-                       "zero wavevector!");
-            }
-        }
         comparedWVs = wv;
     
         int dink = 0;
@@ -393,10 +376,6 @@ public class MCMoveCompareMultipleModes extends MCMoveBoxStep {
         harmonicWVs = new int[wv.length + comparedWVs.length];
         
         for(int i = 0; i < wv.length; i++) {
-            if(wv[i] == 0) {
-                throw new IllegalArgumentException("Cannot use the " +
-                        "zero wavevector as a harmonic wavevector!");
-            }
             for(int j = 0; j < comparedWVs.length; j++){
                 if(wv[i] == comparedWVs[j]){
                     throw new IllegalArgumentException("A compared " +

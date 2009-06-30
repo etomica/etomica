@@ -168,6 +168,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         changeMove.setBox((IBox)boxTarget);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
+        changeMove.setOmegaSquared(nm.getOmegaSquared(boxRef));
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
@@ -251,6 +252,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         compareMove.setBox((IBox)boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
+        compareMove.setOmegaSquared(nm.getOmegaSquared(boxTarget), nm.getWaveVectorFactory().getCoefficients());
         
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);

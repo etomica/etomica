@@ -4,7 +4,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.box.Box;
@@ -29,14 +28,13 @@ import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
  * MC simulation of Lennard-Jones system.
  * @author cribbin
  */
-public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
+public class TestMCMoveCompareMultipleModes3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
@@ -47,10 +45,10 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveChangeSingleMode changeMove;
+    MCMoveCompareMultipleModes compareMove;
 
-    public TestMCMoveChangeSingleMode3DLJ(Space _space, int numAtoms, double density, double 
-            temperature, String filename, double harmonicFudge, int awv){
+    public TestMCMoveCompareMultipleModes3DLJ(Space _space, int numAtoms, double density, double 
+            temperature, String filename, double harmonicFudge, int[] cwv, int[] hwv){
         super(_space, true);
         
 //        long seed = 5;
@@ -106,26 +104,20 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeSingleMode(potentialMaster, random);
-        integrator.getMoveManager().addMCMove(changeMove);
-        changeMove.setWaveVectors(waveVectorFactory.getWaveVectors());
-        changeMove.setWaveVectorCoefficients(
+        compareMove = new MCMoveCompareMultipleModes(potentialMaster, random);
+        integrator.getMoveManager().addMCMove(compareMove);
+        compareMove.setWaveVectors(waveVectorFactory.getWaveVectors());
+        compareMove.setWaveVectorCoefficients(
                 waveVectorFactory.getCoefficients());
-        changeMove.setEigenVectors(nm.getEigenvectors(box));
-        changeMove.setOmegaSquared(nm.getOmegaSquared(box));
-        changeMove.setCoordinateDefinition(coordinateDefinition);
-        changeMove.setBox((IBox)box);
-        changeMove.setStepSizeMin(0.001);
-        changeMove.setStepSize(0.01);
-
+        compareMove.setEigenVectors(nm.getEigenvectors(box));
+        compareMove.setOmegaSquared(nm.getOmegaSquared(box), nm.getWaveVectorFactory().getCoefficients());
+        compareMove.setCoordinateDefinition(coordinateDefinition);
+        compareMove.setBox((IBox)box);
+        compareMove.setStepSizeMin(0.001);
+        compareMove.setStepSize(0.01);
+        compareMove.setComparedWV(cwv);
+        compareMove.setHarmonicWV(hwv);
         
-        
-        
-        
-//JOINT
-        //Set up the rest of the joint stuff
-        setComparedWV(awv);
-       
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
@@ -154,13 +146,14 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        int comparedWV = params.comparedWV;
+        int[] comparedWV = params.comparedWVs;
+        int[] harmonicWV = params.harmonicWVs;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        TestMCMoveChangeSingleMode3DLJ sim = new TestMCMoveChangeSingleMode3DLJ  (Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV);
+        TestMCMoveCompareMultipleModes3DLJ sim = new TestMCMoveCompareMultipleModes3DLJ  (Space.getInstance(D), numMolecules,
+                density, temperature, filename, harmonicFudge, comparedWV, harmonicWV);
         int numSteps = params.numSteps;
         
         System.out.println("Running Nancy's single " +D+"D Lennard Jones simulation");
@@ -208,8 +201,8 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     }
     
     
-    public void setComparedWV(int awv){
-        changeMove.setHarmonicWV(awv);
+    public void setComparedWV(int[] awv){
+        compareMove.setComparedWV(awv);
     }
     
     public static class SimOverlapSingleWaveVector3DParam extends ParameterBase {
@@ -218,7 +211,8 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.1378;
-        public int comparedWV = 0;
+        public int[] comparedWVs = { 0, 7};
+        public int[] harmonicWVs = { 5, 3};
         
         public int numSteps = 1000;
         
@@ -228,3 +222,4 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     }
  
 }
+

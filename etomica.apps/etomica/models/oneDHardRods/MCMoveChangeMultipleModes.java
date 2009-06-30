@@ -33,6 +33,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     protected double energyOld, energyNew /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
+    private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV;
@@ -69,6 +70,9 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         }
     }
 
+    public void setOmegaSquared(double[][] o2){
+        omega2 = o2;
+    }
     /**
      * Set the wave vectors used by the move.
      * 
@@ -106,37 +110,22 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
-        
-//        System.out.println("At start of move: " + energyMeter.getDataAsScalar());
-//        System.out.println("Energy: " + energyOld);
-//        IAtomList list = coordinateDefinition.getBox().getLeafList();
-//        for(int i = 0; i < list.getAtomCount(); i++){
-//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-//        }
-        
-        
-        
-        //nan These lines make it a single atom-per-molecule class, and
         // assume that the first cell is the same as every other cell.
         BasisCell cell = cells[0];
 //        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
-        // The zero wavevector is center of mass motion, and is rejected as
-        // a possibility.
         boolean isAccepted = true;
         do{
             isAccepted = true;
-            changedWV = random.nextInt(waveVectorCoefficients.length-1);
-            changedWV += 1;
+            changedWV = random.nextInt(waveVectorCoefficients.length);
             for(int i = 0; i < harmonicWaveVectors.length; i++){
                 if (changedWV == harmonicWaveVectors[i]) {
                     isAccepted = false;
                 }
             }
         } while (!isAccepted);
-        
 //        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
@@ -159,9 +148,11 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
-                for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-                        eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                if( !(Double.isInfinite(omega2[changedWV][i])) ){
+                    for(int j = 0; j < coordinateDim; j++){
+                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
+                            eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                    }
                 }
             }
             double normalization = 1/Math.sqrt(cells.length);
@@ -171,22 +162,12 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//                System.out.println(uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
             
         }
         
         energyNew = energyMeter.getDataAsScalar();
-        
-        
-//        System.out.println("At end of move: " + energyMeter.getDataAsScalar());
-//        System.out.println("Energy: " + energyNew);
-//        list = coordinateDefinition.getBox().getLeafList();
-//        for(int i = 0; i < list.getAtomCount(); i++){
-//            System.out.println(((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(i)).getPosition());
-//        }
-        
         
         return true;
     }

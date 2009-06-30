@@ -4,7 +4,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.box.Box;
@@ -29,14 +28,13 @@ import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
  * MC simulation of Lennard-Jones system.
  * @author cribbin
  */
-public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
+public class TestMCMoveChangeSingleModeLEFT3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimSingleWaveVector";
     Primitive primitive;
@@ -47,9 +45,9 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveChangeSingleMode changeMove;
+    MCMoveChangeSingleLEFT changeMove;
 
-    public TestMCMoveChangeSingleMode3DLJ(Space _space, int numAtoms, double density, double 
+    public TestMCMoveChangeSingleModeLEFT3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
         super(_space, true);
         
@@ -106,7 +104,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeSingleMode(potentialMaster, random);
+        changeMove = new MCMoveChangeSingleLEFT(potentialMaster, random);
         integrator.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
@@ -159,7 +157,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        TestMCMoveChangeSingleMode3DLJ sim = new TestMCMoveChangeSingleMode3DLJ  (Space.getInstance(D), numMolecules,
+        TestMCMoveChangeSingleModeLEFT3DLJ sim = new TestMCMoveChangeSingleModeLEFT3DLJ  (Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         
