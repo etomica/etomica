@@ -24,12 +24,12 @@ public static void main(String[] args) {
 		System.out.println("Literature values for sigma = 1 and T* = 1");
 		System.out.println("B2 = -5.3158 (Sun & Teja 1996)");
 		System.out.println("B3 =  1.8849 (Sun & Teja 1996) ");
-		System.out.println("B4PY = -2.9394 (Dyer et al (2001)");
+		System.out.println("B4PY = -2.9394 (Dyer et al 2001)");
 		System.out.println("B5PY = -37.402 (Barker et al 1966)\n");
 		
 		int power = 20; // Defines discretization
 		double reducedTemp = 1.0; // kT/epsilon
-		double r_max = 10; // Defines range of separation distance, r = [0 rmax]
+		double r_max = 50; // Defines range of separation distance, r = [0 rmax]
 		
 		if (args.length == 0) {
 		}
@@ -81,7 +81,21 @@ public static void main(String[] args) {
 			
 			u = p2.u(r*r);
 			
-			fr[n] = Math.exp(-u/reducedTemp)-1.0;
+			double x = -u/reducedTemp;
+			
+			if ( Math.abs(x) < 0.01) {
+				
+				fr[n] = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
+				
+				
+			} else {
+				
+				fr[n] = Math.exp(x)-1.0;
+				
+			}
+			
+			// fr[n] = Math.exp(x)-1.0;
+			
 			
 			r += del_r; 
 	
