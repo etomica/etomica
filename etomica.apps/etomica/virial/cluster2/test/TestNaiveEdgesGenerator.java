@@ -6,6 +6,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   private boolean enumConnected = false;
   private boolean enumBiconnected = false;
+  private boolean dropRootEdges = false;
   private boolean nullFiltered = false;
   private boolean isomorphFree = false;
   private int rangeBegin = 0;
@@ -33,9 +34,10 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     }
   };
 
-  private void testTemplate(int numNodes) {
+  private void testTemplate(Nodes nodes) {
 
     long time1;
+    byte numNodes = nodes.count();
     index = 0;
     factor = 1;
     isomorphCount = 0;
@@ -49,8 +51,6 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
       expected = 0;
     }
     try {
-      // create nodes
-      Nodes nodes = GraphFactory.defaultNodes((byte) numNodes);
       // pass-through filter
 // EdgesFilter filter = ffactory.trueFilter();
       EdgesFilter filter = null;
@@ -58,9 +58,30 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
       if (nullFiltered) {
         filter = ffactory.falseFilter();
       }
+      // cheap filter for dropping root edges
+      if (dropRootEdges) {
+        EdgesFilter chained = ffactory.rootEdgesFilter(nodes);
+        if (filter != null) {
+          filter.chain(chained);
+        }
+        else {
+          filter = chained;
+        }
+      }
       // cheap filter for number of edges within a range
       if (minEdges >= 0 && maxEdges >= 0) {
-        EdgesFilter chained = ffactory.rangeFilter(minEdges, maxEdges);
+        EdgesFilter chained = null;
+        if (isomorphFree) {
+//          chained = ffactory.rangedFieldEdgesFilter(nodes, 0, 0);
+//          chained.chain(ffactory.rangedRootEdgesFilter(nodes, minEdges,
+//              maxEdges));
+// chained = ffactory.rangedFieldEdgesFilter(nodes, minEdges, maxEdges);
+ chained = ffactory.rangeFilter(minEdges, maxEdges);
+// chained.chain(ffactory.rangedRootEdgesFilter(nodes, 0, 0));
+        }
+        else {
+          chained = ffactory.rangeFilter(minEdges, maxEdges);
+        }
         if (filter != null) {
           filter.chain(chained);
         }
@@ -94,7 +115,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
       printEnumerated(numNodes);
       printRuntime();
       printMemory();
-      if (!enumConnected && minEdges < 0 && maxEdges < 0 && !isomorphFree) {
+      if (!enumConnected && minEdges < 0 && maxEdges < 0 && !isomorphFree
+          && !dropRootEdges) {
         assertEquals(expected, enumerated, 0.0001);
       }
     }
@@ -105,9 +127,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
   }
 
   @Override
-  public void setUp() {
+  public void reset() {
 
-    super.setUp();
     minEdges = -1;
     maxEdges = -1;
     rangeBegin = 1;
@@ -118,11 +139,12 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     printMemory = true;
     printPermutations = false;
     isomorphFree = false;
-    GraphFactory.USE_UPPER_TRIANGLE = true;
+    GraphFactory.USE_UPPER_TRIANGLE = false;
   }
 
   public void testEmptyFamily() {
 
+    reset();
     try {
       family = GraphFactory.naiveGraphSet(GraphFactory.emptyNodes(), null);
       fail("Invalid node count");
@@ -132,16 +154,27 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     }
   }
 
+  protected Nodes getNodes(byte numNodes) {
+
+    return GraphFactory.defaultNodes(numNodes);
+  }
+
+  protected Nodes getNodes(byte fieldNodes, byte rootNodes) {
+
+    return GraphFactory.defaultNodes(fieldNodes, rootNodes);
+  }
+
   protected void baseTest() {
 
     // OK: 09-06-13
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-      testTemplate(i);
+      testTemplate(getNodes((byte) i));
     }
   }
 
   public void testGeneral() {
 
+    reset();
     printTest("General");
     // OK: 09-06-13
     // baseTest();
@@ -149,6 +182,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testConnected() {
 
+    reset();
     printTest("Connected");
     // OK: 09-06-13
     enumConnected = true;
@@ -157,6 +191,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testBiconnected() {
 
+    reset();
     printTest("Biconnected");
     enumBiconnected = true;
     // baseTest();
@@ -164,6 +199,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testNullFilteredGeneral() {
 
+    reset();
     printTest("Null Filtered");
 // OK: 09-06-13
     nullFiltered = true;
@@ -172,6 +208,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testNullFilteredConnected() {
 
+    reset();
     printTest("Connected, Null Filtered");
     nullFiltered = true;
     enumConnected = true;
@@ -180,6 +217,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testRangedEdgesGeneral() {
 
+    reset();
     printTest("Ranged Edges");
     // OK: 09-06-13
     minEdges = 3;
@@ -189,6 +227,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testNullFilteredBiconnected() {
 
+    reset();
     printTest("Biconnected, Null Filtered");
     nullFiltered = true;
     enumBiconnected = true;
@@ -197,18 +236,57 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
   public void testIsomorphFree() {
 
+    reset();
     printTest("Isomorph-Free");
 // for N=7, about 12 minutes using VF2
-// rangeBegin = 7;
-// rangeEnd = 7;
+ rangeBegin = 7;
+ rangeEnd = 7;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-      testTemplate(i);
+// testTemplate(getNodes((byte) i));
+    }
+  }
+
+  /**
+   * General graphs with 2 root nodes
+   */
+  public void testGeneralR2() {
+
+    reset();
+    printTest("2 root nodes");
+// for N=7, about 12 minutes using VF2
+    rangeBegin = 2;
+    rangeEnd = 6;
+    dropRootEdges = true;
+    for (int i = rangeBegin; i <= rangeEnd; i++) {
+// testTemplate(getNodes((byte) (i - 2), (byte) 2));
+    }
+  }
+
+  /**
+   * Isomorph-Free graphs with 2 root nodes
+   */
+  public void testIsomorphFreeR2() {
+
+    reset();
+    printTest("Isomorph-Free, 2 root nodes");
+// for N=7, about 12 minutes using VF2
+    int rootNodes = 3;
+    rangeBegin = rootNodes;
+    rangeEnd = 7;
+    dropRootEdges = true;
+    isomorphFree = true;
+    for (int i = rangeBegin; i <= rangeEnd; i++) {
+     // minEdges = 0;
+// maxEdges = (i - rootNodes) * rootNodes;
+     // maxEdges = (i - rootNodes) * (i - rootNodes - 1) / 4 - (((i - rootNodes) * (i - rootNodes - 1) % 4 == 0) ? 1 : 0);
+      testTemplate(getNodes((byte) (i - rootNodes), (byte) rootNodes));
     }
   }
 
   public void testIsomorphFreeConnected() {
 
+    reset();
     printTest("Isomorph-Free, Connected");
     // for N=7, about 12 minutes using VF2
     // rangeBegin = 7;
@@ -216,21 +294,22 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     enumConnected = true;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-      testTemplate(i);
+// testTemplate(getNodes((byte) i));
     }
   }
 
   public void testOptimizedIsomorphFree() {
 
+    reset();
     printTest("Isomorph-Free (Optimized)");
-// rangeBegin = 8;
-// rangeEnd = 8;
+ rangeBegin = 2;
+ rangeEnd = 6;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-      int numNodes = i * (i - 1) / 2;
-      minEdges = 0;
-      maxEdges = numNodes / 2;
-      testTemplate(i);
+//      int numEdges = i * (i - 1) / 2;
+//      minEdges = 0;
+//      maxEdges = numEdges / 2;
+// testTemplate(getNodes((byte) i));
     }
   }
   // N=8

@@ -8,32 +8,14 @@ import etomica.virial.cluster2.graph.isomorphism.Match;
 public class FilterFactory {
 
   // filter flags
-  public static final String TAG_RANGE_FILTER = "EdgesRange";
+  public static final String TAG_RANGE_FILTER = "Edges Range";
   public static final String TAG_FALSE_FILTER = "FALSE";
   public static final String TAG_TRUE_FILTER = "TRUE";
   public static final String TAG_CONNECTED = "Connected";
   public static final String TAG_ISOMORPH_FREE = "Isomorph-Free";
-
-  // **************************************************
-  //
-  // A graph is simply a container for nodes and edges.
-  //
-  // **************************************************
-  public Graph simpleGraph(final Nodes nodes, final Edges edges) {
-
-    return new Graph() {
-
-      public Edges getEdges() {
-
-        return edges;
-      }
-
-      public Nodes getNodes() {
-
-        return nodes;
-      }
-    };
-  }
+  public static final String TAG_NO_ROOT_EDGES = "No Root Edges";
+  public static final String TAG_ISOMORPH_FIELD_RANGE_FILTER = "Field Edges Range";
+  public static final String TAG_ISOMORPH_ROOT_RANGE_FILTER = "Root Edges Range";
 
   // **************************************************
   //
@@ -99,45 +81,48 @@ public class FilterFactory {
 
     return new AbstractEdgesFilter() {
 
-//      private boolean hardStop = false;
-      
+      private boolean hardStop = false;
+      private boolean softStop = false;
+
       @Override
       protected boolean doAccept(Edges edges, List<Edges> edgesList) {
 
-//        Match.graphs++;
-//        if (Match.graphs % 100000 == 0) {
-//          System.out.println("===== MARK " + Match.graphs + "=====");
-//        }
-//        if (hardStop) {
-//          return false;
-//        }
-//        if (edgesList.size() == Match.OPTIMAL_ISMORPHS_COUNT[nodes.count() - 1]) {
-//          System.out.println("Optimal upper bound before computing complements.");
-//          hardStop = true;
-//          return false;
-//        }
-//        int edgesCount = edges.count();
-        Graph g2 = simpleGraph(nodes, edges);
+        Match.graphs++;
+        if (Match.graphs % 100000 == 0) {
+          System.out.println("===== MARK " + Match.graphs + "=====");
+        }
+        if (hardStop) {
+          return false;
+        }
+        if (softStop
+            && edgesList.size() == Match.OPTIMAL_ISMORPHS_COUNT[nodes.count() - 1]) {
+          System.out
+              .println("Optimal upper bound before computing complements.");
+          hardStop = true;
+          return false;
+        }
+// int edgesCount = edges.count();
+        Graph g2 = GraphFactory.simpleGraph(nodes, edges);
         // if the new graph is isomorphic to some generated graph, reject it
         for (Edges e : edgesList) {
           // save some computation by performing a simpler check before checking
           // for isomorphism
-          if (Match.match(simpleGraph(nodes, e), g2)) {
+          if (Match.match(GraphFactory.simpleGraph(nodes, e), g2)) {
             e.getMetadata()
                 .setCoefficient(e.getMetadata().getCoefficient() + 1);
             return false;
           }
         }
-//        System.out.println(Match.graphs
-//            + "::"
-//            + edgesList.size()
-//            + "::"
-//            + Match.calls
-//            + "::"
-//            + ((Match.graphs - 1 == Match.oldGraphs) ? 1 : Match.calls
-//                / (Match.graphs - Match.oldGraphs)) + " [" + edgesCount + "]");
-//        Match.oldGraphs = Match.graphs;
-//        Match.calls = 0;
+// System.out.println(Match.graphs
+// + "::"
+// + edgesList.size()
+// + "::"
+// + Match.calls
+// + "::"
+// + ((Match.graphs - 1 == Match.oldGraphs) ? 1 : Match.calls
+// / (Match.graphs - Match.oldGraphs)) + " [" + edgesCount + "]");
+// Match.oldGraphs = Match.graphs;
+// Match.calls = 0;
         return true;
       }
 
@@ -152,6 +137,47 @@ public class FilterFactory {
   public EdgesFilter rangeFilter(int minEdges, int maxEdges) {
 
     return new RangeFilter(minEdges, maxEdges);
+  }
+
+  public EdgesFilter rangedFieldEdgesFilter(Nodes nodes, int minEdges,
+      int maxEdges) {
+
+    return new RangedFieldEdgesFilter(nodes, minEdges, maxEdges);
+  }
+
+  public EdgesFilter rangedRootEdgesFilter(Nodes nodes, int minEdges,
+      int maxEdges) {
+
+    return new RangedRootEdgesFilter(nodes, minEdges, maxEdges);
+  }
+
+  public EdgesFilter rootEdgesFilter(final Nodes nodes) {
+
+    return new AbstractEdgesFilter() {
+
+      @Override
+      protected boolean doAccept(Edges edges, List<Edges> edgesList) {
+
+        for (int i = 0; i < nodes.count(); i++) {
+          for (int j = i; j < nodes.count(); j++) {
+            if ((i != j)
+                && nodes.getAttributes(i).isSameColor(
+                    GraphFactory.ROOT_NODE_ATTRIBUTES)
+                && nodes.getAttributes(j).isSameColor(
+                    GraphFactory.ROOT_NODE_ATTRIBUTES) && edges.hasEdge(i, j)) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      @Override
+      protected String tag() {
+
+        return TAG_NO_ROOT_EDGES;
+      }
+    };
   }
 
   class RangeFilter extends AbstractEdgesFilter {
@@ -176,6 +202,82 @@ public class FilterFactory {
     protected String tag() {
 
       return TAG_RANGE_FILTER + ":" + minEdges + ":" + maxEdges;
+    }
+  }
+
+  class RangedFieldEdgesFilter extends AbstractEdgesFilter {
+
+    private int maxEdges;
+    private int minEdges;
+    private Nodes nodes;
+
+    RangedFieldEdgesFilter(Nodes nodes, int min, int max) {
+
+      minEdges = min;
+      maxEdges = max;
+      this.nodes = nodes;
+    }
+
+    @Override
+    protected boolean doAccept(Edges edges, List<Edges> edgesList) {
+
+      int count = 0;
+      for (int i = 0; i < nodes.count(); i++) {
+        for (int j = i; j < nodes.count(); j++) {
+          if ((i != j)
+              && nodes.getAttributes(i).isSameColor(
+                  GraphFactory.FIELD_NODE_ATTRIBUTES)
+              && nodes.getAttributes(j).isSameColor(
+                  GraphFactory.FIELD_NODE_ATTRIBUTES) && edges.hasEdge(i, j)) {
+            count++;
+          }
+        }
+      }
+      return (count >= minEdges) && (count <= maxEdges);
+    }
+
+    @Override
+    protected String tag() {
+
+      return TAG_ISOMORPH_FIELD_RANGE_FILTER + ":" + minEdges + ":" + maxEdges;
+    }
+  }
+
+  class RangedRootEdgesFilter extends AbstractEdgesFilter {
+
+    private int maxEdges;
+    private int minEdges;
+    private Nodes nodes;
+
+    RangedRootEdgesFilter(Nodes nodes, int min, int max) {
+
+      minEdges = min;
+      maxEdges = max;
+      this.nodes = nodes;
+    }
+
+    @Override
+    protected boolean doAccept(Edges edges, List<Edges> edgesList) {
+
+      int count = 0;
+      for (int i = 0; i < nodes.count(); i++) {
+        for (int j = i; j < nodes.count(); j++) {
+          if ((i != j)
+              && (nodes.getAttributes(i).isSameColor(
+                  GraphFactory.ROOT_NODE_ATTRIBUTES) || nodes.getAttributes(j)
+                  .isSameColor(GraphFactory.ROOT_NODE_ATTRIBUTES))
+              && edges.hasEdge(i, j)) {
+            count++;
+          }
+        }
+      }
+      return (count >= minEdges) && (count <= maxEdges);
+    }
+
+    @Override
+    protected String tag() {
+
+      return TAG_ISOMORPH_ROOT_RANGE_FILTER + ":" + minEdges + ":" + maxEdges;
     }
   }
 }

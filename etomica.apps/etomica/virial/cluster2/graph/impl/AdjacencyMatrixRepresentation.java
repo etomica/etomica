@@ -21,10 +21,29 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
     super(numNodes);
   }
 
+  // TODO: implement canonical representation
+  public EdgesRepresentation canonical() {
+
+    return null;
+  }
+
+  public EdgesRepresentation copy() {
+    
+    AbstractBitmapRepresentation er = new AdjacencyMatrixRepresentation(getNodeCount());
+    er.setEdgesBitmap(getEdges().copy());
+    return er;
+  }
+
   public EdgesRepresentation complement() {
 
-    // TODO Auto-generated method stub
-    return null;
+    AdjacencyMatrixRepresentation c = new AdjacencyMatrixRepresentation(getNodeCount());
+    Bitmap store = getEdges().copy();
+    store.not();
+    for (int i = 0; i < getNodeCount(); i++) {
+      store.clearBit(getEdgeID(i,i));
+    }
+    c.setEdgesBitmap(store);
+    return c;
   }
 
   public int getCapacity() {

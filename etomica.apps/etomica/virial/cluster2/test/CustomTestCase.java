@@ -49,10 +49,10 @@ public class CustomTestCase extends TestCase {
   protected void printEnumerated(int numNodes) {
 
     System.out.println("nodes....: " + numNodes);
-    if (enumerated > M) {
+    if (enumerated > 100*M) {
       System.out.println("graphs...: " + (enumerated / M) + "M");
     }
-    else if (enumerated > K) {
+    else if (enumerated > 100*K) {
       System.out.println("graphs...: " + (enumerated / K) + "K");
     }
     else {
@@ -135,9 +135,7 @@ public class CustomTestCase extends TestCase {
   @Override
   public void setUp() {
 
-    printMemory = false;
-    printRuntime = true;
-    printPermutations = false;
+    reset();
   }
 
   protected void printMemory() {
@@ -153,6 +151,13 @@ public class CustomTestCase extends TestCase {
     System.out.println("************************");
     System.out.println(testName);
     System.out.println("========================");
+  }
+
+  public void reset() {
+
+    printMemory = false;
+    printRuntime = true;
+    printPermutations = false;
   }
 
   // Asymptotic Object overhead: 4 bytes/object.

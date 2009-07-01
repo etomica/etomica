@@ -11,6 +11,16 @@ public class SimpleEdgesMetadata implements EdgesMetadata {
     coefficient = value;
   }
 
+  public EdgesMetadata copy() {
+    
+    return new SimpleEdgesMetadata(coefficient);
+  }
+  
+  public EdgesMetadata ncopy() {
+    
+    return new SimpleEdgesMetadata(-coefficient);
+  }
+  
   public double getCoefficient() {
 
     return coefficient;

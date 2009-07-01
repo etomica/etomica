@@ -11,15 +11,34 @@ public class SimpleEdges implements Edges {
   private EdgesMetadata metadata;
   private EdgesRepresentation representation;
 
-  public SimpleEdges(EdgesRepresentation representation, EdgesMetadata metadata) {
+  public SimpleEdges(EdgesRepresentation rep, EdgesMetadata meta) {
 
-    this.representation = representation;
-    this.metadata = metadata;
+    representation = rep;
+    metadata = meta;
   }
 
+  public Edges canonical() {
+
+    return GraphFactory.canonicalEdges(this);
+  }
+
+  public Edges copy() {
+    
+    assert(representation instanceof AbstractBitmapRepresentation);
+    AbstractBitmapRepresentation rep = (AbstractBitmapRepresentation) representation;
+    return new SimpleEdges(rep.copy(), metadata.copy());
+  }
+  
+  public Edges ncopy() {
+    
+    assert(representation instanceof AbstractBitmapRepresentation);
+    AbstractBitmapRepresentation rep = (AbstractBitmapRepresentation) representation;
+    return new SimpleEdges(rep.copy(), metadata.ncopy());
+  }
+  
   public Edges complement() {
 
-    return GraphFactory.complementEdges(representation);
+    return GraphFactory.complementEdges(this);
   }
 
   public int count() {
@@ -27,7 +46,7 @@ public class SimpleEdges implements Edges {
     return getRepresentation().getEdgeCount();
   }
 
-  protected EdgesRepresentation getRepresentation() {
+  public EdgesRepresentation getRepresentation() {
 
     return representation;
   }
@@ -48,6 +67,22 @@ public class SimpleEdges implements Edges {
     return getRepresentation().toString();
   }
 
+  @Override
+  public int hashCode() {
+
+    return getRepresentation().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+
+    if (obj instanceof Edges) {
+      Edges other = (Edges) obj;
+      return getRepresentation().equals(other.getRepresentation());
+    }
+    return false;
+  }
+
   public EdgeAttributes getAttributes(int fromNodeID, int toNodeID) {
 
     return GraphFactory.defaultEdgeAttributes();
@@ -55,51 +90,21 @@ public class SimpleEdges implements Edges {
 
   public int getInDegree(int nodeID) {
 
-    int result = 0;
-    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
-      if (i != nodeID) {
-        result += hasEdge(i, nodeID) ? 1 : 0;
-      }
-    }
-    return result;
+    return getRepresentation().getInDegree(nodeID);
   }
 
   public int getInNode(int nodeID, int index) {
 
-    int found = 0;
-    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
-      if (i != nodeID) {
-        found += hasEdge(i, nodeID) ? 1 : 0;
-      }
-      if (index == found - 1) {
-        return i;
-      }
-    }
-    return -1;
+    return getRepresentation().getInNode(nodeID, index);
   }
 
   public int getOutDegree(int nodeID) {
 
-    int result = 0;
-    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
-      if (i != nodeID) {
-        result += hasEdge(nodeID, i) ? 1 : 0;
-      }
-    }
-    return result;
+    return getRepresentation().getOutDegree(nodeID);
   }
 
   public int getOutNode(int nodeID, int index) {
 
-    int found = 0;
-    for (int i = 0; i < getRepresentation().getNodeCount(); i++) {
-      if (i != nodeID) {
-        found += hasEdge(nodeID, i) ? 1 : 0;
-      }
-      if (index == found - 1) {
-        return i;
-      }
-    }
-    return -1;
+    return getRepresentation().getOutNode(nodeID, index);
   }
 }

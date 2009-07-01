@@ -1,7 +1,5 @@
 package etomica.virial.cluster2.graph.isomorphism;
 
-import java.util.Set;
-
 import etomica.virial.cluster2.graph.Graph;
 
 public class UllmanSearchState extends AbstractSearchState {
