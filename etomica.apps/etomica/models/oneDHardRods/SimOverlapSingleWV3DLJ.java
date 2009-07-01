@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -46,9 +45,9 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
+import etomica.units.Meter;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -81,6 +80,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
     MCMoveCompareSingleMode compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareSingleModeBrute meterBinA, meterBinB;
+    MeterPotentialEnergyDifference meterWrapAinA, meterWrapAinB, meterWrapBinA, meterWrapBinB;
     
     MeterNormalMode mnm;
     WriteS sWriter;
@@ -129,8 +129,6 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
 //            System.out.println(k + " " +((IAtomPositioned)coordinateDefinitionTarget.getBox().getLeafList().getAtom(k)).getPosition());
 //        }
         
-        
-        
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new 
@@ -172,15 +170,8 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
-        
-
-        MeterPotentialEnergyFromIntegrator meterPETarget = new MeterPotentialEnergyFromIntegrator(integratorTarget);
-        double latticeEnergy = meterPETarget.getDataAsScalar();
-//        MeterPotentialEnergyDifference meterTarget = new MeterPotentialEnergyDifference(meterPE, latticeEnergy);
-//        MeterHarmonicEnergy meterReferenceInTarget = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-//        meterReferenceInTarget.setBox(boxTarget);
-        
-        
+        double latticeEnergy = meterAinA.getDataAsScalar();
+        meterWrapAinA = new MeterPotentialEnergyDifference(meterAinA, latticeEnergy);
         
         meterBinA = new MeterCompareSingleModeBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
@@ -189,13 +180,11 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
+        meterWrapBinA = new MeterPotentialEnergyDifference(meterBinA, latticeEnergy);
         
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
-                meterAinA, meterBinA, temperature);
+                meterWrapAinA, meterWrapBinA, temperature);
         meters[1] = meterOverlapInA;
-        
-        
-        
         
         
 //REFERENCE        
@@ -232,7 +221,6 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         integrators[0] = integratorRef;
         
         nm = new NormalModesFromFile(filename, space.D());
-        
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -252,10 +240,12 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         compareMove.setBox((IBox)boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
-        compareMove.setOmegaSquared(nm.getOmegaSquared(boxTarget), nm.getWaveVectorFactory().getCoefficients());
+        compareMove.setOmegaSquared(nm.getOmegaSquared(boxTarget), 
+                nm.getWaveVectorFactory().getCoefficients());
         
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);
+        meterWrapAinB = new MeterPotentialEnergyDifference(meterAinB, latticeEnergy);
        
         meterBinB = new MeterCompareSingleModeBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
@@ -266,9 +256,10 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
+        meterWrapBinB = new MeterPotentialEnergyDifference(meterBinB, latticeEnergy);
         
-        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
-                meterBinB, meterAinB, temperature);
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", 
+                Null.DIMENSION, meterWrapBinB, meterWrapAinB, temperature);
         meters[0] = meterOverlapInB;
         
         integratorRef.setBox(boxRef);
@@ -296,21 +287,8 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         integratorSim = new IntegratorOverlap(new 
                 IntegratorMC[]{integratorRef, integratorTarget});
         
-        MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, nm);
-        MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
-        meterTarget.setLatticeEnergy(latticeEnergy);
-        meters[1] = meterTarget;
-        
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
-        
-        
-        
-        
-        
-        
-        
         
         setBennettParameter(1.0, 30);
         

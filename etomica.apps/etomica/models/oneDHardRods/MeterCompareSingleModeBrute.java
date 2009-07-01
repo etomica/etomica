@@ -85,26 +85,21 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
             imagCoord[j] = 0.0;
         }
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+            if(Double.isInfinite(omegaSquared[comparedWV][i])){
+                continue;
+            }
             for(int j = 0; j < coordinateDim; j++){
                 realCoord[i] += eigenVectors[comparedWV][i][j] * realT[j];
                 imagCoord[i] += eigenVectors[comparedWV][i][j] * imagT[j];
             }
-            if(Double.isInfinite(omegaSquared[comparedWV][i])){
-                continue;
-            }
             //Calculate the energy due to the Gaussian modes.
-            //NAN IS THIS RIGHT?
             normalCoord[i] = realCoord[i]*realCoord[i] + imagCoord[i] * imagCoord[i];
-            energyHarmonic += wvc * normalCoord[comparedWV] * omegaSquared[comparedWV][i];
+            energyHarmonic += wvc * normalCoord[i] * omegaSquared[comparedWV][i];
         }
         
 //        histogramNRG.addValue(energyHarmonic);
 //        histogramRealCoord.addValue(realCoord);
 //        histogramImagCoord.addValue(imagCoord);
-        
-//        System.out.println("single real: " + realCoord);
-//        System.out.println("single imag: " + imagCoord);
-        
         
         //CALCULATE THE HARD ROD PART OF THE ENERGY
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -121,12 +116,11 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
             double kR = waveVectors[comparedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
-            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+            for(int i = 0; i < coordinateDim; i++){
                 //Calculate the current coordinates.
                 for(int j = 0; j < coordinateDim; j++){
-                    //NAN IS THIS RIGHT?
                     deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] *
-                        2.0 * (realCoord[j]*coskR - imagCoord[j]*sinkR);
+                        2.0 * (realCoord[i]*coskR - imagCoord[i]*sinkR);
                 }
             }
 
