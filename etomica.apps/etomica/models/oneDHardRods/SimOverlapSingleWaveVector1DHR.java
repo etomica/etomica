@@ -82,6 +82,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         super(_space, true);
         
 //        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
         
