@@ -175,7 +175,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	 * Gets the color of the plane.
 	 * @return Color : Current color of plane
 	 */
-	public Color getPlaneColor(Color color) {
+	public Color getPlaneColor() {
 		return planeColor;
 	}
 
@@ -214,7 +214,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		// handle pending bond addition requests
 		if (pendingBonds.size() > 0) {
 			for (int i = 0; i < pendingBonds.size(); i++) {
-				Object[] o = (Object[]) pendingBonds.get(i);
+				Object[] o = pendingBonds.get(i);
 				Ball ball0 = (Ball) o[0];
 				Ball ball1 = (Ball) o[1];
 				// can't do anything with bondType for now
@@ -562,7 +562,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return f;
 	}
 
-	private java.util.ArrayList pendingBonds = new java.util.ArrayList();
+	private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
 
 	/**
 	 * Removes the given bond from the graphical display. The bond must be an
