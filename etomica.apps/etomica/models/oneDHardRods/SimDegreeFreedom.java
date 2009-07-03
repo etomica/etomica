@@ -5,23 +5,28 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
-import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD;
+import etomica.data.AccumulatorHistogram;
+import etomica.data.DataPump;
+import etomica.data.DataSplitter;
+import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MCMoveAtomCoupled;
+import etomica.normalmode.NormalModes;
+import etomica.normalmode.NormalModes1DHR;
+import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.WaveVectorFactory1D;
 import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.normalmode.WriteS;
-import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2HardSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
@@ -30,7 +35,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistogramSimple;
+import etomica.util.DoubleRange;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -49,27 +54,28 @@ public class SimDegreeFreedom extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
-        integrator.setTimeStep(0.04);
-        integrator.setTemperature(1.0);
-
-        integrator.setIsothermal(false);
+        integrator = new IntegratorMC(this, potentialMaster);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        // activityIntegrate.setMaxSteps(nSteps);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
+        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
 
+        mcmove = new MCMoveAtomCoupled(potentialMaster, random, space);
+        mcmove.setPotential((Potential2)potential);
+        mcmove.setBox(box);
+        integrator.getMoveManager().addMCMove(mcmove);
+        
         int nCells;
         Basis basis;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             nCells = numAtoms;
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
+//            ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
             basis = new BasisMonatomic(space);
         } else {
             primitive = new PrimitiveCubic(space, 1);
@@ -80,11 +86,44 @@ public class SimDegreeFreedom extends Simulation {
             basis = new BasisCubicFcc();
         }
         box.setBoundary(bdry);
-
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
-        
         integrator.setBox(box);
+        
+        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells});
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        
+        if (space.D() == 1) {
+            nm = new NormalModes1DHR(space.D());
+        } else if (space.D() == 2) {
+            waveVectorFactory = null;
+        } else {
+            waveVectorFactory = new WaveVectorFactorySimple(primitive, space);
+        }
+        waveVectorFactory = nm.getWaveVectorFactory();
+        waveVectorFactory.makeWaveVectors(box);
+        
+        meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
+        meternmc.setEigenVectors(nm.getEigenvectors(box));
+        meternmc.setOmegaSquared(nm.getOmegaSquared(box));
+        
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
+        hists = new AccumulatorHistogram[coordNum];
+        DataSplitter splitter = new DataSplitter();
+        
+        //nan there is a problem in here I don't know how to solve
+        for(int i = 0; i < coordNum; i++){
+            hists[i] = new AccumulatorHistogram();
+            splitter.setDataSink(i, hists[i]);
+        }
+        
+        DataPump pump = new DataPump(meternmc, splitter);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(1000);
+        integrator.getEventManager().addListener(pumpListener);
+        
+        
+        
+        
     }
 
     /**
@@ -97,18 +136,18 @@ public class SimDegreeFreedom extends Simulation {
         int nA = 32;
         double density = 1.3;
         if (D == 1) {
-            nA = 3;
+            nA = 32;
             density = 0.5;
         }
 
-        double simTime = 10000;
+        int nSteps = 10000;
 
         // parse arguments
         if (args.length > 1) {
             density = Double.parseDouble(args[1]);
         }
         if (args.length > 2) {
-            simTime = Double.parseDouble(args[2]);
+//            simTime = Double.parseDouble(args[2]);
         }
         if (args.length > 3) {
             nA = Integer.parseInt(args[3]);
@@ -117,30 +156,18 @@ public class SimDegreeFreedom extends Simulation {
         if (args.length > 0) {
             filename = args[0];
         }
-
+        
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
-        System.out.println(simTime + " time units");
+        System.out.println(nSteps + " time units");
         System.out.println("output data to " + filename);
 
         // construct simulation
         SimDegreeFreedom sim = new SimDegreeFreedom(Space.getInstance(D), nA, density);
-
-        Primitive primitive = sim.primitive;
-
-        WaveVectorFactory waveVectorFactory;
-        if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D();
-        } else if (D == 2) {
-            waveVectorFactory = null;
-        } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
-        }
-
+        
         // start simulation
-        int nSteps = (int) (simTime / sim.integrator.getTimeStep());
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
@@ -148,23 +175,23 @@ public class SimDegreeFreedom extends Simulation {
         
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
-
-        WriteS sWriter = new WriteS(sim.space);
-        sWriter.setFilename(filename);
-        sWriter.setWaveVectorFactory(waveVectorFactory);
-        sWriter.setOverwrite(true);
-        sWriter.actionPerformed();
-
+        
+        
+        System.out.println("Fini.");
     }
 
     private static final long serialVersionUID = 1L;
-    public IntegratorMD integrator;
+    public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public IBox box;
     public Boundary bdry;
     public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;
-    HistogramSimple histogramRealCoord, histogramImagCoord;
-//    MeterNormalModeCoordinate meternmc;
-    
+    MeterNormalModeCoordinate meternmc;
+    DoubleRange histRange;
+    WaveVectorFactory waveVectorFactory;
+    NormalModes nm;
+    MCMoveAtomCoupled mcmove;
+    AccumulatorHistogram[] hists;
+
 }
