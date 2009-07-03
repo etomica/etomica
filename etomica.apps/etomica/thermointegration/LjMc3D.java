@@ -1,0 +1,127 @@
+package etomica.thermointegration;
+
+
+import etomica.action.BoxImposePbc;
+import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
+import etomica.api.IAtomType;
+import etomica.api.IAtomTypeSphere;
+import etomica.api.IBox;
+import etomica.api.IIntegrator;
+import etomica.api.IPotentialMaster;
+import etomica.box.Box;
+import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMasterMonatomic;
+import etomica.simulation.Simulation;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
+
+/**
+ * Simple Lennard-Jones molecular dynamics simulation in 3D
+ */
+ 
+public class LjMc3D extends Simulation {
+    
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
+    public SpeciesSpheresMono species;
+    public IBox box;
+    public P2LennardJones potential;
+    public Controller controller;
+    public MeterPotentialEnergy energy;
+    public AccumulatorAverageCollapsing avgEnergy;
+    public DataPump pump;
+
+
+    public LjMc3D() {
+        super(Space3D.getInstance());
+        IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        double sigma = 1.0;
+        integrator = new IntegratorMC(this, potentialMaster);
+        MCMoveAtom move = new MCMoveAtom(this, potentialMaster, space);
+        integrator.getMoveManager().addMCMove(move);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(1);
+        getController().addAction(activityIntegrate);
+        species = new SpeciesSpheresMono(this, space);
+        getSpeciesManager().addSpecies(species);
+        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        box = new Box(space);
+        addBox(box);
+        box.setNMolecules(species, 50);
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(0.05);
+        inflater.actionPerformed();
+
+        potential = new P2LennardJones(space, sigma, 1.0);
+        IAtomType leafType = species.getLeafType();
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getDimensions().x(0)*0.45);
+
+        potentialMaster.addPotential(pTruncated,new IAtomType[]{leafType,leafType});
+        
+        integrator.setBox(box);
+        BoxImposePbc imposepbc = new BoxImposePbc(space);
+        imposepbc.setBox(box);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
+		
+        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        configuration.initializeCoordinates(box);
+        energy = new MeterPotentialEnergy(potentialMaster);
+        energy.setBox(box);
+        avgEnergy = new AccumulatorAverageCollapsing();
+        avgEnergy.setPushInterval(10);
+        pump = new DataPump(energy, avgEnergy);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(10);
+        integrator.getEventManager().addListener(pumpListener);
+    }
+    
+    public IIntegrator getIntegrator() {
+        return integrator;
+    }
+
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            final String APP_NAME = "LjMd3D";
+            LjMc3D sim= new LjMc3D();
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3, sim.getSpace(), sim.getController());
+
+            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+            simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+            DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+            display.setAccumulator(sim.avgEnergy);
+            simGraphic.add(display);
+            getContentPane().add(simGraphic.getPanel());
+        }
+    }
+
+    public static void main(String[] args) {
+    	final String APP_NAME = "LjMd3D";
+    	final LjMc3D sim = new LjMc3D();
+    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3, sim.space, sim.getController());
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
+    }
+
+}
