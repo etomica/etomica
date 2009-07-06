@@ -109,17 +109,16 @@ public class SimDegreeFreedom extends Simulation {
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
-        DataPump pump = new DataPump(meternmc, splitter);
-
+        DataPump pumpFromMeter = new DataPump(meternmc, splitter);
         
         for(int i = 0; i < coordNum; i++){
             hists[i] = new AccumulatorHistogram();
             splitter.setDataSink(i, hists[i]);
         }
         
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-        pumpListener.setInterval(1000);
-        integrator.getEventManager().addListener(pumpListener);
+        IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
+        pumpFromMeterListener.setInterval(1000);
+        integrator.getEventManager().addListener(pumpFromMeterListener);
         
         
         
@@ -185,15 +184,15 @@ public class SimDegreeFreedom extends Simulation {
          *  -calls actionPerformed
          *  
          */
-//        int accumulatorLength = ;
-//        for(int i = 0; i < ; i++){
-//            
-//            String filename = new String("hist_" + i);
-//            wh = new WriteHistogram(filename);
-//            wh.setHistogram();
-//            wh.actionPerformed();
-//            
-//        }
+        int accumulatorLength = sim.hists.length;
+        for(int i = 0; i < accumulatorLength; i++){
+            
+            WriteHistograms wh;
+            String outputName = new String("hist_" + i);
+            wh = new WriteHistograms(outputName);
+            wh.setHistogram(sim.hists[i].getHistograms());
+            wh.actionPerformed();
+        }
         
         
         

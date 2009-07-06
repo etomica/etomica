@@ -61,7 +61,6 @@ public class MeterNormalModeCoordinate implements IEtomicaDataSource {
             
             for(int j = 0; j < coordinateDim; j++){
                 values[j + coordinateDim * wvCount] = realCoord[j];
-                System.out.println(j + coordinateDim * wvCount + jump);
                 values[j + coordinateDim * wvCount + jump] = imagCoord[j];
             }
         }
