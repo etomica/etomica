@@ -1,20 +1,20 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
 import etomica.data.DataSplitter;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
@@ -24,18 +24,14 @@ import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -45,67 +41,67 @@ public class SimDegreeFreedom extends Simulation {
 
     public SimDegreeFreedom(Space _space, int numAtoms, double density) {
         super(_space, true);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
+        
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-
+        
+        basis = new BasisMonatomic(space);
+        
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(this, potentialMaster);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        Potential potential = new P2HardSphere(space, 1.0, false);
+       
+        Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
-        potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
-                sphereType });
+        potential.setBox(box);
+//        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 
-        mcmove = new MCMoveAtomCoupled(potentialMaster, random, space);
-        mcmove.setPotential((Potential2)potential);
-        mcmove.setBox(box);
-        integrator.getMoveManager().addMCMove(mcmove);
-        
-        int nCells;
-        Basis basis;
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            nCells = numAtoms;
-            bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
-//            ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
-            basis = new BasisMonatomic(space);
-        } else {
-            primitive = new PrimitiveCubic(space, 1);
-            double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density/4,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            bdry = new BoundaryDeformableLattice(primitive, new int[]{nCells,nCells,nCells});
-            basis = new BasisCubicFcc();
-        }
+        primitive = new PrimitiveCubic(space, 1.0/density);
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        nCells = new int[]{numAtoms};
         box.setBoundary(bdry);
-        integrator.setBox(box);
         
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells});
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        coordinateDefinition.initializeCoordinates(nCells);
         
-        if (space.D() == 1) {
-            nm = new NormalModes1DHR(space.D());
-        } else if (space.D() == 2) {
-            waveVectorFactory = null;
-        } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive, space);
-        }
+        double neighborRange = 1.01/density;
+        potentialMaster.setRange(neighborRange);
+        //find neighbors now.  Don't hook up NeighborListManager since the
+        //  neighbors won't change
+        potentialMaster.getNeighborManager(box).reset();
+        
+        integrator = new IntegratorMC(this, potentialMaster);
+        integrator.setBox(box);
+        
+        nm = new NormalModes1DHR(space.D());
+        nm.setHarmonicFudge(1.0);
+        nm.setTemperature(1.0);
+        nm.getOmegaSquared(box);
+        
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
+        
+        mcmove = new MCMoveAtomCoupled(potentialMaster, random, space);
+        mcmove.setPotential(potential);
+        mcmove.setBox(box);
+        integrator.getMoveManager().addMCMove(mcmove);
+        mcmove.setStepSizeMin(0.001);
+        mcmove.setStepSize(0.01);
         
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
         meternmc.setEigenVectors(nm.getEigenvectors(box));
         meternmc.setOmegaSquared(nm.getOmegaSquared(box));
         
+        
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
@@ -120,7 +116,8 @@ public class SimDegreeFreedom extends Simulation {
         pumpFromMeterListener.setInterval(1000);
         integrator.getEventManager().addListener(pumpFromMeterListener);
         
-        
+        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
+        getController().addAction(activityIntegrate);
         
         
     }
@@ -139,7 +136,7 @@ public class SimDegreeFreedom extends Simulation {
             density = 0.5;
         }
 
-        int nSteps = 10000;
+        int nSteps = 10000000;
 
         // parse arguments
         if (args.length > 1) {
@@ -171,7 +168,7 @@ public class SimDegreeFreedom extends Simulation {
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
-        
+       
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
@@ -202,16 +199,19 @@ public class SimDegreeFreedom extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    public Primitive primitive;
+    int[] nCells;
+    NormalModes nm;
     public IntegratorMC integrator;
+    public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
+    
     public IBox box;
     public Boundary bdry;
-    public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;
     MeterNormalModeCoordinate meternmc;
-    DoubleRange histRange;
     WaveVectorFactory waveVectorFactory;
-    NormalModes nm;
     MCMoveAtomCoupled mcmove;
     AccumulatorHistogram[] hists;
 

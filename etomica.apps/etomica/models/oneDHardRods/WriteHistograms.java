@@ -30,15 +30,10 @@ public class WriteHistograms implements IAction{
             int nBins = histogram.getNBins();
             
             for(int i = 0; i < nBins; i++){
-                writer.write(Double.toString(histogram.xValues()[i]));
+                writer.write(Double.toString(histogram.xValues()[i]) + " " + Double.toString(histogram.getHistogram()[i]) +"\n");
             }
             
-            writer.write("\n");
-            
-            for(int i = 0; i < nBins; i++){
-                writer.write(Double.toString(histogram.getHistogram()[i]));
-            }
-            
+            writer.close();
         } catch (IOException e) {
             throw new RuntimeException("Oops, failed to write data " + e);
         }
