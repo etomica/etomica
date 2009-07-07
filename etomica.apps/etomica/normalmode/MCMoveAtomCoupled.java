@@ -65,6 +65,14 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      * Method to perform trial move.
      */
     public boolean doTrial() {
+//        uNew = energyMeter.getDataAsScalar();
+//        if(uNew != 0.0){
+//            for( int ct = 0;ct < 32; ct++){
+//                System.out.println(((IAtomPositioned)box.getLeafList().getAtom(ct)).getPosition());
+//            }
+//            System.out.println("oy!");
+//        }
+        
         atom0 = atomSource.getAtom();
         atom1 = atomSource.getAtom();
         if (atom0 == null || atom1 == null || atom0 == atom1) return false;
@@ -72,9 +80,11 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
-        pair.atom0 = atom0;
-        pair.atom1 = atom1;
-        uOld -= potential.energy(pair);
+        if(!Double.isInfinite(uOld)){
+            pair.atom0 = atom0;
+            pair.atom1 = atom1;
+            uOld -= potential.energy(pair);
+        }
         if(uOld > 1e10) {
             new ConfigurationOverlapException(box);
         }
@@ -86,7 +96,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom0);
         uNew += energyMeter.getDataAsScalar();
-        uNew -= potential.energy(pair);
+        if(!Double.isInfinite(uNew)){
+            uNew -= potential.energy(pair);
+        }
         return true;
     }//end of doTrial
     
