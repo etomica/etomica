@@ -109,12 +109,6 @@ public class RheologyGraphic extends SimulationGraphic {
         normalStress1Display.setAccumulator(avgNormalStress1);
         add(normalStress1Display);
         getController().getDataStreamPumps().add(normalStress1Pump);
-        sliderA.setPostAction(new IAction() {
-            public void actionPerformed() {
-                meterNormalStress1.setDoDouble(sliderA.getValue() < 0);
-            }
-        });
-
 
         final MeterNormalStress meterNormalStress2 = new MeterNormalStress(sim.getSpace());
         meterNormalStress2.setIntegrator(sim.integrator);
@@ -128,6 +122,13 @@ public class RheologyGraphic extends SimulationGraphic {
         normalStress2Display.setAccumulator(avgNormalStress2);
         add(normalStress2Display);
         getController().getDataStreamPumps().add(normalStress2Pump);
+        
+        sliderA.setPostAction(new IAction() {
+            public void actionPerformed() {
+                meterNormalStress1.setDoDouble(sliderA.getValue() < 0);
+                meterNormalStress2.setDoDouble(sliderA.getValue() < 0);
+            }
+        });
         
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
