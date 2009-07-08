@@ -32,7 +32,7 @@ public class DeviceDelaySlider {
     	delaySlider.setMaximum(10);
     	delaySlider.setValue(0);
     	delaySlider.setNMajor(0);
-	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
+	    java.util.Hashtable<Integer,JLabel> scaleLabels = new java.util.Hashtable<Integer,JLabel>();
 	    scaleLabels.put(new Integer(0), new JLabel( "fast", JLabel.CENTER ));
 	    // slow is 100 : need to know details of DeviceSlider to understand why.
 	    scaleLabels.put(new Integer(100), new JLabel( "slow", JLabel.CENTER ));
