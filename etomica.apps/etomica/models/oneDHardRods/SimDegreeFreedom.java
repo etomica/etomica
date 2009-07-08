@@ -1,10 +1,8 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
@@ -22,7 +20,6 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -31,7 +28,8 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramExpanding;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -100,15 +98,18 @@ public class SimDegreeFreedom extends Simulation {
         meternmc.setEigenVectors(nm.getEigenvectors(box));
         meternmc.setOmegaSquared(nm.getOmegaSquared(box));
         
-        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
         DataPump pumpFromMeter = new DataPump(meternmc, splitter);
         
+        DoubleRange range = new DoubleRange(-1.0, 1.0);
+        int nBins = 200;
+        HistogramExpanding template; 
         for(int i = 0; i < coordNum; i++){
-            hists[i] = new AccumulatorHistogram();
+            template = new HistogramExpanding(nBins, range);
+            hists[i] = new AccumulatorHistogram(template, nBins);
             splitter.setDataSink(i, hists[i]);
         }
         
