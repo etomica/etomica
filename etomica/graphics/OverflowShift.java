@@ -43,7 +43,7 @@ public class OverflowShift {
 		if(boundary instanceof BoundaryRectangular) {
 
 	        int numVectors = 1;
-	        for (int i=1; i<dim; i++) {
+	        for (int i=0; i<dim; i++) {
 	           if ((rr.x(i) - distance < -0.5*dimensions.x(i)) || (rr.x(i) + distance > 0.5*dimensions.x(i))) {
 	              //each previous vector will need an additional copy in this dimension 
 	              numVectors *= 2;
@@ -92,7 +92,7 @@ public class OverflowShift {
 		//
 		else if(boundary instanceof BoundaryTruncatedOctahedron) {
 	        int numVectors = 1;
-	        for (int i = 1; i < dim; i++) {
+	        for (int i = 0; i < dim; i++) {
 	            if ((rr.x(i) - distance < 0.0)
 	                    || (rr.x(i) + distance > dimensions.x(i))) {
 	                //each previous vector will need an additional copy in this
