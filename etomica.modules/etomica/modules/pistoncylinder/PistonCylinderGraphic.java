@@ -130,7 +130,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public int dataInterval;
     public Unit eUnit;
     public double lambda, epsilon, mass, sigma;
-    public DeviceSlider doSleepSlider, integratorTimeStepSlider;
     public static final String IDEAL_GAS = "Ideal gas";
     public static final String REPULSION_ONLY = "Repulsion only";
     public static final String REPULSION_ATTRACTION = "Repulsion and attraction";
@@ -476,11 +475,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         if (doRDF) {
             plotRDF = new DisplayPlot();
-            JPanel rdfPanel = new JPanel();
-            getPanel().tabbedPane.add("RDF", rdfPanel);
             plotRDF.setDoLegend(false);
-            
-            rdfPanel.add(plotRDF.graphic());
+            plotRDF.setLabel("RDF");
+            add(plotRDF);
         }
 
         boolean pistonHeld = true;
