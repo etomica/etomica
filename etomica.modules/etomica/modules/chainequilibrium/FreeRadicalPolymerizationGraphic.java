@@ -281,7 +281,6 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         DeviceNSelector nSliderA = new DeviceNSelector(sim.getController());
         nSliderA.setSpecies(sim.speciesA);
         nSliderA.setBox(sim.box);
-        nSliderA.setPrecision(1);
         nSliderA.setModifier(new ModifierNMolecule(sim.box, sim.speciesA) {
             public void setValue(double newValue) {
                 super.setValue(newValue*2);
@@ -303,6 +302,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         };
         nSliderA.setResetAction(reset);
         nSliderA.setMaximum(1000);
+        nSliderA.setPrecision(1);
         nSliderA.setShowValues(true);
         nSliderA.setShowSlider(false);
         nSliderA.setEditValues(true);
