@@ -115,11 +115,12 @@ public class VLE extends SimulationGraphic {
         add(epsilonSlider);
         epsilonSlider.doUpdate();
 
-        DeviceSlider momentSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim, "moment"));
+        DeviceSlider momentSlider = new DeviceSlider(sim.getController());
         momentSlider.setUnit(new CompoundUnit(new Unit[]{Debye.UNIT, Angstrom.UNIT}, new double[]{1,1}));
-        momentSlider.setPrecision(2);
         momentSlider.setMinimum(3);
         momentSlider.setMaximum(6);
+        momentSlider.setPrecision(2);
+        momentSlider.setModifier(new ModifierGeneral(sim, "moment"));
         momentSlider.setShowValues(true);
         momentSlider.setEditValues(true);
         momentSlider.setShowBorder(true);
