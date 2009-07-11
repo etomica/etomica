@@ -10,6 +10,14 @@ import Jama.Matrix;
  */
 public class PolynomialFit {
 
+    /**
+     * Perform polynomial fit of the given order.  order=2 would fit
+     *     y = a*x^2 + b*x + c
+     * The polynomial coefficients are returned as a double array in order of
+     * increasing power of x.  So,
+     *   double[] r = doFit();
+     * r[i] is the coefficient for x^i
+     */
     public static double[] doFit(int order, double[] x, double[] y) {
         double[] w = new double[x.length];
         for (int i=0; i<x.length; i++) {
@@ -18,9 +26,18 @@ public class PolynomialFit {
         return doFit(order, x, y, w);
     }
 
+    /**
+     * Perform polynomial fit of the given order with the given weights (w).
+     * order=2 would fit
+     *     y = a*x^2 + b*x + c
+     * The polynomial coefficients are returned as a double array in order of
+     * increasing power of x.  So,
+     *   double[] r = doFit();
+     * r[i] is the coefficient for x^i
+     */
     public static double[] doFit(int order, double[] x, double[] y, double[] w) {
         if (x.length != y.length || x.length != w.length || x.length < order+1) {
-            // We need at least two data points to do a meaningful fit.
+            // We need at least order+1 data points to do a meaningful fit.
             return null;
         }
 

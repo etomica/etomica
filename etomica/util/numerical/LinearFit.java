@@ -41,8 +41,22 @@ public class LinearFit {
         return result;
     }
     
+    /**
+     * Class for holding results of the linear fit, y = mx + b
+     *
+     * @author Andrew Schultz
+     */
     public static class FitResult {
-        public double m, b;
+
+        /**
+         * Coefficient multiplying x, the slope of the y vs. x fitted line.
+         */
+        public double m;
+
+        /**
+         * The intercept of the y vs. x fitted line.
+         */
+        public double b;
     }
     
     public static void main(String[] args) {
