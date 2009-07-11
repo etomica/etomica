@@ -19,7 +19,7 @@ public class LinearFit {
     }
     
     public static FitResult doFit(double[] x, double[] y, double[] w) {
-        if (x.length != y.length || x.length < 2) {
+        if (x.length != y.length || x.length != w.length || x.length < 2) {
             // We need at least two data points to do a meaningful fit.
             return null;
         }
