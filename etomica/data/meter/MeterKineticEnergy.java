@@ -1,8 +1,7 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IBox;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -25,11 +24,6 @@ public class MeterKineticEnergy extends DataSourceScalar {
         setIterator(new AtomIteratorLeafAtoms());
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total kinetic energy of molecular motion in a box");
-        return info;
-    }
-
     /**
      * Returns the iterator that defines the atoms summed for their
      * kinetic energy.
