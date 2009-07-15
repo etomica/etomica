@@ -29,7 +29,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
+import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -135,10 +135,11 @@ public class SimDegreeFreedom extends Simulation {
         DataPump pumpFromMeter = new DataPump(meternmc, splitter);
         
         DoubleRange range = new DoubleRange(-1.0, 1.0);
-        int nBins = 200;
-        HistogramExpanding template; 
+        int nBins = 50;
+//        HistogramExpanding template; 
+        HistogramSimple template;
         for(int i = 0; i < coordNum; i++){
-            template = new HistogramExpanding(nBins, range);
+            template = new HistogramSimple(nBins, range);
             hists[i] = new AccumulatorHistogram(template, nBins);
             splitter.setDataSink(i, hists[i]);
         }
@@ -204,6 +205,11 @@ public class SimDegreeFreedom extends Simulation {
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
+
+        int accumulatorLength = sim.hists.length;
+        for(int i = 0; i < accumulatorLength; i++){
+            sim.hists[i].reset();
+        }
        
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
@@ -214,7 +220,6 @@ public class SimDegreeFreedom extends Simulation {
          * connects the write class with this histogram, and 
          * writes out the results to the file.
          */
-        int accumulatorLength = sim.hists.length;
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
             String outputName = new String("hist_" + i);
