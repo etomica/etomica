@@ -30,6 +30,8 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramExpanding;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -37,7 +39,26 @@ import etomica.util.HistogramExpanding;
  */
 public class SimDegreeFreedom extends Simulation {
 
-    public SimDegreeFreedom(Space _space, int numAtoms, double density) {
+    private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    public Primitive primitive;
+    int[] nCells;
+    NormalModes nm;
+    public IntegratorMC integrator;
+    public BasisMonatomic basis;
+    public ActivityIntegrate activityIntegrate;
+    
+    public IBox box;
+    public Boundary bdry;
+    public CoordinateDefinition coordinateDefinition;
+    MeterNormalModeCoordinate meternmc;
+    WaveVectorFactory waveVectorFactory;
+    MCMoveAtomCoupled mcMoveAtom;
+    MCMoveChangeSingleMode mcMoveMode;
+    AccumulatorHistogram[] hists;
+    int harmonicWV;
+
+    public SimDegreeFreedom(Space _space, int numAtoms, double density, int blocksize) {
         super(_space, true);
         
 //        long seed = 3;
@@ -87,12 +108,21 @@ public class SimDegreeFreedom extends Simulation {
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        mcmove = new MCMoveAtomCoupled(potentialMaster, random, space);
-        mcmove.setPotential(potential);
-        mcmove.setBox(box);
-        integrator.getMoveManager().addMCMove(mcmove);
-        mcmove.setStepSizeMin(0.001);
-        mcmove.setStepSize(0.01);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
+        mcMoveAtom.setPotential(potential);
+        mcMoveAtom.setBox(box);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
+        mcMoveAtom.setStepSizeMin(0.001);
+        mcMoveAtom.setStepSize(0.01);
+        
+        mcMoveMode = new MCMoveChangeSingleMode(potentialMaster, random);
+        mcMoveMode.setBox(box);
+        integrator.getMoveManager().addMCMove(mcMoveMode);
+        mcMoveMode.setCoordinateDefinition(coordinateDefinition);
+        mcMoveMode.setEigenVectors(nm.getEigenvectors(box));
+        mcMoveMode.setOmegaSquared(nm.getOmegaSquared(box));
+        mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+        mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
         meternmc.setEigenVectors(nm.getEigenvectors(box));
@@ -114,7 +144,7 @@ public class SimDegreeFreedom extends Simulation {
         }
         
         IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
-        pumpFromMeterListener.setInterval(1000);
+        pumpFromMeterListener.setInterval(blocksize);
         integrator.getEventManager().addListener(pumpFromMeterListener);
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
@@ -123,49 +153,54 @@ public class SimDegreeFreedom extends Simulation {
         
     }
 
+    private void setHarmonicWV(int hwv){
+        harmonicWV = hwv;
+        mcMoveMode.setHarmonicWV(hwv);
+    }
+    
     /**
      * @param args
      */
     public static void main(String[] args) {
 
-        // defaults
-        int D = 1;
-        int nA = 32;
-        double density = 1.3;
-        if (D == 1) {
-            nA = 32;
-            density = 0.5;
+        SimParam params = new SimParam();
+        String inputFilename = null;
+        if(args.length > 0) {
+            inputFilename = args[0];
         }
-
-        int nSteps = 10000000;
-
-        // parse arguments
-        if (args.length > 1) {
-            density = Double.parseDouble(args[1]);
+        if(inputFilename != null){
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+            inputFilename = params.inputfilename;
         }
-        if (args.length > 2) {
-//            simTime = Double.parseDouble(args[2]);
+        
+        int nA = params.numAtoms;
+        double density = params.density;
+        int D = params.D;
+        double harmonicFudge = params.harmonicFudge;
+        String filename = params.filename;
+        if(filename.length() == 0){
+            filename = "1DHR";
         }
-        if (args.length > 3) {
-            nA = Integer.parseInt(args[3]);
-        }
-        String filename = "normal_modes" + D + "D_"+nA+"_"+((int)(density*100))+"_cubic";
-        if (args.length > 0) {
-            filename = args[0];
-        }
+        double temperature = params.temperature;
+        int comparedWV = params.comparedWV;
+        int nSteps = params.numSteps;
+        int bs = params.blockSize;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
-        System.out.println(nSteps + " time units");
+        System.out.println(nSteps + " steps, " + bs + " blocksize");
+        System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDegreeFreedom sim = new SimDegreeFreedom(Space.getInstance(D), nA, density);
+        SimDegreeFreedom sim = new SimDegreeFreedom(Space.getInstance(D), nA, density, bs);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
+        sim.setHarmonicWV(comparedWV);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
@@ -173,47 +208,36 @@ public class SimDegreeFreedom extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
-        
-        
-        /* loops that
-         *  -changes filename
-         *  -changes accumulator histogram
-         *  -changes histogram
-         *  -calls actionPerformed
-         *  
+        /* 
+         * This loop creates a new write class for each histogram from each 
+         * AccumulatorHistogram, changes the filename for the histogram output,
+         * connects the write class with this histogram, and 
+         * writes out the results to the file.
          */
         int accumulatorLength = sim.hists.length;
+        WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
-            
-            WriteHistograms wh;
             String outputName = new String("hist_" + i);
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
         }
         
-        
-        
-        
-        
         System.out.println("Fini.");
     }
-
-    private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom1DHR";
-    public Primitive primitive;
-    int[] nCells;
-    NormalModes nm;
-    public IntegratorMC integrator;
-    public BasisMonatomic basis;
-    public ActivityIntegrate activityIntegrate;
     
-    public IBox box;
-    public Boundary bdry;
-    public CoordinateDefinition coordinateDefinition;
-    MeterNormalModeCoordinate meternmc;
-    WaveVectorFactory waveVectorFactory;
-    MCMoveAtomCoupled mcmove;
-    AccumulatorHistogram[] hists;
+    public static class SimParam extends ParameterBase {
+        public int numAtoms = 32;
+        public double density = 0.50;
+        public int D = 1;
+        public double harmonicFudge = 1.0;
+        public String filename = "HR1D_";
+        public String inputfilename = "input";
+        public double temperature = 1.0;
+        public int comparedWV = numAtoms/2;
+        
+        public int blockSize = 100;
+        public int numSteps = 10000000;
+    }
 
 }
