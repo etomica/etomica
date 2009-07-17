@@ -29,7 +29,7 @@ public class PermutationIterator implements Iterator<int[]> {
   private int[][] groups;
   private int activeGroup = -1;
   private int curPermutation = 0;
-  private int maxPermutations = 1;
+  private long maxPermutations = 1;
   private int[] groupSizes;
 
   public PermutationIterator(int[] psizes) {
@@ -88,18 +88,41 @@ public class PermutationIterator implements Iterator<int[]> {
     throw new UnsupportedOperationException();
   }
 
-  private int factorial(int val) {
+  private long rangeProduct(int minVal, int maxVal) {
 
-    assert (val >= 0);
-    if (val > 1) {
-      return val * factorial(val - 1);
+    assert ((minVal >= 0) && (maxVal >= minVal));
+    long result = 1;
+    for (int val = minVal + (minVal == 0 ? 1 : 0); val <= maxVal; val++) {
+      result *= val;
     }
-    return 1;
+    return result;
   }
 
-  private int choose(int n, int k) {
+  private long factorial(int val) {
 
-    return factorial(n) / (factorial(n - k) * factorial(k));
+    assert (val >= 0);
+    if (val <= 1) {
+      return 1;
+    }
+    else {
+      return rangeProduct(1, val);
+    }
+  }
+
+  private long choose(int n, int k) {
+
+    if ((k == 0) || (n - k == 0)) {
+      return 1;
+    }
+    else if ((k == 1) || (n - k == 1)) {
+      return n;
+    }
+    if (k < n / 2) {
+      return rangeProduct(n - k + 1, n) / rangeProduct(1, k);
+    }
+    else {
+      return rangeProduct(k + 1, n) / rangeProduct(1, n - k);
+    }
   }
 
   private void nextPermutation() {
@@ -229,7 +252,7 @@ public class PermutationIterator implements Iterator<int[]> {
       if ((zeroIndex == -1) && (groups[activeGroup][i] == 0)) {
         zeroIndex = i;
       }
-      if ((zeroIndex != -1) && (groups[activeGroup][i] == 1)) {
+      else if ((zeroIndex != -1) && (groups[activeGroup][i] == 1)) {
         oneIndex = i;
         zeroIndex = -1;
         break;

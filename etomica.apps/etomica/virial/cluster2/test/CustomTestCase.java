@@ -87,10 +87,16 @@ public class CustomTestCase extends TestCase {
       }
       if (enumerated > 0) {
         if ((elapsed / enumerated) < K) {
-          System.out.println((elapsed / enumerated) + "µs/graph)");
+          System.out.print((elapsed / enumerated) + "µs/graph)");
         }
         else {
-          System.out.println(((elapsed / K) / enumerated) + "ms/graph)");
+          System.out.print(((elapsed / K) / enumerated) + "ms/graph)");
+        }
+        if (enumerated < 10*M) {
+          System.out.println(" [" + enumerated / K + "K graphs]");
+        }
+        else {
+          System.out.println(" [" + enumerated / M + "M graphs]");
         }
       }
       else {
