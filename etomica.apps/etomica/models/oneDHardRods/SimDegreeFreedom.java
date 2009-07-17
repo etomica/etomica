@@ -29,7 +29,8 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.util.Histogram;
+import etomica.util.HistogramExpanding;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -58,7 +59,7 @@ public class SimDegreeFreedom extends Simulation {
     AccumulatorHistogram[] hists;
     int harmonicWV;
 
-    public SimDegreeFreedom(Space _space, int numAtoms, double density, int blocksize) {
+    public SimDegreeFreedom(Space _space, int numAtoms, double density, int blocksize, int nbs) {
         super(_space, true);
         
 //        long seed = 3;
@@ -135,12 +136,11 @@ public class SimDegreeFreedom extends Simulation {
         DataPump pumpFromMeter = new DataPump(meternmc, splitter);
         
         DoubleRange range = new DoubleRange(-1.0, 1.0);
-        int nBins = 50;
-//        HistogramExpanding template; 
-        HistogramSimple template;
+        Histogram template;
         for(int i = 0; i < coordNum; i++){
-            template = new HistogramSimple(nBins, range);
-            hists[i] = new AccumulatorHistogram(template, nBins);
+//            template = new HistogramSimple(nBins, range);
+            template = new HistogramExpanding(nbs, range);
+            hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
         }
         
@@ -187,17 +187,19 @@ public class SimDegreeFreedom extends Simulation {
         int comparedWV = params.comparedWV;
         int nSteps = params.numSteps;
         int bs = params.blockSize;
+        int nbins = params.nBins;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
         System.out.println(nSteps + " steps, " + bs + " blocksize");
+        System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDegreeFreedom sim = new SimDegreeFreedom(Space.getInstance(D), nA, density, bs);
+        SimDegreeFreedom sim = new SimDegreeFreedom(Space.getInstance(D), nA, density, bs, nbins);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -226,6 +228,7 @@ public class SimDegreeFreedom extends Simulation {
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
+            System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
         }
         
         System.out.println("Fini.");
@@ -240,6 +243,7 @@ public class SimDegreeFreedom extends Simulation {
         public String inputfilename = "input";
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
+        public int nBins = 20000;
         
         public int blockSize = 100;
         public int numSteps = 10000000;
