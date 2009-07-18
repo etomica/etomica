@@ -3,7 +3,7 @@ package etomica.virial.cluster2.test;
 import junit.framework.TestCase;
 
 public class CustomTestCase extends TestCase {
-
+ 
   private Runtime rt = Runtime.getRuntime();
   protected static int K = 1000;
   protected static int M = K * K;
