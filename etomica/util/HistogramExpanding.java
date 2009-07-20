@@ -125,7 +125,10 @@ public class HistogramExpanding extends HistogramSimple {
         nBins = newNBins;
         histogram = new double[nBins];
         xValues = new double[nBins];
-        super.reset();
+
+        for(int i=0; i<nBins; i++) {
+            xValues[i] = xMin + deltaX * (i+0.5);
+        }
     }
 
     /**
