@@ -30,7 +30,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
 import etomica.util.Histogram;
-import etomica.util.HistogramExpanding;
+import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -81,7 +81,6 @@ public class SimDegreeFreedom extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
-//        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
@@ -138,8 +137,7 @@ public class SimDegreeFreedom extends Simulation {
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
         for(int i = 0; i < coordNum; i++){
-//            template = new HistogramSimple(nBins, range);
-            template = new HistogramExpanding(nbs, range);
+            template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
         }
@@ -243,7 +241,7 @@ public class SimDegreeFreedom extends Simulation {
         public String inputfilename = "input";
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
-        public int nBins = 20000;
+        public int nBins = 200;
         
         public int blockSize = 100;
         public int numSteps = 10000000;

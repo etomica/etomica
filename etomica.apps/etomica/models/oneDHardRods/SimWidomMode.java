@@ -4,9 +4,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorHistogram;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
-import etomica.data.DataSplitter;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -28,9 +27,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramExpanding;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -52,13 +48,14 @@ public class SimWidomMode extends Simulation {
     public IBox box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
-    MeterNormalModeCoordinate meternmc;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
     MCMoveChangeSingleMode mcMoveMode;
     int harmonicWV;
+    MeterWidomMode[] widomMeter;
+    AccumulatorAverageFixed[] accumulators;
 
-    public SimWidomMode(Space _space, int numAtoms, double density, int blocksize, int nbs) {
+    public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space, true);
         
 //        long seed = 3;
@@ -70,9 +67,7 @@ public class SimWidomMode extends Simulation {
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
-        
         basis = new BasisMonatomic(space);
-        
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
@@ -80,7 +75,6 @@ public class SimWidomMode extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
-//        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
@@ -124,32 +118,32 @@ public class SimWidomMode extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
-        meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-        meternmc.setEigenVectors(nm.getEigenvectors(box));
-        meternmc.setOmegaSquared(nm.getOmegaSquared(box));
-        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
-//        hists = new AccumulatorHistogram[coordNum];
-        DataSplitter splitter = new DataSplitter();
-        DataPump pumpFromMeter = new DataPump(meternmc, splitter);
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim;
         
-        DoubleRange range = new DoubleRange(-1.0, 1.0);
-        Histogram template;
+        widomMeter = new MeterWidomMode[coordNum];
+        accumulators = new AccumulatorAverageFixed[coordNum];
+        DataPump pump;
+        IntegratorListenerAction pumpListener;
         for(int i = 0; i < coordNum; i++){
-//            template = new HistogramSimple(nBins, range);
-            template = new HistogramExpanding(nbs, range);
-//            hists[i] = new AccumulatorHistogram(template, nbs);
-//            splitter.setDataSink(i, hists[i]);
+            String name = new String("widom Meter for mode " + i);
+            widomMeter[i] = new MeterWidomMode(name, potentialMaster, 
+                    coordinateDefinition, box, i);
+            widomMeter[i].setEigenVectors(nm.getEigenvectors(box));
+            widomMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
+            widomMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+            widomMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+            
+            accumulators[i] = new AccumulatorAverageFixed(blocksize);
+            
+            pump = new DataPump(widomMeter[i], accumulators[i]);
+            pumpListener = new IntegratorListenerAction(pump);
+            pumpListener.setInterval(blocksize);
+            integrator.getEventManager().addListener(pumpListener);
         }
-        
-        IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
-        pumpFromMeterListener.setInterval(blocksize);
-        integrator.getEventManager().addListener(pumpFromMeterListener);
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
-        
         
     }
 
@@ -186,18 +180,16 @@ public class SimWidomMode extends Simulation {
         int comparedWV = params.comparedWV;
         int nSteps = params.numSteps;
         int bs = params.blockSize;
-        int nbins = params.nBins;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
         System.out.println(nSteps + " steps, " + bs + " blocksize");
-        System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
-        SimWidomMode sim = new SimWidomMode(Space.getInstance(D), nA, density, bs, nbins);
+        SimWidomMode sim = new SimWidomMode(Space.getInstance(D), nA, density, bs);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -205,29 +197,18 @@ public class SimWidomMode extends Simulation {
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
-//
-//        int accumulatorLength = sim.hists.length;
-//        for(int i = 0; i < accumulatorLength; i++){
-//            sim.hists[i].reset();
-//        }
        
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
-        /* 
-         * This loop creates a new write class for each histogram from each 
-         * AccumulatorHistogram, changes the filename for the histogram output,
-         * connects the write class with this histogram, and 
-         * writes out the results to the file.
-         */
-        WriteHistograms wh;
-//        for(int i = 0; i < accumulatorLength; i++){
-//            String outputName = new String("hist_" + i);
-//            wh = new WriteHistograms(outputName);
-//            wh.setHistogram(sim.hists[i].getHistograms());
-//            wh.actionPerformed();
-//            System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
-//        }
+        //After processing...
+        
+        double[] results = new double[nA];
+        for(int i = 0; i < nA; i++){
+//            results[i] = sim.accumulators[i].getData(AVERAGE);
+        }
+        
+        
         
         System.out.println("Fini.");
     }
@@ -241,7 +222,6 @@ public class SimWidomMode extends Simulation {
         public String inputfilename = "input";
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
-        public int nBins = 20000;
         
         public int blockSize = 100;
         public int numSteps = 10000000;
