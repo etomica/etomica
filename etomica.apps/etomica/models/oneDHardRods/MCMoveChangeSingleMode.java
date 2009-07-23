@@ -99,8 +99,26 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         return iterator;
     }
 
+    private void printLocations(){
+        IAtomList list = box.getLeafList();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        int ats = box.getLeafList().getAtomCount();
+//        for(int i = 0; i < ats; i++){
+//            System.out.println("Atom " + i);
+//            for(int j = 0; j < coordinateDim; j++){
+//                System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
+//            }
+//        }
+        for(int i = 0; i < ats; i++){
+            System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().x(0));
+        }
+    }
+    
     
     public boolean doTrial() {
+//        System.out.println("initial positions:");
+//        printLocations();
+        
         energyOld = energyMeter.getDataAsScalar();
 //        System.out.println("energyOld " +energyOld);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -114,7 +132,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
         //The zero wavevector is center of mass motion, and is rejected as a 
         //possibility.
         changedWV = random.nextInt(harmonicWV + 1);
-//        System.out.println(changedWV);
+//        System.out.println("changed WV " + changedWV);
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -137,6 +155,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
             double sinkR = Math.sin(kR);
             for(int i = 0; i < coordinateDim; i++){
                 if( !(Double.isInfinite(omega2[changedWV][i])) ){
+                    if(changedWV == 0) { System.out.println("why am i here?");}
                     for(int j = 0; j < coordinateDim; j++){
                         deltaU[j] += waveVectorCoefficients[changedWV] * 
                             eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
@@ -170,20 +189,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     
     public void acceptNotify() {
 //        System.out.println("accept MCMoveChangeSingleMode");
-//        if(count == 1000){
-//           int ats = box.getLeafList().getAtomCount();
-//            IAtomList list = box.getLeafList();
-//            int coordinateDim = coordinateDefinition.getCoordinateDim();
-//            for(int i = 0; i < ats; i++){
-//                System.out.println("Atom " + i);
-//                for(int j = 0; j < coordinateDim; j++){
-//                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
-//                }
-//            }
-//            count = 0;
-//        } else {
-//            count++;
-//        }
+//        printLocations();
     }
 
     public double energyChange() {
@@ -192,12 +198,17 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
 
     public void rejectNotify() {
 //        System.out.println("reject MCMoveChangeSingleMode");
+//        printLocations();
+        
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
+        
+//        System.out.println("After moved back");
+//        printLocations();
     }
 
     

@@ -1,8 +1,11 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
+import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
@@ -32,6 +35,7 @@ import etomica.util.DoubleRange;
 import etomica.util.Histogram;
 import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -150,6 +154,17 @@ public class SimDegreeFreedom extends Simulation {
         getController().addAction(activityIntegrate);
         
         
+//        IAtomList leaflist = box.getLeafList();
+//        double[] locations = new double[numAtoms];
+//        System.out.println("starting positions:");
+//        for(int i = 0; i < numAtoms; i++){
+//            //one d is assumed here.
+//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+//        }
+//        
+//        for(int i = 0; i < numAtoms; i++){
+//            System.out.println(i + "  " + locations[i]);
+//        }
     }
 
     private void setHarmonicWV(int hwv){
@@ -229,11 +244,23 @@ public class SimDegreeFreedom extends Simulation {
             System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
         }
         
+//        IAtomList leaflist = sim.box.getLeafList();
+//        double[] locations = new double[nA];
+//        System.out.println("final:");
+//        for(int i = 0; i < nA; i++){
+//            //one d is assumed here.
+//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+//        }
+//        
+//        for(int i = 0; i < 32; i++){
+//            System.out.println(i + "  " + locations[i]);
+//        }
+        
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 30;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -244,7 +271,7 @@ public class SimDegreeFreedom extends Simulation {
         public int nBins = 200;
         
         public int blockSize = 100;
-        public int numSteps = 10000000;
+        public int numSteps = 10000;
     }
 
 }

@@ -1,11 +1,18 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
+import etomica.atom.Atom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -28,6 +35,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -53,7 +61,7 @@ public class SimWidomMode extends Simulation {
     MCMoveChangeSingleMode mcMoveMode;
     int harmonicWV;
     MeterWidomMode[] widomMeter;
-    AccumulatorAverageFixed[] accumulators;
+    AccumulatorAverage[] accumulators;
 
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space, true);
@@ -145,6 +153,17 @@ public class SimWidomMode extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
         
+        
+//        IAtomList leaflist = box.getLeafList();
+//        double[] locations = new double[numAtoms];
+//        System.out.println("at sim start:");
+//        for(int i = 0; i < numAtoms; i++){
+//            //one d is assumed here.
+//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+//        }
+//        for(int i = 0; i < numAtoms; i++){
+//            System.out.println(i + "  " + locations[i]);
+//        }
     }
 
     private void setHarmonicWV(int hwv){
@@ -202,13 +221,26 @@ public class SimWidomMode extends Simulation {
         sim.getController().actionPerformed();
         
         //After processing...
-        
-        double[] results = new double[nA];
-        for(int i = 0; i < nA; i++){
-//            results[i] = sim.accumulators[i].getData(AVERAGE);
+        int cd = sim.nm.getWaveVectorFactory().getWaveVectors().length * 
+                sim.coordinateDefinition.getCoordinateDim();
+        double[] results = new double[cd];
+        DataGroup group;
+        for(int i = 0; i < cd; i++){
+            group = (DataGroup)sim.accumulators[i].getData();
+            results[i] = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
+        }
+        for(int i = 0; i < cd; i++){
+            System.out.println(i + "  " + results[i]);
         }
         
-        
+//        IAtomList leaflist = sim.box.getLeafList();
+//        double[] locations = new double[nA];
+//        System.out.println("final:");
+//        for(int i = 0; i < nA; i++){
+//            //one d is assumed here.
+//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+//            System.out.println(i + "  " + locations[i]);
+//        }
         
         System.out.println("Fini.");
     }
