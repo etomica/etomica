@@ -1,8 +1,10 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;
@@ -44,10 +46,15 @@ public class MeterWidomMode extends DataSourceScalar {
         affectedWV = awv;
     }
     
-    
-    
-    @Override
     public double getDataAsScalar() {
+        
+
+      IAtomList leaflist = coordinateDefinition.getBox().getLeafList();
+      System.out.println("start:");
+      for(int i = 0; i < 32; i++){
+          System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
+      }
+        
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
@@ -98,13 +105,26 @@ public class MeterWidomMode extends DataSourceScalar {
 
             for(int i = 0; i < coordinateDim; i++){
                 deltaU[i] *= normalization;
+                System.out.println(deltaU[i]);
+
             }
+            
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-        }
+        }//end of cell loop
+        
+        
+
+      
+      System.out.println("middle:");
+      for(int i = 0; i < 32; i++){
+          System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
+      }
+        
+        
         
         //Calculate the energy without that mode in.
         double energy = meterPE.getDataAsScalar();
@@ -115,8 +135,20 @@ public class MeterWidomMode extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
         
-        if(Double.isInfinite(energy)) {return 0;}
-        else {return 1;}
+        
+        System.out.println("end:");
+        for(int i = 0; i < 32; i++){
+            System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
+        }
+        
+        
+        if(Double.isInfinite(energy)) {
+//            System.out.println("0");
+            return 0;
+        } else {
+//            System.out.println("1");
+            return 1;
+        }
     }
 
     

@@ -66,10 +66,10 @@ public class SimWidomMode extends Simulation {
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space, true);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
