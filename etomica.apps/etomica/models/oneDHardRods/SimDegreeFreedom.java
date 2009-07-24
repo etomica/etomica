@@ -198,7 +198,7 @@ public class SimDegreeFreedom extends Simulation {
         }
         double temperature = params.temperature;
         int comparedWV = params.comparedWV;
-        int nSteps = params.numSteps;
+        long nSteps = params.numSteps;
         int bs = params.blockSize;
         int nbins = params.nBins;
         
@@ -271,7 +271,7 @@ public class SimDegreeFreedom extends Simulation {
         public int nBins = 200;
         
         public int blockSize = 100;
-        public int numSteps = 10000;
+        public long numSteps = 1000000000;
     }
 
 }
