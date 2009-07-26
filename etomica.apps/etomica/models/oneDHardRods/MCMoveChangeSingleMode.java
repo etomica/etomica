@@ -188,7 +188,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-        System.out.println("accept MCMoveChangeSingleMode");
+//        System.out.println("accept MCMoveChangeSingleMode");
 //        printLocations();
     }
 
@@ -197,7 +197,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-        System.out.println("reject MCMoveChangeSingleMode");
+//        System.out.println("reject MCMoveChangeSingleMode");
 //        printLocations();
         
         // Set all the atoms back to the old values of u

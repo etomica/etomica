@@ -66,10 +66,10 @@ public class SimWidomMode extends Simulation {
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space, true);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
@@ -152,18 +152,6 @@ public class SimWidomMode extends Simulation {
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
-        
-        
-//        IAtomList leaflist = box.getLeafList();
-//        double[] locations = new double[numAtoms];
-//        System.out.println("at sim start:");
-//        for(int i = 0; i < numAtoms; i++){
-//            //one d is assumed here.
-//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
-//        }
-//        for(int i = 0; i < numAtoms; i++){
-//            System.out.println(i + "  " + locations[i]);
-//        }
     }
 
     private void setHarmonicWV(int hwv){
@@ -232,16 +220,6 @@ public class SimWidomMode extends Simulation {
         for(int i = 0; i < cd; i++){
             System.out.println(i + "  " + results[i]);
         }
-        
-//        IAtomList leaflist = sim.box.getLeafList();
-//        double[] locations = new double[nA];
-//        System.out.println("final:");
-//        for(int i = 0; i < nA; i++){
-//            //one d is assumed here.
-//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
-//            System.out.println(i + "  " + locations[i]);
-//        }
-        
         System.out.println("Fini.");
     }
     
@@ -256,7 +234,7 @@ public class SimWidomMode extends Simulation {
         public int comparedWV = numAtoms/2;
         
         public int blockSize = 100;
-        public int numSteps = 10000000;
+        public int numSteps = 10000;
     }
 
 }

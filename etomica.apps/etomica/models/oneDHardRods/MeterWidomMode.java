@@ -31,7 +31,6 @@ public class MeterWidomMode extends DataSourceScalar {
     protected double temperature;
     private double[] uNow, deltaU;
     private double[] waveVectorCoefficients;
-    private double wvc;
     
     
     public MeterWidomMode(String string, IPotentialMaster 
@@ -48,12 +47,11 @@ public class MeterWidomMode extends DataSourceScalar {
     
     public double getDataAsScalar() {
         
-
-      IAtomList leaflist = coordinateDefinition.getBox().getLeafList();
-      System.out.println("start:");
-      for(int i = 0; i < 32; i++){
-          System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
-      }
+//      IAtomList leaflist = coordinateDefinition.getBox().getLeafList();
+//      System.out.println("start:");
+//      for(int i = 0; i < 32; i++){
+//          System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
+//      }
         
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         BasisCell cell = cells[0];
@@ -73,13 +71,13 @@ public class MeterWidomMode extends DataSourceScalar {
         for(int i = 0; i < coordinateDim; i++){  //Loop would go away
             if(Double.isInfinite(omegaSquared[affectedWV][i])){
                 continue;
-            }
+            }// end if
             for(int j = 0; j < coordinateDim; j++){
                 realCoord[i] += eigenVectors[affectedWV][i][j] * realT[j];
                 imagCoord[i] += eigenVectors[affectedWV][i][j] * imagT[j];
             }
-        }
-        
+        }//end loops which sum realCoord and imagCoord
+         
         //remove affected wavevector's effect on position
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store original positions
@@ -88,7 +86,7 @@ public class MeterWidomMode extends DataSourceScalar {
             cell = cells[iCell];
             for(int j = 0; j < coordinateDim; j++){
                 deltaU[j] = 0.0;
-            }
+            }//end zero-the-deltaUs-loop
             
             //Calculate the contributions to the current position of the 
             //zeroed mode, and subtract it from the overall position.
@@ -98,33 +96,19 @@ public class MeterWidomMode extends DataSourceScalar {
             for(int i = 0; i < coordinateDim; i++){
                 //Calculate the current coordinates.
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenVectors[affectedWV][i][j] *
+                    deltaU[j] -= waveVectorCoefficients[i]*eigenVectors[affectedWV][i][j] *
                         2.0 * (realCoord[i]*coskR - imagCoord[i]*sinkR);
                 }
             }
 
             for(int i = 0; i < coordinateDim; i++){
                 deltaU[i] *= normalization;
-                System.out.println(deltaU[i]);
-
             }
-            
-            
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }//end of cell loop
-        
-        
-
-      
-      System.out.println("middle:");
-      for(int i = 0; i < 32; i++){
-          System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
-      }
-        
-        
         
         //Calculate the energy without that mode in.
         double energy = meterPE.getDataAsScalar();
@@ -135,18 +119,9 @@ public class MeterWidomMode extends DataSourceScalar {
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
         
-        
-        System.out.println("end:");
-        for(int i = 0; i < 32; i++){
-            System.out.println(i + "  " + ((Atom)leaflist.getAtom(i)).getPosition().x(0));
-        }
-        
-        
         if(Double.isInfinite(energy)) {
-//            System.out.println("0");
             return 0;
         } else {
-//            System.out.println("1");
             return 1;
         }
     }
@@ -161,7 +136,6 @@ public class MeterWidomMode extends DataSourceScalar {
     }
     public void setAffectedWV(int awv) {
         this.affectedWV = awv;
-        wvc = waveVectorCoefficients[awv];
     }
     public void setTemperature(double temperature) {
         this.temperature = temperature;
