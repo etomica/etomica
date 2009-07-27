@@ -210,7 +210,7 @@ public class SimWidomMode extends Simulation {
         
         //After processing...
         int cd = sim.nm.getWaveVectorFactory().getWaveVectors().length * 
-                sim.coordinateDefinition.getCoordinateDim();
+                sim.coordinateDefinition.getCoordinateDim() * 2;
         double[] results = new double[cd];
         DataGroup group;
         for(int i = 0; i < cd; i++){
