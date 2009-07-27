@@ -75,18 +75,18 @@ public class NautyEdgesGenerator extends AbstractEdgesGenerator {
         return null;
       }
       // number of isomorphisms: N!/automorphism_group_size
-      double coefficient = 1;
-      int automorphismGroupSize = Integer.valueOf(line);
-      if (automorphismGroupSize > 0) {
+      int coefficient = 1;
+      int autoGroupSize = Integer.valueOf(line);
+      if (autoGroupSize > 0) {
         for (int i = 1; i <= factory.getNodeCount(); i++) {
           coefficient *= i;
         }
-        coefficient /= automorphismGroupSize;
+        coefficient /= autoGroupSize;
       }
       // second line: encoding of the graph as a bit string; this
       // graph is the representative of its automorphism group
       return GraphFactory.nautyEdges(factory.getRepresentation(BitmapFactory
-          .getBitmap(nautyReader.readLine())), coefficient);
+          .getBitmap(nautyReader.readLine())), GraphFactory.defaultCoefficient(coefficient));
     }
     catch (IOException e) {
       return null;

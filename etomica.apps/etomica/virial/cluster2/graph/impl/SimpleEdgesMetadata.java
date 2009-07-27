@@ -1,12 +1,13 @@
 package etomica.virial.cluster2.graph.impl;
 
 import etomica.virial.cluster2.graph.EdgesMetadata;
+import etomica.virial.cluster2.graph.GraphCoefficient;
 
 public class SimpleEdgesMetadata implements EdgesMetadata {
 
-  private double coefficient;
+  private GraphCoefficient coefficient;
 
-  public SimpleEdgesMetadata(double value) {
+  public SimpleEdgesMetadata(GraphCoefficient value) {
 
     coefficient = value;
   }
@@ -18,15 +19,15 @@ public class SimpleEdgesMetadata implements EdgesMetadata {
   
   public EdgesMetadata ncopy() {
     
-    return new SimpleEdgesMetadata(-coefficient);
+    return new SimpleEdgesMetadata(coefficient.switchSign());
   }
   
-  public double getCoefficient() {
+  public GraphCoefficient getCoefficient() {
 
     return coefficient;
   }
 
-  public void setCoefficient(double value) {
+  public void setCoefficient(GraphCoefficient value) {
 
     coefficient = value;
   }
@@ -34,6 +35,6 @@ public class SimpleEdgesMetadata implements EdgesMetadata {
   @Override
   public String toString() {
 
-    return String.valueOf(Double.valueOf(coefficient).longValue());
+    return coefficient.toString();
   }
 }

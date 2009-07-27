@@ -81,25 +81,12 @@ public class FilterFactory {
 
     return new AbstractEdgesFilter() {
 
-      private boolean hardStop = false;
-      private boolean softStop = false;
-
       @Override
       protected boolean doAccept(Edges edges, List<Edges> edgesList) {
 
         Match.graphs++;
         if (Match.graphs % 100000 == 0) {
           System.out.println("===== MARK " + Match.graphs + "=====");
-        }
-        if (hardStop) {
-          return false;
-        }
-        if (softStop
-            && edgesList.size() == Match.OPTIMAL_ISMORPHS_COUNT[nodes.count() - 1]) {
-          System.out
-              .println("Optimal upper bound before computing complements.");
-          hardStop = true;
-          return false;
         }
 // int edgesCount = edges.count();
         Graph g2 = GraphFactory.simpleGraph(nodes, edges);
@@ -108,8 +95,7 @@ public class FilterFactory {
           // save some computation by performing a simpler check before checking
           // for isomorphism
           if (Match.match(GraphFactory.simpleGraph(nodes, e), g2)) {
-            e.getMetadata()
-                .setCoefficient(e.getMetadata().getCoefficient() + 1);
+            e.getMetadata().getCoefficient().inc();
             return false;
           }
         }
@@ -161,9 +147,9 @@ public class FilterFactory {
         for (int i = 0; i < nodes.count(); i++) {
           for (int j = i; j < nodes.count(); j++) {
             if ((i != j)
-                && nodes.getAttributes(i).isSameColor(
+                && nodes.getAttributes(i).isSameClass(
                     GraphFactory.ROOT_NODE_ATTRIBUTES)
-                && nodes.getAttributes(j).isSameColor(
+                && nodes.getAttributes(j).isSameClass(
                     GraphFactory.ROOT_NODE_ATTRIBUTES) && edges.hasEdge(i, j)) {
               return false;
             }
@@ -225,9 +211,9 @@ public class FilterFactory {
       for (int i = 0; i < nodes.count(); i++) {
         for (int j = i; j < nodes.count(); j++) {
           if ((i != j)
-              && nodes.getAttributes(i).isSameColor(
+              && nodes.getAttributes(i).isSameClass(
                   GraphFactory.FIELD_NODE_ATTRIBUTES)
-              && nodes.getAttributes(j).isSameColor(
+              && nodes.getAttributes(j).isSameClass(
                   GraphFactory.FIELD_NODE_ATTRIBUTES) && edges.hasEdge(i, j)) {
             count++;
           }
@@ -263,9 +249,9 @@ public class FilterFactory {
       for (int i = 0; i < nodes.count(); i++) {
         for (int j = i; j < nodes.count(); j++) {
           if ((i != j)
-              && (nodes.getAttributes(i).isSameColor(
+              && (nodes.getAttributes(i).isSameClass(
                   GraphFactory.ROOT_NODE_ATTRIBUTES) || nodes.getAttributes(j)
-                  .isSameColor(GraphFactory.ROOT_NODE_ATTRIBUTES))
+                  .isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES))
               && edges.hasEdge(i, j)) {
             count++;
           }

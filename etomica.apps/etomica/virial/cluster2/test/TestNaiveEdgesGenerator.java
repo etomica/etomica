@@ -1,6 +1,7 @@
 package etomica.virial.cluster2.test;
 
 import etomica.virial.cluster2.graph.*;
+import etomica.virial.cluster2.graph.isomorphism.Match;
 
 public class TestNaiveEdgesGenerator extends CustomTestCase {
 
@@ -24,10 +25,10 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
       enumerated++;
       isomorphCount += Math
-          .round(factor / edges.getMetadata().getCoefficient());
+          .round(factor / edges.getMetadata().getCoefficient().getValue1());
       if (printPermutations) {
         System.out.println(index++ + ": ("
-            + Math.round(factor / edges.getMetadata().getCoefficient()) + ") "
+            + Math.round(factor / edges.getMetadata().getCoefficient().getValue1()) + ") "
             + edges.toString());
       }
       return true;
@@ -131,13 +132,13 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
     minEdges = -1;
     maxEdges = -1;
-    rangeBegin = 1;
+    rangeBegin = 2;
     rangeEnd = 5;
     enumConnected = false;
     enumBiconnected = false;
     nullFiltered = false;
     printMemory = true;
-    printPermutations = false;
+    printPermutations = true;
     isomorphFree = false;
     GraphFactory.USE_UPPER_TRIANGLE = false;
   }
@@ -177,7 +178,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     reset();
     printTest("General");
     // OK: 09-06-13
-    // baseTest();
+//    baseTest();
   }
 
   public void testConnected() {
@@ -239,11 +240,11 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     reset();
     printTest("Isomorph-Free");
 // for N=7, about 12 minutes using VF2
- rangeBegin = 7;
- rangeEnd = 7;
+// rangeBegin = 4;
+// rangeEnd = 4;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-// testTemplate(getNodes((byte) i));
+ testTemplate(getNodes((byte) i));
     }
   }
 
@@ -255,11 +256,11 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     reset();
     printTest("2 root nodes");
 // for N=7, about 12 minutes using VF2
-    rangeBegin = 2;
-    rangeEnd = 6;
+    rangeBegin = 4;
+    rangeEnd = 5;
     dropRootEdges = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
-// testTemplate(getNodes((byte) (i - 2), (byte) 2));
+//      testTemplate(getNodes((byte) (i - 2), (byte) 2));
     }
   }
 
@@ -272,16 +273,18 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     printTest("Isomorph-Free, 2 root nodes");
 // for N=7, about 12 minutes using VF2
     int rootNodes = 3;
-    rangeBegin = rootNodes;
-    rangeEnd = 7;
+    rangeBegin = 4;
+    rangeEnd = 6;
     dropRootEdges = true;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
      // minEdges = 0;
 // maxEdges = (i - rootNodes) * rootNodes;
      // maxEdges = (i - rootNodes) * (i - rootNodes - 1) / 4 - (((i - rootNodes) * (i - rootNodes - 1) % 4 == 0) ? 1 : 0);
-      testTemplate(getNodes((byte) (i - rootNodes), (byte) rootNodes));
+  //    testTemplate(getNodes((byte) (i - rootNodes), (byte) rootNodes));
     }
+    System.out.println("Called: " + Match.called);
+    System.out.println("Pre-Filtered: " + (Match.total - Match.called));
   }
 
   public void testIsomorphFreeConnected() {

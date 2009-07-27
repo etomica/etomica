@@ -11,8 +11,6 @@ package etomica.virial.cluster2.graph;
  */
 public interface EdgesRepresentation {
 
-  public EdgesRepresentation canonical();
-
   public EdgesRepresentation complement();
 
   public EdgesRepresentation copy();

@@ -21,12 +21,6 @@ public class AdjacencyMatrixRepresentation extends AbstractBitmapRepresentation 
     super(numNodes);
   }
 
-  // TODO: implement canonical representation
-  public EdgesRepresentation canonical() {
-
-    return null;
-  }
-
   public EdgesRepresentation copy() {
     
     AbstractBitmapRepresentation er = new AdjacencyMatrixRepresentation(getNodeCount());

@@ -1,6 +1,14 @@
 package etomica.virial.cluster2.graph.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import etomica.virial.cluster2.graph.EdgeAttributes;
+import etomica.virial.cluster2.graph.EdgeVisitor;
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.EdgesMetadata;
@@ -15,11 +23,6 @@ public class SimpleEdges implements Edges {
 
     representation = rep;
     metadata = meta;
-  }
-
-  public Edges canonical() {
-
-    return GraphFactory.canonicalEdges(this);
   }
 
   public Edges copy() {
@@ -85,7 +88,12 @@ public class SimpleEdges implements Edges {
 
   public EdgeAttributes getAttributes(int fromNodeID, int toNodeID) {
 
-    return GraphFactory.defaultEdgeAttributes();
+    if (getRepresentation().hasEdge(fromNodeID, toNodeID)) {
+      return SimpleEdgeAttributes.getAttributes(Edges.EDGE_COLOR_DEFAULT);
+    }
+    else {
+      return SimpleEdgeAttributes.getAttributes(Edges.EDGE_COLOR_EMPTY);
+    }
   }
 
   public int getInDegree(int nodeID) {
@@ -107,4 +115,65 @@ public class SimpleEdges implements Edges {
 
     return getRepresentation().getOutNode(nodeID, index);
   }
+
+  public Set<Character> getColors() {
+
+    ColorVisitor v = new ColorVisitor(this);
+    representation.visitEdges(v);
+    return v.getColors();
+  }
+
+  public List<Integer> getPartition(char edgeColor) {
+
+    ColorPartitionVisitor v = new ColorPartitionVisitor(this, edgeColor);
+    representation.visitEdges(v);
+    return v.getPartition();
+  }
+}
+
+class ColorVisitor implements EdgeVisitor {
+
+  Edges owner;
+  Set<Character> colors = new HashSet<Character>();
+
+  public ColorVisitor(Edges owner) {
+    
+    this.owner = owner;
+  }
+
+  public Set<Character> getColors() {
+    return colors;
+  }
+  
+  public boolean visit(int node1, int node2) {
+
+    colors.add(owner.getAttributes(node1, node2).getColor());
+    return true;
+  }
+  
+}
+
+class ColorPartitionVisitor implements EdgeVisitor {
+
+  Edges owner;
+  List<Integer> partition = new ArrayList<Integer>();
+  private char color;
+
+  public ColorPartitionVisitor(Edges owner, char color) {
+    
+    this.owner = owner;
+    this.color = color;
+  }
+
+  public List<Integer> getPartition() {
+    return partition;
+  }
+  
+  public boolean visit(int node1, int node2) {
+
+    if (owner.getAttributes(node1, node2).getColor() == color) {
+      partition.add(owner.getRepresentation().getEdgeID(node1, node2));
+    }
+    return true;
+  } 
 }

@@ -1,9 +1,22 @@
 package etomica.virial.cluster2.graph;
 
+import java.util.List;
+import java.util.Set;
+
 public interface Edges {
 
-  // returns the canonically labeled set of edges isomorphic to this set of edges
-  public Edges canonical();
+  public static final char EDGE_COLOR_EMPTY = '$';
+  public static final char EDGE_COLOR_0 = 'a';
+  public static final char EDGE_COLOR_1 = 'b';
+  public static final char EDGE_COLOR_2 = 'c';
+  public static final char EDGE_COLOR_3 = 'd';
+  public static final char EDGE_COLOR_4 = 'e';
+  public static final char EDGE_COLOR_5 = 'f';
+  public static final char EDGE_COLOR_6 = 'g';
+  public static final char EDGE_COLOR_7 = 'h';
+  public static final char EDGE_COLOR_8 = 'i';
+  public static final char EDGE_COLOR_9 = 'j';
+  public static final char EDGE_COLOR_DEFAULT = EDGE_COLOR_0;
 
   // returns the set of edges corresponding to the complement of this set of edges
   public Edges complement();
@@ -38,4 +51,10 @@ public interface Edges {
 
   // returns the object with the internal representation of the edges
   public EdgesRepresentation getRepresentation();
+  
+  // a set with the distinct edge colors
+  public Set<Character> getColors();
+
+  // a list with all edge IDs of a given color
+  public List<Integer> getPartition(char edgeColor);
 }

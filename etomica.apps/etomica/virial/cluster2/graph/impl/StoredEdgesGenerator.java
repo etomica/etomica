@@ -5,8 +5,10 @@ import java.net.*;
 import java.util.zip.*;
 
 import etomica.virial.cluster2.bitmap.Bitmap;
+import etomica.virial.cluster2.bitmap.BitmapFactory;
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;
+import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.EdgesRepresentationFactory;
 import etomica.virial.cluster2.graph.GraphFactory;
 
@@ -23,26 +25,31 @@ public class StoredEdgesGenerator extends AbstractEdgesGenerator {
       EdgesFilter filter) {
 
     super(filter);
-    final int BUFFER = 2048;
+    final int BUFFER = 1024;
     assert (factory.getNodeCount() >= 2 && factory.getNodeCount() <= 9);
     factory = edgesFactory;
     URL url = getClass().getResource(ZIP_FILE);
     try {
       FileInputStream fis = new FileInputStream(new File(url.toURI()));
-      ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis,
-          BUFFER));
+      ZipInputStream zis = new ZipInputStream(fis);
       ZipEntry ze = zis.getNextEntry();
-      String gf = GRAPH_FILE + factory.getNodeCount();
+      String gf = GRAPH_FILE + factory.getNodeCount() + 'a';
       do {
-        if (ze != null && ze.getName().equalsIgnoreCase(gf)) {
-          data = new byte[(int) ze.getSize()];
-          zis.read(data, 0, data.length);
-        }
-        else {
-          ze = zis.getNextEntry();
-        }
+        ze = zis.getNextEntry();
       }
       while (!ze.getName().equalsIgnoreCase(gf));
+      if (ze != null && ze.getName().equalsIgnoreCase(gf)) {
+        ptr = 0;
+        data = new byte[(int) ze.getSize()];
+        int pt = 0;
+        int nread = 0;
+        byte[] buf = new byte[BUFFER];
+        while ((nread = zis.read(buf, 0, BUFFER)) > -1) {
+          System.arraycopy(buf, 0, data, pt, nread);
+          pt += nread;
+        }
+      }
+      zis.closeEntry();
       zis.close();
       if (data == null) {
         throw new FileNotFoundException();
@@ -74,92 +81,90 @@ public class StoredEdgesGenerator extends AbstractEdgesGenerator {
     if (ptr == -1) {
       return null;
     }
-    // number of isomorphisms: N!/automorphism_group_size
-    double coefficient = 1;
-    int automorphismGroupSize = readGroupSize(data);
-    if (automorphismGroupSize > 0) {
+    // coefficient is the size of the automorphism group
+    int coefficient = 1;
+    int autoGroupSize = readGroupSize();
+    if (autoGroupSize > 0) {
       for (int i = 1; i <= factory.getNodeCount(); i++) {
         coefficient *= i;
       }
-      coefficient /= automorphismGroupSize;
+      coefficient /= autoGroupSize;
     }
     // second line: encoding of the graph is graph6 (check nauty manual);
     // this graph is the representative of its automorphism group
-    return GraphFactory.nautyEdges(factory.getRepresentation(readGraph6(data)),
-        coefficient);
+    String nautyGraph = readGraph6();
+    return GraphFactory.nautyEdges(toNativeGraph(nautyGraph), GraphFactory.defaultCoefficient(coefficient));
   }
 
-  // check graph6s specs
-  private Bitmap readGraph6(byte[] source) {
-
-    assert (ptr != data.length && data[ptr] != '\n');
-    // if 0 <= n <= 62, the first byte is 63+n
-    assert (data[ptr++] == 63 + factory.getNodeCount());
-    String line = "";
-    int ptr2 = ptr;
-    while (ptr2 != data.length && data[ptr2] != '\n') {
-      ptr2++;
+  private EdgesRepresentation toNativeGraph(String nautyGraph) {
+    
+    int nodeCount = factory.getNodeCount();
+    Bitmap store = BitmapFactory.getBitmap(nodeCount * (nodeCount - 1) / 2, false);
+    EdgesRepresentation rep = factory.getRepresentation(store);
+    int index = 0;
+    for (int value = 1; value <= (nodeCount - 1) + (nodeCount - 2); value++) {
+      for (int x = 0; x < nodeCount; x++) {
+        for (int y = x+1; y < nodeCount; y++) {
+          if (x + y == value) {
+            if (nautyGraph.charAt(index) == '1') {
+              store.setBit(rep.getEdgeID(x, y));
+              store.setBit(rep.getEdgeID(y, x));
+            }
+            index++;
+          }
+        }
+      }
     }
-    // the bytes in the range [ptr, ptr2] encode the upper 
-    // triangle representation of the adjancency matrix for 
-    // this graph
-    for (int i = ptr; i< ptr2; i++) {
-      line += data[ptr++];
-    }
-    return null;
-
+    return rep;
+  }
   
-//    #define BIAS6 63
-//    #define MAXBYTE 126
-//    #define SMALLN 62
-//    #define TOPBIT6 32
-//    #define C6MASK 63
-
-//    #define ADDELEMENT0(setadd,pos)  ((setadd)[SETWD(pos)] |= BITT[SETBT(pos)])
-//    #define DELELEMENT0(setadd,pos)  ((setadd)[SETWD(pos)] &= ~BITT[SETBT(pos)])
-//    #define FLIPELEMENT0(setadd,pos) ((setadd)[SETWD(pos)] ^= BITT[SETBT(pos)])
-//    #define ISELEMENT0(setadd,pos) (((setadd)[SETWD(pos)] & BITT[SETBT(pos)]) != 0)
-//    #define EMPTYSET0(setadd,m) \
-//        {setword *es; \
-//        for (es = (setword*)(setadd)+(m); --es >= (setword*)(setadd);) *es=0;}
-//    #define GRAPHROW0(g,v,m) ((set*)(g) + (long)(v)*(long)(m))
-
-//  m = (n + WORDSIZE - 1) / WORDSIZE;
-//  WORDSIZE = 32; // guess
-//    if (s[0] != ':')       /* graph6 format */
-//    {
-//        k = 1;
-//        for (j = 1; j < n; ++j)
-//        {
-//            gj = GRAPHROW(g,j,m);
-//      
-//            for (i = 0; i < j; ++i)
-//            {
-//                if (--k == 0)
-//                {
-//              k = 6;
-//              x = *(p++) - BIAS6;
-//                }
-//        
-//                if (x & TOPBIT6)
-//                {
-//              gi = GRAPHROW(g,i,m);
-//              ADDELEMENT(gi,j);
-//              ADDELEMENT(gj,i);
-//                }
-//                x <<= 1;
-//            }
-//        }
-//    }
-  }
-
-  private int readGroupSize(byte[] source) {
+  private int readGroupSize() {
 
     assert (ptr != data.length && data[ptr] != '\n');
     String line = "";
     while (ptr != data.length && data[ptr] != '\n') {
-      line += data[ptr++];
+      line += data[ptr++] - '0';
     }
+    ptr++;
     return Integer.valueOf(line);
+  }
+
+  private String lower6Bits(byte byteValue) {
+
+    String result = "";
+    for (int i = 5; i >= 0; i--) {
+      int test = (byteValue >> i) & 1;
+      result = result + test;
+    }
+    return result;
+  }
+
+  // read one graph6 from the byte stream
+  private String readGraph6() {
+
+    assert (ptr < data.length);
+    // verify that N(n) = 63 + n
+    assert (data[ptr] == 63 + factory.getNodeCount());
+    ptr++;
+    // build R(x)
+    int ptr2 = ptr;
+    while (ptr2 != data.length && data[ptr2] != '\n') {
+      ptr2++;
+    }
+    String graph = "";
+    for (int i = ptr; i < ptr2; i++) {
+      assert (data[i] >= 63 && data[i] <= 126);
+      // every ASCII character encodes a 6-bit value
+      graph = graph + lower6Bits((byte) (data[i] - 63));
+    }
+    int bitSize = factory.getNodeCount() * (factory.getNodeCount() - 1) / 2;
+    if (graph.length() < bitSize) {
+      graph += lower6Bits((byte)0);
+    }
+    ptr = ++ptr2;
+    if (ptr >= data.length) {
+      ptr = -1;
+    }
+    return graph.substring(0, bitSize);
   }
 }

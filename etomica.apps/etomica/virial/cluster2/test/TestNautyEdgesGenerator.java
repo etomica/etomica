@@ -21,7 +21,7 @@ public class TestNautyEdgesGenerator extends CustomTestCase {
     public boolean visit(Edges edges) {
 
       enumerated++;
-      isomorphCount += edges.getMetadata().getCoefficient();
+      isomorphCount += edges.getMetadata().getCoefficient().getValue1();
       return true;
     }
   };

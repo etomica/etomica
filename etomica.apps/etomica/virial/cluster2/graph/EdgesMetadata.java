@@ -6,7 +6,7 @@ public interface EdgesMetadata {
 
   public EdgesMetadata ncopy();
 
-  public double getCoefficient();
+  public GraphCoefficient getCoefficient();
 
-  public void setCoefficient(double value);
+  public void setCoefficient(GraphCoefficient value);
 }

@@ -79,9 +79,9 @@ public class Operations {
         Graph g1 = GraphFactory.simpleGraph(c1.getNodes(), e1);
         Graph g2 = GraphFactory.simpleGraph(c1.getNodes(), e2);
         if (Match.match(g1, g2)) {
-          double coef1 = e1.getMetadata().getCoefficient();
-          double coef2 = e2.getMetadata().getCoefficient();
-          e1.getMetadata().setCoefficient(coef1 + coef2);
+          GraphCoefficient coef1 = e1.getMetadata().getCoefficient();
+          GraphCoefficient coef2 = e2.getMetadata().getCoefficient();
+          e1.getMetadata().setCoefficient(coef1.add(coef2));
           unique = false;
           break;
         }

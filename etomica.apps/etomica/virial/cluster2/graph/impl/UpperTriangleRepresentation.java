@@ -34,41 +34,6 @@ public class UpperTriangleRepresentation extends AbstractBitmapRepresentation {
     super(numNodes);
   }
 
-  // TODO: implement canonical representation
-  public EdgesRepresentation canonical() {
-
-    HashMap<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
-    for (int nodeID = 0; nodeID < getNodeCount(); nodeID++) {
-      int deg = getInDegree(nodeID);
-      if (map.containsKey(deg)) {
-        map.get(deg).add(nodeID);
-      }
-      else {
-        List<Integer> list = new ArrayList<Integer>();
-        list.add(deg);
-        map.put(deg, list);
-      }
-    }    
-    List<Integer> degs = new ArrayList<Integer>(map.keySet());
-    Collections.sort(degs);
-    // create an empty bitmap compatible with the current bitmap
-//    Bitmap canonical = getEdges().copy();
-    // traverse degs in descending index order
-    // add the edges to the canonical version
-//    for (int index = degs.size(); index >= 0; index--) {
-//      int deg = getInDegree(index);
-//      if (map.containsKey(deg)) {
-////        map.get(deg).add(nodeID);
-//      }
-//      else {
-//        List<Integer> list = new ArrayList<Integer>();
-////        list.add(deg);
-////        map.put(deg, list);
-//      }
-//    }    
-    return null;
-  }
-
   public EdgesRepresentation copy() {
     
     AbstractBitmapRepresentation er = new UpperTriangleRepresentation(getNodeCount());
