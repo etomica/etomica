@@ -148,8 +148,7 @@ public class SimWidomMode extends Simulation {
         }
         
         imagMeter = new MeterWidomModeImaginary[coordNum];
-        accumulators = new AccumulatorAverageFixed[coordNum];
-        for(int i = coordNum+1; i < coordNum*2; i++){
+        for(int i = 0; i < coordNum; i++){
             String name = new String("widom Meter for mode " + i);
             imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster, 
                     coordinateDefinition, box, i);
@@ -158,9 +157,9 @@ public class SimWidomMode extends Simulation {
             imagMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
             imagMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
             
-            accumulators[i] = new AccumulatorAverageFixed(blocksize);
+            accumulators[i+coordNum] = new AccumulatorAverageFixed(blocksize);
             
-            pump = new DataPump(imagMeter[i], accumulators[i]);
+            pump = new DataPump(imagMeter[i], accumulators[i+coordNum]);
             pumpListener = new IntegratorListenerAction(pump);
             pumpListener.setInterval(blocksize);
             integrator.getEventManager().addListener(pumpListener);
