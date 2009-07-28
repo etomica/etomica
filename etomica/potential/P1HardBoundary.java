@@ -68,8 +68,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
             if (!isActiveDim[i][1]) {
                 continue;
             }
-            double rx = pos.x(i);
-            double dxHalf = 0.5*dimensions.x(i);
+            double rx = pos.getX(i);
+            double dxHalf = 0.5*dimensions.getX(i);
             if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius)) {
                  return Double.POSITIVE_INFINITY;
             }
@@ -87,10 +87,10 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=work.getD()-1; i>=0; i--) {
-            double vx = v.x(i);
+            double vx = v.getX(i);
             if(vx == 0.0) continue;
-            double rx = work.x(i);
-            double dxHalf = 0.5*dimensions.x(i);
+            double rx = work.getX(i);
+            double dxHalf = 0.5*dimensions.getX(i);
             double t=0;
             if (vx > 0.0) {
                 if (isActiveDim[i][1]) {
@@ -128,25 +128,25 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         int imin = 0;
         //figure out which component is colliding
         for(int i=work.getD()-1; i>=0; i--) {
-            double rx = work.x(i);
-            double vx = v.x(i);
-            double dxHalf = 0.5*dimensions.x(i);
+            double rx = work.getX(i);
+            double vx = v.getX(i);
+            double dxHalf = 0.5*dimensions.getX(i);
             double del = (vx > 0.0) ? Math.abs(dxHalf - rx - collisionRadius) : Math.abs(-dxHalf - rx + collisionRadius);
             if(del < delmin) {
                 delmin = del;
                 imin = i;
             }
         }
-        if (Debug.ON && Math.abs(work.x(imin)-collisionRadius+dimensions.x(imin)*0.5)/collisionRadius > 1.e-9 
-                && Math.abs(0.5*dimensions.x(imin)-work.x(imin)-collisionRadius)/collisionRadius > 1.e-9) {
+        if (Debug.ON && Math.abs(work.getX(imin)-collisionRadius+dimensions.getX(imin)*0.5)/collisionRadius > 1.e-9 
+                && Math.abs(0.5*dimensions.getX(imin)-work.getX(imin)-collisionRadius)/collisionRadius > 1.e-9) {
             System.out.println(atom+" "+work+" "+dimensions);
             System.out.println("stop that");
         }
-        v.setX(imin,-v.x(imin));
+        v.setX(imin,-v.getX(imin));
         // dv = 2*NewVelocity
-        double newP = atom.getPosition().x(imin) - falseTime*v.x(imin)*2.0;
+        double newP = atom.getPosition().getX(imin) - falseTime*v.getX(imin)*2.0;
         atom.getPosition().setX(imin,newP);
-        double dp = 2.0/(((IAtom)atom).getType().rm())*(-v.x(imin));
+        double dp = 2.0/(((IAtom)atom).getType().rm())*(-v.getX(imin));
         lastVirial = dp;
         lastCollisionDim = imin;
     }//end of bump
@@ -206,14 +206,14 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                 thickness[i] = 1;
                 if (longWallDim == null || !longWallDim[i][j]) {
                     pixPosition[1-i] = origin[1-i];
-                    thickness[1-i] = (int)(boundary.getDimensions().x(1-i)*toPixel);
+                    thickness[1-i] = (int)(boundary.getDimensions().getX(1-i)*toPixel);
                 }
                 else {
                     pixPosition[1-i] = 0;
                     thickness[1-i] = Integer.MAX_VALUE;
                 }
                 if (j==1) {
-                    pixPosition[i] += (int)(boundary.getDimensions().x(i)*toPixel);
+                    pixPosition[i] += (int)(boundary.getDimensions().getX(i)*toPixel);
                 }
                 g.fillRect(pixPosition[0],pixPosition[1],thickness[0],thickness[1]);
             }

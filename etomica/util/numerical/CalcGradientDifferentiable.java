@@ -77,7 +77,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         potentialMaster.calculate(box, allAtoms, force);
         
         //not used
-        return ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().getAtom(0))).force().x(gradDcomponent%3);
+        return ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().getAtom(0))).force().getX(gradDcomponent%3);
 
     }
     
@@ -110,14 +110,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force.x(j%3);
+            forceRow[j] = -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force.getX(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force().x(j%3);
+            forceRow[j] -= -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0))).force().getX(j%3);
             forceRow[j] /= (2.0*newH);
         }
         

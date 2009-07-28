@@ -282,9 +282,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.integrator.setWaveVectorNum(wvNumUsed);
                 	           	
                 	for (int nWV=0; nWV<numWV; nWV++){
-               			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+               			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
                			
                			if(nWV==wvNumUsed){
                				stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
@@ -297,9 +297,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 } else {
                 	
                    	for (int nWV=0; nWV<numWV; nWV++){
-                		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+                		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
                 		
                			stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
                	  	}
@@ -363,9 +363,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 if (sim.integrator.isOneWV()){
                 	
                 	for (int nWV=0; nWV<numWV; nWV++){
-               			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+               			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
                			
                			if(nWV==wvNumUsed){
                				stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
@@ -377,9 +377,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	}
                 } else {
                    	for (int nWV=0; nWV<numWV; nWV++){
-                		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+                		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+               			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+               			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
                 		
                			stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
                	  	}
@@ -583,9 +583,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         	int wvNumUsed = sim.integrator.getWaveVectorNum();
         	
         	for (int nWV=0; nWV<numWV; nWV++){
-       			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-       			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-       			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+       			wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+       			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+       			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
        			
        			if(nWV==wvNumUsed){
        				stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
@@ -597,9 +597,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         	}
         } else {
            	for (int nWV=0; nWV<numWV; nWV++){
-        		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(0);
-       			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(1);
-       			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].x(2);
+        		wavevectorx[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(0);
+       			wavevectory[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(1);
+       			wavevectorz[nWV] = sim.waveVectorFactory.getWaveVectors()[nWV].getX(2);
         		
        			stringiWV[nWV] = String.valueOf("< WV "+nWV+">");
        	  	}

@@ -31,7 +31,7 @@ public interface IVector {
      * x-component is given for i = 0. If index exceeds dimension of vector, no
      * error is given and the last element of the vector is returned.
      */
-    public double x(int i);
+    public double getX(int i);
 
     /**
      * Returns the square magnitude of this vector, e.g., x^2 + y^2 for D = 2.

@@ -66,8 +66,8 @@ public class TestHC2YukawaMC3D extends Simulation{
         inflater.actionPerformed();
 		potential = new P2HC2Yukawa(space);
 		double truncationRadius = 3.0*potential.getSigma();
-		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
-			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
+		if(truncationRadius > 0.5*box.getBoundary().getDimensions().getX(0)){
+			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().getX(0));
 		}
 		
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
@@ -114,13 +114,13 @@ public class TestHC2YukawaMC3D extends Simulation{
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
 /*
-		double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.box.volume()/(sim.box.moleculeCount().sim.integrator.getTemperature());
-		double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
+		double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).get*sim.box.volume()/(sim.box.moleculeCount().sim.integrator.getTemperature());
+		double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).get;
 		avgPE /= numAtoms;
 		System.out.println("Z="+Z);
 		System.out.println("PE"+avgPE);
 		double temp = sim.integrator.getTemperature();
-		double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.STANDARD_DEVIATION.index)).x;
+		double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.STANDARD_DEVIATION.index)).get;
 		Cv /= temp;
 		Cv *= Cv/numAtoms;
 		System.out.println("Cv/k="+Cv);

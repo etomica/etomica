@@ -71,8 +71,8 @@ public class LineSegment extends Polytope implements Rectangular {
     public void setLength(double newLength) {
         if(vertices[0].equals(vertices[1])) {
             //currently zero length; just expand along x axis from present point
-            vertices[0].setX(0,vertices[0].x(0)-0.5*newLength);
-            vertices[1].setX(0,vertices[1].x(1)+0.5*newLength);
+            vertices[0].setX(0,vertices[0].getX(0)-0.5*newLength);
+            vertices[1].setX(0,vertices[1].getX(1)+0.5*newLength);
         } else {//not currently zero length
             double length = getLength();
             double dv = 0.5*(newLength/length - 1.0);
@@ -90,7 +90,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Implementation of Rectangular interface.
      */
     public void setEdgeLengths(IVector v) {
-        setLength(v.x(0));
+        setLength(v.getX(0));
     }
     
     /**

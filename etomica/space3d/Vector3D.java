@@ -46,7 +46,7 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
-    public double x(int i) {
+    public double getX(int i) {
         return ((i == 0) ? x : (i == 1) ? y : z);
     }
 
@@ -243,9 +243,9 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
     }
 
     public void XE(IVector u) {//cross product
-        double xNew = y * u.x(2) - z * u.x(1);
-        double yNew = z * u.x(0) - x * u.x(2);
-        z = x * u.x(1) - y * u.x(0);
+        double xNew = y * u.getX(2) - z * u.getX(1);
+        double yNew = z * u.getX(0) - x * u.getX(2);
+        z = x * u.getX(1) - y * u.getX(0);
         y = yNew;
         x = xNew;
     }

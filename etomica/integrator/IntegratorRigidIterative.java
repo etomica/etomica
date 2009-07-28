@@ -446,7 +446,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 
             tempAngularVelocity.TE(tempAngularVelocity);
             tempAngularVelocity.DE(moment);
-            KE += tempAngularVelocity.x(0) + tempAngularVelocity.x(1)+ tempAngularVelocity.x(2);
+            KE += tempAngularVelocity.getX(0) + tempAngularVelocity.getX(1)+ tempAngularVelocity.getX(2);
             D += 6; //3;
         }
         if (temperature == 0 && KE == 0) {
@@ -718,7 +718,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             pbc.setApplyToMolecules(true);
             integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-            double boxlength = box.getBoundary().getDimensions().x(0);
+            double boxlength = box.getBoundary().getDimensions().getX(0);
 
             DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
             dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));

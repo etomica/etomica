@@ -71,7 +71,7 @@ public class WriteS implements IAction {
                 // write the wavevector with its coefficient
                 fileWriterK.write(Double.toString(coefficients[k]));
                 for (int j = 0; j < waveVectors[k].getD(); j++) {
-                    fileWriterK.write(" " + waveVectors[k].x(j));
+                    fileWriterK.write(" " + waveVectors[k].getX(j));
                 }
                 fileWriterK.write("\n");
 

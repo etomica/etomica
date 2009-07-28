@@ -98,7 +98,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
 	         * 
 	         */
 	        
-	        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
+	        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
 	        pTruncated.setTruncationRadius(truncationRadius);
 
 	        energySum.zeroSum();

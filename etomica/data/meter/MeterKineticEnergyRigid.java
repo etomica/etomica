@@ -77,7 +77,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         
                     angularVelocity.TE(angularVelocity);
                     angularVelocity.DE(moment);
-                    ke += angularVelocity.x(0) + angularVelocity.x(1)+ angularVelocity.x(2);
+                    ke += angularVelocity.getX(0) + angularVelocity.getX(1)+ angularVelocity.getX(2);
                 }
             }
             else {

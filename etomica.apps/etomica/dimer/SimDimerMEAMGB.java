@@ -194,9 +194,9 @@ public class SimDimerMEAMGB extends Simulation{
                
         IVectorMutable newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getDimensions());
-        newBoxLength.setX(2,newBoxLength.x(2)+1.0);
-        newBoxLength.setX(1,newBoxLength.x(1)+0.0001);
-        newBoxLength.setX(0,newBoxLength.x(0)+0.0001);
+        newBoxLength.setX(2,newBoxLength.getX(2)+1.0);
+        newBoxLength.setX(1,newBoxLength.getX(1)+0.0001);
+        newBoxLength.setX(0,newBoxLength.getX(0)+0.0001);
         box.getBoundary().setDimensions(newBoxLength);
         
         
@@ -212,7 +212,7 @@ public class SimDimerMEAMGB extends Simulation{
         	rij.E(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
             rij.Ev1Mv2(center, rij);
             box.getBoundary().nearestImage(rij);
-            if(rij.squared()<distance){//Math.abs(rij.x(0)) < 0.5 && Math.abs(rij.x(1)) < distance && Math.abs(rij.x(2)) < distance){
+            if(rij.squared()<distance){//Math.abs(rij.get(0)) < 0.5 && Math.abs(rij.get(1)) < distance && Math.abs(rij.get(2)) < distance){
                movableList.add(loopSet.getMolecule(i));
             } 
         }
@@ -235,7 +235,7 @@ public class SimDimerMEAMGB extends Simulation{
             rij.E(((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
             rij.Ev1Mv2(center, rij);
             box.getBoundary().nearestImage(rij);
-            if(Math.abs(rij.x(0)) < cube.x(0) && Math.abs(rij.x(1)) < cube.x(1) && Math.abs(rij.x(2)) < cube.x(2)){
+            if(Math.abs(rij.getX(0)) < cube.getX(0) && Math.abs(rij.getX(1)) < cube.getX(1) && Math.abs(rij.getX(2)) < cube.getX(2)){
                movableList.add(loopSet.getMolecule(i));
             } 
         }
@@ -415,11 +415,11 @@ public class SimDimerMEAMGB extends Simulation{
         
         sim.initializeConfiguration("sngb210-2612");
         
-        //System.out.println(sim.box.getBoundary().getDimensions().x(0));
+        //System.out.println(sim.box.getBoundary().getDimensions().get(0));
         
         
         IVectorMutable dimerCenter = sim.getSpace().makeVector();
-        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
+        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().getX(0)/2.0);
         dimerCenter.setX(1, 1.0);
         dimerCenter.setX(2, 0.0);
         IVectorMutable cubeSize = sim.getSpace().makeVector();
@@ -428,7 +428,7 @@ public class SimDimerMEAMGB extends Simulation{
         cubeSize.setX(2, 8.0);
         
         if(sim.millerPlane[2] == 0){
-            dimerCenter.setX(1, sim.box.getBoundary().getDimensions().x(1)/2.0);
+            dimerCenter.setX(1, sim.box.getBoundary().getDimensions().getX(1)/2.0);
             dimerCenter.setX(0, 1.0);
             dimerCenter.setX(2, 0.0);
             cubeSize.setX(0, 6.0);
@@ -442,13 +442,13 @@ public class SimDimerMEAMGB extends Simulation{
         Vector3D move2 = new Vector3D(0.0,0.0,10.0);
         move2.PE(sim.box.getBoundary().getDimensions());
         System.out.println("Atoms: "+list.getAtomCount());
-        System.out.println("Interface Area: "+move2.x(0)*move2.x(1)+" angstroms");
+        System.out.println("Interface Area: "+move2.getX(0)*move2.getX(1)+" angstroms");
        
         /*
         sim.box.getBoundary().setDimensions(move2);
         for(int i=0; i<list.getAtomCount(); i++){
         	rij = ((IAtomPositioned)list.getAtom(i)).getPosition();
-        	if(rij.x(2)>0.0){rij.PE(move);}
+        	if(rij.get(2)>0.0){rij.PE(move);}
         	else{rij.ME(move);}
         }
         */
@@ -474,7 +474,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         /*
         XYZWriter xyzwriter = new XYZWriter(sim.box);
-        xyzwriter.setFileName(fileName+"_saddle.xyz");
+        xyzwriter.setFileName(fileName+"_saddle.getyz");
         xyzwriter.setIsAppend(true);
         sim.integratorDimer.addIntervalAction(xyzwriter);
         sim.integratorDimer.setActionInterval(xyzwriter, 5);

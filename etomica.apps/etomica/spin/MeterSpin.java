@@ -41,7 +41,7 @@ public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
             sum.PE(atom.getPosition());
             count++;
         }
-        return sum.x(0)/count;
+        return sum.getX(0)/count;
     }
 
     /**

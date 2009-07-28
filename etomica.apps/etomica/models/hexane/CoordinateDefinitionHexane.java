@@ -241,7 +241,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
               }
           }
           
-          u[6+i] = Math.acos(makeGood) - angles.x(i);
+          u[6+i] = Math.acos(makeGood) - angles.getX(i);
           
       }//end of the for loop that calculates the angles and stores the differences.
         
@@ -307,15 +307,15 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         double sinA = Math.sin(u[5]);
         double cosA = Math.cos(u[5]);
         vex.E(axes[0]);
-        rotor.E(new double[][] { { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1)}, // xz
-                {(1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0)}, // yz
-                {(1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-                cosA + (1 - cosA) * vex.x(2) * vex.x(2)} // zz
+        rotor.E(new double[][] { { cosA + (1 - cosA) * vex.getX(0) * vex.getX(0), // xx
+                (1 - cosA) * vex.getX(0) * vex.getX(1) - sinA * vex.getX(2), // xy
+                (1 - cosA) * vex.getX(0) * vex.getX(2) + sinA * vex.getX(1)}, // xz
+                {(1 - cosA) * vex.getX(1) * vex.getX(0) + sinA * vex.getX(2), // yx
+                cosA + (1 - cosA) * vex.getX(1) * vex.getX(1), // yy
+                (1 - cosA) * vex.getX(1) * vex.getX(2) - sinA * vex.getX(0)}, // yz
+                {(1 - cosA) * vex.getX(2) * vex.getX(0) - sinA * vex.getX(1), // zx
+                (1 - cosA) * vex.getX(2) * vex.getX(1) + sinA * vex.getX(0), // zy
+                cosA + (1 - cosA) * vex.getX(2) * vex.getX(2)} // zz
         });
         
         //now we rotate everything about the axis.
@@ -349,8 +349,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         vex.normalize();
         
         //Calculate the angle between the projected vector and the plane.
-        double projLength = temp.x(0) * temp.x(0) + temp.x(1) * temp.x(1) + 
-            temp.x(2) + temp.x(2);
+        double projLength = temp.getX(0) * temp.getX(0) + temp.getX(1) * temp.getX(1) + 
+            temp.getX(2) + temp.getX(2);
         projLength = -1.0 * Math.sqrt(projLength);  //we multiply by -1 because 
                     // of the direction of the axis we're rotating around
         double theta = Math.acos(projLength);
@@ -359,15 +359,15 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         sinA = Math.sin(theta);
         cosA = Math.cos(theta);
         
-        rotor.E(new double[][] { { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-              (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-              (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1)}, // xz
-              {(1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-              cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-              (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0)}, // yz
-              {(1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-              (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-              cosA + (1 - cosA) * vex.x(2) * vex.x(2)} // zz
+        rotor.E(new double[][] { { cosA + (1 - cosA) * vex.getX(0) * vex.getX(0), // xx
+              (1 - cosA) * vex.getX(0) * vex.getX(1) - sinA * vex.getX(2), // xy
+              (1 - cosA) * vex.getX(0) * vex.getX(2) + sinA * vex.getX(1)}, // xz
+              {(1 - cosA) * vex.getX(1) * vex.getX(0) + sinA * vex.getX(2), // yx
+              cosA + (1 - cosA) * vex.getX(1) * vex.getX(1), // yy
+              (1 - cosA) * vex.getX(1) * vex.getX(2) - sinA * vex.getX(0)}, // yz
+              {(1 - cosA) * vex.getX(2) * vex.getX(0) - sinA * vex.getX(1), // zx
+              (1 - cosA) * vex.getX(2) * vex.getX(1) + sinA * vex.getX(0), // zy
+              cosA + (1 - cosA) * vex.getX(2) * vex.getX(2)} // zz
         });
         
         for(int i = 1; i < 6; i++){
@@ -391,15 +391,15 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
             // Create the rotation matrix for an arbitrary unit vector
             vex.normalize();
-            rotor.E(new double[][] { { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-                    (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-                    (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1)}, // xz
-                    {(1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-                    cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-                    (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0)}, // yz
-                    {(1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-                    (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-                    cosA + (1 - cosA) * vex.x(2) * vex.x(2)} // zz
+            rotor.E(new double[][] { { cosA + (1 - cosA) * vex.getX(0) * vex.getX(0), // xx
+                    (1 - cosA) * vex.getX(0) * vex.getX(1) - sinA * vex.getX(2), // xy
+                    (1 - cosA) * vex.getX(0) * vex.getX(2) + sinA * vex.getX(1)}, // xz
+                    {(1 - cosA) * vex.getX(1) * vex.getX(0) + sinA * vex.getX(2), // yx
+                    cosA + (1 - cosA) * vex.getX(1) * vex.getX(1), // yy
+                    (1 - cosA) * vex.getX(1) * vex.getX(2) - sinA * vex.getX(0)}, // yz
+                    {(1 - cosA) * vex.getX(2) * vex.getX(0) - sinA * vex.getX(1), // zx
+                    (1 - cosA) * vex.getX(2) * vex.getX(1) + sinA * vex.getX(0), // zy
+                    cosA + (1 - cosA) * vex.getX(2) * vex.getX(2)} // zz
             });
 
             // Mulitply the rotation tensor by temp to get the rotated vector.

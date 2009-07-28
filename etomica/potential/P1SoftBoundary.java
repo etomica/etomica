@@ -40,10 +40,10 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
     
 	public double energy(IAtomList a) {
 		IVector dimensions = boundary.getDimensions();
-		double rx = ((IAtomPositioned)a).getPosition().x(0);
-		double ry = ((IAtomPositioned)a).getPosition().x(1);
-		double dx1 = (dimensions.x(0) - rx);
-		double dy1 = (dimensions.x(1) - ry);
+		double rx = ((IAtomPositioned)a).getPosition().getX(0);
+		double ry = ((IAtomPositioned)a).getPosition().getX(1);
+		double dx1 = (dimensions.getX(0) - rx);
+		double dy1 = (dimensions.getX(1) - ry);
 		return energy(rx) + energy(ry) + energy(dx1) + energy(dy1);		
 	}//end of energy
 	
@@ -63,10 +63,10 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 	
 	public IVector[] gradient(IAtomList a) {
 		IVector dimensions = boundary.getDimensions();
-		double rx = ((IAtomPositioned)a).getPosition().x(0);
-		double ry = ((IAtomPositioned)a).getPosition().x(1);
-		double dx1 = (dimensions.x(0) - rx);
-		double dy1 = (dimensions.x(1) - ry);
+		double rx = ((IAtomPositioned)a).getPosition().getX(0);
+		double ry = ((IAtomPositioned)a).getPosition().getX(1);
+		double dx1 = (dimensions.getX(0) - rx);
+		double dy1 = (dimensions.getX(1) - ry);
 		double gradx = gradient(rx) - gradient(dx1);
 		double grady = gradient(ry) - gradient(dy1);
 		gradient[0].setX(0,gradx);

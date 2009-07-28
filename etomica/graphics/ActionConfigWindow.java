@@ -32,9 +32,9 @@ public class ActionConfigWindow implements IAction {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
             IVectorMutable pos = a.getPosition();
-            String str = Double.toString(pos.x(0));
+            String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {
-                str += " "+Double.toString(pos.x(i));
+                str += " "+Double.toString(pos.getX(i));
             }
             textArea.append(str+"\n");
         }

@@ -214,8 +214,8 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void transform(IVectorMutable v) {
-        double x = xx * v.x(0) + xy * v.x(1);
-        v.setX(1, yx * v.x(0) + yy * v.x(1));
+        double x = xx * v.getX(0) + xy * v.getX(1);
+        v.setX(1, yx * v.getX(0) + yy * v.getX(1));
         v.setX(0, x);
     }
 

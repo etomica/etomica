@@ -113,7 +113,7 @@ public class MSDProcessor {
                         coordVector2.ME(coordBlock1[iatom]);
                         totalRsquared[deltaT-1] += coordVector2.squared();
                         for(int j=0;j<RsquaredXYZ[deltaT-1].length;j++){
-                        	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.x(j),2.0);
+                        	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.getX(j),2.0);
                         }
                     }
                 }

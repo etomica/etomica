@@ -83,7 +83,7 @@ public class TestMCMoveCompareSingleMode3DLJ extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
+        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new 
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMaster.addPotential(pTruncated, new IAtomType[]
@@ -173,9 +173,9 @@ public class TestMCMoveCompareSingleMode3DLJ extends Simulation {
             locationsOld[i] = ( ((Atom)leaflist.getAtom(i)).getPosition() );
         }
         for(int i = 0; i < numMolecules; i++){
-            oldX += locationsOld[i].x(0);
-            oldY += locationsOld[i].x(1);
-            oldZ += locationsOld[i].x(2);
+            oldX += locationsOld[i].getX(0);
+            oldY += locationsOld[i].getX(1);
+            oldZ += locationsOld[i].getX(2);
         }
         
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -190,9 +190,9 @@ public class TestMCMoveCompareSingleMode3DLJ extends Simulation {
             locationsNew[i] = ( ((Atom)leaflist.getAtom(i)).getPosition() );
         }
         for(int i = 0; i < numMolecules; i++){
-            newX += locationsOld[i].x(0);
-            newY += locationsOld[i].x(1);
-            newZ += locationsOld[i].x(2);
+            newX += locationsOld[i].getX(0);
+            newY += locationsOld[i].getX(1);
+            newZ += locationsOld[i].getX(2);
         }
         System.out.println("Old locations:  " + oldX + "  " + oldY + "  " + oldZ);
         System.out.println("New locations:  " + newX + "  " + newY + "  " + newZ);

@@ -75,9 +75,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		 *  Atom 1
 		 */
 		double const1 = -Math.sqrt(dr23.squared()) / dra.squared();
-		gradient[0].setX(0, const1 * dra.x(0));
-		gradient[0].setX(1, const1 * dra.x(1));
-		gradient[0].setX(2, const1 * dra.x(2));
+		gradient[0].setX(0, const1 * dra.getX(0));
+		gradient[0].setX(1, const1 * dra.getX(1));
+		gradient[0].setX(2, const1 * dra.getX(2));
 		
 		/*
 		 *  Atom 2
@@ -85,9 +85,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		double const2a = Math.sqrt(dr23.squared()) / dra.squared();
 		double const2b = dr12.dot(dr23) / (dra.squared()*Math.sqrt(dr23.squared()));
 		double const2c = dr34.dot(dr23) / (drb.squared()*Math.sqrt(dr23.squared()));
-		gradient[1].setX(0, const2a*dra.x(0) + const2b*dra.x(0) - const2c*drb.x(0));
-		gradient[1].setX(1, const2a*dra.x(1) + const2b*dra.x(1) - const2c*drb.x(1));
-		gradient[1].setX(2, const2a*dra.x(2) + const2b*dra.x(2) - const2c*drb.x(2));
+		gradient[1].setX(0, const2a*dra.getX(0) + const2b*dra.getX(0) - const2c*drb.getX(0));
+		gradient[1].setX(1, const2a*dra.getX(1) + const2b*dra.getX(1) - const2c*drb.getX(1));
+		gradient[1].setX(2, const2a*dra.getX(2) + const2b*dra.getX(2) - const2c*drb.getX(2));
 		
         /*
          *  Atom 3
@@ -95,17 +95,17 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		double const3a = Math.sqrt(dr23.squared()) / drb.squared();
 		double const3b = dr34.dot(dr23) / (drb.squared()*Math.sqrt(dr23.squared()));
 		double const3c = dr12.dot(dr23) / (dra.squared()*Math.sqrt(dr23.squared()));
-		gradient[2].setX(0, - const3a*drb.x(0) + const3b*drb.x(0) - const3c*dra.x(0));
-		gradient[2].setX(1, - const3a*drb.x(1) + const3b*drb.x(1) - const3c*dra.x(1));
-		gradient[2].setX(2, - const3a*drb.x(2) + const3b*drb.x(2) - const3c*dra.x(2));
+		gradient[2].setX(0, - const3a*drb.getX(0) + const3b*drb.getX(0) - const3c*dra.getX(0));
+		gradient[2].setX(1, - const3a*drb.getX(1) + const3b*drb.getX(1) - const3c*dra.getX(1));
+		gradient[2].setX(2, - const3a*drb.getX(2) + const3b*drb.getX(2) - const3c*dra.getX(2));
 		
 		/*
 		 *  Atom 4
 		 */
 		double const4 = -Math.sqrt(dr23.squared()) / drb.squared();
-		gradient[3].setX(0, const4 * drb.x(0));
-		gradient[3].setX(1, const4 * drb.x(1));
-		gradient[3].setX(2, const4 * drb.x(2));
+		gradient[3].setX(0, const4 * drb.getX(0));
+		gradient[3].setX(1, const4 * drb.getX(1));
+		gradient[3].setX(2, const4 * drb.getX(2));
 		
 		return gradient;
 	}
@@ -197,9 +197,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		 *  Atom 1
 		 */
 		double const1 = -Math.sqrt(dr23.squared()) / dra.squared();
-		dx1 = const1 * dra.x(0);
-		dy1 = const1 * dra.x(1);
-		dz1 = const1 * dra.x(2);
+		dx1 = const1 * dra.getX(0);
+		dy1 = const1 * dra.getX(1);
+		dz1 = const1 * dra.getX(2);
 		du1 = dx1 + dy1 + dz1;
 		
 		/*
@@ -208,9 +208,9 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		double const2a = Math.sqrt(dr23.squared()) / dra.squared();
 		double const2b = dr12.dot(dr23) / (dra.squared()*Math.sqrt(dr23.squared()));
 		double const2c = dr34.dot(dr23) / (drb.squared()*Math.sqrt(dr23.squared()));
-		dx2 = const2a*dra.x(0) + const2b*dra.x(0) - const2c*drb.x(0);
-		dy2 = const2a*dra.x(1) + const2b*dra.x(1) - const2c*drb.x(1);
-		dz2 = const2a*dra.x(2) + const2b*dra.x(2) - const2c*drb.x(2);
+		dx2 = const2a*dra.getX(0) + const2b*dra.getX(0) - const2c*drb.getX(0);
+		dy2 = const2a*dra.getX(1) + const2b*dra.getX(1) - const2c*drb.getX(1);
+		dz2 = const2a*dra.getX(2) + const2b*dra.getX(2) - const2c*drb.getX(2);
 		du2 = dx2 + dy2 + dz2;
 		
         /*
@@ -219,18 +219,18 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 		double const3a = Math.sqrt(dr23.squared()) / drb.squared();
 		double const3b = dr34.dot(dr23) / (drb.squared()*Math.sqrt(dr23.squared()));
 		double const3c = dr12.dot(dr23) / (dra.squared()*Math.sqrt(dr23.squared()));
-		dx3 = - const3a*drb.x(0) + const3b*drb.x(0) - const3c*dra.x(0);
-		dy3 = - const3a*drb.x(1) + const3b*drb.x(1) - const3c*dra.x(1);
-		dz3 = - const3a*drb.x(2) + const3b*drb.x(2) - const3c*dra.x(2);
+		dx3 = - const3a*drb.getX(0) + const3b*drb.getX(0) - const3c*dra.getX(0);
+		dy3 = - const3a*drb.getX(1) + const3b*drb.getX(1) - const3c*dra.getX(1);
+		dz3 = - const3a*drb.getX(2) + const3b*drb.getX(2) - const3c*dra.getX(2);
 		du3 = dx3 + dy3 + dz3;
 		
 		/*
 		 *  Atom 4
 		 */
 		double const4 = -Math.sqrt(dr23.squared()) / drb.squared();
-		dx4 = const4 * drb.x(0);
-		dy4 = const4 * drb.x(1);
-		dz4 = const4 * drb.x(2);
+		dx4 = const4 * drb.getX(0);
+		dy4 = const4 * drb.getX(1);
+		dz4 = const4 * drb.getX(2);
 		du4 = dx4 + dy4 + dz4;
 		
 		return dudphi(n, cosphi, sinphi)* (du1 + du2 + du3 + du4);

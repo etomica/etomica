@@ -43,7 +43,7 @@ public class CellLattice extends RectangularLattice {
     public Object site(IVector r) {
         int idx1D = 0;
         for(int i=0; i<D; i++) {
-            idx1D += ((int)(size[i]*(r.x(i)/dimensions.x(i)+0.5)))*jumpCount[i];
+            idx1D += ((int)(size[i]*(r.getX(i)/dimensions.getX(i)+0.5)))*jumpCount[i];
         }
         return sites[idx1D];
     }
@@ -67,7 +67,7 @@ public class CellLattice extends RectangularLattice {
      */
     public double[] getCellSize() {
         for(int i=0; i<cellSize.length; i++) {
-            cellSize[i] = dimensions.x(i)/size[i];
+            cellSize[i] = dimensions.getX(i)/size[i];
         }
         return cellSize;
     }
@@ -104,7 +104,7 @@ public class CellLattice extends RectangularLattice {
             neighborDistance = newNeighborDistance;
             if(lattice == null) return;
             for(int i=0; i<D; i++) {
-                double boundaryLength = ((CellLattice)lattice).getDimensions().x(i);
+                double boundaryLength = ((CellLattice)lattice).getDimensions().getX(i);
                 if (boundaryLength == 0) {
                     return ;
                 }

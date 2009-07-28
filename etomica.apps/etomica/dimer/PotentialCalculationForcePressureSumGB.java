@@ -73,7 +73,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                 //Find average force in Z-direction and assign to all atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++){
                     rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());      
-                        if(rij.x(2)>0){
+                        if(rij.getX(2)>0){
                             forceTop.PE(f[i]);        
                         }
                         else{
@@ -86,7 +86,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		        for (int i=0; i<box.getLeafList().getAtomCount(); i++){
                     rij.E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
                     
-                    if(rij.x(2)>0){
+                    if(rij.getX(2)>0){
                         
                         ((IntegratorBox.Forcible)integratorAgentManager.getAgent(box.getLeafList().getAtom(i))).force().ME(forceTop);
                     }

@@ -136,7 +136,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getDimensions().x(profileDim);
+        double halfBox = 0.5*box.getBoundary().getDimensions().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         

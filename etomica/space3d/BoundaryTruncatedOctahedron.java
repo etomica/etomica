@@ -105,7 +105,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
        * hasnext as needed.
        */
       private void findNext() {
-        double radius = Math.abs(vecs[0].x(0)*2.0001)*numLayers;
+        double radius = Math.abs(vecs[0].getX(0)*2.0001)*numLayers;
         if(!iis.hasNext()) {
           hasnext = false;
           vals = null;
@@ -116,9 +116,9 @@ public class BoundaryTruncatedOctahedron extends Boundary {
           float dx = 0, dy = 0, dz = 0;
           int[] lvals = iis.next();
           for(int i=0; i<getD(); i++) {
-            dx += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(0));
-            dy += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(1));
-            dz += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(2));
+            dx += (float)( (lvals[i]-(numLayers*2)) * vecs[i].getX(0));
+            dy += (float)( (lvals[i]-(numLayers*2)) * vecs[i].getX(1));
+            dz += (float)( (lvals[i]-(numLayers*2)) * vecs[i].getX(2));
           }
           if(Math.sqrt(dx*dx + dy*dy + dz*dz) <= radius) {
             //include
@@ -158,7 +158,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
        */
         dimensionsHalf.Ea1Tv1(0.5, dimensions);
         ((TruncatedOctahedron) shape).setContainingCubeEdgeLength(dimensions
-                .x(0));
+                .getX(0));
     }
 
     public void setDimensions(IVector v) {
@@ -167,15 +167,15 @@ public class BoundaryTruncatedOctahedron extends Boundary {
     }
     
     public IVector getEdgeVector(int d) {
-        double x = dimensions.x(0)*.5;
-        if(vecs == null || vecs[0].x(0) == 0) {
+        double x = dimensions.getX(0)*.5;
+        if(vecs == null || vecs[0].getX(0) == 0) {
           vecs = new IVectorMutable[] {
               space.makeVector(new double[]{-x,x,x}),
               space.makeVector(new double[]{x,-x,x}),
               space.makeVector(new double[]{x,x,-x}) };
         }
-        else if(vecs[1].x(0) != x) {
-          double ratio = x/vecs[1].x(0);
+        else if(vecs[1].getX(0) != x) {
+          double ratio = x/vecs[1].getX(0);
           vecs[0].TE(ratio);
           vecs[1].TE(ratio);
           vecs[2].TE(ratio);
@@ -259,14 +259,14 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         intoTruncatedOctahedron.ME(r);
         rrounded.TE(1. / n);
 
-        int aint = (int) (4.0 / 3.0 * (Math.abs(rrounded.x(0))
-                + Math.abs(rrounded.x(1)) + Math.abs(rrounded.x(2))));
+        int aint = (int) (4.0 / 3.0 * (Math.abs(rrounded.getX(0))
+                + Math.abs(rrounded.getX(1)) + Math.abs(rrounded.getX(2))));
 
         if (aint != 0) {
             double corr = 0.5 * n * aint;
 
             for (int i=0; i<3; i++) {
-                rrounded.setX(i,SpecialFunctions.sgn(rrounded.x(i)));
+                rrounded.setX(i,SpecialFunctions.sgn(rrounded.getX(i)));
             }
             
             intoTruncatedOctahedron.PEa1Tv1(-corr, rrounded);

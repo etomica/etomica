@@ -175,7 +175,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         super.corrector();
         double volOld = box.getBoundary().volume();
         // voi (dV/dt... voi???) = Dr^(D-1) dr/dt, chi = dr/dt
-        double voi = D*volOld*chi/box.getBoundary().getDimensions().x(0);
+        double voi = D*volOld*chi/box.getBoundary().getDimensions().getX(0);
         double corvol = voi - vol1;
         double volNew = volOld + c0*corvol;
         vol1 = voi;

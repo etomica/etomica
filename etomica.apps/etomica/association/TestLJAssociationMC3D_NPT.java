@@ -110,8 +110,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         
         double truncationRadius = 6.0*sigma;//truncation distance of potential default = 3.0*sigma
         System.out.println("truncation distance of potential = " +truncationRadius);
-        if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
+        if(truncationRadius > 0.5*box.getBoundary().getDimensions().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
         }
         //P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         potential = new P2HardAssociationCone(space, sigma, epsilon, truncationRadius, wellConstant);

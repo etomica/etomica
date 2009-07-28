@@ -37,7 +37,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         return s;
     }
 
-    public double x(int i) {
+    public double getX(int i) {
         return x[i];
     }
 
@@ -49,7 +49,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
 
     public boolean equals(IVector v) {
         for (int i=0; i<x.length; i++) {
-            if (v.x(i) != x[i]) return false;
+            if (v.getX(i) != x[i]) return false;
         }
         return true;
     }
@@ -63,7 +63,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
 
     public void E(IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] = u.x(i);
+            x[i] = u.getX(i);
         }
     }
 
@@ -81,19 +81,19 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
     
     public void Ea1Tv1(double a1, IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] = a1 * u.x(i);
+            x[i] = a1 * u.getX(i);
         }
     }
 
     public void PEa1Tv1(double a1, IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] += a1 * u.x(i);
+            x[i] += a1 * u.getX(i);
         }
     }
 
     public void PE(IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] += u.x(i);
+            x[i] += u.getX(i);
         }
     }
 
@@ -105,7 +105,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
 
     public void ME(IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] -= u.x(i);
+            x[i] -= u.getX(i);
         }
     }
 
@@ -117,35 +117,35 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
 
     public void TE(IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] *= u.x(i);
+            x[i] *= u.getX(i);
         }
     }
 
     public void DE(IVector u) {
         for (int i=0; i<x.length; i++) {
-            x[i] /= u.x(i);
+            x[i] /= u.getX(i);
         }
     }
 
     public void Ev1Pv2(IVector u1, IVector u2) {
         for (int i=0; i<x.length; i++) {
-            x[i] = u1.x(i) + u2.x(i);
+            x[i] = u1.getX(i) + u2.getX(i);
         }
     }
 
     public void Ev1Mv2(IVector u1, IVector u2) {
         for (int i=0; i<x.length; i++) {
-            x[i] = u1.x(i) - u2.x(i);
+            x[i] = u1.getX(i) - u2.getX(i);
         }
     }
     
     public void mod(final IVector u) {
         for (int i=0; i<x.length; i++) {
-            while (x[i] > u.x(i)) {
-                x[i] -= u.x(i);
+            while (x[i] > u.getX(i)) {
+                x[i] -= u.getX(i);
             }
             while (x[i] < 0) {
-                x[i] += u.x(i);
+                x[i] += u.getX(i);
             }
         }
     }
@@ -161,7 +161,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
     public double Mv1Squared(IVector u) {
         double s = 0;
         for (int i=0; i<x.length; i++) {
-            double dx = x[i] - u.x(i);
+            double dx = x[i] - u.getX(i);
             s += dx * dx;
         }
         return s;
@@ -170,7 +170,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
     public double dot(IVector u) {
         double s = 0;
         for (int i=0; i<x.length; i++) {
-            s += x[i] * u.x(i);
+            s += x[i] * u.getX(i);
         }
         return s;
     }
@@ -233,9 +233,9 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
 
     public void XE(IVector u) {//cross product
         if (x.length == 3) {
-            double xNew = x[1] * u.x(2) - x[2] * u.x(1);
-            double yNew = x[2] * u.x(0) - x[0] * u.x(2);
-            x[2] = x[0] * u.x(2) - x[1] * u.x(0);
+            double xNew = x[1] * u.getX(2) - x[2] * u.getX(1);
+            double yNew = x[2] * u.getX(0) - x[0] * u.getX(2);
+            x[2] = x[0] * u.getX(2) - x[1] * u.getX(0);
             x[1] = yNew;
             x[0] = xNew;
         }

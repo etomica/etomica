@@ -110,7 +110,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
 //            }
 //        }
         for(int i = 0; i < ats; i++){
-            System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().x(0));
+            System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
         }
     }
     

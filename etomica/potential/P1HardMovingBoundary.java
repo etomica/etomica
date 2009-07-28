@@ -124,7 +124,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public double energy(IAtomList a) {
-        double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().x(wallD) - wallPosition;
+        double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().getX(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
         }
@@ -135,8 +135,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public double collisionTime(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
-        double dr = atom.getPosition().x(wallD) - wallPosition;
-        double dv = atom.getVelocity().x(wallD) - wallVelocity;
+        double dr = atom.getPosition().getX(wallD) - wallPosition;
+        double dv = atom.getVelocity().getX(wallD) - wallVelocity;
         dr += dv*falseTime;
         if (!isForced) {
             double area = 1.0;
@@ -144,7 +144,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
-                        area *= (dimensions.x(i)-collisionRadius*2.0);
+                        area *= (dimensions.getX(i)-collisionRadius*2.0);
                     }
                 }
             }
@@ -155,8 +155,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         dr += 0.5*a*falseTime*falseTime;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)atom))) {
             System.out.println(dr+" "+dv+" "+falseTime+" "+atom);
-            System.out.println(atom.getVelocity().x(wallD));
-            System.out.println(atom.getPosition().x(wallD));
+            System.out.println(atom.getVelocity().getX(wallD));
+            System.out.println(atom.getPosition().getX(wallD));
         }
         double t = Double.POSITIVE_INFINITY;
         double discr = -1.0;
@@ -191,7 +191,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         }
         if (ignoreOverlap && t<0.0) t = 0.0;
         if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)atom)))) {
-            System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.getPosition().x(wallD)+atom.getVelocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
+            System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.getPosition().getX(wallD)+atom.getVelocity().getX(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }
         return t + falseTime;
@@ -199,7 +199,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 
     public void bump(IAtomList atoms, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
-        double r = atom.getPosition().x(wallD);
+        double r = atom.getPosition().getX(wallD);
         IVectorMutable v = atom.getVelocity();
         if (!isForced) {
             double area = 1.0;
@@ -207,7 +207,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
-                        area *= (dimensions.x(i)-collisionRadius*2.0);
+                        area *= (dimensions.getX(i)-collisionRadius*2.0);
                     }
                 }
             }
@@ -216,17 +216,17 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double trueWallVelocity = wallVelocity + falseTime*force/wallMass;
         if (Debug.ON) {
             double trueWallPosition = wallPosition + wallVelocity*falseTime + 0.5*falseTime*falseTime*(force/wallMass);
-            if (Math.abs(Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius) > 1.e-7*collisionRadius) {
-                System.out.println("bork at "+falseTime+" ! "+atom+" "+(r+v.x(wallD)*falseTime)+" "+v.x(wallD));
+            if (Math.abs(Math.abs(trueWallPosition-(r+v.getX(wallD)*falseTime)) - collisionRadius) > 1.e-7*collisionRadius) {
+                System.out.println("bork at "+falseTime+" ! "+atom+" "+(r+v.getX(wallD)*falseTime)+" "+v.getX(wallD));
                 System.out.println("wall bork! "+trueWallPosition+" "+trueWallVelocity+" "+force);
-                System.out.println("dr bork! "+((r+v.x(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
-                System.out.println(atom.getPosition().x(wallD));
+                System.out.println("dr bork! "+((r+v.getX(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
+                System.out.println(atom.getPosition().getX(wallD));
                 throw new RuntimeException("bork!");
             }
         }
-        double dp = 2.0/(1/wallMass + ((IAtom)atom).getType().rm())*(trueWallVelocity-v.x(wallD));
+        double dp = 2.0/(1/wallMass + ((IAtom)atom).getType().rm())*(trueWallVelocity-v.getX(wallD));
         virialSum += dp;
-        v.setX(wallD,v.x(wallD)+dp*((IAtom)atom).getType().rm());
+        v.setX(wallD,v.getX(wallD)+dp*((IAtom)atom).getType().rm());
         atom.getPosition().setX(wallD,r-dp*((IAtom)atom).getType().rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
@@ -238,7 +238,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         final IVector dimensions = pistonBoundary.getDimensions();
         for (int i=0; i<D; i++) {
             if (i != wallD) {
-                area *= (dimensions.x(i)-collisionRadius*2.0);
+                area *= (dimensions.getX(i)-collisionRadius*2.0);
             }
         }
         double s = virialSum / area;
@@ -278,7 +278,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             final IVector dimensions = pistonBoundary.getDimensions();
             for (int i=0; i<D; i++) {
                 if (i != wallD) {
-                    area *= (dimensions.x(i)-collisionRadius*2.0);
+                    area *= (dimensions.getX(i)-collisionRadius*2.0);
                 }
             }
             force = pressure*area;
@@ -295,8 +295,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         g.setColor(java.awt.Color.gray);
-        double dx = pistonBoundary.getDimensions().x(0);
-        double dy = pistonBoundary.getDimensions().x(1);
+        double dx = pistonBoundary.getDimensions().getX(0);
+        double dy = pistonBoundary.getDimensions().getX(1);
         int xP = origin[0] + (wallD==0 ? (int)((wallPosition+0.5*dx-thickness)*toPixel) : 0);
         int yP = origin[1] + (wallD==1 ? (int)((wallPosition+0.5*dy-thickness)*toPixel) : 0);
         int t = Math.max(1,(int)(thickness*toPixel));

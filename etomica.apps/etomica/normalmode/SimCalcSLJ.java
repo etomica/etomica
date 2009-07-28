@@ -68,7 +68,7 @@ public class SimCalcSLJ extends Simulation {
         }
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.5;
+        double truncationRadius = boundary.getDimensions().getX(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});

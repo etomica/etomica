@@ -42,7 +42,7 @@ public class WaveVectorFactory2D implements WaveVectorFactory, Serializable {
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(box.getBoundary().getDimensions().x(i) / (d[i]));
+            numCells[i] = (int)Math.round(box.getBoundary().getDimensions().getX(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
         

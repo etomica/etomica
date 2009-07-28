@@ -220,9 +220,9 @@ public class TruncatedOctahedron extends Polyhedron {
 
     public boolean contains(IVector v) {
         double length = getContainingCubeEdgeLength();
-        double x = Math.abs(v.x(0) - position.x(0)) / length;
-        double y = Math.abs(v.x(1) - position.x(1)) / length;
-        double z = Math.abs(v.x(2) - position.x(2)) / length;
+        double x = Math.abs(v.getX(0) - position.getX(0)) / length;
+        double y = Math.abs(v.getX(1) - position.getX(1)) / length;
+        double z = Math.abs(v.getX(2) - position.getX(2)) / length;
         if (x > 0.5 || y > 0.5 || z > 0.5)
             return false;
         if (x + y + z > 0.75)

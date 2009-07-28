@@ -85,15 +85,15 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         double cosRA = Math.cos(randomAngle);
         double sinRA = Math.sin(randomAngle);
 
-        rotor.E(new double[][] {{ cosRA + (1 - cosRA) * vex.x(0) * vex.x(0), // xx
-                (1 - cosRA) * vex.x(0) * vex.x(1) - sinRA * vex.x(2), // xy
-                (1 - cosRA) * vex.x(0) * vex.x(2) + sinRA * vex.x(1)}, // xz
-                {(1 - cosRA) * vex.x(1) * vex.x(0) + sinRA * vex.x(2), // yx
-                cosRA + (1 - cosRA) * vex.x(1) * vex.x(1), // yy
-                (1 - cosRA) * vex.x(1) * vex.x(2) - sinRA * vex.x(0)}, // yz
-                {(1 - cosRA) * vex.x(2) * vex.x(0) - sinRA * vex.x(1), // zx
-                (1 - cosRA) * vex.x(2) * vex.x(1) + sinRA * vex.x(0), // zy
-                cosRA + (1 - cosRA) * vex.x(2) * vex.x(2)} // zz
+        rotor.E(new double[][] {{ cosRA + (1 - cosRA) * vex.getX(0) * vex.getX(0), // xx
+                (1 - cosRA) * vex.getX(0) * vex.getX(1) - sinRA * vex.getX(2), // xy
+                (1 - cosRA) * vex.getX(0) * vex.getX(2) + sinRA * vex.getX(1)}, // xz
+                {(1 - cosRA) * vex.getX(1) * vex.getX(0) + sinRA * vex.getX(2), // yx
+                cosRA + (1 - cosRA) * vex.getX(1) * vex.getX(1), // yy
+                (1 - cosRA) * vex.getX(1) * vex.getX(2) - sinRA * vex.getX(0)}, // yz
+                {(1 - cosRA) * vex.getX(2) * vex.getX(0) - sinRA * vex.getX(1), // zx
+                (1 - cosRA) * vex.getX(2) * vex.getX(1) + sinRA * vex.getX(0), // zy
+                cosRA + (1 - cosRA) * vex.getX(2) * vex.getX(2)} // zz
         });
 
         // Mulitply the rotation tensor by temp to get the rotated vector.
@@ -137,15 +137,15 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
         // Create the rotation matrix for an arbitrary unit vector
         vex.normalize();
-        rotor.E(new double[][] { {cosRA + (1 - cosRA) * vex.x(0) * vex.x(0), // xx
-                (1 - cosRA) * vex.x(0) * vex.x(1) - sinRA * vex.x(2), // xy
-                (1 - cosRA) * vex.x(0) * vex.x(2) + sinRA * vex.x(1)}, // xz
-                {(1 - cosRA) * vex.x(1) * vex.x(0) + sinRA * vex.x(2), // yx
-                cosRA + (1 - cosRA) * vex.x(1) * vex.x(1), // yy
-                (1 - cosRA) * vex.x(1) * vex.x(2) - sinRA * vex.x(0)}, // yz
-                {(1 - cosRA) * vex.x(2) * vex.x(0) - sinRA * vex.x(1), // zx
-                (1 - cosRA) * vex.x(2) * vex.x(1) + sinRA * vex.x(0), // zy
-                cosRA + (1 - cosRA) * vex.x(2) * vex.x(2)} // zz
+        rotor.E(new double[][] { {cosRA + (1 - cosRA) * vex.getX(0) * vex.getX(0), // xx
+                (1 - cosRA) * vex.getX(0) * vex.getX(1) - sinRA * vex.getX(2), // xy
+                (1 - cosRA) * vex.getX(0) * vex.getX(2) + sinRA * vex.getX(1)}, // xz
+                {(1 - cosRA) * vex.getX(1) * vex.getX(0) + sinRA * vex.getX(2), // yx
+                cosRA + (1 - cosRA) * vex.getX(1) * vex.getX(1), // yy
+                (1 - cosRA) * vex.getX(1) * vex.getX(2) - sinRA * vex.getX(0)}, // yz
+                {(1 - cosRA) * vex.getX(2) * vex.getX(0) - sinRA * vex.getX(1), // zx
+                (1 - cosRA) * vex.getX(2) * vex.getX(1) + sinRA * vex.getX(0), // zy
+                cosRA + (1 - cosRA) * vex.getX(2) * vex.getX(2)} // zz
         });
 
         // Mulitply the rotation tensor by temp to get the rotated vector.
@@ -206,10 +206,10 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     protected IVectorMutable getNormal(IVectorMutable vect) {
         // Determine the smallest component
         int min = 0;
-        if (vect.x(1) < vect.x(0)) {
+        if (vect.getX(1) < vect.getX(0)) {
             min = 1;
         }
-        if (vect.x(2) < vect.x(min)) {
+        if (vect.getX(2) < vect.getX(min)) {
             min = 2;
         }
 

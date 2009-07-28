@@ -123,28 +123,28 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 				IVector[] vertices = lines[i].getVertices();
 				polytopeLines[i] = new Line(gsys, G3DSys
 						.getColix(boundaryFrameColor), new Point3f(
-						(float) vertices[0].x(0), (float) vertices[0].x(1),
-						(float) vertices[0].x(2)), new Point3f(
-						(float) vertices[1].x(0), (float) vertices[1].x(1),
-						(float) vertices[1].x(2)));
+						(float) vertices[0].getX(0), (float) vertices[0].getX(1),
+						(float) vertices[0].getX(2)), new Point3f(
+						(float) vertices[1].getX(0), (float) vertices[1].getX(1),
+						(float) vertices[1].getX(2)));
 				gsys.addFig(polytopeLines[i]);
 			}
 		} else {
 			LineSegment[] lines = polytope.getEdges();
 			for (int i = 0; i < lines.length; i++) {
 				IVector[] vertices = lines[i].getVertices();
-				polytopeLines[i].setStart((float) vertices[0].x(0),
-						(float) vertices[0].x(1), (float) vertices[0].x(2));
-				polytopeLines[i].setEnd((float) vertices[1].x(0),
-						(float) vertices[1].x(1), (float) vertices[1].x(2));
+				polytopeLines[i].setStart((float) vertices[0].getX(0),
+						(float) vertices[0].getX(1), (float) vertices[0].getX(2));
+				polytopeLines[i].setEnd((float) vertices[1].getX(0),
+						(float) vertices[1].getX(1), (float) vertices[1].getX(2));
 			}
 		}
 
 	    IVector bounds = displayPolytope.dimensions();
-        gsys.setBoundingBox((float) (-bounds.x(0) * 0.5),
-                (float) (-bounds.x(1) * 0.5), (float) (-bounds.x(2) * 0.5),
-                (float) (bounds.x(0) * 0.5), (float) (bounds.x(1) * 0.5),
-                (float) (bounds.x(2) * 0.5));
+        gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
+                (float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
+                (float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),
+                (float) (bounds.getX(2) * 0.5));
 	        
 		// If displaying a new box, make it fit on the screen
 		if(initialOrient == true) {

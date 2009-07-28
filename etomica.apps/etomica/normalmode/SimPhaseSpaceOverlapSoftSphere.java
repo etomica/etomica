@@ -101,7 +101,7 @@ public class SimPhaseSpaceOverlapSoftSphere extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
+        double truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });

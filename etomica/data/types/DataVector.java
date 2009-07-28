@@ -122,7 +122,7 @@ public class DataVector implements IData, java.io.Serializable {
      */
     public double getValue(int i) {
         if(i < 0 || i>= x.getD()) throw new IllegalArgumentException("Illegal value: " + i);
-        return x.x(i);
+        return x.getX(i);
     }
 
     /**

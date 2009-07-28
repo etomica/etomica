@@ -140,7 +140,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 				
 				for (int k=0; k<3; k++){
-					fPrime[j+k] = moleculeForce.x(k);
+					fPrime[j+k] = moleculeForce.getX(k);
 						
 					if (index == j+k){
 						return fPrime[j+k];

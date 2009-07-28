@@ -185,7 +185,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                 angularVelocity.DE(moment);
                 angularVelocity.TE(angularVelocity);
                 angularVelocity.TE(moment);
-                KE += angularVelocity.x(0) + angularVelocity.x(1)+ angularVelocity.x(2);
+                KE += angularVelocity.getX(0) + angularVelocity.getX(1)+ angularVelocity.getX(2);
             }
             
 //            System.out.println("angular momentum "+angularMomentum);
@@ -207,18 +207,18 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 //            System.out.println("space-fixed angular velocity "+xWork);
 
             // calculate 0 timestep quat velocities
-            quatVelocity[0] = 0.5*(-quat[1]*angularVelocity.x(0)
-                                   -quat[2]*angularVelocity.x(1)
-                                   -quat[3]*angularVelocity.x(2));
-            quatVelocity[1] = 0.5*(+quat[0]*angularVelocity.x(0)
-                                   -quat[3]*angularVelocity.x(1)
-                                   +quat[2]*angularVelocity.x(2));
-            quatVelocity[2] = 0.5*(+quat[3]*angularVelocity.x(0)
-                                   +quat[0]*angularVelocity.x(1)
-                                   -quat[1]*angularVelocity.x(2));
-            quatVelocity[3] = 0.5*(-quat[2]*angularVelocity.x(0)
-                                   +quat[1]*angularVelocity.x(1)
-                                   +quat[0]*angularVelocity.x(2));
+            quatVelocity[0] = 0.5*(-quat[1]*angularVelocity.getX(0)
+                                   -quat[2]*angularVelocity.getX(1)
+                                   -quat[3]*angularVelocity.getX(2));
+            quatVelocity[1] = 0.5*(+quat[0]*angularVelocity.getX(0)
+                                   -quat[3]*angularVelocity.getX(1)
+                                   +quat[2]*angularVelocity.getX(2));
+            quatVelocity[2] = 0.5*(+quat[3]*angularVelocity.getX(0)
+                                   +quat[0]*angularVelocity.getX(1)
+                                   -quat[1]*angularVelocity.getX(2));
+            quatVelocity[3] = 0.5*(-quat[2]*angularVelocity.getX(0)
+                                   +quat[1]*angularVelocity.getX(1)
+                                   +quat[0]*angularVelocity.getX(2));
             
             // advance quat to half-timestep
             double qNorm = 0;
@@ -243,18 +243,18 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             angularVelocity.DE(moment);
 //            System.out.println("half timestep angularVelocity "+angularVelocity);
             
-            quatVelocity[0] = 0.5*(-tempQuat[1]*angularVelocity.x(0)
-                                   -tempQuat[2]*angularVelocity.x(1)
-                                   -tempQuat[3]*angularVelocity.x(2));
-            quatVelocity[1] = 0.5*(+tempQuat[0]*angularVelocity.x(0)
-                                   -tempQuat[3]*angularVelocity.x(1)
-                                   +tempQuat[2]*angularVelocity.x(2));
-            quatVelocity[2] = 0.5*(+tempQuat[3]*angularVelocity.x(0)
-                                   +tempQuat[0]*angularVelocity.x(1)
-                                   -tempQuat[1]*angularVelocity.x(2));
-            quatVelocity[3] = 0.5*(-tempQuat[2]*angularVelocity.x(0)
-                                   +tempQuat[1]*angularVelocity.x(1)
-                                   +tempQuat[0]*angularVelocity.x(2));
+            quatVelocity[0] = 0.5*(-tempQuat[1]*angularVelocity.getX(0)
+                                   -tempQuat[2]*angularVelocity.getX(1)
+                                   -tempQuat[3]*angularVelocity.getX(2));
+            quatVelocity[1] = 0.5*(+tempQuat[0]*angularVelocity.getX(0)
+                                   -tempQuat[3]*angularVelocity.getX(1)
+                                   +tempQuat[2]*angularVelocity.getX(2));
+            quatVelocity[2] = 0.5*(+tempQuat[3]*angularVelocity.getX(0)
+                                   +tempQuat[0]*angularVelocity.getX(1)
+                                   -tempQuat[1]*angularVelocity.getX(2));
+            quatVelocity[3] = 0.5*(-tempQuat[2]*angularVelocity.getX(0)
+                                   +tempQuat[1]*angularVelocity.getX(1)
+                                   +tempQuat[0]*angularVelocity.getX(2));
 
             //advance quat to full timestep
             qNorm = 0;

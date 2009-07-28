@@ -60,8 +60,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     protected void refreshSize() {
         Dimension dim = getSize();
         IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
-        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
-        double py = (dim.height - 1)/(boxDim.x(1)+displayBox.getPaddingSigma());
+        double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
+        double py = (dim.height - 1)/(boxDim.getX(1)+displayBox.getPaddingSigma());
         if (px > py) {
             // take the smaller of the two toPixel
             px = py;
@@ -107,8 +107,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         
         double toPixels = pixel.toPixels() * displayBox.getScale();
 
-        baseXP = origin[0] + (int)(toPixels*r.x(0));
-        baseYP = origin[1] + (int)(toPixels*r.x(1));
+        baseXP = origin[0] + (int)(toPixels*r.getX(0));
+        baseYP = origin[1] + (int)(toPixels*r.getX(1));
         if(((IAtom)a).getType() instanceof IAtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
             sigmaP = (int)(toPixels*((IAtomTypeSphere)((IAtom)a).getType()).getDiameter());
@@ -128,8 +128,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             if(drawOrientation) {
                 IVector dir = ((IAtomOriented)a).getOrientation().getDirection();
                 int dxy = (int)(toPixels*0.5*((AtomTypeOrientedSphere)((IAtom)a).getType()).getDiameter());
-                int dx = (int)(dxy*dir.x(0));
-                int dy = (int)(dxy*dir.x(1));
+                int dx = (int)(dxy*dir.getX(0));
+                int dy = (int)(dxy*dir.getX(1));
                 g.setColor(Color.red);
                 xP += dxy; yP += dxy;
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
@@ -165,14 +165,14 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             g.setColor(Color.gray);
             Polygon shape = (Polygon)((Boundary)displayBox.getBox().getBoundary()).getShape();
             LineSegment[] edges = shape.getEdges();
-            int ox = origin[0] + (int)(toPixels*boundingBox.x(0)*0.5);
-            int oy = origin[1] + (int)(toPixels*boundingBox.x(1)*0.5);
+            int ox = origin[0] + (int)(toPixels*boundingBox.getX(0)*0.5);
+            int oy = origin[1] + (int)(toPixels*boundingBox.getX(1)*0.5);
             for(int i=0; i<edges.length; i++) {
                 IVector[] vertices = edges[i].getVertices();
-                int x1 = ox + (int)(toPixels*vertices[0].x(0));
-                int y1 = oy + (int)(toPixels*vertices[0].x(1));
-                int x2 = ox + (int)(toPixels*vertices[1].x(0));
-                int y2 = oy + (int)(toPixels*vertices[1].x(1));
+                int x1 = ox + (int)(toPixels*vertices[0].getX(0));
+                int y1 = oy + (int)(toPixels*vertices[0].getX(1));
+                int x2 = ox + (int)(toPixels*vertices[1].getX(0));
+                int y2 = oy + (int)(toPixels*vertices[1].getX(1));
                 g.drawLine(x1,y1,x2,y2);
             }
         }
@@ -193,8 +193,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
 //        vec2.ME(vec);
 //        vec2.TE(0.5);
         
-        atomOrigin[0] = origin[0] + (int)(0.5*toPixels*boundingBox.x(0));
-        atomOrigin[1] = origin[1] + (int)(0.5*toPixels*boundingBox.x(1));
+        atomOrigin[0] = origin[0] + (int)(0.5*toPixels*boundingBox.getX(0));
+        atomOrigin[1] = origin[1] + (int)(0.5*toPixels*boundingBox.getX(1));
 //        vec.TE(0.0);
 //        Vector vec2 = displayBox.getBox().getBoundary().centralImage(vec);
 

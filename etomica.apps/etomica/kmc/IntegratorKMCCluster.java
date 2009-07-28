@@ -296,16 +296,16 @@ public class IntegratorKMCCluster extends IntegratorBox{
         double sum = 0;
         IVector [] msdVect = msdArray.getDataAsArray();
         for(int i=0; i<msdVect.length; i++){
-            sum = msd.x(0);
-            sum += msdVect[i].x(0)*msdVect[i].x(0);
+            sum = msd.getX(0);
+            sum += msdVect[i].getX(0)*msdVect[i].getX(0);
             msd.setX(0, sum);
             
-            sum = msd.x(1);
-            sum += msdVect[i].x(1)*msdVect[i].x(1);
+            sum = msd.getX(1);
+            sum += msdVect[i].getX(1)*msdVect[i].getX(1);
             msd.setX(1, sum);
             
-            sum = msd.x(2);
-            sum += msdVect[i].x(2)*msdVect[i].x(2);
+            sum = msd.getX(2);
+            sum += msdVect[i].getX(2)*msdVect[i].getX(2);
             msd.setX(2, sum);
         }
     }

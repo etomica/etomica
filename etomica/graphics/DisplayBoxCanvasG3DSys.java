@@ -317,10 +317,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 					IVector[] vertices = lines[i].getVertices();
 					polytopeLines[i] = new Line(gsys, G3DSys
 							.getColix(boundaryFrameColor), new Point3f(
-							(float) vertices[0].x(0), (float) vertices[0].x(1),
-							(float) vertices[0].x(2)), new Point3f(
-							(float) vertices[1].x(0), (float) vertices[1].x(1),
-							(float) vertices[1].x(2)));
+							(float) vertices[0].getX(0), (float) vertices[0].getX(1),
+							(float) vertices[0].getX(2)), new Point3f(
+							(float) vertices[1].getX(0), (float) vertices[1].getX(1),
+							(float) vertices[1].getX(2)));
 					if (displayBox.getShowBoundary() == true) {
 						gsys.addFig(polytopeLines[i]);
 					}
@@ -330,10 +330,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				LineSegment[] lines = polytope.getEdges();
 				for (int i = 0; i < lines.length; i++) {
 					IVector[] vertices = lines[i].getVertices();
-					polytopeLines[i].setStart((float) vertices[0].x(0),
-							(float) vertices[0].x(1), (float) vertices[0].x(2));
-					polytopeLines[i].setEnd((float) vertices[1].x(0),
-							(float) vertices[1].x(1), (float) vertices[1].x(2));
+					polytopeLines[i].setStart((float) vertices[0].getX(0),
+							(float) vertices[0].getX(1), (float) vertices[0].getX(2));
+					polytopeLines[i].setEnd((float) vertices[1].getX(0),
+							(float) vertices[1].getX(1), (float) vertices[1].getX(2));
 	
 					if (displayBox.getShowBoundary() == false
 							&& boundaryDisplayed == true) {
@@ -368,19 +368,19 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			    if (!boundary.getPeriodicity(i)) {
 			        continue;
 			    }
-				dvecs[j * 3] = v.x(0);
-				dvecs[j * 3 + 1] = v.x(1);
-				dvecs[j * 3 + 2] = v.x(2);
+				dvecs[j * 3] = v.getX(0);
+				dvecs[j * 3 + 1] = v.getX(1);
+				dvecs[j * 3 + 2] = v.getX(2);
 				j++;
 			}
 			gsys.setBoundaryVectors(dvecs);
 		}
 		
 		IVector bounds = boundary.getDimensions();
-		gsys.setBoundingBox((float) (-bounds.x(0) * 0.5),
-				(float) (-bounds.x(1) * 0.5), (float) (-bounds.x(2) * 0.5),
-				(float) (bounds.x(0) * 0.5), (float) (bounds.x(1) * 0.5),
-				(float) (bounds.x(2) * 0.5));
+		gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
+				(float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
+				(float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),
+				(float) (bounds.getX(2) * 0.5));
 
 		// If displaying a new box, make it fit on the screen
 		if(initialOrient == true) {
@@ -522,17 +522,17 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         for (int i=0; i<planeTriangles[iPlane].length; i++) {
             Triangle triangle = planeTriangles[iPlane][i];
             Point3f p = triangle.getVertex1();
-            p.x = (float)planeIntersections[0].x(0);
-            p.y = (float)planeIntersections[0].x(1);
-            p.z = (float)planeIntersections[0].x(2);
+            p.x = (float)planeIntersections[0].getX(0);
+            p.y = (float)planeIntersections[0].getX(1);
+            p.z = (float)planeIntersections[0].getX(2);
             p = triangle.getVertex2();
-            p.x = (float)planeIntersections[i+1].x(0);
-            p.y = (float)planeIntersections[i+1].x(1);
-            p.z = (float)planeIntersections[i+1].x(2);
+            p.x = (float)planeIntersections[i+1].getX(0);
+            p.y = (float)planeIntersections[i+1].getX(1);
+            p.z = (float)planeIntersections[i+1].getX(2);
             p = triangle.getVertex3();
-            p.x = (float)planeIntersections[i+2].x(0);
-            p.y = (float)planeIntersections[i+2].x(1);
-            p.z = (float)planeIntersections[i+2].x(2);
+            p.x = (float)planeIntersections[i+2].getX(0);
+            p.y = (float)planeIntersections[i+2].getX(1);
+            p.z = (float)planeIntersections[i+2].getX(2);
         }
     }
     

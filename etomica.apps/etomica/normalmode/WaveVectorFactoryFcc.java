@@ -31,7 +31,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         double d = -1;
         for (int i = 0; i < dim; i++) {
             //XXX divide by sqrt(2) for FCC
-            int n = (int)Math.round(box.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
+            int n = (int)Math.round(box.getBoundary().getDimensions().getX(i) / (primitive.getSize()[i]*Math.sqrt(2)));
             if (i>0 && n != numCells) {
                 throw new RuntimeException("Things would be so much happier if you would just use the same number of cells in each direction.");
             }

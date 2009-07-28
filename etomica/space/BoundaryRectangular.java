@@ -77,7 +77,7 @@ public abstract class BoundaryRectangular extends Boundary {
     protected void updateDimensions() {
         ((Rectangular)shape).setEdgeLengths(dimensions);
         for (int i=0; i<space.D(); i++) {
-            edgeVectors[i].setX(i, dimensions.x(i));
+            edgeVectors[i].setX(i, dimensions.getX(i));
         }
     }
 

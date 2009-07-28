@@ -44,7 +44,7 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
             for (int j=0; j<3; j++) {
                 for (int k=0; k<3; k++) {
                     if (j==k) continue;
-                    I[j] += atomMass*xWork.x(k)*xWork.x(k);
+                    I[j] += atomMass*xWork.getX(k)*xWork.getX(k);
                 }
             }
         }

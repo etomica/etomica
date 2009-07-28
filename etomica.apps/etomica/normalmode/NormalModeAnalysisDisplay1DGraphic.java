@@ -105,17 +105,17 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	                	
 	                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
 	                	if (i==wvNumUsed){
-	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
 	                		
 	                	} else {
 	                	
-	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0));
 	                	}
 	                }
                 } else {
                 	for (int i=0; i<m; i++){
                     	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">"; 	
+                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">"; 	
                     }
                 }
                 
@@ -174,7 +174,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
      
         for (int i=0; i<m; i++){
         	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-        	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+        	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
         }
         
         data = new DataDoubleArray[1];
@@ -239,16 +239,16 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                     	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
                     	
                     	if(i==wvNumUsed){
-                    		stringWV[i] = "<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+                    		stringWV[i] = "<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
                     	} else {
-                    		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+                    		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0));
                     	}
                     }
                 } else {
                 
                     for (int i=0; i<m; i++){
                     	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+                    	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
                     }
                 }
                 data[0] = new DataDoubleArray(new int[]{m},omega2);
@@ -314,17 +314,17 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	                	
 	                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
 	                	if (i==wvNumUsed){
-	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">";
+	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
 	                		
 	                	} else {
 	                	
-	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0));
+	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0));
 	                	}
 	                }
                 } else {
                 	for (int i=0; i<m; i++){
                     	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].x(0))+">"; 	
+                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">"; 	
                     }
                 }
                 

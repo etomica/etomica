@@ -40,7 +40,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
         sim.initializeConfiguration("sngb101-4412-md");
         
         IVectorMutable dimerCenter = sim.getSpace().makeVector();
-        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().x(0)/2.0);
+        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().getX(0)/2.0);
         dimerCenter.setX(1, 1.0);
         dimerCenter.setX(2, 0.0);
         IVectorMutable cubeSize = sim.getSpace().makeVector();
@@ -49,7 +49,7 @@ public class SimDimerMEAMGBCluster extends Simulation{
         cubeSize.setX(2, 8.0);
         
         if(sim.millerPlane[2] == 0){
-            dimerCenter.setX(1, sim.box.getBoundary().getDimensions().x(1)/2.0);
+            dimerCenter.setX(1, sim.box.getBoundary().getDimensions().getX(1)/2.0);
             dimerCenter.setX(0, 1.0);
             dimerCenter.setX(2, 0.0);
             cubeSize.setX(0, 6.0);

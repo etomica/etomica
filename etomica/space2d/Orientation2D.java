@@ -50,7 +50,7 @@ public class Orientation2D implements IOrientation2D, Serializable {
     public void setDirection(IVector newDirection) {
         direction.E(newDirection);
         direction.normalize();
-        angle = Math.atan2(this.direction.x(1), this.direction.x(0));
+        angle = Math.atan2(this.direction.getX(1), this.direction.getX(0));
     }
     
     /**

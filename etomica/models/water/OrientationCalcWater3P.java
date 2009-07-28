@@ -59,17 +59,17 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         zWork.E(xWork);
         zWork.XE(yWork);
         
-        double xx = xWork.x(0);
+        double xx = xWork.getX(0);
 //        double yx = yWork.x(0);
-        double zx = zWork.x(0);
-        double xy = xWork.x(1);
+        double zx = zWork.getX(0);
+        double xy = xWork.getX(1);
 //        double yy = yWork.x(1);
-        double zy = zWork.x(1);
+        double zy = zWork.getX(1);
         // azy = |zy|, which appears in expressions for cos(psi) 
         double azy = Math.abs(zy);
 //        double yz = yWork.x(2);
-        double xz = xWork.x(2);
-        double zz = zWork.x(2);
+        double xz = xWork.getX(2);
+        double zz = zWork.getX(2);
         // fix roundoff errors
         if (zz > 1) zz = 1;
         else if (zz < -1) zz = -1;

@@ -120,7 +120,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
 
         for(int i=0; i<numAtoms; i++) {
             ((IAtomPositioned)atoms.getAtom(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
-            System.out.println(((IAtomPositioned)atoms.getAtom(i)).getPosition().x(0));
+            System.out.println(((IAtomPositioned)atoms.getAtom(i)).getPosition().getX(0));
         }
         
         NormalModes normalModes = new NormalModes1DHR(sim.getSpace().D());

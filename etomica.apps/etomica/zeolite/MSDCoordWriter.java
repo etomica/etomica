@@ -126,7 +126,7 @@ public class MSDCoordWriter implements IAction, IListener {
 						double actualDistance;
 							
 						// Total distance traveled between file writes is computed
-						actualDistance = atomPBIarray[i][j] * boxdim.x(j) + atomPosition.x(j);
+						actualDistance = atomPBIarray[i][j] * boxdim.getX(j) + atomPosition.getX(j);
 						fileWriter.write(""+actualDistance);
 						if(j!=boxdim.getD()-1){
 							fileWriter.write("\t");
@@ -226,7 +226,7 @@ public class MSDCoordWriter implements IAction, IListener {
 					
 					// Before Math.round, workVector is -/+ 0.9999,1.000,1.0001,0.000
 					// Value will truncate when added to atomPBIarray, we must make workVector a whole number
-					atomPBIarray[i][j] += Math.round(workVector.x(j));
+					atomPBIarray[i][j] += Math.round(workVector.getX(j));
 					
 				}
 				i++;

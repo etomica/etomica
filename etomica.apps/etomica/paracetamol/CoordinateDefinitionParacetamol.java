@@ -414,34 +414,34 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 //	             */
 //	      		
 //	      		y.E(xPrime);
-//	            y.XE(x);
+//	            y.getE(x);
 //		      	y.normalize();
 //		      	
 //		      	zPrime.E(xPrime);
-//		      	zPrime.XE(y);
+//		      	zPrime.getE(y);
 //		      	zPrime.normalize();
 //		      	
 //		      	z.E(x);
-//		      	z.XE(y);
+//		      	z.getE(y);
 //		      	z.normalize();
 //	      		
-//	      		double x1Prime = xPrime.x(0);
-//	      		double x2Prime = xPrime.x(1);
-//	      		double x3Prime = xPrime.x(2);
+//	      		double x1Prime = xPrime.get(0);
+//	      		double x2Prime = xPrime.get(1);
+//	      		double x3Prime = xPrime.get(2);
 //	      	
-//		      	double z1Prime = zPrime.x(0);
-//		      	double z2Prime = zPrime.x(1);
-//		      	double z3Prime = zPrime.x(2);
+//		      	double z1Prime = zPrime.get(0);
+//		      	double z2Prime = zPrime.get(1);
+//		      	double z3Prime = zPrime.get(2);
 //		      	
-//		      	double x1 = x.x(0);
-//		      	double x2 = x.x(1);
-//		      	double x3 = x.x(2);
-//		      	double y1 = y.x(0);
-//		      	double y2 = y.x(1);
-//		      	double y3 = y.x(2);
-//		      	double z1 = z.x(0);
-//		      	double z2 = z.x(1);
-//		      	double z3 = z.x(2);
+//		      	double x1 = x.get(0);
+//		      	double x2 = x.get(1);
+//		      	double x3 = x.get(2);
+//		      	double y1 = y.get(0);
+//		      	double y2 = y.get(1);
+//		      	double y3 = y.get(2);
+//		      	double z1 = z.get(0);
+//		      	double z2 = z.get(1);
+//		      	double z3 = z.get(2);
 //		      	
 //		      	double L11 = x1Prime*x1 + y1*y1 + z1Prime*z1;
 //		      	double L12 = x2Prime*x1 + y2*y1 + z2Prime*z1;
@@ -532,24 +532,24 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	 * finding the tensor that brings the arbiVector to arbiVectorDoublePrime
 	      	 */
 	    	
-	      	double x1Norm = xNorm.x(0);
-	      	double x2Norm = xNorm.x(1);
-	      	double x3Norm = xNorm.x(2);
+	      	double x1Norm = xNorm.getX(0);
+	      	double x2Norm = xNorm.getX(1);
+	      	double x3Norm = xNorm.getX(2);
 	      	
-	      	double y1Norm = yNorm.x(0);
-	      	double y2Norm = yNorm.x(1);
-	      	double y3Norm = yNorm.x(2);
+	      	double y1Norm = yNorm.getX(0);
+	      	double y2Norm = yNorm.getX(1);
+	      	double y3Norm = yNorm.getX(2);
 	      	
-	      	double z1Norm = zNorm.x(0);
-	      	double z2Norm = zNorm.x(1);
-	      	double z3Norm = zNorm.x(2);
+	      	double z1Norm = zNorm.getX(0);
+	      	double z2Norm = zNorm.getX(1);
+	      	double z3Norm = zNorm.getX(2);
 
-	      	double y1DoublePrime = yDoublePrime.x(0);
-	      	double y2DoublePrime = yDoublePrime.x(1);
-	      	double y3DoublePrime = yDoublePrime.x(2);
-	      	double z1DoublePrime = zDoublePrime.x(0);
-	      	double z2DoublePrime = zDoublePrime.x(1);
-	      	double z3DoublePrime = zDoublePrime.x(2);
+	      	double y1DoublePrime = yDoublePrime.getX(0);
+	      	double y2DoublePrime = yDoublePrime.getX(1);
+	      	double y3DoublePrime = yDoublePrime.getX(2);
+	      	double z1DoublePrime = zDoublePrime.getX(0);
+	      	double z2DoublePrime = zDoublePrime.getX(1);
+	      	double z3DoublePrime = zDoublePrime.getX(2);
 	      	
 	      	
 	      	double M11 = x1Norm*x1Norm + y1Norm*y1DoublePrime + z1Norm*z1DoublePrime;
@@ -630,21 +630,21 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 		      	 * finding the tensor that brings the arbiVectorDoublePrime to arbiVectorTriplePrime
 		      	 */
 		    	
-		      	double x1TriplePrime = xTriplePrime.x(0);
-		      	double x2TriplePrime = xTriplePrime.x(1);
-		      	double x3TriplePrime = xTriplePrime.x(2);
+		      	double x1TriplePrime = xTriplePrime.getX(0);
+		      	double x2TriplePrime = xTriplePrime.getX(1);
+		      	double x3TriplePrime = xTriplePrime.getX(2);
 		    	
-		      	double y1TriplePrime = yTriplePrime.x(0);
-		      	double y2TriplePrime = yTriplePrime.x(1);
-		      	double y3TriplePrime = yTriplePrime.x(2);
+		      	double y1TriplePrime = yTriplePrime.getX(0);
+		      	double y2TriplePrime = yTriplePrime.getX(1);
+		      	double y3TriplePrime = yTriplePrime.getX(2);
 		      	
-		      	double z1TriplePrime = zTriplePrime.x(0);
-		      	double z2TriplePrime = zTriplePrime.x(1);
-		      	double z3TriplePrime = zTriplePrime.x(2);
+		      	double z1TriplePrime = zTriplePrime.getX(0);
+		      	double z2TriplePrime = zTriplePrime.getX(1);
+		      	double z3TriplePrime = zTriplePrime.getX(2);
 		      	
-		      	double z1QuadruplePrime = zQuadruplePrime.x(0);
-		      	double z2QuadruplePrime = zQuadruplePrime.x(1);
-		      	double z3QuadruplePrime = zQuadruplePrime.x(2);
+		      	double z1QuadruplePrime = zQuadruplePrime.getX(0);
+		      	double z2QuadruplePrime = zQuadruplePrime.getX(1);
+		      	double z3QuadruplePrime = zQuadruplePrime.getX(2);
 		      	
 		      	double N11 = x1Norm*x1TriplePrime + y1TriplePrime*y1TriplePrime + z1QuadruplePrime*z1TriplePrime;
 		      	double N12 = x2Norm*x1TriplePrime + y2TriplePrime*y1TriplePrime + z2QuadruplePrime*z1TriplePrime;

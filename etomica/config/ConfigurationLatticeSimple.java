@@ -140,21 +140,21 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
             for (int idim = 0; idim < shape.getD(); idim++) {
                 if (latticeDimensions[idim] > 0)
                     continue;
-                if (shape.x(idim) < smin) {
-                    smin = shape.x(idim);
+                if (shape.getX(idim) < smin) {
+                    smin = shape.getX(idim);
                     dmin = idim;
                 }
-                product *= shape.x(idim);
+                product *= shape.getX(idim);
             }
             // round off except for last dimension (then round up)
             if (dimLeft > 1) {
-                latticeDimensions[dmin] = (int) Math.round(shape.x(dmin)
+                latticeDimensions[dmin] = (int) Math.round(shape.getX(dmin)
                         * Math.pow((nCellsLeft / product), 1.0 / dimLeft));
                 if (latticeDimensions[dmin] == 0){
                 	latticeDimensions[dmin] = 1;
                 }
             } else {
-                latticeDimensions[dmin] = (int) Math.ceil(shape.x(dmin)
+                latticeDimensions[dmin] = (int) Math.ceil(shape.getX(dmin)
                         * nCellsLeft / product);
             }
             nCellsLeft = (nCellsLeft + latticeDimensions[dmin] - 1)

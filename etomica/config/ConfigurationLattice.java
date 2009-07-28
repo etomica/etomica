@@ -161,8 +161,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             site.E((IVectorMutable) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
-                vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
-                vectorOfMin.setX(i, Math.min(site.x(i),vectorOfMin.x(i)));
+                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
+                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
             }
         }
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
@@ -217,18 +217,18 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             for (int idim = 0; idim < shape.getD(); idim++) {
                 if (latticeDimensions[idim] > 0)
                     continue;
-                if (shape.x(idim) < smin) {
-                    smin = shape.x(idim);
+                if (shape.getX(idim) < smin) {
+                    smin = shape.getX(idim);
                     dmin = idim;
                 }
-                product *= shape.x(idim);
+                product *= shape.getX(idim);
             }
             // round off except for last dimension (then round up)
             if (dimLeft > 1) {
-                latticeDimensions[dmin] = (int) Math.round(shape.x(dmin)
+                latticeDimensions[dmin] = (int) Math.round(shape.getX(dmin)
                         * Math.pow((nCellsLeft / product), 1.0 / dimLeft));
             } else {
-                latticeDimensions[dmin] = (int) Math.ceil(shape.x(dmin)
+                latticeDimensions[dmin] = (int) Math.ceil(shape.getX(dmin)
                         * nCellsLeft / product);
             }
             if (latticeDimensions[dmin] == 0){
@@ -350,7 +350,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         public double[] getLatticeConstants() {
             double[] lat = lattice.getLatticeConstants();
             for (int i = 0; i < lat.length; i++) {
-                lat[i] *= latticeScaling.x(i);
+                lat[i] *= latticeScaling.getX(i);
             }
             return lat;
         }

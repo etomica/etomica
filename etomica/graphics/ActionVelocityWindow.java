@@ -32,9 +32,9 @@ public class ActionVelocityWindow implements IAction {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             IVectorMutable vel = a.getVelocity();
-            String str = Double.toString(vel.x(0));
+            String str = Double.toString(vel.getX(0));
             for (int i=1; i<vel.getD(); i++) {
-                str += " "+Double.toString(vel.x(i));
+                str += " "+Double.toString(vel.getX(i));
             }
             textArea.append(str+"\n");
         }

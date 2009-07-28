@@ -189,7 +189,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
 	    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER
         // Need to adjust shape on either side of plane in plane dimension.
-	    halfShape.setX(planeDimIdx, halfShape.x(planeDimIdx) / 2);
+	    halfShape.setX(planeDimIdx, halfShape.getX(planeDimIdx) / 2);
 
 
         IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
@@ -230,7 +230,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	        IVectorMutable temp3 = space.makeVector();
             temp3.E(entireShape);
             temp3.TE(-0.5);
-            temp3.setX(planeDimIdx, halfShape.x(planeDimIdx) * (side-1));
+            temp3.setX(planeDimIdx, halfShape.getX(planeDimIdx) * (side-1));
             offset.E(temp3);
 
 	        IVectorMutable temp2 = space.makeVector();

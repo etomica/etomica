@@ -52,10 +52,10 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         // assume 1 species
         if (Math.abs(dI) == box.getMoleculeList().getMoleculeCount()-1) {
             dr.PEa1Tv1(dI > 0 ? -1 : 1, box.getBoundary().getDimensions());
-            return (dr.x(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
+            return (dr.getX(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
         }
         else if (dI == 1 || dI == -1) {
-            return (dr.x(0) * dI < 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
+            return (dr.getX(0) * dI < 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
         }
         else {
             return 0;

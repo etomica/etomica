@@ -70,7 +70,7 @@ public class SoftSphere3d extends Simulation {
        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 	    potential = new P2SoftSphere(space,1,1,exponent);
-	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getDimensions().x(0)/2);
+	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(space, potential,box.getBoundary().getDimensions().getX(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 	    
 	    IAtomType type1 = species.getLeafType();

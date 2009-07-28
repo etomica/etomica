@@ -67,9 +67,9 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * surface of) this cell, <code>false</code> otherwise.
      */
     public boolean contains(IVector v) {
-        double x = v.x(0)-position.x(0);
-        double y = v.x(1)-position.x(1);
-        double z = v.x(2)-position.x(2);
+        double x = v.getX(0)-position.getX(0);
+        double y = v.getX(1)-position.getX(1);
+        double z = v.getX(2)-position.getX(2);
         return (x >= -pa) && (x <= pa) && (y >= -pb) && (y <= pb) && (z >= -pc)
                 && (z <= pc);
     }
@@ -80,7 +80,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * the corresponding cuboid edge.
      */
     public void setEdgeLengths(IVector e) {
-        setEdgeLengths(e.x(0), e.x(1), e.x(2));
+        setEdgeLengths(e.getX(0), e.getX(1), e.getX(2));
     }
     
     /**

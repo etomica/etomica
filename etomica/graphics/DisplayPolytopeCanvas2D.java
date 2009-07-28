@@ -67,10 +67,10 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
             int ox = displayPolytope.getOrigin()[0];
             int oy = displayPolytope.getOrigin()[1];
             for(int i=0; i<edges.length; i++) {
-                int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].x(0));
-                int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].x(1));
-                int x2 = ox + (int)(toPixels*edges[i].getVertices()[1].x(0));
-                int y2 = oy + (int)(toPixels*edges[i].getVertices()[1].x(1));
+                int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].getX(0));
+                int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].getX(1));
+                int x2 = ox + (int)(toPixels*edges[i].getVertices()[1].getX(0));
+                int y2 = oy + (int)(toPixels*edges[i].getVertices()[1].getX(1));
                 g.drawLine(x1,y1,x2,y2);
             }
         }

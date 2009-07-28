@@ -76,13 +76,13 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
     }
 
     public void nearestImage(IVectorMutable dr) {
-        double x = dr.x(pDim);
-        if (x < -dimensionsHalf.x(pDim)) {
-            x += dimensions.x(pDim);
+        double x = dr.getX(pDim);
+        if (x < -dimensionsHalf.getX(pDim)) {
+            x += dimensions.getX(pDim);
             dr.setX(pDim, x);
         }
-        else if (x > dimensionsHalf.x(pDim)) {
-            x -= dimensions.x(pDim);
+        else if (x > dimensionsHalf.getX(pDim)) {
+            x -= dimensions.getX(pDim);
             dr.setX(pDim, x);
         }
     }

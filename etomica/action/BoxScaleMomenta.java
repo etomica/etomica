@@ -81,7 +81,7 @@ public class BoxScaleMomenta implements IAction {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
                 double mass = ((IAtom)atom).getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
-                double v = atom.getVelocity().x(i);
+                double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;
             }
             if (sum == 0 && temperature != 0) {
@@ -95,7 +95,7 @@ public class BoxScaleMomenta implements IAction {
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
                 IVectorMutable vel = atom.getVelocity(); 
-                vel.setX(i, vel.x(i)*s); //scale momentum
+                vel.setX(i, vel.getX(i)*s); //scale momentum
             }
         }
     }

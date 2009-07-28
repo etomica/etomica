@@ -83,7 +83,7 @@ public class PrimitiveCubic extends Primitive {
 
     public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/aBC;
+            double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
@@ -91,7 +91,7 @@ public class PrimitiveCubic extends Primitive {
     
     public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/aBC;
+            double x = q.getX(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];

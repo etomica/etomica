@@ -163,7 +163,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             for (int i=0; i<group.getNData(); i++) {
                 IVectorMutable v = ((DataVector)group.getData(i)).x;
                 for (int j=0; j<v.getD(); j++) {
-                    x[k++] = v.x(j);
+                    x[k++] = v.getX(j);
                 }
             }
             return outputData;

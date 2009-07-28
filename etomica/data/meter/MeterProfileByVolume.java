@@ -110,13 +110,13 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(positionDefinition.position(a));
             position.PE(boundary.centralImage(position));
-            int i = xDataSource.getIndex(position.x(profileDim));
+            int i = xDataSource.getIndex(position.getX(profileDim));
             y[i] += value;
         }
         double dV = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
         for (int i=0; i<boundary.getDimensions().getD(); i++) {
             if (i==profileDim) continue;
-            dV *= boundary.getDimensions().x(i);
+            dV *= boundary.getDimensions().getX(i);
         }
         data.TE(1.0/dV);
         return data;
@@ -158,7 +158,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getDimensions().x(profileDim);
+        double halfBox = 0.5*box.getBoundary().getDimensions().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         

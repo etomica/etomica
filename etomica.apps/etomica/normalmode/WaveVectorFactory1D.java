@@ -28,7 +28,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public void makeWaveVectors(IBox box) {
 
         int nA = box.getMoleculeList().getMoleculeCount();
-        double L = box.getBoundary().getDimensions().x(0);
+        double L = box.getBoundary().getDimensions().getX(0);
         
         int mMax = nA/2;
 

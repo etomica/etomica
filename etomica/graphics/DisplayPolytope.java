@@ -118,11 +118,11 @@ public class DisplayPolytope extends Display implements IAction {
         final IVector[] vertices = polytope.getVertices();
         for (int i=0; i<vertices.length; i++) {
             for (int j=0; j<dimensions.getD(); j++) {
-                if (maxCoord.x(j) < vertices[i].x(j)) {
-                    maxCoord.setX(j,vertices[i].x(j));
+                if (maxCoord.getX(j) < vertices[i].getX(j)) {
+                    maxCoord.setX(j,vertices[i].getX(j));
                 }
-                else if (minCoord.x(j) > vertices[i].x(j)) {
-                    minCoord.setX(j,vertices[i].x(j));
+                else if (minCoord.getX(j) > vertices[i].getX(j)) {
+                    minCoord.setX(j,vertices[i].getX(j));
                 }
             }
         }
@@ -225,8 +225,8 @@ public class DisplayPolytope extends Display implements IAction {
         //Compute factor converting simulation units to pixels for this display
         toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*dimensions().x(0));
-        drawSize[1] = (polytope.getEmbeddedSpace().D()==1) ? drawingHeight: (int)(toPixels*dimensions().x(1));
+        drawSize[0] = (int)(toPixels*dimensions().getX(0));
+        drawSize[1] = (polytope.getEmbeddedSpace().D()==1) ? drawingHeight: (int)(toPixels*dimensions().getX(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);

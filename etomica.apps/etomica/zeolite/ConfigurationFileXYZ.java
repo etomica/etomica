@@ -59,8 +59,8 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
             IVectorMutable pos = atom.getPosition();
             for (int i=0; i<pos.getD(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
-	            if(coord<min.x(i)) min.setX(i,coord);
-	            if(coord>max.x(i)) max.setX(i,coord);
+	            if(coord<min.getX(i)) min.setX(i,coord);
+	            if(coord>max.getX(i)) max.setX(i,coord);
                 pos.setX(i, coord);
 	        }
             dim.E(max);

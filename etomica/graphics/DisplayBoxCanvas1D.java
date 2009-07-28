@@ -75,7 +75,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     protected void refreshSize() {
         Dimension dim = getSize();
         IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
-        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
+        double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
         }
@@ -103,7 +103,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 
         g.setColor(displayBox.getColorScheme().getAtomColor((IAtom)a));
             
-        baseXP = origin[0] + (int)(displayBox.getToPixels()*r.x(0));
+        baseXP = origin[0] + (int)(displayBox.getToPixels()*r.getX(0));
         int drawingHeight = displayBox.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
         if(((IAtom)a).getType() instanceof IAtomTypeSphere) {
@@ -175,7 +175,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
            
         int [] origin = displayBox.getOrigin();
-        atomOrigin[0] =origin[0] + (int)(0.5*displayBox.getToPixels()*displayBox.getBox().getBoundary().getDimensions().x(0));
+        atomOrigin[0] =origin[0] + (int)(0.5*displayBox.getToPixels()*displayBox.getBox().getBoundary().getDimensions().getX(0));
         atomOrigin[1] =origin[1];
         
         //Draw all atoms

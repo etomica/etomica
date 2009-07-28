@@ -103,7 +103,7 @@ public class SimUmbrella extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
+        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });

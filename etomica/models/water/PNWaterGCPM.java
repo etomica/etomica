@@ -198,25 +198,25 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                         -Math.sqrt(2)*comWtoH1/sqrtPiHMsigmas*Math.exp(-comWtoH1*comWtoH1/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
                 work.Ev1Mv2(comWi, Hj1r);
                 work.TE(fac);
-                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
-                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
-                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.x(2));
+                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
+                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
+                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
     
                 fac = chargeH/(comWtoH2*comWtoH2*comWtoH2)*((1-SpecialFunctions.erfc(comWtoH2/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH2/sqrtPiHMsigmas*Math.exp(-comWtoH2*comWtoH2/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
                 work.Ev1Mv2(comWi, Hj2r);
                 work.TE(fac);
-                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
-                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
-                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.x(2));
+                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
+                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
+                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
     
                 fac = chargeM/(comWtoM*comWtoM*comWtoM)*((1-SpecialFunctions.erfc(comWtoM/(2*sigmaM)))
                         -Math.sqrt(2)*comWtoM/sqrtPiMMsigmas*Math.exp(-comWtoM*comWtoM/(4*sigmaM*sigmaM)));
                 work.Ev1Mv2(comWi, Mjr);
                 work.TE(fac);
-                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
-                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
-                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.x(2));
+                myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
+                myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
+                myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
                 
                 if (i<j) {
                     double OOr2 = O1r.Mv1Squared(Ojr);

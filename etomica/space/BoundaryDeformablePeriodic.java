@@ -116,8 +116,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
         temp2.E(vertices[0]);
         for(int i=1; i<vertices.length; i++) {
             for (int j=0; j<space.D(); j++) {
-                temp1.setX(j,Math.min(vertices[i].x(j),temp1.x(j)));
-                temp2.setX(j,Math.max(vertices[i].x(j),temp2.x(j)));
+                temp1.setX(j,Math.min(vertices[i].getX(j),temp1.getX(j)));
+                temp2.setX(j,Math.max(vertices[i].getX(j),temp2.getX(j)));
             }
         }
         temp2.ME(temp1);
@@ -143,7 +143,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         hInv.transform(temp1);// position in terms of boundary-vector basis
         for (int i=0; i<space.D(); i++) {
             // remove any components that are likely nonzero due to roundoff
-            if (Math.abs(temp1.x(i)) < 1.e-10) {
+            if (Math.abs(temp1.getX(i)) < 1.e-10) {
                 temp1.setX(i, 0);
             }
         }
@@ -323,7 +323,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i].E(0.0);
-            edgeVectors[i].setX(i, vector.x(i));
+            edgeVectors[i].setX(i, vector.getX(i));
         }
         update();
     }
@@ -351,7 +351,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         temp1.E(v);
         temp1.DE(temp2);
         for(int i=0; i<edgeVectors.length; i++) {
-            edgeVectors[i].TE(temp1.x(i));
+            edgeVectors[i].TE(temp1.getX(i));
         }
         update();
 	}
@@ -370,7 +370,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     
     private boolean isPositive(IVector v) {
         for(int i=0; i<v.getD(); i++) {
-            if(v.x(i) <= 0.0) return false;
+            if(v.getX(i) <= 0.0) return false;
         }
         return true;
     }
@@ -427,7 +427,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
                 continue;
             temp2.E(0.0);
             for (int i = 0; i < space.D(); i++) {
-                temp2.PEa1Tv1(temp1.x(i), edgeVectors[i]);
+                temp2.PEa1Tv1(temp1.getX(i), edgeVectors[i]);
             }
             temp2.assignTo(origins[k++]);
         }

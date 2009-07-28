@@ -88,5 +88,11 @@ public interface IBoundary {
      */
    public boolean getPeriodicity(int d);
    
+   /**
+    * 
+    * @return Returns the center point (origin) of the boundary
+    */
+   public IVector getCenter();
+   
    public IBoundaryEventManager getEventManager();
 }

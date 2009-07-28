@@ -87,16 +87,16 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         IVector direction = orientation3D.getDirection();
         work.E(direction);
         IVector secondaryDirection = orientation3D.getSecondaryDirection();
-        xx = direction.x(0);
-        xy = direction.x(1);
-        xz = direction.x(2);
-        yx = secondaryDirection.x(0);
-        yy = secondaryDirection.x(1);
-        yz = secondaryDirection.x(2);
+        xx = direction.getX(0);
+        xy = direction.getX(1);
+        xz = direction.getX(2);
+        yx = secondaryDirection.getX(0);
+        yy = secondaryDirection.getX(1);
+        yz = secondaryDirection.getX(2);
         work.XE(secondaryDirection);
-        zx = work.x(0);
-        zy = work.x(1);
-        zz = work.x(2);
+        zx = work.getX(0);
+        zy = work.getX(1);
+        zz = work.getX(2);
     }
     
     private static final long serialVersionUID = 1L;

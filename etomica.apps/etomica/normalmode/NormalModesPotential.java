@@ -123,7 +123,7 @@ public class NormalModesPotential implements NormalModes {
             // output .k file
             fileWriterK.write(Double.toString(kCoefficients[k]));
             for (int n=0; n< kFactory.getWaveVectors()[k].getD(); n++){
-            	fileWriterK.write(" "+ kFactory.getWaveVectors()[k].x(n));
+            	fileWriterK.write(" "+ kFactory.getWaveVectors()[k].getX(n));
             }
             fileWriterK.write("\n");
             

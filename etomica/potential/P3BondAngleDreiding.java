@@ -73,21 +73,21 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		/*
 		 *  Atom 1
 		 */
-		double numdx1a   =  (dr23.x(0));
+		double numdx1a   =  (dr23.getX(0));
 		double denomdx1a = dr12sq * dr23sq;
-		double numdx1b   = -(dr12.x(0))* dotProd;
+		double numdx1b   = -(dr12.getX(0))* dotProd;
 		double denomdx1b = dr12.squared()*dr12sq*dr23sq;
 		gradient[0].setX(0, numdx1a / denomdx1a + numdx1b / denomdx1b);
 		
-		double numdy1a   =  (dr23.x(1));
+		double numdy1a   =  (dr23.getX(1));
 		double denomdy1a = dr12sq * dr23sq;
-		double numdy1b   = -(dr12.x(1))* dotProd;
+		double numdy1b   = -(dr12.getX(1))* dotProd;
 		double denomdy1b = dr12.squared()*dr12sq*dr23sq;
 		gradient[0].setX(1, numdy1a / denomdy1a + numdy1b / denomdy1b);
 		
-		double numdz1a   =  (dr23.x(2));
+		double numdz1a   =  (dr23.getX(2));
 		double denomdz1a = dr12sq * dr23sq;
-		double numdz1b   = -(dr12.x(2))* dotProd;
+		double numdz1b   = -(dr12.getX(2))* dotProd;
 		double denomdz1b = dr12.squared()*dr12sq*dr23sq;
 		gradient[0].setX(2, numdz1a / denomdz1a + numdz1b / denomdz1b);
 		
@@ -95,27 +95,27 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 		/*
 		 *  Atom 2
 		 */
-		double numdx2a   =   ((dr12.x(0)) - (dr23.x(0)));
+		double numdx2a   =   ((dr12.getX(0)) - (dr23.getX(0)));
 		double denomdx2a = dr12sq * dr23sq;
-		double numdx2b   =   (dr12.x(0)) * dotProd;
+		double numdx2b   =   (dr12.getX(0)) * dotProd;
 		double denomdx2b = dr12.squared()*dr12sq*dr23sq;
-		double numdx2c   =  -(dr23.x(0)) * dotProd;
+		double numdx2c   =  -(dr23.getX(0)) * dotProd;
 		double denomdx2c = dr12sq*dr23sq*dr23.squared();
 		gradient[1].setX(0, numdx2a / denomdx2a + numdx2b / denomdx2b + numdx2c / denomdx2c);
 		
-		double numdy2a   =  ((dr12.x(1)) - (dr23.x(1)));
+		double numdy2a   =  ((dr12.getX(1)) - (dr23.getX(1)));
 		double denomdy2a = dr12sq * dr23sq;
-		double numdy2b   =  (dr12.x(1)) * dotProd;
+		double numdy2b   =  (dr12.getX(1)) * dotProd;
 		double denomdy2b = dr12.squared()*dr12sq*dr23sq;
-		double numdy2c   =  -(dr23.x(1)) * dotProd;
+		double numdy2c   =  -(dr23.getX(1)) * dotProd;
 		double denomdy2c = dr12sq*dr23sq*dr23.squared();
 		gradient[1].setX(1, numdy2a / denomdy2a + numdy2b / denomdy2b + numdy2c / denomdy2c);
 		
-		double numdz2a   =  ((dr12.x(2)) - (dr23.x(2)));
+		double numdz2a   =  ((dr12.getX(2)) - (dr23.getX(2)));
 		double denomdz2a = dr12sq * dr23sq;
-		double numdz2b   =  (dr12.x(2)) * dotProd;
+		double numdz2b   =  (dr12.getX(2)) * dotProd;
 		double denomdz2b = dr12.squared()*dr12sq*dr23sq;
-		double numdz2c   =  -(dr23.x(2)) * dotProd;
+		double numdz2c   =  -(dr23.getX(2)) * dotProd;
 		double denomdz2c = dr12sq*dr23sq*dr23.squared();
 		gradient[1].setX(2, numdz2a / denomdz2a + numdz2b / denomdz2b + numdz2c / denomdz2c);
 		
@@ -123,21 +123,21 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         /*
          *  Atom 3
          */
-        double numdx3a   =  -(dr12.x(0));  
+        double numdx3a   =  -(dr12.getX(0));  
         double denomdx3a = dr12sq*dr23sq;
-        double numdx3b   =   (dr23.x(0))*dotProd;
+        double numdx3b   =   (dr23.getX(0))*dotProd;
         double denomdx3b = dr12sq*dr23sq*dr23.squared();
         gradient[2].setX(0, numdx3a / denomdx3a + numdx3b / denomdx3b);
         
-        double numdy3a   =  -(dr12.x(1));  
+        double numdy3a   =  -(dr12.getX(1));  
         double denomdy3a = dr12sq*dr23sq;
-        double numdy3b   =   (dr23.x(1))*dotProd;
+        double numdy3b   =   (dr23.getX(1))*dotProd;
         double denomdy3b = dr12sq*dr23sq*dr23.squared();
         gradient[2].setX(1, numdy3a / denomdy3a + numdy3b / denomdy3b);
         
-        double numdz3a   =  -(dr12.x(2));  
+        double numdz3a   =  -(dr12.getX(2));  
         double denomdz3a = dr12sq*dr23sq;
-        double numdz3b   =   (dr23.x(2))*dotProd;
+        double numdz3b   =   (dr23.getX(2))*dotProd;
         double denomdz3b = dr12sq*dr23sq*dr23.squared();
         gradient[2].setX(2, numdz3a / denomdz3a + numdz3b / denomdz3b);
         

@@ -35,7 +35,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
     }
 
     public double getArea() {
-        return 4.0*Math.abs(a.x(0)*b.x(1) - a.x(1)*b.x(0));//4.0 is because a,b,c are half edge length
+        return 4.0*Math.abs(a.getX(0)*b.getX(1) - a.getX(1)*b.getX(0));//4.0 is because a,b,c are half edge length
     }
     
     public double getPerimeter() {

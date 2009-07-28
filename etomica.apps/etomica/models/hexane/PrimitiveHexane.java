@@ -57,7 +57,7 @@ public class PrimitiveHexane extends Primitive {
         temp.XE(fixedLatticeVector[2]);
         temp.TE(consts);
         for(int i = 0; i < 3; i++){
-            recip.fixedLatticeVector[0].setX(i, temp.x(i));
+            recip.fixedLatticeVector[0].setX(i, temp.getX(i));
         }
     
         //construct the second fixed lattice vector of the reciprocal
@@ -65,7 +65,7 @@ public class PrimitiveHexane extends Primitive {
         temp.XE(fixedLatticeVector[0]);
         temp.TE(consts);
         for(int i=0; i < 3; i++){
-            recip.fixedLatticeVector[1].setX(i, temp.x(i));
+            recip.fixedLatticeVector[1].setX(i, temp.getX(i));
         }
         
         
@@ -74,7 +74,7 @@ public class PrimitiveHexane extends Primitive {
         temp.XE(fixedLatticeVector[1]);
         temp.TE(consts);
         for(int i = 0; i < 3; i++){
-            recip.fixedLatticeVector[2].setX(i, temp.x(i));
+            recip.fixedLatticeVector[2].setX(i, temp.getX(i));
         }
         
         return recip;
@@ -108,7 +108,7 @@ public class PrimitiveHexane extends Primitive {
     
     public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
+            double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
@@ -116,7 +116,7 @@ public class PrimitiveHexane extends Primitive {
 
     public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
+            double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];

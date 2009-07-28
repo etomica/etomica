@@ -311,22 +311,22 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
             int d = random.nextInt(3);
             double h = 0.001;
             System.out.println("d="+d);
-            atom1.getPosition().setX(d, oldPosition.x(d)+h);
+            atom1.getPosition().setX(d, oldPosition.getX(d)+h);
             double uplus = potential.energy(leafAtoms);
             System.out.println("U plus "+uplus);
-            atom1.getPosition().setX(d, oldPosition.x(d)-h);
+            atom1.getPosition().setX(d, oldPosition.getX(d)-h);
             double uminus = potential.energy(leafAtoms);
             System.out.println("U minus "+uminus);
             double du = (uplus-uminus)/(2*h);
             if (Double.isNaN(du)) {
                 throw new RuntimeException("oops "+du+" "+uminus+" "+uplus);
             }
-            System.out.println(du+" "+grad1.x(d));
+            System.out.println(du+" "+grad1.getX(d));
             // check that the analytical and numerical gradients are equal
-            if (Math.abs(du-grad1.x(d))/(Math.abs(du)+Math.abs(grad1.x(d))) > 1E-5) {
+            if (Math.abs(du-grad1.getX(d))/(Math.abs(du)+Math.abs(grad1.getX(d))) > 1E-5) {
                 System.err.println("hmm");
-                if (Math.abs(du-grad1.x(d))/(Math.abs(du)+Math.abs(grad1.x(d))) > 1E-3) {
-                    throw new RuntimeException("oops "+du+" "+grad1.x(d));
+                if (Math.abs(du-grad1.getX(d))/(Math.abs(du)+Math.abs(grad1.getX(d))) > 1E-3) {
+                    throw new RuntimeException("oops "+du+" "+grad1.getX(d));
                 }
             }
             else {

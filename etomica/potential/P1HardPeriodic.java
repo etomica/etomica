@@ -56,7 +56,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         double d2 = 2.0*sigma;
         int D = dim.getD();
         for(int i=0; i<D; i++) {
-            double t = (dim.x(i)-d2)/v.x(i);
+            double t = (dim.getX(i)-d2)/v.getX(i);
             t = (t < 0) ? -t : t;//abs
             tmin = (t < tmin) ? t : tmin;
         }

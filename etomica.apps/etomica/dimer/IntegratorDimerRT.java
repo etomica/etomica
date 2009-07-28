@@ -386,8 +386,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    			F2[i].PEa1Tv1(-magF2, N1[i]);
 	    			N[i].PEa1Tv1(-magN1,N1[i]);
 	    		}
-        		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
-        		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
+        		System.out.println("ortho N: "+N[0].getX(0)+"    "+N[0].getX(1)+"    "+N[0].getX(2));
+        		System.out.println(" lcm N1: "+N1[0].getX(0)+"    "+N1[0].getX(1)+"    "+N1[0].getX(2));
         		
         		//N is now a vector orthogonal to N1, check curvatures along each;
                 if(ortho){
@@ -479,8 +479,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             		for (int i=0; i<N1.length; i++){
             			N[i].PEa1Tv1(-orthN,N1[i]);
             		}
-            		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
-            		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
+            		System.out.println("ortho N: "+N[0].getX(0)+"    "+N[0].getX(1)+"    "+N[0].getX(2));
+            		System.out.println(" lcm N1: "+N1[0].getX(0)+"    "+N1[0].getX(1)+"    "+N1[0].getX(2));
             		ortho=true;
             		startOrtho = false;
             		file = file+"_ortho";

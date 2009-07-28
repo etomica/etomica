@@ -147,7 +147,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;
         for (int i=0; i<numCells.length; i++) {
-            numCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
+            numCells[i] = (int)Math.floor(cellRange*dimensions.getX(i)/range);
             if (numCells[i] > 100) {
                 // too many cells will cause us to run out of memory.
                 // >100 cells is generally not useful
@@ -166,7 +166,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
                 // and use 1 cell.
                 if (Debug.ON) System.err.println("bumping number of cells in direction "+i+" from "+numCells[i]+" to "+(cellRange*2+1));
                 numCells[i] = cellRange*2+1;
-                if (range > dimensions.x(i)/2) {
+                if (range > dimensions.getX(i)/2) {
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
                     // of multiple changes which will (in the end) be happy.

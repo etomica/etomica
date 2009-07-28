@@ -110,7 +110,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        double truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new 
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
@@ -185,7 +185,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
         
         p2 = new P2LennardJones(space, 1.0, 1.0);
-        truncationRadius = boundaryTarget.getDimensions().x(0) * 0.495;
+        truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.495;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});
@@ -629,7 +629,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         
 //        System.out.println(" ");
 //        System.out.println("Harmonic Energies - Meter B in A");
-//        double[] xval = sim.meterBinA.histogramNRG.xValues();
+//        double[] xval = sim.meterBinA.histogramNRG.getValues();
 //        double[] histval = sim.meterBinA.histogramNRG.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);
@@ -637,7 +637,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        
 //        System.out.println(" ");
 //        System.out.println("Harmonic Energies - Meter B in B");
-//        xval = sim.meterBinB.histogramNRG.xValues();
+//        xval = sim.meterBinB.histogramNRG.getValues();
 //        histval = sim.meterBinB.histogramNRG.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);
@@ -645,7 +645,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        
 //        System.out.println(" ");
 //        System.out.println("Real Coord - Meter B in A");
-//        xval = sim.meterBinA.histogramRealCoord.xValues();
+//        xval = sim.meterBinA.histogramRealCoord.getValues();
 //         histval = sim.meterBinA.histogramRealCoord.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);
@@ -653,7 +653,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        
 //        System.out.println(" ");
 //        System.out.println("Real Coord - Meter B in B");
-//        xval = sim.meterBinB.histogramRealCoord.xValues();
+//        xval = sim.meterBinB.histogramRealCoord.getValues();
 //         histval = sim.meterBinB.histogramRealCoord.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);
@@ -661,7 +661,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        
 //        System.out.println(" ");
 //        System.out.println("Imag Coord - Meter B in A");
-//        xval = sim.meterBinA.histogramImagCoord.xValues();
+//        xval = sim.meterBinA.histogramImagCoord.getValues();
 //        histval = sim.meterBinA.histogramImagCoord.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);
@@ -669,7 +669,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        
 //        System.out.println(" ");
 //        System.out.println("Imag Coord - Meter B in B");
-//        xval = sim.meterBinB.histogramImagCoord.xValues();
+//        xval = sim.meterBinB.histogramImagCoord.getValues();
 //        histval = sim.meterBinB.histogramImagCoord.getHistogram();
 //        for(int i = 0; i < xval.length; i++){
 //            System.out.println("xval " + xval[i] + " "+histval[i]);

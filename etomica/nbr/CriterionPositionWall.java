@@ -137,21 +137,21 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
 
 	public boolean needUpdate(IAtom atom) {
-        dr = Math.abs(((IAtomPositioned)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
+        dr = Math.abs(((IAtomPositioned)atom).getPosition().getX(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+dr+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
 			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
-			System.out.println("new position "+((IAtomPositioned)atom).getPosition().x(neighborDim));
+			System.out.println("new position "+((IAtomPositioned)atom).getPosition().getX(neighborDim));
             System.err.println("stop that");
 		}
 		return dr > displacementLimit;
 	}
 
 	public void setBox(IBox box) {
-        boxSize = box.getBoundary().getDimensions().x(neighborDim);
+        boxSize = box.getBoundary().getDimensions().getX(neighborDim);
         agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
 	}
     
@@ -163,7 +163,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 
 	public boolean accept(IAtomList atom) {
-		dr = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(neighborDim);
+		dr = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }
@@ -184,7 +184,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 	
 	public void reset(IAtom atom) {
-		((DoubleWrapper)agentManager.getAgent(atom)).x = ((IAtomPositioned)atom).getPosition().x(neighborDim);
+		((DoubleWrapper)agentManager.getAgent(atom)).x = ((IAtomPositioned)atom).getPosition().getX(neighborDim);
 	}
 
     public Class getAgentClass() {

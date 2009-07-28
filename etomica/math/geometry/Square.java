@@ -44,8 +44,8 @@ public class Square extends Polygon {
      * this cell, <code>false</code> otherwise.
      */
     public boolean contains(IVector v) {
-        double x = v.x(0)-position.x(0);
-        double y = v.x(1)-position.x(1);
+        double x = v.getX(0)-position.getX(0);
+        double y = v.getX(1)-position.getX(1);
         return (x>=n) && (x<=p) && (y>=n) && (y<=p);
     }
        

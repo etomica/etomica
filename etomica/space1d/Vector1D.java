@@ -47,7 +47,7 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         return 1;
     }
 
-    public double x(int i) {
+    public double getX(int i) {
         return x;
     }
 

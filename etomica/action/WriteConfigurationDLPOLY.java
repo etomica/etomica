@@ -147,7 +147,7 @@ public class WriteConfigurationDLPOLY implements IAction {
             for (int i=0; i<3; i++){
                 IVector cell = boundary.getEdgeVector(i);
         		for (int j=0; j<3; j++){
-        			formatter.format("%20f",new Object[]{cell.x(j)});
+        			formatter.format("%20f",new Object[]{cell.getX(j)});
         		}
         		formatter.format("\n");
         	}
@@ -179,13 +179,13 @@ public class WriteConfigurationDLPOLY implements IAction {
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;
 	                	IVectorMutable atomPos = atom.getPosition();
-	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.x(0), atomPos.x(1), atomPos.x(2)});
+	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.getX(0), atomPos.getX(1), atomPos.getX(2)});
 	                		                	
 	                	
 	                	if (writeVelocity){
 	                		IVectorMutable atomVelocity = ((IAtomKinetic)atom).getVelocity();
 	                		formatter.format("%20f%20f%20f\n", 
-	                				new Object[]{atomVelocity.x(0), atomVelocity.x(1), atomVelocity.x(2)});
+	                				new Object[]{atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2)});
 	                	}
 	                }
 	                

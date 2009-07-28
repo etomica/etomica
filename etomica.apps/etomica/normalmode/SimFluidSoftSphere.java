@@ -67,7 +67,7 @@ public class SimFluidSoftSphere extends Simulation {
        	
         Potential2SoftSpherical potential = new P2SoftSphere(space);
         
-        double truncationRadius = box.getBoundary().getDimensions().x(0) * 0.495;
+        double truncationRadius = box.getBoundary().getDimensions().getX(0) * 0.495;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
         

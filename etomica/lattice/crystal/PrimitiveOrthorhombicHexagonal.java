@@ -59,7 +59,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
     
     public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
+            double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
@@ -67,7 +67,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
 
     public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
+            double x = q.getX(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];

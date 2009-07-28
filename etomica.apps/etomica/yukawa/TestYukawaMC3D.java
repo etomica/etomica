@@ -67,8 +67,8 @@ public class TestYukawaMC3D extends Simulation{
         inflater.actionPerformed();
 		potential = new P2Yukawa(space);
 		double truncationRadius = 3.0*potential.getKappa();
-		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
-			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
+		if(truncationRadius > 0.5*box.getBoundary().getDimensions().getX(0)){
+			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().getX(0));
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 		potentialMaster.setCellRange(3);

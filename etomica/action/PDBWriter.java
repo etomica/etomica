@@ -90,7 +90,7 @@ public class PDBWriter implements IAction, Serializable {
                 elementAtomType.add(thisElement);
             }
             formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Object[]{new Integer(atomCount), new Character(elements[elementIndex]), 
-                    new Double(atom.getPosition().x(0)), new Double(atom.getPosition().x(1)), new Double(atom.getPosition().x(2))});
+                    new Double(atom.getPosition().getX(0)), new Double(atom.getPosition().getX(1)), new Double(atom.getPosition().getX(2))});
             atomCount++;
         }
         formatter.close();

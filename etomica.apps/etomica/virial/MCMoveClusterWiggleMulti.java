@@ -100,19 +100,19 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 }
                 //work2 is a vector perpendicular to work1.  it can be any 
                 //perpendicular vector, but that just makes it harder!
-                if (work1.x(0)*work1.x(0) < 0.5*bondLength*bondLength) {
+                if (work1.getX(0)*work1.getX(0) < 0.5*bondLength*bondLength) {
                     // if work1 doesn't point in the X direction (mostly) then
                     // find a vector in the plane containing the X axis and work1
-                    double a = -work1.x(0)/bondLength;
+                    double a = -work1.getX(0)/bondLength;
                     work2.Ea1Tv1(a,work1);
-                    work2.setX(0,work2.x(0)+bondLength);
+                    work2.setX(0,work2.getX(0)+bondLength);
                 }
                 else {
                     // work1 does point in the X direction (mostly) so
                     // find a vector in the plane containing the Y axis and work1
-                    double a = -work1.x(1)/bondLength;
+                    double a = -work1.getX(1)/bondLength;
                     work2.Ea1Tv1(a,work1);
-                    work2.setX(1,work2.x(1)+bondLength);
+                    work2.setX(1,work2.getX(1)+bondLength);
                 }
                 //normalize
                 work2.TE(bondLength/Math.sqrt(work2.squared()));

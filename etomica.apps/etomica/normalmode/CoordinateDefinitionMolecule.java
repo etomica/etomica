@@ -56,7 +56,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IVectorMutable site = getLatticePosition(molecule);
             work1.Ev1Mv2(pos, site);
             for (int k = 0; k < pos.getD(); k++) {
-                u[j+k] = work1.x(k);
+                u[j+k] = work1.getX(k);
             }
             j += coordinateDim/molecules.getMoleculeCount();
 
@@ -79,7 +79,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IMolecule molecule = molecules.getMolecule(i);
             IVectorMutable site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
-                work1.setX(k, site.x(k) + newU[j+k]);
+                work1.setX(k, site.getX(k) + newU[j+k]);
             }
             
             atomActionTranslateTo.setDestination(work1);

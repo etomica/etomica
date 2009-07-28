@@ -51,8 +51,8 @@ public class Rectangle extends Polygon implements Rectangular {
      * this cell, <code>false</code> otherwise.
      */
     public boolean contains(IVector v) {
-        double x = v.x(0)-position.x(0);
-        double y = v.x(1)-position.x(1);
+        double x = v.getX(0)-position.getX(0);
+        double y = v.getX(1)-position.getX(1);
         return (x>=nX) && (x<=pX) && (y>=nY) && (y<=pY);
     }
        
@@ -63,7 +63,7 @@ public class Rectangle extends Polygon implements Rectangular {
      */
     public void setEdgeLengths(IVector e) {
         edgeLengths.E(e);
-        setEdgeLengths(e.x(0), e.x(1));
+        setEdgeLengths(e.getX(0), e.getX(1));
     }
     
     /**

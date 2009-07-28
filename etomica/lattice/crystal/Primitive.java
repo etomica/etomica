@@ -147,7 +147,7 @@ public abstract class Primitive implements java.io.Serializable {
     public Polytope unitCell() {
         if (space.D() == 1) {
             LineSegment line = new LineSegment(space);
-            line.setLength(latticeVectors[0].x(0));
+            line.setLength(latticeVectors[0].getX(0));
             return line;
         }
         if (space.D() == 2) {

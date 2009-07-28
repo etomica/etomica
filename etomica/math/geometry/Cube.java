@@ -59,9 +59,9 @@ public class Cube extends Hexahedron {
      * this cell, <code>false</code> otherwise.
      */
     public boolean contains(IVector v) {
-        double x = v.x(0)-position.x(0);
-        double y = v.x(1)-position.x(1);
-        double z = v.x(2)-position.x(2);
+        double x = v.getX(0)-position.getX(0);
+        double y = v.getX(1)-position.getX(1);
+        double z = v.getX(2)-position.getX(2);
         return (x>=n) && (x<=p) && (y>=n) && (y<=p) && (z>=n) && (z<=p);
     }
     

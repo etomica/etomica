@@ -76,7 +76,7 @@ public class SimCalcSSoftSphereBCC extends Simulation {
         }
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.495;
+        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});

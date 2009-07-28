@@ -76,7 +76,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     }
 
     public void nearestImage(IVectorMutable dr) {
-        double x = dr.x(sDim);
+        double x = dr.getX(sDim);
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);

@@ -47,7 +47,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
             IVectorMutable site = getLatticePosition((IAtom)a);
             workVector.Ev1Mv2(pos, site);
             for (int k=0; k<workVector.getD(); k++) {
-                u[j+k] = workVector.x(k);
+                u[j+k] = workVector.getX(k);
             }
             j += workVector.getD();
         }

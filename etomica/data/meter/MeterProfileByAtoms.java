@@ -112,7 +112,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(positionDefinition.position(a));
             position.PE(boundary.centralImage(position));
-            int i = xDataSource.getIndex(position.x(profileDim));
+            int i = xDataSource.getIndex(position.getX(profileDim));
             y[i] += value;
             nAtoms[i]++;
         }
@@ -160,7 +160,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getDimensions().x(profileDim);
+        double halfBox = 0.5*box.getBoundary().getDimensions().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         nAtoms = new int[xDataSource.getNValues()];

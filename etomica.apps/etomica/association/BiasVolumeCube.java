@@ -38,7 +38,7 @@ public class BiasVolumeCube extends BiasVolume {
     public double biasVolume() {
         double prod = 1.0;
         for(int i=0; i<space.D(); i++) {
-            prod *= dimensions.x(i);
+            prod *= dimensions.getX(i);
         }
         return prod;
     }
@@ -63,7 +63,7 @@ public class BiasVolumeCube extends BiasVolume {
         boundary.nearestImage(work);
         work.DE(dimensions);
         for (int i = 0; i < work.getD(); i++) {
-        	if (Math.abs(work.x(i)) > 0.5 ) {
+        	if (Math.abs(work.getX(i)) > 0.5 ) {
         		return false;
         	}
         }

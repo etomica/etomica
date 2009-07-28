@@ -54,7 +54,7 @@ public class Vector2D implements IVectorRandom, java.io.Serializable {
         return 2;
     }
 
-    public double x(int i) {
+    public double getX(int i) {
         return (i == 0) ? x : y;
     }
 

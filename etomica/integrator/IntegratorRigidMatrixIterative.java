@@ -190,12 +190,12 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             rotationTensor.transform(angularMomentum);
             
             omegaTensor.E(0);
-            omegaTensor.setComponent(0, 1, angularMomentum.x(2));
-            omegaTensor.setComponent(0, 2, -angularMomentum.x(1));
-            omegaTensor.setComponent(1, 0, -angularMomentum.x(2));
-            omegaTensor.setComponent(1, 2, angularMomentum.x(0));
-            omegaTensor.setComponent(2, 0, angularMomentum.x(1));
-            omegaTensor.setComponent(2, 1, -angularMomentum.x(0));
+            omegaTensor.setComponent(0, 1, angularMomentum.getX(2));
+            omegaTensor.setComponent(0, 2, -angularMomentum.getX(1));
+            omegaTensor.setComponent(1, 0, -angularMomentum.getX(2));
+            omegaTensor.setComponent(1, 2, angularMomentum.getX(0));
+            omegaTensor.setComponent(2, 0, angularMomentum.getX(1));
+            omegaTensor.setComponent(2, 1, -angularMomentum.getX(0));
             
             // xWork = angular velocity from the previous iteration
             // save angular velocity to see if we've converged
@@ -248,12 +248,12 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
                 
                 // populate omegaTensor again with our updated estimate of omega
                 omegaTensor.E(0);
-                omegaTensor.setComponent(0, 1, tempAngularVelocity.x(2));
-                omegaTensor.setComponent(0, 2, -tempAngularVelocity.x(1));
-                omegaTensor.setComponent(1, 0, -tempAngularVelocity.x(2));
-                omegaTensor.setComponent(1, 2, tempAngularVelocity.x(0));
-                omegaTensor.setComponent(2, 0, tempAngularVelocity.x(1));
-                omegaTensor.setComponent(2, 1, -tempAngularVelocity.x(0));
+                omegaTensor.setComponent(0, 1, tempAngularVelocity.getX(2));
+                omegaTensor.setComponent(0, 2, -tempAngularVelocity.getX(1));
+                omegaTensor.setComponent(1, 0, -tempAngularVelocity.getX(2));
+                omegaTensor.setComponent(1, 2, tempAngularVelocity.getX(0));
+                omegaTensor.setComponent(2, 0, tempAngularVelocity.getX(1));
+                omegaTensor.setComponent(2, 1, -tempAngularVelocity.getX(0));
             }
 
             tempAxesTensor.E(omegaTensor);
@@ -438,7 +438,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 
             tempAngularVelocity.TE(tempAngularVelocity);
             tempAngularVelocity.DE(moment);
-            KE += tempAngularVelocity.x(0) + tempAngularVelocity.x(1)+ tempAngularVelocity.x(2);
+            KE += tempAngularVelocity.getX(0) + tempAngularVelocity.getX(1)+ tempAngularVelocity.getX(2);
             D += 6;
         }
         if (temperature == 0 && KE == 0) {

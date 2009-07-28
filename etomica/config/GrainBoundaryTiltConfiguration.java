@@ -175,10 +175,10 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	IVectorMutable xaxisperiod = space.makeVector();
     	xaxisperiod.Ev1Mv2(plane[0], plane[1]);
     	double xaxispbc = Math.sqrt(xaxisperiod.squared());
-    	xboxshift = (xaxispbc/2.0) - Math.sin((Math.PI/2.0) - theta)*plane[0].x(0);
+    	xboxshift = (xaxispbc/2.0) - Math.sin((Math.PI/2.0) - theta)*plane[0].getX(0);
     	
     	//Find Y periodicity - magnitude of vector formed by Miler plane intersections of Z axis and XY plane.
-    	double yaxispbc = 2.0*plane[2].x(2)/Math.cos((Math.PI/2.0)-phi);
+    	double yaxispbc = 2.0*plane[2].getX(2)/Math.cos((Math.PI/2.0)-phi);
     	//double yaxispbc = Math.sqrt(Math.pow(2.0*plane[2].x(2),2) + Math.pow(plane[0].x(0),2) + Math.pow(plane[1].x(1),2) );
     	
     	//If plane does not intersect X axis
@@ -198,7 +198,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         	}        	
         	xaxisperiod.Ev1Mv2(plane[0], plane[2]);
         	yaxispbc = Math.sqrt(xaxisperiod.squared());
-            yboxshift = (yaxispbc/2.0) - Math.sin((Math.PI/2.0) - phi)*plane[0].x(0);
+            yboxshift = (yaxispbc/2.0) - Math.sin((Math.PI/2.0) - phi)*plane[0].getX(0);
         	
             xboxshift = 0;
         	xaxispbc = latticeTOP.getLatticeConstants()[1];
@@ -235,10 +235,10 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             // Map corners of A domain
             boxCorner.E(box.getBoundary().getDimensions());
             boxCorner.TE(0.5);
-            boxCorner.setX(2, boxCorner.x(2)*0.5);
+            boxCorner.setX(2, boxCorner.getX(2)*0.5);
             
             if (i!=-1){
-                boxCorner.setX(i, -boxCorner.x(i));
+                boxCorner.setX(i, -boxCorner.getX(i));
             }
             
             //Transform to lattice space coords
@@ -246,8 +246,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             
             for(int j=0; j<3; j++){
                 // Loop over all dimensions at box corner
-                if (Math.abs(boxCorner.x(j))>latticeVector.x(j)){
-                    latticeVector.setX(j, Math.abs(boxCorner.x(j)));
+                if (Math.abs(boxCorner.getX(j))>latticeVector.getX(j)){
+                    latticeVector.setX(j, Math.abs(boxCorner.getX(j)));
                 }
             } 
         }
@@ -257,8 +257,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         IVectorMutable latticeCenter = space.makeVector();
         
         for(int i=0; i<ncellsTOP.length-1; i++){
-            ncellsTOP[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeTOP.getPrimitive().vectors()[i].x(i));
-            latticeCenter.setX(i, 0.5*ncellsTOP[i]*latticeTOP.getPrimitive().vectors()[i].x(i));
+            ncellsTOP[i] = (int)Math.ceil(latticeVector.getX(i)*2/latticeTOP.getPrimitive().vectors()[i].getX(i));
+            latticeCenter.setX(i, 0.5*ncellsTOP[i]*latticeTOP.getPrimitive().vectors()[i].getX(i));
         }
         
         ncellsTOP[ncellsTOP.length-1] = latticeTOP.getBasis().getScaledCoordinates().length;
@@ -279,18 +279,18 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                        
             eulerRotationL2BoxTOP.transform(transformedPosition);
             
-            transformedPosition.setX(2,transformedPosition.x(2)+(0.25*box.getBoundary().getDimensions().x(2)));
+            transformedPosition.setX(2,transformedPosition.getX(2)+(0.25*box.getBoundary().getDimensions().getX(2)));
             
             
             
             // If the atom position is outside the original simulation domain A (top half of simulation box)
-            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)<-0.0001){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.getX(2)<-0.0001){
                continue;            
             }
             transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed.
             IMolecule a = null;
-            if(transformedPosition.x(2)>(box.getBoundary().getDimensions().x(2)/2.0 - cutoff)){
+            if(transformedPosition.getX(2)>(box.getBoundary().getDimensions().getX(2)/2.0 - cutoff)){
                 a = fixedSpecies.makeMolecule();
             }
             else{
@@ -309,10 +309,10 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             // Map corners of B domain
             boxCorner.E(box.getBoundary().getDimensions());
             boxCorner.TE(0.5);
-            boxCorner.setX(2, boxCorner.x(2)*0.5);
+            boxCorner.setX(2, boxCorner.getX(2)*0.5);
             
             if (i!=-1){
-                boxCorner.setX(i, -boxCorner.x(i));
+                boxCorner.setX(i, -boxCorner.getX(i));
             }
             
             //Transform to lattice space coords
@@ -320,8 +320,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             
             for(int j=0; j<3; j++){
                 // Loop over all dimensions at box corner
-                if (Math.abs(boxCorner.x(j))>latticeVector.x(j)){
-                    latticeVector.setX(j, Math.abs(boxCorner.x(j)));
+                if (Math.abs(boxCorner.getX(j))>latticeVector.getX(j)){
+                    latticeVector.setX(j, Math.abs(boxCorner.getX(j)));
                 }
             } 
         }
@@ -330,8 +330,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         int [] ncellsBOTTOM = new int[space.D()+1];
         
         for(int i=0; i<ncellsBOTTOM.length-1; i++){
-            ncellsBOTTOM[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeBOTTOM.getPrimitive().vectors()[i].x(i));
-            latticeCenter.setX(i, 0.5*ncellsBOTTOM[i]*latticeBOTTOM.getPrimitive().vectors()[i].x(i));
+            ncellsBOTTOM[i] = (int)Math.ceil(latticeVector.getX(i)*2/latticeBOTTOM.getPrimitive().vectors()[i].getX(i));
+            latticeCenter.setX(i, 0.5*ncellsBOTTOM[i]*latticeBOTTOM.getPrimitive().vectors()[i].getX(i));
         }
         ncellsBOTTOM[ncellsBOTTOM.length-1] = latticeBOTTOM.getBasis().getScaledCoordinates().length;
         
@@ -352,18 +352,18 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             eulerRotationL2BoxBOTTOM.transform(transformedPosition);
             
             //Notice negative sign for bottom domain
-            transformedPosition.setX(2,transformedPosition.x(2)+(-0.25*box.getBoundary().getDimensions().x(2)));
+            transformedPosition.setX(2,transformedPosition.getX(2)+(-0.25*box.getBoundary().getDimensions().getX(2)));
             
             
             
             // If the atom position is outside the original simulation domain B (bottom half of simulation box)
-            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.x(2)>0.0001){
+            if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.getX(2)>0.0001){
                continue;            
             }
             transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
             IMolecule a = null;
-            if(transformedPosition.x(2)<(-box.getBoundary().getDimensions().x(2)/2.0 + cutoff)){
+            if(transformedPosition.getX(2)<(-box.getBoundary().getDimensions().getX(2)/2.0 + cutoff)){
                 a = fixedSpecies.makeMolecule();
             }
             else{

@@ -67,11 +67,11 @@ public class PrimitiveGeneral extends Primitive {
         if (space.D() == 2) {
             IVectorMutable aStar = space.makeVector();
             IVectorMutable bStar = space.makeVector();
-            aStar.setX(0, -latticeVectors[0].x(1));
-            aStar.setX(1, latticeVectors[0].x(0));
+            aStar.setX(0, -latticeVectors[0].getX(1));
+            aStar.setX(1, latticeVectors[0].getX(0));
             aStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[1]));
-            bStar.setX(0, -latticeVectors[1].x(1));
-            bStar.setX(1, latticeVectors[1].x(0));
+            bStar.setX(0, -latticeVectors[1].getX(1));
+            bStar.setX(1, latticeVectors[1].getX(0));
             bStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[0]));
             return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar});
         }

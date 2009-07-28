@@ -44,7 +44,7 @@ public class OverflowShift {
 
 	        int numVectors = 1;
 	        for (int i=0; i<dim; i++) {
-	           if ((rr.x(i) - distance < -0.5*dimensions.x(i)) || (rr.x(i) + distance > 0.5*dimensions.x(i))) {
+	           if ((rr.getX(i) - distance < -0.5*dimensions.getX(i)) || (rr.getX(i) + distance > 0.5*dimensions.getX(i))) {
 	              //each previous vector will need an additional copy in this dimension 
 	              numVectors *= 2;
 	              //remember that
@@ -72,8 +72,8 @@ public class OverflowShift {
 		              //no shift needed for this dimension
 		              continue;
 		           }
-		           double delta = -dimensions.x(i);
-		           if (rr.x(i) - distance < -0.5*dimensions.x(i)) {
+		           double delta = -dimensions.getX(i);
+		           if (rr.getX(i) - distance < -0.5*dimensions.getX(i)) {
 		              delta = -delta;
 		           }
 		           //copy all previous vectors and apply a shift of delta to the copies
@@ -93,8 +93,8 @@ public class OverflowShift {
 		else if(boundary instanceof BoundaryTruncatedOctahedron) {
 	        int numVectors = 1;
 	        for (int i = 0; i < dim; i++) {
-	            if ((rr.x(i) - distance < 0.0)
-	                    || (rr.x(i) + distance > dimensions.x(i))) {
+	            if ((rr.getX(i) - distance < 0.0)
+	                    || (rr.getX(i) + distance > dimensions.getX(i))) {
 	                //each previous vector will need an additional copy in this
 	                // dimension
 	                numVectors *= 2;
@@ -122,8 +122,8 @@ public class OverflowShift {
 		                //no shift needed for this dimension
 		                continue;
 		            }
-		            double delta = -dimensions.x(i);
-		            if (rr.x(i) - distance < 0.0) {
+		            double delta = -dimensions.getX(i);
+		            if (rr.getX(i) - distance < 0.0) {
 		                delta = -delta;
 		            }
 		            //copy all previous vectors and apply a shift of delta to the

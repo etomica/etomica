@@ -131,7 +131,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         IAtomList leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().getX(0) );
         }
     }
     
@@ -207,7 +207,7 @@ public class TestMCMoveCompareMultipleModes extends Simulation {
         double sum = 0.0;
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            sim.locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+            sim.locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().getX(0) );
             System.out.println(sim.locations[i]);
             sum += sim.locations[i];
         }

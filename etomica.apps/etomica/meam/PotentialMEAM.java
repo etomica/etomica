@@ -78,9 +78,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				boundary.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
-				double v = ( (rij.x(0) * rik.x(0)) 
-						    +(rij.x(1) * rik.x(1))
-					        +(rij.x(2) * rik.x(2)) ) /(r*ik);
+				double v = ( (rij.getX(0) * rik.getX(0)) 
+						    +(rij.getX(1) * rik.getX(1))
+					        +(rij.getX(2) * rik.getX(2)) ) /(r*ik);
 				if (v < -1.0) continue;
 				double anglekij = Math.toDegrees(Math.acos(v));
 				if (anglekij >= 90) continue;
@@ -153,9 +153,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			
 			unitVector.E(rij);
 			unitVector.normalize();
-			x = unitVector.x(0);
-			y = unitVector.x(1);
-			z = unitVector.x(2);
+			x = unitVector.getX(0);
+			y = unitVector.getX(1);
+			z = unitVector.getX(2);
 						
             sum[RHOj0] += rhoj0;
             
@@ -429,9 +429,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		boundary.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
-            		double v = ( (rij.x(0) * rik.x(0)) 
-						        +(rij.x(1) * rik.x(1))
-					            +(rij.x(2) * rik.x(2)) ) /(ij*ik);
+            		double v = ( (rij.getX(0) * rik.getX(0)) 
+						        +(rij.getX(1) * rik.getX(1))
+					            +(rij.getX(2) * rik.getX(2)) ) /(ij*ik);
             		if (v < -1.0) continue;
             		double anglekij = Math.toDegrees(Math.acos(v));
             		if (anglekij >= 90) continue;
@@ -549,9 +549,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	
 	            	unitVector.E(rij);
 	            	unitVector.normalize();
-	            	x = unitVector.x(0);
-	            	y = unitVector.x(1);
-	            	z = unitVector.x(2);
+	            	x = unitVector.getX(0);
+	            	y = unitVector.getX(1);
+	            	z = unitVector.getX(2);
 	            	
 	            	vector100.setX(0,1.0);
 	        		vector010.setX(1,1.0);
@@ -894,9 +894,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		if (ij > jcut) continue; // continue to next j atom
         		rik.E(rin); double ik = in;
 	        	if (ik > ij*1.14) continue; // n won't impact this i-j interaction
-	        	double v = ( (rij.x(0) * rik.x(0)) 
-					        +(rij.x(1) * rik.x(1))
-				            +(rij.x(2) * rik.x(2)) ) /(ij*ik);
+	        	double v = ( (rij.getX(0) * rik.getX(0)) 
+					        +(rij.getX(1) * rik.getX(1))
+				            +(rij.getX(2) * rik.getX(2)) ) /(ij*ik);
 	        	if (v < -1.0) continue;
 	        	double anglekij = Math.toDegrees(Math.acos(v));
 	        	if (anglekij >= 90) continue;
@@ -955,9 +955,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			boundary.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
-	    			double w = ( (rij.x(0) * ril.x(0)) 
-						        +(rij.x(1) * ril.x(1))
-					            +(rij.x(2) * ril.x(2)) ) /(ij*il);
+	    			double w = ( (rij.getX(0) * ril.getX(0)) 
+						        +(rij.getX(1) * ril.getX(1))
+					            +(rij.getX(2) * ril.getX(2)) ) /(ij*il);
 	    			if (w < -1.0) continue;
 	    			double anglelij = Math.toDegrees(Math.acos(w));
 	    			if (anglelij >= 90) continue;
@@ -1015,9 +1015,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	
 	        	unitVector.E(rij);
 	            unitVector.normalize();
-	            x = unitVector.x(0);
-	            y = unitVector.x(1);
-	            z = unitVector.x(2);
+	            x = unitVector.getX(0);
+	            y = unitVector.getX(1);
+	            z = unitVector.getX(2);
            
         		if (pi == pj) {
         			double a, EuRef, rhoj0Ref, rhoiRef, FRef;

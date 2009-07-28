@@ -97,9 +97,9 @@ public class WriteConfiguration implements IAction {
                     }
                 }
                 
-                fileWriter.write(writePosition.x(0)+"");
+                fileWriter.write(writePosition.getX(0)+"");
                 for (int i=1; i<writePosition.getD(); i++) {
-                	fileWriter.write(" "+writePosition.x(i));
+                	fileWriter.write(" "+writePosition.getX(i));
                 }
                 fileWriter.write("\n");
             }

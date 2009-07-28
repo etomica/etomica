@@ -39,7 +39,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
         ox = origin[0] + ox*spinWidth*(lattice.getSize()[0]) + 1;
         oy = origin[1] + oy*spinWidth*(lattice.getSize()[1]) + 1;
         //draw lattice plane
-        g.setColor(atom.getPosition().x(0) > 0 ? Color.green : Color.white);
+        g.setColor(atom.getPosition().getX(0) > 0 ? Color.green : Color.white);
         g.fillRect(ox+latticeIndex[0]*spinWidth,oy+latticeIndex[1]*spinWidth,spinWidth,spinWidth);
 //        g.setColor(Color.black);
 //        g.drawRect(ox+latticeIndex[0]*spinWidth,oy+latticeIndex[1]*spinWidth,spinWidth,spinWidth);

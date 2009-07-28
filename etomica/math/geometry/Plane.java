@@ -80,9 +80,9 @@ public class Plane implements java.io.Serializable {
      * a point (2nd argument).
      */
     public void setNormalPoint(IVector normal, IVector point) {
-        a = normal.x(0);
-        b = normal.x(1);
-        c = normal.x(2);
+        a = normal.getX(0);
+        b = normal.getX(1);
+        c = normal.getX(2);
         d = -normal.dot(point);
         normalize();
     }
@@ -181,9 +181,9 @@ public class Plane implements java.io.Serializable {
      */
     public void setNormalVector(IVector n) {
         if(n.isZero()) throw new IllegalArgumentException("Error: attempt to set orientation of plane with respect to an ill-defined vector");
-        a = n.x(0);
-        b = n.x(1);
-        c = n.x(2);
+        a = n.getX(0);
+        b = n.getX(1);
+        c = n.getX(2);
         normalize();
     }
     
@@ -240,23 +240,23 @@ public class Plane implements java.io.Serializable {
      */
     public void setToNearestPoint(IVector x0, IVectorMutable point) {
         double factor = distanceTo(x0);
-        point.setX(0,x0.x(0)-factor*a);
-        point.setX(1,x0.x(1)-factor*b);
-        point.setX(2,x0.x(2)-factor*c);
+        point.setX(0,x0.getX(0)-factor*a);
+        point.setX(1,x0.getX(1)-factor*b);
+        point.setX(2,x0.getX(2)-factor*c);
     }
 
     /**
      * Perpendicular distance from the plane to the given point.
      */
     public double distanceTo(IVector x0) {
-        return a*x0.x(0) + b*x0.x(1) + c*x0.x(2) + d;
+        return a*x0.getX(0) + b*x0.getX(1) + c*x0.getX(2) + d;
     }
     
     /**
      * Shifts the plane at fixed orientation so that it contains the given point.
      */
     public void moveTo(IVector r) {
-        d = -(a*r.x(0) + b*r.x(1) + c*r.x(2));
+        d = -(a*r.getX(0) + b*r.getX(1) + c*r.getX(2));
     }        
     
     /**
@@ -265,7 +265,7 @@ public class Plane implements java.io.Serializable {
     public double dihedralAngle(Plane p) {
         IVectorMutable n = space.makeVector();
         p.setToNormalVector(n);
-        return a*n.x(0) + b*n.x(1) + c*n.x(2);
+        return a*n.getX(0) + b*n.getX(1) + c*n.getX(2);
     }
     
     /**

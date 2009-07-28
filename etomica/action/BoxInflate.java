@@ -56,7 +56,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * Assumes isotropic scaling had been set eariler.
      */
     public double getScale() {
-        return scaleVector.x(0);
+        return scaleVector.getX(0);
     }
 
     /**
@@ -93,7 +93,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     public double getTargetDensity() {
         double rho = box.getMoleculeList().getMoleculeCount()/box.getBoundary().volume();
         for (int i=0; i<scaleVector.getD(); i++) {
-            rho *= scaleVector.x(i);
+            rho *= scaleVector.getX(i);
         }
         return rho;
     }
@@ -135,11 +135,11 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      */
     public void undo() {
         for (int i=0; i<scaleVector.getD(); i++) {
-            scaleVector.setX(i,1/scaleVector.x(i));
+            scaleVector.setX(i,1/scaleVector.getX(i));
         }
         actionPerformed();
         for (int i=0; i<scaleVector.getD(); i++) {
-            scaleVector.setX(i,1/scaleVector.x(i));
+            scaleVector.setX(i,1/scaleVector.getX(i));
         }
     }
 

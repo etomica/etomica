@@ -128,7 +128,7 @@ public class TestA extends Simulation {
         IAtomList leaflist = box.getLeafList();
         for(int i = 0; i < numAtoms; i++){
             //one d is assumed here.
-            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
+            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().getX(0) );
         }
         
         MeterPotentialEnergy meterAinA = new MeterPotentialEnergy(potentialMaster);
