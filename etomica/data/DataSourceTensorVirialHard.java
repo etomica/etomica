@@ -1,5 +1,4 @@
 package etomica.data;
-import etomica.api.IData;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;

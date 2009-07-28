@@ -4,9 +4,9 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.api.IPotentialMolecular;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;

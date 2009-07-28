@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IData;
 
 /**
  * DataPump acts both as a DataSink and a DataSource.  DataDump takes the Data

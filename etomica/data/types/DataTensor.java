@@ -1,10 +1,10 @@
 package etomica.data.types;
 
-import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
 import etomica.space.ISpace;

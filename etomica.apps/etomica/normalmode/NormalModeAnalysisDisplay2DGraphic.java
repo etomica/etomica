@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -13,6 +12,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;

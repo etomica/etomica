@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IData;
 
 /**
  * An object that receives Data, processes it, and pushes the result on to a

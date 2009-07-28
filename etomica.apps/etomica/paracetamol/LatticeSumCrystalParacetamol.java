@@ -1,8 +1,8 @@
 package etomica.paracetamol;
 
-import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.api.IVectorMutable;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.lattice.BravaisLatticeCrystal;

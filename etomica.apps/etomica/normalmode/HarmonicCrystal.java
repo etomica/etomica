@@ -1,8 +1,8 @@
 package etomica.normalmode;
 
-import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.data.DataInfo;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeSumCrystal;

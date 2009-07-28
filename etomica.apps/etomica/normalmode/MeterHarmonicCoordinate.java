@@ -2,10 +2,10 @@ package etomica.normalmode;
 
 import java.util.Arrays;
 
-import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;

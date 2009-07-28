@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.box.RandomPositionSource;
@@ -10,6 +9,7 @@ import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourcePositioned;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;

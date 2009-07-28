@@ -2,7 +2,6 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IData;
 import etomica.util.Arrays;
 
 /**

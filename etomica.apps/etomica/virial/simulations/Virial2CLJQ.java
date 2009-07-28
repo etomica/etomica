@@ -1,12 +1,12 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P22CLJQ;

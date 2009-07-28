@@ -1,8 +1,8 @@
 package etomica.virial.overlap;
 
-import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataSourceScalar;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.units.Fraction;
 import etomica.virial.MeterVirialRejected;

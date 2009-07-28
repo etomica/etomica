@@ -1,7 +1,7 @@
 package etomica.virial.overlap;
 
-import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.util.Debug;
 

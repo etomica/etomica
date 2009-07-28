@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -22,6 +21,7 @@ import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.AccumulatorAverage.StatType;

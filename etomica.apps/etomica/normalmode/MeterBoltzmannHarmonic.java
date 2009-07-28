@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
-import etomica.api.IData;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;

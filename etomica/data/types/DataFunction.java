@@ -1,8 +1,8 @@
 package etomica.data.types;
 
-import etomica.api.IData;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
 import etomica.units.Dimension;

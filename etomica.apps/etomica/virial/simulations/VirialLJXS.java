@@ -1,8 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;

@@ -1,9 +1,9 @@
 package etomica.lattice;
 
-import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
 import etomica.util.FunctionGeneral;
 

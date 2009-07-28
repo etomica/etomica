@@ -1,7 +1,6 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -13,6 +12,7 @@ import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;

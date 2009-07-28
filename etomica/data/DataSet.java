@@ -2,7 +2,6 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IData;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;

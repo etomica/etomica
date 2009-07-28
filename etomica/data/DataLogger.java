@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import etomica.action.activity.ControllerEvent;
-import etomica.api.IData;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 

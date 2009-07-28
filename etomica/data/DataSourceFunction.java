@@ -2,7 +2,6 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;

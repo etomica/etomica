@@ -1,11 +1,11 @@
 package etomica.virial.simulations;
 
-import etomica.api.IData;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.P2HardSphere;

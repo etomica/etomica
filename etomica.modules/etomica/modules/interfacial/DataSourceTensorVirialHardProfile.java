@@ -2,11 +2,11 @@ package etomica.modules.interfacial;
 import java.util.Arrays;
 
 import etomica.api.IAtomPositioned;
-import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;

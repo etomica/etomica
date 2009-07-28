@@ -6,8 +6,8 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.data.AccumulatorHistory;
+import etomica.data.IData;
 import etomica.data.types.DataFunction.DataInfoFunction;
 
 /**

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -15,6 +14,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSplitter;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;

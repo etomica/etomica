@@ -2,7 +2,6 @@ package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;

@@ -2,7 +2,6 @@ package etomica.data;
 import java.io.PrintStream;
 
 import etomica.EtomicaInfo;
-import etomica.api.IData;
 
 /**
  * Writes data to console or another print stream.

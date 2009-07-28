@@ -1,9 +1,9 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IVector;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;

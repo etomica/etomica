@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IVector;
 
 

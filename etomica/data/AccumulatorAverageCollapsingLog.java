@@ -2,7 +2,6 @@ package etomica.data;
 
 import java.util.ArrayList;
 
-import etomica.api.IData;
 import etomica.api.IRandom;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;

@@ -1,9 +1,9 @@
 package etomica.modules.multiharmonic;
 
-import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;

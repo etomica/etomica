@@ -1,7 +1,6 @@
 package etomica.modules.materialfracture;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -9,6 +8,7 @@ import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;

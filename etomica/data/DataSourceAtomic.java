@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.api.IAtom;
-import etomica.api.IData;
 
 
 /**

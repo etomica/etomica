@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 
 /**
  * A DataProcessor whose action is to actively take Data from a DataSource and send it to

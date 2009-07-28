@@ -18,11 +18,11 @@ import javax.swing.event.PopupMenuListener;
 
 import ptolemy.plot.Plot;
 import etomica.EtomicaInfo;
-import etomica.api.IData;
 import etomica.data.DataProcessor;
 import etomica.data.DataSet;
 import etomica.data.DataSetListener;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;

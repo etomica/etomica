@@ -5,8 +5,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import etomica.EtomicaInfo;
-import etomica.api.IData;
 import etomica.data.DataPipe;
+import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.CastToDouble;

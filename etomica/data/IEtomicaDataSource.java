@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IDataSource;
 
 /**
  * Interface for an object that can provide Data objects

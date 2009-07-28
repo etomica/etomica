@@ -1,7 +1,7 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.api.IData;
 import etomica.api.IVector;
+import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P1HardMovingBoundary;

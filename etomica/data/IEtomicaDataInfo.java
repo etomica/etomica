@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IDataInfo;
 import etomica.units.Dimension;
 
 public interface IEtomicaDataInfo extends IDataInfo {

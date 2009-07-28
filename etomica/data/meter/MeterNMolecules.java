@@ -2,11 +2,11 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceScalar;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.units.Quantity;
 

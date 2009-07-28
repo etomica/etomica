@@ -1,4 +1,4 @@
-package etomica.api;
+package etomica.data;
 
 public interface IDataInfo {
 

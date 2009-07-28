@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.api.IData;
 import etomica.data.DataSourceAtomDistance;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;

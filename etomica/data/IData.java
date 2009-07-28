@@ -1,4 +1,6 @@
-package etomica.api;
+package etomica.data;
+
+import etomica.api.IFunction;
 
 /**
  * Abstract container of simulation data and information describing it. Data

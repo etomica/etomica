@@ -1,7 +1,6 @@
 package etomica.data.meter;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -12,6 +11,7 @@ import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceMolecular;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceUniform.LimitType;

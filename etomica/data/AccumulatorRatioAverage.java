@@ -1,7 +1,5 @@
 package etomica.data;
 
-import etomica.api.IData;
-import etomica.api.IDataInfo;
 import etomica.api.IFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;

@@ -1,7 +1,7 @@
 package etomica.util;
 
-import etomica.api.IData;
-import etomica.api.IDataInfo;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 
 /**
  * Interface for the basic features of a general function that maps an object

@@ -1,8 +1,8 @@
 package etomica.junit.data;
 
-import etomica.api.IData;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.IData;
 import etomica.data.types.DataDouble;
 import etomica.units.Null;
 import etomica.util.RandomNumberGenerator;

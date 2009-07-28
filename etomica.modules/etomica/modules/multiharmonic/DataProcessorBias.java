@@ -3,10 +3,10 @@
  */
 package etomica.modules.multiharmonic;
 
-import etomica.api.IData;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceScalar;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 
 /**

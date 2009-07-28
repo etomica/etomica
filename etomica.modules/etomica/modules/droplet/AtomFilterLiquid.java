@@ -2,11 +2,11 @@ package etomica.modules.droplet;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IDataSource;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilterCollective;
+import etomica.data.IDataSource;
 import etomica.space.ISpace;
 
 public class AtomFilterLiquid implements AtomFilterCollective {

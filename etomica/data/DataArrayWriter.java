@@ -3,7 +3,6 @@ package etomica.data;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IData;
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToDoubleArray;

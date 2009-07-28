@@ -3,8 +3,8 @@ package etomica.virial.simulations;
 import java.util.Arrays;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphere;

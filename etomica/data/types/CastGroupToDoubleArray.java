@@ -1,10 +1,10 @@
 package etomica.data.types;
 
 
-import etomica.api.IData;
 import etomica.api.IVectorMutable;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;

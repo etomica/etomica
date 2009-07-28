@@ -15,11 +15,11 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import etomica.action.IAction;
-import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourcePoints;
+import etomica.data.IData;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Length;
 import etomica.units.Null;

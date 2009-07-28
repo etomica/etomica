@@ -1,7 +1,7 @@
 package etomica.junit.data.types;
 
 import junit.framework.TestCase;
-import etomica.api.IData;
+import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 

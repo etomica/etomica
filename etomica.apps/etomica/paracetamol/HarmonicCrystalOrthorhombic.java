@@ -2,11 +2,11 @@ package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
 import etomica.api.IBox;
-import etomica.api.IData;
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculePair;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;

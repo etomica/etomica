@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IData;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Quantity;

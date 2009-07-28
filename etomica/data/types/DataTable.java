@@ -2,8 +2,8 @@ package etomica.data.types;
 
 import java.io.Serializable;
 
-import etomica.api.IData;
 import etomica.data.DataTag;
+import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
