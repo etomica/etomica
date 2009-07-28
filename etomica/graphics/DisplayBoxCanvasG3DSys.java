@@ -376,7 +376,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			gsys.setBoundaryVectors(dvecs);
 		}
 		
-		IVector bounds = boundary.getDimensions();
+		IVector bounds = boundary.getBoxSize();
 		gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
 				(float) (-bounds.getX(1) * 0.5), (float) (-bounds.getX(2) * 0.5),
 				(float) (bounds.getX(0) * 0.5), (float) (bounds.getX(1) * 0.5),

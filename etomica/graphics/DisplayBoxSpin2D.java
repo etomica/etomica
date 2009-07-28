@@ -19,7 +19,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
      */
     public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager, ISpace space, Controller controller) {
         super(_box, space, controller);
-        latticeIndex = new int[displayBox.getBox().getBoundary().getDimensions().getD()];
+        latticeIndex = new int[displayBox.getBox().getBoundary().getBoxSize().getD()];
         spinWidth = 5;
         this.neighborSiteManager = neighborSiteManager;
     }

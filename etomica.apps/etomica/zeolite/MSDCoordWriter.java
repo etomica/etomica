@@ -112,7 +112,7 @@ public class MSDCoordWriter implements IAction, IListener {
 	public void actionPerformed() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			IVector boxdim = box.getBoundary().getDimensions();
+			IVector boxdim = box.getBoundary().getBoxSize();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 
@@ -191,7 +191,7 @@ public class MSDCoordWriter implements IAction, IListener {
 						
 			atomPBIarray = new int[box.getLeafList().getAtomCount()][space.D()];
 			iterator.setBox(box);
-			boxDim = box.getBoundary().getDimensions();
+			boxDim = box.getBoundary().getBoxSize();
 			updateAtomOldCoord();
 		}
         

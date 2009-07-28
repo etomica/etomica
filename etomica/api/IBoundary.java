@@ -64,7 +64,7 @@ public interface IBoundary {
      * Manipulation of this copy will not cause any change to the boundary's
      * dimensions.
      */
-    public IVector getDimensions();
+    public IVector getBoxSize();
 
     /**
      * Scales the boundary dimensions such that the boundary's would be
@@ -73,7 +73,7 @@ public interface IBoundary {
      * dimension.  Specific interpretation of the given values for
      * non-rectangular shapes depends on the subclass.
      */
-    public void setDimensions(IVector v);
+    public void setBoxSize(IVector v);
 
     /**
      * Returns the vector that defines the edge of this boundary for the given

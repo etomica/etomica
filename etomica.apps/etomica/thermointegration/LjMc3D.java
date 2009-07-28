@@ -67,7 +67,7 @@ public class LjMc3D extends Simulation {
 
         potential = new P2LennardJones(space, sigma, 1.0);
         IAtomType leafType = species.getLeafType();
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getDimensions().getX(0)*0.45);
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, box.getBoundary().getBoxSize().getX(0)*0.45);
 
         potentialMaster.addPotential(pTruncated,new IAtomType[]{leafType,leafType});
         

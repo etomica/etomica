@@ -170,7 +170,7 @@ public class DCVGCMD extends Simulation {
 
         box = new Box(space);
         box.setBoundary(new BoundaryRectangularSlit(2, space));
-        box.getBoundary().setDimensions(new Vector3D(40, 40, 80));
+        box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
         addBox(box);
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);
@@ -211,7 +211,7 @@ public class DCVGCMD extends Simulation {
 
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();
-//        poreCenter.Ea1Tv1(0.5, box.getBoundary().getDimensions());
+//        poreCenter.Ea1Tv1(0.5, box.getBoundary().getBoxSize());
         IVectorMutable[] poreCentersVector = new IVectorMutable[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);
         potentialwallPorousA1.setPoreCenters(poreCentersVector);
@@ -226,8 +226,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = (-0.5 + length + 0.05) * box.getBoundary().getDimensions().getX(2);
-        double zB = ( 0.5 - length - 0.05) * box.getBoundary().getDimensions().getX(2);
+        double zA = (-0.5 + length + 0.05) * box.getBoundary().getBoxSize().getX(2);
+        double zB = ( 0.5 - length - 0.05) * box.getBoundary().getBoxSize().getX(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);

@@ -90,7 +90,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
 	        L = Math.pow(4.0/reducedDensity, 1.0/3.0);
 	        primitive = new PrimitiveCubic(space, L);
 	        
-	        boundary.setDimensions(_space.makeVector(new double[]{n*L, n*L, n*L}));
+	        boundary.setBoxSize(_space.makeVector(new double[]{n*L, n*L, n*L}));
 	        
 	        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
 	        coordinateDefinition.initializeCoordinates(nCells);
@@ -98,7 +98,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
 	         * 
 	         */
 	        
-	        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
+	        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
 	        pTruncated.setTruncationRadius(truncationRadius);
 
 	        energySum.zeroSum();

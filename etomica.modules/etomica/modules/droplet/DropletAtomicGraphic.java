@@ -139,7 +139,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         squeezeSlider.setShowValues(true);
         squeezeSlider.setLabel("Squeezing force ("+Angstrom.UNIT.symbol()+"/ps^2)");
         add(squeezeSlider);
-        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getDimensions().getX(0));
+        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getBoxSize().getX(0));
         final EllipseDisplayAction ellipseDisplayAction = new EllipseDisplayAction(this, dropDiameter);
         squeezeSlider.setPostAction(new IAction() {
             public void actionPerformed() {
@@ -362,7 +362,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         public DataSourceVaporDensity(String label, Dimension dimension) {
             super(label, dimension);
             v = space.makeVector();
-            v.E(sim.box.getBoundary().getDimensions());
+            v.E(sim.box.getBoundary().getBoxSize());
             v.TE(0.499);
         }
 

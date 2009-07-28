@@ -131,10 +131,10 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
         	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().Ev1Pv2(((IAtomPositioned)atom).getPosition(), r);//move atom2 to the outside of box
         }
     	if (rScale > 1){//expanding
-    		r.Ea1Tv1(rScale, box.getBoundary().getDimensions());
+    		r.Ea1Tv1(rScale, box.getBoundary().getBoxSize());
     		//System.out.println("box size = " +box.getBoundary().getDimensions());
     		//System.out.println("r = " +r);
-            box.getBoundary().setDimensions(r);//scale the boundary
+            box.getBoundary().setBoxSize(r);//scale the boundary
     	}
         
         for (int i=0; i< atomList.getAtomCount(); i++){
@@ -181,10 +181,10 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
 //    		}
         }
         if (rScale < 1){//compressing
-    		r.Ea1Tv1(rScale, box.getBoundary().getDimensions());
+    		r.Ea1Tv1(rScale, box.getBoundary().getBoxSize());
     		//System.out.println("box size = " +box.getBoundary().getDimensions());
     		//System.out.println("r = " +r);
-            box.getBoundary().setDimensions(r);//scale the boundary
+            box.getBoundary().setBoxSize(r);//scale the boundary
     	}
     }
     public void setAssociationManager(AssociationManager associationManager) {

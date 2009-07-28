@@ -111,7 +111,7 @@ public class Sam extends Simulation {
         addBox(box);
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.4, sizeCellZ*numZCells});
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
         ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
@@ -181,13 +181,13 @@ public class Sam extends Simulation {
         // sulfur and CH3 will never be close
         double rCut = 2.5*sigmaCH2;
         double nbrCut = 2.8*sigmaCH2;
-        if (0.495*box.getBoundary().getDimensions().getX(0) < rCut) {
-            rCut = 0.495*box.getBoundary().getDimensions().getX(0);
-            nbrCut = 0.5*box.getBoundary().getDimensions().getX(0);
+        if (0.495*box.getBoundary().getBoxSize().getX(0) < rCut) {
+            rCut = 0.495*box.getBoundary().getBoxSize().getX(0);
+            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(0);
         }
-        if (0.495*box.getBoundary().getDimensions().getX(2) < rCut) {
-            rCut = 0.495*box.getBoundary().getDimensions().getX(2);
-            nbrCut = 0.5*box.getBoundary().getDimensions().getX(2);
+        if (0.495*box.getBoundary().getBoxSize().getX(2) < rCut) {
+            rCut = 0.495*box.getBoundary().getBoxSize().getX(2);
+            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(2);
         }
         potentialMaster.setRange(nbrCut);
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
@@ -258,7 +258,7 @@ public class Sam extends Simulation {
         potentialMaster.addPotential(p1SurfaceBond, new IAtomType[]{species.getSulfurType()});
         
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        wallPotential.setWallPosition(box.getBoundary().getDimensions().getX(1)*0.5);
+        wallPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1)*0.5);
         potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH3Type()});
 
@@ -379,9 +379,9 @@ public class Sam extends Simulation {
         boolean increase = newNumZCells > numZCells;
         numZCells = newNumZCells;
         IVectorMutable dim = space.makeVector();
-        double zShift = box.getBoundary().getDimensions().getX(2);
+        double zShift = box.getBoundary().getBoxSize().getX(2);
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
         config.setNCellsZ(numZCells);
         if (!increase) {
             config.initializeCoordinates(box);
@@ -434,10 +434,10 @@ public class Sam extends Simulation {
         }
         int oldNumXCells = numXCells;
         numXCells = newNumXCells;
-        double xShift = box.getBoundary().getDimensions().getX(0);
+        double xShift = box.getBoundary().getBoxSize().getX(0);
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
         config.setNCellsX(numXCells);
         if (numXCells == 2) {
             p1SurfaceBond.setOffset(space.makeVector(new double[]{4*sizeCellX/6.0, 0, sizeCellZ/6.0}));
@@ -492,12 +492,12 @@ public class Sam extends Simulation {
     protected void updateRCut() {
         double rCut = 2.5*sigmaCH2;
         double nbrCut = 2.8*sigmaCH2;
-        if (0.5*box.getBoundary().getDimensions().getX(0) < nbrCut) {
-            nbrCut = 0.5*box.getBoundary().getDimensions().getX(0);
+        if (0.5*box.getBoundary().getBoxSize().getX(0) < nbrCut) {
+            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(0);
             rCut = nbrCut * 0.85;
         }
-        if (0.5*box.getBoundary().getDimensions().getX(2) < nbrCut) {
-            nbrCut = 0.5*box.getBoundary().getDimensions().getX(2);
+        if (0.5*box.getBoundary().getBoxSize().getX(2) < nbrCut) {
+            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(2);
             rCut = nbrCut * 0.85;
         }
         p2CH2t.setTruncationRadius(rCut);

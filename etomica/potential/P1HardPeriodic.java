@@ -51,7 +51,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         if(!(((IAtom)atom).getType() instanceof IAtomTypeSphere)) {return Double.POSITIVE_INFINITY;}
         IVectorMutable v = atom.getVelocity();
-        IVector dim = boundary.getDimensions();
+        IVector dim = boundary.getBoxSize();
         double tmin = Double.POSITIVE_INFINITY;
         double d2 = 2.0*sigma;
         int D = dim.getD();

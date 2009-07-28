@@ -58,7 +58,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         }
 
         double area = 1;
-        IVector dim = box.getBoundary().getDimensions();
+        IVector dim = box.getBoundary().getBoxSize();
         for (int i=0; i<dim.getD(); i++) {
             if (i == profileDim) continue;
             area *= dim.getX(i);

@@ -215,7 +215,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	shiftVector.setX(1, yboxshift);
     	
     	//Set Box size
-    	box.getBoundary().setDimensions(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
+    	box.getBoundary().setBoxSize(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
     }
     
     public void initializeCoordinates(IBox box){
@@ -233,7 +233,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         // Get extremes of rotated simulation domain A (usually top half of Box)
         for(int i=-1; i<3; i++){
             // Map corners of A domain
-            boxCorner.E(box.getBoundary().getDimensions());
+            boxCorner.E(box.getBoundary().getBoxSize());
             boxCorner.TE(0.5);
             boxCorner.setX(2, boxCorner.getX(2)*0.5);
             
@@ -279,7 +279,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                        
             eulerRotationL2BoxTOP.transform(transformedPosition);
             
-            transformedPosition.setX(2,transformedPosition.getX(2)+(0.25*box.getBoundary().getDimensions().getX(2)));
+            transformedPosition.setX(2,transformedPosition.getX(2)+(0.25*box.getBoundary().getBoxSize().getX(2)));
             
             
             
@@ -290,7 +290,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed.
             IMolecule a = null;
-            if(transformedPosition.getX(2)>(box.getBoundary().getDimensions().getX(2)/2.0 - cutoff)){
+            if(transformedPosition.getX(2)>(box.getBoundary().getBoxSize().getX(2)/2.0 - cutoff)){
                 a = fixedSpecies.makeMolecule();
             }
             else{
@@ -307,7 +307,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         // Get extremes of rotated simulation domain B (usually bottom half of Box)
         for(int i=-1; i<3; i++){
             // Map corners of B domain
-            boxCorner.E(box.getBoundary().getDimensions());
+            boxCorner.E(box.getBoundary().getBoxSize());
             boxCorner.TE(0.5);
             boxCorner.setX(2, boxCorner.getX(2)*0.5);
             
@@ -352,7 +352,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             eulerRotationL2BoxBOTTOM.transform(transformedPosition);
             
             //Notice negative sign for bottom domain
-            transformedPosition.setX(2,transformedPosition.getX(2)+(-0.25*box.getBoundary().getDimensions().getX(2)));
+            transformedPosition.setX(2,transformedPosition.getX(2)+(-0.25*box.getBoundary().getBoxSize().getX(2)));
             
             
             
@@ -363,7 +363,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
             IMolecule a = null;
-            if(transformedPosition.getX(2)<(-box.getBoundary().getDimensions().getX(2)/2.0 + cutoff)){
+            if(transformedPosition.getX(2)<(-box.getBoundary().getBoxSize().getX(2)/2.0 + cutoff)){
                 a = fixedSpecies.makeMolecule();
             }
             else{

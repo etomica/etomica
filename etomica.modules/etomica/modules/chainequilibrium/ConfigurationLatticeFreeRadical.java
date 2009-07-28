@@ -49,7 +49,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
 
         // determine scaled shape of simulation volume
         IVectorMutable shape = space.makeVector();
-        shape.E(box.getBoundary().getDimensions());
+        shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
         IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -76,7 +76,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
-            latticeScaling.E(box.getBoundary().getDimensions());
+            latticeScaling.E(box.getBoundary().getBoxSize());
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
             latticeScaling.DE(space.makeVector(latticeDimensions));
@@ -86,7 +86,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
 
         // determine amount to shift lattice so it is centered in volume
         IVectorMutable offset = space.makeVector();
-        offset.E(box.getBoundary().getDimensions());
+        offset.E(box.getBoundary().getBoxSize());
         IVectorMutable vectorOfMax = space.makeVector();
         IVectorMutable vectorOfMin = space.makeVector();
         IVectorMutable site = space.makeVector();

@@ -242,7 +242,7 @@ public class DimerApproach extends Simulation {
 
         if (true) { 
             
-            sim.box.getBoundary().setDimensions(sim.space.makeVector(new double[]{40,40,40}));
+            sim.box.getBoundary().setBoxSize(sim.space.makeVector(new double[]{40,40,40}));
             
             // *********************
             // The Title

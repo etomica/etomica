@@ -114,9 +114,9 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
             y[i] += value;
         }
         double dV = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
-        for (int i=0; i<boundary.getDimensions().getD(); i++) {
+        for (int i=0; i<boundary.getBoxSize().getD(); i++) {
             if (i==profileDim) continue;
-            dV *= boundary.getDimensions().getX(i);
+            dV *= boundary.getBoxSize().getX(i);
         }
         data.TE(1.0/dV);
         return data;
@@ -158,7 +158,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getDimensions().getX(profileDim);
+        double halfBox = 0.5*box.getBoundary().getBoxSize().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         

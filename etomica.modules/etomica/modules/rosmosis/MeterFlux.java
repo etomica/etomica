@@ -120,7 +120,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     
     public IData getData() {
         int crossings = 0;
-        double boxLength = box.getBoundary().getDimensions().getX(dim);
+        double boxLength = box.getBoundary().getBoxSize().getX(dim);
         for (int i=0; i<species.length; i++) {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getMoleculeCount(); j++) {
@@ -161,7 +161,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         oldTime = newTime;
         for (int i=0; i<space.D(); i++) {
             if (i == dim) continue;
-            data.x /= box.getBoundary().getDimensions().getX(i);
+            data.x /= box.getBoundary().getBoxSize().getX(i);
         }
         return data;
     }

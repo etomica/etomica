@@ -123,9 +123,9 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         // triggers cell reassignment, which would fail if we shrink before
         // shifting atoms.  If we grow first, cell assignment would succeed,
         // but we'd need to reassign again after scaling the atom positions.
-        dimVector.E(box.getBoundary().getDimensions());
+        dimVector.E(box.getBoundary().getBoxSize());
         dimVector.TE(scaleVector);
-        box.getBoundary().setDimensions(dimVector);
+        box.getBoundary().setBoxSize(dimVector);
     }
 
     /**

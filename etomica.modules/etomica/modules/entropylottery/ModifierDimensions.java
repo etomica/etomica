@@ -23,16 +23,16 @@ public class ModifierDimensions implements Modifier {
     }
 
     public double getValue() {
-        return box.getBoundary().getDimensions().getX(0);
+        return box.getBoundary().getBoxSize().getX(0);
     }
 
     public void setValue(double newValue) {
         if (newValue <= 0 || newValue > 1000) {
             throw new IllegalArgumentException("Bogus value for dimension");
         }
-        boxDim.E(box.getBoundary().getDimensions());
+        boxDim.E(box.getBoundary().getBoxSize());
         boxDim.setX(0, newValue);
-        box.getBoundary().setDimensions(boxDim);
+        box.getBoundary().setBoxSize(boxDim);
     }
 
     private final IBox box;

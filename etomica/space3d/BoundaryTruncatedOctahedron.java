@@ -47,7 +47,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         return true;
     }
 
-    public final IVector getDimensions() {
+    public final IVector getBoxSize() {
         return dimensions;
     }
 
@@ -161,7 +161,7 @@ public class BoundaryTruncatedOctahedron extends Boundary {
                 .getX(0));
     }
 
-    public void setDimensions(IVector v) {
+    public void setBoxSize(IVector v) {
         dimensions.E(v);
         updateDimensions();
     }

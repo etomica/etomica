@@ -41,7 +41,7 @@ public class MeterRDFCylinder extends MeterRDF {
 
         // renormalize the RDF to account for the excluded pairs
         double pistonRatio = 1;
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         double radius = pistonPotential.getCollisionRadius();
         for (int i=0; i<space.D(); i++) {
             if (i == 1) {

@@ -46,7 +46,7 @@ public class ConfigurationMembrane implements Configuration {
         box.setNMolecules(speciesSolvent, 0);
         box.setNMolecules(speciesMembrane, 0);
         
-        IVector boxDimensions = box.getBoundary().getDimensions();
+        IVector boxDimensions = box.getBoundary().getBoxSize();
         double boxLength = boxDimensions.getX(membraneDim);
         double membraneThickness = membraneThicknessPerLayer * numMembraneLayers;
         double chamberLength = 0.5 * boxLength - membraneThickness;
@@ -57,7 +57,7 @@ public class ConfigurationMembrane implements Configuration {
         IVectorMutable pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, chamberLength);
-        pretendBox.getBoundary().setDimensions(pretendBoxDim);
+        pretendBox.getBoundary().setBoxSize(pretendBoxDim);
         int nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solventChamberDensity);
         pretendBox.setNMolecules(speciesSolvent, nMolecules);
         ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -132,7 +132,7 @@ public class ConfigurationMembrane implements Configuration {
         configLattice = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisCubicFcc()), space);
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, pretendMembraneThickness);
-        pretendBox.getBoundary().setDimensions(pretendBoxDim);
+        pretendBox.getBoundary().setBoxSize(pretendBoxDim);
         pretendBox.setNMolecules(speciesSolute, 0);
         pretendBox.setNMolecules(speciesSolvent, 0);
         

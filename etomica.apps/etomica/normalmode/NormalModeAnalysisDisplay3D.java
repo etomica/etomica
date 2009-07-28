@@ -53,7 +53,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         box.setBoundary(boundary);
 
         Potential2SoftSpherical potential= new P2SoftSphere(space, 1.0, 1.0, 12);
-        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         

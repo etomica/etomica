@@ -30,7 +30,7 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
             ((BoundaryDeformablePeriodic)boundary).getBoundaryTensor().transform(p);
         }
         else {
-            p.TE(boundary.getDimensions());
+            p.TE(boundary.getBoxSize());
         }
         return p;
     }

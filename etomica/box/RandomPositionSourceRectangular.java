@@ -15,7 +15,7 @@ public class RandomPositionSourceRectangular implements RandomPositionSource {
 
     public IVectorMutable randomPosition() {
         p.setRandomCube(random);
-        p.TE(box.getBoundary().getDimensions());
+        p.TE(box.getBoundary().getBoxSize());
         return p;
     }
 

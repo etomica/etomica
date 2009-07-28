@@ -116,7 +116,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         // Place molecules
         indexIterator.reset();
         IVectorMutable offset = space.makeVector();
-        offset.Ea1Tv1(-0.5, box.getBoundary().getDimensions());
+        offset.Ea1Tv1(-0.5, box.getBoundary().getBoxSize());
         IVectorMutable destinationVector = atomActionTranslateTo.getDestination();
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {

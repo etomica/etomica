@@ -28,7 +28,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public void makeWaveVectors(IBox box) {
 
         int nA = box.getMoleculeList().getMoleculeCount();
-        double L = box.getBoundary().getDimensions().getX(0);
+        double L = box.getBoundary().getBoxSize().getX(0);
         
         int mMax = nA/2;
 
@@ -61,7 +61,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sim.getSpace());
         sim.addBox(box);
-        box.getBoundary().setDimensions(new Vector1D(nCells));
+        box.getBoundary().setBoxSize(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         box.setNMolecules(species, nCells*nCells*nCells);
         

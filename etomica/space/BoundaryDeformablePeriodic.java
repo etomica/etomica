@@ -110,7 +110,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Returns a vector with each element equal to the length of the corresponding
      * edge of the boundary.
      */
-	public IVector getDimensions() {
+	public IVector getBoxSize() {
         IVector[] vertices = shape.getVertices();
         temp1.E(vertices[0]);
         temp2.E(vertices[0]);
@@ -342,11 +342,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Scales each boundary edge so that its length equals the corresponding value
      * in the given vector.  Deformation of boundary is otherwise unchanged.
      */
-	public void setDimensions(IVector v) {
+	public void setBoxSize(IVector v) {
         if(!isPositive(v)) {
             throw new IllegalArgumentException("edge lengths must be greater than zero; attempt to set to "+v.toString());
         }
-	    getDimensions();
+	    getBoxSize();
 	    // temp2 is now current bounding box.
         temp1.E(v);
         temp1.DE(temp2);

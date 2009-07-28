@@ -45,7 +45,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
+        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
@@ -129,7 +129,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
         }
         
         IBox box = displayBox.getBox();
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
             atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }

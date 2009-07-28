@@ -70,7 +70,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public IVector getDimensions() {
+    public IVector getBoxSize() {
         return dimensions;
     }
     
@@ -86,7 +86,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * copied, so manipulation of the given vector has no subsequent effect
      * on this Boundary instance.
      */
-    public void setDimensions(IVector v) {
+    public void setBoxSize(IVector v) {
         dimensions.E(v);
         updateDimensions();
 

@@ -141,7 +141,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (!isForced) {
             double area = 1.0;
             if (pressure != 0.0) {
-                final IVector dimensions = pistonBoundary.getDimensions();
+                final IVector dimensions = pistonBoundary.getBoxSize();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -204,7 +204,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (!isForced) {
             double area = 1.0;
             if (pressure != 0.0) {
-                final IVector dimensions = pistonBoundary.getDimensions();
+                final IVector dimensions = pistonBoundary.getBoxSize();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -235,7 +235,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public double lastWallVirial() {
         double area = 1.0;
-        final IVector dimensions = pistonBoundary.getDimensions();
+        final IVector dimensions = pistonBoundary.getBoxSize();
         for (int i=0; i<D; i++) {
             if (i != wallD) {
                 area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -275,7 +275,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
-            final IVector dimensions = pistonBoundary.getDimensions();
+            final IVector dimensions = pistonBoundary.getBoxSize();
             for (int i=0; i<D; i++) {
                 if (i != wallD) {
                     area *= (dimensions.getX(i)-collisionRadius*2.0);
@@ -295,8 +295,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         g.setColor(java.awt.Color.gray);
-        double dx = pistonBoundary.getDimensions().getX(0);
-        double dy = pistonBoundary.getDimensions().getX(1);
+        double dx = pistonBoundary.getBoxSize().getX(0);
+        double dy = pistonBoundary.getBoxSize().getX(1);
         int xP = origin[0] + (wallD==0 ? (int)((wallPosition+0.5*dx-thickness)*toPixel) : 0);
         int yP = origin[1] + (wallD==1 ? (int)((wallPosition+0.5*dy-thickness)*toPixel) : 0);
         int t = Math.max(1,(int)(thickness*toPixel));

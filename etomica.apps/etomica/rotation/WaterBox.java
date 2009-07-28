@@ -66,7 +66,7 @@ public class WaterBox {
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        double boxlength = box.getBoundary().getDimensions().getX(0);
+        double boxlength = box.getBoundary().getBoxSize().getX(0);
         System.out.println(boxlength);
 
         DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());

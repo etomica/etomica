@@ -193,11 +193,11 @@ public class SimDimerMEAMGB extends Simulation{
         gbtilt.initializeCoordinates(box);
                
         IVectorMutable newBoxLength = space.makeVector();
-        newBoxLength.E(box.getBoundary().getDimensions());
+        newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(2,newBoxLength.getX(2)+1.0);
         newBoxLength.setX(1,newBoxLength.getX(1)+0.0001);
         newBoxLength.setX(0,newBoxLength.getX(0)+0.0001);
-        box.getBoundary().setDimensions(newBoxLength);
+        box.getBoundary().setBoxSize(newBoxLength);
         
         
     }
@@ -419,7 +419,7 @@ public class SimDimerMEAMGB extends Simulation{
         
         
         IVectorMutable dimerCenter = sim.getSpace().makeVector();
-        dimerCenter.setX(0, sim.box.getBoundary().getDimensions().getX(0)/2.0);
+        dimerCenter.setX(0, sim.box.getBoundary().getBoxSize().getX(0)/2.0);
         dimerCenter.setX(1, 1.0);
         dimerCenter.setX(2, 0.0);
         IVectorMutable cubeSize = sim.getSpace().makeVector();
@@ -428,7 +428,7 @@ public class SimDimerMEAMGB extends Simulation{
         cubeSize.setX(2, 8.0);
         
         if(sim.millerPlane[2] == 0){
-            dimerCenter.setX(1, sim.box.getBoundary().getDimensions().getX(1)/2.0);
+            dimerCenter.setX(1, sim.box.getBoundary().getBoxSize().getX(1)/2.0);
             dimerCenter.setX(0, 1.0);
             dimerCenter.setX(2, 0.0);
             cubeSize.setX(0, 6.0);
@@ -440,7 +440,7 @@ public class SimDimerMEAMGB extends Simulation{
         IVectorMutable rij = sim.space.makeVector();
         Vector3D move = new Vector3D(0.0,0.0,5.0);
         Vector3D move2 = new Vector3D(0.0,0.0,10.0);
-        move2.PE(sim.box.getBoundary().getDimensions());
+        move2.PE(sim.box.getBoundary().getBoxSize());
         System.out.println("Atoms: "+list.getAtomCount());
         System.out.println("Interface Area: "+move2.getX(0)*move2.getX(1)+" angstroms");
        

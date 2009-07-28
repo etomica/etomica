@@ -46,7 +46,7 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
      */
     public static class AtomFilterInCylinder {
         public AtomFilterInCylinder(IBoundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
-            dimensions = boundary.getDimensions();
+            dimensions = boundary.getBoxSize();
             this.pistonPotential = pistonPotential;
             this.padding = padding;
             // bit flipper goes back and forth between 1 and 2

@@ -69,7 +69,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         this.sim = sim;
         numCells = new int[space.D()];
 
-        lattice = new CellLattice(space, box.getBoundary().getDimensions(), Cell.FACTORY);
+        lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
         agentManager = new AtomLeafAgentManager(this,box);
@@ -142,7 +142,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             // simulation is still being constructed, don't try to do anything useful
             return false;
         }
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
         int[] oldSize = lattice.getSize();
         boolean latticeNeedsUpdate = false;

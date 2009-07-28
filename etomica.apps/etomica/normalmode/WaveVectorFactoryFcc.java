@@ -31,7 +31,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         double d = -1;
         for (int i = 0; i < dim; i++) {
             //XXX divide by sqrt(2) for FCC
-            int n = (int)Math.round(box.getBoundary().getDimensions().getX(i) / (primitive.getSize()[i]*Math.sqrt(2)));
+            int n = (int)Math.round(box.getBoundary().getBoxSize().getX(i) / (primitive.getSize()[i]*Math.sqrt(2)));
             if (i>0 && n != numCells) {
                 throw new RuntimeException("Things would be so much happier if you would just use the same number of cells in each direction.");
             }
@@ -159,7 +159,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sp);
         sim.addBox(box);
-        box.getBoundary().setDimensions(new Vector3D(nCells, nCells, nCells));
+        box.getBoundary().setBoxSize(new Vector3D(nCells, nCells, nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 4*nCells*nCells*nCells);

@@ -124,7 +124,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         
         box = new Box(space);
         addBox(box);
-        box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this, space);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 128);
@@ -318,48 +318,48 @@ public class MDParacetamolOrthorhombic extends Simulation {
         double truncationRadiusOO = 3.0* 3.033153776;
         double truncationRadiusNN = 3.0* 3.262560196;
         
-        if(truncationRadiusCC > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusCC > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCC);
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (space, new P2ElectrostaticDreiding(space, 3832.14700*11604.45728, 0.277778, 25.286949*11604.45728), truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new IAtomType[]{species.getCType(), species.getCType()} );
         
-        if(truncationRadiusCO > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusCO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCO);
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (space, new P2ElectrostaticDreiding(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728), truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new IAtomType[]{species.getCType(), species.getOType()} );
         
-        if(truncationRadiusCN > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusCN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCN);
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (space, new P2ElectrostaticDreiding(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728), truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new IAtomType[]{species.getCType(), species.getNType()} );
         
-        if(truncationRadiusON > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusON > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusON);
         P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (space, new P2ElectrostaticDreiding(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728), truncationRadiusON); 
         potentialMaster.addPotential(interpotentialON, new IAtomType[]{species.getOType(), species.getNType()} );
         
-        if(truncationRadiusOO > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusOO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusOO);
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (space, new P2ElectrostaticDreiding(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728), truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new IAtomType[]{species.getOType(), species.getOType()} );
         
-        if(truncationRadiusNN > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadiusNN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusNN);
@@ -374,7 +374,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
         
         bdry =  new BoundaryRectangularPeriodic(space, 1); //unit cell
-        bdry.setDimensions(space.makeVector(new double []{2*17.248, 2*12.086, 4*7.382}));
+        bdry.setBoxSize(space.makeVector(new double []{2*17.248, 2*12.086, 4*7.382}));
         box.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(box);
        	

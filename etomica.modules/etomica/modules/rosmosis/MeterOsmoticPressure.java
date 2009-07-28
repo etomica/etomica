@@ -34,7 +34,7 @@ public class MeterOsmoticPressure implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         data.x = -pc.getWallForce() / (dimensions.getX(1) * dimensions.getX(2));
         return data;
     }

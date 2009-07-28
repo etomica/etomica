@@ -72,8 +72,8 @@ public class LJMD3DThreaded extends Simulation {
         p2lj = new P2LennardJones(space);
         
         double truncationRadius = 2.5*p2lj.getSigma();
-        if(truncationRadius > 0.5*box.getBoundary().getDimensions().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+        if(truncationRadius > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
         }
         
         

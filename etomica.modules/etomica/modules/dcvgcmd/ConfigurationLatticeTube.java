@@ -65,7 +65,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         
         //determine scaled shape of simulation volume
         IVectorMutable shape = space.makeVector();
-        shape.E(box.getBoundary().getDimensions());
+        shape.E(box.getBoundary().getBoxSize());
         shape.setX(2,shape.getX(2)*length);
         IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -96,7 +96,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 
         // determine amount to shift lattice so it is centered in volume
         IVectorMutable offset = space.makeVector();
-        offset.E(box.getBoundary().getDimensions());
+        offset.E(box.getBoundary().getBoxSize());
         IVectorMutable vectorOfMax = space.makeVector();
         IVectorMutable vectorOfMin = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
@@ -117,7 +117,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
         offset.TE(-0.5);
         offset.ME(vectorOfMin);
-        offset.setX(2, offset.getX(2) - 0.5*box.getBoundary().getDimensions().getX(2)*(1-length));
+        offset.setX(2, offset.getX(2) - 0.5*box.getBoundary().getBoxSize().getX(2)*(1-length));
 
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
@@ -136,7 +136,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         double z = offset.getX(2);
-        offset.setX(2,z+box.getBoundary().getDimensions().getX(2)*(1-length));
+        offset.setX(2,z+box.getBoundary().getBoxSize().getX(2)*(1-length));
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         
@@ -195,7 +195,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, sp);
-//        box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
+//        box.boundary().setBoxSize(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
 //		etomica.graphics.DisplayBox display = new etomica.graphics.DisplayBox(box);
 		

@@ -59,7 +59,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      */
     public double getB() {
         IVectorMutable position = ((IAtomPositioned)atom).getPosition();
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
             int x = (int)Math.round(position.getX(i)+dimensions.getX(i)*0.5-0.5);

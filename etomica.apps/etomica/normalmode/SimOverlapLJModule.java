@@ -170,7 +170,7 @@ public class SimOverlapLJModule {
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.45;
+        double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });

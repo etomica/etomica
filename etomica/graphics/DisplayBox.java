@@ -315,12 +315,12 @@ public class DisplayBox extends Display {
         }
 
     	double toPixels = (canvas != null ? canvas.getPixelUnit().toPixels() : 10) * scale;
-        int boxX = (int)(box.getBoundary().getDimensions().getX(0) * toPixels + 1);
+        int boxX = (int)(box.getBoundary().getBoxSize().getX(0) * toPixels + 1);
         int boxY = 1;
 
         switch(space.D()) {
             case 3:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * toPixels);
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * toPixels);
                 if (boxX > boxY) {
                     boxY = boxX;
                 }
@@ -340,7 +340,7 @@ public class DisplayBox extends Display {
                 }
                 break;
             case 2:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * toPixels + 1);
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * toPixels + 1);
                 canvas = new DisplayBoxCanvas2D(this, space, controller);
                 setSize(boxX, boxY);
                 break;
@@ -384,12 +384,12 @@ public class DisplayBox extends Display {
         if (box == null) throw new IllegalStateException("Cannot set canvas before setting box");
         
         Pixel pixel = canvas.getPixelUnit();
-        int boxX = (int)(box.getBoundary().getDimensions().getX(0) * pixel.toPixels() * scale + 1);
+        int boxX = (int)(box.getBoundary().getBoxSize().getX(0) * pixel.toPixels() * scale + 1);
         int boxY = 1;
 
         switch(space.D()) {
             case 3:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * pixel.toPixels() * scale + 1);
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * pixel.toPixels() * scale + 1);
                 if (boxX > boxY) {
                     boxY = boxX;
                 }
@@ -400,7 +400,7 @@ public class DisplayBox extends Display {
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * pixel.toPixels() * scale + 1);
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * pixel.toPixels() * scale + 1);
                 break;
             case 1:
             default:
@@ -511,8 +511,8 @@ public class DisplayBox extends Display {
         //Compute factor converting simulation units to pixels for this display
         double toPixels = scale*canvas.getPixelUnit().toPixels();
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*getBox().getBoundary().getDimensions().getX(0));
-        drawSize[1] = (space.D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getDimensions().getX(1));
+        drawSize[0] = (int)(toPixels*getBox().getBoundary().getBoxSize().getX(0));
+        drawSize[1] = (space.D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getBoxSize().getX(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -557,12 +557,12 @@ public class DisplayBox extends Display {
         }
         canvas.setPixelUnit(pixel);
 
-        int boxX = (int)(box.getBoundary().getDimensions().getX(0) * pixel.toPixels());
+        int boxX = (int)(box.getBoundary().getBoxSize().getX(0) * pixel.toPixels());
         int boxY = 1;
 
         switch(space.D()) {
             case 3:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * pixel.toPixels());
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * pixel.toPixels());
                 if (boxX > boxY) {
                     boxY = boxX;
                 }
@@ -573,7 +573,7 @@ public class DisplayBox extends Display {
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(box.getBoundary().getDimensions().getX(1) * pixel.toPixels());
+                boxY = (int)(box.getBoundary().getBoxSize().getX(1) * pixel.toPixels());
                 break;
             case 1:
             default:

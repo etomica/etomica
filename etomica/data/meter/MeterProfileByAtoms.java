@@ -160,7 +160,7 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getDimensions().getX(profileDim);
+        double halfBox = 0.5*box.getBoundary().getBoxSize().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         nAtoms = new int[xDataSource.getNValues()];

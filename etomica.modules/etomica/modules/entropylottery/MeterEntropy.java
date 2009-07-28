@@ -21,7 +21,7 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
     }
 
     public double getDataAsScalar() {
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
             atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }

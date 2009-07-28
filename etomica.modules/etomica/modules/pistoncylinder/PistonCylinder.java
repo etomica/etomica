@@ -63,7 +63,7 @@ public class PistonCylinder extends Simulation {
             newDim = new Vector3D(30,80,30);
         }
         config.setBoundaryPadding(sigma);
-        box.getBoundary().setDimensions(newDim);
+        box.getBoundary().setBoxSize(newDim);
         config.initializeCoordinates(box);
         
         P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);
@@ -89,12 +89,12 @@ public class PistonCylinder extends Simulation {
         pistonPotential = new P1HardMovingBoundary(space,box.getBoundary(),1,400, true);
         pistonPotential.setCollisionRadius(sigma*0.5);
         if (D == 3) {
-            pistonPotential.setWallPosition(box.getBoundary().getDimensions().getX(1)*0.5);
+            pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1)*0.5);
             pistonPotential.setWallVelocity(-0.5);
             pistonPotential.setPressure(-Bar.UNIT.toSim(1.0));
         }
         else {
-            pistonPotential.setWallPosition(-box.getBoundary().getDimensions().getX(1)*0.5);
+            pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1)*0.5);
             pistonPotential.setWallVelocity(0.5);
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }

@@ -28,7 +28,7 @@ public class BoxQuench extends BoxActionAdapter {
 	 * Constructs class ready to perform quench on given box to given temperature.
 	 */
 	public BoxQuench(IBox p, double temperature) {
-		this(temperature, p.getBoundary().getDimensions().getD());
+		this(temperature, p.getBoundary().getBoxSize().getD());
         setBox(p);
 	}
 

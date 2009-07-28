@@ -203,7 +203,7 @@ public class EwaldSummation implements IPotentialMolecular {
 								rijNv.E(rij);
 							} else {
 								rijNv.E(nVector[vecCounter]);
-								rijNv.TE(box.getBoundary().getDimensions());
+								rijNv.TE(box.getBoundary().getBoxSize());
 								rijNv.PE(rij);
 							}
 							

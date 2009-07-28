@@ -151,7 +151,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 
 	public void setBox(IBox box) {
-        boxSize = box.getBoundary().getDimensions().getX(neighborDim);
+        boxSize = box.getBoundary().getBoxSize().getX(neighborDim);
         agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
 	}
     

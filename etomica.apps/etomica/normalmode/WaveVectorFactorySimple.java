@@ -42,7 +42,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(box.getBoundary().getDimensions().getX(i) / (d[i]));
+            numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
     
@@ -154,7 +154,7 @@ outer:              for (int i=0; i<3; i++){
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sp);
         sim.addBox(box);
-        box.getBoundary().setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
+        box.getBoundary().setBoxSize(new Vector3D(nCells[0], nCells[1], nCells[2]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);

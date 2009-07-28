@@ -29,15 +29,15 @@ public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 	public void makeWaveVectors(IBox box){
 		
 		IVectorMutable boxDimension = space.makeVector();
-		boxDimension.E(box.getBoundary().getDimensions());
+		boxDimension.E(box.getBoundary().getBoxSize());
 		double fraction = (double)(1.0/3);
 		boxDimension.TE(fraction);
-		box.getBoundary().setDimensions(boxDimension);
+		box.getBoundary().setBoxSize(boxDimension);
 		
 		super.makeWaveVectors(box);
 		
 		boxDimension.TE(3.0);
-		box.getBoundary().setDimensions(boxDimension);
+		box.getBoundary().setBoxSize(boxDimension);
 		
 	}
 	

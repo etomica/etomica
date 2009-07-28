@@ -43,7 +43,7 @@ public class EntropyLottery extends Simulation {
         box.setNMolecules(species, N);
         IVectorMutable dimensions = space.makeVector();
         dimensions.E(10);
-        box.getBoundary().setDimensions(dimensions);
+        box.getBoundary().setBoxSize(dimensions);
         new ConfigurationZero(space).initializeCoordinates(box);
         integrator.setBox(box);
 		

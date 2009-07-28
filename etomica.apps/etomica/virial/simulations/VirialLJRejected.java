@@ -101,8 +101,8 @@ public class VirialLJRejected {
         
         if (true) {
             double size = 5;
-            sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
-            sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{size,size,size}));
+            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
+            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
             simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
             simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));

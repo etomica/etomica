@@ -170,7 +170,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         // determine scaled shape of simulation volume
         IVectorMutable halfShape = space.makeVector();
-        halfShape.E(box.getBoundary().getDimensions());
+        halfShape.E(box.getBoundary().getBoxSize());
 
 	    int planeDimIdx = 0;
 	    if(plane.getA() > plane.epsilon) {
@@ -225,7 +225,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
 	        // determine amount to shift lattice so it is centered in volume
 	        IVectorMutable offset = space.makeVector();
-	        offset.E(box.getBoundary().getDimensions());
+	        offset.E(box.getBoundary().getBoxSize());
 
 	        IVectorMutable temp3 = space.makeVector();
             temp3.E(entireShape);

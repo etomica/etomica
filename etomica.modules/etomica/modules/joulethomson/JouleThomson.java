@@ -422,7 +422,7 @@ public class JouleThomson extends SimulationGraphic {
     	        double size = currentSig*Math.pow(sim.box.getLeafList().getAtomCount()/targetDensity,1.0/sim.getSpace().D());
                 IVectorMutable v = sim.getSpace().makeVector();
                 v.E(size);
-                sim.box.getBoundary().setDimensions(v);
+                sim.box.getBoundary().setBoxSize(v);
                 SpaceLattice lattice;
                 if (space.D() == 2) {
                     lattice = new LatticeOrthorhombicHexagonal(space);

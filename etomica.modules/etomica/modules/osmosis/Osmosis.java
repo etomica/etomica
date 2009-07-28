@@ -163,7 +163,7 @@ public class Osmosis extends SimulationGraphic {
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction(space, sim.box);
-        IVector dimensions = sim.box.getBoundary().getDimensions();
+        IVector dimensions = sim.box.getBoundary().getBoxSize();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1)));
@@ -306,9 +306,9 @@ public class Osmosis extends SimulationGraphic {
     protected class MyWall implements Drawable {
     	public void draw(Graphics g, int[] origin, double scale) {
     		if(sim.getSpace() instanceof Space2D) {
-    		    int x1 = origin[0]+(int)(0.5*scale*sim.box.getBoundary().getDimensions().getX(0));
+    		    int x1 = origin[0]+(int)(0.5*scale*sim.box.getBoundary().getBoxSize().getX(0));
     		    int y1 = origin[1];
-			    int h = (int)(scale*sim.box.getBoundary().getDimensions().getX(1));
+			    int h = (int)(scale*sim.box.getBoundary().getBoxSize().getX(1));
 			    int w = 4;
 			    g.setColor(Color.green);
     		    g.fillRect(x1-w, y1, w, h);

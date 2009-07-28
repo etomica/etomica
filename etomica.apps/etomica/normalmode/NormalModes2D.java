@@ -29,7 +29,7 @@ public class NormalModes2D implements NormalModes {
     	int[] numCells = new int[space.D()];
     	
     	for(int i=0; i<space.D(); i++){
-    		numCells[i] = (int)Math.round(box.getBoundary().getDimensions().getX(i)/(d[i]));
+    		numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i)/(d[i]));
     		
     	}
     	
@@ -65,7 +65,7 @@ public class NormalModes2D implements NormalModes {
     	int[] numCells = new int[space.D()];
     	
     	for(int i=0; i<space.D(); i++){
-    		numCells[i] = (int)Math.round(box.getBoundary().getDimensions().getX(i)/(d[i]));
+    		numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i)/(d[i]));
     		
     	}
     	

@@ -69,7 +69,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
         // determine scaled shape of simulation volume
         IVectorMutable shape = space.makeVector();
-        shape.E(box.getBoundary().getDimensions());
+        shape.E(box.getBoundary().getBoxSize());
         IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -88,7 +88,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();
-        shift.Ea1Tv1(-0.5,box.getBoundary().getDimensions());
+        shift.Ea1Tv1(-0.5,box.getBoundary().getBoxSize());
         shift.PE(0.125*((LatticeCubicFcc)lattice).getLatticeConstant());
         ((AtomActionTranslateBy)translator0.getAtomAction()).setTranslationVector(shift);
 
@@ -122,7 +122,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     	Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         final IBox box = new Box(space);
-        box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
+        box.getBoundary().setBoxSize(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addBox(box);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim, space);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim, space);

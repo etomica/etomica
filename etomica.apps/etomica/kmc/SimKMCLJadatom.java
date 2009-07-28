@@ -95,9 +95,9 @@ public class SimKMCLJadatom extends Simulation{
         adAtomPos.setX(1, -0.30);
         adAtomPos.setX(2, -0.30);
         IVectorMutable newBoxLength = space.makeVector();
-        newBoxLength.E(box.getBoundary().getDimensions());
+        newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
-        box.getBoundary().setDimensions(newBoxLength);
+        box.getBoundary().setBoxSize(newBoxLength);
 
     }
     
@@ -108,7 +108,7 @@ public class SimKMCLJadatom extends Simulation{
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
-            if(rij.getX(0) > (box.getBoundary().getDimensions().getX(0) - 3.0)){continue;}
+            if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.getX(0)< distance){
                movableList.add(loopSet.getMolecule(i));
@@ -132,7 +132,7 @@ public class SimKMCLJadatom extends Simulation{
         IMoleculeList loopSet = box.getMoleculeList(movable);
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
-            if(rij.getX(0) > (box.getBoundary().getDimensions().getX(0) - 3.0)){continue;}
+            if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                box.removeMolecule(loopSet.getMolecule(i));

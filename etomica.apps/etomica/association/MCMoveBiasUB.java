@@ -90,7 +90,7 @@ public class MCMoveBiasUB extends MCMoveBox {
             oldPosition.E(((IAtomPositioned)atomA).getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
             ((IVectorRandom)((IAtomPositioned)atomA).getPosition()).setRandomCube(random);
-            ((IAtomPositioned)atomA).getPosition().TE(box.getBoundary().getDimensions());//translate
+            ((IAtomPositioned)atomA).getPosition().TE(box.getBoundary().getBoxSize());//translate
             orientation.setRandomSphere(random);
             ((IAtomOriented)atomA).getOrientation().setDirection(orientation);//orientation
         }//end unbonding

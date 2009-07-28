@@ -105,7 +105,7 @@ public class DropletAtomic extends Simulation {
         
         IAtomList leafList = box.getLeafList();
         IVectorMutable v = space.makeVector();
-        IVector dim = box.getBoundary().getDimensions();
+        IVector dim = box.getBoundary().getBoxSize();
         double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.getX(0)*dim.getX(0);
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();

@@ -48,7 +48,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         double elapsedTime = currentTime - lastProfileTime;
         lastProfileTime = currentTime;
         
-        IVector boxDim = integratorHard.getBox().getBoundary().getDimensions();
+        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         if (L != boxDim.getX(0)) {
             // the data we collected is bogus.  reset and return NaN.
             setupProfileData();
@@ -155,7 +155,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     }
 
     protected void setupProfileData() {
-        IVector boxDim = integratorHard.getBox().getBoundary().getDimensions();
+        IVector boxDim = integratorHard.getBox().getBoundary().getBoxSize();
         L = boxDim.getX(0);
         Li = 1.0/L;
         halfL = 0.5*L;

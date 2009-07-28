@@ -66,9 +66,9 @@ public class BoxInflateDeformable extends BoxInflate{
         //Reverse the subtraction to the scaleVector
         scaleVector.PE(1.0);
 //      Then scale the boundary
-        dimVector.E(box.getBoundary().getDimensions());
+        dimVector.E(box.getBoundary().getBoxSize());
         dimVector.TE(scaleVector);
-        box.getBoundary().setDimensions(dimVector);
+        box.getBoundary().setBoxSize(dimVector);
     }
 
     protected final Tensor tempTens;

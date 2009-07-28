@@ -118,7 +118,7 @@ public class SimDimerMEAMadatom extends Simulation{
               
         double a = 5.92; 
         double c = 3.23;
-        box.getBoundary().setDimensions(new Vector3D(a*3, a*3, c*5));
+        box.getBoundary().setBoxSize(new Vector3D(a*3, a*3, c*5));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
@@ -192,9 +192,9 @@ public class SimDimerMEAMadatom extends Simulation{
         adAtomPos.setX(1, 0.2);
         adAtomPos.setX(2, -1.0);
         IVectorMutable newBoxLength = space.makeVector();
-        newBoxLength.E(box.getBoundary().getDimensions());
+        newBoxLength.E(box.getBoundary().getBoxSize());
         newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
-        box.getBoundary().setDimensions(newBoxLength);
+        box.getBoundary().setBoxSize(newBoxLength);
         
         /**
         //Ag
@@ -221,7 +221,7 @@ public class SimDimerMEAMadatom extends Simulation{
         IMoleculeList loopSet = box.getMoleculeList();
         for (int i=0; i<loopSet.getMoleculeCount(); i++){
             rij.Ev1Mv2(center,((IAtomPositioned)loopSet.getMolecule(i).getChildList().getAtom(0)).getPosition());
-            if(rij.getX(0) > (box.getBoundary().getDimensions().getX(0) - 3.0)){continue;}
+            if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
                movableList.add(loopSet.getMolecule(i));

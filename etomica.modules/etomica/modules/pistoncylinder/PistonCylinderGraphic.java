@@ -525,10 +525,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 */
 
         if (D == 2) {
-            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().getX(1)));
+            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getBoxSize().getX(1)));
         }
         else {
-            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getDimensions().getX(1)));
+            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getBoxSize().getX(1)));
         }
         displayBox.setAlign(1,DisplayBox.BOTTOM);
         displayBox.canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
@@ -937,7 +937,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 }
                 newValue = maxDensity;
             }
-            IVector boxDim = pc.box.getBoundary().getDimensions();
+            IVector boxDim = pc.box.getBoundary().getBoxSize();
             IAtomList leafList = pc.box.getLeafList();
             double yShift = 0.5*(boxDim.getX(1)-sigma);
             if (D == 2) {

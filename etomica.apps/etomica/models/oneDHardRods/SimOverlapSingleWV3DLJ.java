@@ -130,7 +130,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
 //        }
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.495;
+        double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new 
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
@@ -210,7 +210,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         coordinateDefinitionRef.initializeCoordinates(nCells);
        
         p2 = new P2LennardJones(space, 1.0, 1.0);
-        truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.5;
+        truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.5;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});

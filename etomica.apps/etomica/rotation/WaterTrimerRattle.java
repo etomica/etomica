@@ -49,7 +49,7 @@ public class WaterTrimerRattle {
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();
 //        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(box);
-        box.getBoundary().setDimensions(space.makeVector(new double[]{15,15,15}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{15,15,15}));
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 100;

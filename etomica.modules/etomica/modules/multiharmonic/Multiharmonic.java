@@ -46,7 +46,7 @@ public class Multiharmonic extends Simulation {
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
-        box.getBoundary().setDimensions(new Vector1D(3.0));
+        box.getBoundary().setBoxSize(new Vector1D(3.0));
         controller = getController();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setBox(box);

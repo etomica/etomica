@@ -134,7 +134,7 @@ public class MEAM_MC extends Simulation {
 	    //the unit cell to prevent distortion of the lattice.  The values for the 
 	    //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
 	    //angstroms) are taken from the ASM Handbook. 
-	    box.getBoundary().setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+	    box.getBoundary().setBoxSize(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
 	    PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
 	    //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
 	    //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));

@@ -37,7 +37,7 @@ public class MaterialFracture extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         box = new Box(space);
         box.setBoundary(new BoundaryRectangularSlit(0, space));
-        box.getBoundary().setDimensions(space.makeVector(new double[]{90,30}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{90,30}));
         addBox(box);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setIsothermal(true);
@@ -66,12 +66,12 @@ public class MaterialFracture extends Simulation {
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {
             public void initializeCoordinates(IBox aBox) {
                 IVectorMutable d = space.makeVector();
-                d.E(aBox.getBoundary().getDimensions());
+                d.E(aBox.getBoundary().getBoxSize());
                 d.setX(0, 64.7);
-                aBox.getBoundary().setDimensions(d);
+                aBox.getBoundary().setBoxSize(d);
                 super.initializeCoordinates(aBox);
                 d.setX(0, 90);
-                aBox.getBoundary().setDimensions(d);
+                aBox.getBoundary().setBoxSize(d);
             }
         };
         config.initializeCoordinates(box);

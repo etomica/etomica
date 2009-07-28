@@ -112,7 +112,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         
         box = new Box(space);
         addBox(box);
-        box.getBoundary().setDimensions(space.makeVector(new double[] {25,25,25}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numMolecules);        
         
         /*
@@ -167,121 +167,121 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         		0.238095, ElectronVolt.UNIT.toSim( 0.561248));
         
         // CA-CA
-        if(truncationRadiusCC > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusCC > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (space, potentialCC, truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new IAtomType[]{species.getCType(), species.getCType()} );
         
         // CA-HY
-        if(truncationRadiusCHy > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusCHy > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialCHy = new P2SoftSphericalTruncated (space, potentialCHy, truncationRadiusCHy); 
         potentialMaster.addPotential(interpotentialCHy, new IAtomType[]{species.getCType(), species.getHyType()} );
         
         // HY-HY
-        if(truncationRadiusHyHy > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHyHy > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHyHy = new P2SoftSphericalTruncated (space, potentialHyHy, truncationRadiusHyHy); 
         potentialMaster.addPotential(interpotentialHyHy, new IAtomType[]{species.getHyType(), species.getHyType()} );
                
         // CA-NI
-        if(truncationRadiusCN > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusCN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (space, potentialCN, truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new IAtomType[]{species.getCType(), species.getNType()} );
         
         // NI-OX
-        if(truncationRadiusNO > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusNO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialNO = new P2SoftSphericalTruncated (space, potentialNO, truncationRadiusNO); 
         potentialMaster.addPotential(interpotentialNO, new IAtomType[]{species.getNType(), species.getOType()} );
         
         //NI-NI
-        if(truncationRadiusNN > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusNN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (space, potentialNN, truncationRadiusNN); 
         potentialMaster.addPotential(interpotentialNN, new IAtomType[]{species.getNType(), species.getNType()} );
         
         // HY-NI
-        if(truncationRadiusHyN > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHyN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHyN = new P2SoftSphericalTruncated (space, potentialHyN, truncationRadiusHyN); 
         potentialMaster.addPotential(interpotentialHyN, new IAtomType[]{species.getHyType(), species.getNType()} );
         
         // HY-OX
-        if(truncationRadiusHyO > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHyO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHyO = new P2SoftSphericalTruncated (space, potentialHyO, truncationRadiusHyO); 
         potentialMaster.addPotential(interpotentialHyO, new IAtomType[]{species.getHyType(), species.getOType()} );
              
         // OX-OX
-        if(truncationRadiusOO > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusOO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (space, potentialOO, truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new IAtomType[]{species.getOType(), species.getOType()} );
         
         // CA-OX
-        if(truncationRadiusCO > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusCO > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (space, potentialCO, truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new IAtomType[]{species.getCType(), species.getOType()} );
         
         // HP-HP
-        if(truncationRadiusHpHp > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHpHp > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHpHp = new P2SoftSphericalTruncated (space, potentialHpHp, truncationRadiusHpHp); 
         potentialMaster.addPotential(interpotentialHpHp, new IAtomType[]{species.getHpType(), species.getHpType()} );
         
         // CA-HP
-        if(truncationRadiusCHp > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusCHp > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialCHp = new P2SoftSphericalTruncated (space, potentialCHp, truncationRadiusCHp); 
         potentialMaster.addPotential(interpotentialCHp, new IAtomType[]{species.getCType(), species.getHpType()} );
                
         // HP-NI
-        if(truncationRadiusHpN > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHpN > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHpN = new P2SoftSphericalTruncated (space, potentialHpN, truncationRadiusHpN); 
         potentialMaster.addPotential(interpotentialHpN, new IAtomType[]{species.getHpType(), species.getNType()} );
         
         // OX-HP
-        if(truncationRadiusOHp > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusOHp > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large. " +
-            		" Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		" Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialOHp = new P2SoftSphericalTruncated (space, potentialOHp, truncationRadiusOHp); 
         potentialMaster.addPotential(interpotentialOHp, new IAtomType[]{species.getOType(), species.getHpType()} );
         
         // HY-HP
-        if(truncationRadiusHyHp > 0.5*box.getBoundary().getDimensions().getX(0)) {
+        if(truncationRadiusHyHp > 0.5*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
-            		"Max allowed is"+0.5*box.getBoundary().getDimensions().getX(0));
+            		"Max allowed is"+0.5*box.getBoundary().getBoxSize().getX(0));
             }
         P2SoftSphericalTruncated interpotentialHyHp = new P2SoftSphericalTruncated (space, potentialHyHp, truncationRadiusHyHp); 
         potentialMaster.addPotential(interpotentialHyHp, new IAtomType[]{species.getHyType(), species.getHpType()} );
@@ -292,7 +292,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         */
         
         bdry =  new BoundaryRectangularPeriodic(space, 1); //unit cell
-        bdry.setDimensions(space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
+        bdry.setBoxSize(space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(bdry);
 
         coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);

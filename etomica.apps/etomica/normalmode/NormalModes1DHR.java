@@ -19,7 +19,7 @@ public class NormalModes1DHR implements NormalModes {
             throw new RuntimeException("Must give a box for a 1D system"); 
         }
         int nA = box.getMoleculeList().getMoleculeCount();
-        double L = box.getBoundary().getDimensions().getX(0);
+        double L = box.getBoundary().getBoxSize().getX(0);
         int mMax = nA/2;
         double[][] omega2= new double[mMax+1][1];
         omega2[0][0] = Double.POSITIVE_INFINITY;

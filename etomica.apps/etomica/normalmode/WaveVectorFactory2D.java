@@ -42,7 +42,7 @@ public class WaveVectorFactory2D implements WaveVectorFactory, Serializable {
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(box.getBoundary().getDimensions().getX(i) / (d[i]));
+            numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
         
@@ -151,7 +151,7 @@ outer:              for (int i=0; i<2; i++){
         IBox box = new Box(sp);
         sim.addBox(box);
         Primitive primitive = new PrimitiveOrthorhombicHexagonal(sim.getSpace(), 1);
-        box.getBoundary().setDimensions(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));
+        box.getBoundary().setBoxSize(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]);

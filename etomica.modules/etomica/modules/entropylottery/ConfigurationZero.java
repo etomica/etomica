@@ -26,7 +26,7 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
         MoleculeActionTranslateTo atomActionTranslateTo = new MoleculeActionTranslateTo(space);
         IVectorMutable work = space.makeVector();
         work.E(0.0);
-        int intD = (int)Math.round(box.getBoundary().getDimensions().getX(0));
+        int intD = (int)Math.round(box.getBoundary().getBoxSize().getX(0));
         if (intD % 2 == 0) {
             work.E(-0.5);
         }

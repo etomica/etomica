@@ -339,7 +339,7 @@ public class DropletGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return box.getBoundary().getDimensions().getX(dim);
+            return box.getBoundary().getBoxSize().getX(dim);
         }
 
         public void setValue(double newValue) {
@@ -347,20 +347,20 @@ public class DropletGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("Gotta be positive");
             }
             //newValue+=0.01;
-            size.E(box.getBoundary().getDimensions());
+            size.E(box.getBoundary().getBoxSize());
             double oldValue = size.getX(dim);
             size.setX(dim, newValue);
             if (dim == 1 && size.getD() == 3) {
                 size.setX(2, newValue);
             }
-            box.getBoundary().setDimensions(size);
+            box.getBoundary().setBoxSize(size);
             try {
                 reconfig.actionPerformed();
             }
             catch (RuntimeException e) {
                 // box is too small.  restore to original size
                 size.setX(dim, oldValue);
-                box.getBoundary().setDimensions(size);
+                box.getBoundary().setBoxSize(size);
                 // and reconfig.  this shouldn't throw.
                 reconfig.actionPerformed();
             }

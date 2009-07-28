@@ -55,7 +55,7 @@ public class HSMD3DNoNbr extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));

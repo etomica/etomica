@@ -161,7 +161,7 @@ public class ZeoliteSimulation extends Simulation {
         
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
-        box.getBoundary().setDimensions(config.getUpdatedDimensions());
+        box.getBoundary().setBoxSize(config.getUpdatedDimensions());
         integrator.setBox(box);
         //integrator.addListener(new BoxImposePbc(box));
           

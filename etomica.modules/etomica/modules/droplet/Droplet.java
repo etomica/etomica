@@ -63,7 +63,7 @@ public class Droplet extends Simulation {
         addBox(box);
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{4,4,4});
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, numAtoms);
         integrator.setBox(box);
 

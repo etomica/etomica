@@ -60,7 +60,7 @@ public class HSMD2D_noNbr extends Simulation {
         getSpeciesManager().addSpecies(species);
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
-        box.getBoundary().setDimensions(space.makeVector(new double[]{10,10}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10}));
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);

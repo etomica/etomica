@@ -83,7 +83,7 @@ public class TestMCMoveChangeSingleModeLEFT3DLJ extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new 
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMaster.addPotential(pTruncated, new IAtomType[]

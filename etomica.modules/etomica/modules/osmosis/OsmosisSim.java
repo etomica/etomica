@@ -91,10 +91,10 @@ public class OsmosisSim extends Simulation {
         box.setBoundary(new BoundaryRectangularNonperiodic(space));
 
         if (space instanceof Space2D){ // 2D
-            box.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
+            box.getBoundary().setBoxSize(new Vector2D(10.0, 10.0));
         }
         else if (space instanceof Space3D) { // 3D
-            box.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
+            box.getBoundary().setBoxSize(new Vector3D(10.0, 10.0, 10.0));
         }
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);

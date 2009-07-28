@@ -35,7 +35,7 @@ public class OverflowShift {
     	
 		boolean needShift[] = new boolean[dim];
 		float[][] shifts = null;
-		IVector dimensions = boundary.getDimensions();
+		IVector dimensions = boundary.getBoxSize();
 
 		//
 		// BoundaryRectangular

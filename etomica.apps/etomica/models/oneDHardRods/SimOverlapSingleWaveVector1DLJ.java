@@ -110,7 +110,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.5;
+        double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new 
                 P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[]
@@ -185,7 +185,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
 //        accumulators[1] = new AccumulatorVirialOverlapSingleAverage(10, 11, true);
         
         p2 = new P2LennardJones(space, 1.0, 1.0);
-        truncationRadius = boundaryTarget.getDimensions().getX(0) * 0.495;
+        truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.495;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, p2, truncationRadius);
         potentialMasterRef.addPotential(pTruncated, new IAtomType[]
                 {species.getLeafType(), species.getLeafType()});

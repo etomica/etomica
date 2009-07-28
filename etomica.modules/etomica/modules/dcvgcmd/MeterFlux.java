@@ -22,7 +22,7 @@ public class MeterFlux extends DataSourceScalar implements IEtomicaDataSource {
 		double t1 = integratorMD.getCurrentTime();
         if(t1 == t0) return Double.NaN;
 		int n1 = mcMove.getDeltaN();
-		double rate = (n1 - n0)/(t1 - t0)/(box.getBoundary().getDimensions().getX(0)*box.getBoundary().getDimensions().getX(1));
+		double rate = (n1 - n0)/(t1 - t0)/(box.getBoundary().getBoxSize().getX(0)*box.getBoundary().getBoxSize().getX(1));
 		n0 = n1;
 		t0 = t1;
 		return rate;

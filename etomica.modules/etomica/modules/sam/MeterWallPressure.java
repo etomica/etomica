@@ -19,7 +19,7 @@ public class MeterWallPressure extends DataSourceScalar {
     
     public double getDataAsScalar() {
         double f = pc.getWallForce();
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         double A = 1;
         for (int i=0; i<dimensions.getD(); i++) {
             if (i == pc.getWallPotential().getWallDim()) {

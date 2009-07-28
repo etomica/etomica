@@ -63,7 +63,7 @@ public class TestHSMD3D extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms/100);
-        box.getBoundary().setDimensions(space.makeVector(new double[]{l,l,l}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));

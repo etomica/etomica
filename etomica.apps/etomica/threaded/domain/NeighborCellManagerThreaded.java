@@ -33,7 +33,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     public void setNumCells(int totalCells){
         this.totalCells = totalCells;
         if(totalCells==0){return;}
-        IVector dimensions = box.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getBoxSize();
         lattice.setDimensions(dimensions);
        
         int [] nCells = calculateLatticeDimensions(totalCells, dimensions);

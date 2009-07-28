@@ -26,7 +26,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(IBox box) {
         IVectorMutable dimVector = space.makeVector();
-        dimVector.E(box.getBoundary().getDimensions());
+        dimVector.E(box.getBoundary().getBoxSize());
 		IMoleculeList moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             // initialize coordinates of child atoms

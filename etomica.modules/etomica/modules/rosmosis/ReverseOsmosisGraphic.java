@@ -137,10 +137,10 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         
 
         if (sim.getSpace().D() == 2) {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().getX(1)));
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getBoxSize().getX(1)));
         }
         else {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getDimensions().getX(1)));
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         }
 
         sim.activityIntegrate.setSleepPeriod(0);
@@ -350,7 +350,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         dataStreamPumps.add(kePump);
 
         MeterFlux meterFlux = new MeterFlux(sim, space);
-        double xLength = sim.box.getBoundary().getDimensions().getX(0);
+        double xLength = sim.box.getBoundary().getBoxSize().getX(0);
         meterFlux.setBoundaries(0, new double[]{-0.25*xLength, 0.25*xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
         meterFlux.setBox(sim.box);

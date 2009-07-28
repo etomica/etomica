@@ -74,7 +74,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 
     protected void refreshSize() {
         Dimension dim = getSize();
-        IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
+        IVector boxDim = displayBox.getBox().getBoundary().getBoxSize();
         double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
@@ -175,7 +175,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
            
         int [] origin = displayBox.getOrigin();
-        atomOrigin[0] =origin[0] + (int)(0.5*displayBox.getToPixels()*displayBox.getBox().getBoundary().getDimensions().getX(0));
+        atomOrigin[0] =origin[0] + (int)(0.5*displayBox.getToPixels()*displayBox.getBox().getBoundary().getBoxSize().getX(0));
         atomOrigin[1] =origin[1];
         
         //Draw all atoms

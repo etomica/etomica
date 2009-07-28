@@ -70,7 +70,7 @@ public class Catalysis extends Simulation {
         addBox(box);
         IVectorMutable dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);

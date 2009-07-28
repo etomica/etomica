@@ -124,14 +124,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final DeviceButton expandButton = new DeviceButton(sim.getController());
         IAction expandAction = new IAction() {
             public void actionPerformed() {
-                dim.E(sim.box.getBoundary().getDimensions());
+                dim.E(sim.box.getBoundary().getBoxSize());
                 dim.setX(0, expansionFac * dim.getX(0));
-                sim.box.getBoundary().setDimensions(dim);
+                sim.box.getBoundary().setBoxSize(dim);
                 
                 int numSurfactants = (int)nSurfactantSlider.getValue();
                 Box pretendBox = new Box(space);
                 dim.setX(0, dim.getX(0)/expansionFac);
-                pretendBox.getBoundary().setDimensions(dim);
+                pretendBox.getBoundary().setBoxSize(dim);
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
                 configLattice.initializeCoordinates(pretendBox);
@@ -185,14 +185,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 oldPreAction.actionPerformed();
                 if (!isExpanded) return;
                 IVectorMutable dim = space.makeVector();
-                dim.E(sim.box.getBoundary().getDimensions());
+                dim.E(sim.box.getBoundary().getBoxSize());
                 dim.setX(0, dim.getX(0) / expansionFac);
                 sim.box.setNMolecules(sim.surfactant, 0);
                 int nMolecules = sim.box.getNMolecules(sim.species);
                 // need to delete the molecules so that the NeighborCellManager doesn't try
                 // to give them a new cell (which would fail)
                 sim.box.setNMolecules(sim.species, 0);
-                sim.box.getBoundary().setDimensions(dim);
+                sim.box.getBoundary().setBoxSize(dim);
                 sim.box.setNMolecules(sim.species, nMolecules);
                 nSlider.setEnabled(true);
                 nSurfactantSlider.getSlider().setEnabled(true);
@@ -223,7 +223,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 if (!isExpanded) {
                     return;
                 }
-                double L = sim.box.getBoundary().getDimensions().getX(0);
+                double L = sim.box.getBoundary().getBoxSize().getX(0);
 
                 // calculate structure factor and phase angle for lowest-frequency
                 // concentration wave (delta rho (x)).
@@ -852,7 +852,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return box.getBoundary().getDimensions().getX(dim);
+            return box.getBoundary().getBoxSize().getX(dim);
         }
 
         public void setValue(double newValue) {
@@ -860,20 +860,20 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("Gotta be positive");
             }
             //newValue+=0.01;
-            size.E(box.getBoundary().getDimensions());
+            size.E(box.getBoundary().getBoxSize());
             double oldValue = size.getX(dim);
             size.setX(dim, newValue);
             if (dim == 1 && size.getD() == 3) {
                 size.setX(2, newValue);
             }
-            box.getBoundary().setDimensions(size);
+            box.getBoundary().setBoxSize(size);
             try {
                 reconfig.actionPerformed();
             }
             catch (RuntimeException e) {
                 // box is too small.  restore to original size
                 size.setX(dim, oldValue);
-                box.getBoundary().setDimensions(size);
+                box.getBoundary().setBoxSize(size);
                 // and reconfig.  this shouldn't throw.
                 reconfig.actionPerformed();
             }

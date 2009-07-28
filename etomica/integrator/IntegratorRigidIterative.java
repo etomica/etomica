@@ -718,7 +718,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             pbc.setApplyToMolecules(true);
             integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-            double boxlength = box.getBoundary().getDimensions().getX(0);
+            double boxlength = box.getBoundary().getBoxSize().getX(0);
 
             DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
             dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));

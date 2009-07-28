@@ -218,7 +218,7 @@ public class ReverseOsmosisWater extends Simulation {
         addBox(box);
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
-        box.getBoundary().setDimensions(dim);
+        box.getBoundary().setBoxSize(dim);
         configMembrane = new ConfigurationMembraneWater(this, space);
         configMembrane.setMembraneDim(0);
         configMembrane.setMembraneThickness(2*4.0);

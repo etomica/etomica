@@ -26,7 +26,7 @@ public class SingleDipole {
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 1);
-        box.getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;

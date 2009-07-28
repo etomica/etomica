@@ -80,7 +80,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
         
-        double truncationRadius = boundary.getDimensions().getX(0) * 0.495;
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
         
