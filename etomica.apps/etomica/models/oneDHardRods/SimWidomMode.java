@@ -1,11 +1,8 @@
 package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
-import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -35,7 +32,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -60,7 +56,8 @@ public class SimWidomMode extends Simulation {
     MCMoveAtomCoupled mcMoveAtom;
     MCMoveChangeSingleMode mcMoveMode;
     int harmonicWV;
-    MeterWidomMode[] widomMeter;
+    MeterWidomModeReal[] realMeter;
+    MeterWidomModeImaginary[] imagMeter;
     AccumulatorAverage[] accumulators;
 
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
@@ -129,22 +126,41 @@ public class SimWidomMode extends Simulation {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim;
         
-        widomMeter = new MeterWidomMode[coordNum];
-        accumulators = new AccumulatorAverageFixed[coordNum];
+        realMeter = new MeterWidomModeReal[coordNum];
+        accumulators = new AccumulatorAverageFixed[coordNum*2];
         DataPump pump;
         IntegratorListenerAction pumpListener;
         for(int i = 0; i < coordNum; i++){
             String name = new String("widom Meter for mode " + i);
-            widomMeter[i] = new MeterWidomMode(name, potentialMaster, 
+            realMeter[i] = new MeterWidomModeReal(name, potentialMaster, 
                     coordinateDefinition, box, i);
-            widomMeter[i].setEigenVectors(nm.getEigenvectors(box));
-            widomMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
-            widomMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-            widomMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+            realMeter[i].setEigenVectors(nm.getEigenvectors(box));
+            realMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
+            realMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+            realMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
             
             accumulators[i] = new AccumulatorAverageFixed(blocksize);
             
-            pump = new DataPump(widomMeter[i], accumulators[i]);
+            pump = new DataPump(realMeter[i], accumulators[i]);
+            pumpListener = new IntegratorListenerAction(pump);
+            pumpListener.setInterval(blocksize);
+            integrator.getEventManager().addListener(pumpListener);
+        }
+        
+        imagMeter = new MeterWidomModeImaginary[coordNum];
+        accumulators = new AccumulatorAverageFixed[coordNum];
+        for(int i = coordNum+1; i < coordNum*2; i++){
+            String name = new String("widom Meter for mode " + i);
+            imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster, 
+                    coordinateDefinition, box, i);
+            imagMeter[i].setEigenVectors(nm.getEigenvectors(box));
+            imagMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
+            imagMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+            imagMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+            
+            accumulators[i] = new AccumulatorAverageFixed(blocksize);
+            
+            pump = new DataPump(imagMeter[i], accumulators[i]);
             pumpListener = new IntegratorListenerAction(pump);
             pumpListener.setInterval(blocksize);
             integrator.getEventManager().addListener(pumpListener);
