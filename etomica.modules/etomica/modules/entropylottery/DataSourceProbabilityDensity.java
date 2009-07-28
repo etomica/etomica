@@ -46,8 +46,8 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
     public void reset() {
         totalAtomCount = box.getMoleculeList().getMoleculeCount();
         IVector dimensions = box.getBoundary().getDimensions();
-        if (data.getLength() != (int)Math.round(dimensions.x(0))) {
-            int newSize = (int)Math.round(dimensions.x(0));
+        if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
+            int newSize = (int)Math.round(dimensions.getX(0));
             data = new DataDoubleArray(newSize);
             dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{newSize});
             dataInfo.addTag(tag);
@@ -59,7 +59,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         double[] atomCount = data.getData();
         for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
              a = (IAtomPositioned)atomIterator.nextAtom()) {
-            int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
+            int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }
     }
@@ -88,8 +88,8 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
             box = ((IntegratorBox)evt.getSource()).getBox();
             totalAtomCount = box.getMoleculeList().getMoleculeCount();
             IVector dimensions = box.getBoundary().getDimensions();
-            if (data.getLength() != (int)Math.round(dimensions.x(0))) {
-                int newSize = (int)Math.round(dimensions.x(0));
+            if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
+                int newSize = (int)Math.round(dimensions.getX(0));
                 data = new DataDoubleArray(newSize);
                 dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{newSize});
                 dataInfo.addTag(tag);
@@ -101,7 +101,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
             double[] atomCount = data.getData();
             for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
                  a = (IAtomPositioned)atomIterator.nextAtom()) {
-                int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
+                int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
                 atomCount[x]++;
             }
         }

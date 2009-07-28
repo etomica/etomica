@@ -49,7 +49,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         lastProfileTime = currentTime;
         
         IVector boxDim = integratorHard.getBox().getBoundary().getDimensions();
-        if (L != boxDim.x(0)) {
+        if (L != boxDim.getX(0)) {
             // the data we collected is bogus.  reset and return NaN.
             setupProfileData();
             profileData.E(Double.NaN);
@@ -83,11 +83,11 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
 
         Tensor virialTensor = agent.collisionPotential.lastCollisionVirialTensor();
 
-        double x0 = ((IAtomPositioned)agent.atom).getPosition().x(0);
+        double x0 = ((IAtomPositioned)agent.atom).getPosition().getX(0);
         // wrap around PBC
         x0 -= Math.round(x0*Li) * L;
         int iBin0 = (int) ((x0 + halfL) / binSize);
-        double x1 = ((IAtomPositioned)agent.collisionPartner).getPosition().x(0);
+        double x1 = ((IAtomPositioned)agent.collisionPartner).getPosition().getX(0);
         // wrap around PBC
         x1 -= Math.round(x1*Li) * L;
         int iBin1 = (int) ((x1 + halfL) / binSize);
@@ -156,16 +156,16 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
 
     protected void setupProfileData() {
         IVector boxDim = integratorHard.getBox().getBoundary().getDimensions();
-        L = boxDim.x(0);
+        L = boxDim.getX(0);
         Li = 1.0/L;
         halfL = 0.5*L;
         nBins = (int)Math.round(L/binSize);
-        binSize = boxDim.x(0) / nBins;
+        binSize = boxDim.getX(0) / nBins;
         
         xData = new DataDoubleArray(nBins);
         double[] x = xData.getData();
         for (int i=0; i<nBins; i++) {
-            x[i] = -0.5 * boxDim.x(0) + (i+0.5) * binSize;
+            x[i] = -0.5 * boxDim.getX(0) + (i+0.5) * binSize;
         }
         xDataInfo = new DataInfoDoubleArray("x", Length.DIMENSION, new int[] {nBins});
         

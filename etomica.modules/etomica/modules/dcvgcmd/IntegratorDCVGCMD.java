@@ -96,7 +96,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
             }
 			IAtomList allAtoms = box.getLeafList();
 			for (int i=0; i<allAtoms.getAtomCount(); i++) {
-			    if (((IAtomPositioned)allAtoms.getAtom(i)).getPosition().x(2) < -40) {
+			    if (((IAtomPositioned)allAtoms.getAtom(i)).getPosition().getX(2) < -40) {
 			        throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+((IAtomPositioned)allAtoms.getAtom(i)).getPosition());
 			    }
 			}
@@ -108,7 +108,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	 		integratormd.doStep();
             IAtomList allAtoms = box.getLeafList();
             for (int i=0; i<allAtoms.getAtomCount(); i++) {
-                if (((IAtomPositioned)allAtoms.getAtom(i)).getPosition().x(2) < -40) {
+                if (((IAtomPositioned)allAtoms.getAtom(i)).getPosition().getX(2) < -40) {
                     throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+((IAtomPositioned)allAtoms.getAtom(i)).getPosition());
                 }
             }

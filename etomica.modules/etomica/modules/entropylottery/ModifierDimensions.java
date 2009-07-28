@@ -23,7 +23,7 @@ public class ModifierDimensions implements Modifier {
     }
 
     public double getValue() {
-        return box.getBoundary().getDimensions().x(0);
+        return box.getBoundary().getDimensions().getX(0);
     }
 
     public void setValue(double newValue) {

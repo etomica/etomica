@@ -51,7 +51,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     public double energy(IAtomList atom) {
         IVectorMutable r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
-        double rz = r.x(2);
+        double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
         if(dz2 > cutoff2 || inPore(r)) return 0.0;
@@ -70,8 +70,8 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     
     private boolean inPore(IVectorMutable r) {
         for(int i=0; i<poreCenters.length; i++) {
-            double dx = r.x(0) - poreCenters[i].x(0);
-            double dy = r.x(1) - poreCenters[i].x(1);
+            double dx = r.getX(0) - poreCenters[i].getX(0);
+            double dy = r.getX(1) - poreCenters[i].getX(1);
             double r2 = dx*dx + dy*dy;
             if(r2 < poreRadius2) return true;
         }
@@ -86,7 +86,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     public IVector[] gradient(IAtomList atom) {
         IVectorMutable r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
-        double rz = r.x(2);
+        double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
         double gradz = 0.0;

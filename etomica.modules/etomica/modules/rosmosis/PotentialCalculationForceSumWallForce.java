@@ -44,11 +44,11 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
             switch(nBody) {
                 case 1:
                     if (potential == potentialTether) {
-                        if (((IAtomPositioned)atoms.getAtom(0)).getPosition().x(0) > 0) {
-                            wallForce += gradient[0].x(0);
+                        if (((IAtomPositioned)atoms.getAtom(0)).getPosition().getX(0) > 0) {
+                            wallForce += gradient[0].getX(0);
                         }
                         else {
-                            wallForce -= gradient[0].x(0);
+                            wallForce -= gradient[0].getX(0);
                         }
                     }
                     ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(gradient[0]);

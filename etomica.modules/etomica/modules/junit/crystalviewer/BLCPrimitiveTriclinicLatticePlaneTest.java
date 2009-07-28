@@ -40,7 +40,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 	}
 
 	private double[] makeArray(IVectorMutable v) {
-	    return new double[] {v.x(0), v.x(1), v.x(2)};
+	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 
     /*
@@ -79,8 +79,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-                if(a.getPosition().x(2) >= spacePos-epsilon &&
-                   a.getPosition().x(2) <= spacePos+epsilon) {
+                if(a.getPosition().getX(2) >= spacePos-epsilon &&
+                   a.getPosition().getX(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
@@ -90,8 +90,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            if(a.getPosition().x(2) >= spacePos-epsilon &&
-               a.getPosition().x(2) <= spacePos+epsilon) {
+            if(a.getPosition().getX(2) >= spacePos-epsilon &&
+               a.getPosition().getX(2) <= spacePos+epsilon) {
                 System.out.println(funcName + " -> Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             	fail();
@@ -146,8 +146,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
 
-                if(a.getPosition().x(2) >= spacePos-epsilon &&
-                   a.getPosition().x(2) <= spacePos+epsilon) {
+                if(a.getPosition().getX(2) >= spacePos-epsilon &&
+                   a.getPosition().getX(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		(a.getPosition())));
                 }
@@ -159,8 +159,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            if(a.getPosition().x(2) >= spacePos-epsilon &&
-               a.getPosition().x(2) <= spacePos+epsilon) {
+            if(a.getPosition().getX(2) >= spacePos-epsilon &&
+               a.getPosition().getX(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             	fail();
@@ -217,8 +217,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
 
-                if(a.getPosition().x(2) >= spacePos-epsilon &&
-                   a.getPosition().x(2) <= spacePos+epsilon) {
+                if(a.getPosition().getX(2) >= spacePos-epsilon &&
+                   a.getPosition().getX(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
@@ -228,8 +228,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            if(a.getPosition().x(2) >= spacePos-epsilon &&
-               a.getPosition().x(2) <= spacePos+epsilon) {
+            if(a.getPosition().getX(2) >= spacePos-epsilon &&
+               a.getPosition().getX(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             	fail();

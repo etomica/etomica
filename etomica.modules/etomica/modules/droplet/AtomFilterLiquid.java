@@ -30,7 +30,7 @@ public class AtomFilterLiquid implements AtomFilterCollective {
         double deformation = meter.getData().getValue(1);
         double factor = (1+deformation) / (1-deformation);
         axis.E(Math.pow(factor, -1.0/3.0));
-        axis.setX(2,1.0/(axis.x(0)*axis.x(0)));
+        axis.setX(2,1.0/(axis.getX(0)*axis.getX(0)));
     }
     
     public boolean accept(IAtom a) {

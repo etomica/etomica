@@ -35,7 +35,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     public double energy(IAtomList a) {
         double e = 0.0;
         //XXX ignore atoms in the wall.  this can happen due to bogus initial configurations
-//        if (Math.abs(((AtomLeaf)a).coord.position().x(0)) < collisionRadius) {
+//        if (Math.abs(((AtomLeaf)a).coord.position().get(0)) < collisionRadius) {
 //            e = Double.MAX_VALUE;
 //        }
         return e;
@@ -46,8 +46,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVectorMutable r = atom.getPosition();
         IVectorMutable v = atom.getVelocity();
-        double vx = v.x(0);
-        double rx = r.x(0) + vx * falseTime;
+        double vx = v.getX(0);
+        double rx = r.getX(0) + vx * falseTime;
         double t = (vx > 0.0) ? - collisionRadius : collisionRadius;
         t = (t - rx) / vx;
         if (t < 0) {
@@ -61,9 +61,9 @@ public class P1HardWall extends Potential1 implements PotentialHard {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVectorMutable v = atom.getVelocity();
 
-        v.setX(0,-v.x(0));
+        v.setX(0,-v.getX(0));
 
-        double newP = atom.getPosition().x(0) - falseTime*v.x(0)*2.0;
+        double newP = atom.getPosition().getX(0) - falseTime*v.getX(0)*2.0;
         atom.getPosition().setX(0,newP);
     }
 

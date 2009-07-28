@@ -25,7 +25,7 @@ public class MeterWallPressure extends DataSourceScalar {
             if (i == pc.getWallPotential().getWallDim()) {
                 continue;
             }
-            A *= dimensions.x(i);
+            A *= dimensions.getX(i);
         }
         return f / A;
     }

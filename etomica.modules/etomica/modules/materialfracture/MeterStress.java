@@ -28,7 +28,7 @@ public class MeterStress extends DataSourceScalar {
         double area = 1;
         IVector dim = box.getBoundary().getDimensions();
         for (int i=1; i<dim.getD(); i++) {
-            area *= dim.x(i);
+            area *= dim.getX(i);
         }
 
         return pc.getLoad()/area / 2.0;

@@ -66,7 +66,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         //determine scaled shape of simulation volume
         IVectorMutable shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
-        shape.setX(2,shape.x(2)*length);
+        shape.setX(2,shape.getX(2)*length);
         IVectorMutable latticeConstantV = space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -110,14 +110,14 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             IVectorMutable site = (IVectorMutable) lattice.site(indexIterator.next());
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
-                vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
-                vectorOfMin.setX(i, Math.min(site.x(i),vectorOfMin.x(i)));
+                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
+                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
             }
         }
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
         offset.TE(-0.5);
         offset.ME(vectorOfMin);
-        offset.setX(2, offset.x(2) - 0.5*box.getBoundary().getDimensions().x(2)*(1-length));
+        offset.setX(2, offset.getX(2) - 0.5*box.getBoundary().getDimensions().getX(2)*(1-length));
 
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
@@ -135,8 +135,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             atomActionTranslateTo.actionPerformed(a);
         }
         
-        double z = offset.x(2);
-        offset.setX(2,z+box.getBoundary().getDimensions().x(2)*(1-length));
+        double z = offset.getX(2);
+        offset.setX(2,z+box.getBoundary().getDimensions().getX(2)*(1-length));
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         

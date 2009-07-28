@@ -181,13 +181,13 @@ public class Sam extends Simulation {
         // sulfur and CH3 will never be close
         double rCut = 2.5*sigmaCH2;
         double nbrCut = 2.8*sigmaCH2;
-        if (0.495*box.getBoundary().getDimensions().x(0) < rCut) {
-            rCut = 0.495*box.getBoundary().getDimensions().x(0);
-            nbrCut = 0.5*box.getBoundary().getDimensions().x(0);
+        if (0.495*box.getBoundary().getDimensions().getX(0) < rCut) {
+            rCut = 0.495*box.getBoundary().getDimensions().getX(0);
+            nbrCut = 0.5*box.getBoundary().getDimensions().getX(0);
         }
-        if (0.495*box.getBoundary().getDimensions().x(2) < rCut) {
-            rCut = 0.495*box.getBoundary().getDimensions().x(2);
-            nbrCut = 0.5*box.getBoundary().getDimensions().x(2);
+        if (0.495*box.getBoundary().getDimensions().getX(2) < rCut) {
+            rCut = 0.495*box.getBoundary().getDimensions().getX(2);
+            nbrCut = 0.5*box.getBoundary().getDimensions().getX(2);
         }
         potentialMaster.setRange(nbrCut);
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
@@ -258,7 +258,7 @@ public class Sam extends Simulation {
         potentialMaster.addPotential(p1SurfaceBond, new IAtomType[]{species.getSulfurType()});
         
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        wallPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
+        wallPotential.setWallPosition(box.getBoundary().getDimensions().getX(1)*0.5);
         potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new IAtomType[]{species.getCH3Type()});
 
@@ -308,7 +308,7 @@ public class Sam extends Simulation {
             sulfurPosition.ME(moleculePos);
             molecule = null;
             sulfurPosition.TE(-1);
-            sulfurPosition.setX(1, sulfurPosition.x(1)+2.5);
+            sulfurPosition.setX(1, sulfurPosition.getX(1)+2.5);
             
             config.setMoleculeOffset(sulfurPosition);
         }
@@ -379,7 +379,7 @@ public class Sam extends Simulation {
         boolean increase = newNumZCells > numZCells;
         numZCells = newNumZCells;
         IVectorMutable dim = space.makeVector();
-        double zShift = box.getBoundary().getDimensions().x(2);
+        double zShift = box.getBoundary().getDimensions().getX(2);
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
         box.getBoundary().setDimensions(dim);
         config.setNCellsZ(numZCells);
@@ -390,7 +390,7 @@ public class Sam extends Simulation {
             IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
-                a.getPosition().setX(2, a.getPosition().x(2) - 0.5*zShift);
+                a.getPosition().setX(2, a.getPosition().getX(2) - 0.5*zShift);
             }
             
             box.setNMolecules(species, 2*numXCells*numZCells);
@@ -403,7 +403,7 @@ public class Sam extends Simulation {
                     IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(j);
                     IAtomPositioned atom = (IAtomPositioned)childList.getAtom(j);
                     atom.getPosition().E(atom0.getPosition());
-                    atom.getPosition().setX(2, atom.getPosition().x(2) + zShift);
+                    atom.getPosition().setX(2, atom.getPosition().getX(2) + zShift);
                 }
             }
 
@@ -414,7 +414,7 @@ public class Sam extends Simulation {
                 IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
                 IAtomPositioned atom = (IAtomPositioned)childList.getAtom(0);
                 atom.getPosition().E(atom0.getPosition());
-                atom.getPosition().setX(2, atom.getPosition().x(2) + zShift);
+                atom.getPosition().setX(2, atom.getPosition().getX(2) + zShift);
             }
         }
 
@@ -434,7 +434,7 @@ public class Sam extends Simulation {
         }
         int oldNumXCells = numXCells;
         numXCells = newNumXCells;
-        double xShift = box.getBoundary().getDimensions().x(0);
+        double xShift = box.getBoundary().getDimensions().getX(0);
         IVectorMutable dim = space.makeVector();
         dim.E(new double[]{sizeCellX*numXCells, chainLength*2.5, sizeCellZ*numZCells});
         box.getBoundary().setDimensions(dim);
@@ -452,7 +452,7 @@ public class Sam extends Simulation {
             IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
-                a.getPosition().setX(0, a.getPosition().x(0) - 0.5*xShift);
+                a.getPosition().setX(0, a.getPosition().getX(0) - 0.5*xShift);
             }
             
             box.setNMolecules(species, 2*numXCells*numZCells);
@@ -465,7 +465,7 @@ public class Sam extends Simulation {
                     IAtomPositioned atom0 = (IAtomPositioned)childList0.getAtom(j);
                     IAtomPositioned atom = (IAtomPositioned)childList.getAtom(j);
                     atom.getPosition().E(atom0.getPosition());
-                    atom.getPosition().setX(0, atom.getPosition().x(0) + xShift);
+                    atom.getPosition().setX(0, atom.getPosition().getX(0) + xShift);
                 }
             }
 
@@ -476,7 +476,7 @@ public class Sam extends Simulation {
                 IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
                 IAtomPositioned atom = (IAtomPositioned)childList.getAtom(0);
                 atom.getPosition().E(atom0.getPosition());
-                atom.getPosition().setX(0, atom.getPosition().x(0) + xShift);
+                atom.getPosition().setX(0, atom.getPosition().getX(0) + xShift);
             }
         }
 
@@ -492,12 +492,12 @@ public class Sam extends Simulation {
     protected void updateRCut() {
         double rCut = 2.5*sigmaCH2;
         double nbrCut = 2.8*sigmaCH2;
-        if (0.5*box.getBoundary().getDimensions().x(0) < nbrCut) {
-            nbrCut = 0.5*box.getBoundary().getDimensions().x(0);
+        if (0.5*box.getBoundary().getDimensions().getX(0) < nbrCut) {
+            nbrCut = 0.5*box.getBoundary().getDimensions().getX(0);
             rCut = nbrCut * 0.85;
         }
-        if (0.5*box.getBoundary().getDimensions().x(2) < nbrCut) {
-            nbrCut = 0.5*box.getBoundary().getDimensions().x(2);
+        if (0.5*box.getBoundary().getDimensions().getX(2) < nbrCut) {
+            nbrCut = 0.5*box.getBoundary().getDimensions().getX(2);
             rCut = nbrCut * 0.85;
         }
         p2CH2t.setTruncationRadius(rCut);

@@ -72,7 +72,7 @@ public class EllipseDisplayAction {
             }
         };
         undisplayThread.start();
-        ellipse.setX((float)(-sim.getBox(0).getBoundary().getDimensions().x(0)*0.6));
+        ellipse.setX((float)(-sim.getBox(0).getBoundary().getDimensions().getX(0)*0.6));
         ellipse.setY(0);
         ellipse.setZ(0);
         graphic.getDisplayBox(sim.getBox(0)).repaint();

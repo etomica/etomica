@@ -22,8 +22,8 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
 
     public double getDataAsScalar() {
         IVector dimensions = box.getBoundary().getDimensions();
-        if (atomCount.length != (int)Math.round(dimensions.x(0))) {
-            atomCount = new int[(int)Math.round(dimensions.x(0))];
+        if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
+            atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }
         for (int i=0; i<atomCount.length; i++) {
             atomCount[i] = 0;
@@ -31,7 +31,7 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
         IAtomList leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
-            int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
+            int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }
         

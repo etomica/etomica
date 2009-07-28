@@ -45,7 +45,7 @@ public class MeterRDFCylinder extends MeterRDF {
         double radius = pistonPotential.getCollisionRadius();
         for (int i=0; i<space.D(); i++) {
             if (i == 1) {
-                double ySize = dimensions.x(1)*0.5;
+                double ySize = dimensions.getX(1)*0.5;
                 if (dimensions.getD() == 2) {
                     ySize -= pistonPotential.getWallPosition();
                 }
@@ -58,7 +58,7 @@ public class MeterRDFCylinder extends MeterRDF {
                 }
             }
             else {
-                pistonRatio *= (dimensions.x(i) - 2*(xMax + radius)) / (dimensions.x(i) - 2*radius);
+                pistonRatio *= (dimensions.getX(i) - 2*(xMax + radius)) / (dimensions.getX(i) - 2*radius);
             }
         }
         data.TE(1/pistonRatio);

@@ -20,7 +20,7 @@ public class WallPlane extends Plane {
     
     // DisplayBoxCanvasG3DSys calls this
     public double distanceTo(IVector v) {
-        return v.x(1) - wallPotential.getWallPosition()+2;
+        return v.getX(1) - wallPotential.getWallPosition()+2;
     }
     
     public double getA() {

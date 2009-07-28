@@ -47,7 +47,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         this.getController().getControllerButton().setPostAction(getPaintAction(sim.box));
 
 	    //display of box, timer
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(300/sim.box.getBoundary().getDimensions().x(0)));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(300/sim.box.getBoundary().getDimensions().getX(0)));
         getDisplayBox(sim.box).setDrawingHeight(300);
         DisplayBoxCanvas1DBins canvas = new DisplayBoxCanvas1DBins(getDisplayBox(sim.box), sim.getController());
         Component controllerButtons = getPanel().graphicsPanel.getComponent(0);

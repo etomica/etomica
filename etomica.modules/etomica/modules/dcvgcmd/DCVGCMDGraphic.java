@@ -236,8 +236,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         public boolean accept(IAtom atom) {
             if(!active) return true;
             if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
-            double x0 = ((DCVGCMD)simulation).poreCenter.x(0);
-            return ((IAtomPositioned)atom).getPosition().x(0) < x0;
+            double x0 = ((DCVGCMD)simulation).poreCenter.getX(0);
+            return ((IAtomPositioned)atom).getPosition().getX(0) < x0;
 
         }
         public boolean accept(IMolecule mole) {

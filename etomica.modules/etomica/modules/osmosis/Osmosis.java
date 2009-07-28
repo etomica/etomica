@@ -166,12 +166,12 @@ public class Osmosis extends SimulationGraphic {
         IVector dimensions = sim.box.getBoundary().getDimensions();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
-            moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
-            moleFractionRight.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
+            moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1)));
+            moleFractionRight.setShapeOrigin(new Vector2D(dimensions.getX(0)*0.25, 0));
         }
         else if (sim.getSpace() instanceof Space3D) { // 3D
-            moleFractionRight.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
-            moleFractionRight.setShapeOrigin(new Vector3D(dimensions.x(0)*0.25, 0, 0));
+            moleFractionRight.setShape(new Cuboid(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1), dimensions.getX(2)));
+            moleFractionRight.setShapeOrigin(new Vector3D(dimensions.getX(0)*0.25, 0, 0));
         }
 
         moleFractionRight.setSpecies(sim.speciesSolute);
@@ -189,13 +189,13 @@ public class Osmosis extends SimulationGraphic {
         moleFractionLeft = new MeterLocalMoleFraction(space, sim.box);
 
         if (sim.getSpace() instanceof Space2D) { // 2D
-            moleFractionLeft.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
-            moleFractionLeft.setShapeOrigin(new Vector2D(-dimensions.x(0)*0.25, 0));
+            moleFractionLeft.setShape(new Rectangle(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1)));
+            moleFractionLeft.setShapeOrigin(new Vector2D(-dimensions.getX(0)*0.25, 0));
         }
         else if (sim.getSpace() instanceof Space3D) { // 3D
-            moleFractionLeft.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
+            moleFractionLeft.setShape(new Cuboid(sim.getSpace(), dimensions.getX(0)*0.5, dimensions.getX(1), dimensions.getX(2)));
 
-            moleFractionLeft.setShapeOrigin(new Vector3D(-dimensions.x(0)*0.25, 0, 0));
+            moleFractionLeft.setShapeOrigin(new Vector3D(-dimensions.getX(0)*0.25, 0, 0));
         }
 
         moleFractionLeft.setSpecies(sim.speciesSolute);
@@ -306,9 +306,9 @@ public class Osmosis extends SimulationGraphic {
     protected class MyWall implements Drawable {
     	public void draw(Graphics g, int[] origin, double scale) {
     		if(sim.getSpace() instanceof Space2D) {
-    		    int x1 = origin[0]+(int)(0.5*scale*sim.box.getBoundary().getDimensions().x(0));
+    		    int x1 = origin[0]+(int)(0.5*scale*sim.box.getBoundary().getDimensions().getX(0));
     		    int y1 = origin[1];
-			    int h = (int)(scale*sim.box.getBoundary().getDimensions().x(1));
+			    int h = (int)(scale*sim.box.getBoundary().getDimensions().getX(1));
 			    int w = 4;
 			    g.setColor(Color.green);
     		    g.fillRect(x1-w, y1, w, h);

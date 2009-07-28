@@ -61,9 +61,9 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         IVector dim = box.getBoundary().getDimensions();
         for (int i=0; i<dim.getD(); i++) {
             if (i == profileDim) continue;
-            area *= dim.x(i);
+            area *= dim.getX(i);
         }
-        double binSize = dim.x(0) / virialData[profileDim].length;
+        double binSize = dim.getX(0) / virialData[profileDim].length;
         double fac = 0.5/area/binSize/(D-1);
         for (int i=0; i<nBins; i++) {
             tension[i] *= fac;

@@ -226,8 +226,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = (-0.5 + length + 0.05) * box.getBoundary().getDimensions().x(2);
-        double zB = ( 0.5 - length - 0.05) * box.getBoundary().getDimensions().x(2);
+        double zA = (-0.5 + length + 0.05) * box.getBoundary().getDimensions().getX(2);
+        double zB = ( 0.5 - length - 0.05) * box.getBoundary().getDimensions().getX(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);

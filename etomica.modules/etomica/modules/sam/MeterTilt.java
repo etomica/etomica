@@ -49,10 +49,10 @@ public class MeterTilt implements IEtomicaDataSource {
             int leafCount = atomList.getAtomCount();
             dr.E(((IAtomPositioned)atomList.getAtom(leafCount-1)).getPosition());
             dr.ME(((IAtomPositioned)atomList.getAtom(1)).getPosition());
-            thetaSum += Math.acos(dr.x(1)/Math.sqrt(dr.squared()));
+            thetaSum += Math.acos(dr.getX(1)/Math.sqrt(dr.squared()));
             drSum.PE(dr);
         }
-        ((DataDouble)data.getData(0)).x = Math.acos(drSum.x(1)/Math.sqrt(drSum.squared()));
+        ((DataDouble)data.getData(0)).x = Math.acos(drSum.getX(1)/Math.sqrt(drSum.squared()));
         ((DataDouble)data.getData(1)).x = thetaSum / nMolecules;
         return data;
     }

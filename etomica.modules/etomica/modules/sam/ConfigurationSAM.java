@@ -65,7 +65,7 @@ public class ConfigurationSAM implements Configuration {
         dim.E(box.getBoundary().getDimensions());
         dim.setX(0, nCellsX*cellSizeX);
         dim.setX(2, nCellsZ*cellSizeZ);
-        double boxLengthY = dim.x(1);
+        double boxLengthY = dim.getX(1);
         box.getBoundary().setDimensions(dim);
         pretendBox.getBoundary().setDimensions(dim);
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, boxLengthY, cellSizeZ);
@@ -80,7 +80,7 @@ public class ConfigurationSAM implements Configuration {
         IVectorMutable offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = ((IAtomPositioned)molecules.getMolecule(0).getChildList().getAtom(0)).getPosition().x(1) + moleculeOffset.x(1);
+        double y0 = ((IAtomPositioned)molecules.getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1) + moleculeOffset.getX(1);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);

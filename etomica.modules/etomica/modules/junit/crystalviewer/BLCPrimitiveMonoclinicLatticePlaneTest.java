@@ -38,7 +38,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 	}
 
 	private double[] makeArray(IVectorMutable v) {
-	    return new double[] {v.x(0), v.x(1), v.x(2)};
+	    return new double[] {v.getX(0), v.getX(1), v.getX(2)};
 	}
 
     /*
@@ -73,8 +73,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-                if(a.getPosition().x(0) >= spacePos-epsilon &&
-                   a.getPosition().x(0) <= spacePos+epsilon) {
+                if(a.getPosition().getX(0) >= spacePos-epsilon &&
+                   a.getPosition().getX(0) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		(etomica.space3d.Vector3D)(a.getPosition())));
                 }
@@ -86,8 +86,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            if(a.getPosition().x(0) >= spacePos-epsilon &&
-               a.getPosition().x(0) <= spacePos+epsilon) {
+            if(a.getPosition().getX(0) >= spacePos-epsilon &&
+               a.getPosition().getX(0) <= spacePos+epsilon) {
                 System.out.println(funcName + " -> Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             	fail();
@@ -138,8 +138,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
 
-                if(a.getPosition().x(0) >= spacePos-epsilon &&
-                   a.getPosition().x(0) <= spacePos+epsilon) {
+                if(a.getPosition().getX(0) >= spacePos-epsilon &&
+                   a.getPosition().getX(0) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		(etomica.space3d.Vector3D)(a.getPosition())));
                 }
@@ -151,8 +151,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
-            if(a.getPosition().x(0) >= spacePos-epsilon &&
-               a.getPosition().x(0) <= spacePos+epsilon) {
+            if(a.getPosition().getX(0) >= spacePos-epsilon &&
+               a.getPosition().getX(0) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             	fail();

@@ -64,16 +64,16 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
             for (int i=0; i<2; i++) {
                 IVectorMutable pos = ((IAtomPositioned)atoms.getAtom(i)).getPosition();
                 
-                if (pos.x(0) < -0.5*dimensions.x(0)+radius ||
-                    pos.x(0) >  0.5*dimensions.x(0)-radius) {
+                if (pos.getX(0) < -0.5*dimensions.getX(0)+radius ||
+                    pos.getX(0) >  0.5*dimensions.getX(0)-radius) {
                     numOut++;
                 }
-                else if ((pos.getD() == 2 && (pos.x(1) < pistonPotential.getWallPosition()+radius ||
-                                              pos.x(1) >  0.5*dimensions.x(1)-radius)) ||
-                         (pos.getD() == 3 && (pos.x(1) > pistonPotential.getWallPosition()-radius ||
-                                 pos.x(1) < -0.5*dimensions.x(1)+radius ||
-                                 pos.x(2) < -0.5*dimensions.x(2)+radius ||
-                                 pos.x(2) >  0.5*dimensions.x(2)-radius))) {
+                else if ((pos.getD() == 2 && (pos.getX(1) < pistonPotential.getWallPosition()+radius ||
+                                              pos.getX(1) >  0.5*dimensions.getX(1)-radius)) ||
+                         (pos.getD() == 3 && (pos.getX(1) > pistonPotential.getWallPosition()-radius ||
+                                 pos.getX(1) < -0.5*dimensions.getX(1)+radius ||
+                                 pos.getX(2) < -0.5*dimensions.getX(2)+radius ||
+                                 pos.getX(2) >  0.5*dimensions.getX(2)-radius))) {
                     numOut++;
                 }
             }

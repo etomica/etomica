@@ -141,7 +141,7 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setShowBorder(true);
         wallPositionSlider.setLabel("Wall position");
         wallPositionSlider.setMinimum(15);
-        double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
+        double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1);
         double sliderValue = sim.wallPotential.getWallPosition()-surfacePosition;
         if (sliderValue < 30) {
             wallPositionSlider.setMaximum(30);
@@ -466,7 +466,7 @@ public class SamGraphic extends SimulationGraphic {
 
         protected IData processData(IData inputData) {
             double[] xy = data.getData();
-            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
+            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1);
             xy[0] = sim.wallPotential.wallPosition-surfacePosition;
             xy[1] = inputData.getValue(0);
             return data;
@@ -500,7 +500,7 @@ public class SamGraphic extends SimulationGraphic {
             double position = sim.wallPotential.getWallPosition()-0.1;
             sim.wallPotential.setWallPosition(position);
             wallPositionSlider.doUpdate();
-            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
+            double surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1);
             if (position-surfacePosition < 15.01) {
                 // turn ourselves off
                 moveWallToggle.actionPerformed();
@@ -518,7 +518,7 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         public void update() {
-            surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().x(1);
+            surfacePosition = ((IAtomPositioned)sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1);
         }
 
         public void setValue(double newValue) {
@@ -526,7 +526,7 @@ public class SamGraphic extends SimulationGraphic {
             IAtomList leafList = sim.box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(i);
-                double atomPos = atom.getPosition().x(1);
+                double atomPos = atom.getPosition().getX(1);
                 if (atomPos > maxAtomPos) {
                     maxAtomPos = atomPos;
                 }

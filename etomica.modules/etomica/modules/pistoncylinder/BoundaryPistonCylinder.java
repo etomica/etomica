@@ -27,15 +27,15 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
             if (i == 1) {
                 if (space.D() == 2) {
                     // bottom of the box is +dimensions/2, top is wall position
-                    v *= (0.5*dimensions.x(i) - pistonPotential.getWallPosition() - collisionDiameter);
+                    v *= (0.5*dimensions.getX(i) - pistonPotential.getWallPosition() - collisionDiameter);
                 }
                 else {
                     // bottom of the box is -dimensions/2, top is wall position
-                    v *= (0.5*dimensions.x(i) + pistonPotential.getWallPosition() - collisionDiameter);
+                    v *= (0.5*dimensions.getX(i) + pistonPotential.getWallPosition() - collisionDiameter);
                 }
             }
             else {
-                v *= dimensions.x(i) - collisionDiameter;
+                v *= dimensions.getX(i) - collisionDiameter;
             }
         }
         return v;

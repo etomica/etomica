@@ -117,10 +117,10 @@ public class CatalysisGraphic extends SimulationGraphic {
         }
 
         if (sim.getSpace().D() == 2) {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().x(1)));
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().getX(1)));
         }
         else {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getDimensions().x(1)));
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getDimensions().getX(1)));
         }
 
         sim.activityIntegrate.setSleepPeriod(0);

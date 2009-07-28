@@ -21,7 +21,7 @@ public class PistonPlane extends Plane {
     
     // DisplayBoxCanvasG3DSys calls this
     public double distanceTo(IVector v) {
-        return v.x(1) - pistonPotential.getWallPosition();
+        return v.getX(1) - pistonPotential.getWallPosition();
     }
     
     public double getA() {

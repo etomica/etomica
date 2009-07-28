@@ -48,18 +48,18 @@ public class IntegratorPolymer extends IntegratorMD {
             IVectorMutable p0 = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
             IVectorMutable p1 = ((IAtomPositioned)atoms.getAtom(1)).getPosition();
             drNext.Ev1Mv2(p1, p0);
-            double px = p0.x(0);
-            double py = p0.x(1);
+            double px = p0.getX(0);
+            double py = p0.getX(1);
             p0.PEa1Tv1(-omdth, drNext);
             if (a<0) {
-                p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
+                p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
+                p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
             }
             else {
-                p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) - sqa*srdt*py + sqdt*random.nextGaussian());
+                p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
+                p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
             }
-            p0.setX(2, p0.x(2) + sqdt*random.nextGaussian());
+            p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
             center.PE(p0);
             
             for (int j=1; j<atoms.getAtomCount()-1; j++) {
@@ -67,38 +67,38 @@ public class IntegratorPolymer extends IntegratorMD {
                 p0 = p1;
                 p1 = ((IAtomPositioned)atoms.getAtom(j+1)).getPosition();
                 drNext.Ev1Mv2(p1, p0);
-                px = p0.x(0);
-                py = p0.x(1);
+                px = p0.getX(0);
+                py = p0.getX(1);
 
                 p0.PEa1Tv1(omdth, drPrev);
                 p0.PEa1Tv1(-omdth, drNext);
                 if (a<0) {
-                    p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
+                    p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
+                    p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
                 }
                 else {
-                    p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.x(1) - sqa*srdt*py + sqdt*random.nextGaussian());
+                    p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
+                    p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
                 }
-                p0.setX(2, p0.x(2) + sqdt*random.nextGaussian());
+                p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
                 center.PE(p0);
             }
 
             drPrev.E(drNext);
             p0 = p1;
-            px = p0.x(0);
-            py = p0.x(1);
+            px = p0.getX(0);
+            py = p0.getX(1);
 
             p0.PEa1Tv1(omdth, drPrev);
             if (a<0) {
-                p0.setX(0, p0.x(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) + a*srdt*px + sqdt*random.nextGaussian());
+                p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
+                p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
             }
             else {
-                p0.setX(0, p0.x(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                p0.setX(1, p0.x(1) - sqa*srdt*py + sqdt*random.nextGaussian());
+                p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
+                p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
             }
-            p0.setX(2, p0.x(2) + sqdt*random.nextGaussian());
+            p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
 
             // maintain center at 0
             center.PE(p0);

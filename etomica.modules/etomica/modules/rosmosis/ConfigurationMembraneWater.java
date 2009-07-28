@@ -47,7 +47,7 @@ public class ConfigurationMembraneWater implements Configuration {
         box.setNMolecules(speciesMembrane, 0);
         
         IVector boxDimensions = box.getBoundary().getDimensions();
-        double boxLength = boxDimensions.x(membraneDim);
+        double boxLength = boxDimensions.getX(membraneDim);
         double chamberLength = 0.5 * boxLength - membraneTotalThickness;
         
         // solventChamber (middle, solvent-only)
@@ -87,7 +87,7 @@ public class ConfigurationMembraneWater implements Configuration {
                 IMolecule molecule = molecules.getMolecule(i);
                 pretendBox.removeMolecule(molecule);
                 // we need to translate the molecules into the proper chamber
-                double x = positionDefinition.position(molecule).x(membraneDim);
+                double x = positionDefinition.position(molecule).getX(membraneDim);
                 if (x < 0) {
                     translationVector.setX(membraneDim, -0.5*chamberLength - membraneTotalThickness);
                 }
@@ -122,9 +122,9 @@ public class ConfigurationMembraneWater implements Configuration {
         
         nMolecules = 2*membraneWidth * membraneWidth * pretendNumMembraneLayers;
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
-        double a = boxDimensions.x(0) / membraneWidth;
-        double b = boxDimensions.x(1) / membraneWidth;
-        double c = boxDimensions.x(2) / membraneWidth;
+        double a = boxDimensions.getX(0) / membraneWidth;
+        double b = boxDimensions.getX(1) / membraneWidth;
+        double c = boxDimensions.getX(2) / membraneWidth;
         switch (membraneDim) {
             case 0:
                 a = 2*pretendMembraneThickness / pretendNumMembraneLayers;
@@ -153,14 +153,14 @@ public class ConfigurationMembraneWater implements Configuration {
             pretendBox.setNMolecules(speciesMembrane, nMolecules);
             configLattice.initializeCoordinates(pretendBox);
             
-            double membraneShift = shifts[iShift]*boxDimensions.x(membraneDim) - membraneCenter;
+            double membraneShift = shifts[iShift]*boxDimensions.getX(membraneDim) - membraneCenter;
             // move molecules over to the real box
             molecules = pretendBox.getMoleculeList(speciesMembrane);
             for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(0);
-                double x = atom.getPosition().x(membraneDim);
+                double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneTotalThickness) {
                     // we encountered a pretend atom in our pretend box!
                     continue;

@@ -56,12 +56,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 			}
             box.addMolecule(testMolecule);
 			position.E(positionSource.randomPosition());
-			double z = position.x(2);
+			double z = position.getX(2);
             z *= zFraction;
 			if(nearOrigin) {
-                z = (0.5*zFraction-0.5)*box.getBoundary().getDimensions().x(2) + z;
+                z = (0.5*zFraction-0.5)*box.getBoundary().getDimensions().getX(2) + z;
 			} else {
-				z = (0.5-0.5*zFraction)*box.getBoundary().getDimensions().x(2) - z;
+				z = (0.5-0.5*zFraction)*box.getBoundary().getDimensions().getX(2) - z;
 			}
 			position.setX(2,z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
@@ -100,14 +100,14 @@ public class MyMCMove extends MCMoveInsertDelete {
     
     public void setupActiveAtoms() {
     	activeAtoms.clear();
-    	double zBoundary = box.getBoundary().getDimensions().x(2);
+    	double zBoundary = box.getBoundary().getDimensions().getX(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
 
-    		double z = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition().x(2);
+    		double z = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition().getX(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(molecule);
     	}

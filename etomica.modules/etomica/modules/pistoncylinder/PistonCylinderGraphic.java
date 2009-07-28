@@ -525,10 +525,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 */
 
         if (D == 2) {
-            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
+            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().getX(1)));
         }
         else {
-            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getDimensions().x(1)));
+            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getDimensions().getX(1)));
         }
         displayBox.setAlign(1,DisplayBox.BOTTOM);
         displayBox.canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
@@ -939,7 +939,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             }
             IVector boxDim = pc.box.getBoundary().getDimensions();
             IAtomList leafList = pc.box.getLeafList();
-            double yShift = 0.5*(boxDim.x(1)-sigma);
+            double yShift = 0.5*(boxDim.getX(1)-sigma);
             if (D == 2) {
                 yShift = -yShift;
             }
@@ -947,7 +947,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 // scale atom positions
                 for (int i=0; i<leafList.getAtomCount(); i++) {
                     IVectorMutable pos = ((IAtomPositioned)leafList.getAtom(i)).getPosition();
-                    double y = (pos.x(1)+yShift) * (oldDensity / newValue) - yShift;
+                    double y = (pos.getX(1)+yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }
             }

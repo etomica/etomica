@@ -49,7 +49,7 @@ public class P1Tension implements PotentialSoft {
     public double energy(IAtomList a) {
         IVectorMutable r = ((IAtomPositioned)a.getAtom(0)).getPosition();
         double aSum = 0.0;
-        double x = r.x(0);
+        double x = r.getX(0);
         aSum += x*x;
         return 0.5*w*aSum;
     }
@@ -61,7 +61,7 @@ public class P1Tension implements PotentialSoft {
     public IVector[] gradient(IAtomList a) {
         IVectorMutable r = ((IAtomPositioned)a.getAtom(0)).getPosition();
         force[0].setX(1, 0);
-        double x = r.x(0);
+        double x = r.getX(0);
         force[0].setX(0,-w*x);
         return force;
     }

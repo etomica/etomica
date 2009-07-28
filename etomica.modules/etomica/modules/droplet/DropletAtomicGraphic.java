@@ -139,7 +139,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         squeezeSlider.setShowValues(true);
         squeezeSlider.setLabel("Squeezing force ("+Angstrom.UNIT.symbol()+"/ps^2)");
         add(squeezeSlider);
-        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getDimensions().x(0));
+        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getDimensions().getX(0));
         final EllipseDisplayAction ellipseDisplayAction = new EllipseDisplayAction(this, dropDiameter);
         squeezeSlider.setPostAction(new IAction() {
             public void actionPerformed() {

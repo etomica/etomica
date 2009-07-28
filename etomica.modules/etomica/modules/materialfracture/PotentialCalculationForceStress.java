@@ -36,7 +36,7 @@ public class PotentialCalculationForceStress extends
             case 1:
                 ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
                 if (potential instanceof P1Tension) {
-                    load += Math.abs(f[0].x(0));
+                    load += Math.abs(f[0].getX(0));
                 }
                 break;
             case 2:

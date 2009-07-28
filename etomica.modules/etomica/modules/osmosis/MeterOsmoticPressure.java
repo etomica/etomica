@@ -62,7 +62,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
         IVector dimensions = integratorHard.getBox().getBoundary().getDimensions();
         double area = 1;
         for (int i=1; i<dimensions.getD(); i++) {
-            area *= (dimensions.x(i)-2*collisionRadius);
+            area *= (dimensions.getX(i)-2*collisionRadius);
         }
         return value / area;
     }

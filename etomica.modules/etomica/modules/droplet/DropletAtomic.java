@@ -106,12 +106,12 @@ public class DropletAtomic extends Simulation {
         IAtomList leafList = box.getLeafList();
         IVectorMutable v = space.makeVector();
         IVector dim = box.getBoundary().getDimensions();
-        double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.x(0)*dim.x(0);
+        double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.getX(0)*dim.getX(0);
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             v.E(((IAtomPositioned)leafList.getAtom(i)).getPosition());
-            v.setX(0, v.x(0)/xDropAxis);
+            v.setX(0, v.getX(0)/xDropAxis);
             if (v.squared() > dropRadiusSq) {
                 ambientCount++;
                 if (ambientCount == 20) {

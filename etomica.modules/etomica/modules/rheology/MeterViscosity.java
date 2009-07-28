@@ -40,7 +40,7 @@ public class MeterViscosity extends DataSourceScalar {
             IVector p0 = ((IAtomPositioned)list.getAtom(i)).getPosition();
             IVector p1 = ((IAtomPositioned)list.getAtom(i+1)).getPosition();
             dr.Ev1Mv2(p1, p0);
-            v += dr.x(0)*dr.x(1);
+            v += dr.getX(0)*dr.getX(1);
         }
         return v/shearRate;
     }

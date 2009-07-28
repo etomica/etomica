@@ -40,8 +40,8 @@ public class MeterNormalStress extends DataSourceScalar {
             IVector p0 = ((IAtomPositioned)list.getAtom(i)).getPosition();
             IVector p1 = ((IAtomPositioned)list.getAtom(i+1)).getPosition();
             dr.Ev1Mv2(p1, p0);
-            double dr0 = dr.x(d[0]);
-            double dr1 = dr.x(d[1]);
+            double dr0 = dr.getX(d[0]);
+            double dr1 = dr.getX(d[1]);
             s += (dr0*dr0 - dr1*dr1);
         }
         s /= shearRate;

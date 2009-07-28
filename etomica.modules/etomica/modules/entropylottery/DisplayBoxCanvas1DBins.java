@@ -46,7 +46,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     protected void refreshSize() {
         Dimension dim = getSize();
         IVector boxDim = displayBox.getBox().getBoundary().getDimensions();
-        double px = (dim.width - 1)/(boxDim.x(0)+displayBox.getPaddingSigma());
+        double px = (dim.width - 1)/(boxDim.getX(0)+displayBox.getPaddingSigma());
         if (pixel != null && pixel.toPixels() == px) {
             return;
         }
@@ -130,8 +130,8 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
         
         IBox box = displayBox.getBox();
         IVector dimensions = box.getBoundary().getDimensions();
-        if (atomCount.length != (int)Math.round(dimensions.x(0))) {
-            atomCount = new int[(int)Math.round(dimensions.x(0))];
+        if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
+            atomCount = new int[(int)Math.round(dimensions.getX(0))];
         }
         for (int i=0; i<atomCount.length; i++) {
             atomCount[i] = 0;
@@ -140,7 +140,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
         atomIterator.reset();
         for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
              a = (IAtomPositioned)atomIterator.nextAtom()) {
-            int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
+            int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }
         

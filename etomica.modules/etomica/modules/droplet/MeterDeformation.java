@@ -80,20 +80,20 @@ public class MeterDeformation implements IEtomicaDataSource {
         rg.setX(1, moment.component(1,1));
         rg.setX(2, moment.component(2,2));
         // ugh
-        if (rg.x(0) > rg.x(1)) {
-            double t = rg.x(0);
-            rg.setX(0, rg.x(1));
+        if (rg.getX(0) > rg.getX(1)) {
+            double t = rg.getX(0);
+            rg.setX(0, rg.getX(1));
             rg.setX(1, t);
         }
-        if (rg.x(2) < rg.x(0)) {
-            double t = rg.x(0);
-            rg.setX(0, rg.x(2));
-            rg.setX(2, rg.x(1));
+        if (rg.getX(2) < rg.getX(0)) {
+            double t = rg.getX(0);
+            rg.setX(0, rg.getX(2));
+            rg.setX(2, rg.getX(1));
             rg.setX(1, t);
         }
-        else if (rg.x(2) < rg.x(1)) {
-            double t = rg.x(1);
-            rg.setX(1, rg.x(2));
+        else if (rg.getX(2) < rg.getX(1)) {
+            double t = rg.getX(1);
+            rg.setX(1, rg.getX(2));
             rg.setX(2, t);
         }
         // now rg0 <= rg1 <= rg2
@@ -117,7 +117,7 @@ public class MeterDeformation implements IEtomicaDataSource {
 //        double delta = c2 - 4.0*c1;
 //        double factor = Math.signum(delta);
         double factor = 1;  // assume prolate
-        if (rg.x(1)*rg.x(1) > rg.x(0)*rg.x(2)) {
+        if (rg.getX(1)*rg.getX(1) > rg.getX(0)*rg.getX(2)) {
             factor = -1;    // oblate
         }
 

@@ -135,8 +135,8 @@ public class VLESim extends Simulation {
                     return;
                 }
                 if (((MCMoveEvent)event).getMCMove() == volumeExchange) {
-                    if (boxLiquid.getBoundary().getDimensions().x(0)*0.499 < range) {
-                        p2Truncated.setTruncationRadius(0.499*boxLiquid.getBoundary().getDimensions().x(0));
+                    if (boxLiquid.getBoundary().getDimensions().getX(0)*0.499 < range) {
+                        p2Truncated.setTruncationRadius(0.499*boxLiquid.getBoundary().getDimensions().getX(0));
                     }
                     else {
                         p2Truncated.setTruncationRadius(range);

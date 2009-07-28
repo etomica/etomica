@@ -125,12 +125,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         IAction expandAction = new IAction() {
             public void actionPerformed() {
                 dim.E(sim.box.getBoundary().getDimensions());
-                dim.setX(0, expansionFac * dim.x(0));
+                dim.setX(0, expansionFac * dim.getX(0));
                 sim.box.getBoundary().setDimensions(dim);
                 
                 int numSurfactants = (int)nSurfactantSlider.getValue();
                 Box pretendBox = new Box(space);
-                dim.setX(0, dim.x(0)/expansionFac);
+                dim.setX(0, dim.getX(0)/expansionFac);
                 pretendBox.getBoundary().setDimensions(dim);
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
@@ -139,13 +139,13 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 for (int i=0; i<numSurfactants; i++) {
                     IMolecule surfactant = surfactants.getMolecule(0);
                     pretendBox.removeMolecule(surfactant);
-                    double deltaX = 0.55 * dim.x(0);
-                    if (((IAtomPositioned)surfactant.getChildList().getAtom(0)).getPosition().x(0) < 0) {
+                    double deltaX = 0.55 * dim.getX(0);
+                    if (((IAtomPositioned)surfactant.getChildList().getAtom(0)).getPosition().getX(0) < 0) {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
                         IVectorMutable pos = ((IAtomPositioned)surfactant.getChildList().getAtom(j)).getPosition();
-                        pos.setX(0, pos.x(0) + deltaX);
+                        pos.setX(0, pos.getX(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
                 }
@@ -186,7 +186,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 if (!isExpanded) return;
                 IVectorMutable dim = space.makeVector();
                 dim.E(sim.box.getBoundary().getDimensions());
-                dim.setX(0, dim.x(0) / expansionFac);
+                dim.setX(0, dim.getX(0) / expansionFac);
                 sim.box.setNMolecules(sim.surfactant, 0);
                 int nMolecules = sim.box.getNMolecules(sim.species);
                 // need to delete the molecules so that the NeighborCellManager doesn't try
@@ -223,7 +223,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 if (!isExpanded) {
                     return;
                 }
-                double L = sim.box.getBoundary().getDimensions().x(0);
+                double L = sim.box.getBoundary().getDimensions().getX(0);
 
                 // calculate structure factor and phase angle for lowest-frequency
                 // concentration wave (delta rho (x)).
@@ -234,8 +234,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
                     IVectorMutable pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
-                    double sinx = Math.sin(q*pos.x(0));
-                    double cosx = Math.cos(q*pos.x(0));
+                    double sinx = Math.sin(q*pos.getX(0));
+                    double cosx = Math.cos(q*pos.getX(0));
                     sumCos += cosx;
                     sumSin += sinx;
                 }
@@ -257,7 +257,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
                 for (int i=0; i<nTot; i++) {
                     IVectorMutable pos = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
-                    pos.setX(0, pos.x(0) - center);
+                    pos.setX(0, pos.getX(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
@@ -852,7 +852,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return box.getBoundary().getDimensions().x(dim);
+            return box.getBoundary().getDimensions().getX(dim);
         }
 
         public void setValue(double newValue) {
@@ -861,7 +861,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
             //newValue+=0.01;
             size.E(box.getBoundary().getDimensions());
-            double oldValue = size.x(dim);
+            double oldValue = size.getX(dim);
             size.setX(dim, newValue);
             if (dim == 1 && size.getD() == 3) {
                 size.setX(2, newValue);

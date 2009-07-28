@@ -339,7 +339,7 @@ public class DropletGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return box.getBoundary().getDimensions().x(dim);
+            return box.getBoundary().getDimensions().getX(dim);
         }
 
         public void setValue(double newValue) {
@@ -348,7 +348,7 @@ public class DropletGraphic extends SimulationGraphic {
             }
             //newValue+=0.01;
             size.E(box.getBoundary().getDimensions());
-            double oldValue = size.x(dim);
+            double oldValue = size.getX(dim);
             size.setX(dim, newValue);
             if (dim == 1 && size.getD() == 3) {
                 size.setX(2, newValue);

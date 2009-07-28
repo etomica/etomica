@@ -21,7 +21,7 @@ public class ConfigurationDroplet implements Configuration {
         
         double factor = (1+deformation) / (1-deformation);
         axis.E(Math.pow(factor, -1.0/3.0));
-        axis.setX(2,1.0/(axis.x(0)*axis.x(0)));
+        axis.setX(2,1.0/(axis.getX(0)*axis.getX(0)));
         
         IAtomList leafList = box.getLeafList();
         int numAtoms = leafList.getAtomCount();

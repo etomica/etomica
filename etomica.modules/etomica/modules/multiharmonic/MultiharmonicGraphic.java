@@ -61,7 +61,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(simulation.dataPump);
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
-        displayBox.setPixelUnit(new Pixel(350/sim.box.getBoundary().getDimensions().x(0)));
+        displayBox.setPixelUnit(new Pixel(350/sim.box.getBoundary().getDimensions().getX(0)));
 
         final DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
@@ -96,7 +96,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
                 sim.potentialB.setX0(new Vector1D(value));
             }
             public double getValue() {
-                return sim.potentialB.getX0().x(0);
+                return sim.potentialB.getX0().getX(0);
             }
             public String getLabel() {return "x0";}
             public Dimension getDimension() {return Length.DIMENSION;}
@@ -165,23 +165,23 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         
         Function fUA = new Function() {
             public double f(double x) {
-                double x0 = sim.potentialA.getX0().x(0);
+                double x0 = sim.potentialA.getX0().getX(0);
                 return 0.5*sim.potentialA.getSpringConstant()*(x - x0)*(x - x0);
             }
         };
         Function fUB = new Function() {
             public double f(double x) {
-                double x0 = sim.potentialB.getX0().x(0);
+                double x0 = sim.potentialB.getX0().getX(0);
                 return 0.5*sim.potentialB.getSpringConstant()*(x - x0)*(x - x0);
             }
         };
 
         final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
-        uA.getXSource().setXMin(-sim.box.getBoundary().getDimensions().x(0));
-        uB.getXSource().setXMin(-sim.box.getBoundary().getDimensions().x(0));
-        uA.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
-        uB.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
+        uA.getXSource().setXMin(-sim.box.getBoundary().getDimensions().getX(0));
+        uB.getXSource().setXMin(-sim.box.getBoundary().getDimensions().getX(0));
+        uA.getXSource().setXMax(sim.box.getBoundary().getDimensions().getX(0));
+        uB.getXSource().setXMax(sim.box.getBoundary().getDimensions().getX(0));
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         IAction uUpdate = new IAction() {

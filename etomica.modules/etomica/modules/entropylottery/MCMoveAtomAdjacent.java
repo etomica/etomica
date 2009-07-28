@@ -62,15 +62,15 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         IVector dimensions = box.getBoundary().getDimensions();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
-            int x = (int)Math.round(position.x(i)+dimensions.x(i)*0.5-0.5);
-            if (x < 0 || x >= (int)Math.round(dimensions.x(i))) {
+            int x = (int)Math.round(position.getX(i)+dimensions.getX(i)*0.5-0.5);
+            if (x < 0 || x >= (int)Math.round(dimensions.getX(i))) {
                 if (!box.getBoundary().getPeriodicity(i)) {
                     // failure
                     return Double.NEGATIVE_INFINITY;
                 }
                 //wrap around -- OK, it's a hack.  deal with it.
                 if (x < 0) {
-                    position.setX(i, position.x(i)+dimensions.x(i));
+                    position.setX(i, position.getX(i)+dimensions.getX(i));
                 }
                 else {
                     position.setX(i, 0);

@@ -48,7 +48,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList atom) {
-        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim) - wallPosition;
+        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(wallDim) - wallPosition;
         return energy(rz*rz);
     }
 
@@ -71,7 +71,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList atom) {
-        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim) - wallPosition;
+        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(wallDim) - wallPosition;
         double gradz = gradient(rz*rz);
         gradient[0].setX(wallDim, rz > 0 ? gradz : -gradz);
         return gradient;

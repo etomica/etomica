@@ -37,13 +37,13 @@ public class PotentialCalculationForceSumWall extends
                     double scale = 50000/Math.sqrt(f[0].squared());
                     ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().PEa1Tv1(-scale, f[0]);
                     if (potential == wallPotential) {
-                        wallForceSum += scale*f[0].x(wallPotential.getWallDim());
+                        wallForceSum += scale*f[0].getX(wallPotential.getWallDim());
                     }
                 }
                 else {
                     ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
                     if (potential == wallPotential) {
-                        wallForceSum += f[0].x(wallPotential.getWallDim());
+                        wallForceSum += f[0].getX(wallPotential.getWallDim());
                     }
                 }
                 break;

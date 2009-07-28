@@ -88,8 +88,8 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
             site.E((IVectorMutable) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
-                vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
-                vectorOfMin.setX(i, Math.min(site.x(i),vectorOfMin.x(i)));
+                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
+                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
             }
         }
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
