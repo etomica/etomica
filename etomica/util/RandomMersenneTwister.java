@@ -237,11 +237,14 @@ public class RandomMersenneTwister implements IRandom {
 
         double x1, x2, w;
         do { 
-            x1 = 2 * nextDouble() - 1;
-            x2 = 2 * nextDouble() - 1;
+            x1 = nextDouble();
+            x2 = nextDouble();
             w = x1 * x1 + x2 * x2;
         } while (w >= 1);
         w = Math.sqrt(-2 * Math.log(w)/w);
+        int signs = nextInt();
+        if ((signs & 0x00000001) == 1) x1 = -x1;
+        if ((signs & 0x00000002) == 2) x2 = -x2;
         nextGaussian = x2 * w;
         hasNextGaussian = true;
         return x1 * w;
@@ -249,7 +252,7 @@ public class RandomMersenneTwister implements IRandom {
 
     public float nextFloat() {
         // see nextDouble
-        
+
         float shiftFac = 16777216.0f;  // 16777216 = 1<<24
         // we want y to be an int with 8 leading zeros (so that it has 24 bits)
         int y = 0;
@@ -260,7 +263,7 @@ public class RandomMersenneTwister implements IRandom {
                 continue;
             }
             int p = Integer.numberOfLeadingZeros(y);
-            // shift the leading 1 to the 10th bit
+            // shift the leading 1 to the 8th bit
             if (p < 9) {
                 // dump unneeded low bits
                 y = y >>> (8-p);
