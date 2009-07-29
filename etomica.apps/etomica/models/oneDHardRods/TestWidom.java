@@ -60,15 +60,17 @@ public class TestWidom extends Simulation {
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
     MCMoveChangeSingleMode mcMoveMode;
-    int harmonicWV;
-    MeterWidomModeReal[] realMeter;
-    MeterWidomModeImaginary[] imagMeter;
+    int harmonicWV, pickedWV;
+    MeterWidomModeReal realMeter;
+    MeterWidomModeImaginary imagMeter;
     MeterNormalModeCoordinate mnm;
-    AccumulatorAverage[] accumulators;
+    AccumulatorAverage realAccumulator, imagAccumulator;
     AccumulatorHistogram[] hists;
 
-    public TestWidom(Space _space, int numAtoms, double density, int blocksize, int nbs) {
+    public TestWidom(Space _space, int numAtoms, double density, int blocksize, int nbs, int pwv) {
         super(_space, true);
+        
+        pickedWV = pwv;
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
@@ -131,47 +133,37 @@ public class TestWidom extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim;
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim * 2;
         
-        realMeter = new MeterWidomModeReal[coordNum];
-        accumulators = new AccumulatorAverageFixed[coordNum*2];
-        DataPump pump;
+        String name = new String("widom Meter for real mode " + pickedWV);
+        realMeter = new MeterWidomModeReal(name, potentialMaster, 
+                coordinateDefinition, box, pickedWV);
+        realMeter.setEigenVectors(nm.getEigenvectors(box));
+        realMeter.setOmegaSquared(nm.getOmegaSquared(box));
+        realMeter.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+        realMeter.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        
+        realAccumulator = new AccumulatorAverageFixed(blocksize);
+        DataPump pump = new DataPump(realMeter, realAccumulator);
         IntegratorListenerAction pumpListener;
-        for(int i = 0; i < coordNum; i++){
-            String name = new String("widom Meter for mode " + i);
-            realMeter[i] = new MeterWidomModeReal(name, potentialMaster, 
-                    coordinateDefinition, box, i);
-            realMeter[i].setEigenVectors(nm.getEigenvectors(box));
-            realMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
-            realMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-            realMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-            
-            accumulators[i] = new AccumulatorAverageFixed(blocksize);
-            
-            pump = new DataPump(realMeter[i], accumulators[i]);
-            pumpListener = new IntegratorListenerAction(pump);
-            pumpListener.setInterval(blocksize);
-            integrator.getEventManager().addListener(pumpListener);
-        }
+        pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(blocksize);
+        integrator.getEventManager().addListener(pumpListener);
         
-        imagMeter = new MeterWidomModeImaginary[coordNum];
-        for(int i = 0; i < coordNum; i++){
-            String name = new String("widom Meter for mode " + i);
-            imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster, 
-                    coordinateDefinition, box, i);
-            imagMeter[i].setEigenVectors(nm.getEigenvectors(box));
-            imagMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
-            imagMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-            imagMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-            
-            accumulators[i+coordNum] = new AccumulatorAverageFixed(blocksize);
-            
-            pump = new DataPump(imagMeter[i], accumulators[i+coordNum]);
-            pumpListener = new IntegratorListenerAction(pump);
-            pumpListener.setInterval(blocksize);
-            integrator.getEventManager().addListener(pumpListener);
-        }
         
+        name = new String("widom Meter for imag mode " + pickedWV);
+        imagMeter = new MeterWidomModeImaginary(name, potentialMaster, 
+                coordinateDefinition, box, pickedWV);
+        imagMeter.setEigenVectors(nm.getEigenvectors(box));
+        imagMeter.setOmegaSquared(nm.getOmegaSquared(box));
+        imagMeter.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
+        imagMeter.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        
+        imagAccumulator = new AccumulatorAverageFixed(blocksize);
+        pump = new DataPump(imagMeter, imagAccumulator);
+        pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(blocksize);
+        integrator.getEventManager().addListener(pumpListener);
         
         mnm = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
         mnm.setEigenVectors(nm.getEigenvectors(box));
@@ -179,7 +171,7 @@ public class TestWidom extends Simulation {
         
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
-        DataPump pumpFromMeter = new DataPump(mnm, splitter);
+        pump = new DataPump(mnm, splitter);
         
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
@@ -189,9 +181,9 @@ public class TestWidom extends Simulation {
             splitter.setDataSink(i, hists[i]);
         }
         
-        IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
-        pumpFromMeterListener.setInterval(blocksize);
-        integrator.getEventManager().addListener(pumpFromMeterListener);
+        pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(blocksize);
+        integrator.getEventManager().addListener(pumpListener);
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
@@ -231,6 +223,7 @@ public class TestWidom extends Simulation {
         int nSteps = params.numSteps;
         int bs = params.blockSize;
         int nbins = params.nBins;
+        int picked = params.pickedWV;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
@@ -239,8 +232,9 @@ public class TestWidom extends Simulation {
         System.out.println(nSteps + " steps, " + bs + " blocksize");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
+        System.out.println("picked WV " + picked);
 
-        TestWidom sim = new TestWidom(Space.getInstance(D), nA, density, bs, nbins);
+        TestWidom sim = new TestWidom(Space.getInstance(D), nA, density, bs, nbins, picked);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -259,35 +253,26 @@ public class TestWidom extends Simulation {
         sim.getController().actionPerformed();
         
         //After processing...
-        int cd = sim.nm.getWaveVectorFactory().getWaveVectors().length * 
-                sim.coordinateDefinition.getCoordinateDim() * 2;
-        double[] results = new double[cd];
-        DataGroup group;
-        for(int i = 0; i < cd; i++){
-            group = (DataGroup)sim.accumulators[i].getData();
-            results[i] = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
-        }
-        for(int i = 0; i < cd; i++){
-            System.out.println(i + "  " + results[i]);
-        }
-        
-        
+        DataGroup realgroup = (DataGroup)sim.realAccumulator.getData();
+        double realresult = ((DataDouble)realgroup.getData(StatType.AVERAGE.index)).x;
+        System.out.println("real results " + realresult);
+         
+        DataGroup imaggroup = (DataGroup)sim.imagAccumulator.getData();
+        double imagresult = ((DataDouble)imaggroup.getData(StatType.AVERAGE.index)).x;
+        System.out.println("imag results " + imagresult);
+         
         /* 
          * This loop creates a new write class for each histogram from each 
          * AccumulatorHistogram, changes the filename for the histogram output,
          * connects the write class with this histogram, and 
          * writes out the results to the file.
          */
-        WriteHistograms wh;
+        String outputfileName = new String("hist_" + sim.pickedWV);
+        WriteHistograms wh = new WriteHistograms(outputfileName);
+        wh.setHistogram(sim.hists[sim.pickedWV].getHistograms());
+        wh.actionPerformed();
+        System.out.println("hist count " + sim.hists[sim.pickedWV].getHistograms().getCount());
         
-        System.out.println("Counts:");
-        for(int i = 0; i < accumulatorLength; i++){
-            String outputName = new String("hist_" + i);
-            wh = new WriteHistograms(outputName);
-            wh.setHistogram(sim.hists[i].getHistograms());
-            wh.actionPerformed();
-            System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
-        }
         System.out.println("Fini.");
     }
     
@@ -302,8 +287,9 @@ public class TestWidom extends Simulation {
         public int comparedWV = numAtoms/2;
         
         public int blockSize = 1000;
-        public int numSteps = 10000;
+        public int numSteps = 10000000;
         public int nBins = 200;
+        public int pickedWV = 12;
     }
 
 }
