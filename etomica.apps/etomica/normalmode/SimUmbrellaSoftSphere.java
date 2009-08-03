@@ -11,7 +11,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorAverageFixedOutputFile;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -98,7 +98,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         /*
          * nuke this line when it is derivative-based
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
@@ -149,7 +149,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-    	
+      	
         SimBennetParam params = new SimBennetParam();
         String inputFilename = null;
         if (args.length > 0) {
@@ -185,7 +185,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
-
+        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.getController().actionPerformed();
+        System.out.println("System Equilibrated!");
+        
+        sim.getController().reset();
 
         /*
          * 
@@ -197,9 +201,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         meterSamplingHarmonic.setRefPref(sim.refPref);
         samplingMeters[0] = meterSamplingHarmonic;
         
-        final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixedOutputFile dataAverageSamplingHarmonic = new AccumulatorAverageFixedOutputFile();
+        dataAverageSamplingHarmonic.setFile(filename+"_UmblnQharm");
+        
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
-        dataAverageSamplingHarmonic.setBlockSize(100);
+        dataAverageSamplingHarmonic.setBlockSize(200);
         IntegratorListenerAction pumpSamplingHarmonicListener = new IntegratorListenerAction(pumpSamplingHarmonic);
         sim.integrator.getEventManager().addListener(pumpSamplingHarmonicListener);
     
@@ -210,9 +216,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         meterSamplingTarget.setRefPref(sim.refPref);
         samplingMeters[1] = meterSamplingTarget;
         
-        final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixedOutputFile dataAverageSamplingTarget = new AccumulatorAverageFixedOutputFile();
+        dataAverageSamplingTarget.setFile(filename+"_UmblnQtarg");
+
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
-        dataAverageSamplingTarget.setBlockSize(100);
+        dataAverageSamplingTarget.setBlockSize(200);
         IntegratorListenerAction pumpSamplingTargetListener = new IntegratorListenerAction(pumpSamplingTarget);
         sim.integrator.getEventManager().addListener(pumpSamplingTargetListener);
         
@@ -220,12 +228,13 @@ public class SimUmbrellaSoftSphere extends Simulation {
             pumpSamplingHarmonicListener.setInterval(100);
             pumpSamplingTargetListener.setInterval(100);
         } else if (numAtoms == 108){
-            pumpSamplingHarmonicListener.setInterval(300);
+        	 pumpSamplingHarmonicListener.setInterval(300);
             pumpSamplingTargetListener.setInterval(300);
+            /*
             if (temperature >= 1.1){
             	dataAverageSamplingHarmonic.setBlockSize(200);
             	dataAverageSamplingTarget.setBlockSize(200);
-            }
+            }*/
         } else {
             pumpSamplingHarmonicListener.setInterval(1);
             pumpSamplingTargetListener.setInterval(1);
@@ -324,13 +333,14 @@ public class SimUmbrellaSoftSphere extends Simulation {
 		};
 		
 		IntegratorListenerAction outputListener = new IntegratorListenerAction(output);
-		outputListener.setInterval(300);
+		outputListener.setInterval((int)numSteps/200);
 		sim.integrator.getEventManager().addListener(outputListener);
 	    
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
-		
+		dataAverageSamplingHarmonic.closeFile();
+		dataAverageSamplingTarget.closeFile();
 		/*
 		 * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		 *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
