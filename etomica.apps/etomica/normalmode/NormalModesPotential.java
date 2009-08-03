@@ -29,7 +29,6 @@ import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
 import etomica.util.FunctionGeneral;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -172,8 +171,11 @@ public class NormalModesPotential implements NormalModes {
             // output .vec file
             for (int ivec=0; ivec<eDim; ivec++ ){
             	for(int jvec=0; jvec<eDim; jvec++){
-            		
-            		fileWriterVec.write(eVecs[jvec][ivec] + " ");
+            		if (Math.abs(eVecs[jvec][ivec])<1e-10){
+            			fileWriterVec.write("0.0 ");
+            		} else {
+            			fileWriterVec.write(eVecs[jvec][ivec] + " ");
+            		}
             	}
             	fileWriterVec.write("\n");
             }
