@@ -1,6 +1,6 @@
 package etomica.modules.catalysis;
 
-import java.awt.GridBagConstraints;
+ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -10,13 +10,9 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtomTypeSphere;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -35,7 +31,6 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
@@ -47,38 +42,33 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
-import etomica.modifier.Modifier;
-import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.Angstrom;
 import etomica.units.Bar;
-import etomica.units.CompoundUnit;
-import etomica.units.Dimension;
 import etomica.units.Gram;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
-import etomica.units.Length;
 import etomica.units.Liter;
-import etomica.units.Meter;
 import etomica.units.Mole;
 import etomica.units.Picosecond;
 import etomica.units.Pixel;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
-import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
+/**
+ * Catalysis graphical app.
+ * Design by Ken Benjamin
+ * 
+ * @author Andrew Schultz
+ */
 public class CatalysisGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Square-Well Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
-    public double lambda, epsilon, mass, sigma;
+//    public double lambda, epsilon, mass, sigma;
     protected Unit eUnit, dUnit, pUnit, mUnit;
     protected Catalysis sim;
     
@@ -100,21 +90,21 @@ public class CatalysisGraphic extends SimulationGraphic {
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
-        lambda = 2.0;
-        epsilon = eUnit.toSim(space.D() == 3 ? 1000 : 1500);
-        mass = space.D() == 3 ? 131 : 40;
-        sigma = 4.0;
-        if (sim.getSpace().D() == 2) {
-            dUnit = new UnitRatio(Mole.UNIT, 
-                                    new MKS().area());
-            Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
-            double[] exponents = new double[] {1.0, 1.0};
-            pUnit = new CompoundUnit(units, exponents);
-        }
-        else {
+//        lambda = 2.0;
+//        epsilon = eUnit.toSim(space.D() == 3 ? 1000 : 1500);
+//        mass = space.D() == 3 ? 131 : 40;
+//        sigma = 4.0;
+//        if (sim.getSpace().D() == 2) {
+//            dUnit = new UnitRatio(Mole.UNIT, 
+//                                    new MKS().area());
+//            Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
+//            double[] exponents = new double[] {1.0, 1.0};
+//            pUnit = new CompoundUnit(units, exponents);
+//        }
+//        else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
-        }
+//        }
 
         if (sim.getSpace().D() == 2) {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getBoxSize().getX(1)));
@@ -172,26 +162,26 @@ public class CatalysisGraphic extends SimulationGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
 
-        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
-        sigModifier.setValue(sigma);
-        ModifierGeneral epsModifier = new ModifierGeneral(sim.potentialSW, "epsilon");
-        ModifierGeneral lamModifier = new ModifierGeneral(sim.potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(sim.species.getLeafType().getElement(),"mass");
-        sigBox.setModifier(sigModifier);
-        sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
-        epsBox.setUnit(eUnit);
-        epsBox.setModifier(epsModifier);
-        lamBox.setModifier(lamModifier);
-        massBox.setModifier(massModifier);
-        massBox.setUnit(mUnit);
-        sigBox.setController(sim.getController());
-        epsBox.setController(sim.getController());
-        lamBox.setController(sim.getController());
-        massBox.setController(sim.getController());
+//        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
+//        sigModifier.setValue(sigma);
+//        ModifierGeneral epsModifier = new ModifierGeneral(sim.potentialSW, "epsilon");
+//        ModifierGeneral lamModifier = new ModifierGeneral(sim.potentialSW, "lambda");
+//        ModifierGeneral massModifier = new ModifierGeneral(sim.species.getLeafType().getElement(),"mass");
+//        sigBox.setModifier(sigModifier);
+//        sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
+//        epsBox.setUnit(eUnit);
+//        epsBox.setModifier(epsModifier);
+//        lamBox.setModifier(lamModifier);
+//        massBox.setModifier(massModifier);
+//        massBox.setUnit(mUnit);
+//        sigBox.setController(sim.getController());
+//        epsBox.setController(sim.getController());
+//        lamBox.setController(sim.getController());
+//        massBox.setController(sim.getController());
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.speciesO2.getLeafType(),java.awt.Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -296,8 +286,10 @@ public class CatalysisGraphic extends SimulationGraphic {
         peDisplay.setLabel("Potential Energy (J/mol)");
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
-        nSlider.setSpecies(sim.species);
+        SimulationRestart simRestart = new SimulationRestart(sim, space, sim.getController());
+        simRestart.setConfiguration(sim.config);
+        nSlider.setResetAction(simRestart);
+        nSlider.setSpecies(sim.speciesO2);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(sim.getSpace().D() == 3 ? 500 : 168);
@@ -307,19 +299,18 @@ public class CatalysisGraphic extends SimulationGraphic {
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
-        ChangeListener nListener = new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
+        nSlider.setPostAction(new IAction() {
+            public void actionPerformed() {
                 final int n = (int)nSlider.getValue() > 0 ? (int)nSlider.getValue() : 1;
                 sim.integrator.setThermostatInterval(n > 40 ? 1 : 40/n);
-                eExcludeOverlap.numAtoms = n;
-                peExcludeOverlap.numAtoms = n;
-                keExcludeOverlap.numAtoms = n;
+//                eExcludeOverlap.numAtoms = n;
+//                peExcludeOverlap.numAtoms = n;
+//                keExcludeOverlap.numAtoms = n;
 
                 getDisplayBox(sim.box).repaint();
+                sim.config.initializeCoordinates(sim.box);
             }
-        };
-        nSlider.getSlider().addChangeListener(nListener);
-        nListener.stateChanged(null);
+        });
         JPanel nSliderPanel = new JPanel(new GridLayout(0,1));
         nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
         nSlider.setShowBorder(false);
@@ -391,43 +382,43 @@ public class CatalysisGraphic extends SimulationGraphic {
         ePlot.getPlot().setSize(d);
     }
 
-    protected class ModifierAtomDiameter implements Modifier {
-
-        public void setValue(double d) {
-            if (d > 4.0) {
-                throw new IllegalArgumentException("diameter can't exceed 4.0A");
-            }
-            //assume one type of atom
-            ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
-            CatalysisGraphic.this.sim.potentialSW.setCoreDiameter(d);
-            new BoxImposePbc(sim.box, space).actionPerformed();
-            try {
-                sim.integrator.reset();
-            }
-            catch (ConfigurationOverlapException e){
-                // can happen when increasing diameter
-            }
-            sigma = d;
-            getDisplayBox(sim.box).repaint();
-        }
-
-        public double getValue() {
-            return sigma;
-        }
-
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-        
-        public String getLabel() {
-            return "Atom Diameter";
-        }
-        
-        public String toString() {
-            return getLabel();
-        }
-    }
-    
+//    protected class ModifierAtomDiameter implements Modifier {
+//
+//        public void setValue(double d) {
+//            if (d > 4.0) {
+//                throw new IllegalArgumentException("diameter can't exceed 4.0A");
+//            }
+//            //assume one type of atom
+//            ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
+//            CatalysisGraphic.this.sim.potentialSW.setCoreDiameter(d);
+//            new BoxImposePbc(sim.box, space).actionPerformed();
+//            try {
+//                sim.integrator.reset();
+//            }
+//            catch (ConfigurationOverlapException e){
+//                // can happen when increasing diameter
+//            }
+//            sigma = d;
+//            getDisplayBox(sim.box).repaint();
+//        }
+//
+//        public double getValue() {
+//            return sigma;
+//        }
+//
+//        public Dimension getDimension() {
+//            return Length.DIMENSION;
+//        }
+//        
+//        public String getLabel() {
+//            return "Atom Diameter";
+//        }
+//        
+//        public String toString() {
+//            return getLabel();
+//        }
+//    }
+//    
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
         public DataSinkExcludeOverlap() {
@@ -443,7 +434,7 @@ public class CatalysisGraphic extends SimulationGraphic {
                 return null;
             }
             myData.E(data);
-            myData.TE(1.0/numAtoms);
+//            myData.TE(1.0/numAtoms);
             return myData;
         }
 
@@ -451,12 +442,12 @@ public class CatalysisGraphic extends SimulationGraphic {
             return inputDataInfo;
         }
         
-        public int numAtoms;
+//        public int numAtoms;
         protected final DataDouble myData;
     }
 
     public static void main(String[] args) {
-        Space space = Space2D.getInstance();
+        Space space = Space3D.getInstance();
         if(args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
