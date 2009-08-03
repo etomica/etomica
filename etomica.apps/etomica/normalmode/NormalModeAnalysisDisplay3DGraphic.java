@@ -124,7 +124,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         /*
          * Potential Well Plot
          */
-        DisplayPlot eQPlot = new DisplayPlot();
+        final DisplayPlot eQPlot = new DisplayPlot();
         peQHistory.setDataSink(eQPlot.getDataSet().makeDataSink());
         heQHistory.setDataSink(eQPlot.getDataSet().makeDataSink());
         eQPlot.getPlot().setYLabel("Energy");
@@ -548,7 +548,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 
                 
                 getController().getSimRestart().getDataResetAction().actionPerformed();
-                
 		    }
 		};	
 		
@@ -744,13 +743,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
               
         getController().getDataStreamPumps().add(hePump);
         
-        IAction resetAction = new IAction(){
+        resetAction = new IAction(){
         	public void actionPerformed(){
         		heDisplay.putData(heAccumulator.getData());
         		heDisplay.repaint();
-        		
-        		heQHistory.reset();
-        		peQHistory.reset();
         		getDisplayBox(sim.box).graphic().repaint();
         	}
         };
@@ -772,8 +768,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         
 	}
 	
-	
-	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(3);
 		NormalModeAnalysisDisplay3DGraphic simGraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
@@ -790,8 +784,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(3);
-			NormalModeAnalysisDisplay3DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
-			getContentPane().add(nm1Dgraphic.getPanel());
+			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
+			getContentPane().add(nm3Dgraphic.getPanel());
 		}
 	}
 	
@@ -818,7 +812,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 	
 	protected double[][] omega2;
 	protected double[][][] eigenVectors;
-	protected final IAction waveVectorPostAction, eValPostAction;
+	protected final IAction waveVectorPostAction, eValPostAction, resetAction;
 	protected MeterHarmonicCoordinate meterHarmonicCoordinate;
 	
 }

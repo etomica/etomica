@@ -559,8 +559,8 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(2);
-			NormalModeAnalysisDisplay2DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
-			getContentPane().add(nm1Dgraphic.getPanel());
+			NormalModeAnalysisDisplay2DGraphic nm2Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
+			getContentPane().add(nm2Dgraphic.getPanel());
 		}
 	}
 	

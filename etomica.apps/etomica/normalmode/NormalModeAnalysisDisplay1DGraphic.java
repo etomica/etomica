@@ -451,6 +451,10 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(1);
 			NormalModeAnalysisDisplay1DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(sp), sp);
+		
+			DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+			nm1Dgraphic.add(display);
+			
 			getContentPane().add(nm1Dgraphic.getPanel());
 		}
 	}
