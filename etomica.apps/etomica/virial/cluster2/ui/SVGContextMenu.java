@@ -21,7 +21,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import org.apache.batik.apps.rasterizer.DestinationType;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.transcoder.Transcoder;
@@ -33,6 +32,8 @@ import org.apache.batik.transcoder.svg2svg.SVGTranscoder;
 import org.apache.fop.svg.PDFTranscoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
+
+import etomica.virial.cluster2.ui.rasterizer.DestinationType;
 
 public class SVGContextMenu extends JPopupMenu {
 

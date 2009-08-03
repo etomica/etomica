@@ -27,11 +27,6 @@ import java.util.Map;
 
 import javax.swing.*;
 
-import org.apache.batik.apps.rasterizer.DestinationType;
-import org.apache.batik.apps.rasterizer.SVGConverterController;
-import org.apache.batik.apps.rasterizer.Main;
-import org.apache.batik.apps.rasterizer.SVGConverter;
-import org.apache.batik.apps.rasterizer.SVGConverterFileSource;
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.swing.*;
 import org.apache.batik.swing.svg.JSVGComponent;
@@ -45,6 +40,12 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 
 import org.w3c.dom.*;
 import org.w3c.dom.svg.*;
+
+import etomica.virial.cluster2.ui.rasterizer.DestinationType;
+import etomica.virial.cluster2.ui.rasterizer.Main;
+import etomica.virial.cluster2.ui.rasterizer.SVGConverter;
+import etomica.virial.cluster2.ui.rasterizer.SVGConverterController;
+import etomica.virial.cluster2.ui.rasterizer.SVGConverterFileSource;
 
 public class SVGDraw {
 
