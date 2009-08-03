@@ -1,5 +1,8 @@
 package etomica.virial.overlap;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
@@ -28,7 +31,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         overlapSumSquare = new double[nBennetPoints];
 		expX = new double[nBennetPoints];
         setBennetParam(1.0,5);
-	}
+        blockCounter = 0;
+    
+    }
 	
 	/**
 	 * sets the range of parameter values used for Bennets method.
@@ -62,17 +67,17 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             double v;
             if (Double.isInfinite(value1)) {
                 if (isReference) {
-                    v = 1+expX[j];
+                    v = 1;
                 }
                 else {
-                    v = 1+1.0/expX[j];
+                    v = 1.0/expX[j];
                 }
             }
-            else {
+            else { 
                 // this is actually blockSum[1], but for all the various values of the overlap parameter
                 // this doesn't look right, but it is.
                 // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
-                v = 1 + expX[j];
+                v = 1;
                 if (isReference) {
                     v /= (1.0 + expX[j]/value1);
                 }
@@ -89,6 +94,17 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     }
     
     protected void doBlockSum() {
+    	
+    	if (nBennetPoints ==1 && fnm!=null){
+    		blockCounter += blockSize;
+    		try{
+    			fileWriter.write(blockCounter + " " + (blockOverlapSum[0]/blockSize)+"\n");
+    		
+    		} catch (IOException e){
+    		
+    		}
+    	}
+    	
         long blockSizeSq = blockSize * blockSize;
         for (int j=0; j<nBennetPoints; j++) {
             overlapSum[j] += blockOverlapSum[j];
@@ -157,7 +173,26 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         }
         super.reset();
     }
-     
+    
+    public void setFile(String fName){
+    	this.fnm = fName;   
+    	try {
+          	fileWriter = new FileWriter(fName);
+          	
+          } catch (IOException e){
+          	fileWriter = null;
+          }
+    }
+ 
+    
+    public void closeFile(){
+    	try{
+    		fileWriter.close();
+    	} catch (IOException e){
+    		
+    	}
+    }
+
     private static final long serialVersionUID = 1L;
     private final double[] blockOverlapSum;
     private final double[] overlapSumBlockSquare, overlapSumSquare;
@@ -166,4 +201,8 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     private final double[] expX;
     private final boolean isReference;
     protected double bennetUDiff;
+    protected FileWriter fileWriter;
+    protected long blockCounter;
+    private String fnm;
+
 }
