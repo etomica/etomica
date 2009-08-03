@@ -3,7 +3,6 @@ package etomica.data;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IData;
 import etomica.api.IFunction;
 import etomica.util.Function;
 
