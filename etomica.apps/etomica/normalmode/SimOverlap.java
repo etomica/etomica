@@ -10,8 +10,15 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.DataFork;
+import etomica.data.DataLogger;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
+import etomica.data.DataTableWriter;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -35,6 +42,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.HistogramCollapsing;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -61,19 +69,19 @@ public class SimOverlap extends Simulation {
         getSpeciesManager().addSpecies(species);
 
         // TARGET
-        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
+        potentialMasterTarget = new PotentialMasterList(this, space);
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
+        integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
         integratorTarget.setTimeStep(4);
         integratorTarget.setTemperature(1.0);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
 
-        Potential2 p2 = new P2HardSphere(space, 1.0, true);
+        Potential2 p2 = new P2HardSphere(space, 1.0, false);
         if (space.D() == 1) {
             // don't need this for the target system, but we do need it for the reference
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
@@ -144,7 +152,7 @@ public class SimOverlap extends Simulation {
         normalModes.setHarmonicFudge(harmonicFudge);
         normalModes.setTemperature(temperature);
         
-        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
+        move = new MCMoveHarmonic(getRandom());
         move.setCoordinateDefinition(coordinateDefinitionHarmonic);
 
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
@@ -366,6 +374,46 @@ public class SimOverlap extends Simulation {
         
         System.out.println("equilibration finished");
 
+        IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
+        
+        //Harmonic
+        MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMasterTarget);
+        meterWorkHarmonic.setTemperature(temperature);
+        meterWorkHarmonic.setLatticeEnergy(0); //Hard Sphere Lattice Energy = 0 (no overlap)
+        workMeters[0] = meterWorkHarmonic;
+        
+        DataFork dataForkHarmonic = new DataFork();
+        DataPumpListener pumpHarmonic = new DataPumpListener(workMeters[0], dataForkHarmonic);
+        
+        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
+        dataForkHarmonic.addDataSink(dataAverageHarmonic);
+        
+        AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramCollapsing());
+        dataForkHarmonic.addDataSink(histogramHarmonic);
+        
+        sim.integrators[0].getEventManager().addListener(pumpHarmonic);
+        //
+        
+        //Target
+        MeterWorkTargetPhaseSpace meterWorkTarget = new MeterWorkTargetPhaseSpace(sim.integratorTarget,sim.meterHarmonicEnergy);
+        meterWorkTarget.setLatticeEnergy(0); //Hard Sphere Lattice Energy = 0 (no overlap)
+        workMeters[1] = meterWorkTarget;
+        
+        DataFork dataForkTarget = new DataFork();
+        DataPumpListener pumpTarget = new DataPumpListener(workMeters[1], dataForkTarget, 100);
+        
+        AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
+        dataForkTarget.addDataSink(dataAverageTarget);
+        
+        AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramCollapsing());
+        dataForkTarget.addDataSink(histogramTarget);
+        
+        sim.integrators[1].getEventManager().addListener(pumpTarget);
+        
+        //
+        
+        
+        
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
@@ -407,10 +455,41 @@ public class SimOverlap extends Simulation {
         System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
 
+        double betaUab = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double betaUba = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        
+        double err_betaUab = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        double err_betaUba = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        
+        System.out.println("betaUab: "+betaUab + " ,err: "+err_betaUab);
+        System.out.println("betaUba: "+betaUba + " ,err: "+err_betaUba);
+        
         if(D==1) {
             double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
+        
+        //Harmonic
+        DataLogger dataLogger1 = new DataLogger();
+        DataTableWriter dataTableWriter1 = new DataTableWriter();
+        dataLogger1.setFileName(filename + "_hist_HarmTarg");
+        dataLogger1.setDataSink(dataTableWriter1);
+        dataTableWriter1.setIncludeHeader(false);
+        dataLogger1.putDataInfo(histogramHarmonic.getDataInfo());
+        dataLogger1.putData(histogramHarmonic.getData());
+        dataLogger1.closeFile();
+        
+        //Target
+        DataLogger dataLogger2 = new DataLogger();
+        DataTableWriter dataTableWriter2 = new DataTableWriter();
+        dataLogger2.setFileName(filename + "_hist_TargHarm");
+        dataLogger2.setDataSink(dataTableWriter2);
+        dataTableWriter2.setIncludeHeader(false);
+        dataLogger2.putDataInfo(histogramTarget.getDataInfo());
+        dataLogger2.putData(histogramTarget.getData());
+        dataLogger2.closeFile();
+        
+        
     }
 
     private static final long serialVersionUID = 1L;
@@ -428,7 +507,11 @@ public class SimOverlap extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
-
+    public MCMoveHarmonic move;
+    public IntegratorHard integratorTarget;
+    public PotentialMasterList potentialMasterTarget;
+    public MeterHarmonicEnergy meterHarmonicEnergy;
+    
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */
