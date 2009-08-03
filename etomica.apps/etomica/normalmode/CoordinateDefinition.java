@@ -9,8 +9,8 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
@@ -92,7 +92,7 @@ public abstract class CoordinateDefinition {
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             // initialize coordinates of child atoms
-            molecule.getType().initializeConformation(molecule);
+           molecule.getType().initializeConformation(molecule);
 
             int[] ii = indexIterator.next();
             position.E((IVector)lattice.site(ii));
@@ -177,9 +177,10 @@ public abstract class CoordinateDefinition {
             realT[i] = 0;
             imaginaryT[i] = 0;
         }
-
+        
         // sum T over atoms
         for (int iCell = 0; iCell<cells.length; iCell++) {
+        	
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
             double[] u = calcU(molecules);
@@ -192,11 +193,11 @@ public abstract class CoordinateDefinition {
                 imaginaryT[i] -= sinkR * u[i];
             }
         }
-
+        
         double sqrtCells = Math.sqrt(cells.length);
         for (int i = 0; i < coordinateDim; i++) {
-            realT[i] /= sqrtCells;
-            imaginaryT[i] /= sqrtCells;
+            realT[i] /= (sqrtCells);   //*Math.sqrt(27)
+            imaginaryT[i] /= (sqrtCells); //*Math.sqrt(27)
         }
 
     }
