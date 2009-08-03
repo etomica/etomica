@@ -428,9 +428,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         //start of Harmonic
         /*
          * Direct Sampling
-         * Boltzmann Factor difference average (Harmonic ---> Target)  
+         * Boltzmann Factor difference average (Harmonic ---> Overlap)  
          */
-        MeterDirectSamplingHarmonic meterDirectSamplingHarmonic = new MeterDirectSamplingHarmonic(sim.move, sim.potentialMasterTarget);
+        MeterBoltzmannHarmonic meterDirectSamplingHarmonic = new MeterBoltzmannHarmonic(sim.move, sim.potentialMasterTarget);
         meterDirectSamplingHarmonic.setTemperature(temperature);
         meterDirectSamplingHarmonic.setLatticeEnergy(sim.latticeEnergy);
         
@@ -472,9 +472,9 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
         // start of Target
         /*
          * Direct Sampling
-         * Boltzmann Factor difference average (Target ---> Harmonic)
+         * Boltzmann Factor difference average (Target ---> Overlap)
          */
-        MeterDirectSamplingTarget meterDirectSamplingTarget = new MeterDirectSamplingTarget(sim.integratorTarget, sim.meterHarmonicEnergy);
+        MeterBoltzmannTarget meterDirectSamplingTarget = new MeterBoltzmannTarget(sim.integratorTarget, sim.meterHarmonicEnergy);
         meterDirectSamplingTarget.setLatticeEnergy(sim.latticeEnergy);
         boltzmannDirectSampling[1] = meterDirectSamplingTarget;
         
@@ -557,11 +557,11 @@ public class SimDSBenOverlapSoftSphereFCC extends Simulation {
          sim.integrators[1].getEventManager().addListener(pumpTargetBennetListener);
         
          
-         
          //Histogram Target--> Bennett's
          final AccumulatorHistogram histogramTargetBenn = new AccumulatorHistogram(new HistogramSimple(2500,new DoubleRange(-50,200)));
          dataForkTargetBennet.addDataSink(histogramTargetBenn);
 
+         
          double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
 	        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
 	        double AHarmonic = 0;
