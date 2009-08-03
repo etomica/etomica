@@ -54,7 +54,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
     public SimOverlapSoftSphere(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space, true);
-
+        this.fname = filename;
         PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
@@ -148,7 +148,7 @@ public class SimOverlapSoftSphere extends Simulation {
         normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
-         * nuke this line if it is overlap between DB and harmonic
+         * nuke this line if it is DB
          */
         //normalModes.setTemperature(temperature);
         
@@ -172,7 +172,7 @@ public class SimOverlapSoftSphere extends Simulation {
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-
+        
         MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMasterTarget);
         meterHarmonic.setTemperature(temperature);
         meterHarmonic.setLatticeEnergy(latticeEnergy);
@@ -198,8 +198,10 @@ public class SimOverlapSoftSphere extends Simulation {
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
+
         accumulators[iBox] = newAccumulator;
-        newAccumulator.setBlockSize(100); // setting the block size = 100
+    
+        newAccumulator.setBlockSize(200); // setting the block size = 300
         
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
@@ -391,6 +393,10 @@ public class SimOverlapSoftSphere extends Simulation {
        
         System.out.println("equilibration finished");
         System.out.flush();
+        
+        sim.accumulators[0].setFile(filename+"_BenlnQharm");
+        sim.accumulators[1].setFile(filename+"_BenlnQtarg");
+        
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
@@ -447,6 +453,9 @@ public class SimOverlapSoftSphere extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
+        sim.accumulators[0].closeFile();
+        sim.accumulators[1].closeFile();
+        
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         double ratio = sim.dsvo.getDataAsScalar();
@@ -485,6 +494,7 @@ public class SimOverlapSoftSphere extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
+    public String fname;
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor
