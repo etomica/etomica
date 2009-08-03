@@ -115,18 +115,5 @@ public class HistogramReweightedData implements Histogram, java.io.Serializable 
     public double[] xValues() {
         return xValues;
     }
-    
-    public static class Factory implements Histogram.Factory, Serializable {
-        public Factory(int n, DoubleRange xRange) {
-            nBins = n;
-            this.xRange = xRange;
-        }
-        
-        public Histogram makeHistogram() {
-            return new HistogramReweightedData(nBins, xRange);
-        }
-        
-        private int nBins;
-        private DoubleRange xRange;
-    }
+
 }
