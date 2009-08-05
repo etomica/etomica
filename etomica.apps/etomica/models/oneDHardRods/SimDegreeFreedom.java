@@ -15,6 +15,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -201,6 +202,7 @@ public class SimDegreeFreedom extends Simulation {
         long nSteps = params.numSteps;
         int bs = params.blockSize;
         int nbins = params.nBins;
+        String outputfn = params.outputname;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
@@ -237,7 +239,7 @@ public class SimDegreeFreedom extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
-            String outputName = new String("hist_" + i);
+            String outputName = new String(outputfn + "_" + i);
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
@@ -256,22 +258,29 @@ public class SimDegreeFreedom extends Simulation {
 //            System.out.println(i + "  " + locations[i]);
 //        }
         
+        if(D==1) {
+            double AHR = -(nA-1)*Math.log(nA/density-nA)
+                + SpecialFunctions.lnFactorial(nA) ;
+            System.out.println("Hard-rod free energy: "+AHR);
+        }
+        
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 30;
-        public double density = 0.50;
+        public int numAtoms = 64;
+        public double density = 0.90;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public String inputfilename = "input";
+        public String outputname = "hists";
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
         public int nBins = 200;
         
-        public int blockSize = 100;
-        public long numSteps = 1000000000;
+        public int blockSize = 1000;
+        public long numSteps = 10000;
     }
 
 }
