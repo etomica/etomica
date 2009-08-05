@@ -1,5 +1,7 @@
 package etomica.modules.catalysis;
 
+import etomica.api.IAtom;
+import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -7,6 +9,7 @@ import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -17,6 +20,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 
@@ -30,10 +34,13 @@ import etomica.space.ISpace;
 public class ConfigurationCatalysis implements Configuration {
 
     public ConfigurationCatalysis(ISimulation sim, ISpace space,
-            ISpecies speciesSurface) {
+            ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
         this.sim = sim;
         this.space = space;
         this.speciesSurface = speciesSurface;
+        this.speciesO = speciesO;
+        this.speciesC = speciesC;
+        this.agentManager = agentManager;
         moleculeOffset = space.makeVector();
         conformation = new ConformationChainZigZag[4];
     }
@@ -48,6 +55,8 @@ public class ConfigurationCatalysis implements Configuration {
     
     public void initializeCoordinates(IBox box) {
         box.setNMolecules(speciesSurface, 0);
+        box.setNMolecules(speciesO, 0);
+        box.setNMolecules(speciesC, 0);
         
         IVectorMutable dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
@@ -56,16 +65,41 @@ public class ConfigurationCatalysis implements Configuration {
         dim.setX(2, nCellsZ*cellSizeZ);
         box.getBoundary().setBoxSize(dim);
         
-        //initialize the "molecules"
-        LatticeCubicFcc lattice = new LatticeCubicFcc(space);
-        Configuration config = new ConfigurationLattice(lattice, space);
-        config.initializeCoordinates(box);
-        dim.setX(1, dim.getX(1)/0.9);
-        box.getBoundary().setBoxSize(dim);
-        
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
         
+        //initialize the "molecules"
+        pretendBox.setNMolecules(speciesO, nO2);
+        pretendBox.setNMolecules(speciesC, nCO);
+        LatticeCubicFcc lattice = new LatticeCubicFcc(space);
+        Configuration config = new ConfigurationLattice(lattice, space);
+        config.initializeCoordinates(pretendBox);
+        dim.setX(1, dim.getX(1)/0.9);
+        box.getBoundary().setBoxSize(dim);
+        
+        IMoleculeList molecules = pretendBox.getMoleculeList();
+        IVectorMutable shift = space.makeVector();
+        shift.setX(0, -0.501);
+        while (molecules.getMoleculeCount()>0) {
+            IMolecule molecule1 = molecules.getMolecule(0);
+            pretendBox.removeMolecule(molecule1);
+            box.addMolecule(molecule1);
+            IMolecule molecule2 = speciesO.makeMolecule();
+            box.addMolecule(molecule2);
+            IAtom atom1 = molecule1.getChildList().getAtom(0);
+            IVectorMutable pos1 = ((IAtomPositioned)atom1).getPosition();
+            IAtom atom2 = molecule2.getChildList().getAtom(0);
+            IVectorMutable pos2 = ((IAtomPositioned)atom2).getPosition();
+            pos2.Ev1Mv2(pos1, shift);
+            pos1.PE(shift);
+            ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;
+            ((CatalysisAgent)agentManager.getAgent(atom2)).bondedAtom1 = atom1;
+            if (atom1.getType().getElement().getSymbol().equals("C") &&
+                    atom2.getType().getElement().getSymbol().equals("C")) {
+                throw new RuntimeException("oops");
+            }
+        }
+
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, dim.getX(1), cellSizeZ);
         BasisOrthorhombicHexagonal3D basisSurface = new BasisOrthorhombicHexagonal3D(space);
         int nMolecules = nCellsX*nCellsZ*basisSurface.getScaledCoordinates().length;
@@ -74,7 +108,7 @@ public class ConfigurationCatalysis implements Configuration {
         config = new ConfigurationLatticeSimple(latticeSurface, space);
         config.initializeCoordinates(pretendBox);
 
-        IMoleculeList molecules = pretendBox.getMoleculeList(speciesSurface);
+        molecules = pretendBox.getMoleculeList(speciesSurface);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
@@ -83,6 +117,22 @@ public class ConfigurationCatalysis implements Configuration {
 //            pos.setX(1, y0-yOffset);
         }
         sim.removeBox(pretendBox);
+    }
+    
+    public void setNumCO(int newNumCO) {
+        nCO = newNumCO;
+    }
+    
+    public void setNumO2(int newNumO2) {
+        nO2 = newNumO2;
+    }
+    
+    public int getNumCO() {
+        return nCO;
+    }
+
+    public int getNumO2() {
+        return nO2;
     }
 
     public double getSurfaceYOffset() {
@@ -134,7 +184,9 @@ public class ConfigurationCatalysis implements Configuration {
 
     protected final ISpace space;
     protected final ISimulation sim;
-    protected final ISpecies speciesSurface;
+    protected final ISpecies speciesSurface, speciesO, speciesC;
+    protected int nCO, nO2;
+    protected final AtomLeafAgentManager agentManager;
     protected double cellSizeX, cellSizeZ;
     protected int nCellsX, nCellsZ;
     protected double yOffset;

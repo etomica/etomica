@@ -1,6 +1,7 @@
 package etomica.modules.catalysis;
 
- import java.awt.GridBagConstraints;
+ import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -16,22 +17,17 @@ import etomica.action.SimulationRestart;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
-import etomica.data.IData;
 import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
-import etomica.data.types.DataDouble;
-import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
@@ -86,7 +82,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
     	this.sim = simulation;
 
-        Unit tUnit = Kelvin.UNIT;
+//        Unit tUnit = Kelvin.UNIT;
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
@@ -106,12 +102,7 @@ public class CatalysisGraphic extends SimulationGraphic {
             pUnit = Bar.UNIT;
 //        }
 
-        if (sim.getSpace().D() == 2) {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getBoxSize().getX(1)));
-        }
-        else {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
-        }
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
 
         sim.activityIntegrate.setSleepPeriod(0);
 
@@ -136,7 +127,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(1500.0);
         tempSlider.setSliderMajorValues(3);
-        tempSlider.setUnit(tUnit);
+//        tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
 
@@ -180,15 +171,20 @@ public class CatalysisGraphic extends SimulationGraphic {
 //        massBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
-        colorScheme.setColor(sim.speciesO2.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.interactionTracker.getAgentManager());
+        colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.BLUE);
+        colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesSurface.getLeafType(),java.awt.Color.GRAY);
+        colorScheme.setRadicalColor(sim.speciesO.getLeafType(),java.awt.Color.CYAN);
+        colorScheme.setRadicalColor(sim.speciesC.getLeafType(),java.awt.Color.PINK);
+        colorScheme.setFullBondColor(sim.speciesC.getLeafType(),new Color(0.5f, 0.0f, 0.5f));
+        getDisplayBox(sim.box).setColorScheme(colorScheme);
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
+		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
@@ -202,7 +198,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
 		dataStreamPumps.add(temperaturePump);
-        tBox.setUnit(tUnit);
+//        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature (K)");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
@@ -211,21 +207,16 @@ public class CatalysisGraphic extends SimulationGraphic {
         densityMeter.setBox(sim.box);
 	    final DisplayTextBox densityBox = new DisplayTextBox();
 	    densityBox.setUnit(dUnit);
-        final DataPump densityPump = new DataPump(densityMeter, densityBox);
-        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
-        sim.integrator.getEventManager().addListener(densityPumpListener);
-        densityPumpListener.setInterval(1);
+        final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 10);
+        sim.integrator.getEventManager().addListener(densityPump);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Density");
 	    
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
-        final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();
-        eExcludeOverlap.setDataSink(energyHistory);
-        final DataPump energyPump = new DataPump(eMeter, eExcludeOverlap);
-        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
-        sim.integrator.getEventManager().addListener(energyPumpListener);
+        final DataPumpListener energyPump = new DataPumpListener(eMeter, energyHistory, 100);
+        sim.integrator.getEventManager().addListener(energyPump);
         dataStreamPumps.add(energyPump);
 		
 		MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
@@ -234,27 +225,16 @@ public class CatalysisGraphic extends SimulationGraphic {
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(2);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
-        final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
-        peExcludeOverlap.setDataSink(peFork);
-        final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
-        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
-        sim.integrator.getEventManager().addListener(pePumpListener);
+        final DataPumpListener pePump = new DataPumpListener(peMeter, peFork, 100);
+        sim.integrator.getEventManager().addListener(pePump);
         dataStreamPumps.add(pePump);
 
 		MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
-        // we do this for the scaling by numAtoms rather than for the overlap exclusion
-        final DataSinkExcludeOverlap keExcludeOverlap = new DataSinkExcludeOverlap();
-        keExcludeOverlap.setDataSink(keHistory);
-        final DataPump kePump = new DataPump(keMeter, keExcludeOverlap);
-        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
-        sim.integrator.getEventManager().addListener(kePumpListener);
+        final DataPumpListener kePump = new DataPumpListener(keMeter, keHistory, 100);
+        sim.integrator.getEventManager().addListener(kePump);
         dataStreamPumps.add(kePump);
-        int numAtoms = sim.box.getLeafList().getAtomCount();
-        energyPumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
-        kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
-        pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         
         final DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -289,7 +269,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         SimulationRestart simRestart = new SimulationRestart(sim, space, sim.getController());
         simRestart.setConfiguration(sim.config);
         nSlider.setResetAction(simRestart);
-        nSlider.setSpecies(sim.speciesO2);
+        nSlider.setSpecies(sim.speciesO);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(sim.getSpace().D() == 3 ? 500 : 168);
@@ -380,70 +360,6 @@ public class CatalysisGraphic extends SimulationGraphic {
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
         d.width -= 50;
         ePlot.getPlot().setSize(d);
-    }
-
-//    protected class ModifierAtomDiameter implements Modifier {
-//
-//        public void setValue(double d) {
-//            if (d > 4.0) {
-//                throw new IllegalArgumentException("diameter can't exceed 4.0A");
-//            }
-//            //assume one type of atom
-//            ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
-//            CatalysisGraphic.this.sim.potentialSW.setCoreDiameter(d);
-//            new BoxImposePbc(sim.box, space).actionPerformed();
-//            try {
-//                sim.integrator.reset();
-//            }
-//            catch (ConfigurationOverlapException e){
-//                // can happen when increasing diameter
-//            }
-//            sigma = d;
-//            getDisplayBox(sim.box).repaint();
-//        }
-//
-//        public double getValue() {
-//            return sigma;
-//        }
-//
-//        public Dimension getDimension() {
-//            return Length.DIMENSION;
-//        }
-//        
-//        public String getLabel() {
-//            return "Atom Diameter";
-//        }
-//        
-//        public String toString() {
-//            return getLabel();
-//        }
-//    }
-//    
-    public static class DataSinkExcludeOverlap extends DataProcessor {
-
-        public DataSinkExcludeOverlap() {
-            myData = new DataDouble();
-        }
-        
-        public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
-            return null;
-        }
-        
-        public IData processData(IData data) {
-            if (Double.isInfinite(data.getValue(0))) {
-                return null;
-            }
-            myData.E(data);
-//            myData.TE(1.0/numAtoms);
-            return myData;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            return inputDataInfo;
-        }
-        
-//        public int numAtoms;
-        protected final DataDouble myData;
     }
 
     public static void main(String[] args) {
