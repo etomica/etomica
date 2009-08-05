@@ -18,8 +18,11 @@ import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtomTypeSphere;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -33,7 +36,9 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
+import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
@@ -240,6 +245,23 @@ public class MuGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
         peDisplay.setLabel("Potential Energy (J/mol)");
+        
+        MeterProfileByVolume densityProfileMeter = new MeterProfileByVolume(space);
+        densityProfileMeter.setBox(sim.box);
+        MeterNMolecules meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.species);
+        densityProfileMeter.setDataSource(meterNMolecules);
+        AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
+        densityProfileAvg.setPushInterval(10);
+        DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 100);
+        sim.integrator.getEventManager().addListener(profilePump);
+        dataStreamPumps.add(profilePump);
+
+        DisplayPlot profilePlot = new DisplayPlot();
+        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        profilePlot.setDoLegend(false);
+        profilePlot.setLabel("Density");
+
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
@@ -324,6 +346,7 @@ public class MuGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
     	add(ePlot);
+        add(profilePlot);
     	add(displayCycles);
     	add(densityBox);
     	add(tBox);
