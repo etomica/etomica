@@ -7,7 +7,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IBoxAtomEvent;
 import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxEvent;
 import etomica.api.IBoxIndexEvent;
 import etomica.api.IBoxListener;
 import etomica.api.IBoxMoleculeCountEvent;
@@ -208,6 +207,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                         int index = random.nextInt(atomList.getAtomCount());
                         IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                         double m = ((IAtom)a).getType().getMass();
+                        if (m == Double.POSITIVE_INFINITY) return;
                         currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
                         randomizeMomentum(a);
                         currentKineticEnergy += 0.5*m*a.getVelocity().squared();
@@ -308,12 +308,14 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         for (int i = 0; i < space.D(); i++) {
             // scale independently in each dimension
             double sum = 0.0;
+            int nLeafNotFixed = 0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
                 IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
                 double mass = ((IAtom)atom).getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
                 sum += mass*v*v;
+                nLeafNotFixed++;
             }
             if (sum == 0) {
                 if (temperature == 0) {
@@ -330,7 +332,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 // try again, we could infinite loop in theory
                 continue;
             }
-            double s = Math.sqrt(temperature / (sum / nLeaf));
+            double s = Math.sqrt(temperature / (sum / nLeafNotFixed));
             currentKineticEnergy += 0.5*sum*s*s;
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
