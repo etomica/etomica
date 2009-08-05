@@ -26,7 +26,6 @@ import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
@@ -40,16 +39,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Bar;
-import etomica.units.Gram;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Picosecond;
 import etomica.units.Pixel;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
 import etomica.util.Constants.CompassDirection;
 
 /**
@@ -65,7 +55,7 @@ public class CatalysisGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
 //    public double lambda, epsilon, mass, sigma;
-    protected Unit eUnit, dUnit, pUnit, mUnit;
+//    protected Unit eUnit, dUnit, pUnit, mUnit;
     protected Catalysis sim;
     
     public CatalysisGraphic(final Catalysis simulation, Space _space) {
@@ -84,8 +74,8 @@ public class CatalysisGraphic extends SimulationGraphic {
 
 //        Unit tUnit = Kelvin.UNIT;
 
-        eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
-        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
+//        eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
+//        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
 //        lambda = 2.0;
 //        epsilon = eUnit.toSim(space.D() == 3 ? 1000 : 1500);
 //        mass = space.D() == 3 ? 131 : 40;
@@ -98,8 +88,8 @@ public class CatalysisGraphic extends SimulationGraphic {
 //            pUnit = new CompoundUnit(units, exponents);
 //        }
 //        else {
-            dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
-            pUnit = Bar.UNIT;
+//            dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
+//            pUnit = Bar.UNIT;
 //        }
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
@@ -122,10 +112,10 @@ public class CatalysisGraphic extends SimulationGraphic {
         
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController());
-        tempSlider.setUnit(Kelvin.UNIT);
+//        tempSlider.setUnit(Kelvin.UNIT);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(1500.0);
+        tempSlider.setMaximum(5.0);
         tempSlider.setSliderMajorValues(3);
 //        tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
@@ -206,7 +196,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
 	    final DisplayTextBox densityBox = new DisplayTextBox();
-	    densityBox.setUnit(dUnit);
+//	    densityBox.setUnit(dUnit);
         final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 10);
         sim.integrator.getEventManager().addListener(densityPump);
         dataStreamPumps.add(densityPump);
@@ -247,20 +237,8 @@ public class CatalysisGraphic extends SimulationGraphic {
         ePlot.getPlot().setTitle("Energy History (J/mol)");
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
-		ePlot.setXUnit(Picosecond.UNIT);
+//		ePlot.setXUnit(Picosecond.UNIT);
 		
-        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        final DataPump pPump = new DataPump(pMeter, pAccumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
-        pAccumulator.setPushInterval(50);
-        dataStreamPumps.add(pPump);
-
-        final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
-        pDisplay.setLabel(sim.getSpace().D() == 3 ? "Pressure (bar)" : "Pressure (bar-nm)");
-        pDisplay.setAccumulator(pAccumulator);
-        pDisplay.setUnit(pUnit);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
         peDisplay.setLabel("Potential Energy (J/mol)");
@@ -329,9 +307,6 @@ public class CatalysisGraphic extends SimulationGraphic {
                 tBox.repaint();
 
                 // IS THIS WORKING?
-                pPump.actionPerformed();
-                pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
                 peDisplay.repaint();
 
@@ -354,7 +329,6 @@ public class CatalysisGraphic extends SimulationGraphic {
     	add(displayCycles);
     	add(densityBox);
     	add(tBox);
-    	add(pDisplay);
     	add(peDisplay);
     	
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
