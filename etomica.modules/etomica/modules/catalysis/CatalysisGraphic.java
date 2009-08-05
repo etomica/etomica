@@ -162,11 +162,11 @@ public class CatalysisGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.interactionTracker.getAgentManager());
-        colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.BLUE);
         colorScheme.setColor(sim.speciesSurface.getLeafType(),java.awt.Color.GRAY);
-        colorScheme.setRadicalColor(sim.speciesO.getLeafType(),java.awt.Color.CYAN);
-        colorScheme.setRadicalColor(sim.speciesC.getLeafType(),java.awt.Color.PINK);
+        colorScheme.setRadicalColor(sim.speciesO.getLeafType(),java.awt.Color.PINK);
+        colorScheme.setRadicalColor(sim.speciesC.getLeafType(),java.awt.Color.CYAN);
         colorScheme.setFullBondColor(sim.speciesC.getLeafType(),new Color(0.5f, 0.0f, 0.5f));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 		
