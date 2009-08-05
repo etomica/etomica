@@ -119,8 +119,12 @@ public class P2SquareWell extends Potential2HardSpherical {
         atom0.getPosition().PEa1Tv1(-falseTime*rm0,dv);
         atom1.getPosition().PEa1Tv1( falseTime*rm1,dv);
         if(nudge != 0) {
-            atom0.getPosition().PEa1Tv1(-nudge,dr);
-            atom1.getPosition().PEa1Tv1(nudge,dr);
+            if (rm0 > 0) {
+                atom0.getPosition().PEa1Tv1(-nudge,dr);
+            }
+            if (rm1 > 0) {
+                atom1.getPosition().PEa1Tv1(nudge,dr);
+            }
         }
     }//end of bump method
 
