@@ -15,6 +15,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -235,6 +236,13 @@ public class SimWidomMode extends Simulation {
         for(int i = 0; i < cd; i++){
             System.out.println(i + "  " + results[i]);
         }
+        
+        if(D==1) {
+            double AHR = -(nA-1)*Math.log(nA/density-nA)
+                + SpecialFunctions.lnFactorial(nA) ;
+            System.out.println("Hard-rod free energy: "+AHR);
+        }
+        
         System.out.println("Fini.");
     }
     
@@ -248,7 +256,7 @@ public class SimWidomMode extends Simulation {
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
         
-        public int blockSize = 100;
+        public int blockSize = 1000;
         public int numSteps = 10000;
     }
 
