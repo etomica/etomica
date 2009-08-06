@@ -8,7 +8,9 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
@@ -17,7 +19,6 @@ import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.RandomNumberGenerator;
 
 public class Mu extends Simulation {
     
@@ -31,7 +32,6 @@ public class Mu extends Simulation {
     
     public Mu(ISpace _space) {
         super(_space);
-        setRandom(new RandomNumberGenerator(3));
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
         
         int N = 300;  //number of atoms
@@ -47,7 +47,7 @@ public class Mu extends Simulation {
 	    integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
 
 	    //species and potentials
@@ -63,8 +63,10 @@ public class Mu extends Simulation {
         p1Boundary.setActive(0, true, true);
         p1Boundary.setActive(1, false, false);
         p1Boundary.setActive(1, true, false);
-        p1Boundary.setActive(2, false, false);
-        p1Boundary.setActive(2, true, false);
+        if (space.D() == 3) {
+            p1Boundary.setActive(2, false, false);
+            p1Boundary.setActive(2, true, false);
+        }
         potentialMaster.addPotential(p1Boundary,new IAtomType[]{species.getLeafType()});
 	    p1Wall = new P1MagicWall(space, potentialMaster);
 	    p1Wall.setEpsilon(epsilon);
@@ -75,11 +77,12 @@ public class Mu extends Simulation {
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);
         addBox(box);
         IVectorMutable dim = space.makeVector();
-        dim.E(15);
-        dim.setX(0, 30);
+        double xdim = space.D() == 3 ? 30 : 50;
+        dim.E(0.5*xdim);
+        dim.setX(0, xdim);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
-        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+        new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }

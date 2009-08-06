@@ -282,7 +282,7 @@ public class MuGraphic extends SimulationGraphic {
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
-        nSlider.setMaximum(500);
+        nSlider.setMaximum(2000);
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
@@ -438,8 +438,12 @@ public class MuGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-
+        int dim = 3;
+        if (args.length > 0) {
+            dim = Integer.parseInt(args[0]);
+        }
+        ISpace space = Space.getInstance(dim);
+        
         MuGraphic swmdGraphic = new MuGraphic(new Mu(space), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
@@ -450,7 +454,12 @@ public class MuGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ISpace sp = Space3D.getInstance();
+            String dimStr = getParameter("dim");
+            int dim = 3;
+            if (dimStr != null) {
+                dim = Integer.valueOf(dimStr).intValue();
+            }
+            Space sp = Space.getInstance(dim);
             MuGraphic swmdGraphic = new MuGraphic(new Mu(sp), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
