@@ -24,6 +24,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -49,7 +50,7 @@ public class SimDegreeFreedom3D extends Simulation {
     public ActivityIntegrate activityIntegrate;
     
     public IBox box;
-    public Boundary bdry;
+    public Boundary boundary;
     public CoordinateDefinition coordinateDefinition;
     MeterNormalModeCoordinate meternmc;
     WaveVectorFactory waveVectorFactory;
@@ -79,11 +80,14 @@ public class SimDegreeFreedom3D extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
-
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        nCells = new int[]{numAtoms};
-        box.setBoundary(bdry);
+        
+        primitive = new PrimitiveCubic(space, 1.0);
+        double v = primitive.unitCell().getVolume();
+        primitive.scaleSize(Math.pow(v*density/4, -1.0/3.0));
+        int numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
+        box.setBoundary(boundary);
         
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
@@ -181,8 +185,9 @@ public class SimDegreeFreedom3D extends Simulation {
         double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
         if(filename.length() == 0){
-            filename = "1DHR";
+            filename = "3DHS";
         }
+        String outputName = params.outputfilename;
         double temperature = params.temperature;
         int comparedWV = params.comparedWV;
         long nSteps = params.numSteps;
@@ -224,8 +229,7 @@ public class SimDegreeFreedom3D extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
-            String outputName = new String("hist_" + i);
-            wh = new WriteHistograms(outputName);
+            wh = new WriteHistograms(outputName + "_" + i);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
             System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
@@ -259,6 +263,7 @@ public class SimDegreeFreedom3D extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public String inputfilename = "input";
+        public String outputfilename = "hists";
         public double temperature = 1.0;
         public int comparedWV = numAtoms/2;
         public int nBins = 200;
