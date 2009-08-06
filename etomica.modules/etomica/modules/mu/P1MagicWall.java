@@ -63,7 +63,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         IVectorMutable v = atom.getVelocity();
         IVectorMutable p = atom.getPosition();
         double x = p.getX(0);
-        double de = getDeltaU(atom, falseTime);
+        double de = getDeltaU(atom, falseTime, x<0);
         if (x<0) {
             // ideal gas trying to become a SQW atom
             if (de < Double.POSITIVE_INFINITY) {
@@ -114,7 +114,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         }
     }
 
-    protected double getDeltaU(IAtomKinetic atom, double falseTime) {
+    protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW) {
         IVectorMutable v = atom.getVelocity();
         IVectorMutable p = atom.getPosition();
         IAtomList upList = neighborManager.getUpList((IAtom)atom)[0];
@@ -136,7 +136,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             boundary.nearestImage(dr);
 
             double r2 = dr.squared();
-            if (r2 < sigmaSq) {
+            if (r2 < sigmaSq && isIG2SQW) {
                 return Double.POSITIVE_INFINITY;
             }
             if (r2 < wellSigmaSq) {
@@ -159,7 +159,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             boundary.nearestImage(dr);
 
             double r2 = dr.squared();
-            if (r2 < sigmaSq) {
+            if (r2 < sigmaSq && isIG2SQW) {
                 return Double.POSITIVE_INFINITY;
             }
             if (r2 < wellSigmaSq) {
@@ -188,15 +188,18 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     }
 
     public void setSigma(double sigma) {
+        if (sigmaSq != 0) {
+            wellSigmaSq = wellSigmaSq/sigmaSq*(sigma*sigma);
+        }
         sigmaSq = sigma*sigma;
     }
 
-    public double getWellSigma() {
-        return Math.sqrt(wellSigmaSq);
+    public double getLambda() {
+        return Math.sqrt(wellSigmaSq/sigmaSq);
     }
 
-    public void setWellSigmaSq(double wellSigma) {
-        wellSigmaSq = wellSigma*wellSigma;
+    public void setLambda(double lambda) {
+        wellSigmaSq = sigmaSq*lambda*lambda;
     }
 
     public double getEpsilon() {

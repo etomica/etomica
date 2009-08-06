@@ -27,16 +27,18 @@ public class Mu extends Simulation {
     public IntegratorHard integrator;
     public ActivityIntegrate activityIntegrate;
     public P2SquareWellOneSide potentialSW;
+    public P1MagicWall p1Wall;
     
     public Mu(ISpace _space) {
         super(_space);
         setRandom(new RandomNumberGenerator(3));
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 3, space); //List(this, 2.0);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
         
         int N = 300;  //number of atoms
         
         double sigma = 1.0;
         double lambda = 1.5;
+        double epsilon = 1.0;
         
         //controller and integrator
 	    integrator = new IntegratorHard(this, potentialMaster, space);
@@ -53,7 +55,7 @@ public class Mu extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //instantiate several potentials for selection in combo-box
-	    potentialSW = new P2SquareWellOneSide(space, sigma, lambda, 1, true);
+	    potentialSW = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
         potentialMaster.addPotential(potentialSW,new IAtomType[]{species.getLeafType(), species.getLeafType()});
         
         P1HardBoundary p1Boundary = new P1HardBoundary(space);
@@ -64,10 +66,10 @@ public class Mu extends Simulation {
         p1Boundary.setActive(2, false, false);
         p1Boundary.setActive(2, true, false);
         potentialMaster.addPotential(p1Boundary,new IAtomType[]{species.getLeafType()});
-	    P1MagicWall p1Wall = new P1MagicWall(space, potentialMaster);
-	    p1Wall.setEpsilon(1);
-	    p1Wall.setSigma(1);
-	    p1Wall.setWellSigmaSq(lambda);
+	    p1Wall = new P1MagicWall(space, potentialMaster);
+	    p1Wall.setEpsilon(epsilon);
+	    p1Wall.setSigma(sigma);
+	    p1Wall.setLambda(lambda);
 	    potentialMaster.addPotential(p1Wall, new IAtomType[]{species.getLeafType()});
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);

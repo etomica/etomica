@@ -22,7 +22,6 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -141,8 +140,8 @@ public class MuGraphic extends SimulationGraphic {
 
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         sigModifier.setValue(sigma);
-        ModifierGeneral epsModifier = new ModifierGeneral(sim.potentialSW, "epsilon");
-        ModifierGeneral lamModifier = new ModifierGeneral(sim.potentialSW, "lambda");
+        ModifierGeneral epsModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "epsilon");
+        ModifierGeneral lamModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "lambda");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setModifier(epsModifier);
@@ -360,12 +359,13 @@ public class MuGraphic extends SimulationGraphic {
     protected class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
-            if (d > 4.0) {
-                throw new IllegalArgumentException("diameter can't exceed 4.0A");
+            if (d > 3.0 || d*sim.potentialSW.getLambda() > 3.0) {
+                throw new IllegalArgumentException("diameter can't exceed 3.0A");
             }
             //assume one type of atom
             ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
             sim.potentialSW.setCoreDiameter(d);
+            sim.p1Wall.setSigma(d);
             new BoxImposePbc(sim.box, space).actionPerformed();
             try {
                 sim.integrator.reset();
