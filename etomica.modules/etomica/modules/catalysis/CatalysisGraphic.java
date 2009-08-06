@@ -113,10 +113,10 @@ public class CatalysisGraphic extends SimulationGraphic {
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController());
 //        tempSlider.setUnit(Kelvin.UNIT);
-//        tempSlider.setPrecision(1);
+        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(5.0);
-        tempSlider.setSliderMajorValues(3);
+        tempSlider.setMaximum(4.0);
+        tempSlider.setSliderMajorValues(4);
 //        tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
