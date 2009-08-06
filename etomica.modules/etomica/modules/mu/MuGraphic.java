@@ -54,6 +54,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -147,6 +148,13 @@ public class MuGraphic extends SimulationGraphic {
                     throw new IllegalArgumentException();
                 }
                 super.setValue(newValue);
+                ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e){
+                    // could already be overlapped from increasing diameter
+                }
             }
         };
         sigBox.setModifier(sigModifier);
@@ -374,6 +382,7 @@ public class MuGraphic extends SimulationGraphic {
             sim.potentialSW.setCoreDiameter(d);
             sim.p1Wall.setSigma(d);
             new BoxImposePbc(sim.box, space).actionPerformed();
+            ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
             try {
                 sim.integrator.reset();
             }
