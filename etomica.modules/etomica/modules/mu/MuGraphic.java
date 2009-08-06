@@ -141,7 +141,14 @@ public class MuGraphic extends SimulationGraphic {
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         sigModifier.setValue(sigma);
         ModifierGeneral epsModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "epsilon");
-        ModifierGeneral lamModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "lambda");
+        ModifierGeneral lamModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "lambda") {
+            public void setValue(double newValue) {
+                if (sim.potentialSW.getCoreDiameter()*newValue > 3) {
+                    throw new IllegalArgumentException();
+                }
+                super.setValue(newValue);
+            }
+        };
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setModifier(epsModifier);
