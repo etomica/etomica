@@ -137,7 +137,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                 imin = i;
             }
         }
-        if (Debug.ON && Math.abs(work.getX(imin)-collisionRadius+dimensions.getX(imin)*0.5)/collisionRadius > 1.e-9 
+        if (Debug.ON && collisionRadius > 0 && Math.abs(work.getX(imin)-collisionRadius+dimensions.getX(imin)*0.5)/collisionRadius > 1.e-9 
                 && Math.abs(0.5*dimensions.getX(imin)-work.getX(imin)-collisionRadius)/collisionRadius > 1.e-9) {
             System.out.println(atom+" "+work+" "+dimensions);
             System.out.println("stop that");
