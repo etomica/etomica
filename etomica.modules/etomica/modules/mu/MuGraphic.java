@@ -16,8 +16,10 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.action.SimulationRestart;
+import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IMolecule;
+import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -54,10 +56,10 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.modifier.ModifierNMolecule;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -278,9 +280,26 @@ public class MuGraphic extends SimulationGraphic {
 
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
+        nSlider.setModifier(new ModifierNMolecule(sim.box, sim.species) {
+            public void setValue(double newValue) {
+                int d = (int)newValue;
+                int oldValue = box.getNMolecules(species);
+                if (d < oldValue) {
+                    box.setNMolecules(species, d);
+                }
+                else {
+                    for (int i=0; i<(d-oldValue); i++) {
+                        IMolecule m = species.makeMolecule();
+                        IVectorMutable p = ((IAtomPositioned)m.getChildList().getAtom(0)).getPosition();
+                        p.setX(0, -7.5);
+                        box.addMolecule(m);
+                    }
+                }
+                sim.integrator.reset();
+            }
+        });
         nSlider.setMinimum(0);
         nSlider.setMaximum(2000);
         nSlider.setLabel("Number of Atoms");
@@ -438,7 +457,7 @@ public class MuGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        int dim = 3;
+        int dim = 2;
         if (args.length > 0) {
             dim = Integer.parseInt(args[0]);
         }
