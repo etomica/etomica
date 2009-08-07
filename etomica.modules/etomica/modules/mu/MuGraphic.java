@@ -20,16 +20,20 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
+import etomica.data.DataProcessorChemicalPotential;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
@@ -39,8 +43,10 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterProfile;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
+import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -147,6 +153,7 @@ public class MuGraphic extends SimulationGraphic {
         ModifierGeneral lamModifier = new ModifierGeneral(new Object[]{sim.potentialSW,sim.p1Wall}, "lambda") {
             public void setValue(double newValue) {
                 if (sim.potentialSW.getCoreDiameter()*newValue > 3) {
+                    // our potential neighbor range is 4, so cap interaction range at 3
                     throw new IllegalArgumentException();
                 }
                 super.setValue(newValue);
@@ -269,6 +276,8 @@ public class MuGraphic extends SimulationGraphic {
         densityProfileMeter.setDataSource(meterNMolecules);
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
         densityProfileAvg.setPushInterval(10);
+        DataDump profileDump = new DataDump();
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 100);
         sim.integrator.getEventManager().addListener(profilePump);
         dataStreamPumps.add(profilePump);
@@ -278,6 +287,52 @@ public class MuGraphic extends SimulationGraphic {
         profilePlot.setDoLegend(false);
         profilePlot.setLabel("Density");
 
+        DisplayPlot muPlot = new DisplayPlot();
+        MeterProfile muProfileMeter = new MeterProfile(space, sim.getRandom());
+        muProfileMeter.setBox(sim.box);
+        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
+        meterChemicalPotential.setIntegrator(sim.integrator);
+        meterChemicalPotential.setSpecies(sim.species);
+        muProfileMeter.setDataSource(meterChemicalPotential);
+        AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
+        chemicalPotentialAverage.setPushInterval(10);
+        DataPumpListener muProfilePump = new DataPumpListener(muProfileMeter, chemicalPotentialAverage, 100);
+        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+        dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
+        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
+        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
+        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");
+
+        muPlot.setLabel("Chemical Potential");
+        muPlot.setDoLegend(false);
+        add(muPlot);
+        sim.integrator.getEventManager().addListener(muProfilePump);
+        dataStreamPumps.add(muProfilePump);
+        
+        MeterWidomInsertion meterMu = new MeterWidomInsertion(space, sim.getRandom());
+        meterMu.setIntegrator(sim.integrator);
+        meterMu.setNInsert(1);
+        meterMu.setResidual(true);
+        meterMu.setSpecies(sim.species);
+        meterMu.setPositionSource(new RandomPositionSourceRectangular(space, sim.getRandom()) {
+            public IVectorMutable randomPosition() {
+                IVectorMutable v;
+                do {
+                    v = super.randomPosition();
+                }
+                while (v.getX(0) < 0);
+                return v;
+            }
+        });
+        DataFork muFork = new DataFork();
+        DataPumpListener muPump = new DataPumpListener(meterMu, muFork);
+        AccumulatorAverageCollapsing muAvg = new AccumulatorAverageCollapsing();
+        muFork.addDataSink(muAvg);
+        sim.integrator.getEventManager().addListener(muPump);
+        DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
+        muDisplay.setAccumulator(muAvg);
+        muAvg.setPushInterval(100);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
@@ -378,12 +433,13 @@ public class MuGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
-    	add(ePlot);
-        add(profilePlot);
     	add(displayCycles);
     	add(densityBox);
     	add(tBox);
+        add(muDisplay);
     	add(peDisplay);
+        add(ePlot);
+        add(profilePlot);
     	
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
         d.width -= 50;
