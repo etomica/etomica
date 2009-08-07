@@ -63,7 +63,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         IVectorMutable v = atom.getVelocity();
         IVectorMutable p = atom.getPosition();
         double x = p.getX(0);
-        double de = getDeltaU(atom, falseTime, x<0);
+        double de = getDeltaU(atom, falseTime, x<0, true);
         if (x<0) {
             // ideal gas trying to become a SQW atom
             if (de < Double.POSITIVE_INFINITY) {
@@ -114,7 +114,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         }
     }
 
-    protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW) {
+    protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW, boolean countHigh) {
         IVectorMutable v = atom.getVelocity();
         IVectorMutable p = atom.getPosition();
         IAtomList upList = neighborManager.getUpList((IAtom)atom)[0];
@@ -125,7 +125,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             IVector pos2 = atom2.getPosition();
             IVector vel2 = atom2.getVelocity();
             double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
-            if (x2 > 0) {
+            if (x2 < 0 == countHigh) {
                 // we're already interacting with this atom
                 continue;
             }
@@ -148,7 +148,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             IVector pos2 = atom2.getPosition();
             IVector vel2 = atom2.getVelocity();
             double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
-            if (x2 > 0) {
+            if (x2 < 0 == countHigh) {
                 // we're already interacting with this atom
                 continue;
             }

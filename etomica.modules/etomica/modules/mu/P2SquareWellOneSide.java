@@ -143,8 +143,8 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
         IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         double x0 = atom0.getPosition().getX(0) + atom0.getVelocity().getX(0)*falseTime;
         double x1 = atom1.getPosition().getX(0) + atom1.getVelocity().getX(0)*falseTime;
-        if (x0 < 0 && x1 < 0) {
-            // both on the ideal-gas side
+        if (x0 < 0 || x1 < 0) {
+            // one is ideal gas
             return Double.POSITIVE_INFINITY;
         }
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
@@ -195,8 +195,8 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
         IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         double x0 = atom0.getPosition().getX(0);
         double x1 = atom1.getPosition().getX(0);
-        if (x0 < 0 && x1 < 0) {
-            // both on the ideal-gas side
+        if (x0 < 0 || x1 < 0) {
+            // on is ideal-gas
             return 0;
         }
 
