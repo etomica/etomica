@@ -8,7 +8,8 @@ import etomica.api.ISimulationEventManager;
 import etomica.api.ISpeciesManager;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
-import etomica.util.RandomNumberGenerator;
+import etomica.util.RandomMersenneTwister;
+import etomica.util.RandomNumberGeneratorUnix;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -32,7 +33,8 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         this.dynamic = isDynamic;
         boxList = new IBox[0];
         controller = new Controller();
-        random = new RandomNumberGenerator();
+        int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+        random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         speciesManager = new SpeciesManager(this);
     }
