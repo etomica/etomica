@@ -5,6 +5,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTag;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -79,6 +80,10 @@ public class IntegratorThermodynamicPEvsT extends IntegratorThermodynamic implem
 
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
         return (DataInfoDoubleArray)temperatureDataSource.getDataInfo();
+    }
+
+    public DataTag getIndependentTag() {
+        return temperatureDataSource.getTag();
     }
 
     private static final long serialVersionUID = 1L;

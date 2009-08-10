@@ -37,6 +37,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         profileDataInfo.addTag(tag);
         binSize = 0.1;
         virialProfile = new double[space.D()][0];
+        xTag = new DataTag();
     }
     
     /**
@@ -194,6 +195,10 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
         return xDataInfo;
     }
 
+    public DataTag getIndependentTag() {
+        return xTag;
+    }
+
     private static final long serialVersionUID = 1L;
     protected double lastProfileTime;
     protected DataGroup profileData;
@@ -201,6 +206,7 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
     protected DataInfoGroup profileDataInfo;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
+    protected final DataTag xTag;
     protected double binSize;
     protected double L, Li, halfL;
     protected int nBins;

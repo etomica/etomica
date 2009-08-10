@@ -19,7 +19,6 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.Histogram;
 import etomica.util.HistogramExpanding;
 
 /**
@@ -37,7 +36,10 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
         tag = new DataTag();
 
         
-    	distanceR = new DataDoubleArray(getBox().getLeafList().getAtomCount());
+    	distanceR = new DataDoubleArray(0);
+        rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{0});
+        rTag = new DataTag();
+        rDataInfo.addTag(rTag);
     }
     	
 
@@ -113,7 +115,11 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
 
 	public DataDoubleArray getIndependentData(int i) {
 		
-		distanceR = new DataDoubleArray(histogram.getNBins());
+        if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
+            distanceR = new DataDoubleArray(histogram.getNBins());
+            rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
+            rDataInfo.addTag(tag);
+        }
 		distanceR.E(histogram.xValues());
 		
 		return distanceR;
@@ -122,16 +128,23 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
 
 
 	public DataInfoDoubleArray getIndependentDataInfo(int i) {
-		
-		dataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
-		return dataInfo;
+	    if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
+            distanceR = new DataDoubleArray(histogram.getNBins());
+	        rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
+	        rDataInfo.addTag(tag);
+	    }
+		return rDataInfo;
+	}
+
+	public DataTag getIndependentTag() {
+	    return rTag;
 	}
     
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    private final DataTag tag;
+    private final DataTag tag, rTag;
     private DataInfoFunction dataInfoFunction;
-    private DataInfoDoubleArray dataInfo;
+    private DataInfoDoubleArray rDataInfo;
     protected IVectorMutable workVector;
     private DataFunction data;
     private ISpace space;

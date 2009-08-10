@@ -26,10 +26,6 @@ public class MeterHarmonicCoordinate extends DataSourceScalar {
         
     }
     
-    public DataTag getTag() {
-        return tag;
-    }
-    
     public CoordinateDefinition getCoordinateDefinition() {
         return coordinateDefinition;
     }

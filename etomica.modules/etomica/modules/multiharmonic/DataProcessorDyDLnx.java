@@ -3,6 +3,7 @@ package etomica.modules.multiharmonic;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
+import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDoubleArray;
@@ -20,6 +21,10 @@ import etomica.units.Quantity;
  */
 public class DataProcessorDyDLnx extends DataProcessor implements DataSourceIndependent {
 
+    public DataProcessorDyDLnx() {
+        nTag = new DataTag();
+    }
+
     public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
         return null;
     }
@@ -35,6 +40,7 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
         }
         outNData = new DataDoubleArray(myLength);
         outNDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{myLength});
+        outNDataInfo.addTag(nTag);
         dataInfo = new DataInfoFunction("dydlnx", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         data = new DataFunction(new int[]{myLength});
@@ -70,10 +76,15 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
         return outNDataInfo;
     }
 
+    public DataTag getIndependentTag() {
+        return nTag;
+    }
+
     private static final long serialVersionUID = 1L;
     protected DataFunction data;
     protected DataInfoFunction dataInfo;
     protected DataDoubleArray outNData;
     protected DataInfoDoubleArray outNDataInfo;
     protected DataSourceIndependent nDataSource;
+    protected final DataTag nTag;
 }

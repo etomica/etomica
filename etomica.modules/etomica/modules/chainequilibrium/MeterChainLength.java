@@ -28,6 +28,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
 
     public MeterChainLength(AtomLeafAgentManager aam) {
         tag = new DataTag();
+        xTag = new DataTag();
         setupData(1);
         agentManager = aam;
     }
@@ -44,7 +45,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
 
         xData = new DataDoubleArray(maxChainLength);
         xDataInfo = new DataInfoDoubleArray("Chain Length", Quantity.DIMENSION, new int[]{maxChainLength});
-        xDataInfo.addTag(tag);
+        xDataInfo.addTag(xTag);
         double[] x = xData.getData();
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
@@ -130,6 +131,10 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         return 1;
     }
 
+    public DataTag getIndependentTag() {
+        return xTag;
+    }
+
     protected int recursiveTag(IAtom a) {
         if (a.getType() == ignoredAtomType) return 0;
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
@@ -186,7 +191,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected DataInfoFunction dataInfo;
-    protected final DataTag tag;
+    protected final DataTag tag, xTag;
     protected IAtomType ignoredAtomType;
     
     public static class AtomTag {
