@@ -63,11 +63,6 @@ public class DataProcessorPhi extends DataProcessor {
 		return dataInfo;
 	}
 
-	public DataTag getTag() {
-		// TODO Auto-generated method stub
-		return tag;
-	}
-
 	public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) { //hook up to meter to the Dataprocessor
 		if (dataInfo instanceof DataInfoDouble)
 			return null;
