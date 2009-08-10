@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.data.types.DataFunction;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.integrator.IntegratorBox;
 
 /**
@@ -31,6 +30,7 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         double[] oldY = ((DataFunction)inputData).getData();
         double[] newY = data.getData();
         IData densityData = densityProfileSource.getData();
+        if (densityData == null) return null;
         double temp = integrator.getTemperature();
         for (int i=0; i<oldY.length; i++) {
             double density = densityData.getValue(i);
