@@ -77,7 +77,7 @@ public class DataSinkTable extends DataSet {
         int oldRowCount = rowCount;
         rowCount = 0;
         for (int i = 0; i < psuedoSinks.length; i++) {
-            int n = ((DataTable)psuedoSinks[i].getData()).getNRows();
+            int n = ((DataInfoTable)psuedoSinks[i].getDataInfo()).getNRows();
             if (n > rowCount) {
                 rowCount = n;
             }
