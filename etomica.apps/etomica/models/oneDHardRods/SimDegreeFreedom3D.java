@@ -102,6 +102,7 @@ public class SimDegreeFreedom3D extends Simulation {
         
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
+        System.out.println(waveVectorFactory.getWaveVectors().length);
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -169,21 +170,22 @@ public class SimDegreeFreedom3D extends Simulation {
     public static void main(String[] args) {
 
         SimParam params = new SimParam();
-        String inputFilename = null;
-        if(args.length > 0) {
-            inputFilename = args[0];
-        }
-        if(inputFilename != null){
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-            inputFilename = params.inputfilename;
-        }
+//        String inputFilename = null;
+//        if(args.length > 0) {
+//            inputFilename = args[0];
+//        }
+//        if(inputFilename != null){
+//            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+//            readParameters.readParameters();
+//            inputFilename = params.inputfilename;
+//        }
         
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
         double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
+        String inputFilename = params.inputfilename;
         if(filename.length() == 0){
             filename = "3DHS";
         }
@@ -204,7 +206,7 @@ public class SimDegreeFreedom3D extends Simulation {
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDegreeFreedom3D sim = new SimDegreeFreedom3D(Space.getInstance(D), nA, density, bs, nbins, filename);
+        SimDegreeFreedom3D sim = new SimDegreeFreedom3D(Space.getInstance(D), nA, density, bs, nbins, inputFilename);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -262,10 +264,10 @@ public class SimDegreeFreedom3D extends Simulation {
         public int D = 3;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
-        public String inputfilename = "input";
+        public String inputfilename = "normal_modes_LJ_3D_32";
         public String outputfilename = "hists";
         public double temperature = 1.0;
-        public int comparedWV = numAtoms/2;
+        public int comparedWV = 7;
         public int nBins = 200;
         
         public int blockSize = 1000;
