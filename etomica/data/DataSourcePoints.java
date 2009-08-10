@@ -9,7 +9,7 @@ import etomica.units.Dimension;
 public class DataSourcePoints implements IEtomicaDataSource, DataSourceIndependent {
 
     private static final long serialVersionUID = 1L;
-    private DataTag tag;
+    private DataTag tag, independentTag;
 	private IEtomicaDataInfo depDataInfo;
 	private DataInfoDoubleArray indDataInfo;
     private DataDoubleArray independentData = null;
@@ -28,9 +28,10 @@ public class DataSourcePoints implements IEtomicaDataSource, DataSourceIndepende
 	    dependentData = new DataFunction(new int[]{0}, new double[0]);
 
         tag = new DataTag();
+        independentTag = new DataTag();
         
 		indDataInfo = new DataInfoDoubleArray(label, xDimension, new int[] {0});
-		indDataInfo.addTag(tag);
+		indDataInfo.addTag(independentTag);
 
 		depDataInfo = new DataInfoFunction(label, yDimension, this);
 		depDataInfo.addTag(tag);
@@ -86,4 +87,7 @@ public class DataSourcePoints implements IEtomicaDataSource, DataSourceIndepende
     	return independentData.getArrayDimension();
     }
 
+    public DataTag getIndependentTag() {
+        return independentTag;
+    }
 }

@@ -21,11 +21,6 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceMolec
     public MeterNMolecules() {
         super("Molecules",Quantity.DIMENSION);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Number of molecules in a box");
-        return info;
-    }
 
     public void setSpecies(ISpecies s) {species = s;}
     public ISpecies getSpecies() {return species;}

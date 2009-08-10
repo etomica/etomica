@@ -133,7 +133,11 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public int getIndependentArrayDimension() {
         return 1;
     }
-    
+
+    public DataTag getIndependentTag() {
+        return xDataSource.getTag();
+    }
+
     /**
      * @return Returns the box.
      */

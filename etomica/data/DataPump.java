@@ -51,7 +51,7 @@ public class DataPump extends DataProcessor implements IAction {
      */
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
         return dataInfo;
     }
     

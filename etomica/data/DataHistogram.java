@@ -95,7 +95,7 @@ public class DataHistogram extends DataProcessor {
         xDataSource = new DataSourceIndependentSimple(histogram.xValues(), independentInfo);
         dataInfo = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, xDataSource);
         dataInfo.addTags(binnedDataInfo.getTags());
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
     }
 
     public Histogram getHistogram() {

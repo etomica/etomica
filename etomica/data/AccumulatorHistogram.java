@@ -89,10 +89,15 @@ public class AccumulatorHistogram extends DataAccumulator {
     private void setupData() {
         DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram.getNBins()});
         data = new DataFunction(new int[]{histogram.getNBins()}, histogram.getHistogram());
-        xDataSource = new DataSourceIndependentSimple(histogram.xValues(), independentInfo);
+        if (xDataSource != null) {
+            xDataSource.update(histogram.xValues(), independentInfo);
+        }
+        else {
+            xDataSource = new DataSourceIndependentSimple(histogram.xValues(), independentInfo);
+        }
         dataInfo = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, xDataSource);
         dataInfo.addTags(binnedDataInfo.getTags());
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
         if (dataSink != null) {
             dataSink.putDataInfo(dataInfo);
         }

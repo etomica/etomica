@@ -135,6 +135,10 @@ public class MeterProfileByAtoms implements IEtomicaDataSource, DataSourceIndepe
         return 1;
     }
 
+    public DataTag getIndependentTag() {
+        return xDataSource.getTag();
+    }
+
     /**
      * @return Returns the box.
      */

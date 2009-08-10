@@ -137,7 +137,11 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
         return (DataInfoDoubleArray)xDataSource.getDataInfo();
     }
-    
+
+    public DataTag getIndependentTag() {
+        return xDataSource.getTag();
+    }
+
     public int getIndependentArrayDimension() {
         return 1;
     }

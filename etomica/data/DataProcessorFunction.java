@@ -30,7 +30,7 @@ public class DataProcessorFunction extends DataProcessor {
      */
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
         data = dataInfo.makeData();
         return dataInfo;
     }

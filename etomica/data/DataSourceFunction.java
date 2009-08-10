@@ -112,6 +112,10 @@ public class DataSourceFunction implements IEtomicaDataSource, DataSourceIndepen
         return 1;
     }
     
+    public DataTag getIndependentTag() {
+        return xSource.getTag();
+    }
+    
     /**
      * Updates the wrapped Data and DataInfo for change to the xDataSource
      */

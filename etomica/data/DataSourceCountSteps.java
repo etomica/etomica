@@ -24,14 +24,6 @@ public class DataSourceCountSteps extends DataSourceScalar implements
     public void setIntegrator(IIntegrator newIntegrator) {
         integrator = newIntegrator;
     }
-    
-    public IEtomicaDataInfo getDataInfo() {
-        return dataInfo;
-    }
-    
-    public DataTag getTag() {
-        return tag;
-    }
 
 	/**
 	 * Returns the number of steps performed by the integrator

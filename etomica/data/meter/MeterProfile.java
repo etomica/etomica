@@ -115,7 +115,11 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     public int getIndependentArrayDimension() {
         return 1;
     }
-    
+
+    public DataTag getIndependentTag() {
+        return xDataSource.getTag();
+    }
+
     /**
      * @return Returns the box.
      */

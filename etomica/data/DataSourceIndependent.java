@@ -24,4 +24,9 @@ public interface DataSourceIndependent {
      * Returns the number of independent data dimensions
      */
     public int getIndependentArrayDimension();
+    
+    /**
+     * Returns the tag associated with this DataSource.
+     */
+    public DataTag getIndependentTag();
 }

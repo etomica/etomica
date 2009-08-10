@@ -38,6 +38,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
         this.histogramRMS = histogram;
         tag = new DataTag();
         atomDataInfo.addTag(tag);
+        xTag = new DataTag();
         setupData();
     }
     
@@ -85,6 +86,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
         int nBins = histogramRMS.getNBins();
         xData = new DataDoubleArray(new int[]{nBins},histogramRMS.xValues());
         xDataInfo = new DataInfoDoubleArray(atomDataInfo.getLabel(),atomDataInfo.getDimension(), new int[]{nBins});
+        xDataInfo.addTag(xTag);
         data = new DataFunction(new int[]{nBins}, histogramRMS.getHistogram());
         dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, this);
         dataInfo.addTag(tag);
@@ -106,7 +108,11 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
     public int getIndependentArrayDimension() {
         return 1;
     }
-    
+
+    public DataTag getIndependentTag() {
+        return xTag;
+    }
+
 	/**
 	 * Sets the iterator defining the atoms for which the RMS velocity is
 	 * calculated.
@@ -134,5 +140,5 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
     protected DataInfoDoubleArray xDataInfo;
     private final Histogram histogramRMS;
     private DataFunction data;
-    protected final DataTag tag;
+    protected final DataTag tag, xTag;
 }

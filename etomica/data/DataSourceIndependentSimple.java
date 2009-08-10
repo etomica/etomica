@@ -15,13 +15,29 @@ public class DataSourceIndependentSimple implements DataSourceIndependent, java.
     }
     
     public DataSourceIndependentSimple(double[][] rawData, DataInfoDoubleArray[] xDataInfo) {
+        tag = new DataTag();
         xData = new DataDoubleArray[rawData.length];
+        this.xDataInfo = xDataInfo;
         for (int i=0; i<rawData.length; i++) {
             xData[i] = new DataDoubleArray(new int[]{rawData[i].length}, rawData[i]);
+            xDataInfo[i].addTag(tag);
         }
-        this.xDataInfo = xDataInfo;
     }
     
+    public void update(double[][] rawData, DataInfoDoubleArray[] newXDataInfo) {
+        System.arraycopy(xDataInfo, 0, xDataInfo, 0, newXDataInfo.length);
+        for (int i=0; i<rawData.length; i++) {
+            xData[i] = new DataDoubleArray(new int[]{rawData[i].length}, rawData[i]);
+            xDataInfo[i].addTag(tag);
+        }
+    }
+
+    public void update(double[] rawData, DataInfoDoubleArray newXDataInfo) {
+        this.xDataInfo[0] = newXDataInfo;
+        xData[0] = new DataDoubleArray(new int[]{rawData.length}, rawData);
+        this.xDataInfo[0].addTag(tag);
+    }
+
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
         return xDataInfo[i];
     }
@@ -34,7 +50,12 @@ public class DataSourceIndependentSimple implements DataSourceIndependent, java.
         return xData.length;
     }
     
+    public DataTag getIndependentTag() {
+        return tag;
+    }
+    
     private static final long serialVersionUID = 1L;
-    private final DataDoubleArray[] xData;
-    private final DataInfoDoubleArray[] xDataInfo;
+    private DataDoubleArray[] xData;
+    private DataInfoDoubleArray[] xDataInfo;
+    protected final DataTag tag;
 }

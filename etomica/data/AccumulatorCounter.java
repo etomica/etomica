@@ -34,7 +34,7 @@ public class AccumulatorCounter extends DataAccumulator {
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         dataInfo.clearTags();
         dataInfo.addTags(incomingDataInfo.getTags());
-        dataInfo.addTag(getTag());
+        dataInfo.addTag(tag);
         return dataInfo;
     }
 
