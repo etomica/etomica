@@ -44,6 +44,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         this.random = random;
         setPushInterval(100);
         setNumRawDataDoubles(14);
+        nTag = new DataTag();
     }
 
     /**
@@ -162,6 +163,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         stdev = new DataFunction(new int[]{newSize});
         avgDataInfo = new DataInfoFunction(avgDataInfo.getLabel(), avgDataInfo.getDimension(), this);
         nDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{newSize});
+        nDataInfo.addTag(nTag);
         nData = new DataDoubleArray(newSize);
         double[] n = nData.getData();
         for (int i=0; i<n.length; i++) {
@@ -343,6 +345,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             avgDataInfo = new DataInfoFunction(avgDataInfo.getLabel(), avgDataInfo.getDimension(), this);
         }
         nDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{0});
+        nDataInfo.addTag(nTag);
         rawData = new double[1<<nRawDataDoubles];
         rawData2 = new double[1<<nRawDataDoubles];
         rawData3 = new double[1<<nRawDataDoubles];
@@ -368,6 +371,10 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         return nDataInfo;
     }
 
+    public DataTag getIndependentTag() {
+        return nTag;
+    }
+
     private static final long serialVersionUID = 1L;
     protected long count;
     protected double[] blockSums;
@@ -376,6 +383,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     protected DataInfoFunction avgDataInfo;
     protected DataInfoDoubleArray nDataInfo;
     protected DataDoubleArray nData;
+    protected final DataTag nTag;
     protected double[] rawData, rawData2, rawData3;
     protected int nRawData, rawDataBlockSize;
     protected int nRawDataDoubles;
