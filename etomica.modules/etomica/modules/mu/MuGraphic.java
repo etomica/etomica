@@ -18,18 +18,21 @@ import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IFunction;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataProcessorChemicalPotential;
+import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
@@ -48,6 +51,7 @@ import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
@@ -55,6 +59,7 @@ import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
@@ -71,6 +76,7 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Picosecond;
 import etomica.units.Pixel;
+import etomica.util.HistogramDiscrete;
 import etomica.util.Constants.CompassDirection;
 
 public class MuGraphic extends SimulationGraphic {
@@ -333,6 +339,19 @@ public class MuGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
         muDisplay.setAccumulator(muAvg);
         muAvg.setPushInterval(100);
+        DataProcessor uProcessor = new DataProcessorFunction(new IFunction() {
+            public double f(double x) {
+                if (x==0) return Double.POSITIVE_INFINITY;
+                return -Math.log(x)*sim.integrator.getTemperature();
+            }
+        });
+        muFork.addDataSink(uProcessor);
+        AccumulatorHistogram muHistogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
+        uProcessor.setDataSink(muHistogram);
+        DisplayTable muHistogramTable = new DisplayTable();
+        muHistogram.setDataSink(muHistogramTable.getDataTable().makeDataSink());
+        muHistogramTable.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogram.getDataInfo()).getXDataSource().getIndependentTag()}, "U");
+        muHistogramTable.setColumnHeader(new DataTag[]{muHistogram.getTag()}, "probability");
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
@@ -440,6 +459,7 @@ public class MuGraphic extends SimulationGraphic {
     	add(peDisplay);
         add(ePlot);
         add(profilePlot);
+        add(muHistogramTable);
     	
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
         d.width -= 50;
