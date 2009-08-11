@@ -112,6 +112,7 @@ public class HistogramDiscrete implements Histogram {
         xValues = new double[0];
         counts = new long[0];
         histogram = new double[0];
+        totalCount = 0;
     }
 
     public void setNBins(int n) {
