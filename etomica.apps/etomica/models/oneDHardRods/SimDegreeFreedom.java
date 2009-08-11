@@ -109,9 +109,14 @@ public class SimDegreeFreedom extends Simulation {
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
         nm.getOmegaSquared(box);
-        
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
+        
+        System.out.println("Do not use these modes: ");
+        double[] wvc= nm.getWaveVectorFactory().getCoefficients();
+        for(int i = 0; i < wvc.length; i++){
+            if(wvc[i] == 0.5) { System.out.println(i + "  " + (i+wvc.length)); }
+        }
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -243,7 +248,6 @@ public class SimDegreeFreedom extends Simulation {
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
-            System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
         }
         
 //        IAtomList leaflist = sim.box.getLeafList();
@@ -268,7 +272,7 @@ public class SimDegreeFreedom extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 64;
+        public int numAtoms = 32;
         public double density = 0.90;
         public int D = 1;
         public double harmonicFudge = 1.0;

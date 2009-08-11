@@ -98,11 +98,26 @@ public class SimDegreeFreedom3D extends Simulation {
         nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
-        nm.getOmegaSquared(box);
+        
+        System.out.println("Do not use these modes: ");
+        double[] wvc= nm.getWaveVectorFactory().getCoefficients();
+        double[][] omega = nm.getOmegaSquared(box);
+        for(int i = 0; i < wvc.length; i++){
+            if(wvc[i] == 0.5) { System.out.println((i+wvc.length)); }
+            
+        }
+        for(int i = 0; i < omega.length; i++){
+            for(int j = 0; j < omega[i].length; j++){
+                if(Double.isInfinite(omega[i][j])){
+                    System.out.println(i + "  " + j);
+                }
+            }
+        }
         
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        System.out.println(waveVectorFactory.getWaveVectors().length);
+        System.out.println("Number of wave vectors " + 
+                waveVectorFactory.getWaveVectors().length);
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -234,8 +249,9 @@ public class SimDegreeFreedom3D extends Simulation {
             wh = new WriteHistograms(outputName + "_" + i);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
-            System.out.println(i + "  " + sim.hists[i].getHistograms().getCount());
         }
+        System.out.println("number of hits " + sim.hists[0].getHistograms().getCount());
+        
         
 //        IAtomList leaflist = sim.box.getLeafList();
 //        double[] locations = new double[nA];
@@ -249,11 +265,6 @@ public class SimDegreeFreedom3D extends Simulation {
 //            System.out.println(i + "  " + locations[i]);
 //        }
         
-        if(D==1) {
-            double AHR = -(nA-1)*Math.log(nA/density-nA)
-                + SpecialFunctions.lnFactorial(nA) ;
-            System.out.println("Hard-rod free energy: "+AHR);
-        }
         
         System.out.println("Fini.");
     }
