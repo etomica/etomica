@@ -336,6 +336,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing muAvg = new AccumulatorAverageCollapsing();
         muFork.addDataSink(muAvg);
         sim.integrator.getEventManager().addListener(muPump);
+        dataStreamPumps.add(muPump);
         DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
         muDisplay.setAccumulator(muAvg);
         muAvg.setPushInterval(100);
@@ -551,7 +552,7 @@ public class MuGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
             String dimStr = getParameter("dim");
-            int dim = 3;
+            int dim = 2;
             if (dimStr != null) {
                 dim = Integer.valueOf(dimStr).intValue();
             }
