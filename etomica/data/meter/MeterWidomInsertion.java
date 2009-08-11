@@ -108,16 +108,16 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (integrator == null) throw new IllegalStateException("must call setBox before using meter");
         IBox box = integrator.getBox();
         double sum = 0.0; //sum for local insertion average
-        box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
+            box.addMolecule(testMolecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-u / integrator.getTemperature());
+            box.removeMolecule(testMolecule);
         }
 
-        box.removeMolecule(testMolecule);
 
         if (!residual) {
             // multiply by V/N
