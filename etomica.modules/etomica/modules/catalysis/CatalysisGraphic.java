@@ -39,7 +39,9 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.Kelvin;
 import etomica.units.Pixel;
+import etomica.units.Unit;
 import etomica.util.Constants.CompassDirection;
 
 /**
@@ -72,7 +74,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
     	this.sim = simulation;
 
-//        Unit tUnit = Kelvin.UNIT;
+        Unit tUnit = Kelvin.UNIT;
 
 //        eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
 //        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
@@ -115,9 +117,9 @@ public class CatalysisGraphic extends SimulationGraphic {
 //        tempSlider.setUnit(Kelvin.UNIT);
         tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(4.0);
+        tempSlider.setMaximum(1000);
         tempSlider.setSliderMajorValues(4);
-//        tempSlider.setUnit(tUnit);
+        tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
 
@@ -188,7 +190,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
 		dataStreamPumps.add(temperaturePump);
-//        tBox.setUnit(tUnit);
+        tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature (K)");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 

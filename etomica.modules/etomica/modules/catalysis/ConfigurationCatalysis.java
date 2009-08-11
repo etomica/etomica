@@ -79,7 +79,7 @@ public class ConfigurationCatalysis implements Configuration {
         
         IMoleculeList molecules = pretendBox.getMoleculeList();
         IVectorMutable shift = space.makeVector();
-        shift.setX(0, -0.501);
+        shift.setX(0, -1.901);
         while (molecules.getMoleculeCount()>0) {
             IMolecule molecule1 = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule1);
@@ -94,10 +94,6 @@ public class ConfigurationCatalysis implements Configuration {
             pos1.PE(shift);
             ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;
             ((CatalysisAgent)agentManager.getAgent(atom2)).bondedAtom1 = atom1;
-            if (atom1.getType().getElement().getSymbol().equals("C") &&
-                    atom2.getType().getElement().getSymbol().equals("C")) {
-                throw new RuntimeException("oops");
-            }
         }
 
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, dim.getX(1), cellSizeZ);
