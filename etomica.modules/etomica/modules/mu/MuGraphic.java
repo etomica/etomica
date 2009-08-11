@@ -352,6 +352,7 @@ public class MuGraphic extends SimulationGraphic {
         muHistogram.setDataSink(muHistogramTable.getDataTable().makeDataSink());
         muHistogramTable.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogram.getDataInfo()).getXDataSource().getIndependentTag()}, "U");
         muHistogramTable.setColumnHeader(new DataTag[]{muHistogram.getTag()}, "probability");
+        muHistogramTable.setLabel("Insertion Energy");
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
