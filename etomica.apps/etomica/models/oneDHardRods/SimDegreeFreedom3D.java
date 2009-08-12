@@ -185,22 +185,22 @@ public class SimDegreeFreedom3D extends Simulation {
     public static void main(String[] args) {
 
         SimParam params = new SimParam();
-//        String inputFilename = null;
-//        if(args.length > 0) {
-//            inputFilename = args[0];
-//        }
-//        if(inputFilename != null){
-//            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-//            readParameters.readParameters();
-//            inputFilename = params.inputfilename;
-//        }
+        String inputFilename = null;
+        if(args.length > 0) {
+            inputFilename = args[0];
+        }
+        if(inputFilename != null){
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+            inputFilename = params.inputfilename;
+        }
         
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
         double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
-        String inputFilename = params.inputfilename;
+        inputFilename = params.inputfilename;
         if(filename.length() == 0){
             filename = "3DHS";
         }
