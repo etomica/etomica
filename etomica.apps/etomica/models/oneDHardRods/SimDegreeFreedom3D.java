@@ -58,7 +58,8 @@ public class SimDegreeFreedom3D extends Simulation {
     MCMoveChangeSingleMode mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
-
+    boolean[] skipThisMode;
+    
     public SimDegreeFreedom3D(Space _space, int numAtoms, double density, int blocksize, int nbs, String filename) {
         super(_space, true);
         
@@ -91,6 +92,7 @@ public class SimDegreeFreedom3D extends Simulation {
         
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
         
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setBox(box);
@@ -102,14 +104,25 @@ public class SimDegreeFreedom3D extends Simulation {
         System.out.println("Do not use these modes: ");
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared(box);
-        for(int i = 0; i < wvc.length; i++){
-            if(wvc[i] == 0.5) { System.out.println((i+wvc.length)); }
+        int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
+        java.util.Arrays.fill(skipThisMode, false);
+        for(int wvCount = 0; wvCount < wvc.length; wvCount++){
+            //Prints the imaginary modes that should be skipped.
+            if(wvc[wvCount] == 0.5) {
+                for(int j = 0; j < coordinateDim; j++){
+//                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+                }
+            }
             
-        }
-        for(int i = 0; i < omega.length; i++){
-            for(int j = 0; j < omega[i].length; j++){
-                if(Double.isInfinite(omega[i][j])){
-                    System.out.println(i + "  " + j);
+            //Prints the modes that are center of mass motion to skip
+            for(int j = 0; j < omega[wvCount].length; j++){
+                if(Double.isInfinite(omega[wvCount][j])){
+                    System.out.println("skip " + (j + coordinateDim*wvCount));
+                    skipThisMode[j + coordinateDim*wvCount] = true;
+                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+
                 }
             }
         }
@@ -139,7 +152,6 @@ public class SimDegreeFreedom3D extends Simulation {
         meternmc.setEigenVectors(nm.getEigenvectors(box));
         meternmc.setOmegaSquared(nm.getOmegaSquared(box));
         
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
@@ -246,6 +258,7 @@ public class SimDegreeFreedom3D extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             wh = new WriteHistograms(outputName + "_" + i);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();

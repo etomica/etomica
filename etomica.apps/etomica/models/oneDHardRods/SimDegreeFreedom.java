@@ -78,7 +78,6 @@ public class SimDegreeFreedom extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         basis = new BasisMonatomic(space);
-        
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
@@ -95,7 +94,8 @@ public class SimDegreeFreedom extends Simulation {
         
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-        
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+
         double neighborRange = 1.01/density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
@@ -114,9 +114,25 @@ public class SimDegreeFreedom extends Simulation {
         
         System.out.println("Do not use these modes: ");
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
-        for(int i = 0; i < wvc.length; i++){
-            if(wvc[i] == 0.5) { System.out.println(i + "  " + (i+wvc.length)); }
+        double[][] omega = nm.getOmegaSquared(box);
+        int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
+        for(int wvCount = 0; wvCount < wvc.length; wvCount++){
+            //Prints the imaginary modes that should be skipped.
+            if(wvc[wvCount] == 0.5) {
+                for(int j = 0; j < coordinateDim; j++){
+                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                }
+            }
+            
+            //Prints the modes that are center of mass motion to skip
+            for(int j = 0; j < omega[wvCount].length; j++){
+                if(Double.isInfinite(omega[wvCount][j])){
+                    System.out.println("skip " + (j + coordinateDim*wvCount));
+                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                }
+            }
         }
+        
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -138,7 +154,6 @@ public class SimDegreeFreedom extends Simulation {
         meternmc.setEigenVectors(nm.getEigenvectors(box));
         meternmc.setOmegaSquared(nm.getOmegaSquared(box));
         
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
