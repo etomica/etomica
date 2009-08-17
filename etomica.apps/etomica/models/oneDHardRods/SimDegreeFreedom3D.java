@@ -105,7 +105,10 @@ public class SimDegreeFreedom3D extends Simulation {
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared(box);
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
-        java.util.Arrays.fill(skipThisMode, false);
+        skipThisMode = new boolean[2*jump];
+        for(int i = 0; i < 2*jump; i++){
+            skipThisMode[i] = false;
+        }
         for(int wvCount = 0; wvCount < wvc.length; wvCount++){
             //Prints the imaginary modes that should be skipped.
             if(wvc[wvCount] == 0.5) {
@@ -160,6 +163,7 @@ public class SimDegreeFreedom3D extends Simulation {
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
         for(int i = 0; i < coordNum; i++){
+            if(skipThisMode[i] == true) {continue;}
             template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
@@ -244,6 +248,7 @@ public class SimDegreeFreedom3D extends Simulation {
 
         int accumulatorLength = sim.hists.length;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             sim.hists[i].reset();
         }
        
@@ -263,7 +268,7 @@ public class SimDegreeFreedom3D extends Simulation {
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();
         }
-        System.out.println("number of hits " + sim.hists[0].getHistograms().getCount());
+//        System.out.println("number of hits " + sim.hists[0].getHistograms().getCount());
         
         
 //        IAtomList leaflist = sim.box.getLeafList();
