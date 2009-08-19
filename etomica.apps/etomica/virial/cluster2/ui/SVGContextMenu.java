@@ -1,14 +1,11 @@
 package etomica.virial.cluster2.ui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -21,41 +18,42 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.PNGTranscoder;
-import org.apache.batik.transcoder.image.TIFFTranscoder;
 import org.apache.batik.transcoder.svg2svg.SVGTranscoder;
-import org.apache.fop.svg.PDFTranscoder;
-import org.w3c.dom.Document;
-import org.w3c.dom.svg.SVGDocument;
 
-import etomica.virial.cluster2.ui.rasterizer.DestinationType;
-
+/**
+ * This is the context menu that is displayed after a right mouse click
+ * on the SVGCanvas of the user interface.
+ * 
+ * @author Demian Lessa
+ *
+ */
 public class SVGContextMenu extends JPopupMenu {
 
   private static final long serialVersionUID = -5605994099188052122L;
   public static final float EXPORT_WIDTH = 1024f;
-  private JMenuItem menuSaveAs;
   private Component owner;
-// private JPopupMenu self;
   private SVGDraw svgDraw;
 
   public SVGContextMenu(Component parent, SVGDraw d) {
 
     super();
     owner = parent;
-// self = this;
     svgDraw = d;
-    menuSaveAs = new JMenuItem("Save as...");
+    JMenuItem menuSaveAs = new JMenuItem("Save as...");
     add(menuSaveAs);
     MouseListener popupListener = new SaveAsListener();
     menuSaveAs.addMouseListener(popupListener);
   }
 
+  /**
+   * This listener exports the SVGCanvas to an appropriate file based on the
+   * selection of destination file name defined by the user.
+   * 
+   * @author Demian Lessa
+   */
   class SaveAsListener extends MouseAdapter {
 
     private void save(File file) throws Exception {
@@ -64,19 +62,13 @@ public class SVGContextMenu extends JPopupMenu {
       if (ext == null) {
         return;
       }
-      Transcoder t = getTranscoder(ext);
-      if (t == null) {
-        System.out.println("no transcoder found for " + file + " ("
-            + SVGFileFilter.getExtension(file) + ")");
-        return;
-      }
       if (ext.equals(SVGFileFilter.EXT_svg)) {
-        writeOut(file, t);
+        writeOut(file, new SVGTranscoder());
       }
-      else if (ext.equals(SVGFileFilter.EXT_gif) || ext.equals(SVGFileFilter.EXT_bmp)) {
+      else if (ext.equals(SVGFileFilter.EXT_gif)) {
         File f = File.createTempFile("tmp_", ".png");
         svgDraw.imageOut(f.getAbsolutePath());
-        //read the temporary PNG file into an image
+        // read the temporary PNG file into an image
         BufferedImage image = ImageIO.read(f);
         // write the image to disk
         ImageIO.write(image, ext, file);
@@ -85,37 +77,9 @@ public class SVGContextMenu extends JPopupMenu {
       else {
         svgDraw.imageOut(file.getAbsolutePath());
       }
-// if ((t instanceof PDFTranscoder) || (t instanceof TIFFTranscoder)
-// || ext.equals(SVGFileFilter.EXT_png)) {
-// ByteArrayOutputStream os = streamOut(t);
-// FileOutputStream fos = new FileOutputStream(file);
-// fos.write(os.toByteArray());
-// fos.flush();
-// fos.close();
-// }
-// else {
-// ByteArrayOutputStream os = streamOut(t);
-// // create a PNG image from the raw XML source
-// BufferedImage image = ImageIO.read(new ByteArrayInputStream(os
-// .toByteArray()));
-// // write the image to disk
-// ImageIO.write(image, ext, file);
-// }
     }
 
-    private ByteArrayOutputStream streamOut(Transcoder t) throws Exception {
-
-      // Set the transcoder input and output.
-      TranscoderInput input = new TranscoderInput(svgDraw.state.document);
-      ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-      TranscoderOutput output = new TranscoderOutput(ostream);
-      t.transcode(input, output);
-      ostream.flush();
-      ostream.close();
-      return ostream;
-    }
-
-    // for SVG, ...
+    // for SVG only
     private void writeOut(File file, Transcoder t) throws Exception {
 
       // Set the transcoder input and output.
@@ -129,40 +93,14 @@ public class SVGContextMenu extends JPopupMenu {
         w = new OutputStreamWriter(ostream);
       }
       TranscoderOutput output = new TranscoderOutput(w);
-      // Perform the transcoding.
+      // Transcode
       t.transcode(input, output);
       ostream.flush();
       ostream.close();
     }
 
-    private Transcoder getTranscoder(String ext) {
-
-      Transcoder t = null;
-      if (ext.equals(SVGFileFilter.EXT_pdf)) {
-        PDFTranscoder pdf = new PDFTranscoder();
-        pdf.addTranscodingHint(PDFTranscoder.KEY_WIDTH, EXPORT_WIDTH);
-        t = pdf;
-      }
-      else if (ext.equals(SVGFileFilter.EXT_svg)) {
-        SVGTranscoder svg = new SVGTranscoder();
-        t = svg;
-      }
-      else if (ext.equals(SVGFileFilter.EXT_tif)) {
-        TIFFTranscoder tiff = new TIFFTranscoder();
-        tiff.addTranscodingHint(TIFFTranscoder.KEY_WIDTH, EXPORT_WIDTH);
-        tiff.addTranscodingHint(TIFFTranscoder.KEY_BACKGROUND_COLOR,
-            Color.white);
-        t = tiff;
-      }
-      else {
-        PNGTranscoder png = new PNGTranscoder();
-        png.addTranscodingHint(PNGTranscoder.KEY_BACKGROUND_COLOR, Color.white);
-        png.addTranscodingHint(PNGTranscoder.KEY_WIDTH, EXPORT_WIDTH);
-        t = png;
-      }
-      return t;
-    }
-
+    // make sure that after selecting the "save as" option, we clear all
+    // adornments on the SVGCanvas- namely, the selection and hover rectangles
     public void mouseClicked(MouseEvent e) {
 
       svgDraw.canvas.setEnabled(false);
@@ -193,23 +131,26 @@ public class SVGContextMenu extends JPopupMenu {
   }
 }
 
+/**
+ * Filter with all supported destination formats for exporting the image in the
+ * SVGCanvas.
+ * 
+ * @author Demian Lessa
+ */
 class SVGFileFilter extends javax.swing.filechooser.FileFilter {
 
-  public final static String EXT_bmp = "bmp";
   public final static String EXT_gif = "gif";
   public final static String EXT_jpg = "jpg";
   public final static String EXT_pdf = "pdf";
   public final static String EXT_png = "png";
   public final static String EXT_svg = "svg";
   public final static String EXT_tif = "tif";
-  private final static String DESC_bmp = "BMP bitmap (*.bmp)";
   private final static String DESC_gif = "GIF bitmap (*.gif)";
   private final static String DESC_jpg = "JPEG bitmap (*.jpeg)";
   private final static String DESC_pdf = "PDF document (*.pdf)";
   private final static String DESC_png = "PNG bitmap (*.png)";
   private final static String DESC_svg = "SVG vector graphic (*.svg)";
   private final static String DESC_tif = "TIFF bitmap (*.tif)";
-  final static SVGFileFilter FILTER_BMP = new SVGFileFilter(EXT_bmp, DESC_bmp);
   final static SVGFileFilter FILTER_GIF = new SVGFileFilter(EXT_gif, DESC_gif);
   final static SVGFileFilter FILTER_JPG = new SVGFileFilter(EXT_jpg, DESC_jpg);
   final static SVGFileFilter FILTER_PDF = new SVGFileFilter(EXT_pdf, DESC_pdf);
@@ -259,6 +200,11 @@ class SVGFileFilter extends javax.swing.filechooser.FileFilter {
   }
 }
 
+/**
+ * Customized JFileChooser aware of the SVGCanvas export filters.
+ * 
+ * @author Demian Lessa
+ */
 class SVGFileChooser extends JFileChooser {
 
   private static final long serialVersionUID = -9020881522405108590L;
@@ -268,7 +214,6 @@ class SVGFileChooser extends JFileChooser {
     super();
     setDialogTitle("Export Cluster Diagrams");
     setAcceptAllFileFilterUsed(false);
-    addChoosableFileFilter(SVGFileFilter.FILTER_BMP);
     addChoosableFileFilter(SVGFileFilter.FILTER_GIF);
     addChoosableFileFilter(SVGFileFilter.FILTER_JPG);
     addChoosableFileFilter(SVGFileFilter.FILTER_PDF);

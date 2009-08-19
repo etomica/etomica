@@ -39,7 +39,7 @@ public class LeftPanelView {
     JScrollPane pane = Factory.createStrippedScrollPane(TreeView.build());
     pane.setBorder(new EmptyBorder(2, 2, 2, 2));
     sif.add(pane);
-    sif.setPreferredSize(new Dimension(200, 400));
+    sif.setPreferredSize(new Dimension(150, 450));
     return sif;
   }
 
@@ -53,7 +53,7 @@ public class LeftPanelView {
     JScrollPane pane = Factory.createStrippedScrollPane(tabbedPane);
     pane.setBorder(new EmptyBorder(2, 2, 2, 2));
     sif.add(pane);
-    sif.setPreferredSize(new Dimension(200, 200));
+    sif.setPreferredSize(new Dimension(150, 250));
     return sif;
   }
 

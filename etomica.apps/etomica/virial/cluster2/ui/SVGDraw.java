@@ -6,23 +6,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.*;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.*;
@@ -36,32 +28,56 @@ import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.svg2svg.SVGTranscoder;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
 
 import org.w3c.dom.*;
 import org.w3c.dom.svg.*;
 
+import etomica.virial.cluster2.graph.GraphSet;
 import etomica.virial.cluster2.ui.rasterizer.DestinationType;
 import etomica.virial.cluster2.ui.rasterizer.Main;
-import etomica.virial.cluster2.ui.rasterizer.SVGConverter;
-import etomica.virial.cluster2.ui.rasterizer.SVGConverterController;
-import etomica.virial.cluster2.ui.rasterizer.SVGConverterFileSource;
 
 public class SVGDraw {
 
+  static final Stroke SELECTED_STROKE = new BasicStroke(1.5f,
+      BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1.0f,
+      new float[] { 3, 3 }, 6);
+  static final Color SELECTED_COLOR = Color.DARK_GRAY;
+  static final Stroke HOVERING_STROKE = new BasicStroke(1.5f);
+  static final Color HOVERING_COLOR = Color.MAGENTA;
   SVGState state;
   JSVGCanvas canvas;
-  SVGContextMenu menu;
+// SVGContextMenu menu;
+  private JSVGScrollPane spane;
 
-  public static void main(String[] args) {
+//  public static void main(String[] args) {
+//
+//    SVGDraw d = new SVGDraw();
+//    JFrame f = new JFrame("Demo Clusters");
+//    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    f.setLayout(null);
+//    f.add(d.spane);
+//    f.setBounds(d.spane.getBounds());
+//    f.setVisible(true);
+//  }
 
-    SVGDraw d = new SVGDraw();
-    d.display();
+  public JComponent getPanel() {
+  
+    return spane;
   }
+  
+  public SVGDraw(GraphSet gs) {
 
-  public SVGDraw() {
-
-    state = SVGDocumentBuilder.getState();
+    state = SVGClusterMap.getState(gs);
+    SVGGraphics2D g2 = new SVGGraphics2D(state.document);
+    g2.getRoot(state.document.getDocumentElement());
+    canvas = new JSVGCanvas();
+    canvas.setDocumentState(JSVGComponent.ALWAYS_DYNAMIC);
+    spane = new JSVGScrollPane(canvas);
+//    spane.setBounds(new Rectangle(0, 0, SVGClusterMap.MAP_WIDTH, SVGClusterMap.MAP_HEIGHT));
+    SVGContextMenu menu = new SVGContextMenu(spane, this);
+    canvas.setSVGDocument(state.document);
+    canvas.addMouseMotionListener(state.getMouseMotionListener(canvas));
+    canvas.addMouseListener(state.getMouseClickedListener(menu, canvas));
   }
 
   private String getExtension(String fileName) {
@@ -78,6 +94,9 @@ public class SVGDraw {
   private String getMimeType(String fileName) {
 
     String ext = getExtension(fileName);
+    if (ext.equals(DestinationType.JPEG_EXTENSION)) {
+      return DestinationType.JPEG_STR;
+    }
     if (ext.equals(DestinationType.JPEG_EXTENSION)) {
       return DestinationType.JPEG_STR;
     }
@@ -102,24 +121,23 @@ public class SVGDraw {
       streamOut(fs);
       fs.flush();
       fs.close();
-      String mimeType = getMimeType(fileName);
       String[] options = new String[13];
       // destination
       options[0] = Main.CL_OPTION_OUTPUT;
       options[1] = fileName;
       // destination type
       options[2] = Main.CL_OPTION_MIME_TYPE;
-      options[3] = mimeType;
+      options[3] = getMimeType(fileName);
       // quality (for JPEG)
       options[4] = Main.CL_OPTION_QUALITY;
       options[5] = "0.8";
-      // resolution 
+      // resolution
       options[6] = Main.CL_OPTION_DPI;
       options[7] = "300";
-      // resolution 
+      // resolution
       options[8] = Main.CL_OPTION_WIDTH;
       options[9] = "1024";
-      // resolution 
+      // resolution
       options[10] = Main.CL_OPTION_BACKGROUND_COLOR;
       options[11] = "255.255.255.255";
       // input file
@@ -135,7 +153,7 @@ public class SVGDraw {
       e.printStackTrace();
     }
   }
-  
+
   public void streamOut(OutputStream svg) {
 
     // Stream out SVG to the standard output using UTF-8 encoding.
@@ -156,28 +174,6 @@ public class SVGDraw {
     }
   }
 
-  public void display() {
-
-    SVGGraphics2D g2 = new SVGGraphics2D(state.document);
-    g2.getRoot(state.document.getDocumentElement());
-    canvas = new JSVGCanvas();
-    canvas.setDocumentState(JSVGComponent.ALWAYS_DYNAMIC);
-    JSVGScrollPane spane = new JSVGScrollPane(canvas);
-    menu = new SVGContextMenu(spane, this);
-    canvas.setSVGDocument(state.document);
-    canvas.addMouseMotionListener(state.getMouseMotionListener(canvas));
-    canvas.addMouseListener(state.getMouseClickedListener(menu, canvas));
-    JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-// f.setLayout(new GridLayout());
-    f.setContentPane(new JSVGScrollPane(canvas));
-    f.setBounds(new Rectangle(0, 0, SVGProperties.MAP_WIDTH,
-        SVGProperties.MAP_HEIGHT + 20));
-    f.setVisible(true);
-//    f.pack();
-// f.setBounds(new Rectangle(0, 0, 300, 180));
-  }
-
   public void prepareSave() {
 
     state.HOVERING_RECTANGLE_ID = -1;
@@ -194,6 +190,13 @@ public class SVGDraw {
   }
 }
 
+/**
+ * This class controls the state of the SVGCanvas. It determines which
+ * rectangles are selected and hovered. It also keeps track of the positions of
+ * the rectangles as a list of 2D rectangles.
+ * 
+ * @author Demian Lessa
+ */
 class SVGState {
 
   final boolean CONTROL_HOVER = true;
@@ -214,12 +217,6 @@ class SVGState {
     selected = new SelectedRectangle(this);
   }
 
-  private int getTile(Point p) {
-
-    return (p.x / SVGProperties.CLUSTER_WIDTH)
-        + (p.y / SVGProperties.CLUSTER_HEIGHT) * SVGProperties.CLUSTERS_ACROSS;
-  }
-
   public MouseListener getMouseClickedListener(final SVGContextMenu menu,
       final JSVGCanvas canvas) {
 
@@ -233,7 +230,7 @@ class SVGState {
           menu.setVisible(true);
         }
         else if (e.getButton() == MouseEvent.BUTTON1) {
-          int newSelected = getTile(e.getPoint());
+          int newSelected = SVGClusterMap.getTile(e.getPoint());
           if (newSelected >= tiles.size()) {
             return;
           }
@@ -259,7 +256,7 @@ class SVGState {
       public void mouseMoved(MouseEvent e) {
 
         if (CONTROL_HOVER && (e.getButton() == MouseEvent.NOBUTTON)) {
-          int newHover = getTile(e.getPoint());
+          int newHover = SVGClusterMap.getTile(e.getPoint());
           if (newHover >= tiles.size()) {
             newHover = -1;
           }
@@ -282,126 +279,137 @@ class SVGState {
   }
 }
 
-interface SVGProperties {
-
-  static final int GUTTER = 10;
-  static final int NODE_RADIUS = 12;
-  static final int GRAPH_RADIUS = 60;
-  static final int CLUSTERS_ACROSS = 2;
-  static final int MAP_WIDTH = 300;
-  static final int MAP_HEIGHT = 140;
-  static final int CLUSTER_WIDTH = MAP_WIDTH / CLUSTERS_ACROSS;
-  static final int CLUSTER_HEIGHT = CLUSTER_WIDTH;
-  static final boolean STREAM_OUT = false;
-  static final double INITIAL_ANGLE = Math.PI;
-  static final Stroke SELECTED_STROKE = new BasicStroke(1.5f,
-      BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1.0f,
-      new float[] { 3, 3 }, 6);
-  static final Color SELECTED_COLOR = Color.DARK_GRAY;
-  static final Stroke HOVERING_STROKE = new BasicStroke(1.5f);
-  static final Color HOVERING_COLOR = Color.MAGENTA;
-}
-
-class SVGDocumentBuilder {
-
-  SVGDocument doc;
-  List<Rectangle2D> tiles = new ArrayList<Rectangle2D>();
-
-  private SVGDocumentBuilder() {
-
-    // Create an SVG document.
-    DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-    String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-    doc = (SVGDocument) impl.createDocument(svgNS, "svg", null);
-    SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(doc);
-    ctx.setComment("Generated by Etomica Cluster Viewer using Apache Batik.");
-    ctx.setEmbeddedFontsOn(true);
-    Element root = doc.getDocumentElement();
-    root.setAttributeNS(null, "width", String.valueOf(SVGProperties.MAP_WIDTH));
-    root.setAttributeNS(null, "height", String
-        .valueOf(SVGProperties.MAP_HEIGHT));
-    root
-        .setAttributeNS(null, "style",
-            "fill:white;fill-opacity:1;stroke:black;stroke-width:0.5;stroke-opacity:1");
-    drawGraph(doc, Color.red, 20, 20);
-    drawGraph(doc, Color.blue, 160, 20);
-  }
-
-  public static SVGState getState() {
-
-    SVGDocumentBuilder b = new SVGDocumentBuilder();
-    return new SVGState(b.doc, b.tiles);
-  }
-
-  private Node drawGraph(Document doc, Color color, int dX, int dY) {
-
-    int size = 6;
-    int r = SVGProperties.NODE_RADIUS;
-    int R = SVGProperties.GRAPH_RADIUS;
-    int gutter = SVGProperties.GUTTER;
-    double[] x = new double[size];
-    double[] y = new double[size];
-    double minX = -1, minY = -1, maxX = -1, maxY = -1;
-    double angle = 2.0 * Math.PI / size;
-    Shape node = new Ellipse2D.Double(0, 0, r, r);
-    // draw the cluster on an SVG canvas
-    SVGGraphics2D g = new SVGGraphics2D(doc);
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-    g.setRenderingHint(RenderingHints.KEY_RENDERING,
-        RenderingHints.VALUE_RENDER_QUALITY);
-    // compute node centers
-    for (int i = 0; i < size; i++) {
-      x[i] = (R - r) * Math.cos(SVGProperties.INITIAL_ANGLE + i * angle)
-          + (R - r + dX);
-      y[i] = (R - r) * Math.sin(SVGProperties.INITIAL_ANGLE + i * angle)
-          + (R - r + dY);
-      if (minX == -1) {
-        minX = x[i];
-        maxX = x[i];
-        minY = y[i];
-        maxY = y[i];
-      }
-      if (minX > x[i]) {
-        minX = x[i];
-      }
-      if (maxX < x[i]) {
-        maxX = x[i];
-      }
-      if (minY > y[i]) {
-        minY = y[i];
-      }
-      if (maxY < y[i]) {
-        maxY = y[i];
-      }
-    }
-    // compute the bounding rectangle
-    tiles.add(new Rectangle2D.Double(minX - gutter, minY - gutter, maxX - minX
-        + r + 2 * gutter, maxY - minY + r + 2 * gutter));
-    // draw edges
-    for (int i = 0; i < size; i++) {
-      for (int j = i + 1; j < size; j++) {
-        Point2D pi = new Point2D.Double(x[i] + r / 2, y[i] + r / 2);
-        Point2D pj = new Point2D.Double(x[j] + r / 2, y[j] + r / 2);
-        g.setPaint(Color.black);
-        g.draw(new Line2D.Double(pi, pj));
-      }
-    }
-    // draw nodes
-    for (int i = 0; i < size; i++) {
-      g.translate(x[i], y[i]);
-      g.setPaint(Color.black);
-      g.draw(node);
-      g.setPaint(color);
-      g.fill(node);
-      g.translate(-x[i], -y[i]);
-    }
-    Element root = doc.getDocumentElement();
-    Node child = g.getTopLevelGroup().getFirstChild();
-    return root.appendChild(child);
-  }
-}
-
+//
+// interface SVGProperties {
+//
+// static final int GUTTER = 10;
+// static final int NODE_RADIUS = 12;
+// static final int GRAPH_RADIUS = 60;
+// static final int CLUSTERS_ACROSS = 2;
+// static final int MAP_WIDTH = 300;
+// static final int MAP_HEIGHT = 140;
+// static final int CLUSTER_WIDTH = MAP_WIDTH / CLUSTERS_ACROSS;
+// static final int CLUSTER_HEIGHT = CLUSTER_WIDTH;
+// static final boolean STREAM_OUT = false;
+// static final double INITIAL_ANGLE = Math.PI;
+// static final Stroke SELECTED_STROKE = new BasicStroke(1.5f,
+// BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1.0f,
+// new float[] { 3, 3 }, 6);
+// static final Color SELECTED_COLOR = Color.DARK_GRAY;
+// static final Stroke HOVERING_STROKE = new BasicStroke(1.5f);
+// static final Color HOVERING_COLOR = Color.MAGENTA;
+// }
+//
+// class SVGDocumentBuilder {
+//
+// SVGDocument doc;
+// List<Rectangle2D> tiles = new ArrayList<Rectangle2D>();
+//
+// private SVGDocumentBuilder() {
+//
+// // Create an SVG document.
+// DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
+// String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
+// doc = (SVGDocument) impl.createDocument(svgNS, "svg", null);
+// SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(doc);
+// ctx.setComment("Generated by Etomica Cluster Viewer using Apache Batik.");
+// ctx.setEmbeddedFontsOn(true);
+// Element root = doc.getDocumentElement();
+// root.setAttributeNS(null, "width", String.valueOf(SVGProperties.MAP_WIDTH));
+// root.setAttributeNS(null, "height", String
+// .valueOf(SVGProperties.MAP_HEIGHT));
+// root
+// .setAttributeNS(null, "style",
+// "fill:white;fill-opacity:1;stroke:black;stroke-width:0.5;stroke-opacity:1");
+// drawGraph(doc, Color.red, 20, 20);
+// drawGraph(doc, Color.blue, 160, 20);
+// }
+//
+// public static SVGState getState() {
+//
+// SVGDocumentBuilder b = new SVGDocumentBuilder();
+// return new SVGState(b.doc, b.tiles);
+// }
+//
+// private Node drawGraph(Document doc, Color color, int dX, int dY) {
+//
+// int size = 6;
+// int r = SVGProperties.NODE_RADIUS;
+// int R = SVGProperties.GRAPH_RADIUS;
+// int gutter = SVGProperties.GUTTER;
+// double[] x = new double[size];
+// double[] y = new double[size];
+// double minX = -1, minY = -1, maxX = -1, maxY = -1;
+// double angle = 2.0 * Math.PI / size;
+// Shape node = new Ellipse2D.Double(0, 0, r, r);
+// // draw the cluster on an SVG canvas
+// SVGGraphics2D g = new SVGGraphics2D(doc);
+// g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+// RenderingHints.VALUE_ANTIALIAS_ON);
+// g.setRenderingHint(RenderingHints.KEY_RENDERING,
+// RenderingHints.VALUE_RENDER_QUALITY);
+// // compute node centers
+// for (int i = 0; i < size; i++) {
+// x[i] = (R - r) * Math.cos(SVGProperties.INITIAL_ANGLE + i * angle)
+// + (R - r + dX);
+// y[i] = (R - r) * Math.sin(SVGProperties.INITIAL_ANGLE + i * angle)
+// + (R - r + dY);
+// if (minX == -1) {
+// minX = x[i];
+// maxX = x[i];
+// minY = y[i];
+// maxY = y[i];
+// }
+// if (minX > x[i]) {
+// minX = x[i];
+// }
+// if (maxX < x[i]) {
+// maxX = x[i];
+// }
+// if (minY > y[i]) {
+// minY = y[i];
+// }
+// if (maxY < y[i]) {
+// maxY = y[i];
+// }
+// }
+// // compute the bounding rectangle
+// tiles.add(new Rectangle2D.Double(minX - gutter, minY - gutter, maxX - minX
+// + r + 2 * gutter, maxY - minY + r + 2 * gutter));
+// // draw edges
+// for (int i = 0; i < size; i++) {
+// for (int j = i + 1; j < size; j++) {
+// Point2D pi = new Point2D.Double(x[i] + r / 2, y[i] + r / 2);
+// Point2D pj = new Point2D.Double(x[j] + r / 2, y[j] + r / 2);
+// g.setPaint(Color.black);
+// g.draw(new Line2D.Double(pi, pj));
+// }
+// }
+// // draw nodes
+// for (int i = 0; i < size; i++) {
+// g.translate(x[i], y[i]);
+// g.setPaint(Color.black);
+// g.draw(node);
+// g.setPaint(color);
+// g.fill(node);
+// g.translate(-x[i], -y[i]);
+// }
+// Element root = doc.getDocumentElement();
+// Node child = g.getTopLevelGroup().getFirstChild();
+// return root.appendChild(child);
+// }
+// }
+//
+/**
+ * The classes below are Runnable implementations of painting routines for the
+ * SVGCanvas. The SVGCanvas canvas follows the Swing approach to painting in
+ * that all painting operations must happen on the same thread. Therefore, these
+ * runnable objects are queued for execution through the SVGCanvas for execution
+ * by the Swing thread. All styles for painting and drawing are defined as
+ * constants at the SVGDraw class.
+ * 
+ * @author Demian Lessa
+ */
 abstract class PaintRunnable implements Runnable {
 
   protected Map<Integer, Node> rectangles = new HashMap<Integer, Node>();
@@ -454,11 +462,17 @@ abstract class PaintRunnable implements Runnable {
   }
 }
 
+/**
+ * The purpose of this class is to paint a selected rectangle around a single
+ * cluster, clearing up any other existing selected rectangles.
+ * 
+ * @author Demian Lessa
+ */
 class SelectedRectangle extends PaintRunnable {
 
   SelectedRectangle(SVGState state) {
 
-    super(state, SVGProperties.SELECTED_STROKE, SVGProperties.SELECTED_COLOR);
+    super(state, SVGDraw.SELECTED_STROKE, SVGDraw.SELECTED_COLOR);
   }
 
   public void run() {
@@ -471,11 +485,18 @@ class SelectedRectangle extends PaintRunnable {
   }
 }
 
+/**
+ * The purpose of this class is to paint a hovering rectangle around a single
+ * cluster, clearing up any other existing hovering rectangles. No hovering
+ * rectangle is painted if the rectangle under the mouse is selected.
+ * 
+ * @author Demian Lessa
+ */
 class HoveringRectangle extends PaintRunnable {
 
   HoveringRectangle(SVGState state) {
 
-    super(state, SVGProperties.HOVERING_STROKE, SVGProperties.HOVERING_COLOR);
+    super(state, SVGDraw.HOVERING_STROKE, SVGDraw.HOVERING_COLOR);
   }
 
   public void run() {

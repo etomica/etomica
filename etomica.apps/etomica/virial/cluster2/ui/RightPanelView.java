@@ -16,6 +16,9 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.component.Factory;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
+import etomica.virial.cluster2.graph.GraphSetFactory;
+import etomica.virial.cluster2.graph.Nodes;
+
 public class RightPanelView {
 
   public static JComponent build() {
@@ -39,12 +42,13 @@ public class RightPanelView {
     SimpleInternalFrame sif = new SimpleInternalFrame("Cluster View");
     JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
     tabbedPane.putClientProperty(Options.EMBEDDED_TABS_KEY, Boolean.TRUE);
-    tabbedPane.addTab("GS #1", buildPanel());
-    tabbedPane.addTab("GS #2", buildPanel());
+    SVGDraw d = new SVGDraw(GraphSetFactory.completeGraphSet(new char[] { Nodes.NODE_COLOR_1,
+        Nodes.NODE_COLOR_1, Nodes.NODE_COLOR_1, Nodes.NODE_COLOR_2 }, new char[] { Nodes.NODE_COLOR_7 }));
+    tabbedPane.addTab("SVG Cluster", d.getPanel());
     JScrollPane pane = Factory.createStrippedScrollPane(tabbedPane);
     pane.setBorder(new EmptyBorder(2, 2, 2, 2));
     sif.add(pane);
-    sif.setPreferredSize(new Dimension(200, 400));
+    sif.setPreferredSize(new Dimension(400, 450));
     return sif;
   }
 
@@ -54,14 +58,7 @@ public class RightPanelView {
     JScrollPane pane = Factory.createStrippedScrollPane(TableView.build());
     pane.setBorder(new EmptyBorder(2, 2, 2, 2));
     sif.add(pane);
-    sif.setPreferredSize(new Dimension(200, 200));
+    sif.setPreferredSize(new Dimension(400, 250));
     return sif;
-  }
-
-  private static JComponent buildPanel() {
-
-    JPanel panel = new JPanel();
-    panel.setBackground(Color.WHITE);
-    return panel;
   }
 }
