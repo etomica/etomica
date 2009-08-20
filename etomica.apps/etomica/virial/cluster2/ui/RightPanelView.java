@@ -41,9 +41,11 @@ public class RightPanelView {
 
     SimpleInternalFrame sif = new SimpleInternalFrame("Cluster View");
     JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
+    tabbedPane.setAutoscrolls(false);
     tabbedPane.putClientProperty(Options.EMBEDDED_TABS_KEY, Boolean.TRUE);
-    SVGDraw d = new SVGDraw(GraphSetFactory.completeGraphSet(new char[] { Nodes.NODE_COLOR_1,
-        Nodes.NODE_COLOR_1, Nodes.NODE_COLOR_1, Nodes.NODE_COLOR_2 }, new char[] { Nodes.NODE_COLOR_7 }));
+    SVGDraw d = new SVGDraw(GraphSetFactory.completeGraphSet(new char[] {
+        Nodes.NODE_COLOR_3, Nodes.NODE_COLOR_3, Nodes.NODE_COLOR_3,
+        Nodes.NODE_COLOR_3 }, new char[] { Nodes.NODE_COLOR_1 }, true));
     tabbedPane.addTab("SVG Cluster", d.getPanel());
     JScrollPane pane = Factory.createStrippedScrollPane(tabbedPane);
     pane.setBorder(new EmptyBorder(2, 2, 2, 2));
