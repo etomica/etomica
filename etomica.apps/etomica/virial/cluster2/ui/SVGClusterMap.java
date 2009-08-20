@@ -84,6 +84,12 @@ public class SVGClusterMap {
     return new SVGState(new SVGClusterMap(gs));
   }
 
+  /**
+   * This method translates a point within the SVG canvas into a tile in the
+   * array of tiles which are drawn on the canvas. If the point does not
+   * correspond to a tile, the method returns the length of the array of tiles,
+   * otherwise it returns the tile to which the point belongs.
+   */
   public int getTile(Point p) {
 
     int row = (p.x - SVGClusterMap.BORDER)

@@ -116,7 +116,7 @@ public class ApplicationUI {
    */
   public static ImageIcon readImageIcon(String filename) {
 
-    URL url = ApplicationUI.class.getResource("resources/images/" + filename);
+    URL url = uiSettings.getClass().getResource("resources/images/" + filename);
     return new ImageIcon(url);
   }
 
