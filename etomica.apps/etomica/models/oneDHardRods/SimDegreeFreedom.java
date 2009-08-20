@@ -40,8 +40,18 @@ import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
- * MD simulation of hard spheres in 1D or 3D with tabulation of the
- * collective-coordinate S-matrix. No graphic display of simulation.
+ * MC simulation
+ * 1D hard rods
+ * No graphic display
+ * Output: histogram files of probability that a mode is zero
+ * Calculate free energy of solid
+ * 
+ * Treats modes as degrees of freedom
+ * 
+ */
+
+/*
+ * Starts in notes 7/09
  */
 public class SimDegreeFreedom extends Simulation {
 
@@ -63,6 +73,8 @@ public class SimDegreeFreedom extends Simulation {
     MCMoveChangeSingleMode mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
+    boolean[] skipThisMode;
+
 
     public SimDegreeFreedom(Space _space, int numAtoms, double density, int blocksize, int nbs) {
         super(_space, true);
@@ -112,27 +124,30 @@ public class SimDegreeFreedom extends Simulation {
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        System.out.println("Do not use these modes: ");
+        //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared(box);
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
+        skipThisMode = new boolean[2*jump];
+        for(int i = 0; i < 2*jump; i++){
+            skipThisMode[i] = false;
+        }
         for(int wvCount = 0; wvCount < wvc.length; wvCount++){
-            //Prints the imaginary modes that should be skipped.
+            //Sets up the imaginary modes that should be skipped.
             if(wvc[wvCount] == 0.5) {
                 for(int j = 0; j < coordinateDim; j++){
-                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
                 }
             }
-            
-            //Prints the modes that are center of mass motion to skip
+            //Sets up the modes that are center of mass motion to skip
             for(int j = 0; j < omega[wvCount].length; j++){
                 if(Double.isInfinite(omega[wvCount][j])){
-                    System.out.println("skip " + (j + coordinateDim*wvCount));
-                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount] = true;
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+
                 }
             }
         }
-        
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -162,6 +177,7 @@ public class SimDegreeFreedom extends Simulation {
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
         for(int i = 0; i < coordNum; i++){
+            if(skipThisMode[i] == true) {continue;}
             template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
@@ -245,6 +261,7 @@ public class SimDegreeFreedom extends Simulation {
 
         int accumulatorLength = sim.hists.length;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             sim.hists[i].reset();
         }
        
@@ -259,6 +276,7 @@ public class SimDegreeFreedom extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             String outputName = new String(outputfn + "_" + i);
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
@@ -288,7 +306,7 @@ public class SimDegreeFreedom extends Simulation {
     
     public static class SimParam extends ParameterBase {
         public int numAtoms = 32;
-        public double density = 0.90;
+        public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";

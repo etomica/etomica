@@ -35,8 +35,18 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
 /**
- * MD simulation of hard spheres in 3D with tabulation of the
- * collective-coordinate S-matrix. No graphic display of simulation.
+ * MC simulation
+ * 3D hard spheres
+ * No graphic display
+ * Output: histogram files of probability that a mode is zero
+ * Calculate free energy of solid
+ * 
+ * Treats modes as degrees of freedom
+ * 
+ */
+
+/*
+ * starts in notes 7/09
  */
 public class SimDegreeFreedom3D extends Simulation {
 
@@ -101,7 +111,7 @@ public class SimDegreeFreedom3D extends Simulation {
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
         
-        System.out.println("Do not use these modes: ");
+        //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared(box);
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
@@ -110,22 +120,17 @@ public class SimDegreeFreedom3D extends Simulation {
             skipThisMode[i] = false;
         }
         for(int wvCount = 0; wvCount < wvc.length; wvCount++){
-            //Prints the imaginary modes that should be skipped.
+            //Sets up the imaginary modes that should be skipped.
             if(wvc[wvCount] == 0.5) {
                 for(int j = 0; j < coordinateDim; j++){
-//                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
                     skipThisMode[j + coordinateDim*wvCount + jump] = true;
                 }
             }
-            
-            //Prints the modes that are center of mass motion to skip
+            //Sets up the modes that are center of mass motion to skip
             for(int j = 0; j < omega[wvCount].length; j++){
                 if(Double.isInfinite(omega[wvCount][j])){
-                    System.out.println("skip " + (j + coordinateDim*wvCount));
                     skipThisMode[j + coordinateDim*wvCount] = true;
-                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
                     skipThisMode[j + coordinateDim*wvCount + jump] = true;
-
                 }
             }
         }

@@ -39,10 +39,14 @@ import etomica.util.ReadParameters;
  * MC simulation
  * 1D hard rods
  * No graphic display
- * Output: histogram files
+ * Output: histogram files of probability that a mode is zero
  * Calculate free energy of solid
  * 
- * 
+ * Testing whether or not using modes as degrees of freedom is extensive.
+ */
+
+/* 
+ * starts in notes 8/09
  */
 public class SimExtensiveTest extends Simulation {
 
@@ -64,6 +68,7 @@ public class SimExtensiveTest extends Simulation {
     MCMoveChangeMultipleModes mcMoveMode;
     AccumulatorHistogram[] hists;
     int[] harmonicWV;
+    boolean[] skipThisMode;
 
     public SimExtensiveTest(Space _space, int numAtoms, double density, int blocksize, int nbs) {
         super(_space, true);
@@ -113,23 +118,26 @@ public class SimExtensiveTest extends Simulation {
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        System.out.println("Do not use these modes: ");
+        //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared(box);
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
+        skipThisMode = new boolean[2*jump];
+        for(int i = 0; i < 2*jump; i++){
+            skipThisMode[i] = false;
+        }
         for(int wvCount = 0; wvCount < wvc.length; wvCount++){
-            //Prints the imaginary modes that should be skipped.
+            //Sets up the imaginary modes that should be skipped.
             if(wvc[wvCount] == 0.5) {
                 for(int j = 0; j < coordinateDim; j++){
-                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
                 }
             }
-            
-            //Prints the modes that are center of mass motion to skip
+            //Sets up the modes that are center of mass motion to skip
             for(int j = 0; j < omega[wvCount].length; j++){
                 if(Double.isInfinite(omega[wvCount][j])){
-                    System.out.println("skip " + (j + coordinateDim*wvCount));
-                    System.out.println("skip " + (j + coordinateDim*wvCount + jump)); 
+                    skipThisMode[j + coordinateDim*wvCount] = true;
+                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
                 }
             }
         }
@@ -246,6 +254,7 @@ public class SimExtensiveTest extends Simulation {
 
         int accumulatorLength = sim.hists.length;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             sim.hists[i].reset();
         }
        
@@ -260,6 +269,7 @@ public class SimExtensiveTest extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
+            if(sim.skipThisMode[i] == true) {continue;}
             String outputName = new String(outputfn + "_" + i);
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
