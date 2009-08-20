@@ -168,7 +168,7 @@ public class SimDegreeFreedom3D extends Simulation {
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
         for(int i = 0; i < coordNum; i++){
-            if(skipThisMode[i] == true) {continue;}
+            if(skipThisMode[i]) {continue;}
             template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
@@ -253,7 +253,7 @@ public class SimDegreeFreedom3D extends Simulation {
 
         int accumulatorLength = sim.hists.length;
         for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i] == true) {continue;}
+            if(sim.skipThisMode[i]) {continue;}
             sim.hists[i].reset();
         }
        
@@ -268,7 +268,7 @@ public class SimDegreeFreedom3D extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i] == true) {continue;}
+            if(sim.skipThisMode[i]) {continue;}
             wh = new WriteHistograms(outputName + "_" + i);
             wh.setHistogram(sim.hists[i].getHistograms());
             wh.actionPerformed();

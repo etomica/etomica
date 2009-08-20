@@ -246,6 +246,15 @@ public class SimExtensiveTest extends Simulation {
         SimExtensiveTest sim = new SimExtensiveTest(Space.getInstance(D), nA, density, bs, nbins);
         
         // start simulation
+        
+        System.out.println("THE HARMONIC WAVE VECTORS ARE HARD CODED!!!!");
+        int limit = 200;
+        comparedWV = new int[limit];
+        for (int i = 0; i < limit; i++){
+            comparedWV[i] = i;
+        }
+        
+        
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);
         sim.getController().actionPerformed();
@@ -254,7 +263,7 @@ public class SimExtensiveTest extends Simulation {
 
         int accumulatorLength = sim.hists.length;
         for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i] == true) {continue;}
+            if(sim.skipThisMode[i]) {continue;}
             sim.hists[i].reset();
         }
        
@@ -269,7 +278,7 @@ public class SimExtensiveTest extends Simulation {
          */
         WriteHistograms wh;
         for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i] == true) {continue;}
+            if(sim.skipThisMode[i]) {continue;}
             String outputName = new String(outputfn + "_" + i);
             wh = new WriteHistograms(outputName);
             wh.setHistogram(sim.hists[i].getHistograms());
