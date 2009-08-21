@@ -99,7 +99,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
             double x = xData.getValue(i);
             IVectorMutable pos = positionSource.randomPosition();
             pos.setX(profileDim, x);
-            y[i] += meter.getData(pos).getValue(0);
+            y[i] = meter.getData(pos).getValue(0);
         }
         return data;
     }
