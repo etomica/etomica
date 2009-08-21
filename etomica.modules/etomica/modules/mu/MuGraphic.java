@@ -1,5 +1,7 @@
 package etomica.modules.mu;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -62,6 +64,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
@@ -102,6 +105,17 @@ public class MuGraphic extends SimulationGraphic {
         };
 
     	this.sim = simulation;
+    	
+    	getDisplayBox(sim.box).addDrawable(new Drawable() {
+            public void draw(Graphics g, int[] origin, double toPixels) {
+                int x1 = origin[0]+(int)(0.5*toPixels*sim.box.getBoundary().getBoxSize().getX(0));
+                int y1 = origin[1];
+                int h = (int)(toPixels*sim.box.getBoundary().getBoxSize().getX(1));
+                int w = 2;
+                g.setColor(Color.green);
+                g.fillRect(x1-w, y1, w, h);
+            }
+    	});
 
         lambda = sim.potentialSW.getLambda();
         epsilon = sim.potentialSW.getEpsilon();
@@ -354,6 +368,7 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTable.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogram.getDataInfo()).getXDataSource().getIndependentTag()}, "U");
         muHistogramTable.setColumnHeader(new DataTag[]{muHistogram.getTag()}, "probability");
         muHistogramTable.setLabel("Insertion Energy");
+        muHistogramTable.setShowingRowLabels(false);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
