@@ -8,7 +8,6 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
-import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
@@ -29,6 +28,7 @@ public class Mu extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public P2SquareWellOneSide potentialSW;
     public P1MagicWall p1Wall;
+    public P1HardBoundary p1Boundary;
     
     public Mu(ISpace _space) {
         super(_space);
@@ -58,7 +58,7 @@ public class Mu extends Simulation {
 	    potentialSW = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
         potentialMaster.addPotential(potentialSW,new IAtomType[]{species.getLeafType(), species.getLeafType()});
         
-        P1HardBoundary p1Boundary = new P1HardBoundary(space);
+        p1Boundary = new P1HardBoundary(space);
         p1Boundary.setActive(0, false, true);
         p1Boundary.setActive(0, true, true);
         p1Boundary.setActive(1, false, false);

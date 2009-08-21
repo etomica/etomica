@@ -39,6 +39,7 @@ import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourcePositionedBoltzmannFactor;
+import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
@@ -370,6 +371,23 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTable.setLabel("Insertion Energy");
         muHistogramTable.setShowingRowLabels(false);
 
+        DataSourceWallPressureMu meterPressure = new DataSourceWallPressureMu(space, sim.p1Boundary);
+        meterPressure.setIntegrator(sim.integrator);
+        DataSplitter pressureSplitter = new DataSplitter();
+        DataPumpListener pressurePump = new DataPumpListener(meterPressure, pressureSplitter);
+        sim.integrator.getEventManager().addListener(pressurePump);
+        AccumulatorAverageCollapsing accumulatorPressureIG = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorPressureSQW = new AccumulatorAverageCollapsing();
+        pressureSplitter.setDataSink(0, accumulatorPressureIG);
+        pressureSplitter.setDataSink(1, accumulatorPressureSQW);
+        DisplayTextBoxesCAE pressureIGDisplay = new DisplayTextBoxesCAE();
+        pressureIGDisplay.setAccumulator(accumulatorPressureIG);
+        pressureIGDisplay.setLabel("Ideal Gas Pressure");
+        DisplayTextBoxesCAE pressureSQWDisplay = new DisplayTextBoxesCAE();
+        pressureSQWDisplay.setAccumulator(accumulatorPressureSQW);
+        pressureSQWDisplay.setLabel("Square-Well Pressure");
+
+
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
@@ -477,6 +495,8 @@ public class MuGraphic extends SimulationGraphic {
         add(ePlot);
         add(profilePlot);
         add(muHistogramTable);
+        add(pressureIGDisplay);
+        add(pressureSQWDisplay);
     	
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
         d.width -= 50;
