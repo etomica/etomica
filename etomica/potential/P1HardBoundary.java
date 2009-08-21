@@ -1,4 +1,3 @@
-//includes main method
 package etomica.potential;
 
 import etomica.EtomicaInfo;
@@ -20,14 +19,6 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
- 
- //extends PotentialAbstract instead of Potential1HardAbstract because potential depends
- //on property (boundary.dimensions) of box, and this is more readily available to
- //the Agent than to the parent potential.  
- //perhaps Potential1HardAbstract should be redesigned to permit easier access to features
- //of the box by the parent potential, since this is probably a common situation for
- //one-body potentials
- 
 public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
     
     private static final long serialVersionUID = 1L;
@@ -115,9 +106,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         return tmin + falseTime;
     }
-                
-//    public void bump(IntegratorHard.Agent agent) {
-//        Atom a = agent.atom();
+
     public void bump(IAtomList a, double falseTime) {
         IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
@@ -163,7 +152,19 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         lastVirialTensor.setComponent(lastCollisionDim, lastCollisionDim, lastVirial);
         return lastVirialTensor;
     }
-    
+
+    public double lastWallVirial() {
+        double area = 1.0;
+        final IVector dimensions = boundary.getBoxSize();
+        for (int i=0; i<dimensions.getD(); i++) {
+            if (i != lastCollisionDim) {
+                area *= (dimensions.getX(i)-collisionRadius*2.0);
+            }
+        }
+        double s = lastVirial / area;
+        return s;
+    }
+
     /**
      * Distance from the center of the sphere to the boundary at collision.
      */
