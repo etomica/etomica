@@ -103,6 +103,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setEigenVectors(nm.getEigenvectors(box));
         move.setCoordinateDefinition(coordinateDefinition);
+        move.setOmegaSquared(nm.getOmegaSquared(box));
         move.setBox((IBox)box);
         move.setStepSizeMin(0.001);
         move.setStepSize(0.01);

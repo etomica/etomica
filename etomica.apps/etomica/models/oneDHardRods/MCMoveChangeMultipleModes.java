@@ -130,8 +130,10 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         
         //calculate the new positions of the atoms.
         //loop over cells
-        double delta1 = (2*random.nextDouble()-1) * stepSize;
-        double delta2 = (2*random.nextDouble()-1) * stepSize;
+        double[] delta = new double[coordinateDim*2];
+        for ( int i = 0; i < coordinateDim*2; i++) {
+            delta[i] = (2*random.nextDouble()-1) * stepSize;
+        }
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -151,7 +153,8 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
                 if( !(Double.isInfinite(omega2[changedWV][i])) ){
                     for(int j = 0; j < coordinateDim; j++){
                         deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-                            eigenVectors[changedWV][i][j]*2.0*(delta1*coskR - delta2*sinkR);
+                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
+                                    - delta[j+coordinateDim]*sinkR);
                     }
                 }
             }
