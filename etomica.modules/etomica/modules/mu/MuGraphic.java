@@ -472,29 +472,53 @@ public class MuGraphic extends SimulationGraphic {
             }
         });
         nSlider.setMinimum(0);
-        nSlider.setMaximum(2000);
-        nSlider.setLabel("Number of Atoms");
+        nSlider.setMaximum(1000);
+        nSlider.setNMajor(4);
         nSlider.setShowBorder(true);
+        nSlider.setLabel("(A)");
         nSlider.setShowValues(true);
         nSlider.setEditValues(true);
-        // add a listener to adjust the thermostat interval for different
-        // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
-        // don't need as much thermostating.
         ChangeListener nListener = new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
-                final int n = (int)nSlider.getValue() > 0 ? (int)nSlider.getValue() : 1;
-                sim.integrator.setThermostatInterval(n > 40 ? 1 : 40/n);
-
                 getDisplayBox(sim.box).repaint();
             }
         };
         nSlider.getSlider().addChangeListener(nListener);
-        nListener.stateChanged(null);
+
+        final DeviceNSelector nSliderB = new DeviceNSelector(sim.getController());
+        nSliderB.setSpecies(sim.speciesB);
+        nSliderB.setBox(sim.box);
+        nSliderB.setModifier(new ModifierNMolecule(sim.box, sim.speciesB) {
+            public void setValue(double newValue) {
+                int d = (int)newValue;
+                int oldValue = box.getNMolecules(species);
+                if (d < oldValue) {
+                    box.setNMolecules(species, d);
+                }
+                else {
+                    for (int i=0; i<(d-oldValue); i++) {
+                        IMolecule m = species.makeMolecule();
+                        IVectorMutable p = ((IAtomPositioned)m.getChildList().getAtom(0)).getPosition();
+                        p.setX(0, -7.5);
+                        box.addMolecule(m);
+                    }
+                }
+                sim.integrator.reset();
+            }
+        });
+        nSliderB.setMinimum(0);
+        nSliderB.setMaximum(1000);
+        nSliderB.setNMajor(4);
+        nSliderB.setShowBorder(true);
+        nSliderB.setLabel("(B)");
+        nSliderB.setShowValues(true);
+        nSliderB.setEditValues(true);
+        nSliderB.getSlider().addChangeListener(nListener);
+        
         JPanel nSliderPanel = new JPanel(new GridLayout(0,1));
         nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
-        nSlider.setShowBorder(false);
-        nSlider.setNMajor(4);
         nSliderPanel.add(nSlider.graphic());
+        nSliderPanel.add(nSliderB.graphic());
         gbc2.gridx = 0;  gbc2.gridy = 1;
         statePanel.add(nSliderPanel, gbc2);
 
