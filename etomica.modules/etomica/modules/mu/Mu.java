@@ -22,13 +22,13 @@ import etomica.species.SpeciesSpheresMono;
 public class Mu extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public SpeciesSpheresMono species;
-    public IBox box;
-    public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
-    public P2SquareWellOneSide potentialSW;
-    public P1MagicWall p1Wall;
-    public P1HardBoundary p1Boundary;
+    public final SpeciesSpheresMono speciesA, speciesB;
+    public final IBox box;
+    public final IntegratorHard integrator;
+    public final ActivityIntegrate activityIntegrate;
+    public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;
+    public final P1MagicWall p1WallA, p1WallB;
+    public final P1HardBoundary p1BoundaryA, p1BoundaryB;
     
     public Mu(ISpace _space) {
         super(_space);
@@ -51,28 +51,43 @@ public class Mu extends Simulation {
         getController().addAction(activityIntegrate);
 
 	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-        getSpeciesManager().addSpecies(species);
+	    speciesA = new SpeciesSpheresMono(this, space);
+        getSpeciesManager().addSpecies(speciesA);
+        speciesB = new SpeciesSpheresMono(this, space);
+        getSpeciesManager().addSpecies(speciesB);
         
         //instantiate several potentials for selection in combo-box
-	    potentialSW = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
-        potentialMaster.addPotential(potentialSW,new IAtomType[]{species.getLeafType(), species.getLeafType()});
+	    potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
+        potentialMaster.addPotential(potentialAA,new IAtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        potentialAB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
+        potentialMaster.addPotential(potentialAB,new IAtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        potentialBB = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);
+        potentialMaster.addPotential(potentialBB,new IAtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         
-        p1Boundary = new P1HardBoundary(space);
-        p1Boundary.setActive(0, false, true);
-        p1Boundary.setActive(0, true, true);
-        p1Boundary.setActive(1, false, false);
-        p1Boundary.setActive(1, true, false);
+        p1BoundaryA = new P1HardBoundary(space);
+        p1BoundaryA.setActive(0, false, true);
+        p1BoundaryA.setActive(0, true, true);
+        p1BoundaryA.setActive(1, false, false);
+        p1BoundaryA.setActive(1, true, false);
         if (space.D() == 3) {
-            p1Boundary.setActive(2, false, false);
-            p1Boundary.setActive(2, true, false);
+            p1BoundaryA.setActive(2, false, false);
+            p1BoundaryA.setActive(2, true, false);
         }
-        potentialMaster.addPotential(p1Boundary,new IAtomType[]{species.getLeafType()});
-	    p1Wall = new P1MagicWall(space, potentialMaster);
-	    p1Wall.setEpsilon(epsilon);
-	    p1Wall.setSigma(sigma);
-	    p1Wall.setLambda(lambda);
-	    potentialMaster.addPotential(p1Wall, new IAtomType[]{species.getLeafType()});
+        p1BoundaryB = new P1HardBoundary(space);
+        p1BoundaryB.setActive(0, false, true);
+        p1BoundaryB.setActive(0, true, true);
+        p1BoundaryB.setActive(1, false, false);
+        p1BoundaryB.setActive(1, true, false);
+        if (space.D() == 3) {
+            p1BoundaryB.setActive(2, false, false);
+            p1BoundaryB.setActive(2, true, false);
+        }
+        potentialMaster.addPotential(p1BoundaryA,new IAtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1BoundaryB,new IAtomType[]{speciesB.getLeafType()});
+	    p1WallA = new P1MagicWall(space, potentialMaster);
+	    potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
+        p1WallB = new P1MagicWall(space, potentialMaster);
+        potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(0, space), space);
         addBox(box);
@@ -81,7 +96,8 @@ public class Mu extends Simulation {
         dim.E(0.5*xdim);
         dim.setX(0, xdim);
         box.getBoundary().setBoxSize(dim);
-        box.setNMolecules(species, N);
+        box.setNMolecules(speciesA, N);
+        box.setNMolecules(speciesB, N);
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));

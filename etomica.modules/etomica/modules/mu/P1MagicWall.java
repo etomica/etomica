@@ -4,11 +4,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
+import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.Potential1;
+import etomica.potential.PotentialArray;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -22,7 +24,6 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     protected final PotentialMasterList potentialMaster;
     protected NeighborListManager neighborManager;
     protected final IVectorMutable dr, dv;
-    protected double sigmaSq, wellSigmaSq, epsilon;
     protected double lastDeltaU;
     
     public P1MagicWall(ISpace space, PotentialMasterList potentialMaster) {
@@ -117,53 +118,64 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     protected double getDeltaU(IAtomKinetic atom, double falseTime, boolean isIG2SQW, boolean countHigh) {
         IVectorMutable v = atom.getVelocity();
         IVectorMutable p = atom.getPosition();
-        IAtomList upList = neighborManager.getUpList((IAtom)atom)[0];
-        IAtomList downList = neighborManager.getDownList((IAtom)atom)[0];
+        IAtomList[] upList = neighborManager.getUpList((IAtom)atom);
+        IAtomList[] downList = neighborManager.getDownList((IAtom)atom);
+        PotentialArray potentialArray = potentialMaster.getRangedPotentials(((IAtom)atom).getType());
+        IPotential[] potentials = potentialArray.getPotentials();
         double de = 0;
-        for (int i=0; i<upList.getAtomCount(); i++) {
-            IAtomKinetic atom2 = ((IAtomKinetic)upList.getAtom(i));
-            IVector pos2 = atom2.getPosition();
-            IVector vel2 = atom2.getVelocity();
-            double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
-            if (x2 < 0 == countHigh) {
-                // we're already interacting with this atom
-                continue;
+        for (int ip=0; ip<upList.length; ip++) {
+            if (potentials[ip].nBody() != 2) continue;
+            double epsilon = ((P2SquareWellOneSide)potentials[ip]).getEpsilon();
+            double sigmaSq = ((P2SquareWellOneSide)potentials[ip]).getCoreDiameter();
+            sigmaSq *= sigmaSq;
+            double wellSigmaSq = ((P2SquareWellOneSide)potentials[ip]).getLambda();
+            wellSigmaSq *= wellSigmaSq;
+            wellSigmaSq *= sigmaSq;
+            for (int i=0; i<upList[ip].getAtomCount(); i++) {
+                IAtomKinetic atom2 = ((IAtomKinetic)upList[ip].getAtom(i));
+                IVector pos2 = atom2.getPosition();
+                IVector vel2 = atom2.getVelocity();
+                double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
+                if (x2 < 0 == countHigh) {
+                    // we're already interacting with this atom
+                    continue;
+                }
+                dv.Ev1Mv2(v, vel2);
+                
+                dr.Ev1Mv2(p, pos2);
+                dr.PEa1Tv1(falseTime,dv);
+                boundary.nearestImage(dr);
+    
+                double r2 = dr.squared();
+                if (r2 < sigmaSq && isIG2SQW) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (r2 < wellSigmaSq) {
+                    de -= epsilon;
+                }
             }
-            dv.Ev1Mv2(v, vel2);
-            
-            dr.Ev1Mv2(p, pos2);
-            dr.PEa1Tv1(falseTime,dv);
-            boundary.nearestImage(dr);
-
-            double r2 = dr.squared();
-            if (r2 < sigmaSq && isIG2SQW) {
-                return Double.POSITIVE_INFINITY;
-            }
-            if (r2 < wellSigmaSq) {
-                de -= epsilon;
-            }
-        }
-        for (int i=0; i<downList.getAtomCount(); i++) {
-            IAtomKinetic atom2 = ((IAtomKinetic)downList.getAtom(i));
-            IVector pos2 = atom2.getPosition();
-            IVector vel2 = atom2.getVelocity();
-            double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
-            if (x2 < 0 == countHigh) {
-                // we're already interacting with this atom
-                continue;
-            }
-            dv.Ev1Mv2(v, vel2);
-            
-            dr.Ev1Mv2(p, pos2);
-            dr.PEa1Tv1(falseTime,dv);
-            boundary.nearestImage(dr);
-
-            double r2 = dr.squared();
-            if (r2 < sigmaSq && isIG2SQW) {
-                return Double.POSITIVE_INFINITY;
-            }
-            if (r2 < wellSigmaSq) {
-                de -= epsilon;
+            for (int i=0; i<downList[ip].getAtomCount(); i++) {
+                IAtomKinetic atom2 = ((IAtomKinetic)downList[ip].getAtom(i));
+                IVector pos2 = atom2.getPosition();
+                IVector vel2 = atom2.getVelocity();
+                double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
+                if (x2 < 0 == countHigh) {
+                    // we're already interacting with this atom
+                    continue;
+                }
+                dv.Ev1Mv2(v, vel2);
+                
+                dr.Ev1Mv2(p, pos2);
+                dr.PEa1Tv1(falseTime,dv);
+                boundary.nearestImage(dr);
+    
+                double r2 = dr.squared();
+                if (r2 < sigmaSq && isIG2SQW) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (r2 < wellSigmaSq) {
+                    de -= epsilon;
+                }
             }
         }
         return de;
@@ -182,33 +194,5 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
      * not yet implemented.
      */
     public Tensor lastCollisionVirialTensor() {return null;}
-
-    public double getSigma() {
-        return Math.sqrt(sigmaSq);
-    }
-
-    public void setSigma(double sigma) {
-        if (sigmaSq != 0) {
-            wellSigmaSq = wellSigmaSq/sigmaSq*(sigma*sigma);
-        }
-        sigmaSq = sigma*sigma;
-    }
-
-    public double getLambda() {
-        return Math.sqrt(wellSigmaSq/sigmaSq);
-    }
-
-    public void setLambda(double lambda) {
-        wellSigmaSq = sigmaSq*lambda*lambda;
-    }
-
-    public double getEpsilon() {
-        return epsilon;
-    }
-
-    public void setEpsilon(double newEpsilon) {
-        epsilon = newEpsilon;
-    }
-
 }
    
