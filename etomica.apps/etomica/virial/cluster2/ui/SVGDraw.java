@@ -1,6 +1,8 @@
 package etomica.virial.cluster2.ui;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Stroke;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,12 +11,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 import org.apache.batik.bridge.UpdateManager;
-import org.apache.batik.swing.*;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.svg.JSVGComponent;
-import org.apache.batik.svggen.*;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -29,7 +32,7 @@ public class SVGDraw {
 
   static final Stroke SELECTED_STROKE = new BasicStroke(1.5f,
       BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1.0f,
-      new float[] { 3, 3 }, 6);
+      new float[] { 3, 5 }, 3);
   static final Color SELECTED_COLOR = Color.DARK_GRAY;
   static final Stroke HOVERING_STROKE = new BasicStroke(1.5f);
   static final Color HOVERING_COLOR = Color.MAGENTA;

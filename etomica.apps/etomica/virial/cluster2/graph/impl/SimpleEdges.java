@@ -1,17 +1,15 @@
 package etomica.virial.cluster2.graph.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import etomica.virial.cluster2.graph.EdgeAttributes;
 import etomica.virial.cluster2.graph.EdgeVisitor;
 import etomica.virial.cluster2.graph.Edges;
-import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.EdgesMetadata;
+import etomica.virial.cluster2.graph.EdgesRepresentation;
 import etomica.virial.cluster2.graph.GraphFactory;
 
 public class SimpleEdges implements Edges {

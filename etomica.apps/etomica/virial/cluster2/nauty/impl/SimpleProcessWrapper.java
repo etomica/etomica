@@ -1,7 +1,10 @@
 package etomica.virial.cluster2.nauty.impl;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Map;
 
 import etomica.virial.cluster2.nauty.ProcessInfo;
 import etomica.virial.cluster2.nauty.ProcessWrapper;

@@ -21,17 +21,17 @@ package etomica.virial.cluster2.ui.rasterizer;
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
-import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.parser.ClockHandler;
 import org.apache.batik.parser.ClockParser;
 import org.apache.batik.parser.ParseException;
+import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.util.ApplicationSecurityEnforcer;
 
 /**

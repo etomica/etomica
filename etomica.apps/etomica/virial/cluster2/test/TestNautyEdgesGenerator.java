@@ -1,7 +1,14 @@
 package etomica.virial.cluster2.test;
 
-import etomica.virial.cluster2.graph.*;
-import etomica.virial.cluster2.nauty.*;
+import etomica.virial.cluster2.graph.Edges;
+import etomica.virial.cluster2.graph.EdgesFilter;
+import etomica.virial.cluster2.graph.EdgesSetVisitor;
+import etomica.virial.cluster2.graph.FilterFactory;
+import etomica.virial.cluster2.graph.GraphFactory;
+import etomica.virial.cluster2.graph.GraphSet;
+import etomica.virial.cluster2.graph.Nodes;
+import etomica.virial.cluster2.nauty.NautyInfo;
+import etomica.virial.cluster2.nauty.ProcessWrapper;
 import etomica.virial.cluster2.nauty.impl.SimpleProcessWrapper;
 
 public class TestNautyEdgesGenerator extends CustomTestCase {

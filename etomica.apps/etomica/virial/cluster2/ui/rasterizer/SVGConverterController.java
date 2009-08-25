@@ -19,8 +19,8 @@
 package etomica.virial.cluster2.ui.rasterizer;
 
 import java.io.File;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.batik.transcoder.Transcoder;
 

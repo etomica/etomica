@@ -1,8 +1,10 @@
 package etomica.virial.cluster2.test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 
-import etomica.virial.cluster2.nauty.*;
+import etomica.virial.cluster2.nauty.NautyInfo;
+import etomica.virial.cluster2.nauty.ProcessWrapper;
 import etomica.virial.cluster2.nauty.impl.SimpleProcessWrapper;
 
 public class TestSimpleProcessWrapper extends CustomTestCase {

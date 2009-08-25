@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 
 import etomica.virial.cluster2.graph.Edges;
 import etomica.virial.cluster2.graph.EdgesFilter;

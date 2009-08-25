@@ -1,8 +1,13 @@
 package etomica.virial.cluster2.graph.impl;
 
-import java.io.*;
-import java.net.*;
-import java.util.zip.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import etomica.virial.cluster2.bitmap.Bitmap;
 import etomica.virial.cluster2.bitmap.BitmapFactory;

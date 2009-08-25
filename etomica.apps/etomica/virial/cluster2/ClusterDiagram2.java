@@ -1,6 +1,7 @@
 package etomica.virial.cluster2;
 
 import java.util.Arrays;
+
 import etomica.util.Rational;
 
 /**

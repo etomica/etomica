@@ -2,8 +2,6 @@ package etomica.virial.cluster2.test;
 
 import java.util.Iterator;
 
-import etomica.virial.cluster2.graph.GraphFactory;
-import etomica.virial.cluster2.util.PermutationIterator;
 import etomica.virial.cluster2.util.PermutationRangeIterator;
 
 public class PermutatorTest extends CustomTestCase {

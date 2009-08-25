@@ -1,7 +1,6 @@
 package etomica.virial.cluster2.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JComponent;

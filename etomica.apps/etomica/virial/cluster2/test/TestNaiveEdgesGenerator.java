@@ -1,6 +1,12 @@
 package etomica.virial.cluster2.test;
 
-import etomica.virial.cluster2.graph.*;
+import etomica.virial.cluster2.graph.Edges;
+import etomica.virial.cluster2.graph.EdgesFilter;
+import etomica.virial.cluster2.graph.EdgesSetVisitor;
+import etomica.virial.cluster2.graph.FilterFactory;
+import etomica.virial.cluster2.graph.GraphFactory;
+import etomica.virial.cluster2.graph.GraphSet;
+import etomica.virial.cluster2.graph.Nodes;
 import etomica.virial.cluster2.graph.isomorphism.Match;
 
 public class TestNaiveEdgesGenerator extends CustomTestCase {

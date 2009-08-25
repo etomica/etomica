@@ -1,10 +1,5 @@
 package etomica.virial.cluster2.graph.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import etomica.virial.cluster2.bitmap.Bitmap;
 import etomica.virial.cluster2.graph.EdgesRepresentation;
 

@@ -14,13 +14,13 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticTheme;
-import com.jgoodies.looks.plastic.theme.SkyKrupp;
 import com.jgoodies.looks.plastic.theme.DesertBluer;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import com.jgoodies.looks.plastic.theme.ExperienceRoyale;
 import com.jgoodies.looks.plastic.theme.LightGray;
 import com.jgoodies.looks.plastic.theme.Silver;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
+import com.jgoodies.looks.plastic.theme.SkyKrupp;
 
 public class ApplicationUI {
 
