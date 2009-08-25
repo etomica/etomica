@@ -335,6 +335,7 @@ public class MuGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE muDisplayA = new DisplayTextBoxesCAE();
         muDisplayA.setAccumulator(muAvgA);
         muDisplayA.setLabel("exp(-U/kT) (A)");
+        muDisplayA.setDoShowCurrent(false);
         muAvgA.setPushInterval(100);
         DataProcessor uProcessorA = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
@@ -376,6 +377,7 @@ public class MuGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE muDisplayB = new DisplayTextBoxesCAE();
         muDisplayB.setAccumulator(muAvgB);
         muDisplayB.setLabel("exp(-U/kT) (B)");
+        muDisplayB.setDoShowCurrent(false);
         muAvgB.setPushInterval(100);
         DataProcessor uProcessorB = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
@@ -406,10 +408,11 @@ public class MuGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE pressureIGDisplay = new DisplayTextBoxesCAE();
         pressureIGDisplay.setAccumulator(accumulatorPressureIG);
         pressureIGDisplay.setLabel("Ideal Gas Pressure");
+        pressureIGDisplay.setDoShowCurrent(false);
         DisplayTextBoxesCAE pressureSQWDisplay = new DisplayTextBoxesCAE();
         pressureSQWDisplay.setAccumulator(accumulatorPressureSQW);
         pressureSQWDisplay.setLabel("Square-Well Pressure");
-
+        pressureSQWDisplay.setDoShowCurrent(false);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.speciesA);
