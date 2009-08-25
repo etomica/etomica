@@ -40,6 +40,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 	public AccumulatorAverage accumulatorAverage;
 	public DisplayTextBox currentBox, averageBox, errorBox;
 	public JPanel panelParentGroup;
+	protected boolean doShowCurrent = true;
 	
     protected Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
     protected LabelType labelType;
@@ -68,6 +69,21 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         setLabelType(LabelType.STRING);
         setPrecision(4);
 	}
+
+    public void setDoShowCurrent(boolean newDoShowCurrent) {
+        if (newDoShowCurrent == doShowCurrent) return;
+        doShowCurrent = newDoShowCurrent;
+        if (doShowCurrent) {
+            panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
+        }
+        else {
+            panelParentGroup.remove(currentBox.graphic());
+        }
+    }
+
+    public boolean getDoShowCurrent() {
+        return doShowCurrent;
+    }
 
     public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
