@@ -43,7 +43,6 @@ import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
@@ -52,7 +51,6 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterProfile;
 import etomica.data.meter.MeterProfileByVolume;
-import etomica.data.meter.MeterTemperature;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -70,7 +68,6 @@ import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorBox;
-import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.nbr.list.PotentialMasterList;
@@ -84,7 +81,6 @@ import etomica.units.Length;
 import etomica.units.Picosecond;
 import etomica.units.Pixel;
 import etomica.util.HistogramDiscrete;
-import etomica.util.Constants.CompassDirection;
 
 public class MuGraphic extends SimulationGraphic {
 
@@ -107,7 +103,9 @@ public class MuGraphic extends SimulationGraphic {
         };
 
     	this.sim = simulation;
-    	
+
+    	getController().getSimRestart().setConfiguration(sim.configuration);
+
     	getDisplayBox(sim.box).addDrawable(new Drawable() {
             public void draw(Graphics g, int[] origin, double toPixels) {
                 int x1 = origin[0]+(int)(0.5*toPixels*sim.box.getBoundary().getBoxSize().getX(0));
@@ -209,25 +207,6 @@ public class MuGraphic extends SimulationGraphic {
 	    //meters and displays
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
-        //add meter and display for current kinetic temperature
-
-		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
-        DataFork temperatureFork = new DataFork();
-        final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureFork, 100);
-        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
-        sim.integrator.getEventManager().addListener(temperaturePumpListener);
-        temperaturePumpListener.setInterval(1);
-        final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
-        temperatureAverage.setPushInterval(20);
-        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
-        temperatureHistory.setTimeDataSource(timeCounter);
-		temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage,temperatureHistory});
-        final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
-        tBox.setAccumulator(temperatureAverage);
-		dataStreamPumps.add(temperaturePump);
-		tBox.setLabel("Measured Temperature");
-		tBox.setLabelPosition(CompassDirection.NORTH);
-
 		// Number density box
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
@@ -249,11 +228,8 @@ public class MuGraphic extends SimulationGraphic {
 		MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
-        peAccumulator.setPushInterval(2);
-        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap(sim.box);
-        peExcludeOverlap.setDataSink(peFork);
+        peExcludeOverlap.setDataSink(peHistory);
         final DataPumpListener pePump = new DataPumpListener(peMeter, peExcludeOverlap, 100);
         sim.integrator.getEventManager().addListener(pePump);
         dataStreamPumps.add(pePump);
@@ -280,22 +256,7 @@ public class MuGraphic extends SimulationGraphic {
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
 		ePlot.setXUnit(Picosecond.UNIT);
-		
-//        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-//        pMeter.setIntegrator(sim.integrator);
-//        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-//        final DataPump pPump = new DataPump(pMeter, pAccumulator);
-//        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
-//        pAccumulator.setPushInterval(50);
-//        dataStreamPumps.add(pPump);
 
-//        final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
-//        pDisplay.setLabel(sim.getSpace().D() == 3 ? "Pressure (bar)" : "Pressure (bar-nm)");
-//        pDisplay.setAccumulator(pAccumulator);
-        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-        peDisplay.setAccumulator(peAccumulator);
-        peDisplay.setLabel("Potential Energy (J/mol)");
-        
         MeterProfileByVolume densityProfileMeterA = new MeterProfileByVolume(space);
         densityProfileMeterA.setBox(sim.box);
         MeterNMolecules meterNMoleculesA = new MeterNMolecules();
@@ -546,15 +507,6 @@ public class MuGraphic extends SimulationGraphic {
         		densityPump.actionPerformed();
         		densityBox.repaint();
 
-        		// Reset temperature (THIS IS NOT WORKING)
-                temperaturePump.actionPerformed();
-                tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
-
-                // IS THIS WORKING?
-                peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
-
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
@@ -572,10 +524,8 @@ public class MuGraphic extends SimulationGraphic {
 
     	add(displayCycles);
     	add(densityBox);
-    	add(tBox);
         add(muDisplayA);
         add(muDisplayB);
-    	add(peDisplay);
         add(ePlot);
         add(profilePlot);
         add(muHistogramTableA);
@@ -668,7 +618,7 @@ public class MuGraphic extends SimulationGraphic {
         }
         
         public String getLabel() {
-            return "Square-well extent";
+            return "epsilon";
         }
 
 

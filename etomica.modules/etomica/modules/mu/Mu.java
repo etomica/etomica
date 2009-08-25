@@ -4,12 +4,12 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
-import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.modules.chainequilibrium.ConfigurationLatticeRandom;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
@@ -29,6 +29,7 @@ public class Mu extends Simulation {
     public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;
     public final P1MagicWall p1WallA, p1WallB;
     public final P1HardBoundary p1BoundaryA, p1BoundaryB;
+    public final ConfigurationLatticeRandom configuration;
     
     public Mu(ISpace _space) {
         super(_space);
@@ -98,7 +99,8 @@ public class Mu extends Simulation {
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesA, N);
         box.setNMolecules(speciesB, N);
-        new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
+        configuration = new ConfigurationLatticeRandom(space.D() == 3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space, random);
+        configuration.initializeCoordinates(box);
         integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
