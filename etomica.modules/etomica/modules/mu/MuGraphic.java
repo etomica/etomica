@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
@@ -78,6 +79,7 @@ import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Fraction;
 import etomica.units.Length;
+import etomica.units.Null;
 import etomica.units.Picosecond;
 import etomica.units.Pixel;
 import etomica.util.HistogramDiscrete;
@@ -128,6 +130,7 @@ public class MuGraphic extends SimulationGraphic {
         displayCycles.setPrecision(6);
         DataPumpListener pump = new DataPumpListener(meterCycles,displayCycles);
         sim.integrator.getEventManager().addListener(pump);
+        displayCycles.setUnit(Null.UNIT);
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
@@ -214,7 +217,8 @@ public class MuGraphic extends SimulationGraphic {
         final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 100);
         sim.integrator.getEventManager().addListener(densityPump);
         dataStreamPumps.add(densityPump);
-	    densityBox.setLabel("Density");
+        densityBox.setUnit(Null.UNIT);
+	    densityBox.setLabel("Total Density");
 	    
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
@@ -432,6 +436,38 @@ public class MuGraphic extends SimulationGraphic {
         pressureSQWDisplay.setAccumulator(accumulatorPressureSQW);
         pressureSQWDisplay.setLabel("Square-Well Pressure");
         pressureSQWDisplay.setDoShowCurrent(false);
+        
+        MeterDensitySides meterDensityA = new MeterDensitySides(sim.box, sim.speciesA);
+        DataSplitter splitterDensityA = new DataSplitter();
+        DataPumpListener pumpDensityA = new DataPumpListener(meterDensityA, splitterDensityA);
+        sim.integrator.getEventManager().addListener(pumpDensityA);
+        dataStreamPumps.add(pumpDensityA);
+        AccumulatorAverageCollapsing accumulatorDensityIGA = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorDensitySQWA = new AccumulatorAverageCollapsing();
+        splitterDensityA.setDataSink(0, accumulatorDensityIGA);
+        splitterDensityA.setDataSink(1, accumulatorDensitySQWA);
+        DisplayTextBoxesCAE displayDensityIGA = new DisplayTextBoxesCAE();
+        displayDensityIGA.setAccumulator(accumulatorDensityIGA);
+        displayDensityIGA.setLabel("IG density (A)");
+        DisplayTextBoxesCAE displayDensitySQWA = new DisplayTextBoxesCAE();
+        displayDensitySQWA.setAccumulator(accumulatorDensitySQWA);
+        displayDensitySQWA.setLabel("SQW density (A)");
+
+        MeterDensitySides meterDensityB = new MeterDensitySides(sim.box, sim.speciesB);
+        DataSplitter splitterDensityB = new DataSplitter();
+        DataPumpListener pumpDensityB = new DataPumpListener(meterDensityB, splitterDensityB);
+        sim.integrator.getEventManager().addListener(pumpDensityB);
+        dataStreamPumps.add(pumpDensityB);
+        AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorDensitySQWB = new AccumulatorAverageCollapsing();
+        splitterDensityB.setDataSink(0, accumulatorDensityIGB);
+        splitterDensityB.setDataSink(1, accumulatorDensitySQWB);
+        DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
+        displayDensityIGB.setAccumulator(accumulatorDensityIGB);
+        displayDensityIGB.setLabel("IG density (B)");
+        DisplayTextBoxesCAE displayDensitySQWB = new DisplayTextBoxesCAE();
+        displayDensitySQWB.setAccumulator(accumulatorDensitySQWB);
+        displayDensitySQWB.setLabel("SQW density (B)");
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.speciesA);
@@ -544,16 +580,34 @@ public class MuGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
+        // cause metrics tab to be added
     	add(displayCycles);
-    	add(densityBox);
-        add(muDisplayA);
-        add(muDisplayB);
+    	getPanel().metricPanel.remove(displayCycles.graphic());
+    	// now populate metrics tab manually so everything fits
+    	JPanel metricSubPanel = new JPanel(new GridBagLayout());
+    	GridBagConstraints gbc = new GridBagConstraints();
+    	gbc.insets = new Insets(0, 20, 0, 20);
+        gbc.gridy = 0;
+    	metricSubPanel.add(displayCycles.graphic(), gbc);
+        metricSubPanel.add(densityBox.graphic(), gbc);
+        gbc.gridy = 1;
+        metricSubPanel.add(muDisplayA.graphic(), gbc);
+        metricSubPanel.add(displayDensityIGA.graphic(), gbc);
+        gbc.gridy = 2;
+        metricSubPanel.add(muDisplayB.graphic(), gbc);
+        metricSubPanel.add(displayDensitySQWA.graphic(), gbc);
+        gbc.gridy = 3;
+        metricSubPanel.add(pressureIGDisplay.graphic(), gbc);
+        metricSubPanel.add(displayDensityIGB.graphic(), gbc);
+        gbc.gridy = 4;
+        metricSubPanel.add(pressureSQWDisplay.graphic(), gbc);
+        metricSubPanel.add(displayDensitySQWB.graphic(), gbc);
+        getPanel().metricPanel.add(metricSubPanel);
+        
         add(ePlot);
         add(profilePlot);
         add(muHistogramTableA);
         add(muHistogramTableB);
-        add(pressureIGDisplay);
-        add(pressureSQWDisplay);
     	
         java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
         d.width -= 50;
