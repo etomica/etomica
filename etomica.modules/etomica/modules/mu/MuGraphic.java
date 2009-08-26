@@ -597,7 +597,7 @@ public class MuGraphic extends SimulationGraphic {
         }
 
         public void setValue(double newValue) {
-            if (newValue > 1.75) {
+            if (newValue > 10) {
                 // our potential neighbor range is 4, so cap lambda at 1.75 (sigma<=2)
                 throw new IllegalArgumentException();
             }
@@ -613,7 +613,7 @@ public class MuGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return p2.getLambda();
+            return p2.getEpsilon();
         }
 
         public Dimension getDimension() {
