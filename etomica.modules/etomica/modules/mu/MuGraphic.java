@@ -286,6 +286,8 @@ public class MuGraphic extends SimulationGraphic {
         DisplayPlot profilePlot = new DisplayPlot();
         densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        profilePlot.setLegend(new DataTag[]{densityProfileMeterA.getTag()}, "A");
+        profilePlot.setLegend(new DataTag[]{densityProfileMeterB.getTag()}, "B");
         profilePlot.setLabel("Density");
 
         DisplayPlot muPlot = new DisplayPlot();
@@ -298,18 +300,35 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
         chemicalPotentialAverage.setPushInterval(10);
         DataPumpListener muProfilePump = new DataPumpListener(muProfileMeter, chemicalPotentialAverage, 100);
+        sim.integrator.getEventManager().addListener(muProfilePump);
+        dataStreamPumps.add(muProfilePump);
         DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
         dataProcessorChemicalPotential.setDensityProfileDump(profileDumpA);
         dataProcessorChemicalPotential.setIntegrator(sim.integrator);
         chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
-        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");
+        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "A");
+
+        MeterProfile muProfileMeterB = new MeterProfile(space, sim.getRandom());
+        muProfileMeterB.setBox(sim.box);
+        DataSourcePositionedBoltzmannFactor meterChemicalPotentialB = new DataSourcePositionedBoltzmannFactor(space);
+        meterChemicalPotentialB.setIntegrator(sim.integrator);
+        meterChemicalPotentialB.setSpecies(sim.speciesB);
+        muProfileMeterB.setDataSource(meterChemicalPotentialB);
+        AccumulatorAverageFixed chemicalPotentialAverageB = new AccumulatorAverageFixed(10);
+        chemicalPotentialAverageB.setPushInterval(10);
+        DataPumpListener muProfilePumpB = new DataPumpListener(muProfileMeterB, chemicalPotentialAverageB, 100);
+        sim.integrator.getEventManager().addListener(muProfilePumpB);
+        dataStreamPumps.add(muProfilePumpB);
+        DataProcessorChemicalPotential dataProcessorChemicalPotentialB = new DataProcessorChemicalPotential();
+        dataProcessorChemicalPotentialB.setDensityProfileDump(profileDumpB);
+        dataProcessorChemicalPotentialB.setIntegrator(sim.integrator);
+        chemicalPotentialAverageB.addDataSink(dataProcessorChemicalPotentialB, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        dataProcessorChemicalPotentialB.setDataSink(muPlot.getDataSet().makeDataSink());
+        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotentialB.getTag()}, "B");
 
         muPlot.setLabel("Chemical Potential");
-        muPlot.setDoLegend(false);
         add(muPlot);
-        sim.integrator.getEventManager().addListener(muProfilePump);
-        dataStreamPumps.add(muProfilePump);
         
         MeterWidomInsertion meterMuA = new MeterWidomInsertion(space, sim.getRandom());
         meterMuA.setIntegrator(sim.integrator);
@@ -597,8 +616,7 @@ public class MuGraphic extends SimulationGraphic {
         }
 
         public void setValue(double newValue) {
-            if (newValue > 10) {
-                // our potential neighbor range is 4, so cap lambda at 1.75 (sigma<=2)
+            if (newValue > 10 || newValue  < 0) {
                 throw new IllegalArgumentException();
             }
             p2.setEpsilon(newValue);
