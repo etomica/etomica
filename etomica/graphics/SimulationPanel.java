@@ -33,7 +33,7 @@ public class SimulationPanel extends JPanel {
     public final JPanel graphicsPanel = new JPanel();
     public final JPanel footerPanel = new JPanel();
     public final JPanel plotPanel = new JPanel();
-    protected final JPanel metricPanel = new JPanel();
+    public final JPanel metricPanel = new JPanel();
     public final JTabbedPane tabbedPane = new JTabbedPane();
     public final DefaultToolbar toolbar;
 
