@@ -219,9 +219,7 @@ public class SimulationGraphic implements SimulationContainer {
         	else {
         		getPanel().metricPanel.add(component, SimulationPanel.getVertGBC());
         		if(getPanel().metricPanel.getParent() == null) {
-        		    getPanel().tabbedPane.add(getPanel().metricPanel);
-        		    int idx = getPanel().tabbedPane.indexOfComponent(getPanel().metricPanel);
-                    getPanel().tabbedPane.setTitleAt(idx,"Metrics");
+        		    getPanel().tabbedPane.add(getPanel().metricPanel, "Metrics");
 
                     final JPopupMenu popupMenu = new JPopupMenu();
                     final JMenuItem detachMenuItem = new JMenuItem("detach");
@@ -470,7 +468,7 @@ public class SimulationGraphic implements SimulationContainer {
         etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
-        Space space = Space.getInstance(3);
+        Space space = Space.getInstance(2);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY, space, sim.getController());
 		IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
 
