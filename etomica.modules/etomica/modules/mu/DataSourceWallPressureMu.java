@@ -15,9 +15,8 @@ import etomica.space.ISpace;
 import etomica.units.Pressure2D;
 
 public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionListener {
-    public DataSourceWallPressureMu(ISpace space, P1HardBoundary potential) {
+    public DataSourceWallPressureMu(ISpace space) {
         this.space = space;
-        wallPotential = potential;
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("pressure", Pressure2D.DIMENSION, new int[]{2});
         tag = new DataTag();
@@ -29,13 +28,13 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
      * Adds collision virial (from potential) to accumulator
      */
     public void collisionAction(IntegratorHard.Agent agent) {
-        if (agent.collisionPotential == wallPotential) {
+        if (agent.collisionPotential instanceof P1HardBoundary) {
             IVector p = ((IAtomPositioned)agent.atom).getPosition();
             if (p.getX(0) < 0) {
-                virialSumIG -= wallPotential.lastWallVirial();
+                virialSumIG -= ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
             }
             else {
-                virialSumSQW += wallPotential.lastWallVirial();
+                virialSumSQW += ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
             }
         }
     }
@@ -81,7 +80,6 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
     }
 
     private static final long serialVersionUID = 1L;
-    protected final P1HardBoundary wallPotential;
     protected ISpace space;
     protected IntegratorHard integratorHard;
     protected double virialSumIG, virialSumSQW;

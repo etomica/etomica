@@ -137,7 +137,7 @@ public class MuGraphic extends SimulationGraphic {
         tempSlider = new DeviceThermoSlider(sim.getController());
         tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(4.0);
+        tempSlider.setMaximum(10.0);
         tempSlider.setSliderMajorValues(4);
         tempSlider.setAdiabatic();
         tempSlider.setIntegrator(sim.integrator);
@@ -419,7 +419,7 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTableB.setShowingRowLabels(false);
 
         
-        DataSourceWallPressureMu meterPressure = new DataSourceWallPressureMu(space, sim.p1BoundaryA);
+        DataSourceWallPressureMu meterPressure = new DataSourceWallPressureMu(space);
         meterPressure.setIntegrator(sim.integrator);
         DataSplitter pressureSplitter = new DataSplitter();
         DataPumpListener pressurePump = new DataPumpListener(meterPressure, pressureSplitter);
