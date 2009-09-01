@@ -80,16 +80,8 @@ public class Droplet extends Simulation {
     }
     
     public static void main(String[] args) {
-        Space space = Space2D.getInstance();
-        if(args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-            
+        Space space = Space3D.getInstance();
+
         Droplet sim = new Droplet(space);
         sim.getController().actionPerformed();
     }//end of main

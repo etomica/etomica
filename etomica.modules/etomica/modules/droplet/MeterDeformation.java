@@ -3,7 +3,6 @@ package etomica.modules.droplet;
 import etomica.api.IAtomList;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IFunction;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -15,7 +14,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Null;
-import etomica.util.Function;
 
 public class MeterDeformation implements IEtomicaDataSource {
 
