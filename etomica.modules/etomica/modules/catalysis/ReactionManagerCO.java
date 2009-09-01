@@ -51,7 +51,23 @@ public class ReactionManagerCO implements IIntegratorListener {
     public void integratorStepStarted(IIntegratorEvent e) {
     }
 
+    public int getnReactCO() {
+        return nReactCO;
+    }
+
+    public void setnReactCO(int newNReactCO) {
+        nReactCO = newNReactCO;
+    }
+
+    public double getuReactCO() {
+        return uReactCO;
+    }
+
+    public void setuReactCO(double newUReactCO) {
+        uReactCO = newUReactCO;
+    }
+
     protected final Catalysis sim;
-    protected static final int nReactCO = 3;      // number of surface sites C needs for radicalization
-    protected static final double uReactCO = 2.0; // barrier for forward and reverse reactions
+    protected int nReactCO = 3;      // number of surface sites C needs for radicalization
+    protected double uReactCO = 2.0; // barrier for forward and reverse reactions
 }

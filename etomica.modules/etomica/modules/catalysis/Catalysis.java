@@ -20,7 +20,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
-import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
 
@@ -50,9 +49,9 @@ public class Catalysis extends Simulation {
         
         //controller and integrator
 	    integrator = new IntegratorHard(this, potentialMaster, space);
-	    integrator.setTimeStep(0.001);
+	    integrator.setTimeStep(0.005);
 	    integrator.setTemperature(Kelvin.UNIT.toSim(600));
-	    integrator.setIsothermal(false);
+	    integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -82,10 +81,10 @@ public class Catalysis extends Simulation {
         addBox(box);
         interactionTracker = new InteractionTracker(box, speciesSurface);
 
-	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, 3, 1, 1, 7.4);
+	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, 2, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(400), 7.4);
         potentialMaster.addPotential(potentialOO,new IAtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
 
-        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, 1, 3, 7.4);
+        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(1500), 7.4);
         potentialMaster.addPotential(potentialCO,new IAtomType[]{speciesO.getLeafType(), speciesC.getLeafType()});
 
         potentialCC = new P2SquareWell(space, sigmaC, 1.3, epsilonC, false);
@@ -115,19 +114,21 @@ public class Catalysis extends Simulation {
         potentialMaster.addPotential(p1HardWallC, new IAtomType[]{speciesC.getLeafType()});
         
         integrator.addCollisionListener(interactionTracker);
-        ReactionManagerCO reactionManager = new ReactionManagerCO(this);
-        integrator.getEventManager().addListener(reactionManager);
+        ReactionManagerCO reactionManagerCO = new ReactionManagerCO(this);
+        reactionManagerCO.setnReactCO(2);
+        integrator.getEventManager().addListener(reactionManagerCO);
         
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         IVectorMutable dim = space.makeVector();
-        dim.E(150);
+        dim.E(100);
+        dim.setX(1, 60);
         box.getBoundary().setBoxSize(dim);
         int nCO = 40, nO2 = 40;
         
         config = new ConfigurationCatalysis(this, space, speciesSurface, speciesC, speciesO, interactionTracker.getAgentManager());
-        config.setNCellsX(40);
-        config.setNCellsZ(25);
+        config.setNCellsX(30);
+        config.setNCellsZ(20);
         config.setCellSizeX(sigmaS);
         config.setCellSizeZ(sigmaS*Math.sqrt(3));
         config.setNumCO(nCO);

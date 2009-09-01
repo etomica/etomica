@@ -109,9 +109,21 @@ public class ConfigurationCatalysis implements Configuration {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
-//            IVectorMutable pos = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-//            pos.setX(1, y0-yOffset);
         }
+        
+//        pretendBox.setNMolecules(speciesSurface, nMolecules);
+//        config.initializeCoordinates(pretendBox);
+//
+//        molecules = pretendBox.getMoleculeList(speciesSurface);
+//        for (int i=0; i<nMolecules; i++) {
+//            IMolecule molecule = molecules.getMolecule(0);
+//            pretendBox.removeMolecule(molecule);
+//            IAtom atom = molecule.getChildList().getAtom(0);
+//            IVectorMutable pos = ((IAtomPositioned)atom).getPosition();
+//            pos.setX(1, -pos.getX(1)-0.1);
+//            box.addMolecule(molecule);
+//        }
+
         sim.removeBox(pretendBox);
     }
     

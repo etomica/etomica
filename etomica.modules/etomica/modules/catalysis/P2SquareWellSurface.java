@@ -91,6 +91,7 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
             if(bij > 0.0) {         // Separating
                 double thisEpsilon = epsilon;
                 if (!agent.isRadical && agent.bondedAtom2 != null) {
+                    // turn off C-surface attraction for OCO
                     thisEpsilon = 0;
                 }
                 if (ke < thisEpsilon || (agent.isRadical && agent.nSurfaceBonds < minRadicalSites)) {     // Not enough kinetic energy to escape
@@ -107,6 +108,7 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
             else if(ke > -epsilon) {   // Approach/capture
                 double thisEpsilon = epsilon;
                 if (!agent.isRadical && agent.bondedAtom2 != null) {
+                    // turn off C-surface attraction for OCO
                     thisEpsilon = 0;
                 }
                 lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*thisEpsilon/reduced_m));
