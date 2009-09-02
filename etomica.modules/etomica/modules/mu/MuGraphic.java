@@ -35,25 +35,20 @@ import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.DataProcessorChemicalPotential;
 import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourcePositionedBoltzmannFactor;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergyFromIntegrator;
 import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterProfile;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -75,18 +70,18 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Angstrom;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Fraction;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.units.Picosecond;
 import etomica.units.Pixel;
 import etomica.util.HistogramDiscrete;
+import etomica.util.HistoryCollapsingAverage;
 
 public class MuGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = "Square-Well Molecular Dynamics";
+    private final static String APP_NAME = "Chemical Potential";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
@@ -135,6 +130,7 @@ public class MuGraphic extends SimulationGraphic {
         
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider.setIsothermalButtonsVisibility(false);
         tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(10.0);
@@ -177,14 +173,14 @@ public class MuGraphic extends SimulationGraphic {
         //
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
-        setupPanel.add(potentialPanelA, "PotentialA");
-        setupPanel.add(potentialPanelB, "PotentialB");
+        setupPanel.add(potentialPanelA, "Potential (A)");
+        setupPanel.add(potentialPanelB, "Potential (B)");
 
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter(this, sim.speciesA, sim.potentialAA, sim.potentialAB, sim.potentialBB);
         ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialAA, sim.potentialAB, sim.potentialBB, sim.integrator);
         ModifierLambda lamModifier = new ModifierLambda(sim.potentialAA, sim.potentialAB, sim.potentialBB, sim.integrator);
         sigABox.setModifier(sigModifier);
-        sigABox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
+        sigABox.setLabel("sigma");
         epsABox.setModifier(epsModifier);
         lamABox.setModifier(lamModifier);
         sigABox.setController(sim.getController());
@@ -195,7 +191,7 @@ public class MuGraphic extends SimulationGraphic {
         ModifierEpsilon epsBModifier = new ModifierEpsilon(sim.potentialBB, sim.potentialAB, sim.potentialAA, sim.integrator);
         ModifierLambda lamBModifier = new ModifierLambda(sim.potentialBB, sim.potentialAB, sim.potentialAA, sim.integrator);
         sigBBox.setModifier(sigBModifier);
-        sigBBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
+        sigBBox.setLabel("sigma");
         epsBBox.setModifier(epsBModifier);
         lamBBox.setModifier(lamBModifier);
         sigBBox.setController(sim.getController());
@@ -207,9 +203,6 @@ public class MuGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.speciesA.getLeafType(),java.awt.Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
 
-	    //meters and displays
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-
 		// Number density box
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
@@ -219,47 +212,6 @@ public class MuGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setUnit(Null.UNIT);
 	    densityBox.setLabel("Total Density");
-	    
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
-        final AccumulatorHistory energyHistory = new AccumulatorHistory();
-        energyHistory.setTimeDataSource(timeCounter);
-        final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap(sim.box);
-        eExcludeOverlap.setDataSink(energyHistory);
-        final DataPumpListener energyPump = new DataPumpListener(eMeter, eExcludeOverlap, 100);
-        sim.integrator.getEventManager().addListener(energyPump);
-        dataStreamPumps.add(energyPump);
-		
-		MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        final AccumulatorHistory peHistory = new AccumulatorHistory();
-        peHistory.setTimeDataSource(timeCounter);
-        final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap(sim.box);
-        peExcludeOverlap.setDataSink(peHistory);
-        final DataPumpListener pePump = new DataPumpListener(peMeter, peExcludeOverlap, 100);
-        sim.integrator.getEventManager().addListener(pePump);
-        dataStreamPumps.add(pePump);
-
-		MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
-        final AccumulatorHistory keHistory = new AccumulatorHistory();
-        keHistory.setTimeDataSource(timeCounter);
-        // we do this for the scaling by numAtoms rather than for the overlap exclusion
-        final DataSinkExcludeOverlap keExcludeOverlap = new DataSinkExcludeOverlap(sim.box);
-        keExcludeOverlap.setDataSink(keHistory);
-        final DataPumpListener kePump = new DataPumpListener(keMeter, keExcludeOverlap, 100);
-        sim.integrator.getEventManager().addListener(kePump);
-        dataStreamPumps.add(kePump);
-        
-        final DisplayPlot ePlot = new DisplayPlot();
-        energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
-        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
-        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
-
-        ePlot.getPlot().setTitle("Energy History (J/mol)");
-		ePlot.setDoLegend(true);
-		ePlot.setLabel("Energy");
-		ePlot.setXUnit(Picosecond.UNIT);
 
         MeterProfileByVolume densityProfileMeterA = new MeterProfileByVolume(space);
         densityProfileMeterA.setBox(sim.box);
@@ -294,46 +246,64 @@ public class MuGraphic extends SimulationGraphic {
         profilePlot.setLegend(new DataTag[]{densityProfileMeterB.getTag()}, "B");
         profilePlot.setLabel("Density");
 
-        DisplayPlot muPlot = new DisplayPlot();
-        MeterProfile muProfileMeter = new MeterProfile(space, sim.getRandom());
-        muProfileMeter.setBox(sim.box);
-        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
-        meterChemicalPotential.setIntegrator(sim.integrator);
-        meterChemicalPotential.setSpecies(sim.speciesA);
-        muProfileMeter.setDataSource(meterChemicalPotential);
-        AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
-        chemicalPotentialAverage.setPushInterval(10);
-        DataPumpListener muProfilePump = new DataPumpListener(muProfileMeter, chemicalPotentialAverage, 100);
-        sim.integrator.getEventManager().addListener(muProfilePump);
-        dataStreamPumps.add(muProfilePump);
-        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
-        dataProcessorChemicalPotential.setDensityProfileDump(profileDumpA);
-        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
-        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
-        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "A");
-
-        MeterProfile muProfileMeterB = new MeterProfile(space, sim.getRandom());
-        muProfileMeterB.setBox(sim.box);
-        DataSourcePositionedBoltzmannFactor meterChemicalPotentialB = new DataSourcePositionedBoltzmannFactor(space);
-        meterChemicalPotentialB.setIntegrator(sim.integrator);
-        meterChemicalPotentialB.setSpecies(sim.speciesB);
-        muProfileMeterB.setDataSource(meterChemicalPotentialB);
-        AccumulatorAverageFixed chemicalPotentialAverageB = new AccumulatorAverageFixed(10);
-        chemicalPotentialAverageB.setPushInterval(10);
-        DataPumpListener muProfilePumpB = new DataPumpListener(muProfileMeterB, chemicalPotentialAverageB, 100);
-        sim.integrator.getEventManager().addListener(muProfilePumpB);
-        dataStreamPumps.add(muProfilePumpB);
-        DataProcessorChemicalPotential dataProcessorChemicalPotentialB = new DataProcessorChemicalPotential();
-        dataProcessorChemicalPotentialB.setDensityProfileDump(profileDumpB);
-        dataProcessorChemicalPotentialB.setIntegrator(sim.integrator);
-        chemicalPotentialAverageB.addDataSink(dataProcessorChemicalPotentialB, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        dataProcessorChemicalPotentialB.setDataSink(muPlot.getDataSet().makeDataSink());
-        muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotentialB.getTag()}, "B");
-
-        muPlot.setLabel("Chemical Potential");
-        add(muPlot);
+        MeterDensitySides meterDensityA = new MeterDensitySides(sim.box, sim.speciesA);
+        DataSplitter splitterDensityA = new DataSplitter();
+        DataPumpListener pumpDensityA = new DataPumpListener(meterDensityA, splitterDensityA);
+        sim.integrator.getEventManager().addListener(pumpDensityA);
+        dataStreamPumps.add(pumpDensityA);
+        AccumulatorAverageCollapsing accumulatorDensityIGA = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorDensitySQWA = new AccumulatorAverageCollapsing();
+        DataFork densityIGAFork = new DataFork();
+        DataFork densitySQWAFork = new DataFork();
+        splitterDensityA.setDataSink(0, densityIGAFork);
+        densityIGAFork.addDataSink(accumulatorDensityIGA);
+        splitterDensityA.setDataSink(1, densitySQWAFork);
+        densitySQWAFork.addDataSink(accumulatorDensitySQWA);
+        DisplayTextBoxesCAE displayDensityIGA = new DisplayTextBoxesCAE();
+        displayDensityIGA.setAccumulator(accumulatorDensityIGA);
+        displayDensityIGA.setLabel("IG Phase density (A)");
+        displayDensityIGA.setDoShowCurrent(false);
+        DisplayTextBoxesCAE displayDensitySQWA = new DisplayTextBoxesCAE();
+        displayDensitySQWA.setAccumulator(accumulatorDensitySQWA);
+        displayDensitySQWA.setLabel("Real Phase density (A)");
+        displayDensitySQWA.setDoShowCurrent(false);
         
+        final AccumulatorHistory densityIGAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densityIGAFork.addDataSink(densityIGAHistory);
+        densityIGAHistory.setPushInterval(100);
+        final AccumulatorHistory densitySQWAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densitySQWAFork.addDataSink(densitySQWAHistory);
+        densitySQWAHistory.setPushInterval(100);
+
+        MeterDensitySides meterDensityB = new MeterDensitySides(sim.box, sim.speciesB);
+        DataSplitter splitterDensityB = new DataSplitter();
+        DataPumpListener pumpDensityB = new DataPumpListener(meterDensityB, splitterDensityB);
+        sim.integrator.getEventManager().addListener(pumpDensityB);
+        dataStreamPumps.add(pumpDensityB);
+        AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorDensitySQWB = new AccumulatorAverageCollapsing();
+        DataFork densityIGBFork = new DataFork();
+        DataFork densitySQWBFork = new DataFork();
+        splitterDensityB.setDataSink(0, densityIGBFork);
+        densityIGBFork.addDataSink(accumulatorDensityIGB);
+        splitterDensityB.setDataSink(1, densitySQWBFork);
+        densityIGBFork.addDataSink(accumulatorDensitySQWB);
+        DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
+        displayDensityIGB.setAccumulator(accumulatorDensityIGB);
+        displayDensityIGB.setLabel("IG Phase density (B)");
+        displayDensityIGB.setDoShowCurrent(false);
+        DisplayTextBoxesCAE displayDensitySQWB = new DisplayTextBoxesCAE();
+        displayDensitySQWB.setAccumulator(accumulatorDensitySQWB);
+        displayDensitySQWB.setLabel("IG Phase density (B)");
+        displayDensitySQWB.setDoShowCurrent(false);
+
+        final AccumulatorHistory densityIGBHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densityIGBFork.addDataSink(densityIGBHistory);
+        densityIGBHistory.setPushInterval(100);
+        final AccumulatorHistory densitySQWBHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densitySQWBFork.addDataSink(densitySQWBHistory);
+        densitySQWBHistory.setPushInterval(100);
+
         MeterWidomInsertion meterMuA = new MeterWidomInsertion(space, sim.getRandom());
         meterMuA.setIntegrator(sim.integrator);
         meterMuA.setNInsert(1);
@@ -375,6 +345,13 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTableA.setColumnHeader(new DataTag[]{muHistogramA.getTag()}, "probability");
         muHistogramTableA.setLabel("Insertion Energy (A)");
         muHistogramTableA.setShowingRowLabels(false);
+        
+        AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
+        muForkA.addDataSink(muHistoryA);
+        DataProcessorMu muSQWA = new DataProcessorMu(muHistoryA, sim.integrator);
+        densitySQWAHistory.setDataSink(muSQWA);
+        DataProcessorMu muIGA = new DataProcessorMu(null, sim.integrator);
+        densityIGAHistory.setDataSink(muIGA);
 
         MeterWidomInsertion meterMuB = new MeterWidomInsertion(space, sim.getRandom());
         meterMuB.setIntegrator(sim.integrator);
@@ -418,57 +395,45 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTableB.setLabel("Insertion Energy (B)");
         muHistogramTableB.setShowingRowLabels(false);
 
-        
+        AccumulatorHistory muHistoryB = new AccumulatorHistory(new HistoryCollapsingAverage());
+        muForkB.addDataSink(muHistoryB);
+        DataProcessorMu muSQWB = new DataProcessorMu(muHistoryB, sim.integrator);
+        densitySQWBHistory.setDataSink(muSQWB);
+        DataProcessorMu muIGB = new DataProcessorMu(null, sim.integrator);
+        densityIGBHistory.setDataSink(muIGB);
+
+        DisplayPlot muPlot = new DisplayPlot();
+        muPlot.setLabel("Chemical Potential");
+        muSQWA.setDataSink(muPlot.getDataSet().makeDataSink());
+        muHistoryA.setPushInterval(100);
+        muPlot.setLegend(new DataTag[]{muSQWA.getTag()}, "Real Phase (A)");
+        muSQWB.setDataSink(muPlot.getDataSet().makeDataSink());
+        muHistoryB.setPushInterval(100);
+        muPlot.setLegend(new DataTag[]{muSQWB.getTag()}, "Real Phase (B)");
+        muIGA.setDataSink(muPlot.getDataSet().makeDataSink());
+        muPlot.setLegend(new DataTag[]{muIGA.getTag()}, "IG Phase (A)");
+        muIGB.setDataSink(muPlot.getDataSet().makeDataSink());
+        muPlot.setLegend(new DataTag[]{muIGB.getTag()}, "IG Phase (B)");
+
         DataSourceWallPressureMu meterPressure = new DataSourceWallPressureMu(space);
         meterPressure.setIntegrator(sim.integrator);
         DataSplitter pressureSplitter = new DataSplitter();
         DataPumpListener pressurePump = new DataPumpListener(meterPressure, pressureSplitter);
         sim.integrator.getEventManager().addListener(pressurePump);
+        dataStreamPumps.add(pressurePump);
         AccumulatorAverageCollapsing accumulatorPressureIG = new AccumulatorAverageCollapsing();
         AccumulatorAverageCollapsing accumulatorPressureSQW = new AccumulatorAverageCollapsing();
         pressureSplitter.setDataSink(0, accumulatorPressureIG);
         pressureSplitter.setDataSink(1, accumulatorPressureSQW);
         DisplayTextBoxesCAE pressureIGDisplay = new DisplayTextBoxesCAE();
         pressureIGDisplay.setAccumulator(accumulatorPressureIG);
-        pressureIGDisplay.setLabel("Ideal Gas Pressure");
+        pressureIGDisplay.setLabel("IG Phase Pressure");
         pressureIGDisplay.setDoShowCurrent(false);
         DisplayTextBoxesCAE pressureSQWDisplay = new DisplayTextBoxesCAE();
         pressureSQWDisplay.setAccumulator(accumulatorPressureSQW);
-        pressureSQWDisplay.setLabel("Square-Well Pressure");
+        pressureSQWDisplay.setLabel("Real Phase Pressure");
         pressureSQWDisplay.setDoShowCurrent(false);
         
-        MeterDensitySides meterDensityA = new MeterDensitySides(sim.box, sim.speciesA);
-        DataSplitter splitterDensityA = new DataSplitter();
-        DataPumpListener pumpDensityA = new DataPumpListener(meterDensityA, splitterDensityA);
-        sim.integrator.getEventManager().addListener(pumpDensityA);
-        dataStreamPumps.add(pumpDensityA);
-        AccumulatorAverageCollapsing accumulatorDensityIGA = new AccumulatorAverageCollapsing();
-        AccumulatorAverageCollapsing accumulatorDensitySQWA = new AccumulatorAverageCollapsing();
-        splitterDensityA.setDataSink(0, accumulatorDensityIGA);
-        splitterDensityA.setDataSink(1, accumulatorDensitySQWA);
-        DisplayTextBoxesCAE displayDensityIGA = new DisplayTextBoxesCAE();
-        displayDensityIGA.setAccumulator(accumulatorDensityIGA);
-        displayDensityIGA.setLabel("IG density (A)");
-        DisplayTextBoxesCAE displayDensitySQWA = new DisplayTextBoxesCAE();
-        displayDensitySQWA.setAccumulator(accumulatorDensitySQWA);
-        displayDensitySQWA.setLabel("SQW density (A)");
-
-        MeterDensitySides meterDensityB = new MeterDensitySides(sim.box, sim.speciesB);
-        DataSplitter splitterDensityB = new DataSplitter();
-        DataPumpListener pumpDensityB = new DataPumpListener(meterDensityB, splitterDensityB);
-        sim.integrator.getEventManager().addListener(pumpDensityB);
-        dataStreamPumps.add(pumpDensityB);
-        AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
-        AccumulatorAverageCollapsing accumulatorDensitySQWB = new AccumulatorAverageCollapsing();
-        splitterDensityB.setDataSink(0, accumulatorDensityIGB);
-        splitterDensityB.setDataSink(1, accumulatorDensitySQWB);
-        DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
-        displayDensityIGB.setAccumulator(accumulatorDensityIGB);
-        displayDensityIGB.setLabel("IG density (B)");
-        DisplayTextBoxesCAE displayDensitySQWB = new DisplayTextBoxesCAE();
-        displayDensitySQWB.setAccumulator(accumulatorDensitySQWB);
-        displayDensitySQWB.setLabel("SQW density (B)");
-
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.speciesA);
         nSlider.setBox(sim.box);
@@ -604,14 +569,52 @@ public class MuGraphic extends SimulationGraphic {
         metricSubPanel.add(displayDensitySQWB.graphic(), gbc);
         getPanel().metricPanel.add(metricSubPanel);
         
-        add(ePlot);
         add(profilePlot);
+        add(muPlot);
         add(muHistogramTableA);
         add(muHistogramTableB);
-    	
-        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
-        d.width -= 50;
-        ePlot.getPlot().setSize(d);
+    }
+
+    public static class DataProcessorMu extends DataProcessor {
+        private static final long serialVersionUID = 1L;
+        protected final AccumulatorHistory muHistory;
+        protected DataFunction data;
+        protected DataInfoFunction dataInfo;
+        protected final IntegratorBox integrator;
+
+        public DataProcessorMu(AccumulatorHistory muHistory, IntegratorBox integrator) {
+            this.muHistory = muHistory;
+            this.integrator = integrator;
+        }
+
+        protected IData processData(IData inputData) {
+            double[] x = data.getData();
+            double temp = integrator.getTemperature();
+            IData muData = muHistory == null ? null : muHistory.getData();
+            for (int i=0; i<inputData.getLength(); i++) {
+                double density = inputData.getValue(i);
+                double aexp = muData == null ? 1 : muData.getValue(i);
+                if (density*aexp == 0) {
+                    x[i] = Double.NaN;
+                }
+                else {
+                    x[i] = temp * Math.log(density/aexp);
+                }
+            }
+            return data;
+        }
+
+        protected IEtomicaDataInfo processDataInfo(
+                IEtomicaDataInfo inputDataInfo) {
+            dataInfo = new DataInfoFunction("chemical potential", Energy.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
+            data = new DataFunction(new int[]{inputDataInfo.getLength()});
+            dataInfo.addTag(tag);
+            return dataInfo;
+        }
+
+        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+            return null;
+        }
     }
 
     public static class ModifierLambda implements Modifier {
@@ -651,7 +654,7 @@ public class MuGraphic extends SimulationGraphic {
         }
         
         public String getLabel() {
-            return "Square-well extent";
+            return "lambda";
         }
 
 
@@ -743,7 +746,7 @@ public class MuGraphic extends SimulationGraphic {
         }
         
         public String getLabel() {
-            return "Atom Diameter";
+            return "sigma";
         }
 
         protected final MuGraphic simGraphic;
