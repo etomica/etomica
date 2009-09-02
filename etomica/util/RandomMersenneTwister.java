@@ -220,7 +220,7 @@ public class RandomMersenneTwister implements IRandom {
                 y = y << (p-10);
                 shiftFac *= 1L<<p;
                 // we left a hole in the low bits.  fill that in.
-                y |= nextInt() >>> (74 - p);
+                y |= nextInt() >>> (42 - p);
             }
         }
             
