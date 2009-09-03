@@ -9,6 +9,6 @@ public class ApplicationLauncher {
    */
   public static void main(String args[]) {
 
-    ApplicationView.showMainWindow();
+    ViewFactory.showView(ViewFactory.VN_VIRIAL);
   }
 }
