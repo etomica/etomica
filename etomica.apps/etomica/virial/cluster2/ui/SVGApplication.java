@@ -1,4 +1,4 @@
-package etomica.virial.cluster2.test;
+package etomica.virial.cluster2.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
