@@ -287,14 +287,14 @@ public class MuGraphic extends SimulationGraphic {
         splitterDensityB.setDataSink(0, densityIGBFork);
         densityIGBFork.addDataSink(accumulatorDensityIGB);
         splitterDensityB.setDataSink(1, densitySQWBFork);
-        densityIGBFork.addDataSink(accumulatorDensitySQWB);
+        densitySQWBFork.addDataSink(accumulatorDensitySQWB);
         DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
         displayDensityIGB.setAccumulator(accumulatorDensityIGB);
         displayDensityIGB.setLabel("IG Phase density (B)");
         displayDensityIGB.setDoShowCurrent(false);
         DisplayTextBoxesCAE displayDensitySQWB = new DisplayTextBoxesCAE();
         displayDensitySQWB.setAccumulator(accumulatorDensitySQWB);
-        displayDensitySQWB.setLabel("IG Phase density (B)");
+        displayDensitySQWB.setLabel("Real Phase density (B)");
         displayDensitySQWB.setDoShowCurrent(false);
 
         final AccumulatorHistory densityIGBHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
