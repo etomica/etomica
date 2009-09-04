@@ -247,12 +247,12 @@ public class SimExtensiveTest extends Simulation {
         
         // start simulation
         
-        System.out.println("THE HARMONIC WAVE VECTORS ARE HARD CODED!!!!");
-        int limit = 200;
-        comparedWV = new int[limit];
-        for (int i = 0; i < limit; i++){
-            comparedWV[i] = i;
-        }
+//        System.out.println("THE HARMONIC WAVE VECTORS ARE HARD CODED!!!!");
+//        int limit = 200;
+//        comparedWV = new int[limit];
+//        for (int i = 0; i < limit; i++){
+//            comparedWV[i] = i;
+//        }
         
         
         sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -315,11 +315,29 @@ public class SimExtensiveTest extends Simulation {
         public String inputfilename = "input";
         public String outputname = "hists";
         public double temperature = 1.0;
-        public int[] comparedWV = {1, 2};
+        public int[] comparedWV = {499, 497, 495, 493, 491, 489, 487, 485, 483, 
+                481, 479, 477, 475, 473, 471, 469, 467, 465, 463, 461, 459, 457,
+                455, 453, 451, 449, 447, 445, 443, 441, 439, 437, 435, 433, 431,
+                429, 427, 425, 423, 421, 419, 417, 415, 413, 411, 409, 407, 405, 
+                403, 401, 399, 397, 395, 393, 391, 389, 387, 385, 383, 381, 379,
+                377, 375, 373, 371, 369, 367, 365, 363, 361, 359, 357, 355, 353,
+                351, 349, 347, 345, 343, 341, 339, 337, 335, 333, 331, 329, 327,
+                325, 323, 321, 319, 317, 315, 313, 311, 309, 307, 305, 303, 301,
+                299, 297, 295, 293, 291, 289, 287, 285, 283, 281, 279, 277, 275,
+                273, 271, 269, 267, 265, 263, 261, 259, 257, 255, 253, 251, 249,
+                247, 245, 243, 241, 239, 237, 235, 233, 231, 229, 227, 225, 223,
+                221, 219, 217, 215, 213, 211, 209, 207, 205, 203, 201, 199, 197,
+                195, 193, 191, 189, 187, 185, 183, 181, 179, 177, 175, 173, 171,
+                169, 167, 165, 163, 161, 159, 157, 155, 153, 151, 149, 147, 145,
+                143, 141, 139, 137, 135, 133, 131, 129, 127, 125, 123, 121, 119,
+                117, 115, 113, 111, 109, 107, 105, 103, 101, 99, 97, 95, 93, 91,
+                89, 87, 85, 83, 81, 79, 77, 75, 73, 71, 69, 67, 65, 63, 61, 59, 
+                57, 55, 53, 51, 49, 47, 45, 43, 41, 39, 37, 35, 33, 31, 29, 27, 
+                25, 23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1 };
         public int nBins = 200;
         
         public int blockSize = 1000;
-        public long numSteps = 10000;
+        public long numSteps = 100000;
     }
 
 }
