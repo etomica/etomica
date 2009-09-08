@@ -91,6 +91,15 @@ public class MuGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
+        this.sim = simulation;
+
+        sim.p1BoundaryA.setLongWall(0, false, false);
+        sim.p1BoundaryA.setLongWall(0, true, false);
+        sim.p1BoundaryA.setBox(sim.box);
+        sim.p1BoundaryA.setDrawingThickness(3);
+    	getDisplayBox(sim.box).addDrawable(sim.p1BoundaryA);
+    	getDisplayBox(sim.box).repaint();
+
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
         final IAction resetDataAction = new IAction() {
@@ -98,8 +107,6 @@ public class MuGraphic extends SimulationGraphic {
                 getController().getResetAveragesButton().press();
             }
         };
-
-    	this.sim = simulation;
 
     	getController().getSimRestart().setConfiguration(sim.configuration);
 
@@ -204,14 +211,6 @@ public class MuGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
 
 		// Number density box
-	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
-	    final DisplayTextBox densityBox = new DisplayTextBox();
-        final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 100);
-        sim.integrator.getEventManager().addListener(densityPump);
-        dataStreamPumps.add(densityPump);
-        densityBox.setUnit(Null.UNIT);
-	    densityBox.setLabel("Total Density");
 
         MeterProfileByVolume densityProfileMeterA = new MeterProfileByVolume(space);
         densityProfileMeterA.setBox(sim.box);
@@ -246,19 +245,38 @@ public class MuGraphic extends SimulationGraphic {
         profilePlot.setLegend(new DataTag[]{densityProfileMeterB.getTag()}, "B");
         profilePlot.setLabel("Density");
 
-        MeterDensitySides meterDensityA = new MeterDensitySides(sim.box, sim.speciesA);
-        DataSplitter splitterDensityA = new DataSplitter();
-        DataPumpListener pumpDensityA = new DataPumpListener(meterDensityA, splitterDensityA);
-        sim.integrator.getEventManager().addListener(pumpDensityA);
-        dataStreamPumps.add(pumpDensityA);
-        AccumulatorAverageCollapsing accumulatorDensityIGA = new AccumulatorAverageCollapsing();
-        AccumulatorAverageCollapsing accumulatorDensitySQWA = new AccumulatorAverageCollapsing();
-        DataFork densityIGAFork = new DataFork();
+        MeterDensitySides meterDensitySQWA = new MeterDensitySides(sim.box, sim.speciesA, false);
         DataFork densitySQWAFork = new DataFork();
-        splitterDensityA.setDataSink(0, densityIGAFork);
-        densityIGAFork.addDataSink(accumulatorDensityIGA);
-        splitterDensityA.setDataSink(1, densitySQWAFork);
+        DataPumpListener pumpDensitySQWA = new DataPumpListener(meterDensitySQWA, densitySQWAFork);
+        sim.integrator.getEventManager().addListener(pumpDensitySQWA);
+        dataStreamPumps.add(pumpDensitySQWA);
+        AccumulatorAverageCollapsing accumulatorDensitySQWA = new AccumulatorAverageCollapsing();
         densitySQWAFork.addDataSink(accumulatorDensitySQWA);
+
+        MeterDensitySides meterDensitySQWB = new MeterDensitySides(sim.box, sim.speciesB, false);
+        DataFork densitySQWBFork = new DataFork();
+        DataPumpListener pumpDensitySQWB = new DataPumpListener(meterDensitySQWB, densitySQWBFork);
+        sim.integrator.getEventManager().addListener(pumpDensitySQWB);
+        dataStreamPumps.add(pumpDensitySQWB);
+        AccumulatorAverageCollapsing accumulatorDensitySQWB = new AccumulatorAverageCollapsing();
+        densitySQWBFork.addDataSink(accumulatorDensitySQWB);
+
+        MeterDensitySides meterDensityIGA = new MeterDensitySides(sim.box, sim.speciesA, true);
+        DataFork densityIGAFork = new DataFork();
+        DataPumpListener pumpDensityIGA = new DataPumpListener(meterDensityIGA, densityIGAFork);
+        sim.integrator.getEventManager().addListener(pumpDensityIGA);
+        dataStreamPumps.add(pumpDensityIGA);
+        AccumulatorAverageCollapsing accumulatorDensityIGA = new AccumulatorAverageCollapsing();
+        densityIGAFork.addDataSink(accumulatorDensityIGA);
+
+        MeterDensitySides meterDensityIGB = new MeterDensitySides(sim.box, sim.speciesB, true);
+        DataFork densityIGBFork = new DataFork();
+        DataPumpListener pumpDensityIGB = new DataPumpListener(meterDensityIGB, densityIGBFork);
+        sim.integrator.getEventManager().addListener(pumpDensityIGB);
+        dataStreamPumps.add(pumpDensityIGB);
+        AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
+        densityIGBFork.addDataSink(accumulatorDensityIGB);
+
         DisplayTextBoxesCAE displayDensityIGA = new DisplayTextBoxesCAE();
         displayDensityIGA.setAccumulator(accumulatorDensityIGA);
         displayDensityIGA.setLabel("IG Phase density (A)");
@@ -268,26 +286,6 @@ public class MuGraphic extends SimulationGraphic {
         displayDensitySQWA.setLabel("Real Phase density (A)");
         displayDensitySQWA.setDoShowCurrent(false);
         
-        final AccumulatorHistory densityIGAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        densityIGAFork.addDataSink(densityIGAHistory);
-        densityIGAHistory.setPushInterval(100);
-        final AccumulatorHistory densitySQWAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        densitySQWAFork.addDataSink(densitySQWAHistory);
-        densitySQWAHistory.setPushInterval(100);
-
-        MeterDensitySides meterDensityB = new MeterDensitySides(sim.box, sim.speciesB);
-        DataSplitter splitterDensityB = new DataSplitter();
-        DataPumpListener pumpDensityB = new DataPumpListener(meterDensityB, splitterDensityB);
-        sim.integrator.getEventManager().addListener(pumpDensityB);
-        dataStreamPumps.add(pumpDensityB);
-        AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
-        AccumulatorAverageCollapsing accumulatorDensitySQWB = new AccumulatorAverageCollapsing();
-        DataFork densityIGBFork = new DataFork();
-        DataFork densitySQWBFork = new DataFork();
-        splitterDensityB.setDataSink(0, densityIGBFork);
-        densityIGBFork.addDataSink(accumulatorDensityIGB);
-        splitterDensityB.setDataSink(1, densitySQWBFork);
-        densitySQWBFork.addDataSink(accumulatorDensitySQWB);
         DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
         displayDensityIGB.setAccumulator(accumulatorDensityIGB);
         displayDensityIGB.setLabel("IG Phase density (B)");
@@ -297,10 +295,21 @@ public class MuGraphic extends SimulationGraphic {
         displayDensitySQWB.setLabel("Real Phase density (B)");
         displayDensitySQWB.setDoShowCurrent(false);
 
+        final AccumulatorHistory densityIGAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densityIGAHistory.setTimeDataSource(meterCycles);
+        densityIGAFork.addDataSink(densityIGAHistory);
+        densityIGAHistory.setPushInterval(100);
+        final AccumulatorHistory densitySQWAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densitySQWAHistory.setTimeDataSource(meterCycles);
+        densitySQWAFork.addDataSink(densitySQWAHistory);
+        densitySQWAHistory.setPushInterval(100);
+
         final AccumulatorHistory densityIGBHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densityIGBHistory.setTimeDataSource(meterCycles);
         densityIGBFork.addDataSink(densityIGBHistory);
         densityIGBHistory.setPushInterval(100);
         final AccumulatorHistory densitySQWBHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        densitySQWBHistory.setTimeDataSource(meterCycles);
         densitySQWBFork.addDataSink(densitySQWBHistory);
         densitySQWBHistory.setPushInterval(100);
 
@@ -327,7 +336,7 @@ public class MuGraphic extends SimulationGraphic {
         dataStreamPumps.add(muPumpA);
         DisplayTextBoxesCAE muDisplayA = new DisplayTextBoxesCAE();
         muDisplayA.setAccumulator(muAvgA);
-        muDisplayA.setLabel("exp(-U/kT) (A)");
+        muDisplayA.setLabel("exp(-E/kT) (A)");
         muDisplayA.setDoShowCurrent(false);
         muAvgA.setPushInterval(100);
         DataProcessor uProcessorA = new DataProcessorFunction(new IFunction() {
@@ -347,6 +356,7 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTableA.setShowingRowLabels(false);
         
         AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
+        muHistoryA.setTimeDataSource(meterCycles);
         muForkA.addDataSink(muHistoryA);
         DataProcessorMu muSQWA = new DataProcessorMu(muHistoryA, sim.integrator);
         densitySQWAHistory.setDataSink(muSQWA);
@@ -376,7 +386,7 @@ public class MuGraphic extends SimulationGraphic {
         dataStreamPumps.add(muPumpB);
         DisplayTextBoxesCAE muDisplayB = new DisplayTextBoxesCAE();
         muDisplayB.setAccumulator(muAvgB);
-        muDisplayB.setLabel("exp(-U/kT) (B)");
+        muDisplayB.setLabel("exp(-E/kT) (B)");
         muDisplayB.setDoShowCurrent(false);
         muAvgB.setPushInterval(100);
         DataProcessor uProcessorB = new DataProcessorFunction(new IFunction() {
@@ -396,6 +406,7 @@ public class MuGraphic extends SimulationGraphic {
         muHistogramTableB.setShowingRowLabels(false);
 
         AccumulatorHistory muHistoryB = new AccumulatorHistory(new HistoryCollapsingAverage());
+        muHistoryB.setTimeDataSource(meterCycles);
         muForkB.addDataSink(muHistoryB);
         DataProcessorMu muSQWB = new DataProcessorMu(muHistoryB, sim.integrator);
         densitySQWBHistory.setDataSink(muSQWB);
@@ -525,11 +536,6 @@ public class MuGraphic extends SimulationGraphic {
         	public void actionPerformed() {
         	    sim.integrator.reset();
 
-        	    // Reset density (Density is set and won't change, but
-        		// do this anyway)
-        		densityPump.actionPerformed();
-        		densityBox.repaint();
-
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
@@ -553,9 +559,10 @@ public class MuGraphic extends SimulationGraphic {
     	GridBagConstraints gbc = new GridBagConstraints();
     	gbc.insets = new Insets(0, 20, 0, 20);
         gbc.gridy = 0;
+        gbc.gridwidth = 2;
     	metricSubPanel.add(displayCycles.graphic(), gbc);
-        metricSubPanel.add(densityBox.graphic(), gbc);
         gbc.gridy = 1;
+        gbc.gridwidth = 1;
         metricSubPanel.add(muDisplayA.graphic(), gbc);
         metricSubPanel.add(displayDensityIGA.graphic(), gbc);
         gbc.gridy = 2;
