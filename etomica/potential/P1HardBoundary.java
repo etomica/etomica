@@ -26,6 +26,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private final IVectorMutable work;
     private int[] pixPosition;
     private int[] thickness;
+    private int nominalThickness = 1;
     private boolean ignoreOverlap;
     private double lastVirial;
     private int lastCollisionDim;
@@ -196,6 +197,10 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         longWallDim[dim][first?0:1] = longWall;
     }
     
+    public void setDrawingThickness(int newThickness) {
+        nominalThickness = newThickness;
+    }
+
     public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         if (boundary == null) return;
         g.setColor(java.awt.Color.gray);
@@ -203,8 +208,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         for (int i=0; i<2; i++) {
             for (int j=0; j<2; j++) {
                 if (!isActiveDim[i][j]) continue;
-                pixPosition[i] = origin[i];
-                thickness[i] = 1;
+                thickness[i] = nominalThickness;
+                pixPosition[i] = origin[i] - thickness[i]/2;
                 if (longWallDim == null || !longWallDim[i][j]) {
                     pixPosition[1-i] = origin[1-i];
                     thickness[1-i] = (int)(boundary.getBoxSize().getX(1-i)*toPixel);
@@ -214,7 +219,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                     thickness[1-i] = Integer.MAX_VALUE;
                 }
                 if (j==1) {
-                    pixPosition[i] += (int)(boundary.getBoxSize().getX(i)*toPixel);
+                    pixPosition[i] += (int)(boundary.getBoxSize().getX(i)*toPixel)-1;
                 }
                 g.fillRect(pixPosition[0],pixPosition[1],thickness[0],thickness[1]);
             }
