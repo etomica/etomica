@@ -47,6 +47,8 @@ public class MeterStructureFactor extends DataSourceScalar {
         
         waveVec = space.makeVector();
         waveVec.E(lattice.getPrimitive().makeReciprocal().vectors()[0]);
+        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[1]);
+        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[2]);
         
         struct = 0;
         moleculeList = box.getMoleculeList();
@@ -54,7 +56,9 @@ public class MeterStructureFactor extends DataSourceScalar {
 	
 	public void reset() {
 		waveVec = space.makeVector();
-        waveVec.E(lattice.getPrimitive().makeReciprocal().vectors()[0]);
+		waveVec.E(lattice.getPrimitive().makeReciprocal().vectors()[0]);
+        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[1]);
+        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[2]);
 		struct = 0;
 		moleculeList = box.getMoleculeList();
 	}
@@ -62,23 +66,19 @@ public class MeterStructureFactor extends DataSourceScalar {
 	public void actionPerformed() {
 		
 		int numAtoms = moleculeList.getMoleculeCount();
-		System.out.println(numAtoms);
-		IMolecule atom;
+		//System.out.println(numAtoms);
 		IVectorMutable workvector = space.makeVector();
 		double term1 = 0;
 		double term2 = 0;
 		double dotprod = 0;
-		
+		//System.out.println(waveVec);
 		for(int i=0; i<numAtoms; i++){
-			atom = moleculeList.getMolecule(i);
-			workvector.equals(((IAtomPositioned)atom.getChildList().getAtom(0)).getPosition());
+			workvector.E(((IAtomPositioned)moleculeList.getMolecule(i).getChildList().getAtom(0)).getPosition());
 			dotprod = waveVec.dot(workvector);
-			term1 += Math.cos(dotprod); 
-			term2 += Math.sin(dotprod);
+			term1 += Math.abs(Math.cos(dotprod)); 
+			term2 += Math.abs(Math.sin(dotprod));
 		}
-		term1 = term1*term1;
-		term2 = term2*term2;
-		struct = (term1 + term2)/(numAtoms*numAtoms);
+		struct = (term1*term1 + term2*term2)/(numAtoms*numAtoms);
 	}
 	
 	/**
@@ -86,6 +86,7 @@ public class MeterStructureFactor extends DataSourceScalar {
 	 */
 	public void setWaveVec(IVectorMutable waveVec){
 		this.waveVec = waveVec;
+		
 	}
 	
 	/**
@@ -102,6 +103,9 @@ public class MeterStructureFactor extends DataSourceScalar {
 
 	//this is really the sqare of the magnitude of the structure factor
 	public double getDataAsScalar() {
+		if(struct==Double.NaN){
+			struct=0.0;
+		}
 		return struct;
 	}
 	
