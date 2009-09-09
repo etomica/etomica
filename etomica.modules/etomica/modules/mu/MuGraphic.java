@@ -389,7 +389,7 @@ public class MuGraphic extends SimulationGraphic {
         uProcessorB.setDataSink(muHistogramB);
         DisplayTable muHistogramTableB = new DisplayTable();
         muHistogramB.setDataSink(muHistogramTableB.getDataTable().makeDataSink());
-        muHistogramTableB.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramB.getDataInfo()).getXDataSource().getIndependentTag()}, "U");
+        muHistogramTableB.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramB.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableB.setColumnHeader(new DataTag[]{muHistogramB.getTag()}, "probability");
         muHistogramTableB.setLabel("Insertion Energy (B)");
         muHistogramTableB.setShowingRowLabels(false);
