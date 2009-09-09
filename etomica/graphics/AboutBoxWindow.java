@@ -86,7 +86,7 @@ public class AboutBoxWindow extends JDialog {
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		// Create etomica graphic
-//		eg = new EtomicaGraphic();
+		eg = new EtomicaGraphic();
 
 		Font creditFont = new Font("", Font.PLAIN, CREDIT_FONT_SIZE);
 
@@ -96,7 +96,7 @@ public class AboutBoxWindow extends JDialog {
 		JLabel[] creditLabels = null;
 
 		gbc.gridx = 0; gbc.gridy = 0;
-//		getContentPane().add(eg, gbc);
+		getContentPane().add(eg, gbc);
 		gbc.gridy++;
 
 	    gbc.insets = new Insets(10, 0, 10, 0);
