@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
@@ -43,7 +42,7 @@ import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.meter.MeterDensity;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterWidomInsertion;
@@ -59,7 +58,6 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -277,24 +275,6 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing accumulatorDensityIGB = new AccumulatorAverageCollapsing();
         densityIGBFork.addDataSink(accumulatorDensityIGB);
 
-        DisplayTextBoxesCAE displayDensityIGA = new DisplayTextBoxesCAE();
-        displayDensityIGA.setAccumulator(accumulatorDensityIGA);
-        displayDensityIGA.setLabel("IG Phase density (A)");
-        displayDensityIGA.setDoShowCurrent(false);
-        DisplayTextBoxesCAE displayDensitySQWA = new DisplayTextBoxesCAE();
-        displayDensitySQWA.setAccumulator(accumulatorDensitySQWA);
-        displayDensitySQWA.setLabel("Real Phase density (A)");
-        displayDensitySQWA.setDoShowCurrent(false);
-        
-        DisplayTextBoxesCAE displayDensityIGB = new DisplayTextBoxesCAE();
-        displayDensityIGB.setAccumulator(accumulatorDensityIGB);
-        displayDensityIGB.setLabel("IG Phase density (B)");
-        displayDensityIGB.setDoShowCurrent(false);
-        DisplayTextBoxesCAE displayDensitySQWB = new DisplayTextBoxesCAE();
-        displayDensitySQWB.setAccumulator(accumulatorDensitySQWB);
-        displayDensitySQWB.setLabel("Real Phase density (B)");
-        displayDensitySQWB.setDoShowCurrent(false);
-
         final AccumulatorHistory densityIGAHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         densityIGAHistory.setTimeDataSource(meterCycles);
         densityIGAFork.addDataSink(densityIGAHistory);
@@ -334,10 +314,6 @@ public class MuGraphic extends SimulationGraphic {
         muForkA.addDataSink(muAvgA);
         sim.integrator.getEventManager().addListener(muPumpA);
         dataStreamPumps.add(muPumpA);
-        DisplayTextBoxesCAE muDisplayA = new DisplayTextBoxesCAE();
-        muDisplayA.setAccumulator(muAvgA);
-        muDisplayA.setLabel("exp(-E/kT) (A)");
-        muDisplayA.setDoShowCurrent(false);
         muAvgA.setPushInterval(100);
         DataProcessor uProcessorA = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
@@ -384,10 +360,6 @@ public class MuGraphic extends SimulationGraphic {
         muForkB.addDataSink(muAvgB);
         sim.integrator.getEventManager().addListener(muPumpB);
         dataStreamPumps.add(muPumpB);
-        DisplayTextBoxesCAE muDisplayB = new DisplayTextBoxesCAE();
-        muDisplayB.setAccumulator(muAvgB);
-        muDisplayB.setLabel("exp(-E/kT) (B)");
-        muDisplayB.setDoShowCurrent(false);
         muAvgB.setPushInterval(100);
         DataProcessor uProcessorB = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
@@ -436,14 +408,28 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing accumulatorPressureSQW = new AccumulatorAverageCollapsing();
         pressureSplitter.setDataSink(0, accumulatorPressureIG);
         pressureSplitter.setDataSink(1, accumulatorPressureSQW);
-        DisplayTextBoxesCAE pressureIGDisplay = new DisplayTextBoxesCAE();
-        pressureIGDisplay.setAccumulator(accumulatorPressureIG);
-        pressureIGDisplay.setLabel("IG Phase Pressure");
-        pressureIGDisplay.setDoShowCurrent(false);
-        DisplayTextBoxesCAE pressureSQWDisplay = new DisplayTextBoxesCAE();
-        pressureSQWDisplay.setAccumulator(accumulatorPressureSQW);
-        pressureSQWDisplay.setLabel("Real Phase Pressure");
-        pressureSQWDisplay.setDoShowCurrent(false);
+        
+        DisplayTable metricsTable = new DisplayTable();
+        metricsTable.setTransposed(true);
+        muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        muAvgB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorDensityIGA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorDensityIGB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorDensitySQWA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorDensitySQWB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorPressureIG.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        accumulatorPressureSQW.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        metricsTable.setColumnHeader(new DataTag[]{muAvgA.getTag()}, "exp(-E/kT) (A)");
+        metricsTable.setColumnHeader(new DataTag[]{muAvgB.getTag()}, "exp(-E/kT) (B)");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorDensityIGA.getTag()}, "IG Phase Density (A)");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorDensityIGB.getTag()}, "IG Phase Density (B)");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorDensitySQWA.getTag()}, "Real Phase Density (A)");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorDensitySQWB.getTag()}, "Real Phase Density (B)");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorPressureIG.getTag()}, "IG Phase Pressure");
+        metricsTable.setColumnHeader(new DataTag[]{accumulatorPressureSQW.getTag()}, "Real Phase Pressure");
+        metricsTable.setRowLabels(new String[]{"Average", "Error"});
+        metricsTable.setShowingRowLabels(true);
+        metricsTable.setLabel("Metrics");
         
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.speciesA);
@@ -548,38 +534,15 @@ public class MuGraphic extends SimulationGraphic {
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         
+        getPanel().controlPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
-        // cause metrics tab to be added
-    	add(displayCycles);
-    	getPanel().metricPanel.remove(displayCycles.graphic());
-    	// now populate metrics tab manually so everything fits
-    	JPanel metricSubPanel = new JPanel(new GridBagLayout());
-    	GridBagConstraints gbc = new GridBagConstraints();
-    	gbc.insets = new Insets(0, 20, 0, 20);
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-    	metricSubPanel.add(displayCycles.graphic(), gbc);
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        metricSubPanel.add(muDisplayA.graphic(), gbc);
-        metricSubPanel.add(displayDensityIGA.graphic(), gbc);
-        gbc.gridy = 2;
-        metricSubPanel.add(muDisplayB.graphic(), gbc);
-        metricSubPanel.add(displayDensitySQWA.graphic(), gbc);
-        gbc.gridy = 3;
-        metricSubPanel.add(pressureIGDisplay.graphic(), gbc);
-        metricSubPanel.add(displayDensityIGB.graphic(), gbc);
-        gbc.gridy = 4;
-        metricSubPanel.add(pressureSQWDisplay.graphic(), gbc);
-        metricSubPanel.add(displayDensitySQWB.graphic(), gbc);
-        getPanel().metricPanel.add(metricSubPanel);
-        
         add(profilePlot);
         add(muPlot);
         add(muHistogramTableA);
         add(muHistogramTableB);
+        add(metricsTable);
     }
 
     public static class DataProcessorMu extends DataProcessor {
