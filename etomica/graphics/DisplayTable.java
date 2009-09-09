@@ -46,8 +46,8 @@ public class DisplayTable extends Display implements DataTableListener {
         }
 
         dataTable.addDataListener(this);
-        unitList = new LinkedList();
-        columnHeaderList = new LinkedList();
+        unitList = new LinkedList<DataTagBag>();
+        columnHeaderList = new LinkedList<DataTagBag>();
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
@@ -95,6 +95,7 @@ public class DisplayTable extends Display implements DataTableListener {
     }
 
     public void tableRowHeadersChanged(DataSinkTable dummyTable) {
+        if (!autoRowLabels) return;
         for (int i=0; i<rowLabels.length; i++) {
             rowLabels[i] = dataTable.getRowHeader(i);
         }
@@ -104,12 +105,11 @@ public class DisplayTable extends Display implements DataTableListener {
      * Part of the DataTableListener interface.  Updates the row headers.
      */
     public void tableRowCountChanged(DataSinkTable dummyTable) {
-        rowLabels = new String[dataTable.getRowCount()];
-        for (int i=0; i<rowLabels.length; i++) {
-            rowLabels[i] = dataTable.getRowHeader(i);
+        if (autoRowLabels) {
+            rowLabels = new String[dataTable.getRowCount()];
+            tableRowHeadersChanged(dummyTable);
         }
         tableSource.fireTableStructureChanged();
-        
     }
 
     /**
@@ -209,10 +209,17 @@ public class DisplayTable extends Display implements DataTableListener {
      * transpose). Display of labels is determined by value of showingRowLabels
      * (if not transposing) or showingColumnHeaders (if transposing).
      * 
-     * @param rowLabels
+     * Setting the row labels will persist.  To cause the row labels to be
+     * taken from the IDataInfo again after calling setRowLabels, setRowLabels
+     * must be called again with null argument.
      */
-    public void setRowLabels(String[] rowLabels) {
-        this.rowLabels = rowLabels;
+    public void setRowLabels(String[] newRowLabels) {
+        rowLabels = newRowLabels;
+        autoRowLabels = rowLabels == null;
+        if (autoRowLabels) {
+            rowLabels = new String[dataTable.getRowCount()];
+            tableRowHeadersChanged(null);
+        }
     }
 
     public void setUnit(DataTag[] dataTags, Unit newUnit) {
@@ -374,11 +381,12 @@ public class DisplayTable extends Display implements DataTableListener {
     protected boolean transposed;
     protected int c0 = 0;
     protected String[] rowLabels = new String[0];
-    protected  String rowLabelColumnHeader = "";
+    protected boolean autoRowLabels = true;
+    protected String rowLabelColumnHeader = "";
     protected String[] columnHeaders = new String[0];
     protected Unit[] units = new Unit[0];
-    private LinkedList unitList;
-    private LinkedList columnHeaderList;
+    private LinkedList<DataTagBag> unitList;
+    private LinkedList<DataTagBag> columnHeaderList;
     private Unit defaultUnit;
     
 
@@ -406,14 +414,12 @@ public class DisplayTable extends Display implements DataTableListener {
             if (r < columnData.getLength()) {
                 value = units[c].fromSim(dataTable.getValue(r, c));
             }
-            if(Double.isInfinite(value)){
-            	if(value < 0){
-            		return "-infinity";
-            	} else {
-            		return "infinity";
-            	}
+            if (value == Double.NEGATIVE_INFINITY) {
+                return "-infinity";
+            }
+            if (value == Double.POSITIVE_INFINITY) {
+            	return "infinity";
             } 
-            
             if (Double.isNaN(value)){
             	return "NaN";
             }
