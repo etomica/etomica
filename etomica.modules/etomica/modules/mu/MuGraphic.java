@@ -1,6 +1,7 @@
 package etomica.modules.mu;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -97,6 +98,14 @@ public class MuGraphic extends SimulationGraphic {
         sim.p1BoundaryA.setDrawingThickness(3);
     	getDisplayBox(sim.box).addDrawable(sim.p1BoundaryA);
     	getDisplayBox(sim.box).repaint();
+    	getDisplayBox(sim.box).addDrawable(new Drawable() {
+            public void draw(Graphics g, int[] origin, double toPixels) {
+                int width = (int)(sim.box.getBoundary().getBoxSize().getX(0)*toPixels);
+                g.setFont(new Font(null, Font.BOLD, 12));
+                g.drawString("Ideal Gas Phase", origin[0]+width/4-50, origin[1]-5);
+                g.drawString("Real Phase", origin[0]+3*width/4-35, origin[1]-5);
+            }
+        });
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
