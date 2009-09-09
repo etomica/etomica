@@ -164,31 +164,39 @@ public class MuGraphic extends SimulationGraphic {
         DeviceBox epsABox = new DeviceBox();
         DeviceBox lamABox = new DeviceBox();
 
-        JPanel potentialPanelA = new JPanel(new GridBagLayout());
-        JPanel potentialSubPanelA = new JPanel(new GridLayout(0,1));
-        potentialSubPanelA.add(sigABox.graphic());
-        potentialSubPanelA.add(epsABox.graphic());
-        potentialSubPanelA.add(lamABox.graphic());
-        potentialPanelA.add(potentialSubPanelA,vertGBC);
 
         DeviceBox sigBBox = new DeviceBox();
         DeviceBox epsBBox = new DeviceBox();
         DeviceBox lamBBox = new DeviceBox();
 
-        JPanel potentialPanelB = new JPanel(new GridBagLayout());
-        JPanel potentialSubPanelB = new JPanel(new GridLayout(0,1));
-        potentialSubPanelB.add(sigBBox.graphic());
-        potentialSubPanelB.add(epsBBox.graphic());
-        potentialSubPanelB.add(lamBBox.graphic());
-        potentialPanelB.add(potentialSubPanelB,vertGBC);
+        JPanel potentialPanel = new JPanel(new GridBagLayout());
+
+        JPanel potentialPanelA = new JPanel(new GridLayout(0,1));
+        potentialPanelA.add(sigABox.graphic());
+        potentialPanelA.add(lamABox.graphic());
+        potentialPanelA.add(epsABox.graphic());
+        TitledBorder border = new TitledBorder("A");
+        border.setTitleJustification(TitledBorder.LEFT);
+        potentialPanelA.setBorder(border);
+        gbc2.gridx = 0; gbc2.gridy = 0;
+        potentialPanel.add(potentialPanelA, gbc2);
+
+        JPanel potentialPanelB = new JPanel(new GridLayout(0,1));
+        potentialPanelB.add(sigBBox.graphic());
+        potentialPanelB.add(lamBBox.graphic());
+        potentialPanelB.add(epsBBox.graphic());
+        border = new TitledBorder("B");
+        border.setTitleJustification(TitledBorder.LEFT);
+        potentialPanelB.setBorder(border);
+        gbc2.gridx = 1;
+        potentialPanel.add(potentialPanelB, gbc2);
 
         //
         // Tabbed pane for state, potential, controls pages
         //
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
-        setupPanel.add(potentialPanelA, "Potential (A)");
-        setupPanel.add(potentialPanelB, "Potential (B)");
+        setupPanel.add(potentialPanel, "Potential");
 
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter(this, sim.speciesA, sim.potentialAA, sim.potentialAB, sim.potentialBB);
         ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialAA, sim.potentialAB, sim.potentialBB, sim.integrator);
@@ -335,7 +343,7 @@ public class MuGraphic extends SimulationGraphic {
         uProcessorA.setDataSink(muHistogramA);
         DisplayTable muHistogramTableA = new DisplayTable();
         muHistogramA.setDataSink(muHistogramTableA.getDataTable().makeDataSink());
-        muHistogramTableA.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramA.getDataInfo()).getXDataSource().getIndependentTag()}, "U");
+        muHistogramTableA.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramA.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableA.setColumnHeader(new DataTag[]{muHistogramA.getTag()}, "probability");
         muHistogramTableA.setLabel("Insertion Energy (A)");
         muHistogramTableA.setShowingRowLabels(false);
@@ -415,8 +423,8 @@ public class MuGraphic extends SimulationGraphic {
         dataStreamPumps.add(pressurePump);
         AccumulatorAverageCollapsing accumulatorPressureIG = new AccumulatorAverageCollapsing();
         AccumulatorAverageCollapsing accumulatorPressureSQW = new AccumulatorAverageCollapsing();
-        pressureSplitter.setDataSink(0, accumulatorPressureIG);
-        pressureSplitter.setDataSink(1, accumulatorPressureSQW);
+        pressureSplitter.setDataSink(0, accumulatorPressureSQW);
+        pressureSplitter.setDataSink(1, accumulatorPressureIG);
         
         DisplayTable metricsTable = new DisplayTable();
         metricsTable.setTransposed(true);
