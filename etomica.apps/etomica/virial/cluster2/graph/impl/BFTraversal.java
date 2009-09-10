@@ -14,7 +14,9 @@ public class BFTraversal extends AbstractGraphTraversal {
     visit(nodeID);
     // queue the visited node for exploration of its neighbors
     toExploreQ.add(nodeID);
-    // done when: (1) all nodes seen OR (2) no new nodes to explore
+    // done when:
+    // (1) all nodes seen OR
+    // (2) no new nodes to explore in this connected component
     while (!seenAll() && !toExploreQ.isEmpty()) {
       // remove the first node to explore from the queue
       int explore = toExploreQ.remove();
@@ -27,5 +29,7 @@ public class BFTraversal extends AbstractGraphTraversal {
         }
       }
     }
+    // this component has been visited
+    visit(VISITED_COMPONENT);
   }
 }

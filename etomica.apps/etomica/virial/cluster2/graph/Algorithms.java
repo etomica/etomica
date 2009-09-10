@@ -1,5 +1,6 @@
 package etomica.virial.cluster2.graph;
 
+import etomica.virial.cluster2.graph.impl.BCTraversal;
 import etomica.virial.cluster2.graph.impl.BFTraversal;
 import etomica.virial.cluster2.graph.impl.DFTraversal;
 
@@ -22,6 +23,7 @@ public class Algorithms {
   public static GraphPairProperty algoIsomorphic = new CheckIsomorphic();
   public static GraphTraversal algoBFT = new BFTraversal();
   public static GraphTraversal algoDFT = new DFTraversal();
+  public static GraphTraversal algoBCT = new BCTraversal();
 
   public static boolean hasArticulationPair(final Nodes nodes, final Edges edges) {
 
@@ -77,6 +79,18 @@ public class Algorithms {
       final NodesVisitor visitor) {
 
     algoDFT.traverseAll(nodes, edges, visitor);
+  }
+
+  public static boolean traverseBC(int nodeID, final Nodes nodes,
+      final Edges edges, final NodesVisitor visitor) {
+
+    return algoBCT.traverseComponent(nodeID, nodes, edges, visitor);
+  }
+
+  public static void traverseBC(final Nodes nodes, final Edges edges,
+      final NodesVisitor visitor) {
+
+    algoBCT.traverseAll(nodes, edges, visitor);
   }
 }
 
@@ -150,16 +164,29 @@ class CheckBiconnected implements GraphProperty {
 //
   public boolean check(Nodes nodes, Edges edges) {
 
-    // TODO Auto-generated method stub
-    return false;
+    if ((nodes == null) || (edges == null)) {
+      return false;
+    }
+    // by definition, a null graph, a singleton graph, and a two node 
+    // graph are not biconnected
+    if (nodes.count() < 2) {
+      return false;
+    }
+    // invariant: a biconnected graph has at least N edges
+    if (edges.count() < (nodes.count() - 1)) {
+      return false;
+    }
+    // invoke a BC traversal starting at the first node (nodeID = 0) and
+    // return true IFF all nodes in the graph are traversed
+    return Algorithms.traverseBC(0, nodes, edges, null);
   }
 }
 
 /**
- * Connectivity algorithm. A graph which is connected if there exists a path
- * from any point to any other point in the graph. A graph that is not connected
- * is said to be disconnected. This definition means that the null graph and
- * singleton graph are considered connected.
+ * Connectivity algorithm. A graph is connected if there exists a path from any
+ * point to any other point in the graph. A graph that is not connected is said
+ * to be disconnected. This definition means that the null graph and singleton
+ * graph are both connected.
  * 
  * @author Demian Lessa
  */
@@ -178,7 +205,7 @@ class CheckConnected implements GraphProperty {
     if (edges.count() < (nodes.count() - 1)) {
       return false;
     }
-    // invoke a BF traversal starting at the first node (nodeID = 0) and
+    // invoke a DF traversal starting at the first node (nodeID = 0) and
     // return true IFF all nodes in the graph are traversed
     return Algorithms.traverseDF(0, nodes, edges, null);
   }

@@ -14,7 +14,8 @@ public interface GraphTraversal {
   public static int TRAVERSAL_ROOT_ERROR = -32;
 
   public static int VISITED_COMPONENT = -1;
-  public static int VISITED_ALL_COMPONENTS = -2;
+  public static int VISITED_BC_COMPONENT = -2;
+  public static int VISITED_ALL_COMPONENTS = -4;
 
   /**
    * Traverses all components of the graph, starting at an arbitrary node for

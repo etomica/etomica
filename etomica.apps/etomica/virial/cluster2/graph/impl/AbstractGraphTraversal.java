@@ -64,11 +64,16 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
     return ((getSeen() & BitmapUtils.bitOnMask(neighborID)) == 0);
   }
 
-  protected void visit(int nodeID) {
-
+  protected void localVisit(int nodeID) {
+    
     if (getLocalVisitor() != null) {
       getLocalVisitor().visit(nodeID);
     }
+  }
+  
+  protected void visit(int nodeID) {
+
+    localVisit(nodeID);
     if (nodeID >= 0) {
       seen(nodeID);
     }
@@ -115,7 +120,6 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
 
     if (setup(nodeID, nodes, edges, visitor)) {
       traverseComponent(nodeID, nodes, edges);
-      visit(VISITED_COMPONENT);
       return seenAll();
     }
     return false;
@@ -123,7 +127,8 @@ public abstract class AbstractGraphTraversal implements GraphTraversal {
 
   /**
    * The only reason to override this method is to change the node choice before
-   * traversing each component.
+   * traversing each component, or to traverse more complex components such as 
+   * biconnected, triconnected, etc.
    */
   public void traverseAll(Nodes nodes, Edges edges, NodesVisitor visitor) {
 

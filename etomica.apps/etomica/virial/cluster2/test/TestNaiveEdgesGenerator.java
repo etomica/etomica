@@ -106,6 +106,16 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
           filter = chained;
         }
       }
+      // cheap filter for connected graph
+      if (enumBiconnected) {
+        EdgesFilter chained = ffactory.biconnectedFilter(nodes);
+        if (filter != null) {
+          filter.chain(chained);
+        }
+        else {
+          filter = chained;
+        }
+      }
       runGC();
       time1 = System.nanoTime();
       // create family
@@ -118,11 +128,12 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
         System.out.println();
       }
       family.visitEdgesSet(printVisitor);
+      System.out.println();
       System.out.println(family.getTags());
       printEnumerated(numNodes);
       printRuntime();
       printMemory();
-      if (!enumConnected && minEdges < 0 && maxEdges < 0 && !isomorphFree
+      if (!enumConnected && !enumBiconnected && minEdges < 0 && maxEdges < 0 && !isomorphFree
           && !dropRootEdges) {
         assertEquals(expected, enumerated, 0.0001);
       }
@@ -193,15 +204,19 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     printTest("Connected");
     // OK: 09-06-13
     enumConnected = true;
-    // baseTest();
+//    dropRootEdges = true;
+//    baseTest();
   }
 
   public void testBiconnected() {
 
     reset();
     printTest("Biconnected");
+    rangeBegin = 3;
+    rangeEnd = 5;
     enumBiconnected = true;
-    // baseTest();
+//    dropRootEdges = true;
+    baseTest();
   }
 
   public void testNullFilteredGeneral() {
@@ -250,7 +265,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 // rangeEnd = 4;
     isomorphFree = true;
     for (int i = rangeBegin; i <= rangeEnd; i++) {
- testTemplate(getNodes((byte) i));
+// testTemplate(getNodes((byte) i));
     }
   }
 

@@ -14,10 +14,12 @@ public class DFTraversal extends AbstractGraphTraversal {
     visit(nodeID);
     // queue the visited node for exploration of its neighbors
     toExploreQ.add(nodeID);
-    // done when: (1) all nodes seen OR (2) no new nodes to explore
+    // done when: 
+    //   (1) all nodes seen OR 
+    //   (2) no new nodes to explore in this connected component
     while (!seenAll() && !toExploreQ.isEmpty()) {
-      // retrieve the first node to explore from the queue (DO NOT REMOVE!!!)
-      int explore = toExploreQ.peek();
+      // retrieve the next node to explore from the queue (DO NOT REMOVE!!!)
+      int explore = toExploreQ.peekLast();
       // does the node we are exploring have an unseen neighbor?
       boolean unseenNeighbor = false;
       // visit the first unseen neighbor (if any) and enqueue it for traversal
@@ -34,8 +36,10 @@ public class DFTraversal extends AbstractGraphTraversal {
       // dequeue a node only when all its neighbors are seen;
       // early dequeuing breaks backtracking of the DF traversal;
       if (!unseenNeighbor) {
-        toExploreQ.remove();
+        toExploreQ.removeLast();
       }
     }
+    // this component has been visited
+    visit(VISITED_COMPONENT);
   }
 }

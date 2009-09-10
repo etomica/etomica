@@ -11,6 +11,7 @@ public class FilterFactory {
   public static final String TAG_RANGE_FILTER = "Edges Range";
   public static final String TAG_FALSE_FILTER = "FALSE";
   public static final String TAG_TRUE_FILTER = "TRUE";
+  public static final String TAG_BICONNECTED = "Biconnected";
   public static final String TAG_CONNECTED = "Connected";
   public static final String TAG_ISOMORPH_FREE = "Isomorph-Free";
   public static final String TAG_NO_ROOT_EDGES = "No Root Edges";
@@ -72,6 +73,25 @@ public class FilterFactory {
       protected String tag() {
 
         return TAG_CONNECTED;
+      }
+    };
+  }
+
+
+  public EdgesFilter biconnectedFilter(final Nodes nodes) {
+
+    return new AbstractEdgesFilter() {
+
+      @Override
+      protected boolean doAccept(Edges edges, List<Edges> edgesList) {
+
+        return Algorithms.isBiconnected(nodes, edges);
+      }
+
+      @Override
+      protected String tag() {
+
+        return TAG_BICONNECTED;
       }
     };
   }
