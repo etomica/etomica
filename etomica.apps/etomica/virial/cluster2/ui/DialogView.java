@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import com.jgoodies.looks.LookUtils;
@@ -23,7 +24,7 @@ public abstract class DialogView extends JDialog implements View {
   public static final Dimension DP_DIM3 = new Dimension(880, 660);
   public static final Dimension DP_DIM4 = new Dimension(960, 720);
 
-  protected DialogView(final Frame owner, final String dialogTitle) {
+  public DialogView(final Frame owner, final String dialogTitle) {
 
     super(owner, dialogTitle);
   }
@@ -69,7 +70,7 @@ public abstract class DialogView extends JDialog implements View {
   public void configure() {
 
     if (getIconName() != null) {
-      setIconImage(ApplicationUI.readImageIcon(getIconName()).getImage());
+      ((JFrame) getParent()).setIconImage(ApplicationUI.readImageIcon(getIconName()).getImage());
     }
     setSize(getPreferredDefaultSize());
     setPreferredSize(getPreferredDefaultSize());

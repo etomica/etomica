@@ -13,8 +13,9 @@ public interface GraphTraversal {
   public static int TRAVERSAL_NODES_ERROR = -16;
   public static int TRAVERSAL_ROOT_ERROR = -32;
 
+  public static int VISITED_NONE = 0;
   public static int VISITED_COMPONENT = -1;
-  public static int VISITED_BC_COMPONENT = -2;
+  public static int VISITED_BICOMPONENT = -2;
   public static int VISITED_ALL_COMPONENTS = -4;
 
   /**

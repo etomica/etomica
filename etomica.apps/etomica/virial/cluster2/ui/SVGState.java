@@ -1,6 +1,7 @@
 package etomica.virial.cluster2.ui;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
@@ -11,6 +12,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -61,9 +64,11 @@ public class SVGState {
           menu.setVisible(false);
           return;
         }
+        Point p = new Point(e.getPoint());
+        SwingUtilities.convertPointToScreen(p, canvas);
         if (menu.isVisible()) {
           if (e.getButton() == MouseEvent.BUTTON3) {
-            menu.setLocation(e.getXOnScreen(), e.getYOnScreen());
+            menu.setLocation(p);
             return;
           }
           else {
@@ -71,7 +76,7 @@ public class SVGState {
           }
         }
         if (e.getButton() == MouseEvent.BUTTON3) {
-          menu.setLocation(e.getXOnScreen(), e.getYOnScreen());
+          menu.setLocation(p);
           menu.setVisible(true);
         }
         else if (e.getButton() == MouseEvent.BUTTON1) {
@@ -92,9 +97,8 @@ public class SVGState {
   public MouseMotionListener getMouseMotionListener(final SVGContextMenu menu,
       final JSVGCanvas canvas) {
 
-    return new MouseAdapter() {
+    return new MouseMotionListener() {
 
-      @Override
       public void mouseMoved(MouseEvent e) {
 
         if (CONTROL_HOVER && (e.getButton() == MouseEvent.NOBUTTON)) {
@@ -119,6 +123,11 @@ public class SVGState {
             }
           }
         }
+      }
+
+      public void mouseDragged(MouseEvent e) {
+
+        // no-op
       }
     };
   }

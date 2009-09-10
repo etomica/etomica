@@ -115,62 +115,19 @@ class CheckArticulatonPair implements GraphProperty {
  */
 class CheckBiconnected implements GraphProperty {
 
-// static boolean
-// isbiconnected(graph *g, int n)
-// /* test if g is biconnected */
-// {
-// int sp,v,w;
-// setword sw;
-// setword visited;
-// int numvis,num[MAXN],lp[MAXN],stack[MAXN];
-// 
-// if (n <= 2) return FALSE;
-// 
-// visited = bit[0];
-// stack[0] = 0;
-// num[0] = 0;
-// lp[0] = 0;
-// numvis = 1;
-// sp = 0;
-// v = 0;
-// 
-// for (;;)
-// {
-// if ((sw = g[v] & ~visited)) /* not "==" */
-// {
-// w = v;
-// v = FIRSTBIT(sw); /* visit next child */
-// stack[++sp] = v;
-// visited |= bit[v];
-// lp[v] = num[v] = numvis++;
-// sw = g[v] & visited & ~bit[w];
-// while (sw)
-// {
-// w = FIRSTBIT(sw);
-// sw &= ~bit[w];
-// if (num[w] < lp[v]) lp[v] = num[w];
-// }
-// }
-// else
-// {
-// w = v; /* back up to parent */
-// if (sp <= 1) return numvis == n;
-// v = stack[--sp];
-// if (lp[w] >= num[v]) return FALSE;
-// if (lp[w] < lp[v]) lp[v] = lp[w];
-// }
-// }
-// }
-//
   public boolean check(Nodes nodes, Edges edges) {
 
     if ((nodes == null) || (edges == null)) {
       return false;
     }
-    // by definition, a null graph, a singleton graph, and a two node 
-    // graph are not biconnected
-    if (nodes.count() < 2) {
+    // by definition, a null graph is not biconnected
+    if (nodes.count() == 0) {
       return false;
+    }
+    // by definition, a singleton graph and a two node
+    // graph are biconnected
+    if (nodes.count() == 1) {
+      return true;
     }
     // invariant: a biconnected graph has at least N edges
     if (edges.count() < (nodes.count() - 1)) {
@@ -178,7 +135,22 @@ class CheckBiconnected implements GraphProperty {
     }
     // invoke a BC traversal starting at the first node (nodeID = 0) and
     // return true IFF all nodes in the graph are traversed
-    return Algorithms.traverseBC(0, nodes, edges, null);
+    return Algorithms.traverseBC(0, nodes, edges, new BCVisitor());
+  }
+}
+
+class BCVisitor implements NodesVisitor {
+
+  private int lastNodeID = GraphTraversal.VISITED_NONE;
+
+  public boolean visit(int nodeID) {
+
+    if ((lastNodeID == GraphTraversal.VISITED_BICOMPONENT)
+        && (nodeID == GraphTraversal.VISITED_BICOMPONENT)) {
+      System.out.println("unexpected traversal...");
+    }
+    lastNodeID = nodeID;
+    return false;
   }
 }
 

@@ -155,7 +155,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     enumBiconnected = false;
     nullFiltered = false;
     printMemory = true;
-    printPermutations = true;
+    printPermutations = false;
     isomorphFree = false;
     GraphFactory.USE_UPPER_TRIANGLE = false;
   }
@@ -212,9 +212,10 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
     reset();
     printTest("Biconnected");
-    rangeBegin = 3;
-    rangeEnd = 5;
+    rangeBegin = 1;
+    rangeEnd = 6;
     enumBiconnected = true;
+//    isomorphFree = true;
 //    dropRootEdges = true;
     baseTest();
   }

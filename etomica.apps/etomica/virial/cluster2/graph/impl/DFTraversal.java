@@ -19,7 +19,7 @@ public class DFTraversal extends AbstractGraphTraversal {
     //   (2) no new nodes to explore in this connected component
     while (!seenAll() && !toExploreQ.isEmpty()) {
       // retrieve the next node to explore from the queue (DO NOT REMOVE!!!)
-      int explore = toExploreQ.peekLast();
+      int explore = toExploreQ.getLast();
       // does the node we are exploring have an unseen neighbor?
       boolean unseenNeighbor = false;
       // visit the first unseen neighbor (if any) and enqueue it for traversal
