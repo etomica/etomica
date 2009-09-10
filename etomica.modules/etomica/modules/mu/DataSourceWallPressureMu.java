@@ -50,8 +50,8 @@ public class DataSourceWallPressureMu implements IEtomicaDataSource, CollisionLi
     public IData getData() {
         double currentTime = integratorHard.getCurrentTime();
         double[] x = data.getData();
-        x[0] = virialSumIG / (currentTime - lastTime);
-        x[1] = virialSumSQW / (currentTime - lastTime);
+        x[0] = virialSumSQW / (currentTime - lastTime);
+        x[1] = virialSumIG / (currentTime - lastTime);
         lastTime = currentTime;
         virialSumIG = 0;
         virialSumSQW = 0;
