@@ -3,9 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -26,8 +24,8 @@ public class MeterStructureFactor extends DataSourceScalar {
 	protected BravaisLatticeCrystal lattice;
 	protected final ISpace space;
     protected IBox box;
-    protected double struct;
-    protected IVectorMutable waveVec;
+    protected double[] struct;
+    protected IVectorMutable [] waveVec;
     protected IMoleculeList moleculeList;
 
     
@@ -45,47 +43,52 @@ public class MeterStructureFactor extends DataSourceScalar {
         this.lattice = aLattice;
         this.box = aBox;
         
-        waveVec = space.makeVector();
-        waveVec.E(lattice.getPrimitive().makeReciprocal().vectors()[0]);
-        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[1]);
-        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[2]);
-        
-        struct = 0;
+        waveVec = new IVectorMutable[lattice.getPrimitive().makeReciprocal().vectors().length];
+        for(int i=0; i<waveVec.length; i++){
+        	waveVec[i] = space.makeVector();
+        	waveVec[i].E(lattice.getPrimitive().makeReciprocal().vectors()[i]);
+        }
+      
+        struct = new double[waveVec.length];
         moleculeList = box.getMoleculeList();
 	}
 	
 	public void reset() {
-		waveVec = space.makeVector();
-		waveVec.E(lattice.getPrimitive().makeReciprocal().vectors()[0]);
-        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[1]);
-        waveVec.PE(lattice.getPrimitive().makeReciprocal().vectors()[2]);
-		struct = 0;
+		for(int i=0; i<waveVec.length; i++){
+        	waveVec[i].E(lattice.getPrimitive().makeReciprocal().vectors()[i]);
+        	struct[i] = 0.0;
+		}
+		
 		moleculeList = box.getMoleculeList();
 	}
 	
 	public void actionPerformed() {
-		
-		int numAtoms = moleculeList.getMoleculeCount();
-		//System.out.println(numAtoms);
-		IVectorMutable workvector = space.makeVector();
 		double term1 = 0;
 		double term2 = 0;
 		double dotprod = 0;
-		//System.out.println(waveVec);
-		for(int i=0; i<numAtoms; i++){
-			workvector.E(((IAtomPositioned)moleculeList.getMolecule(i).getChildList().getAtom(0)).getPosition());
-			dotprod = waveVec.dot(workvector);
-			term1 += Math.abs(Math.cos(dotprod)); 
-			term2 += Math.abs(Math.sin(dotprod));
+		int numAtoms = moleculeList.getMoleculeCount();
+		IVectorMutable workvector = space.makeVector();
+		for(int k=0; k<waveVec.length; k++){
+			term1 = 0;
+			term2 = 0;
+			dotprod = 0;
+			for(int i=0; i<numAtoms; i++){
+				workvector.E(((IAtomPositioned)moleculeList.getMolecule(i).getChildList().getAtom(0)).getPosition());
+				dotprod = waveVec[k].dot(workvector);
+				term1 += Math.cos(dotprod); 
+				term2 += Math.sin(dotprod);
+			}
+			struct[k] = ((term1*term1) + (term2*term2))/(numAtoms*numAtoms);
 		}
-		struct = (term1*term1 + term2*term2)/(numAtoms*numAtoms);
 	}
 	
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVectorMutable waveVec){
-		this.waveVec = waveVec;
+	public void setWaveVec(IVectorMutable [] waveVec){
+		for(int i=0; i<waveVec.length; i++){
+			this.waveVec[i].E(waveVec[i]);
+		}
 		
 	}
 	
@@ -101,12 +104,16 @@ public class MeterStructureFactor extends DataSourceScalar {
         return info;
     }
 
-	//this is really the sqare of the magnitude of the structure factor
+	//this is really the square of the magnitude of the structure factor
+    public double[] getDataAsArray() {
+    	return struct;
+    }
+    	
 	public double getDataAsScalar() {
-		if(struct==Double.NaN){
-			struct=0.0;
+		for(int i=0; i<struct.length-1; i++){
+			struct[struct.length-1] += struct[i];
 		}
-		return struct;
+		return struct[struct.length-1];
 	}
 	
 }
