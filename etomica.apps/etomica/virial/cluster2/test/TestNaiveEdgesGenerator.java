@@ -203,6 +203,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     reset();
     printTest("Connected");
     // OK: 09-06-13
+    rangeBegin = 1;
+    rangeEnd = 7;
     enumConnected = true;
 //    dropRootEdges = true;
 //    baseTest();
@@ -212,6 +214,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
 
     reset();
     printTest("Biconnected");
+    // OK: 09-09-10
     rangeBegin = 1;
     rangeEnd = 6;
     enumBiconnected = true;
