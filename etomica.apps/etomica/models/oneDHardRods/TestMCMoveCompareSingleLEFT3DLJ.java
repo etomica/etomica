@@ -45,7 +45,7 @@ public class TestMCMoveCompareSingleLEFT3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveCompareSingleLEFT compareMove;
+    MCMoveCompareWVLoopLEFT compareMove;
 
     public TestMCMoveCompareSingleLEFT3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -104,7 +104,7 @@ public class TestMCMoveCompareSingleLEFT3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        compareMove = new MCMoveCompareSingleLEFT(potentialMaster, random);
+        compareMove = new MCMoveCompareWVLoopLEFT(potentialMaster, random);
         integrator.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         compareMove.setWaveVectorCoefficients(

@@ -45,7 +45,7 @@ public class TestMCMoveCompareMultipleModes3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveCompareMultipleModes compareMove;
+    MCMoveCompareMultipleWVLoop compareMove;
 
     public TestMCMoveCompareMultipleModes3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int[] cwv, int[] hwv){
@@ -104,7 +104,7 @@ public class TestMCMoveCompareMultipleModes3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        compareMove = new MCMoveCompareMultipleModes(potentialMaster, random);
+        compareMove = new MCMoveCompareMultipleWVLoop(potentialMaster, random);
         integrator.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         compareMove.setWaveVectorCoefficients(

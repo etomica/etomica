@@ -47,7 +47,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MCMoveChangeSingleMode move;
+    MCMoveChangeSingleWVLoop move;
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -97,7 +97,7 @@ public class TestMCMoveChangeSingleMode extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveChangeSingleMode(potentialMaster, random);
+        move = new MCMoveChangeSingleWVLoop(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

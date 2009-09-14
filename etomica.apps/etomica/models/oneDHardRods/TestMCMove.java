@@ -48,7 +48,7 @@ public class TestMCMove extends Simulation {
     NormalModes1DHR nm;
     double[] locations;
     
-    MCMoveCompareMultipleModes move; 
+    MCMoveCompareMultipleWVLoop move; 
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -111,7 +111,7 @@ public class TestMCMove extends Simulation {
 //        convert.setStepSize(0.01);
 //        convert.setConvertedWaveVector(2);
         
-        move = new MCMoveCompareMultipleModes(potentialMaster, random);
+        move = new MCMoveCompareMultipleWVLoop(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

@@ -23,7 +23,7 @@ import etomica.util.HistogramSimple;
  * @author cribbin
  *
  */
-public class MeterCompareSingleModeBrute extends DataSourceScalar {
+public class MeterCompareSingleWVBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
@@ -44,12 +44,12 @@ public class MeterCompareSingleModeBrute extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     
-    public MeterCompareSingleModeBrute(IPotentialMaster potentialMaster, 
+    public MeterCompareSingleWVBrute(IPotentialMaster potentialMaster, 
             CoordinateDefinition cd, IBox box){
         this("meterCompareMode", potentialMaster, cd, box);
     }
     
-    public MeterCompareSingleModeBrute(String string, IPotentialMaster 
+    public MeterCompareSingleWVBrute(String string, IPotentialMaster 
             potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);

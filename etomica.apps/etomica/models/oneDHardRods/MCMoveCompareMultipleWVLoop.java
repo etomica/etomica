@@ -18,16 +18,15 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * modes and then explores the phase space defined by the remaining normal
  * modes.
  * 
- * This move has a whitelist of wavevectors that are allowed to be changed, 
- * because they are not harmonic wavevectors.  (This differs from 
- * MCMoveCompareMultipleModes.)
+ * harmonicWVs are the wavevectors that are harmonic, and left out of the "change
+ * a random mode" calculation of the doTrial() method.
  * 
  * comparedWVs are the wavevectors that are compared (removed).
  * 
  * @author cribbin
  * 
  */
-public class MCMoveCompareMultipleModesWhitelist extends MCMoveBoxStep {
+public class MCMoveCompareMultipleWVLoop extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -47,9 +46,9 @@ public class MCMoveCompareMultipleModesWhitelist extends MCMoveBoxStep {
     private double[][] omega2;
     double[] uNow;
     int changedWV, howManyChangesToHardRodModes;
-    int[] comparedWVs, changeableWVs;
+    int[] comparedWVs, harmonicWVs;
     
-    public MCMoveCompareMultipleModesWhitelist(IPotentialMaster potentialMaster,
+    public MCMoveCompareMultipleWVLoop(IPotentialMaster potentialMaster,
             IRandom random) {
         super(potentialMaster);
         this.random = random;
@@ -141,10 +140,22 @@ public class MCMoveCompareMultipleModesWhitelist extends MCMoveBoxStep {
 
 // MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
+//        int changedWV;
         for(int wvCount = 0; wvCount < howManyChangesToHardRodModes; wvCount++){
-            
             // Select the wave vector whose eigenvectors will be changed.
-            changedWV = changeableWVs[random.nextInt(changeableWVs.length)];
+            // The zero wavevector is center of mass motion, and is rejected as
+            // a possibility.
+            boolean isAccepted = true;
+            do{
+                isAccepted = true;
+                changedWV = random.nextInt(waveVectorCoefficients.length);
+                for(int i = 0; i < harmonicWVs.length; i++){
+                    if (changedWV == harmonicWVs[i]) {
+                        isAccepted = false;
+                    }
+                }
+            } while (!isAccepted);
+//            System.out.println(changedWV);
             
             // calculate the new positions of the atoms.
             // loop over cells
@@ -354,15 +365,33 @@ public class MCMoveCompareMultipleModesWhitelist extends MCMoveBoxStep {
             }
         }
     }
-    
     /**
-     * Set the wavevectors that can be changed by the move.  Compared wavevectors
-     * should not be on this list.
-     * @param wv the wavevectors that can be changed by the move.
+     * Set the wavevectors that are always harmonic.
+     * @param wv
      */
-       
-    public void setChangeableWVs(int[] wv){
-        changeableWVs = wv;
+    public void setHarmonicWV(int[] wv){
+        if(comparedWVs == null){ 
+            throw new IllegalStateException("Must set comparedWVs before " +
+                    "harmonicWVs");
+        }
+        harmonicWVs = new int[wv.length + comparedWVs.length];
         
+        for(int i = 0; i < wv.length; i++) {
+            for(int j = 0; j < comparedWVs.length; j++){
+                if(wv[i] == comparedWVs[j]){
+                    throw new IllegalArgumentException("A compared " +
+                            "wavevector cannot be a harmonic wavevector");
+                }
+            }
+            harmonicWVs[i] = wv[i];
+        }
+
+        for(int i = wv.length; i < harmonicWVs.length; i++){
+            harmonicWVs[i] = comparedWVs[i-wv.length];
+        }
+        
+        if(harmonicWVs.length+1 == waveVectors.length){
+            howManyChangesToHardRodModes = 0;
+        }
     }
 }

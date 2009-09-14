@@ -65,7 +65,7 @@ public class SimDegreeFreedom3D extends Simulation {
     MeterNormalModeCoordinate meternmc;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleMode mcMoveMode;
+    MCMoveChangeSingleWVLoop mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
     boolean[] skipThisMode;
@@ -147,7 +147,7 @@ public class SimDegreeFreedom3D extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleMode(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);

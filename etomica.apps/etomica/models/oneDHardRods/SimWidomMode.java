@@ -55,7 +55,7 @@ public class SimWidomMode extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleMode mcMoveMode;
+    MCMoveChangeSingleWVLoop mcMoveMode;
     int harmonicWV;
     MeterWidomModeReal[] realMeter;
     MeterWidomModeImaginary[] imagMeter;
@@ -115,7 +115,7 @@ public class SimWidomMode extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleMode(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);

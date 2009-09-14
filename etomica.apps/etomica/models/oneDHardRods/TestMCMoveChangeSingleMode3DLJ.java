@@ -47,7 +47,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveChangeSingleMode changeMove;
+    MCMoveChangeSingleWVLoop changeMove;
 
     public TestMCMoveChangeSingleMode3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -106,7 +106,7 @@ public class TestMCMoveChangeSingleMode3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeSingleMode(potentialMaster, random);
+        changeMove = new MCMoveChangeSingleWVLoop(potentialMaster, random);
         integrator.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         changeMove.setWaveVectorCoefficients(

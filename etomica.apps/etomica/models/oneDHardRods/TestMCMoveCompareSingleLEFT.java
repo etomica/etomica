@@ -48,7 +48,7 @@ public class TestMCMoveCompareSingleLEFT extends Simulation {
     NormalModes1DHR nm;
     double[] locations;
     
-    MCMoveCompareSingleLEFT move; 
+    MCMoveCompareWVLoopLEFT move; 
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -98,7 +98,7 @@ public class TestMCMoveCompareSingleLEFT extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveCompareSingleLEFT(potentialMaster, random);
+        move = new MCMoveCompareWVLoopLEFT(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

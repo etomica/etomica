@@ -65,7 +65,7 @@ public class SimExtensiveTest extends Simulation {
     MeterNormalModeCoordinate meternmc;
     WaveVectorFactory waveVectorFactory;
 //    MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeMultipleModes mcMoveMode;
+    MCMoveChangeMultipleWVLoop mcMoveMode;
     AccumulatorHistogram[] hists;
     int[] harmonicWV;
     boolean[] skipThisMode;
@@ -150,7 +150,7 @@ public class SimExtensiveTest extends Simulation {
 //        mcMoveAtom.setStepSizeMin(0.001);
 //        mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeMultipleModes(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeMultipleWVLoop(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);

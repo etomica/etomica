@@ -22,7 +22,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * @author cribbin
  *
  */
-public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
+public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -40,7 +40,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     int[] harmonicWaveVectors;  //all wvs from the harmonic wv are not changed.
     
     
-    public MCMoveChangeMultipleModes(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeMultipleWVLoop(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;

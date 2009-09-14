@@ -22,7 +22,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
  * @author cribbin
  *
  */
-public class MCMoveCompareSingleMode extends MCMoveBoxStep{
+public class MCMoveCompareWVLoopLEFT extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -44,14 +44,14 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     private double wvc;
     double[] uNow;
     
-    public MCMoveCompareSingleMode(IPotentialMaster potentialMaster, IRandom random) {
+    
+    public MCMoveCompareWVLoopLEFT(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         gaussian = new double[2];
-//        count = 0;
     }
 
 
@@ -70,6 +70,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
 
         //Get normal mode coordinate information
         coordinateDefinition.calcT(waveVectors[comparedWV], realT, imagT);
+        
         
 //ZERO OUT A NORMAL MODE.
         for(int iCell = 0; iCell < cells.length; iCell++){
@@ -111,19 +112,17 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         }
         energyOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(energyOld)){
-            for(int k = 0; k < waveVectors.length; k++){
-                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
-            }
             throw new IllegalStateException("Overlap after the removal of a mode!");
         }
         
 //MOVE A RANDOM (N-1) MODE, AND MEASURE energyNew
         //equivalent to MCMoveChangeMode
-        if(comparedWV != 0) {
+        if(comparedWV != (waveVectorCoefficients.length)) {
             //Select the wave vector whose eigenvectors will be changed.
-            //The compared wavevector and any wavevector number higher than it,
-            // are rejected as possible wavevectors for comparison.
-            int changedWV = random.nextInt(comparedWV);
+            //The the compared wavevector, and any wavevector
+            //numbered higher than it, are.rejected as possibilities.
+            int changedWV = random.nextInt(waveVectorCoefficients.length - comparedWV);
+            changedWV += comparedWV;
 //            System.out.println(changedWV);
             
             //calculate the new positions of the atoms.
@@ -132,14 +131,12 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
             for ( int i = 0; i < coordinateDim*2; i++) {
                 delta[i] = (2*random.nextDouble()-1) * stepSize;
             }
-//            delta1 = 0.0; delta2 = 0.5;  //nork
             for(int iCell = 0; iCell < cells.length; iCell++){
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
                 cell = cells[iCell];
                 //rezero deltaU
                 for(int j = 0; j < coordinateDim; j++){
                     deltaU[j] = 0.0;
-//                    System.out.println(uNow[j]);
                 }
                 //loop over the wavevectors, and sum contribution of each to the
                 //generalized coordinates.  Change the selected wavevectors eigen
@@ -148,7 +145,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for(int i = 0; i < coordinateDim; i++){
-                    if( !(Double.isInfinite(omega2[changedWV][i])) ) {
+                    if( !(Double.isInfinite(omega2[changedWV][i])) ){
                         for(int j = 0; j < coordinateDim; j++){
                              deltaU[j] += waveVectorCoefficients[changedWV] * 
                                  eigenVectors[changedWV][i][j] * 2.0 * (delta[j]*coskR
@@ -209,12 +206,9 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
             
             for(int i = 0; i < coordinateDim; i++) {
                 uNow[i] += deltaU[i];
-//              System.out.println("3-unow " + uNow[i]);
             }
             coordinateDefinition.setToU(cells[iCell].molecules, uNow);
         }
-        
-//        energyEvenLater = energyMeter.getDataAsScalar();
         
         return true;
     }
@@ -228,9 +222,6 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("MCMoveCompareSingleMode accept");
-//        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
-//        count ++;
     }
 
     public double energyChange() {
@@ -238,7 +229,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("MCMoveCompareSingleMode reject " + energyNew);
+//        System.out.println("reject " + energyNew);
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
@@ -286,14 +277,14 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         eigenVectors = newEigenVectors;
     }
     
-    public void setOmegaSquared(double[][] omega2, double[] coeff) {
-        stdDev = new double[omega2.length][omega2[0].length];
+    public void setOmegaSquared(double[][] o2, double[] coeff) {
+        this.omega2 = o2;
+        stdDev = new double[o2.length][o2[0].length];
         for (int i=0; i<stdDev.length; i++) {
             for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
+                stdDev[i][j] = Math.sqrt(1.0/(2.0*o2[i][j]*coeff[i]));
             }
         }
-        this.omega2 = omega2;
     }
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
@@ -302,7 +293,7 @@ public class MCMoveCompareSingleMode extends MCMoveBoxStep{
         return gaussian;
     }
     public void setComparedWV(int wv){
-        if(wv == 0) {System.out.println("3D system is now entirely Gaussian!");};
+        if(wv == waveVectorCoefficients.length) {System.out.println("3D system is now entirely Gaussian!");};
         comparedWV = wv;
         wvc = waveVectorCoefficients[wv];
     }

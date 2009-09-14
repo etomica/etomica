@@ -13,7 +13,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.units.Null;
 
-public class MeterCompareMultipleModesBrute extends DataSourceScalar {
+public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
@@ -31,12 +31,12 @@ public class MeterCompareMultipleModesBrute extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     public boolean isOnlyHardRod;
     
-    public MeterCompareMultipleModesBrute(IPotentialMaster potentialMaster, 
+    public MeterCompareMultipleWVBrute(IPotentialMaster potentialMaster, 
             CoordinateDefinition cd, IBox box){
         this("meterCompareMultipleModes", potentialMaster, cd, box);
     }
     
-    public MeterCompareMultipleModesBrute(String string, IPotentialMaster
+    public MeterCompareMultipleWVBrute(String string, IPotentialMaster
             potentialMaster, CoordinateDefinition cd, IBox box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);

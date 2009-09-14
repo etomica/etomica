@@ -62,10 +62,10 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
-    MCMoveChangeSingleLEFT changeMove;
-    MCMoveCompareSingleLEFT compareMove;
+    MCMoveChangeSingleWVLoopLEFT changeMove;
+    MCMoveCompareWVLoopLEFT compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
-    MeterCompareSingleModeBrute meterBinA, meterBinB;    
+    MeterCompareSingleWVBrute meterBinA, meterBinB;    
     
     public SimOverlapSingleWaveVectorLEFT(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
@@ -132,7 +132,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
             System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeSingleLEFT(potentialMasterTarget, random);
+        changeMove = new MCMoveChangeSingleWVLoopLEFT(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
@@ -146,7 +146,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         
-        meterBinA = new MeterCompareSingleModeBrute("meterBinA", potentialMasterTarget, 
+        meterBinA = new MeterCompareSingleWVBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
         meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
@@ -218,7 +218,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        compareMove = new MCMoveCompareSingleLEFT(potentialMasterRef, 
+        compareMove = new MCMoveCompareWVLoopLEFT(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -235,7 +235,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         meterAinB = new MeterPotentialEnergy(potentialMasterRef);
         meterAinB.setBox(boxRef);
        
-        meterBinB = new MeterCompareSingleModeBrute(potentialMasterRef,
+        meterBinB = new MeterCompareSingleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
         meterBinB.setEigenVectors(nm.getEigenvectors(boxRef));

@@ -17,7 +17,7 @@ import etomica.units.Null;
  * @author cribbin
  *
  */
-public class MeterCompareModeShortcut extends DataSourceScalar {
+public class MeterCompareWVShortcut extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
     MeterPotentialEnergy meterPE;
@@ -38,10 +38,10 @@ public class MeterCompareModeShortcut extends DataSourceScalar {
                                 //energyOP is the energy of the Gaussian modes
     
     private static final long serialVersionUID = 1L;
-    MCMoveCompareSingleMode mcmove;
+    MCMoveCompareSingleWVLoop mcmove;
     
-    public MeterCompareModeShortcut(IPotentialMaster potentialMaster, 
-            MCMoveCompareSingleMode mcmove){
+    public MeterCompareWVShortcut(IPotentialMaster potentialMaster, 
+            MCMoveCompareSingleWVLoop mcmove){
         super("meterComapreMode", Null.DIMENSION);
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];

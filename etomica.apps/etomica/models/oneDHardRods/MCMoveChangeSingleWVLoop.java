@@ -23,7 +23,7 @@ import etomica.space3d.Vector3D;
  * @author cribbin
  *
  */
-public class MCMoveChangeSingleMode extends MCMoveBoxStep{
+public class MCMoveChangeSingleWVLoop extends MCMoveBoxStep{
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
@@ -39,7 +39,7 @@ public class MCMoveChangeSingleMode extends MCMoveBoxStep{
     private double[] waveVectorCoefficients;
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     
-    public MCMoveChangeSingleMode(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeSingleWVLoop(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;

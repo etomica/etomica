@@ -11,7 +11,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
-public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
+public class MCMoveChangeSingleWVLoopLEFT extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final AtomIteratorLeafAtoms iterator;
@@ -27,7 +27,7 @@ public class MCMoveChangeSingleLEFT extends MCMoveBoxStep {
     int changedWV, harmonicWV;  //all wvs from the harmonic wv and up are not changed.
     
     
-    public MCMoveChangeSingleLEFT(IPotentialMaster potentialMaster, IRandom random) {
+    public MCMoveChangeSingleWVLoopLEFT(IPotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         
         this.random = random;
