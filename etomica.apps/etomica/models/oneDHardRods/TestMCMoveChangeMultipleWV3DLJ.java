@@ -45,7 +45,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
     IntegratorMC integrator;
     public IBox box;
     public Boundary boundary;
-    MCMoveChangeMultipleWVLoop changeMove;
+    MCMoveChangeMultipleWV changeMove;
 
     public TestMCMoveChangeMultipleWV3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int[] awv){
@@ -104,7 +104,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactory.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeMultipleWVLoop(potentialMaster, random);
+        changeMove = new MCMoveChangeMultipleWV(potentialMaster, random);
         integrator.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
@@ -122,7 +122,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         
 //JOINT
         //Set up the rest of the joint stuff
-        setComparedWV(awv);
+        setChangeableWV(awv);
        
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
@@ -206,8 +206,8 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
     }
     
     
-    public void setComparedWV(int[] awv){
-        changeMove.setHarmonicWV(awv);
+    public void setChangeableWV(int[] awv){
+        changeMove.setChangeableWVs(awv);
     }
     
     public static class SimOverlapSingleWaveVector3DParam extends ParameterBase {
@@ -217,8 +217,9 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         public double harmonicFudge = 1.0;
         public double temperature = 0.1378;
         public int[] comparedWV = {0, 7};
+        public int[] changeableWV = { 1, 3, 5, 9};
         
-        public int numSteps = 100;
+        public int numSteps = 1000;
         
         public String filename = "normal_modes_LJ_3D_32";
 

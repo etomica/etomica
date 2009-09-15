@@ -47,7 +47,7 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
     SpeciesSpheresMono species;
     NormalModes1DHR nm;
     double[] locations;
-    MCMoveChangeMultipleWVLoop move;
+    MCMoveChangeMultipleWV move;
     
     private static final String APP_NAME = "TestMCMove";
     
@@ -97,10 +97,11 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        move = new MCMoveChangeMultipleWVLoop(potentialMaster, random);
+        move = new MCMoveChangeMultipleWV(potentialMaster, random);
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(nm.getOmegaSquared(box));
         move.setEigenVectors(nm.getEigenvectors(box));
         move.setCoordinateDefinition(coordinateDefinition);
         move.setBox((IBox)box);
@@ -141,7 +142,7 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
             readParameters.readParameters();
         }
 
-        int[] harmonicwvs = params.harmonicWV;
+        int[] changeablewvs = params.changeableWV;
         double density = params.density;
         long numSteps = params.numSteps;
         int numAtoms = params.numAtoms;
@@ -164,7 +165,7 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         //instantiate simulation
         TestMCMoveChangeMultipleWV sim = new TestMCMoveChangeMultipleWV(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setHarmonicWV(harmonicwvs);
+        sim.move.setChangeableWVs(changeablewvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -227,6 +228,6 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] harmonicWV = {11,12,13,14,15,16};
+        public int[] changeableWV = {11,12,13,14,15,16};
     }
 }
