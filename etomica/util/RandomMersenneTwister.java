@@ -206,7 +206,7 @@ public class RandomMersenneTwister implements IRandom {
         while (y == 0) {
             y = nextInt();
             if (y == 0) {
-                shiftFac *= 256;
+                shiftFac *= (1L<<32);
                 continue;
             }
             int p = Integer.numberOfLeadingZeros(y);
@@ -259,7 +259,7 @@ public class RandomMersenneTwister implements IRandom {
         while (y == 0) {
             y = nextInt();
             if (y == 0) {
-                shiftFac *= 256;
+                shiftFac *= (1L<<32);
                 continue;
             }
             int p = Integer.numberOfLeadingZeros(y);
@@ -276,7 +276,7 @@ public class RandomMersenneTwister implements IRandom {
                 y |= nextInt() >>> (40 - p);
             }
         }
-        
+
         return y / shiftFac;
     }
 }
