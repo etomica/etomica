@@ -36,8 +36,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
-    int changedWV, changedMode, numberOfModesChanged;
-    int[] changeableWVs, changeableModes;  //all wvs from the harmonic wv are not changed.
+    int changedWV;
+    int[] changeableWVs;  //all wvs from the harmonic wv are not changed.
     
     
     public MCMoveChangeMultipleWV(IPotentialMaster potentialMaster, IRandom random) {
@@ -58,15 +58,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         return coordinateDefinition;
     }
     
-    public void setNumberOfModesChanged(int n){
-        numberOfModesChanged = n;
-    }
-    
     public void setChangeableWVs(int[] wv){
         changeableWVs = wv;
-    }
-    public void setChangeableModes(int[] mds){
-        changeableModes = mds;
     }
 
     public void setOmegaSquared(double[][] o2){
@@ -120,58 +113,48 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
 //        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
-        //Store old positions
-        double[] uNow = new double[coordinateDefinition.calcU(cells[0].molecules).length];
+        //loop over cells
+        double[] delta = new double[coordinateDim*2];
+        
+        for (int i = 0; i < coordinateDim*2; i++){
+            delta[i] = (2*random.nextDouble()-1) * stepSize;
+        }
+        
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
-            uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+            double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             cell = cells[iCell];
             for(int i = 0; i< coordinateDim; i++){
                   deltaU[i] = 0;
             }
-        }//end of position storage loop
-        
-        //loop over modes
-        for (int iMode = 0; iMode < numberOfModesChanged; iMode++) {
-            changedMode = changeableModes[random.nextInt(changeableModes.length)];
-            //loop over cells
-            double[] delta = new double[coordinateDim*2];
-            for (int i = 0; i < coordinateDim*2; i++) {
-                delta[i] = (2*random.nextDouble()-1) * stepSize;
-            }
-            for(int iCell = 0; iCell < cells.length; iCell++){
-                for(int i = 0; i< coordinateDim; i++){
-                      deltaU[i] = 0;
-                }
-                
-                //loop over the wavevectors, and sum contribution of each to the
-                //generalized coordinates.  Change the selected wavevectors eigen-
-                //vectors at the same time!
-                double kR = waveVectors[changedWV].dot(cell.cellPosition);
-                double coskR = Math.cos(kR);
-                double sinkR = Math.sin(kR);
-                for(int i = 0; i < coordinateDim; i++){
-                    if( !(Double.isInfinite(omega2[changedWV][i])) ){
-                        for(int j = 0; j < coordinateDim; j++){
-                            deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-                                eigenVectors[changedWV][i][changedMode]*2.0*(delta[j]*coskR 
-                                        - delta[j+coordinateDim]*sinkR);
-                        }
+                    
+            //loop over the wavevectors, and sum contribution of each to the
+            //generalized coordinates.  Change the selected wavevectors eigen-
+            //vectors at the same time!
+            double kR = waveVectors[changedWV].dot(cell.cellPosition);
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+            for(int i = 0; i < coordinateDim; i++){
+                if( !(Double.isInfinite(omega2[changedWV][i])) ){
+                    for(int j = 0; j < coordinateDim; j++){
+                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
+                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
+                                    - delta[j+coordinateDim]*sinkR);
                     }
                 }
-                double normalization = 1/Math.sqrt(cells.length);
-                for(int i = 0; i < coordinateDim; i++){
-                    deltaU[i] *= normalization;
-                }
-                
-                for(int i = 0; i < coordinateDim; i++) {
-                    uNow[i] += deltaU[i];
-                }
-                coordinateDefinition.setToU(cells[iCell].molecules, uNow);
-                
-            }//end of cell loop
-        }//end of mode loop
+            }
+            double normalization = 1/Math.sqrt(cells.length);
+            for(int i = 0; i < coordinateDim; i++){
+                deltaU[i] *= normalization;
+            }
+            
+            for(int i = 0; i < coordinateDim; i++) {
+                uNow[i] += deltaU[i];
+            }
+            coordinateDefinition.setToU(cells[iCell].molecules, uNow);
+            
+        }//end of cell loop
     
         energyNew = energyMeter.getDataAsScalar();
         
