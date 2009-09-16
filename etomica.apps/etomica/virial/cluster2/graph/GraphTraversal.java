@@ -10,12 +10,13 @@ public interface GraphTraversal {
   public static int TRAVERSAL_EDGES_ERROR = -8;
   public static int TRAVERSAL_NODES_ERROR = -16;
   public static int TRAVERSAL_ROOT_ERROR = -32;
-  public static int VISITED_NONE = 0;
-  public static int VISIT_START = 0;
-  public static int VISITED_COMPONENT = -1;
-  public static int VISITED_BICOMPONENT = -2;
-  public static int VISITED_ALL_COMPONENTS = -4;
-  public static int ARTICULATION_POINT = -8;
+  public static int VISITED_NONE = -1;
+  public static int START_COMPONENT = -1;
+  public static int VISITED_COMPONENT = -2;
+  public static int START_BICOMPONENT = -4;
+  public static int VISITED_BICOMPONENT = -8;
+  public static int VISITED_ALL = -16;
+  public static int ARTICULATION_POINT = -32;
 
   /**
    * Traverses all components of the graph, starting at an arbitrary node for
@@ -25,7 +26,7 @@ public interface GraphTraversal {
 
   /**
    * Traverses a single component of the graph starting at the designated node.
-   * 
+   *
    * @return true if all nodes in the graph were seen during traversal
    */
   public boolean traverseComponent(int nodeID, Nodes nodes, Edges edges,

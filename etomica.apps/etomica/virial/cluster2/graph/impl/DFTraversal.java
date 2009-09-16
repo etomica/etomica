@@ -3,19 +3,23 @@ package etomica.virial.cluster2.graph.impl;
 import java.util.LinkedList;
 
 import etomica.virial.cluster2.graph.Edges;
+import etomica.virial.cluster2.graph.GraphTraversal;
 import etomica.virial.cluster2.graph.Nodes;
 
 public class DFTraversal extends AbstractGraphTraversal {
 
+  @Override
   protected void traverseComponent(int nodeID, Nodes nodes, Edges edges) {
 
     LinkedList<Integer> toExploreQ = new LinkedList<Integer>();
+    // start a component traversal
+    visit(GraphTraversal.START_COMPONENT);
     // visit the node and update the seen nodes
     visit(nodeID);
     // queue the visited node for exploration of its neighbors
     toExploreQ.add(nodeID);
-    // done when: 
-    //   (1) all nodes seen OR 
+    // done when:
+    //   (1) all nodes seen OR
     //   (2) no new nodes to explore in this connected component
     while (!seenAll() && !toExploreQ.isEmpty()) {
       // retrieve the next node to explore from the queue (DO NOT REMOVE!!!)

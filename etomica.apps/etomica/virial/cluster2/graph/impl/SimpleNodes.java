@@ -17,7 +17,7 @@ import etomica.virial.cluster2.graph.Nodes;
  * nodes. Field nodes are compatible with field nodes, and root nodes are
  * incompatible with all nodes. We assume that the first fieldNodeCount nodes
  * are field nodes, and the remaining are root nodes.
- * 
+ *
  * @author Demian Lessa
  */
 public class SimpleNodes implements Nodes {
@@ -26,20 +26,20 @@ public class SimpleNodes implements Nodes {
   private NodeAttributes[] rootAttributes;
   private Map<Character,List<Integer>> fieldPartitions;
   private Map<Character,List<Integer>> rootPartitions;
-  
+
   /*
-   * The parameters are vectors of colors, one for each field node 
+   * The parameters are vectors of colors, one for each field node
    * and one for each root node
    */
   public SimpleNodes(final char[] fieldColors, final char[] rootColors) {
-    
+
     assert (fieldColors != null);
     assert (rootColors != null);
     assert (fieldColors.length + rootColors.length >= 0);
     assert (fieldColors.length + rootColors.length <= 255);
     configure(fieldColors, rootColors);
   }
-  
+
   public SimpleNodes(byte fieldNodeCount, byte rootNodeCount) {
 
     assert (fieldNodeCount >= 0);
@@ -58,17 +58,17 @@ public class SimpleNodes implements Nodes {
   }
 
   public static NodeAttributes fieldNodeAttributes(char color) {
-    
+
     return new FieldNodeAttributes(color);
   }
-  
+
   public static NodeAttributes rootNodeAttributes(char color) {
-    
+
     return new RootNodeAttributes(color);
   }
-  
+
   private void configure(final char[] fieldColors, final char[] rootColors) {
-    
+
     rootAttributes = new NodeAttributes[rootColors.length];
     rootPartitions = new HashMap<Character,List<Integer>>();
     for (int i = 0; i < rootAttributes.length; i++) {
@@ -96,7 +96,7 @@ public class SimpleNodes implements Nodes {
       }
     }
   }
-  
+
   public byte count() {
 
     return (byte) (fieldAttributes.length + rootAttributes.length);
@@ -154,7 +154,7 @@ abstract class AbstractNodeAttributes implements NodeAttributes {
 
     return isSameClass(attr) && isSameColor(attr);
   }
-  
+
   public boolean isSameColor(NodeAttributes attr) {
 
     return attr.getColor() == colorID;
@@ -182,10 +182,10 @@ class RootNodeAttributes extends AbstractNodeAttributes {
   }
 
   public boolean isCompatible(NodeAttributes attr) {
-  
+
     return equals(attr);
   }
-  
+
   public boolean isSameClass(NodeAttributes attr) {
 
     return (attr instanceof RootNodeAttributes);
@@ -197,17 +197,17 @@ class RootNodeAttributes extends AbstractNodeAttributes {
 //  private byte rootNodeCount = 0;
 //  private NodeAttributes[] rootNodeAttributes;
 //  private List<List<Integer>> partition;
-//  
+//
 //  private NodeAttributes[] fieldAttributes;
 //  private NodeAttributes[] rootAttributes;
 //  private Map<Integer,List<Integer>> fieldPartitions;
-//  
+//
 //  /*
-//   * The parameters are vectors of colors, one for each field node 
+//   * The parameters are vectors of colors, one for each field node
 //   * and one for each root node
 //   */
 //  public SimpleNodes(final byte[] fieldColors, final byte[] rootColors) {
-//    
+//
 //    assert (fieldColors != null);
 //    assert (rootColors != null);
 //    assert (fieldColors.length + rootColors.length > 0);
@@ -229,7 +229,7 @@ class RootNodeAttributes extends AbstractNodeAttributes {
 //      rootAttributes[i] = new RootNodeAttributes(rootColors[i]);
 //    }
 //  }
-//  
+//
 //  public SimpleNodes(byte fieldNodeCount, byte rootNodeCount) {
 //
 //    assert (fieldNodeCount >= 0);
