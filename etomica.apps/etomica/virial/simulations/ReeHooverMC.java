@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 
 
 
-
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -25,8 +24,15 @@ import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**
- * LJ simulation using Mayer sampling to evaluate cluster integrals
+ * 
+ * An implementation of MSMC with direct sampling for computation of 
+ * virial coefficients of hard spheres, in the spirit of Ree-Hoover Monte Carlo 
+ * (Ree & Hoover, 1964, Fifth and Sixth Virial Coefficients for Hard Spheres and 
+ * Hard Disks).  The reference value is not a virial coefficient.
+ * 
+ * Kate Shaul (2009)
  */
+
 public class ReeHooverMC {
 
 
@@ -41,11 +47,6 @@ public class ReeHooverMC {
         	n = params.n;
         	sigmaHSRef = params.sigmaHSRef;
             log10Steps = params.log10Steps;
-            
-            
-            // number of overlap sampling steps
-            // for each overlap sampling step, the simulation boxes are allotted
-            // 1000 attempts for MC moves, total
             
         } else if (args.length == 2) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
@@ -111,8 +112,6 @@ public class ReeHooverMC {
         	int[][][] bondList = {{{0,1},{1,2},{2,3}}, {}};
  	        
  	        ClusterBonds cluster = new ClusterBonds(4, bondList, false);
- 	        
- 	        
  	
  	        double[] weights = {1.0};
  	  
@@ -125,8 +124,6 @@ public class ReeHooverMC {
  	        
  	        ClusterBonds cluster = new ClusterBonds(5, bondList, false);
  	        
- 	        
- 	
  	        double[] weights = {1.0};
  	  
  		    
@@ -163,25 +160,11 @@ public class ReeHooverMC {
         
         sim.ai.setMaxSteps(steps);
 
-//        IAction progressReport = new IAction() {
-//            public void actionPerformed() {
-//                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-//                double ratio = sim.dsvo.getDataAsScalar();
-//                double error = sim.dsvo.getError();
-//                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-//            }
-//        };
-//        sim.integratorOS.addIntervalAction(progressReport);
-//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
-
-        
         System.out.println();
+        
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
         
         sim.getController().actionPerformed();
-
-        
-       
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         
