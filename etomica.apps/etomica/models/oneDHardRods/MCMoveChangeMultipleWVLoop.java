@@ -184,7 +184,7 @@ public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("accept MCMoveChangeMultipleModes");
+//        System.out.println("accept MCMoveChangeMultipleWVLoop");
 //        iterator.reset();
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
@@ -197,7 +197,7 @@ public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject MCMoveChangeMultipleModes ");
+//        System.out.println("reject MCMoveChangeMultipleWVLoop");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

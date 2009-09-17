@@ -228,7 +228,7 @@ public class MCMoveCompareSingleWVLoop extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("MCMoveCompareSingleMode accept");
+//        System.out.println("MCMoveCompareSingleWVLoop " + energyNew);
 //        System.out.println(count + "  accept old: " +energyOld +" new: "+energyNew +" later " + energyEvenLater);
 //        count ++;
     }
@@ -238,7 +238,7 @@ public class MCMoveCompareSingleWVLoop extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("MCMoveCompareSingleMode reject " + energyNew);
+//        System.out.println("reject MCMoveCompareSingleWVLoop " + energyNew);
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

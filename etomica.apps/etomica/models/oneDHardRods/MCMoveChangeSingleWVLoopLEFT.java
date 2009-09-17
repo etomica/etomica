@@ -166,7 +166,7 @@ public class MCMoveChangeSingleWVLoopLEFT extends MCMoveBoxStep {
     }
     
     public void acceptNotify() {
-//        System.out.println("accept");
+//        System.out.println("accept MCMoveChangeSingleWVLoopLEFT");
     }
 
     public double energyChange() {
@@ -174,7 +174,7 @@ public class MCMoveChangeSingleWVLoopLEFT extends MCMoveBoxStep {
     }
 
     public void rejectNotify() {
-//        System.out.println("reject");
+//        System.out.println("reject MCMoveChangeSingleWVLoopLEFT");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
