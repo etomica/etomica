@@ -6,6 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -192,5 +193,25 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         }
     }
 
+    private void printLocations(){
+        IAtomList list = box.getLeafList();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        int ats = box.getLeafList().getAtomCount();
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+            }
+        }
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println("Atom " + i);
+                for(int j = 0; j < coordinateDim; j++){
+                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                }
+            }
+        }
+    }
 
 }

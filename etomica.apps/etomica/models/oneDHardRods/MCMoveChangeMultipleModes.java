@@ -1,17 +1,18 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.space3d.Vector3D;
 
 /**
  * A Monte Carlo move which selects a wave vector, and changes the normal mode
@@ -206,6 +207,26 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
+        }
+    }
+    private void printLocations(){
+        IAtomList list = box.getLeafList();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        int ats = box.getLeafList().getAtomCount();
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+            }
+        }
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println("Atom " + i);
+                for(int j = 0; j < coordinateDim; j++){
+                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                }
+            }
         }
     }
 
