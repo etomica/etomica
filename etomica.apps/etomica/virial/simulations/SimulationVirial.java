@@ -1,5 +1,9 @@
 package etomica.virial.simulations;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
@@ -27,6 +31,7 @@ import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
+import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals
@@ -47,7 +52,8 @@ public class SimulationVirial extends Simulation {
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		box = new BoxCluster(sampleCluster, space);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{3.0,3.0,3.0}));
+		addBox(box);
+        //box.getBoundary().setDimensions(space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this, space);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nMolecules);
@@ -131,5 +137,18 @@ public class SimulationVirial extends Simulation {
 			accumulatorPump.setDataSink(accumulator);
 		}
 	}
+	
+	public void equilibrate(long initSteps) {
+        // run a short simulation to get reasonable MC Move step sizes and
+        // (if needed) narrow in on a reference preference
+        ai.setMaxSteps(initSteps);
+               
+        integrator.getMoveManager().setEquilibrating(true);
+        
+        ai.actionPerformed();
+
+        integrator.getMoveManager().setEquilibrating(false);
+        
+    }
 }
 
