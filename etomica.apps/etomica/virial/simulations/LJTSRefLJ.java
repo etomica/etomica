@@ -31,7 +31,6 @@ import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.VirialLJBridge.VirialLJParam;
 
 /**
  * The direct-sampling formulation of Mayer-Sampling Monte Carlo is employed to compute 
