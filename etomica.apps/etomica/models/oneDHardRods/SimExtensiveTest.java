@@ -246,15 +246,6 @@ public class SimExtensiveTest extends Simulation {
         SimExtensiveTest sim = new SimExtensiveTest(Space.getInstance(D), nA, density, bs, nbins);
         
         // start simulation
-        
-//        System.out.println("THE HARMONIC WAVE VECTORS ARE HARD CODED!!!!");
-//        int limit = 200;
-//        comparedWV = new int[limit];
-//        for (int i = 0; i < limit; i++){
-//            comparedWV[i] = i;
-//        }
-        
-        
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);
         sim.getController().actionPerformed();
