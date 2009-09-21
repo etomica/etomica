@@ -143,6 +143,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
             readParameters.readParameters();
         }
         
+        int[] changeablewvs = params.changeableWV;
         int numMolecules = params.numAtoms;
         double density = params.density;
         int D = params.D;
@@ -152,20 +153,18 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        int[] comparedWV = params.comparedWV;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
-        TestMCMoveChangeMultipleWV3DLJ sim = new TestMCMoveChangeMultipleWV3DLJ  (Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV);
+        TestMCMoveChangeMultipleWV3DLJ sim = new TestMCMoveChangeMultipleWV3DLJ(Space.getInstance(D), numMolecules,
+                density, temperature, filename, harmonicFudge, changeablewvs);
         int numSteps = params.numSteps;
         
         System.out.println("Running Nancy's single " +D+"D Lennard Jones simulation");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
-        System.out.println("compared wave vector: " + comparedWV);
         System.out.println("Total steps: "+params.numSteps);
         System.out.println("instantiated");
         
@@ -216,10 +215,9 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.1378;
-        public int[] comparedWV = {0, 7};
         public int[] changeableWV = { 1, 3, 5, 9};
         
-        public int numSteps = 1000;
+        public int numSteps = 1;
         
         public String filename = "normal_modes_LJ_3D_32";
 
