@@ -58,7 +58,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
      * must have unit length, but need not be perpendicular to the current
      * orientation direction.
      */
-    public void rotateBy(double dt, IVectorMutable axis) {
+    public void rotateBy(double dt, IVector axis) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -102,8 +102,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     
     /**
      * Applies a random rotation of angle selected uniformly from 0 to tStep.
-     * The rotation axis is selected randomly, but is orthogonal to the
-     * original direction.
+     * The rotation axis is selected randomly.
      */
     public void randomRotation(IRandom random, double tStep) {
         double tempSq = 0;

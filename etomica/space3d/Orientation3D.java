@@ -53,7 +53,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
      * must have unit length, but need not be perpendicular to the current
      * orientation direction.
      */
-    public void rotateBy(double dt, IVectorMutable axis) {
+    public void rotateBy(double dt, IVector axis) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
