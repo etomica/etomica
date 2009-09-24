@@ -191,4 +191,13 @@ public class AtomArrayList implements IAtomList {
         }
         return atomList[index];
     }
+
+    public String toString() {
+        if (itemsInList == 0) return "";
+        String str = ""+atomList[0];
+        for (int i=1; i<itemsInList; i++) {
+            str += " "+atomList[i];
+        }
+        return str;
+    }
 }
