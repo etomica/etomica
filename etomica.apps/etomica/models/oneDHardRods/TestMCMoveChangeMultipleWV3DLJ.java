@@ -115,14 +115,9 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         changeMove.setBox((IBox)box);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
+        changeMove.setChangeableWVs(awv);
+        
 
-        
-        
-        
-        
-//JOINT
-        //Set up the rest of the joint stuff
-        setChangeableWV(awv);
        
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
@@ -202,11 +197,6 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         System.out.println("New locations:  " + newX + "  " + newY + "  " + newZ);
 
         System.out.println("Fini.");
-    }
-    
-    
-    public void setChangeableWV(int[] awv){
-        changeMove.setChangeableWVs(awv);
     }
     
     public static class SimOverlapSingleWaveVector3DParam extends ParameterBase {
