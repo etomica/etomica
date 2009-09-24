@@ -104,6 +104,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
         // assume that the first cell is the same as every other cell.
+        //Also, this sets up the variable "cell".
         BasisCell cell = cells[0];
 //        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
