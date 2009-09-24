@@ -1,6 +1,5 @@
 package etomica.api;
 
-import etomica.chem.elements.Element;
 
 public interface IAtomType {
 
@@ -35,6 +34,6 @@ public interface IAtomType {
      */
     public double rm();
 
-    public Element getElement();
+    public IElement getElement();
 
 }

@@ -1,5 +1,6 @@
 package etomica.chem.models;
 
+import etomica.api.IElement;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
@@ -94,7 +95,7 @@ public class ModelChain extends Model {
     /**
      * Sets the Element used for the leaf atoms in the chain.
      */
-    public void setElement(Element newElement) {
+    public void setElement(IElement newElement) {
         if (speciesMade) {
             throw new RuntimeException("Species already created");
         }
@@ -105,7 +106,7 @@ public class ModelChain extends Model {
      * Returns the Element used for the leaf atoms in the chain, or null if no
      * Element has been set (an ElementSimple will be used).
      */
-    public Element getElement() {
+    public IElement getElement() {
         return element;
     }
     
@@ -145,7 +146,7 @@ public class ModelChain extends Model {
     protected Potential2 bondingPotential;
     protected int numAtoms;
     protected IConformation conformation;
-    protected Element element;
+    protected IElement element;
     protected boolean speciesMade;
     private final ISpace space;
 }

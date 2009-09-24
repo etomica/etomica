@@ -5,8 +5,8 @@
 package etomica.atom;
 
 import etomica.api.IAtomTypeSphere;
+import etomica.api.IElement;
 import etomica.api.ISimulation;
-import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 
 /**
@@ -24,11 +24,11 @@ public class AtomTypeSphere extends AtomTypeLeaf implements IAtomTypeSphere {
         this(new ElementSimple(sim), 1.0);
     }
     
-    public AtomTypeSphere(Element element) {
+    public AtomTypeSphere(IElement element) {
         this(element, 1.0);
     }
     
-    public AtomTypeSphere(Element element, double d) {
+    public AtomTypeSphere(IElement element, double d) {
         super(element);
         setDiameter(d);
     }

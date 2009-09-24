@@ -1,8 +1,8 @@
 package etomica.atom;
 
+import etomica.api.IElement;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.chem.elements.Element;
 import etomica.space.ISpace;
 
 
@@ -13,7 +13,7 @@ import etomica.space.ISpace;
 public class AtomTypeOrientedSphere extends AtomTypeSphere implements IAtomTypeOriented {
     
     protected final IVectorMutable I;
-    public AtomTypeOrientedSphere(Element element, double d, ISpace space) {
+    public AtomTypeOrientedSphere(IElement element, double d, ISpace space) {
         super(element, d);
         I = space.makeVector();
         updateI();

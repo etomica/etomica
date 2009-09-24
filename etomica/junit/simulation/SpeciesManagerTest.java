@@ -1,11 +1,11 @@
 package etomica.junit.simulation;
 
 import junit.framework.TestCase;
+import etomica.api.IElement;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.atom.AtomTypeLeaf;
-import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
@@ -18,7 +18,7 @@ public class SpeciesManagerTest extends TestCase {
 	private ISpeciesManager sm;
 	ISimulation simulation;
 	ISpace space;
-	Element element;
+	IElement element;
 	
 	public void setUp() {
 		space = Space.getInstance(3);

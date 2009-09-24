@@ -1,6 +1,7 @@
 package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
+import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
@@ -42,7 +43,7 @@ public class SpeciesSpheresHetero extends Species {
         this(sim, _space, makeElements(sim,nComponents));
     }
     
-    private static Element[] makeElements(ISimulation sim, int nComponents) {
+    private static IElement[] makeElements(ISimulation sim, int nComponents) {
         ElementSimple[] elements = new ElementSimple[nComponents];
         for (int i=0; i<elements.length; i++) {
             elements[i] = new ElementSimple(sim);
@@ -56,11 +57,11 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, Element[] leafElements) {
+    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, IElement[] leafElements) {
         this(_space, sim.isDynamic(), makeAtomTypeSpheres(leafElements));
     }
     
-    protected static final AtomTypeSphere[] makeAtomTypeSpheres(Element[] leafElements) {
+    protected static final AtomTypeSphere[] makeAtomTypeSpheres(IElement[] leafElements) {
         AtomTypeSphere[] types = new AtomTypeSphere[leafElements.length];
         for (int i=0; i<types.length; i++) {
             types[i] = new AtomTypeSphere(leafElements[i]);

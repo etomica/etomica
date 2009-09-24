@@ -13,7 +13,7 @@ import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
-import etomica.chem.elements.Element;
+import etomica.api.IElement;
 import etomica.chem.elements.ElementChemical;
 
 /**
@@ -72,7 +72,7 @@ public class XYZWriter implements IAction, Serializable {
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
-                Element element = ((IAtom)atom).getType().getElement();
+                IElement element = ((IAtom)atom).getType().getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
                     Iterator elementIterator = elementAtomType.iterator();

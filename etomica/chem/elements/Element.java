@@ -1,12 +1,13 @@
 package etomica.chem.elements;
 
+import etomica.api.IElement;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 
 /**
  * Abstract structure for a class defining an element.
  */
-public abstract class Element implements java.io.Serializable {
+public abstract class Element implements IElement, java.io.Serializable {
 	
 	public Element(String symbol) {
         this.symbol = symbol;

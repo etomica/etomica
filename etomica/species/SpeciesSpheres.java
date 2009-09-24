@@ -1,13 +1,13 @@
 package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
+import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
-import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.config.IConformation;
@@ -28,11 +28,11 @@ public class SpeciesSpheres extends Species {
         this(sim, _space, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(ISimulation sim, ISpace _space, int nA, Element leafElement) {
+    public SpeciesSpheres(ISimulation sim, ISpace _space, int nA, IElement leafElement) {
         this(sim, nA, leafElement, new ConformationLinear(_space), _space);
     }
     
-    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement,
+    public SpeciesSpheres(ISimulation sim, int nA, IElement leafElement,
     		              IConformation conformation, ISpace _space) {
         this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
     }

@@ -5,12 +5,12 @@ import java.util.LinkedList;
 
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IElement;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.ISpeciesManager;
 import etomica.chem.elements.Element;
 import etomica.util.Arrays;
-import etomica.util.IEvent;
 
 /**
  * The SpeciesManager manages Species and AtomTypes on behalf of the
@@ -23,8 +23,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     public SpeciesManager(ISimulation sim) {
         this.sim = sim;
         speciesList = new ISpecies[0];
-        elementSymbolHash = new HashMap<String,Element>();
-        elementAtomTypeHash = new HashMap<Element,LinkedList<IAtomType>>();
+        elementSymbolHash = new HashMap<String,IElement>();
+        elementAtomTypeHash = new HashMap<IElement,LinkedList<IAtomType>>();
     }
 
     /* (non-Javadoc)
@@ -125,8 +125,8 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     }
 
     protected void atomTypeAddedNotify(IAtomType newChildType) {
-        Element newElement = newChildType.getElement();
-        Element oldElement = elementSymbolHash.get(newElement.getSymbol());
+        IElement newElement = newChildType.getElement();
+        IElement oldElement = elementSymbolHash.get(newElement.getSymbol());
         if (oldElement != null && oldElement != newElement) {
             // having two AtomTypes with the same Element is OK, but having
             // two Elements with the same symbol is not allowed.
@@ -144,7 +144,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
 
     protected void atomTypeRemovedNotify(IAtomType removedType) {
         // remove the type's element from our hash 
-        Element oldElement = removedType.getElement();
+        IElement oldElement = removedType.getElement();
         elementSymbolHash.remove(oldElement.getSymbol());
     }
 
@@ -166,7 +166,7 @@ public class SpeciesManager implements java.io.Serializable, ISpeciesManager {
     private static final long serialVersionUID = 1L;
     private ISpecies[] speciesList;
 //    private IAtomTypeLeaf[] atomTypeList;
-    private final HashMap<String,Element> elementSymbolHash;
-    private final HashMap<Element,LinkedList<IAtomType>> elementAtomTypeHash;
+    private final HashMap<String,IElement> elementSymbolHash;
+    private final HashMap<IElement,LinkedList<IAtomType>> elementAtomTypeHash;
     private final ISimulation sim;
 }
