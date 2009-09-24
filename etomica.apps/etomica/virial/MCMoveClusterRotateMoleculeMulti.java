@@ -118,6 +118,5 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     private IVectorMutable[][] oldPositions;
     private int trialCount, relaxInterval = 100;
     private MoleculeAction relaxAction;
-    protected IAtomPositionDefinition positionDefinition;
     private final ISpace space;
 }
