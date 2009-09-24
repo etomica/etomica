@@ -198,7 +198,7 @@ public class VirialAlkane {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (true) {
+        if (false) {
             double size = (nSpheres+5)*1.5;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
