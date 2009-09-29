@@ -47,7 +47,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         direction.E(newDirection);
         direction.normalize();
     }
-    
+
     /**
      * Rotates orientation by the given value about the given axis.  The axis
      * must have unit length, but need not be perpendicular to the current
@@ -67,11 +67,10 @@ public class Orientation3D implements IOrientation3D, Serializable {
         if (Debug.ON && Math.abs(axis.squared() - 1) > 1E-10) {
             throw new IllegalArgumentException("I need a unit vector for the axis");
         }
-        temp.E(axis);
         // v1 = v1overAxis * axis
-        double v1overAxis = temp.dot(direction);
+        double v1overAxis = axis.dot(direction);
 
-        temp.TE(-v1overAxis);
+        temp.Ea1Tv1(-v1overAxis, axis);
         temp.PE(direction);
         // now temp = v2
         temp2.E(axis);
@@ -81,7 +80,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         direction.PEa1Tv1(Math.sin(dt), temp2);
         direction.PEa1Tv1(v1overAxis, axis);
     }
-    
+
     /**
      * Applies a random rotation of angle selected uniformly from 0 to tStep.
      * The rotation axis is selected randomly, but is orthogonal to the
