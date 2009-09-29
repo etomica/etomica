@@ -65,7 +65,8 @@ public final class Space1D extends Space {
     }
 
     public RotationTensor makeRotationTensor() {
-        return new RotationTensor1D();
+        // there's no such thing as a 1-D rotation tensor
+        return null;
     }
 
     public int[] makeArrayD(int i) {

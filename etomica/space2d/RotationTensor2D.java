@@ -23,7 +23,5 @@ public class RotationTensor2D extends Tensor2D implements RotationTensor {
     
     //FIXME should have a setOrientation
     
-    public void setAngles(double[] angles) {}
-    
     private static final long serialVersionUID = 1L;
 }

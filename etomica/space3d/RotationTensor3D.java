@@ -39,11 +39,28 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
             default: throw new IllegalArgumentException("Improper axis specified for Space3D.RotationTensor.setAxial");
         }
     }
+
     /**
-     * Not yet implemented.
+     * Sets the tensor for rotation about the axis v by an angle theta.
      */
-    public void setAngles(double[] angles) {
-        throw new RuntimeException("Space3D.CoordinateGroup.setAngles() not yet implemented");
+    public void setRotationAxis(IVector v, double theta) {
+        double st = Math.sin(theta);
+        double ct = Math.cos(theta);
+        double vx = v.getX(0);
+        double vy = v.getX(1);
+        double vz = v.getX(2);
+        xx = ct + (1 - ct) * vx*vx;
+        yy = ct + (1 - ct) * vy*vy;
+        zz = ct + (1 - ct) * vz*vz;
+        xy = (1 - ct) * vx*vy;
+        yx = xy + st*vz;
+        xy -= st*vz;
+        xz = (1 - ct) * vx*vz;
+        zx = xz - st*vy;
+        xz += st*vy;
+        yz = (1 - ct) * vy*vz;
+        zy = yz + st*vx;
+        yz -= st*vx;
     }
 
     public void invert() {

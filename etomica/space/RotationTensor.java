@@ -12,6 +12,4 @@ public interface RotationTensor extends Tensor {
     public void reset();
 
     public void setAxial(int i, double theta);
-
-    public void setAngles(double[] angles);
 }
