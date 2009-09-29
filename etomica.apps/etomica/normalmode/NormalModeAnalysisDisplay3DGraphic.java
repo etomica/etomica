@@ -11,6 +11,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -113,12 +114,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 			DataDouble data;
 		};
 		
-        DataPump pePump = new DataPump(sim.meterPE, dataProcessor);
+        DataPumpListener pePump = new DataPumpListener(sim.meterPE, dataProcessor, 60);
         dataProcessor.setDataSink(peFork);
         
-        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(hePump);
-        pePumpListener.setInterval(60);
-        sim.integrator.getEventManager().addListener(pePumpListener);
+        sim.integrator.getEventManager().addListener(pePump);
         peHistory.setPushInterval(5);
        
         /*
