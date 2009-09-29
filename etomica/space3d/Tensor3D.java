@@ -9,7 +9,8 @@ import etomica.util.Debug;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
 
-    double xx, xy, xz, yx, yy, yz, zx, zy, zz;//don't make private because access is needed by package classes
+    // xy is row x column y
+    protected double xx, xy, xz, yx, yy, yz, zx, zy, zz;
     private static final long serialVersionUID = 1L;
 
     /**
