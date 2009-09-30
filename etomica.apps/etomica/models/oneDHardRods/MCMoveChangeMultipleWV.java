@@ -99,7 +99,11 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     public boolean doTrial() {
 //        System.out.println("MCMoveChangeMode doTrial");
         
+        printLocations();
+        
         energyOld = energyMeter.getDataAsScalar();
+        System.out.println("energy Old " + energyOld);
+        
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
@@ -111,7 +115,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         
         // Select the wave vector whose eigenvectors will be changed.
         changedWV = changeableWVs[random.nextInt(changeableWVs.length)];
-
+changedWV = 1;
 //        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
@@ -120,6 +124,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         
         for (int i = 0; i < coordinateDim*2; i++){
             delta[i] = (2*random.nextDouble()-1) * stepSize;
+            System.out.println("delta " +i+ " " + delta[i]);
         }
         
 //        delta[0] = -0.0029653237447294246;
@@ -163,6 +168,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
+            System.out.println("cos " + coskR + " sin " + sinkR);
             for(int i = 0; i < coordinateDim; i++){
                 if( !(Double.isInfinite(omega2[changedWV][i])) ){
                     for(int j = 0; j < coordinateDim; j++){
@@ -171,6 +177,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
                                     - delta[j+coordinateDim]*sinkR);
                     }
                 }
+                System.out.println("coordinate " + i + " deltaU " + deltaU[i]);
             }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
@@ -186,6 +193,9 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         
         energyNew = energyMeter.getDataAsScalar();
         
+        System.out.println("energy new " + energyNew);
+        printLocations();
+
         return true;
     }
     
@@ -198,7 +208,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     }
     
     public void acceptNotify() {
-//        System.out.println("accept MCMoveChangeMultipleWV");
+        System.out.println("accept MCMoveChangeMultipleWV");
 //        iterator.reset();
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
@@ -211,7 +221,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     }
 
     public void rejectNotify() {
-//        System.out.println("reject MCMoveChangeMultipleWV");
+        System.out.println("reject MCMoveChangeMultipleWV");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

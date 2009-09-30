@@ -4,6 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.box.Box;
@@ -28,6 +29,7 @@ import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -51,10 +53,10 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
             temperature, String filename, double harmonicFudge, int[] awv){
         super(_space, true);
         
-//        long seed = 5;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 5;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
