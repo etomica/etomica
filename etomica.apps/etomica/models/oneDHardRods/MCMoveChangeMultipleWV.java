@@ -99,6 +99,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     public boolean doTrial() {
 //        System.out.println("MCMoveChangeMode doTrial");
         
+        System.out.println("start");
         printLocations();
         
         energyOld = energyMeter.getDataAsScalar();
@@ -155,6 +156,7 @@ changedWV = 1;
         
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
+            System.out.println("cell number " + iCell);
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             cell = cells[iCell];
@@ -172,12 +174,14 @@ changedWV = 1;
             for(int i = 0; i < coordinateDim; i++){
                 if( !(Double.isInfinite(omega2[changedWV][i])) ){
                     for(int j = 0; j < coordinateDim; j++){
+                        
+                        System.out.println("iCell "+ iCell +" changedWV "+ changedWV + " i " +i + " j " +j + " eigenvex " + eigenVectors[changedWV][i][j]);
                         deltaU[j] += /*waveVectorCoefficients[changedWV]*/
                             eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
                                     - delta[j+coordinateDim]*sinkR);
                     }
                 }
-                System.out.println("coordinate " + i + " deltaU " + deltaU[i]);
+               System.out.println("coordinate " + i + " deltaU " + deltaU[i]);
             }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
@@ -243,9 +247,11 @@ changedWV = 1;
         
         if(box.getBoundary().getEdgeVector(0).getD() == 3){
             for(int i = 0; i < ats; i++){
-                System.out.println("Atom " + i);
-                for(int j = 0; j < 3; j++){
-                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                if (i < 1 ) {
+                    System.out.println("Atom " + i);
+                    for(int j = 0; j < 3; j++){
+                        System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                    }
                 }
             }
         }
