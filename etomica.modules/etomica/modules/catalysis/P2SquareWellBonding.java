@@ -33,9 +33,9 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
     protected IVectorMutable dv;
     protected final AtomLeafAgentManager agentManager;
 
-    protected final int nSurfaceSites;
-    protected final double epsilonBarrier;
-    protected final double epsilonBonding;
+    protected int nSurfaceSites;
+    protected double epsilonBarrier;
+    protected double epsilonBonding;
     protected final double minOCOr2;
 
     public P2SquareWellBonding(ISpace space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
@@ -89,31 +89,32 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
             // ke is kinetic energy due to components of velocity
             double ke = bij*bij*reduced_m/(2.0*r2);
             if(bij > 0.0) {         // Separating
-                double thisEpsilon = epsilon;
+                double barrier = epsilon;
+                double de = epsilon;
                 boolean isBondEvent = false;
                 if (agent0.bondedAtom1 == atom1 || agent0.bondedAtom2 == atom1) {
                     // O2
                     isBondEvent = true;
                     if (agent0.nSurfaceBonds > nSurfaceSites &&
                         agent1.nSurfaceBonds > nSurfaceSites) {
-                        thisEpsilon = epsilonBonding + epsilonBarrier;
+                        barrier = epsilonBonding + epsilonBarrier;
+                        de = epsilonBonding;
                     }
                     else {
                         // not on the surface, prevent unbonding
-                        thisEpsilon = Double.POSITIVE_INFINITY;
+                        barrier = Double.POSITIVE_INFINITY;
                     }
                 }
-                if (ke < thisEpsilon) {     // Not enough kinetic energy to escape
+                if (ke < barrier) {     // Not enough kinetic energy to escape
                     lastCollisionVirial = 2.0*reduced_m*bij;
                     nudge = -eps;
                     lastEnergyChange = 0.0;
                 }
                 else {                 // Escape
-                    lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*thisEpsilon/reduced_m));
+                    lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*de/reduced_m));
                     nudge = eps;
-                    lastEnergyChange = epsilon;
+                    lastEnergyChange = de;
                     if (isBondEvent) {
-                        lastEnergyChange = epsilonBonding;
                         if (agent0.bondedAtom1 == atom1) {
                             agent0.bondedAtom1 = agent0.bondedAtom2;
                             agent0.bondedAtom2 = null;
@@ -134,20 +135,22 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
                 }
             }
             else {
-                double thisEpsilon = epsilon;
+                double barrier = -epsilon;
                 boolean isBondEvent = false;
+                double de = -epsilon;
                 if (agent0.isRadical && agent1.isRadical) {
-                    thisEpsilon = -epsilonBarrier;
+                    barrier = epsilonBarrier;
+                    de = -epsilonBonding;
                     isBondEvent = true;
                 }
                 else if (agent0.bondedAtom1 == agent1.bondedAtom1) {
                     // OCO, prevent approach
-                    thisEpsilon = -Double.POSITIVE_INFINITY;
+                    barrier = -Double.POSITIVE_INFINITY;
                 }
-                if(ke > -thisEpsilon) {   // Approach/capture
-                    lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
+                if(ke > barrier) {   // Approach/capture
+                    lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*de/reduced_m));
                     nudge = -eps;
-                    lastEnergyChange = -epsilon;
+                    lastEnergyChange = de;
                     if (isBondEvent) {
                         if (agent0.bondedAtom1 == null) {
                             agent0.bondedAtom1 = (IAtom)atom1;
@@ -309,5 +312,38 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         epsilon = eps;
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
+    
+    public int getNumSurfaceSites() {
+        return nSurfaceSites;
+    }
+
+    public void setNumSurfaceSites(int newNumSurfaceSites) {
+        if (newNumSurfaceSites < 1) {
+            throw new RuntimeException("Must be positive");
+        }
+        nSurfaceSites = newNumSurfaceSites;
+    }
+    
+    public double getBarrier() {
+        return epsilonBarrier;
+    }
+
+    public void setBarrier(double newBarrier) {
+        if (newBarrier < 0) {
+            throw new RuntimeException("Must not be negative");
+        }
+        epsilonBarrier = newBarrier;
+    }
+    
+    public double getEpsilonBonding() {
+        return epsilonBonding;
+    }
+
+    public void setEpsilonBonding(double newEpsilonBonding) {
+        if (newEpsilonBonding < 0) {
+            throw new RuntimeException("Must not be negative");
+        }
+        epsilonBonding = newEpsilonBonding;
+    }
 }
   
