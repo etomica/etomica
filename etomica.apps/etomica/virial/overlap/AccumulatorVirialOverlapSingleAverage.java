@@ -65,25 +65,15 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
             double v;
-            if (Double.isInfinite(value1)) {
-                if (isReference) {
-                    v = 1;
-                }
-                else {
-                    v = 1.0/expX[j];
-                }
+            // this is actually blockSum[1], but for all the various values of the overlap parameter
+            // this doesn't look right, but it is.
+            // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
+            v = 1;
+            if (isReference) {
+                v /= (1.0 + expX[j]/value1);
             }
-            else { 
-                // this is actually blockSum[1], but for all the various values of the overlap parameter
-                // this doesn't look right, but it is.
-                // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
-                v = 1;
-                if (isReference) {
-                    v /= (1.0 + expX[j]/value1);
-                }
-                else {
-                    v /= (expX[j] + 1.0/value1);
-                }
+            else {
+                v /= (expX[j] + 1.0/value1);
             }
             blockOverlapSum[j] += v;
             overlapSumSquare[j] += v*v;
@@ -175,22 +165,21 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     }
     
     public void setFile(String fName){
-    	this.fnm = fName;   
-    	try {
-          	fileWriter = new FileWriter(fName);
-          	
-          } catch (IOException e){
-          	fileWriter = null;
-          }
+        this.fnm = fName;
+        try {
+            fileWriter = new FileWriter(fName);
+        } catch (IOException e){
+            fileWriter = null;
+        }
     }
  
     
     public void closeFile(){
-    	try{
-    		fileWriter.close();
-    	} catch (IOException e){
-    		
-    	}
+        try{
+            fileWriter.close();
+        } catch (IOException e){
+            
+        }
     }
 
     private static final long serialVersionUID = 1L;
