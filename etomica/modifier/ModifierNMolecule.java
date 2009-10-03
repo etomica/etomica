@@ -22,8 +22,6 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
     public void setValue(double d) {
         if (d < 0) d = 0;
-        previousValue = mostRecentValue;
-        mostRecentValue = (int)d;
         box.setNMolecules(species, (int) d);
     }
 
@@ -39,12 +37,7 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
         return species + " molecules";
     }
     
-    public String toString() {
-        return "Change number of "+species+
-                " molecules from " + previousValue + " to " + mostRecentValue;
-    }
     private static final long serialVersionUID = 1L;
     protected final IBox box;
     protected final ISpecies species;
-    protected int mostRecentValue, previousValue;
 }
