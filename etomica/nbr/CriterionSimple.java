@@ -137,11 +137,11 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    private double interactionRange, displacementLimit2, neighborRadius2;
-	private final IVectorMutable dr;
-    private IBoundary boundary;
+    protected double interactionRange, displacementLimit2, neighborRadius2;
+	protected final IVectorMutable dr;
+    protected IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private AtomLeafAgentManager agentManager;
-    private final BoxAgentManager boxAgentManager;
+    protected AtomLeafAgentManager agentManager;
+    protected final BoxAgentManager boxAgentManager;
 }
