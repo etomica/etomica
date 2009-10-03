@@ -323,7 +323,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     /**
      * Accessor method to plot class so that its properties can be edited.
      */
-    public final Plot getPlot() {return plot;}
+    public final EtomicaPlot getPlot() {return plot;}
         
     /**
      * Overrides superclass method to return a JPanel holding the plot.
