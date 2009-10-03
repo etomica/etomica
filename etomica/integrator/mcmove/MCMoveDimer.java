@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -42,7 +41,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected final Api1ACell neighborIterator;
     protected final IVectorMutable dr;
     protected final IPotentialAtomic dimerPotential;
-    protected IAtomPositioned atom1;
+    protected IAtom atom1;
 
     public MCMoveDimer(ISimulation sim, PotentialMasterCell potentialMaster, ISpace _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
@@ -81,11 +80,11 @@ public class MCMoveDimer extends MCMoveBoxStep {
         neighborIterator.setBox(box);
         neighborIterator.setTarget(atom);
         neighborIterator.reset();
-        IAtomPositioned atom0 = (IAtomPositioned)atom;
+        IAtom atom0 = atom;
         atom1 = null;
         for (IAtomList pair = neighborIterator.next(); pair != null;
              pair = neighborIterator.next()) {
-        	 atom1 = (IAtomPositioned)pair.getAtom(1);
+        	 atom1 = pair.getAtom(1);
         	dr.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         	box.getBoundary().nearestImage(dr);
         	if (dr.squared() < 1) {
@@ -101,14 +100,14 @@ public class MCMoveDimer extends MCMoveBoxStep {
         }
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        energyMeter.setTarget((IAtom)atom1);
+        energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
         if(uOld > 1e8 && !fixOverlap) {
             throw new RuntimeException("atom "+atom+" in box "+box+" has an overlap");
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         atom1.getPosition().PE(translationVector);
         return true;
     }//end of doTrial
@@ -150,7 +149,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         atom1.getPosition().PE(translationVector);
     }
         
@@ -158,7 +157,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     public AtomIterator affectedAtoms() {
         affectedAtoms.clear();
         affectedAtoms.add(atom);
-        affectedAtoms.add((IAtom)atom1);
+        affectedAtoms.add(atom1);
         return affectedAtomIterator;
     }
     

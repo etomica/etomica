@@ -3,7 +3,6 @@ package etomica.paracetamol;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -246,9 +245,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	IVectorMutable leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-	    	IVectorMutable leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
-	    	IVectorMutable leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
+	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection
@@ -341,9 +340,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	    	 * Determine the Orientation of Each Molecule
     	    	 */
     	    	
-    	    	IVectorMutable leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-    	    	IVectorMutable leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
-    	    	IVectorMutable leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
+    	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+    	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
     	    	
     	    	
     	    	/*
@@ -388,9 +387,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
             
-	    	IVectorMutable leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-	    	IVectorMutable leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
-	    	IVectorMutable leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
+	    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+	    	IVectorMutable leafPos5 = molecule.getChildList().getAtom(5).getPosition();
+	    	IVectorMutable leafPos10 = molecule.getChildList().getAtom(10).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection

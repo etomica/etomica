@@ -2,7 +2,6 @@
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
@@ -31,13 +30,13 @@ public class PCEnergySumEinsteinCrystalExpansion implements PotentialCalculation
 			atom0 = atoms.getAtom(0);
 			atom1 = atoms.getAtom(1);
 			
-			dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
+			dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 			box.getBoundary().nearestImage(dr);
 			
 			double distanceScalar = dr.squared();
 			double rdu = ((Potential2SoftSpherical)potential).du(distanceScalar);
 			   
-			latticeDistance.Ev1Mv2(initialLatticePosition[((IAtom)atom1).getLeafIndex()], initialLatticePosition[((IAtom)atom0).getLeafIndex()]);
+			latticeDistance.Ev1Mv2(initialLatticePosition[atom1.getLeafIndex()], initialLatticePosition[atom0.getLeafIndex()]);
 			box.getBoundary().nearestImage(latticeDistance);
 			
 			sum += rdu*(dr.dot(latticeDistance))/distanceScalar;

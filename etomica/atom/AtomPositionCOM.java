@@ -4,10 +4,9 @@ import java.io.Serializable;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -39,7 +38,7 @@ public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
         for (int i=0; i<nAtoms; i++) {
             IAtom a = children.getAtom(i);
             double mass = a.getType().getMass();
-            center.PEa1Tv1(mass, ((IAtomPositioned)a).getPosition());
+            center.PEa1Tv1(mass, a.getPosition());
             massSum += mass;
         }
         center.TE(1.0 / massSum);

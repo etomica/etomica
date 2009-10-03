@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Formatter;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
@@ -39,6 +40,8 @@ public class DisplayTable extends Display implements DataTableListener {
 
     public DisplayTable(DataSinkTable dataTable) {
         this.dataTable = dataTable;
+        stringBuilder = new StringBuilder();
+        formatter = new Formatter(stringBuilder);
 
         units = new Unit[dataTable.getDataCount()];
         for (int i = 0; i < units.length; i++) {
@@ -174,7 +177,7 @@ public class DisplayTable extends Display implements DataTableListener {
      * significant figures to be displayed.
      */
     public int getPrecision() {
-        return formatter.getMaximumFractionDigits();
+        return digits;
     }
 
     /**
@@ -182,7 +185,23 @@ public class DisplayTable extends Display implements DataTableListener {
      * significant figures to be displayed.
      */
     public void setPrecision(int n) {
-        formatter.setMaximumFractionDigits(n);
+        if (n < 1) {
+            throw new RuntimeException("precision must be positive");
+        }
+        digits = n;
+        if (digits+4 > nColumns) {
+            setNumDigitColumns(digits+4);
+        }
+    }
+    
+    public int getNumDigitColumns() {
+        return nColumns;
+    }
+    
+    public void setNumDigitColumns(int n) {
+        nColumns = n;
+        minFloat = Math.pow(10, digits-nColumns);
+        maxFloat = Math.pow(10, nColumns);
     }
 
     public void repaint() {
@@ -388,12 +407,17 @@ public class DisplayTable extends Display implements DataTableListener {
     private LinkedList<DataTagBag> unitList;
     private LinkedList<DataTagBag> columnHeaderList;
     private Unit defaultUnit;
+    protected int digits;
+    protected int nColumns;
+    protected double maxFloat, minFloat;
     
 
     //structures used to adjust precision of displayed values
     //  private final java.text.NumberFormat formatter =
     // java.text.NumberFormat.getInstance();
-    protected final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
+    protected final Formatter formatter;
+    protected final StringBuilder stringBuilder;
+//    protected final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
 
     private class MyTable extends AbstractTableModel {
 
@@ -418,12 +442,25 @@ public class DisplayTable extends Display implements DataTableListener {
                 return "-infinity";
             }
             if (value == Double.POSITIVE_INFINITY) {
-            	return "infinity";
+                return "infinity";
             } 
             if (Double.isNaN(value)){
             	return "NaN";
             }
-            return formatter.format(value);
+            double av = Math.abs(value);
+            if ((av < minFloat && value != 0) || av >= maxFloat) {
+                formatter.format("%"+(3+digits)+"."+(digits-1)+"e", value);
+            }
+            else if (av < 1) {
+                formatter.format("%"+(digits+5)+"."+(digits+3)+"f", value);
+            }
+            else {
+                int n = (int)(Math.log(av)/Math.log(10));
+                formatter.format("%"+(digits+5)+"."+(digits+3-n)+"f", value);
+            }
+            String out = formatter.out().toString();
+            stringBuilder.delete(0, stringBuilder.length());
+            return out;
         }
 
         public int getRowCount() {
@@ -457,13 +494,13 @@ public class DisplayTable extends Display implements DataTableListener {
     private class InputEventHandler extends MouseAdapter implements KeyListener {
 
         public void keyPressed(KeyEvent evt) {
-            char c = evt.getKeyChar();
-            if (Character.isDigit(c)) {
-                System.out.println("Setting precision "
-                        + Character.getNumericValue(c));
-                setPrecision(Character.getNumericValue(c));
-                panel.repaint();
-            }
+//            char c = evt.getKeyChar();
+//            if (Character.isDigit(c)) {
+//                System.out.println("Setting precision "
+//                        + Character.getNumericValue(c));
+//                setPrecision(Character.getNumericValue(c));
+//                panel.repaint();
+//            }
         }
 
         public void keyReleased(KeyEvent evt) {
@@ -508,7 +545,7 @@ public class DisplayTable extends Display implements DataTableListener {
         table.setRowLabels(new String[] { "Current", "Average", "Error" });
         table.setTransposed(false);
         table.setShowingRowLabels(true);
-        table.setPrecision(7);
+//        table.setPrecision(7);
 
         graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 

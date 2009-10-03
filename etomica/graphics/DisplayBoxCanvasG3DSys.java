@@ -11,7 +11,6 @@ import org.jmol.g3d.Graphics3D;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -279,7 +278,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			if (!drawable) {
 				continue;
 			}
-			((IAtomPositioned)a).getPosition().assignTo(coords);
+			a.getPosition().assignTo(coords);
 			float diameter = (float) ((IAtomTypeSphere) a.getType())
 					.getDiameter();
 			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
@@ -586,7 +585,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public Object makeAgent(IAtom a) {
 		if (!(a.getType() instanceof IAtomTypeSphere))
 			return null;
-		((IAtomPositioned) a).getPosition().assignTo(coords);
+		a.getPosition().assignTo(coords);
 
 		float diameter = (float) ((IAtomTypeSphere) a.getType()).getDiameter();
 		Ball newBall = new Ball(gsys, G3DSys.getColix((displayBox

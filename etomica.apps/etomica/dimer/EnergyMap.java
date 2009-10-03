@@ -1,7 +1,7 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -144,7 +144,7 @@ public class EnergyMap extends Simulation{
         // Sn
         IMolecule adMolecule = snAdatom.makeMolecule();
         box.addMolecule(adMolecule);
-        IAtomPositioned adAtom = (IAtomPositioned)adMolecule.getChildList().getAtom(0);
+        IAtom adAtom = adMolecule.getChildList().getAtom(0);
 
         adAtom.getPosition().setX(0, height);
         adAtom.getPosition().setX(1, -4.37);

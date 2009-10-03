@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -32,8 +32,8 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * be using.
      */
     public double energy(IAtomList pair) {
-        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);

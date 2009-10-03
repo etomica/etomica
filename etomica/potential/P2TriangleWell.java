@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -36,8 +36,8 @@ public class P2TriangleWell extends Potential2 {
     }
 
     public double energy(IAtomList pair) {
-        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
@@ -59,8 +59,8 @@ public class P2TriangleWell extends Potential2 {
     // what could call this?
     public IVector force(IAtomList pair){
         
-        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);

@@ -33,14 +33,14 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     
     public double energy(IAtomList atomSet) {
     	
-        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtom atom0 = atomSet.getAtom(0);
+        IAtom atom1 = atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	boundary.nearestImage(dr01);
         double r2 = dr01.squared();
         
-        int index0 = ((IAtom)atom0).getIndex();
-        int index1 = ((IAtom)atom1).getIndex();
+        int index0 = atom0.getIndex();
+        int index1 = atom1.getIndex();
         
         if (true){
         	return 0;
@@ -52,14 +52,14 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     
     public IVector[] gradient(IAtomList atomSet) {
     	
-        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtom atom0 = atomSet.getAtom(0);
+        IAtom atom1 = atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	boundary.nearestImage(dr01);
         double r2 = dr01.squared();
         
-        int index0 = ((IAtom)atom0).getIndex();
-        int index1 = ((IAtom)atom1).getIndex();
+        int index0 = atom0.getIndex();
+        int index1 = atom1.getIndex();
         
         double sumU = du(r2) - constant*SpeciesParacetamol.Echarge[index0]*SpeciesParacetamol.Echarge[index1]/Math.sqrt(r2);
         

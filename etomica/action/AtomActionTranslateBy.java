@@ -3,9 +3,8 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -26,7 +25,7 @@ public class AtomActionTranslateBy implements AtomAction, Serializable {
     }
     
     public void actionPerformed(IAtom atom) {
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
     }
        
     /**

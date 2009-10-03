@@ -2,9 +2,8 @@ package etomica.modules.dcvgcmd;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
@@ -50,7 +49,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList atom) {
-        IVectorMutable r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
+        IVectorMutable r = atom.getAtom(0).getPosition();
         double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
@@ -85,7 +84,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList atom) {
-        IVectorMutable r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
+        IVectorMutable r = atom.getAtom(0).getPosition();
         double rz = r.getX(2);
         double dz2 = (z - rz);
         dz2 *= dz2;

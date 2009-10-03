@@ -3,10 +3,9 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -28,7 +27,7 @@ public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Ser
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
         for (int i=0; i<nAtoms; i++) {
-            center.PE(((IAtomPositioned)children.getAtom(i)).getPosition());
+            center.PE(children.getAtom(i).getPosition());
         }
         center.TE(1.0 / nAtoms);
         return center;

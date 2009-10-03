@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.space.ISpace;
@@ -21,8 +20,8 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 		while (sampleCluster.value(clusterBox)== 0){
     		IAtomList list = box.getLeafList();
     		for (int i=1;i<list.getAtomCount();i++){
-    			((IVectorRandom)((IAtomPositioned)list.getAtom(i)).getPosition()).setRandomInSphere(random);
-    			((IAtomPositioned)list.getAtom(i)).getPosition().TE(2);
+    			((IVectorRandom)list.getAtom(i).getPosition()).setRandomInSphere(random);
+    			list.getAtom(i).getPosition().TE(2);
     			 clusterBox.trialNotify();
     			 clusterBox.acceptNotify();
     		}

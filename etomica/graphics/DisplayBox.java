@@ -475,7 +475,7 @@ public class DisplayBox extends Display {
      * @return Component
      */
     public Component graphic(Object obj) {
-        return (Component)canvas;
+        return canvas;
     }
 
     /**

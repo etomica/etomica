@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
@@ -49,11 +49,11 @@ public class P22CLJQ extends PotentialMolecular {
 
         IAtomList mol1 = pair.getMolecule(0).getChildList(); 
         IAtomList mol2 = pair.getMolecule(1).getChildList(); 
-        IAtomPositioned bead11 = (IAtomPositioned)mol1.getAtom(0);
-        IAtomPositioned bead12 = (IAtomPositioned)mol1.getAtom(1);
+        IAtom bead11 = mol1.getAtom(0);
+        IAtom bead12 = mol1.getAtom(1);
 
-        IAtomPositioned bead21 = (IAtomPositioned)mol2.getAtom(0);
-        IAtomPositioned bead22 = (IAtomPositioned)mol2.getAtom(1);
+        IAtom bead21 = mol2.getAtom(0);
+        IAtom bead22 = mol2.getAtom(1);
 
         // LJ contributation
 

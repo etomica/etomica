@@ -3,7 +3,6 @@ package etomica.normalmode;
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2;
@@ -47,7 +46,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
     public double energy(IAtomList pair) {
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
-        dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         int dI = atom1.getParentGroup().getIndex() - atom0.getParentGroup().getIndex();
         // assume 1 species
         if (Math.abs(dI) == box.getMoleculeList().getMoleculeCount()-1) {

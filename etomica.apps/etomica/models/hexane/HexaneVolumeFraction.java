@@ -120,7 +120,7 @@ public class HexaneVolumeFraction extends Simulation {
                 IAtomList list = sim.box.getLeafList();
                 for(int i = 0; i < list.getAtomCount(); i++){
                     atom = list.getAtom(i);
-                    temp.E(((IAtomPositioned)atom).getPosition());
+                    temp.E(atom.getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));
                     if(length <= 0.5){

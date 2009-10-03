@@ -1,7 +1,6 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
@@ -57,7 +56,7 @@ public class MeterDeformation implements IEtomicaDataSource {
             if (!filter.accept(leafList.getAtom(i))) {
                 continue;
             }
-            center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+            center.PE(leafList.getAtom(i).getPosition());
         }
         center.TE(1.0/leafList.getAtomCount());
 
@@ -67,7 +66,7 @@ public class MeterDeformation implements IEtomicaDataSource {
             if (!filter.accept(leafList.getAtom(i))) {
                 continue;
             }
-            dr.Ev1Mv2(((IAtomPositioned)leafList.getAtom(i)).getPosition(), center);
+            dr.Ev1Mv2(leafList.getAtom(i).getPosition(), center);
             workTensor.Ev1v2(dr, dr);
             moment.PE(workTensor);
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IIntegrator;
 import etomica.api.IVector;
@@ -119,8 +119,8 @@ public class MSDCoordWriter implements IAction, IListener {
 			try {
 				iterator.reset();
 				int i=0;
-				for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
-                     atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
+				for (IAtom atom = iterator.nextAtom();
+                     atom != null; atom = iterator.nextAtom()) {
 					IVectorMutable atomPosition = atom.getPosition();
 					for (int j=0;j < boxdim.getD();j++){
 						double actualDistance;
@@ -203,8 +203,8 @@ public class MSDCoordWriter implements IAction, IListener {
 		public void updateAtomOldCoord(){
 			iterator.reset();
 			int i=0;
-            for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
-                 atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
+            for (IAtom atom = iterator.nextAtom();
+                 atom != null; atom = iterator.nextAtom()) {
 				atomOldCoord[i].E(atom.getPosition());
 				i++;
 			}
@@ -216,8 +216,8 @@ public class MSDCoordWriter implements IAction, IListener {
 			
 			// workVector is modified to hold a value of box lengths an atom has traveled
 			// atomPBIarray is filled here
-            for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
-                 atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
+            for (IAtom atom = iterator.nextAtom();
+                 atom != null; atom = iterator.nextAtom()) {
 				workVector.E(atomOldCoord[i]);
 				workVector.ME(atom.getPosition()); 
 				workVector.DE(boxDim);

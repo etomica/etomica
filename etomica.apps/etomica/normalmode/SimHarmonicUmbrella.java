@@ -130,7 +130,6 @@ public class SimHarmonicUmbrella extends Simulation {
         integrator.setBox(box);
       
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        
     }
 
 

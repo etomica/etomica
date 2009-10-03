@@ -1,7 +1,6 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -132,8 +131,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         if (Double.isInfinite(energyOld)) {
             int limit = coordinateDefinition.getBox().getLeafList().getAtomCount();
             for (int k = 0; k < limit; k++) {
-                System.out.println(k + " " + ((IAtomPositioned) 
-                        coordinateDefinition.getBox().getLeafList().getAtom(k))
+                System.out.println(k + " " + 
+                        coordinateDefinition.getBox().getLeafList().getAtom(k)
                         .getPosition());
             }
             throw new IllegalStateException(

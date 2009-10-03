@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -26,7 +25,7 @@ public class XYZWriter implements IAction, Serializable {
 
     public XYZWriter(IBox aBox) {
         leafList = aBox.getLeafList();
-        elementAtomType = new LinkedList();
+        elementAtomType = new LinkedList<ElementLinker>();
     }
 
     /**
@@ -71,21 +70,21 @@ public class XYZWriter implements IAction, Serializable {
             fileWriter.write("#\n");
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
-                IElement element = ((IAtom)atom).getType().getElement();
+                IAtom atom = leafList.getAtom(iLeaf);
+                IElement element = atom.getType().getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
-                    Iterator elementIterator = elementAtomType.iterator();
+                    Iterator<ElementLinker> elementIterator = elementAtomType.iterator();
                     int elementIndex = -1;
                     while (elementIterator.hasNext()) {
-                        ElementLinker thisElement = (ElementLinker)elementIterator.next();
-                        if (thisElement.type == ((IAtom)atom).getType()) {
+                        ElementLinker thisElement = elementIterator.next();
+                        if (thisElement.type == atom.getType()) {
                             elementIndex = thisElement.elementIndex;
                             break;
                         }
                     }
                     if (elementIndex == -1) {
-                        ElementLinker thisElement = new ElementLinker(elementCount,((IAtom)atom).getType());
+                        ElementLinker thisElement = new ElementLinker(elementCount, atom.getType());
                         elementIndex = thisElement.elementIndex;
                         elementCount++;
                         elementAtomType.add(thisElement);
@@ -118,9 +117,9 @@ public class XYZWriter implements IAction, Serializable {
             return;
         }
         try {
-            Iterator elementIterator = elementAtomType.iterator();
+            Iterator<ElementLinker> elementIterator = elementAtomType.iterator();
             while (elementIterator.hasNext()) {
-                ElementLinker thisElement = (ElementLinker)elementIterator.next();
+                ElementLinker thisElement = elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
                 fileWriter.write("spacefill "+((IAtomTypeSphere)thisElement.type).getDiameter()*0.5);
             }
@@ -135,7 +134,7 @@ public class XYZWriter implements IAction, Serializable {
     private static final String[] elements = new String[] {"H", "O", "F", "N", "C", "P", "S"};
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
-    private final LinkedList elementAtomType;
+    private final LinkedList<ElementLinker> elementAtomType;
     private final IAtomList leafList;
     private boolean doAppend;
     

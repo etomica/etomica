@@ -6,7 +6,6 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -341,9 +340,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             // Use Nstar to offset(rotate) replicas
             IVectorMutable workVector1 = space.makeVector();
             for(int i=0; i<Nstar.length; i++){
-                workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+                workVector1.E(list.getAtom(i).getPosition());
                 workVector1.PEa1Tv1(deltaR, Nstar[i]);
-                ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector1);
+                listMin.getAtom(i).getPosition().E(workVector1);
             }
 
 			// Calculate F*'s
@@ -398,9 +397,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             // Use new N to offset(rotate) replica
             IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
-                workVector2.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+                workVector2.E(list.getAtom(i).getPosition());
                 workVector2.PEa1Tv1(deltaR, N[i]);
-                ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector2);
+                listMin.getAtom(i).getPosition().E(workVector2);
             }     
 						
 			rotCounter++;
@@ -422,8 +421,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		for(int i=0; i<N.length; i++){
 			workvector.Ea1Tv1(stepLength, N[i]);
-			((IAtomPositioned)list.getAtom(i)).getPosition().PE(workvector);
-			((IAtomPositioned)listMin.getAtom(i)).getPosition().PE(workvector);
+			list.getAtom(i).getPosition().PE(workvector);
+			listMin.getAtom(i).getPosition().PE(workvector);
 		}
 		dimerNormal();
 	}
@@ -459,8 +458,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
         // N =  (Rmin - R0) / (deltaR)
         for (int i=0; i<N.length; i++){ 
-            workvector.E(((IAtomPositioned)listMin.getAtom(i)).getPosition());
-            workvector.ME(((IAtomPositioned)list.getAtom(i)).getPosition());
+            workvector.E(listMin.getAtom(i).getPosition());
+            workvector.ME(list.getAtom(i).getPosition());
             N[i].E(workvector);
             mag += workvector.squared();
         }

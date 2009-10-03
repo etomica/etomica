@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -53,7 +53,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
     public void setBox(IBox p) {
         super.setBox(p);
-        selectedAtoms = new IAtomPositioned[box.getMoleculeList().getMoleculeCount()];
+        selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = space.makeVector();
@@ -73,7 +73,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren);
-            selectedAtoms[i] = (IAtomPositioned)childList.getAtom(j);
+            selectedAtoms[i] = childList.getAtom(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             IVectorMutable position = selectedAtoms[i].getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
@@ -87,12 +87,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 //work1 is the current vector from the bonded atom to atom j
                 work1.E(position);
                 if (j == 0) {
-                    work1.ME(((IAtomPositioned)childList.getAtom(j+1)).getPosition());
-                    position.E(((IAtomPositioned)childList.getAtom(j+1)).getPosition());
+                    work1.ME(childList.getAtom(j+1).getPosition());
+                    position.E(childList.getAtom(j+1).getPosition());
                 }
                 else {
-                    work1.ME(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
-                    position.E(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
+                    work1.ME(childList.getAtom(j-1).getPosition());
+                    position.E(childList.getAtom(j-1).getPosition());
                 }
                 double bondLength = Math.sqrt(work1.squared());
                 if (Debug.ON && Debug.DEBUG_NOW) {
@@ -130,8 +130,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 // j-1 - j and j - j+1 bond lengths are unaltered.
 
 //                System.out.println("middle move "+j+" "+position);
-                IVectorMutable position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
-                IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
+                IVectorMutable position0 = childList.getAtom(j-1).getPosition();
+                IVectorMutable position2 = childList.getAtom(j+1).getPosition();
                 work1.Ev1Mv2(position0, position);
                 work2.Ev1Mv2(position2, position);
                 if (Debug.ON && Debug.DEBUG_NOW) {
@@ -171,18 +171,18 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.getAtomCount());
             for (int k=0; k<childList.getAtomCount(); k++) {
-                ((IAtomPositioned)childList.getAtom(k)).getPosition().ME(work1);
+                childList.getAtom(k).getPosition().ME(work1);
             }
             if (Debug.ON && Debug.DEBUG_NOW) {
                 if (j > 0) {
-                    work1.Ev1Mv2(position, ((IAtomPositioned)childList.getAtom(j-1)).getPosition());
+                    work1.Ev1Mv2(position, childList.getAtom(j-1).getPosition());
                     double bondLength = Math.sqrt(work1.squared());
                     if (Math.abs(bondLength - oldBondLength1)/oldBondLength1 > 0.000001) {
                         throw new IllegalStateException("wiggle "+i+" "+j+" bond length should be close to "+oldBondLength1+" ("+bondLength+")");
                     }
                 }
                 if (j < numChildren-1) {
-                    work1.Ev1Mv2(position, ((IAtomPositioned)childList.getAtom(j+1)).getPosition());
+                    work1.Ev1Mv2(position, childList.getAtom(j+1).getPosition());
                     double bondLength = Math.sqrt(work1.squared());
                     double oldBondLength = oldBondLength2 == 0 ? oldBondLength1 : oldBondLength2;
                     if (Math.abs(bondLength - oldBondLength)/oldBondLength > 0.000001) {
@@ -204,7 +204,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.getAtomCount());
             for (int k=0; k<childList.getAtomCount(); k++) {
-                ((IAtomPositioned)childList.getAtom(k)).getPosition().PE(work1);
+                childList.getAtom(k).getPosition().PE(work1);
             }
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
         }
@@ -222,7 +222,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
-    protected IAtomPositioned[] selectedAtoms;
+    protected IAtom[] selectedAtoms;
     protected final IVectorMutable work1, work2, work3;
     protected IVectorMutable[] translationVectors;
     protected double wOld, wNew;

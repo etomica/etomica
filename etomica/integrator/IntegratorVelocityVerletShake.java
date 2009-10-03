@@ -1,9 +1,8 @@
 package etomica.integrator;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -15,10 +14,8 @@ import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
@@ -146,8 +143,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                 }
 
                 for (int j=0; j<bondConstraints.bondedAtoms.length; j++) {
-                    IAtomPositioned atom0 = (IAtomPositioned)childList.getAtom(bondConstraints.bondedAtoms[j][0]);
-                    IAtomPositioned atom1 = (IAtomPositioned)childList.getAtom(bondConstraints.bondedAtoms[j][1]);
+                    IAtom atom0 = childList.getAtom(bondConstraints.bondedAtoms[j][0]);
+                    IAtom atom1 = childList.getAtom(bondConstraints.bondedAtoms[j][1]);
                     drOld[j].Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     boundary.nearestImage(drOld[j]);
                 }
@@ -157,13 +154,13 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
+                MyAgent agent = (MyAgent)agentManager.getAgent(a);
                 IVectorMutable r = a.getPosition();
                 IVectorMutable v = a.getVelocity();
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
-                v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+                v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
                 temp.E(r);
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
 //                System.out.println(iLeaf+" "+r);
@@ -195,8 +192,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtomPositioned atom1 = (IAtomPositioned)childList.getAtom(iAtom1);
-                    IAtomPositioned atom2 = (IAtomPositioned)childList.getAtom(iAtom2);
+                    IAtom atom1 = childList.getAtom(iAtom1);
+                    IAtom atom2 = childList.getAtom(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
 //                    if (i==0) System.out.println(iter+" old dr "+Math.sqrt(dr.squared())+" vs "+bondLengths[j]);
@@ -204,8 +201,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                     double bl2 = bondLengths[j]*bondLengths[j];
                     double diffSq = bl2 - dr2;
                     if (Math.abs(diffSq/bl2) > shakeTol) {
-                        double mass1 = ((IAtom)atom1).getType().getMass();
-                        double mass2 = ((IAtom)atom2).getType().getMass();
+                        double mass1 = atom1.getType().getMass();
+                        double mass2 = atom2.getType().getMass();
                         double rMass = 1.0/mass1 + 1.0/mass2;
                         double drDotDrOld = dr.dot(drOld[j]);
                         if  (drDotDrOld / bl2 < 0.1) {
@@ -251,8 +248,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             // v(t+dt) = (r(t+dt) - r(t))/dt + 0.5 * f(t+dt) / m
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
-            velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtom)a)).force);  //p += f(new)*dt/2
-            currentKineticEnergy += ((IAtom)a).getType().getMass() * velocity.squared();
+            velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            currentKineticEnergy += a.getType().getMass() * velocity.squared();
         }
         currentKineticEnergy *= 0.5;
         

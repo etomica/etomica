@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.space.ISpace;
@@ -37,8 +37,8 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 	            atomIterator.reset();
 	            //Skips the first line, which contains numAtoms
 	            bufReader.readLine();
-	            for (IAtomPositioned atom = (IAtomPositioned)atomIterator.nextAtom();
-                     atom != null; atom = (IAtomPositioned)atomIterator.nextAtom()) {
+	            for (IAtom atom = atomIterator.nextAtom();
+                     atom != null; atom = atomIterator.nextAtom()) {
 	                setPosition(atom,bufReader.readLine());
 	            }
 	            fileReader.close();
@@ -47,14 +47,14 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 	        }
 	        atomIterator.reset();
 	        
-            for (IAtomPositioned atom = (IAtomPositioned)atomIterator.nextAtom();
-                 atom != null; atom = (IAtomPositioned)atomIterator.nextAtom()) {
+            for (IAtom atom = atomIterator.nextAtom();
+                 atom != null; atom = atomIterator.nextAtom()) {
 	        	translatePosition(atom);
 	        }
 	        
 		}
 		
-		private void setPosition(IAtomPositioned atom, String string) {
+		private void setPosition(IAtom atom, String string) {
 	        String[] coordStr = string.split(" +");
             IVectorMutable pos = atom.getPosition();
             for (int i=0; i<pos.getD(); i++) {
@@ -67,7 +67,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
             dim.ME(min);
 	    }
 
-        private void translatePosition(IAtomPositioned atom){
+        private void translatePosition(IAtom atom){
             atom.getPosition().ME(min);
             atom.getPosition().PEa1Tv1(-0.5,dim);
 		}

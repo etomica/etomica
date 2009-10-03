@@ -2,10 +2,9 @@ package etomica.api;
 
 
 /**
- * Interface for an atom that holds vectors for
- * position and velocity.
+ * Interface for an atom that holds vectors for velocity.
  */
-public interface IAtomKinetic extends IAtomPositioned {
+public interface IAtomKinetic extends IAtom {
 
     public IVectorMutable getVelocity();
  

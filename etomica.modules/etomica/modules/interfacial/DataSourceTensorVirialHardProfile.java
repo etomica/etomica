@@ -84,11 +84,11 @@ public class DataSourceTensorVirialHardProfile extends DataSourceTensorVirialHar
 
         Tensor virialTensor = agent.collisionPotential.lastCollisionVirialTensor();
 
-        double x0 = ((IAtomPositioned)agent.atom).getPosition().getX(0);
+        double x0 = agent.atom.getPosition().getX(0);
         // wrap around PBC
         x0 -= Math.round(x0*Li) * L;
         int iBin0 = (int) ((x0 + halfL) / binSize);
-        double x1 = ((IAtomPositioned)agent.collisionPartner).getPosition().getX(0);
+        double x1 = agent.collisionPartner.getPosition().getX(0);
         // wrap around PBC
         x1 -= Math.round(x1*Li) * L;
         int iBin1 = (int) ((x1 + halfL) / binSize);

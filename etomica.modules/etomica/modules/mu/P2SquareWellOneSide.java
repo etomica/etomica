@@ -3,7 +3,6 @@ import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2HardSpherical;
 import etomica.space.ISpace;
@@ -191,8 +190,8 @@ public class P2SquareWellOneSide extends Potential2HardSpherical {
     }
 
     public double energy(IAtomList pair) {
-        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         double x0 = atom0.getPosition().getX(0);
         double x1 = atom1.getPosition().getX(0);
         if (x0 < 0 || x1 < 0) {

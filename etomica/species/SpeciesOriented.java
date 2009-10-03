@@ -2,10 +2,9 @@ package etomica.species;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionCOM;
 import etomica.space.ISpace;
 
@@ -37,9 +36,9 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
         IVectorMutable xWork = space.makeVector();
         mass = 0;
         for (int i=0; i<children.getAtomCount(); i++) {
-            IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
+            IAtom atom = children.getAtom(i);
             xWork.Ev1Mv2(atom.getPosition(), com);
-            double atomMass = ((IAtom)atom).getType().getMass();
+            double atomMass = atom.getType().getMass();
             mass += atomMass;
             for (int j=0; j<3; j++) {
                 for (int k=0; k<3; k++) {

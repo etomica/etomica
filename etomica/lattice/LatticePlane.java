@@ -1,7 +1,6 @@
 package etomica.lattice;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -41,7 +40,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     }
     
     public boolean accept(IAtom a) {
-        return !plane.isPositiveSide(((IAtomPositioned)a).getPosition());
+        return !plane.isPositiveSide(a.getPosition());
     }
 
     public boolean accept(IMolecule mole) {

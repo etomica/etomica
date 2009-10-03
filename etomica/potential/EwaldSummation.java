@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -181,7 +180,7 @@ public class EwaldSummation implements IPotentialMolecular {
 					
 				for (int a=0; a<numSites; a++){
 					IAtom sitea = moleculei.getChildList().getAtom(a);
-					IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
+					IVectorMutable posAtoma = sitea.getPosition();
 					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 					atomPair.atom0 = sitea;
 					
@@ -190,7 +189,7 @@ public class EwaldSummation implements IPotentialMolecular {
 						
 						for (int b=0; b<numSites; b++){
 							IAtom siteb = moleculej.getChildList().getAtom(b);
-							IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();
+							IVectorMutable posAtomb = siteb.getPosition();
 							double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
 							atomPair.atom1 = siteb;
 						
@@ -265,7 +264,7 @@ public class EwaldSummation implements IPotentialMolecular {
 			
 			for (int i=0; i<numAtom; i++){
 				IAtom atomi = atomList.getAtom(i);
-				IVectorMutable posAtomi = ((IAtomPositioned)atomi).getPosition();
+				IVectorMutable posAtomi = atomi.getPosition();
 				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
 				
 				double Sn = pl*(nVector[vecCounter].dot(posAtomi));
@@ -333,8 +332,8 @@ public class EwaldSummation implements IPotentialMolecular {
 				IAtom sitea = pair.getAtom(0);
 				IAtom siteb = pair.getAtom(1);
 				
-				IVectorMutable posAtoma = ((IAtomPositioned)sitea).getPosition();
-				IVectorMutable posAtomb = ((IAtomPositioned)siteb).getPosition();
+				IVectorMutable posAtoma = sitea.getPosition();
+				IVectorMutable posAtomb = siteb.getPosition();
 				
 				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 				double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;

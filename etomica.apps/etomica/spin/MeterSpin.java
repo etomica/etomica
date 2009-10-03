@@ -1,11 +1,11 @@
 package etomica.spin;
 
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.api.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
+import etomica.data.IEtomicaDataSource;
 import etomica.space.ISpace;
 import etomica.units.Undefined;
 
@@ -36,8 +36,8 @@ public class MeterSpin extends DataSourceScalar implements IEtomicaDataSource {
         int count = 0;
         iterator.setBox(box);
         iterator.reset();
-        for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
-             atom = (IAtomPositioned)iterator.nextAtom()) {
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             sum.PE(atom.getPosition());
             count++;
         }

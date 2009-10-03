@@ -11,7 +11,7 @@ import etomica.space3d.OrientationFull3D;
  *
  * @author Andrew Schultz
  */
-public class MoleculeOriented extends Molecule implements IAtomOriented {
+public class MoleculeOriented extends Molecule implements IMoleculeOriented {
 
     public MoleculeOriented(ISpace space, ISpecies species, int numLeafAtoms) {
         super(species, numLeafAtoms);

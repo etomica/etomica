@@ -1,7 +1,6 @@
 package etomica.modules.rheology;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformation;
@@ -22,7 +21,7 @@ public class ConformationPolymer implements IConformation {
     public void initializePositions(IAtomList atomList) {
         r.E(0);
         for (int i=0; i<atomList.getAtomCount(); i++) {
-            IVectorMutable p = ((IAtomPositioned)atomList.getAtom(i)).getPosition();
+            IVectorMutable p = atomList.getAtom(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 p.setX(j, random.nextGaussian());
             }
@@ -30,7 +29,7 @@ public class ConformationPolymer implements IConformation {
         }
         r.TE(-1.0/atomList.getAtomCount());
         for (int i=0; i<atomList.getAtomCount(); i++) {
-            ((IAtomPositioned)atomList.getAtom(i)).getPosition().PE(r);
+            atomList.getAtom(i).getPosition().PE(r);
         }
     }
 

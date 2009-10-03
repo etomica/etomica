@@ -1,7 +1,6 @@
 package etomica.data.meter;
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -91,7 +90,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         // iterate over all pairs
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
-            dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
+            dr.Ev1Mv2(pair.getAtom(1).getPosition(),pair.getAtom(0).getPosition());
             boundary.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation
             if(r2 < xMaxSquared) {

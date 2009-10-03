@@ -2,11 +2,10 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -85,12 +84,12 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         int totalSum = 0, speciesSum = 0;
         iterator.reset();
-        for (IAtomPositioned a = (IAtomPositioned)iterator.nextAtom(); a != null;
-             a = (IAtomPositioned)iterator.nextAtom()) {
+        for (IAtom a = iterator.nextAtom(); a != null;
+             a = iterator.nextAtom()) {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
-                if(((IAtom)a).getType().getSpecies() == species) speciesSum++;
+                if(a.getType().getSpecies() == species) speciesSum++;
             }
         }
         if(totalSum == 0) return Double.NaN;

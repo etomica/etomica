@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -54,7 +54,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
+            IAtom a = childList.getAtom(iChild);
             IVectorMutable r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);

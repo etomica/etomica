@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -40,7 +39,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         for(int i=1; i<leafAtoms.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
-            ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition().PE(translationVectors[i-1]);
+            leafAtoms.getAtom(i).getPosition().PE(translationVectors[i-1]);
         }
 		((BoxCluster)box).trialNotify();
 		uNew = Double.NaN;
@@ -59,7 +58,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void rejectNotify() {
         IAtomList leafAtoms = box.getLeafList();
         for(int i=1; i<leafAtoms.getAtomCount(); i++) {
-            ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition().ME(translationVectors[i-1]);
+            leafAtoms.getAtom(i).getPosition().ME(translationVectors[i-1]);
         }
     	((BoxCluster)box).rejectNotify();
     }

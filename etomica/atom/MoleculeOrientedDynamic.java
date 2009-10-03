@@ -11,7 +11,7 @@ import etomica.space.ISpace;
  *
  * @author Andrew Schultz
  */
-public class MoleculeOrientedDynamic extends MoleculeOriented implements IAtomOrientedKinetic {
+public class MoleculeOrientedDynamic extends MoleculeOriented implements IMoleculeOrientedKinetic {
 
     public MoleculeOrientedDynamic(ISpace space, ISpecies species, int numLeafAtoms) {
         super(space, species, numLeafAtoms);

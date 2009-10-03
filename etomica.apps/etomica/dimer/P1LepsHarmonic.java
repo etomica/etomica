@@ -50,8 +50,8 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 	}
 	
 	public double energy(IAtomList atom) {
-		double x = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(0);
-		double y = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(1);
+		double x = atom.getAtom(0).getPosition().getX(0);
+		double y = atom.getAtom(0).getPosition().getX(1);
 		
 		double energy;
 		
@@ -80,8 +80,8 @@ public class P1LepsHarmonic extends Potential1 implements PotentialSoft {
 		
 	public IVector[] gradient(IAtomList atom){
 
-		double x = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(0);
-		double y = ((IAtomPositioned)atom.getAtom(0)).getPosition().getX(1);
+		double x = atom.getAtom(0).getPosition().getX(0);
+		double y = atom.getAtom(0).getPosition().getX(1);
 		double dudx;
 		double dudy;
 		

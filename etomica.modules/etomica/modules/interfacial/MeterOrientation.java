@@ -1,7 +1,6 @@
 package etomica.modules.interfacial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -39,8 +38,8 @@ public class MeterOrientation implements DataSourceMolecular {
     
     public IData getData(IMolecule atom) {
         IAtomList children = atom.getChildList();
-        dr.Ev1Mv2(((IAtomPositioned)children.getAtom(children.getAtomCount()-1)).getPosition(),
-                  ((IAtomPositioned)children.getAtom(0)).getPosition());
+        dr.Ev1Mv2(children.getAtom(children.getAtomCount()-1).getPosition(),
+                  children.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         data.x= dr.getX(0) / Math.sqrt(dr.squared());
         return data;

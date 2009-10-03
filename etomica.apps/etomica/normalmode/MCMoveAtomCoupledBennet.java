@@ -1,7 +1,6 @@
 package etomica.normalmode;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -96,8 +95,8 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((IAtomPositioned)atom0).getPosition().PE(translationVector);
-        ((IAtomPositioned)atom1).getPosition().ME(translationVector);
+        atom0.getPosition().PE(translationVector);
+        atom1.getPosition().ME(translationVector);
 
         uNew = energyMeter.getDataAsScalar() - latticeEnergy;
         double exp_uNew = Math.exp(-uNew /temperature);
@@ -146,8 +145,8 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
      * before the most recent call to doTrial.
      */
     public void rejectNotify() {
-        ((IAtomPositioned)atom0).getPosition().ME(translationVector);
-        ((IAtomPositioned)atom1).getPosition().PE(translationVector);
+        atom0.getPosition().ME(translationVector);
+        atom1.getPosition().PE(translationVector);
     }
         
     

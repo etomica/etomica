@@ -2,7 +2,6 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -120,15 +119,15 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
         		continue; //we skip the movement 
         	}
 //        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
-//    			System.out.println("atom1 = "+ atom+" "+((IAtomPositioned)atom).getPosition());
-//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+//    			System.out.println("atom1 = "+ atom+" "+atom).getPosition());
+//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+bondedAtoms.getAtom(0)).getPosition());
 //    		}
-        	r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
+        	r.Ev1Mv2(bondedAtoms.getAtom(0).getPosition(),atom.getPosition());//position2 - position1
         	box.getBoundary().nearestImage(r);//choose the shorter distance
 //        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
 //        		System.out.println("rsquared "+ r.squared());
 //        	}
-        	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().Ev1Pv2(((IAtomPositioned)atom).getPosition(), r);//move atom2 to the outside of box
+        	bondedAtoms.getAtom(0).getPosition().Ev1Pv2(atom.getPosition(), r);//move atom2 to the outside of box
         }
     	if (rScale > 1){//expanding
     		r.Ea1Tv1(rScale, box.getBoundary().getBoxSize());
@@ -142,11 +141,11 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
         	IAtomList bondedAtoms = associationManager.getAssociatedAtoms(atom);
         	if (bondedAtoms.getAtomCount() == 0) {
 //        		if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402) {
-//        			System.out.println("atom  = "+ atom +" " +((IAtomPositioned)atom).getPosition());
+//        			System.out.println("atom  = "+ atom +" " +atom).getPosition());
 //        		}
-        		((IAtomPositioned)atom).getPosition().TE(rScale);
+        		atom.getPosition().TE(rScale);
 //        		if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402) {
-//        			System.out.println("atom ... = "+ atom +" " +((IAtomPositioned)atom).getPosition());
+//        			System.out.println("atom ... = "+ atom +" " +atom).getPosition());
 //        		}
         		continue;//go to another atom
         	}
@@ -154,28 +153,28 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep {
         		continue; //we skip the movement 
         	}
 //        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
-//    			System.out.println("atom1 = "+ atom+" "+((IAtomPositioned)atom).getPosition());
-//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
+//    			System.out.println("atom1 = "+ atom+" "+atom).getPosition());
+//    			System.out.println("bondedAtom = "+ bondedAtoms.getAtom(0)+" "+bondedAtoms.getAtom(0)).getPosition());
 //    		}
-        	r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
+        	r.Ev1Mv2(bondedAtoms.getAtom(0).getPosition(),atom.getPosition());//position2 - position1
         	box.getBoundary().nearestImage(r);//choose the shorter distance
 //        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
 //        		System.out.println("rsquared "+ r.squared());
 //        	}
-        	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().Ev1Pv2(((IAtomPositioned)atom).getPosition(), r);//move atom2 to the outside of box
+        	bondedAtoms.getAtom(0).getPosition().Ev1Pv2(atom.getPosition(), r);//move atom2 to the outside of box
         	r.TE(0.5);//half of the separation distance
-        	r.PE(((IAtomPositioned)atom).getPosition());//atom1 position + half of the separation distance
+        	r.PE(atom.getPosition());//atom1 position + half of the separation distance
         	r.PE(box.getBoundary().centralImage(r));// position in the box, prevent the position outside of the box
         	r.TE(rScale-1);
         	
-        	((IAtomPositioned)atom).getPosition().PE(r);//new position of atom1
-        	((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().PE(r);//new position of atom2
-        	//IVector dr = box.getBoundary().centralImage(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
-        	//((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition().PE(dr)
+        	atom.getPosition().PE(r);//new position of atom1
+        	bondedAtoms.getAtom(0).getPosition().PE(r);//new position of atom2
+        	//IVector dr = box.getBoundary().centralImage(bondedAtoms.getAtom(0)).getPosition());
+        	//bondedAtoms.getAtom(0)).getPosition().PE(dr)
 //        	if (atom.getLeafIndex() == 324 || atom.getLeafIndex() == 402 || bondedAtoms.getAtom(0).getLeafIndex() == 324 || bondedAtoms.getAtom(0).getLeafIndex() == 402) {
-//    			System.out.println("atom1 .....= "+ atom+" "+((IAtomPositioned)atom).getPosition());
-//    			System.out.println("bondedAtom .....= "+ bondedAtoms.getAtom(0)+" "+((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition());
-//    			r.Ev1Mv2(((IAtomPositioned)bondedAtoms.getAtom(0)).getPosition(),((IAtomPositioned)atom).getPosition());//position2 - position1
+//    			System.out.println("atom1 .....= "+ atom+" "+atom).getPosition());
+//    			System.out.println("bondedAtom .....= "+ bondedAtoms.getAtom(0)+" "+bondedAtoms.getAtom(0)).getPosition());
+//    			r.Ev1Mv2(bondedAtoms.getAtom(0)).getPosition(),atom).getPosition());//position2 - position1
 //            	box.getBoundary().nearestImage(r);//choose the shorter distance
 //            	System.out.println("after rsquared "+ r.squared());
 //    		}

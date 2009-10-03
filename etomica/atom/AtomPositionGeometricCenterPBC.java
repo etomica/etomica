@@ -3,7 +3,6 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
@@ -33,9 +32,9 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
         center.E(0.0);
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
-        IVector pos0 = ((IAtomPositioned)children.getAtom(0)).getPosition();
+        IVector pos0 = children.getAtom(0).getPosition();
         for (int i=0; i<nAtoms; i++) {
-            dr.Ev1Mv2(((IAtomPositioned)children.getAtom(i)).getPosition(), pos0);
+            dr.Ev1Mv2(children.getAtom(i).getPosition(), pos0);
             boundary.nearestImage(dr);
             center.PE(dr);
         }

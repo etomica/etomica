@@ -1,11 +1,10 @@
 package etomica.config;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.space.Boundary;
@@ -297,7 +296,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
+            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
             
         }
         
@@ -370,7 +369,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
+            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
             
         }      
       
@@ -387,8 +386,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         for(int i=0; i<box.getLeafList().getAtomCount()-1; i++){
             for(int j=i+1; j<box.getLeafList().getAtomCount(); j++){
                 
-                rij.E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
-                rij.ME(((IAtomPositioned)box.getLeafList().getAtom(j)).getPosition());
+                rij.E(box.getLeafList().getAtom(i).getPosition());
+                rij.ME(box.getLeafList().getAtom(j).getPosition());
                 box.getBoundary().nearestImage(rij);
                 range = rij.squared();
                 

@@ -1,12 +1,10 @@
 package etomica.association;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -71,7 +69,7 @@ public class BiasVolumeSphereOriented extends BiasVolume {
 			er2 = e2.dot(work);
         }
         while ( er2 < 0.0 || er2*er2 < ec2*work.squared());
-        ((IAtomPositioned) atom1).getPosition().Ev1Pv2(((IAtomPositioned) atom2).getPosition(), work);
+        atom1.getPosition().Ev1Pv2(atom2.getPosition(), work);
         //rotate atom2 to have a right orientation
         double er1;
         do{
@@ -89,8 +87,8 @@ public class BiasVolumeSphereOriented extends BiasVolume {
     
     public boolean isAssociated(IAtom atom1, IAtom atom2){
     
-        work.E(((IAtomPositioned) atom2).getPosition());
-        work.ME(((IAtomPositioned) atom1).getPosition());
+        work.E(atom2.getPosition());
+        work.ME(atom1.getPosition());
         boundary.nearestImage(work);
         double r2 = work.squared();
 //        if (atom1.getLeafIndex() == 68 ||atom2.getLeafIndex() == 68 ||atom1.getLeafIndex() == 303 ||atom2.getLeafIndex() == 303){

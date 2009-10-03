@@ -1,7 +1,6 @@
 package etomica.util.numerical;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -70,7 +69,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         for(int i=0; i<position.length/3; i++){
            for(int j=0; j<3; j++){
-        	   ((IAtomPositioned)movableSet.getMolecule(i).getChildList().getAtom(0)).getPosition().setX(j, position[(3*i)+j]);
+        	   movableSet.getMolecule(i).getChildList().getAtom(0).getPosition().setX(j, position[(3*i)+j]);
            }
         }
         force.reset();

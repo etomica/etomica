@@ -3,7 +3,7 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -63,8 +63,8 @@ public class Multiharmonic extends Simulation {
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         iterator.setBox(box);
         iterator.reset();
-        for (IAtomPositioned a = (IAtomPositioned)iterator.nextAtom(); a != null;
-             a = (IAtomPositioned)iterator.nextAtom()) {
+        for (IAtom a = iterator.nextAtom(); a != null;
+             a = iterator.nextAtom()) {
             a.getPosition().setX(0,x0);
         }
         activityIntegrate = new ActivityIntegrate(integrator);

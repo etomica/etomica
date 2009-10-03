@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -15,7 +14,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
-import etomica.config.IConformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -237,7 +235,7 @@ public abstract class CoordinateDefinition {
         }
         public Object makeAgent(IAtom atom) {
             IVectorMutable vector = space.makeVector();
-            vector.E(((IAtomPositioned)atom).getPosition());
+            vector.E(atom.getPosition());
             return vector;
         }
         public void releaseAgent(Object agent, IAtom atom) {

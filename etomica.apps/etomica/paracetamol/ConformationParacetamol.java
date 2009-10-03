@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.IConformation;
 import etomica.space.ISpace;
@@ -62,53 +62,53 @@ public class ConformationParacetamol implements IConformation {
 		
 		iterator.reset();
 		
-        IAtomPositioned c1 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c1 = iterator.nextAtom();
 		c1.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c2 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c2 = iterator.nextAtom();
 		x = x-bondLengthC1C2*Math.cos((angleC6C1C2)/2);
 		y = y-bondLengthC1C2*Math.sin((angleC6C1C2)/2);
 		c2.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c3 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c3 = iterator.nextAtom();
 		x = x-bondLengthC2C3;
 		c3.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c4 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c4 = iterator.nextAtom();
 		x = x-bondLengthC3C4*Math.cos((angleC2C3C4/2));
 		y = y+bondLengthC3C4*Math.sin((angleC2C3C4/2));
 		c4.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned o1 = (IAtomPositioned)iterator.nextAtom();
+        IAtom o1 = iterator.nextAtom();
 		x = x-bondLengthC4O1*Math.cos((angleO1C4C5-120*Math.PI/180));
 		y = y-bondLengthC4O1*Math.sin((angleO1C4C5-120*Math.PI/180));
 		o1.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c5 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c5 = iterator.nextAtom();
 		x = x+bondLengthC4O1*Math.cos((angleO1C4C5-120*Math.PI/180))+bondLengthC4C5*Math.cos((angleC3C4C5/2));
 		y = y+bondLengthC4O1*Math.sin((angleO1C4C5-120*Math.PI/180))+bondLengthC4C5*Math.sin((angleC3C4C5/2));  
 		c5.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c6 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c6 = iterator.nextAtom();
 		x = x+bondLengthC5C6;
 		c6.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned n1 = (IAtomPositioned)iterator.nextAtom();
+        IAtom n1 = iterator.nextAtom();
 		x = x+bondLengthC6C1*Math.cos((angleC5C6C1/2))+bondLengthC1N1*Math.cos((120*Math.PI/180-angleC6C1N1));
 		y = y-bondLengthC6C1*Math.sin((angleC5C6C1/2))+bondLengthC1N1*Math.sin((120*Math.PI/180-angleC6C1N1));
 		n1.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c7 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c7 = iterator.nextAtom();
 		x = x+bondLengthN1C7*Math.cos((180*Math.PI/180-angleC1N1C7-2*Math.PI/180));
 		y = y-bondLengthN1C7*Math.sin((180*Math.PI/180-angleC1N1C7-2*Math.PI/180));
 		c7.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned c8 = (IAtomPositioned)iterator.nextAtom();
+        IAtom c8 = iterator.nextAtom();
 		x = x+bondLengthC7C8*Math.cos(17*Math.PI/180);
 		y = y+bondLengthC7C8*Math.sin(17*Math.PI/180);
 		c8.getPosition().E(new double [] {x, y, 0.0});
 		
-        IAtomPositioned o2 = (IAtomPositioned)iterator.nextAtom();
+        IAtom o2 = iterator.nextAtom();
 		x = x-bondLengthC7C8*Math.cos(17*Math.PI/180)-bondLengthC7O2*Math.cos(76*Math.PI/180);
 		y = y-bondLengthC7C8*Math.sin(17*Math.PI/180)-bondLengthC7O2*Math.sin(76*Math.PI/180);
 		o2.getPosition().E(new double [] {x, y, 0.0});

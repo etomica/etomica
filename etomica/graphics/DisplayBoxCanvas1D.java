@@ -11,7 +11,6 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
@@ -91,24 +90,24 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    private void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
+    private void drawAtom(Graphics g, int origin[], IAtom a) {
         
         IVectorMutable r = a.getPosition();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        if(((IAtom)a).getType() instanceof AtomTypeWell) {
+        if(a.getType() instanceof AtomTypeWell) {
             drawWell = true;
         }
 
-        g.setColor(displayBox.getColorScheme().getAtomColor((IAtom)a));
+        g.setColor(displayBox.getColorScheme().getAtomColor(a));
             
         baseXP = origin[0] + (int)(displayBox.getToPixels()*r.getX(0));
         int drawingHeight = displayBox.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
-        if(((IAtom)a).getType() instanceof IAtomTypeSphere) {
+        if(a.getType() instanceof IAtomTypeSphere) {
             /* Draw the core of the atom */
-            sigmaP = (int)(displayBox.getToPixels()*((IAtomTypeSphere)((IAtom)a).getType()).getDiameter());
+            sigmaP = (int)(displayBox.getToPixels()*((IAtomTypeSphere)a.getType()).getDiameter());
             if (sigmaP == 0) {
                 sigmaP = 1;
             }
@@ -117,7 +116,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             g.fillRect(xP, yP, sigmaP, drawingHeight);
             /* Draw the surrounding well, if any */
             if(drawWell) {
-                sigmaP = (int)(displayBox.getToPixels()*((AtomTypeWell)((IAtom)a).getType()).wellDiameter());
+                sigmaP = (int)(displayBox.getToPixels()*((AtomTypeWell)a.getType()).wellDiameter());
                 xP = baseXP - (sigmaP>>1);
                 g.setColor(wellColor);
                 g.drawRect(xP, yP, sigmaP, drawingHeight);
@@ -128,10 +127,10 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(IAtomPositioned a, IBoundary b) {
-        if(((IAtom)a).getType() instanceof IAtomTypeSphere) {
+    protected boolean computeShiftOrigin(IAtom a, IBoundary b) {
+        if(a.getType() instanceof IAtomTypeSphere) {
             OverflowShift overflow = new OverflowShift(space);
-            float[][] shifts = overflow.getShifts(b, a.getPosition(),0.5*((IAtomTypeSphere)((IAtom)a).getType()).getDiameter());
+            float[][] shifts = overflow.getShifts(b, a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayBox.getOrigin()[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayBox.getOrigin()[1] + (int)(displayBox.getToPixels()*shifts[i][1]);
@@ -191,7 +190,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
             if(atomFilter != null && atomFilter.accept(a)) continue;
-            drawAtom(g, atomOrigin, (IAtomPositioned)a);
+            drawAtom(g, atomOrigin, a);
         }
             
         //Draw overflow images if so indicated

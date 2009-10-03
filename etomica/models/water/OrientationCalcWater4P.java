@@ -1,7 +1,7 @@
 package etomica.models.water;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
@@ -39,9 +39,9 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
     public void calcOrientation(IMolecule molecule, double[] quat) {
         // depend on ordering as H1, H2, O.  we could sniff this out if needed
         IAtomList children = molecule.getChildList();
-        IAtomPositioned H1 = (IAtomPositioned)children.getAtom(0);
-        IAtomPositioned H2 = (IAtomPositioned)children.getAtom(1);
-        IAtomPositioned O = (IAtomPositioned)children.getAtom(2);
+        IAtom H1 = children.getAtom(0);
+        IAtom H2 = children.getAtom(1);
+        IAtom O = children.getAtom(2);
 
         // xyzWork define the orientation of the molecule
         // xWork is the axis defined by the H1->H2 vector
@@ -261,7 +261,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
     protected static void doTransform(IMolecule molecule, IVector r0, RotationTensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
+            IAtom a = childList.getAtom(iChild);
             IVectorMutable r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
@@ -273,9 +273,9 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
             IOrientationFull3D orientation) {
         // depend on ordering as H1, H2, O.  we could sniff this out if needed
         IAtomList children = molecule.getChildList();
-        IAtomPositioned H1 = (IAtomPositioned)children.getAtom(0);
-        IAtomPositioned H2 = (IAtomPositioned)children.getAtom(1);
-        IAtomPositioned O = (IAtomPositioned)children.getAtom(2);
+        IAtom H1 = children.getAtom(0);
+        IAtom H2 = children.getAtom(1);
+        IAtom O = children.getAtom(2);
 
         // xyzWork define the orientation of the molecule
         // xWork is the axis defined by the H1->H2 vector
@@ -300,7 +300,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
         rotationTensor.setOrientation(orientation);
         rotationTensor.invert();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
+            IAtom a = childList.getAtom(iChild);
             IVectorMutable r = a.getPosition();
             r.ME(com0);
             rotationTensor.transform(r);

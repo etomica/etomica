@@ -1,11 +1,10 @@
 package etomica.modules.entropylottery;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
@@ -46,7 +45,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         translationVector.E(0);
         int i = random.nextInt(translationVector.getD());
         translationVector.setX(i, random.nextInt(2)*2-1);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         return true;
     }
     
@@ -58,7 +57,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      * doTrial.
      */
     public double getB() {
-        IVectorMutable position = ((IAtomPositioned)atom).getPosition();
+        IVectorMutable position = atom.getPosition();
         IVector dimensions = box.getBoundary().getBoxSize();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
@@ -95,7 +94,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
     }
         
     

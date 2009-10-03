@@ -1,6 +1,6 @@
 package etomica.virial.paralleltempering;
 
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
@@ -51,9 +51,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        for (IAtomPositioned a1 = (IAtomPositioned)iterator1.nextAtom(); a1 != null;
-             a1 = (IAtomPositioned)iterator1.nextAtom()) {
-            IAtomPositioned a2 = (IAtomPositioned)iterator2.nextAtom();
+        for (IAtom a1 = iterator1.nextAtom(); a1 != null;
+             a1 = iterator1.nextAtom()) {
+            IAtom a2 = iterator2.nextAtom();
 
             //swap coordinates
             r.E(a1.getPosition());
@@ -94,9 +94,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        for (IAtomPositioned a1 = (IAtomPositioned)iterator1.nextAtom(); a1 != null;
-             a1 = (IAtomPositioned)iterator1.nextAtom()) {
-            IAtomPositioned a2 = (IAtomPositioned)iterator2.nextAtom();
+        for (IAtom a1 = iterator1.nextAtom(); a1 != null;
+             a1 = iterator1.nextAtom()) {
+            IAtom a2 = iterator2.nextAtom();
 
             //swap coordinates
             r.E(a1.getPosition());

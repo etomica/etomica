@@ -1,7 +1,7 @@
 package etomica.config;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.space.ISpace;
 
 
@@ -20,13 +20,13 @@ public class ConformationWater implements IConformation, java.io.Serializable {
         double x = 6.0;
         double y = 6.0;
         
-        IAtomPositioned o = (IAtomPositioned)list.getAtom(0);
+        IAtom o = list.getAtom(0);
         o.getPosition().E(new double[] {x, y, 0.0});
                
-        IAtomPositioned h1 = (IAtomPositioned)list.getAtom(1);
+        IAtom h1 = list.getAtom(1);
         h1.getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        IAtomPositioned h2 = (IAtomPositioned)list.getAtom(2);
+        IAtom h2 = list.getAtom(2);
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
     }
         

@@ -1,13 +1,12 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
 import etomica.space.ISpace;
@@ -124,7 +123,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public double energy(IAtomList a) {
-        double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().getX(wallD) - wallPosition;
+        double dx = a.getAtom(0).getPosition().getX(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
         }

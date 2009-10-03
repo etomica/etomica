@@ -11,11 +11,10 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -96,29 +95,29 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    protected void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
+    protected void drawAtom(Graphics g, int origin[], IAtom a) {
         IVectorMutable r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        boolean drawOrientation = (((IAtom)a).getType() instanceof AtomTypeOrientedSphere);
-        boolean drawWell = (((IAtom)a).getType() instanceof AtomTypeWell);
+        boolean drawOrientation = (a.getType() instanceof AtomTypeOrientedSphere);
+        boolean drawWell = (a.getType() instanceof AtomTypeWell);
 
-        g.setColor(displayBox.getColorScheme().getAtomColor((IAtom)a));
+        g.setColor(displayBox.getColorScheme().getAtomColor(a));
         
         double toPixels = pixel.toPixels() * displayBox.getScale();
 
         baseXP = origin[0] + (int)(toPixels*r.getX(0));
         baseYP = origin[1] + (int)(toPixels*r.getX(1));
-        if(((IAtom)a).getType() instanceof IAtomTypeSphere) {
+        if(a.getType() instanceof IAtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(toPixels*((IAtomTypeSphere)((IAtom)a).getType()).getDiameter());
+            sigmaP = (int)(toPixels*((IAtomTypeSphere)a.getType()).getDiameter());
             sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
             g.fillOval(xP, yP, sigmaP, sigmaP);
             /* Draw the surrounding well, if any, and specific to the dimension */
             if(drawWell) {
-                sigmaP = (int)(toPixels*((AtomTypeWell)((IAtom)a).getType()).wellDiameter());
+                sigmaP = (int)(toPixels*((AtomTypeWell)a.getType()).wellDiameter());
                 xP = baseXP - (sigmaP>>1);
                 yP = baseYP - (sigmaP>>1);
                 g.setColor(wellColor);
@@ -127,7 +126,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             /* Draw the orientation line, if any */
             if(drawOrientation) {
                 IVector dir = ((IAtomOriented)a).getOrientation().getDirection();
-                int dxy = (int)(toPixels*0.5*((AtomTypeOrientedSphere)((IAtom)a).getType()).getDiameter());
+                int dxy = (int)(toPixels*0.5*((AtomTypeOrientedSphere)a.getType()).getDiameter());
                 int dx = (int)(dxy*dir.getX(0));
                 int dy = (int)(dxy*dir.getX(1));
                 g.setColor(Color.red);
@@ -212,10 +211,10 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             IAtom a = leafList.getAtom(iLeaf);
             if(atomFilter != null && atomFilter.accept(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
-            	drawAtom(g, origin, (IAtomPositioned)a);
+            	drawAtom(g, origin, a);
             }
             else {
-                drawAtom(g, atomOrigin, (IAtomPositioned)a);
+                drawAtom(g, atomOrigin, a);
             }
         }
             
@@ -223,10 +222,10 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         if(displayBox.getDrawOverflow()) {
             IBoundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-                if(!(((IAtom)a).getType() instanceof IAtomTypeSphere)) continue;
+                IAtom a = leafList.getAtom(iLeaf);
+                if(!(a.getType() instanceof IAtomTypeSphere)) continue;
                 OverflowShift overflow = new OverflowShift(space);
-                float[][] shifts = overflow.getShifts(boundary, a.getPosition(),0.5*((IAtomTypeSphere)((IAtom)a).getType()).getDiameter());
+                float[][] shifts = overflow.getShifts(boundary, a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = atomOrigin[0] + (int)(toPixels*shifts[i][0]);
                     shiftOrigin[1] = atomOrigin[1] + (int)(toPixels*shifts[i][1]);

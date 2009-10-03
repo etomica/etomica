@@ -3,7 +3,6 @@ package etomica.action;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.space.ISpace;
 import etomica.space3d.RotationTensor3D;
 
@@ -31,17 +30,17 @@ public class AtomActionRotateBy implements AtomAction, Serializable {
         // Rotate about the x-axis
         // Use negative of roll because RotationTensor3D is left-handed about x-axis.
         rotate.setAxial(0, -roll);
-        rotate.transform(((IAtomPositioned)atom).getPosition());
+        rotate.transform(atom.getPosition());
         
         // Rotate about the y-axis
         // Use negative of pitch because RotationTensor3D is left-handed about x-axis.
         rotate.setAxial(1, -pitch); 
-        rotate.transform(((IAtomPositioned)atom).getPosition());
+        rotate.transform(atom.getPosition());
         
         // Rotate about the z-axis
         // Use negative of yaw because RotationTensor3D is left-handed about x-axis.
         rotate.setAxial(2, -yaw); 
-        rotate.transform(((IAtomPositioned)atom).getPosition());
+        rotate.transform(atom.getPosition());
            
     }
     

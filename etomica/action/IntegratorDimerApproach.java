@@ -1,12 +1,11 @@
 package etomica.action;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
-import etomica.config.IConformation;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
 
@@ -234,25 +233,25 @@ public class IntegratorDimerApproach extends IntegratorBox {
 		atomSetA = monomerA.getChildList();
 	    atomSetB = monomerB.getChildList();
 	    
-	    atom_O_A  = (IAtomPositioned) atomSetA.getAtom(0);
-	    atom_aC_A = (IAtomPositioned) atomSetA.getAtom(1);
-	    atom_aH_A = (IAtomPositioned) atomSetA.getAtom(2);
-	    atom_H1_A = (IAtomPositioned) atomSetA.getAtom(4);
+	    atom_O_A  = atomSetA.getAtom(0);
+	    atom_aC_A = atomSetA.getAtom(1);
+	    atom_aH_A = atomSetA.getAtom(2);
+	    atom_H1_A = atomSetA.getAtom(4);
 	    
-	    atom_O_B  = (IAtomPositioned) atomSetB.getAtom(0);
-	    atom_aC_B = (IAtomPositioned) atomSetB.getAtom(1);
-	    atom_aH_B = (IAtomPositioned) atomSetB.getAtom(2);
+	    atom_O_B  = atomSetB.getAtom(0);
+	    atom_aC_B = atomSetB.getAtom(1);
+	    atom_aH_B = atomSetB.getAtom(2);
 	    
 	}
 	
-	public IAtomPositioned getAtom_O_A()  { return atom_O_A ;}
-	public IAtomPositioned getAtom_aC_A() { return atom_aC_A;}
-	public IAtomPositioned getAtom_aH_A() { return atom_aH_A;}
-	public IAtomPositioned getAtom_H1_A() { return atom_H1_A;}
+	public IAtom getAtom_O_A()  { return atom_O_A ;}
+	public IAtom getAtom_aC_A() { return atom_aC_A;}
+	public IAtom getAtom_aH_A() { return atom_aH_A;}
+	public IAtom getAtom_H1_A() { return atom_H1_A;}
 	
-	public IAtomPositioned getAtom_O_B()  { return atom_O_B ;}
-	public IAtomPositioned getAtom_aC_B() { return atom_aC_B;}
-	public IAtomPositioned getAtom_aH_B() { return atom_aH_B;}
+	public IAtom getAtom_O_B()  { return atom_O_B ;}
+	public IAtom getAtom_aC_B() { return atom_aC_B;}
+	public IAtom getAtom_aH_B() { return atom_aH_B;}
 	
 	public void printKeyAtomPositions() {
 		System.out.println();
@@ -314,15 +313,15 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	protected IMolecule monomerB;
 	
 	// ID's of sites in monomer A
-	protected static IAtomPositioned atom_O_A;
-    protected static IAtomPositioned atom_aC_A;
-    protected static IAtomPositioned atom_aH_A;
-    protected static IAtomPositioned atom_H1_A; 
+	protected static IAtom atom_O_A;
+    protected static IAtom atom_aC_A;
+    protected static IAtom atom_aH_A;
+    protected static IAtom atom_H1_A; 
     
     // ID's of sites in monomer B
-    protected static IAtomPositioned atom_O_B;
-    protected static IAtomPositioned atom_aC_B;
-    protected static IAtomPositioned atom_aH_B;
+    protected static IAtom atom_O_B;
+    protected static IAtom atom_aC_B;
+    protected static IAtom atom_aH_B;
     
     // The distance between the alpha carbons of the two monomers
     protected double r = 16.0;  

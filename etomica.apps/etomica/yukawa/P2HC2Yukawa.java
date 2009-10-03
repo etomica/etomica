@@ -2,7 +2,6 @@ package etomica.yukawa;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -88,7 +87,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
      * Energy of the pair as given by the u(double) method
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(), atoms.getAtom(0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }

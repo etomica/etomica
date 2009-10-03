@@ -1,7 +1,6 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -26,19 +25,19 @@ public class ConfigurationDroplet implements Configuration {
         IAtomList leafList = box.getLeafList();
         int numAtoms = leafList.getAtomCount();
         for (int i=0; i<numAtoms; i++) {
-            IVectorMutable r = ((IAtomPositioned)leafList.getAtom(i)).getPosition();
+            IVectorMutable r = leafList.getAtom(i).getPosition();
             ((IVectorRandom)r).setRandomInSphere(random);
             r.TE(axis);
         }
 
         center.E(0);
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+            center.PE(leafList.getAtom(i).getPosition());
         }
         center.TE(1.0/leafList.getAtomCount());
 
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            ((IAtomPositioned)leafList.getAtom(i)).getPosition().ME(center);
+            leafList.getAtom(i).getPosition().ME(center);
         }
     }
     

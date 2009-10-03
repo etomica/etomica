@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Formatter;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -16,13 +15,13 @@ import etomica.space.ISpace;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
-    IAtomPositioned adatom;
+    IAtom adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
     private final ISpace space;
 
     public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
-    		                   IAtomPositioned aAdatom, String aFileTail,
+    		                   IAtom aAdatom, String aFileTail,
     		                   ISpace _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;

@@ -2,7 +2,6 @@ package etomica.modules.entropylottery;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
@@ -34,7 +33,7 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
 
         IAtomList leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            ((IAtomPositioned)leafList.getAtom(i)).getPosition().E(work);
+            leafList.getAtom(i).getPosition().E(work);
         }
     }
 

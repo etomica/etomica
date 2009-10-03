@@ -1,6 +1,5 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -112,7 +111,7 @@ public class MCMoveCompareSingleWVLoop extends MCMoveBoxStep{
         energyOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(energyOld)){
             for(int k = 0; k < waveVectors.length; k++){
-                System.out.println(k + " " +((IAtomPositioned)coordinateDefinition.getBox().getLeafList().getAtom(k)).getPosition());
+                System.out.println(k + " " +coordinateDefinition.getBox().getLeafList().getAtom(k).getPosition());
             }
             throw new IllegalStateException("Overlap after the removal of a mode!");
         }

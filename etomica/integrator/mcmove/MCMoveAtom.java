@@ -1,7 +1,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -11,7 +10,6 @@ import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -69,7 +67,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         return true;
     }//end of doTrial
     
@@ -108,7 +106,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
     }
         
     

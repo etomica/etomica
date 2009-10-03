@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -31,7 +30,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
 		((BoxCluster)box).trialNotify();
 		uNew = Double.NaN;
 		return true;

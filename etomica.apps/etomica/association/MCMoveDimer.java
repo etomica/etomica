@@ -1,8 +1,6 @@
 package etomica.association;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -10,7 +8,6 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -19,7 +16,6 @@ import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
-import etomica.virial.simulations.TestLJAssociationMC3D_NPT;
 
 /**
  * Standard Monte Carlo atom-displacement trial move of dimer
@@ -44,7 +40,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected final Api1ACell neighborIterator;
     protected final IVectorMutable dr;
     protected final IPotentialAtomic dimerPotential;
-    protected IAtomPositioned atom1;
+    protected IAtom atom1;
     protected AssociationManager associationManager;
 
     public MCMoveDimer(ISimulation sim, PotentialMasterCell potentialMaster, ISpace _space, IPotentialAtomic dimerPotential) {
@@ -84,17 +80,17 @@ public class MCMoveDimer extends MCMoveBoxStep {
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        atom1 = (IAtomPositioned)associationManager.getAssociatedAtoms(atom).getAtom(0);
+        atom1 = associationManager.getAssociatedAtoms(atom).getAtom(0);
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        energyMeter.setTarget((IAtom)atom1);
+        energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
         if(uOld > 1e8 && !fixOverlap) {
             throw new RuntimeException("atom "+atom+" atom1 "+atom1+" in box "+box+" has an overlap");
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         atom1.getPosition().PE(translationVector);
 //        if (atom.getParentGroup().getIndex() == 371 || atom.getParentGroup().getIndex() == 224 ||
 //        		((IAtom)atom1).getParentGroup().getIndex() == 371 || ((IAtom)atom1).getParentGroup().getIndex() == 224){
@@ -151,7 +147,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((IAtomPositioned)atom).getPosition().PE(translationVector);
+        atom.getPosition().PE(translationVector);
         atom1.getPosition().PE(translationVector);
     }
         
@@ -159,7 +155,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
     public AtomIterator affectedAtoms() {
         affectedAtoms.clear();
         affectedAtoms.add(atom);
-        affectedAtoms.add((IAtom)atom1);
+        affectedAtoms.add(atom1);
         return affectedAtomIterator;
     }
     

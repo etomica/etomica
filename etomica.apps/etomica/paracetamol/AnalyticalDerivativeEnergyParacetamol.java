@@ -96,8 +96,8 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
-				IVectorMutable leafPos0 = ((IAtomPositioned)molecule.getAtom(0)).getPosition();
-				IVectorMutable leafPos5 = ((IAtomPositioned)molecule.getAtom(5)).getPosition();
+				IVectorMutable leafPos0 = molecule.getAtom(0).getPosition();
+				IVectorMutable leafPos5 = molecule.getAtom(5).getPosition();
 				
 				v.Ev1Mv2(leafPos5, leafPos0);
 				v.normalize();
@@ -150,7 +150,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						 		a.E(new double[] {0, 0, 0});
 						 	} else {
 						 	
-				    	    	a.Ev1Mv2(((IAtomPositioned)molecule.getAtom(q)).getPosition(), leafPos0);
+				    	    	a.Ev1Mv2(molecule.getAtom(q).getPosition(), leafPos0);
 				    	    	a.normalize();
 						 	}
 						 	

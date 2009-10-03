@@ -34,7 +34,7 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     }
     
     public boolean accept(IAtom a) {
-        IVector p = ((IAtomPositioned)a).getPosition();
+        IVector p = a.getPosition();
         work.E(p);
         work.DE(axis);
         double r2 = work.squared();

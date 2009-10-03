@@ -4,7 +4,7 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.models.water.SpeciesWater3P;
@@ -19,9 +19,9 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
     
     public void actionPerformed(IMolecule molecule) {
-        IAtomPositioned O = (IAtomPositioned)molecule.getChildList().getAtom(SpeciesWater3P.indexO);
-        IAtomPositioned H1 = (IAtomPositioned)molecule.getChildList().getAtom(SpeciesWater3P.indexH1);
-        IAtomPositioned H2 = (IAtomPositioned)molecule.getChildList().getAtom(SpeciesWater3P.indexH2);
+        IAtom O = molecule.getChildList().getAtom(SpeciesWater3P.indexO);
+        IAtom H1 = molecule.getChildList().getAtom(SpeciesWater3P.indexH1);
+        IAtom H2 = molecule.getChildList().getAtom(SpeciesWater3P.indexH2);
         // normalize OH1
         IVectorMutable p1 = H1.getPosition();
         p1.ME(O.getPosition());

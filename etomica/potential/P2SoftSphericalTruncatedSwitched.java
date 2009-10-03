@@ -1,11 +1,10 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -68,7 +67,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
 
     public IVector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
@@ -138,7 +137,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
     
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (dr.squared() > r2Cutoff) {

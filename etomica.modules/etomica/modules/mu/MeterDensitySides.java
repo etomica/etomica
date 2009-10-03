@@ -1,6 +1,5 @@
 package etomica.modules.mu;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -24,7 +23,7 @@ public class MeterDensitySides extends DataSourceScalar {
         IMoleculeList moleculeList = box.getMoleculeList(species);
         int n = 0;
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IVector p = ((IAtomPositioned)moleculeList.getMolecule(i).getChildList().getAtom(0)).getPosition();
+            IVector p = moleculeList.getMolecule(i).getChildList().getAtom(0).getPosition();
             if (p.getX(0) < 0 == ig) {
                 n++;
             }

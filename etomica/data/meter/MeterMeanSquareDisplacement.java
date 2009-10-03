@@ -1,15 +1,15 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.IAction;
+import etomica.api.IAtom;
 import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.listener.IntegratorListenerAction;
 import etomica.space.ISpace;
 import etomica.units.Undefined;
 
@@ -78,8 +78,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         rLast = new IVectorMutable[nAtoms];
         iterator.reset();
         int i=0;
-        for (IAtomPositioned a = (IAtomPositioned)iterator.nextAtom(); a != null;
-             a = (IAtomPositioned)iterator.nextAtom()) {
+        for (IAtom a = iterator.nextAtom(); a != null;
+             a = iterator.nextAtom()) {
             rAccum[i] = space.makeVector();
             rLast[i] = space.makeVector();
             rLast[i].E(a.getPosition());
@@ -109,8 +109,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             it.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
-            for (IAtomPositioned a = (IAtomPositioned)it.nextAtom(); a != null;
-                 a = (IAtomPositioned)it.nextAtom()) {
+            for (IAtom a = it.nextAtom(); a != null;
+                 a = it.nextAtom()) {
                 IVectorMutable r = a.getPosition();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
@@ -132,8 +132,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             //store last coordinate after pbc applied
-            for (IAtomPositioned a = (IAtomPositioned)it.nextAtom(); a != null;
-                 a = (IAtomPositioned)it.nextAtom()) {
+            for (IAtom a = it.nextAtom(); a != null;
+                 a = it.nextAtom()) {
                 meter.rLast[i++].E(a.getPosition());
             }
         }

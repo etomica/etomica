@@ -8,7 +8,7 @@ import java.awt.event.ComponentListener;
 import java.util.Iterator;
 
 import etomica.action.activity.Controller;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -138,8 +138,8 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
         }
         atomIterator.setBox(box);
         atomIterator.reset();
-        for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
-             a = (IAtomPositioned)atomIterator.nextAtom()) {
+        for (IAtom a = atomIterator.nextAtom(); a != null;
+             a = atomIterator.nextAtom()) {
             int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }

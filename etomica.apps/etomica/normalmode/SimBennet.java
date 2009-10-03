@@ -117,7 +117,7 @@ public class SimBennet extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        
+
         MCMoveAtomCoupledBennet move = new MCMoveAtomCoupledBennet(potentialMasterMonatomic, getRandom(), 
         		coordinateDefinition, normalModes, getRefPref(), space);
         move.setTemperature(temperature);

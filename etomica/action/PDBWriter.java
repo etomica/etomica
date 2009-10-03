@@ -11,7 +11,6 @@ import java.util.LinkedList;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
@@ -74,17 +73,17 @@ public class PDBWriter implements IAction, Serializable {
         int atomCount = 0;
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             Iterator<ElementLinker> elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = elementIterator.next();
-                if (thisElement.type == ((IAtom)atom).getType()) {
+                if (thisElement.type == atom.getType()) {
                     elementIndex = thisElement.elementIndex;
                 }
             }
             if (elementIndex == -1) {
-                ElementLinker thisElement = new ElementLinker(elementCount,((IAtom)atom).getType());
+                ElementLinker thisElement = new ElementLinker(elementCount, atom.getType());
                 elementIndex = thisElement.elementIndex;
                 elementCount++;
                 elementAtomType.add(thisElement);

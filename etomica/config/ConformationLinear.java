@@ -1,8 +1,8 @@
 package etomica.config;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -79,7 +79,7 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
         double xNext = -bondLength*0.5*(size-1);
         int nLeaf = atomList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)atomList.getAtom(iLeaf);
+            IAtom a = atomList.getAtom(iLeaf);
             a.getPosition().Ea1Tv1(xNext, orientation);
             xNext += bondLength;
         }

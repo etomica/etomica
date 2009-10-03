@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.action.IAction;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -92,23 +92,23 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
         System.out.println(rMax);
         // iterate over all tetra's
         for (int i=0; i<atomCount; i++) {
-        	IAtomPositioned atom0 = (IAtomPositioned)box.getLeafList().getAtom(i);
+        	IAtom atom0 = box.getLeafList().getAtom(i);
         	
         	for (int j=0; j<atomCount; j++){
-        		IAtomPositioned atom1 = (IAtomPositioned)box.getLeafList().getAtom(j);
+        		IAtom atom1 = box.getLeafList().getAtom(j);
         		if(atom1==atom0){continue;}
         		dr1.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         		boundary.nearestImage(dr1);
         		if(dr1.squared()>rMaxSquared){continue;}
         		for (int k=0; k<atomCount; k++){
 
-        			IAtomPositioned atom2 = (IAtomPositioned)box.getLeafList().getAtom(k);
+        			IAtom atom2 = box.getLeafList().getAtom(k);
         			if(atom2==atom1 || atom2==atom0){continue;}
             		dr2.Ev1Mv2(atom1.getPosition(),atom2.getPosition());
             		boundary.nearestImage(dr2);
             		if(dr2.squared()>rMaxSquared){;continue;}
             		for (int l=0; l<atomCount; l++){
-               			IAtomPositioned atom3 = (IAtomPositioned)box.getLeafList().getAtom(l);
+               			IAtom atom3 = box.getLeafList().getAtom(l);
                			if(atom3==atom2 || atom3==atom1 || atom3==atom0){continue;}
                 		dr3.Ev1Mv2(atom2.getPosition(),atom3.getPosition());
                 		boundary.nearestImage(dr3);

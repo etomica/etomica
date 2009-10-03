@@ -1,7 +1,6 @@
 package etomica.association;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -71,7 +70,7 @@ public class MCMoveBiasUB extends MCMoveBox {
             uOld = meterPotentialEnergy.getDataAsScalar();
             ni = associationManager.getAssociatedAtoms(atomA).getAtomCount();
             Nai = associationManager.getAssociatedAtoms().getAtomCount();
-            oldPosition.E(((IAtomPositioned)atomA).getPosition());
+            oldPosition.E(atomA.getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
             biasVolume.biasInsert(atomA, atomB);
             //System.out.println("atomA = " +atomA + " atomB = " +atomB);
@@ -87,10 +86,10 @@ public class MCMoveBiasUB extends MCMoveBox {
             Nai = associationManager.getAssociatedAtoms().getAtomCount();
             meterPotentialEnergy.setTarget(atomA);
             uOld = meterPotentialEnergy.getDataAsScalar();
-            oldPosition.E(((IAtomPositioned)atomA).getPosition());
+            oldPosition.E(atomA.getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
-            ((IVectorRandom)((IAtomPositioned)atomA).getPosition()).setRandomCube(random);
-            ((IAtomPositioned)atomA).getPosition().TE(box.getBoundary().getBoxSize());//translate
+            ((IVectorRandom)atomA.getPosition()).setRandomCube(random);
+            atomA.getPosition().TE(box.getBoundary().getBoxSize());//translate
             orientation.setRandomSphere(random);
             ((IAtomOriented)atomA).getOrientation().setDirection(orientation);//orientation
         }//end unbonding
@@ -142,7 +141,7 @@ public class MCMoveBiasUB extends MCMoveBox {
 	}
 
 	public void rejectNotify() {
-		((IAtomPositioned)atomA).getPosition().E(oldPosition);
+		atomA.getPosition().E(oldPosition);
 		((IAtomOriented)atomA).getOrientation().setDirection(oldDirection);
 		//System.out.println("rejected");
 	}

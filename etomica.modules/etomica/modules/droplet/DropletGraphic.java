@@ -9,7 +9,6 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeSphere;
@@ -79,12 +78,12 @@ public class DropletGraphic extends SimulationGraphic {
                 IAtomList leafList = sim.box.getLeafList();
                 center.E(0);
                 for (int i=0; i<leafList.getAtomCount(); i++) {
-                    center.PE(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+                    center.PE(leafList.getAtom(i).getPosition());
                 }
                 center.TE(1.0/leafList.getAtomCount());
 
                 for (int i=0; i<leafList.getAtomCount(); i++) {
-                    ((IAtomPositioned)leafList.getAtom(i)).getPosition().ME(center);
+                    leafList.getAtom(i).getPosition().ME(center);
                 }
             }
             final IVectorMutable center = sim.getSpace().makeVector();

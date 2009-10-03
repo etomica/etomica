@@ -1,19 +1,18 @@
 package etomica.action;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtomKinetic;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IElement;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
@@ -33,7 +32,7 @@ import etomica.space3d.BoundaryTruncatedOctahedron;
 public class WriteConfigurationDLPOLY implements IAction {
 	
 	public WriteConfigurationDLPOLY(){
-		elementHash = new HashMap();
+		elementHash = new HashMap<IElement,String>();
 		elementHash.put(Carbon.INSTANCE, "CA");
 		elementHash.put(Hydrogen.INSTANCE, "HY");
 		elementHash.put(Nitrogen.INSTANCE, "NI");
@@ -41,7 +40,7 @@ public class WriteConfigurationDLPOLY implements IAction {
 		
 	}
 	
-	public HashMap getElementHash(){
+	public HashMap<IElement,String> getElementHash(){
 		return elementHash;
 	}
 	
@@ -105,7 +104,6 @@ public class WriteConfigurationDLPOLY implements IAction {
      * file exists, it is overwritten.
      */
     public void actionPerformed() {
-        FileWriter fileWriter = null;
         String fileName = confName;
         
 //        try { 
@@ -173,8 +171,8 @@ public class WriteConfigurationDLPOLY implements IAction {
 	            	}
 	            	IMolecule molecule = box.getMoleculeList().getMolecule(iMolec);
 	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
-	                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
-	                	String atomName = (String)elementHash.get(((IAtom)atom).getType().getElement());
+	                	IAtom atom = molecule.getChildList().getAtom(iLeaf);
+	                	String atomName = elementHash.get(atom.getType().getElement());
 	       
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;
@@ -201,5 +199,5 @@ public class WriteConfigurationDLPOLY implements IAction {
     private IBox box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
-    private HashMap elementHash;
+    private HashMap<IElement,String> elementHash;
 }

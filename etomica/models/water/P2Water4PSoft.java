@@ -1,10 +1,9 @@
 
 package etomica.models.water;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.space.ISpace;
@@ -35,8 +34,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularTorqu
         MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
 
         //compute O-O distance to consider truncation	
-        IVectorMutable O1r = ((IAtomPositioned)water1.getChildList().getAtom(2)).getPosition();
-        IVectorMutable O2r = ((IAtomPositioned)water2.getChildList().getAtom(2)).getPosition();
+        IVectorMutable O1r = (water1.getChildList().getAtom(2)).getPosition();
+        IVectorMutable O2r = (water2.getChildList().getAtom(2)).getPosition();
 
         work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -64,12 +63,12 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularTorqu
         work.XE(gradient[0]);
         torque[0].E(work);
 
-		IVectorMutable H11r = ((IAtomPositioned)water1.getChildList().getAtom(0)).getPosition();
-		IVectorMutable H12r = ((IAtomPositioned)water1.getChildList().getAtom(1)).getPosition();
-		IVectorMutable H21r = ((IAtomPositioned)water2.getChildList().getAtom(0)).getPosition();
-		IVectorMutable H22r = ((IAtomPositioned)water2.getChildList().getAtom(1)).getPosition();
-        IVectorMutable M1r = ((IAtomPositioned)water1.getChildList().getAtom(3)).getPosition();
-        IVectorMutable M2r = ((IAtomPositioned)water2.getChildList().getAtom(3)).getPosition();
+		IVectorMutable H11r = water1.getChildList().getAtom(0).getPosition();
+		IVectorMutable H12r = water1.getChildList().getAtom(1).getPosition();
+		IVectorMutable H21r = water2.getChildList().getAtom(0).getPosition();
+		IVectorMutable H22r = water2.getChildList().getAtom(1).getPosition();
+        IVectorMutable M1r = water1.getChildList().getAtom(3).getPosition();
+        IVectorMutable M2r = water2.getChildList().getAtom(3).getPosition();
 
         // M1-M2
         work.Ev1Mv2(M1r, M2r);

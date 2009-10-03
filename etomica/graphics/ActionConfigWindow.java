@@ -6,8 +6,8 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.IAction;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 
@@ -30,7 +30,7 @@ public class ActionConfigWindow implements IAction {
         textArea.setForeground(Color.black);
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtom a = leafList.getAtom(iLeaf);
             IVectorMutable pos = a.getPosition();
             String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {

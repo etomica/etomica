@@ -1,15 +1,13 @@
 package etomica.data;
 
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IVectorMutable;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.ISpace;
 import etomica.units.Length;
 
 public class DataSourceAtomDistance extends DataSourceScalar {
 	
-	public DataSourceAtomDistance(ISpace space) {
+    public DataSourceAtomDistance(ISpace space) {
 		super("interatomic distance", Length.DIMENSION);
 		
 		this.space = space;
@@ -27,15 +25,15 @@ public class DataSourceAtomDistance extends DataSourceScalar {
 	}
 
 	
-	public void setAtoms(IAtomPositioned atom1, IAtomPositioned atom2) {
+	public void setAtoms(IAtom atom1, IAtom atom2) {
 		this.atom1 = atom1;
 		this.atom2 = atom2;
 	}
 	
 
+    private static final long serialVersionUID = 1L;
 	protected final ISpace space;
 	protected final IVectorMutable vector;
-	protected IAtomPositioned atom1;
-	protected IAtomPositioned atom2;
-
+	protected IAtom atom1;
+	protected IAtom atom2;
 }

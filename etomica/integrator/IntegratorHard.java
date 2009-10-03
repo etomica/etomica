@@ -28,7 +28,6 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.ISpace;
 import etomica.util.Debug;
-import etomica.util.IEvent;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 

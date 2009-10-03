@@ -1,7 +1,7 @@
 package etomica.modules.entropylottery;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.data.DataSourceScalar;
@@ -30,7 +30,7 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
         }
         IAtomList leafList = box.getLeafList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(i);
+            IAtom a = leafList.getAtom(i);
             int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }

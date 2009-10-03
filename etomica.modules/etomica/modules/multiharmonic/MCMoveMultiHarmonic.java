@@ -1,7 +1,6 @@
 package etomica.modules.multiharmonic;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVector;
@@ -51,7 +50,7 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         uNew = 0;
         double sqrtS = Math.sqrt(s);
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IVectorMutable p = ((IAtomPositioned)atoms.getAtom(i)).getPosition();
+            IVectorMutable p = atoms.getAtom(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 double r = random.nextGaussian()/sqrtS;
                 uNew += 0.5*r*r*s;

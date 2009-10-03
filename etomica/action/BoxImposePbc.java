@@ -1,7 +1,7 @@
 package etomica.action;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -10,6 +10,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IMoleculePositioned;
 import etomica.space.ISpace;
 
 /**
@@ -51,8 +52,8 @@ public class BoxImposePbc extends BoxActionAdapter {
             for (int i=0; i<molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 IVector shift;
-                if (molecule instanceof IAtomPositioned) {
-                    IVectorMutable position = ((IAtomPositioned)molecule).getPosition();
+                if (molecule instanceof IMoleculePositioned) {
+                    IVectorMutable position = ((IMoleculePositioned)molecule).getPosition();
                     shift = boundary.centralImage(position);
                     position.PE(shift);
                 }
@@ -68,7 +69,7 @@ public class BoxImposePbc extends BoxActionAdapter {
         else {
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
-                IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(i);
+                IAtom atom = atoms.getAtom(i);
                 IVector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);

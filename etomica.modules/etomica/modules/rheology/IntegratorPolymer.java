@@ -1,7 +1,6 @@
 package etomica.modules.rheology;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -45,8 +44,8 @@ public class IntegratorPolymer extends IntegratorMD {
             center.E(0);
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            IVectorMutable p0 = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
-            IVectorMutable p1 = ((IAtomPositioned)atoms.getAtom(1)).getPosition();
+            IVectorMutable p0 = atoms.getAtom(0).getPosition();
+            IVectorMutable p1 = atoms.getAtom(1).getPosition();
             drNext.Ev1Mv2(p1, p0);
             double px = p0.getX(0);
             double py = p0.getX(1);
@@ -65,7 +64,7 @@ public class IntegratorPolymer extends IntegratorMD {
             for (int j=1; j<atoms.getAtomCount()-1; j++) {
                 drPrev.E(drNext);
                 p0 = p1;
-                p1 = ((IAtomPositioned)atoms.getAtom(j+1)).getPosition();
+                p1 = atoms.getAtom(j+1).getPosition();
                 drNext.Ev1Mv2(p1, p0);
                 px = p0.getX(0);
                 py = p0.getX(1);
@@ -105,7 +104,7 @@ public class IntegratorPolymer extends IntegratorMD {
             center.TE(-1.0/atoms.getAtomCount());
 
             for (int j=0; j<atoms.getAtomCount(); j++) {
-                ((IAtomPositioned)atoms.getAtom(j)).getPosition().PE(center);
+                atoms.getAtom(j).getPosition().PE(center);
             }
         }
         

@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 
@@ -31,7 +31,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
             BufferedReader bufReader = new BufferedReader(fileReader);
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+                IAtom a = leafList.getAtom(iLeaf);
                 setPosition(a,bufReader.readLine());
             }
             fileReader.close();
@@ -40,7 +40,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         }
     }
         
-    private void setPosition(IAtomPositioned atom, String string) {
+    private void setPosition(IAtom atom, String string) {
         String[] coordStr = string.split(" +");
         IVectorMutable pos = atom.getPosition();
         for (int i=0; i<pos.getD(); i++) {

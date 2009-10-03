@@ -1,7 +1,6 @@
 package etomica.modules.rosmosis;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
@@ -44,7 +43,7 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
             switch(nBody) {
                 case 1:
                     if (potential == potentialTether) {
-                        if (((IAtomPositioned)atoms.getAtom(0)).getPosition().getX(0) > 0) {
+                        if (atoms.getAtom(0).getPosition().getX(0) > 0) {
                             wallForce += gradient[0].getX(0);
                         }
                         else {

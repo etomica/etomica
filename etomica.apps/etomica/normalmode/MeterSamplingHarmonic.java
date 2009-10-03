@@ -4,7 +4,6 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;

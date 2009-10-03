@@ -7,7 +7,6 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -204,22 +203,22 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 
         // Set positions of atoms in replicas equal to box
         for(int i=0; i<box.getLeafList().getAtomCount(); i++){
-            ((IAtomPositioned)box1.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)box.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition());
-            ((IAtomPositioned)box2.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)box.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition());
+            box1.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
+            box2.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
 
         }
         // Offset replicas
         for(int i=0; i<N.length; i++){
-            ((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
-            ((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
+            list1.getAtom(i).getPosition().PEa1Tv1(deltaR, N[i]);
+            list2.getAtom(i).getPosition().PEa1Tv1(-deltaR, N[i]);
         }
         
         //System.out.println("...testing dimer direction.");
         if(energyBox0.getDataAsScalar()>energyBox1.getDataAsScalar()){
             //System.out.println(".S - Dimer pointed downhill, swapping ends.");
             for(int i=0; i<N.length; i++){
-                  ((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(-2.0*deltaR, N[i]);
-                  ((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(2.0*deltaR, N[i]);
+                  list1.getAtom(i).getPosition().PEa1Tv1(-2.0*deltaR, N[i]);
+                  list2.getAtom(i).getPosition().PEa1Tv1(2.0*deltaR, N[i]);
               }
           }
         dimerForces(F1, F2, F);
@@ -509,13 +508,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			// Use N* to offset(rotate) replicas
 			IVectorMutable workVector1 = space.makeVector();
 			for(int i=0; i<Nstar.length; i++){
-			    workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+			    workVector1.E(list.getAtom(i).getPosition());
 			    workVector1.PEa1Tv1(deltaR, Nstar[i]);
-                ((IAtomPositioned)list1.getAtom(i)).getPosition().E(workVector1);
+                list1.getAtom(i).getPosition().E(workVector1);
                 
-                workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+                workVector1.E(list.getAtom(i).getPosition());
                 workVector1.PEa1Tv1(-deltaR, Nstar[i]);
-                ((IAtomPositioned)list2.getAtom(i)).getPosition().E(workVector1);
+                list2.getAtom(i).getPosition().E(workVector1);
             }
 			// Calculate F*'s
 			dimerForcesStar(F1star, F2star, F);     
@@ -566,13 +565,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             // Use new N to offset(rotate) replicas
             IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
-                workVector2.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+                workVector2.E(list.getAtom(i).getPosition());
                 workVector2.PEa1Tv1(deltaR, N[i]);
-                ((IAtomPositioned)list1.getAtom(i)).getPosition().E(workVector2);
+                list1.getAtom(i).getPosition().E(workVector2);
                 
-                workVector2.E(((IAtomPositioned)list.getAtom(i)).getPosition());
+                workVector2.E(list.getAtom(i).getPosition());
                 workVector2.PEa1Tv1(-deltaR, N[i]);
-                ((IAtomPositioned)list2.getAtom(i)).getPosition().E(workVector2);
+                list2.getAtom(i).getPosition().E(workVector2);
             }        
             
 			rotCounter++;
@@ -737,8 +736,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		// N =  (R1 - R2) / (-2*deltaR)
 		for (int i=0; i<N.length; i++){	
-			workvector.E(((IAtomPositioned)list1.getAtom(i)).getPosition());
-			workvector.ME(((IAtomPositioned)list2.getAtom(i)).getPosition());
+			workvector.E(list1.getAtom(i).getPosition());
+			workvector.ME(list2.getAtom(i).getPosition());
 			N[i].E(workvector);
 			mag += workvector.squared();
 		}
@@ -843,9 +842,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		//System.out.println(".T - Stepping "+a1);
 		for(int i=0; i<normal.length; i++){
 		    workvector.Ea1Tv1(a1, normal[i]);			
-    		((IAtomPositioned)list.getAtom(i)).getPosition().PE(workvector);
-    		((IAtomPositioned)list1.getAtom(i)).getPosition().PE(workvector);
-    		((IAtomPositioned)list2.getAtom(i)).getPosition().PE(workvector);
+    		list.getAtom(i).getPosition().PE(workvector);
+    		list1.getAtom(i).getPosition().PE(workvector);
+    		list2.getAtom(i).getPosition().PE(workvector);
     	}	
 
 	}
@@ -856,14 +855,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    
 	    // Set positions of atoms in replicas equal to box
         for(int i=0; i<box.getLeafList().getAtomCount(); i++){
-            ((IAtomPositioned)box1.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)box.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition());
-            ((IAtomPositioned)box2.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)box.getMoleculeList().getMolecule(i).getChildList().getAtom(0)).getPosition());
+            box1.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
+            box2.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
 
         }
         // Offset replicas
         for(int i=0; i<N.length; i++){
-            ((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
-            ((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
+            list1.getAtom(i).getPosition().PEa1Tv1(deltaR, N[i]);
+            list2.getAtom(i).getPosition().PEa1Tv1(-deltaR, N[i]);
         }
 	}
 	

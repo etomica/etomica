@@ -2,10 +2,9 @@ package etomica.modules.droplet;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -86,22 +85,22 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
-            agent.r0.E(((IAtomPositioned)a).getPosition());
-            agent.rp.E(((IAtomPositioned)a).getPosition());
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            agent.r0.E(a.getPosition());
+            agent.rp.E(a.getPosition());
         }
         
         foo();
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
-            IVectorMutable r = ((IAtomPositioned)a).getPosition();
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            IVectorMutable r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/6.0, a.getVelocity());
-//            if (((IAtomPositioned)a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
-//                System.out.println("yoyo "+a+" "+ ((IAtomPositioned)a).getPosition());
+//            if (a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
+//                System.out.println("yoyo "+a+" "+ a).getPosition());
 //                System.out.println("rp "+agent.rp);
 //                System.out.println("v "+a.getVelocity());
 //                throw new RuntimeException("oops");
@@ -112,13 +111,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
         
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
-            IVectorMutable r = ((IAtomPositioned)a).getPosition();
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            IVectorMutable r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(0.5*timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/3.0, a.getVelocity());
-//            if (((IAtomPositioned)a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
-//                System.out.println("bar "+a+" "+ ((IAtomPositioned)a).getPosition());
+//            if (a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
+//                System.out.println("bar "+a+" "+ a).getPosition());
 //                System.out.println("rp "+agent.rp);
 //                System.out.println("v "+a.getVelocity());
 //                throw new RuntimeException("oops");
@@ -129,13 +128,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
-            IVectorMutable r = ((IAtomPositioned)a).getPosition();
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            IVectorMutable r = a.getPosition();
             r.E(agent.r0);
             r.PEa1Tv1(timeStep, a.getVelocity());
             agent.rp.PEa1Tv1(timeStep/3.0, a.getVelocity());
-//            if (((IAtomPositioned)a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
-//                System.out.println("foo "+a+" "+ ((IAtomPositioned)a).getPosition());
+//            if (a).getPosition().isNaN() || agent.rp.isNaN() || a.getVelocity().isNaN()) {
+//                System.out.println("foo "+a+" "+ a).getPosition());
 //                System.out.println("rp "+agent.rp);
 //                System.out.println("v "+a.getVelocity());
 //                throw new RuntimeException("oops");
@@ -146,10 +145,10 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
             agent.rp.PEa1Tv1(timeStep/6.0, a.getVelocity());
-            ((IAtomPositioned)a).getPosition().E(agent.rp);
-//            if (((IAtomPositioned)a).getPosition().isNaN()) {
+            a.getPosition().E(agent.rp);
+//            if (a).getPosition().isNaN()) {
 //                System.out.println("rp "+agent.rp);
 //                System.out.println("v "+a.getVelocity());
 //                throw new RuntimeException("oops");
@@ -253,7 +252,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVectorMutable dr = space.makeVector();
-                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
+                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }

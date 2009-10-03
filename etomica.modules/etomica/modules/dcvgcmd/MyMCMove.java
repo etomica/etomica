@@ -1,7 +1,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -107,7 +106,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
 
-    		double z = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition().getX(2);
+    		double z = molecule.getChildList().getAtom(0).getPosition().getX(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(molecule);
     	}

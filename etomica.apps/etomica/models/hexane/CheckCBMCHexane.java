@@ -2,7 +2,6 @@ package etomica.models.hexane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -55,7 +54,7 @@ public class CheckCBMCHexane implements IAction {
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
+                vex.ME(atomList.getAtom(i + 1).getPosition());
                 test = Math.sqrt(vex.squared());
                 test -= length;
                 if (Math.abs(test) > tol) {
@@ -73,10 +72,10 @@ public class CheckCBMCHexane implements IAction {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
-                vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
-                temp.E(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
-                temp.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
+                vex.E(atomList.getAtom(i).getPosition());
+                vex.ME(atomList.getAtom(i + 1).getPosition());
+                temp.E(atomList.getAtom(i + 2).getPosition());
+                temp.ME(atomList.getAtom(i + 1).getPosition());
 
                 ang = Math.acos(vex.dot(temp) / length / length);
                 ang -= phi;
@@ -92,15 +91,15 @@ public class CheckCBMCHexane implements IAction {
         tol = 0.0000000001;
         double makeGood;
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = (IMolecule)moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.getMolecule(iMolecule);
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
-                vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
-                temp.E(((IAtomPositioned) atomList.getAtom(i + 3)).getPosition());
-                temp.ME(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
-                axial.E(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
-                axial.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
+                vex.E(atomList.getAtom(i).getPosition());
+                vex.ME(atomList.getAtom(i + 1).getPosition());
+                temp.E(atomList.getAtom(i + 3).getPosition());
+                temp.ME(atomList.getAtom(i + 2).getPosition());
+                axial.E(atomList.getAtom(i + 2).getPosition());
+                axial.ME(atomList.getAtom(i + 1).getPosition());
 
                 // Project each vector onto the axial vector, and subtract the
                 // axial portion from the result, leaving the radial portion

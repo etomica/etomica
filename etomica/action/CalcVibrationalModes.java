@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -62,7 +61,7 @@ public class CalcVibrationalModes implements IAction, Serializable {
         // setup position array
         for(int i=0; i<ms.getMoleculeCount(); i++){
             for(int j=0; j<3; j++){
-                positions[(3*i)+j] = ((IAtomPositioned)ms.getMolecule(i).getChildList().getAtom(0)).getPosition().getX(j);
+                positions[(3*i)+j] = ms.getMolecule(i).getChildList().getAtom(0).getPosition().getX(j);
             }
         }
         // fill dForces array

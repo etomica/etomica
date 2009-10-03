@@ -3,12 +3,12 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.IAtomOriented;
+import etomica.atom.IMoleculePositioned;
 import etomica.atom.OrientationCalcAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -45,7 +45,7 @@ public class DipoleBox extends Simulation {
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<nAtoms; i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            ((IAtomPositioned)molecule).getPosition().E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+            ((IMoleculePositioned)molecule).getPosition().E(molecule.getChildList().getAtom(0).getPosition());
             IOrientationFull3D orientation = (IOrientationFull3D)((IAtomOriented)molecule).getOrientation();
             for (int j=0; j<20; j++) {
                 orientation.randomRotation(getRandom(), 1);

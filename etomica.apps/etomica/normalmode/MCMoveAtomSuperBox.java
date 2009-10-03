@@ -1,7 +1,6 @@
  package etomica.normalmode;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -217,8 +216,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
          */
    
         for (int i=0; i<boxCells.length;i++){
-        	((IAtomPositioned)boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0)).getPosition().PE(translationVector);
-        	((IAtomPositioned)boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0)).getPosition().ME(translationVector);
+        	boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0).getPosition().PE(translationVector);
+        	boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0).getPosition().ME(translationVector);
         	
         }
         
@@ -320,8 +319,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     	
     	//System.err.println("Rejected atom is in cell["+randomNumber0+"]["+randomAtom0+"]");
         for (int i=0; i<boxCells.length;i++){
-        	((IAtomPositioned)boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0)).getPosition().ME(translationVector);
-        	((IAtomPositioned)boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0)).getPosition().PE(translationVector);
+        	boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().getAtom(0).getPosition().ME(translationVector);
+        	boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().getAtom(0).getPosition().PE(translationVector);
  
         }
     }

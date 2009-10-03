@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -92,8 +91,8 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
 		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
-			childAtomVector.ME(((IAtomPositioned)childAtoms.getAtom(i)).getPosition());
-			((IAtomPositioned)childAtoms.getAtom(i)).getPosition().E(childAtomVector);
+			childAtomVector.ME(childAtoms.getAtom(i).getPosition());
+			childAtoms.getAtom(i).getPosition().E(childAtomVector);
 		}
     }
 

@@ -2,9 +2,8 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.CompoundDimension;
@@ -67,7 +66,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        return 0.5*w*((IAtomPositioned)a.getAtom(0)).getPosition().Mv1Squared(x0);
+        return 0.5*w*a.getAtom(0).getPosition().Mv1Squared(x0);
     }
     
     public double virial(IAtomList a) {
@@ -75,7 +74,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(IAtomList a){
-        IVectorMutable r = ((IAtomPositioned)a.getAtom(0)).getPosition();
+        IVectorMutable r = a.getAtom(0).getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

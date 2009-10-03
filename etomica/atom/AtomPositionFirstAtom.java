@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 
@@ -17,7 +16,7 @@ public class AtomPositionFirstAtom implements IAtomPositionDefinition, java.io.S
         if (childList.getAtomCount() == 0) {
             return null;
         }
-        return ((IAtomPositioned)childList.getAtom(0)).getPosition();
+        return childList.getAtom(0).getPosition();
     }
     
 

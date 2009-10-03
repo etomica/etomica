@@ -2,7 +2,6 @@ package etomica.spin;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -43,8 +42,8 @@ public class MCMoveSpinFlip extends MCMoveBox {
      */
     public boolean doTrial() {
         IAtomList leafList = box.getLeafList();
-        atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
-        energyMeter.setTarget((IAtom)atom);
+        atom = leafList.getAtom(random.nextInt(leafList.getAtomCount()));
+        energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.getPosition().TE(-1);
         uNew = Double.NaN;
@@ -84,7 +83,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @see etomica.integrator.MCMove#affectedAtoms(etomica.Box)
      */
     public AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom((IAtom)atom);
+        affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
 
@@ -99,7 +98,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
     protected final IRandom random;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected IAtomPositioned atom;
+    protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
 }

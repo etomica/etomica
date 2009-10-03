@@ -1,9 +1,8 @@
 package etomica.integrator;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -12,7 +11,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.Space;
 import etomica.units.Joule;
@@ -74,8 +72,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 }
 
                 for (int j=0; j<bondConstraints.bondedAtoms.length; j++) {
-                    IAtomPositioned atom0 = (IAtomPositioned)childList.getAtom(bondConstraints.bondedAtoms[j][0]);
-                    IAtomPositioned atom1 = (IAtomPositioned)childList.getAtom(bondConstraints.bondedAtoms[j][1]);
+                    IAtom atom0 = childList.getAtom(bondConstraints.bondedAtoms[j][0]);
+                    IAtom atom1 = childList.getAtom(bondConstraints.bondedAtoms[j][1]);
                     drOld[j].Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     boundary.nearestImage(drOld[j]);
                 }
@@ -85,7 +83,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
+                MyAgent agent = (MyAgent)agentManager.getAgent(a);
                 IVectorMutable r = a.getPosition();
                 IVectorMutable v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {

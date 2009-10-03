@@ -9,6 +9,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
+import etomica.units.Kelvin;
 
 public class ReactionManagerCO implements IIntegratorListener {
 
@@ -69,5 +70,5 @@ public class ReactionManagerCO implements IIntegratorListener {
 
     protected final Catalysis sim;
     protected int nReactCO = 3;      // number of surface sites C needs for radicalization
-    protected double uReactCO = 2.0; // barrier for forward and reverse reactions
+    protected double uReactCO = Kelvin.UNIT.toSim(40); // barrier for forward and reverse reactions
 }

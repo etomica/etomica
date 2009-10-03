@@ -3,7 +3,7 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -147,7 +147,7 @@ public class ConfigurationMembrane implements Configuration {
             for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
                 IMolecule molecule = molecules.getMolecule(i);
-                IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(0);
+                IAtom atom = molecule.getChildList().getAtom(0);
                 double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
                     // we encountered a pretend atom in our pretend box!

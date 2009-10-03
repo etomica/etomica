@@ -1,12 +1,11 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.graphics.Drawable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -55,7 +54,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double energy(IAtomList a) {
         IVector dimensions = boundary.getBoxSize();
-        IVectorMutable pos = ((IAtomPositioned)a.getAtom(0)).getPosition();
+        IVectorMutable pos = a.getAtom(0).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;

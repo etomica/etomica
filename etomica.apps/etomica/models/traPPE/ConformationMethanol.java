@@ -1,7 +1,7 @@
 package etomica.models.traPPE;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.config.IConformation;
 import etomica.space.ISpace;
 
@@ -24,14 +24,14 @@ public class ConformationMethanol implements IConformation {
     	double bondOH = 0.95; // Angstroms
     	double angleEq = 108.50*Math.PI/180; // equilibrium bond angle in radians (mcWiggle will change this appropriately)
     	
-    	IAtomPositioned cH3 = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexCH3);
+    	IAtom cH3 = list.getAtom(SpeciesMethanol.indexCH3);
         cH3.getPosition().E(new double[] {bondCH3O, 0.0, 0.0});
         
-        IAtomPositioned oxygen = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexO);
+        IAtom oxygen = list.getAtom(SpeciesMethanol.indexO);
         oxygen.getPosition().E(new double[] {0.0, 0.0, 0.0});
         
     	// hydrogen attached to oxygen
-        IAtomPositioned hydrogen = (IAtomPositioned)list.getAtom(SpeciesMethanol.indexH);
+        IAtom hydrogen = list.getAtom(SpeciesMethanol.indexH);
         hydrogen.getPosition().E(new double[] {bondOH*Math.cos(angleEq), bondOH*Math.sin(angleEq), 0.0});
    
         

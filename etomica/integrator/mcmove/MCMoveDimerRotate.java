@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -43,7 +42,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final Api1ACell neighborIterator;
     protected final IVectorMutable dr;
     protected final IPotentialAtomic dimerPotential;
-    protected IAtomPositioned atom1;
+    protected IAtom atom1;
     protected transient RotationTensor rotationTensor;
     protected final IVectorMutable r0;
 
@@ -86,13 +85,13 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         neighborIterator.setBox(box);
         neighborIterator.setTarget(atom);
         neighborIterator.reset();
-        IAtomPositioned atom0 = (IAtomPositioned)atom;
+        IAtom atom0 = atom;
         atom1 = null;
         for (IAtomList pair = neighborIterator.next(); pair != null;
              pair = neighborIterator.next()) {
-        	 atom1 = (IAtomPositioned)pair.getAtom(1);
+        	 atom1 = pair.getAtom(1);
         	 if (atom1 == atom0) {
-        		 atom1 = (IAtomPositioned)pair.getAtom(0);
+        		 atom1 = pair.getAtom(0);
         	 }
         	dr.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         	box.getBoundary().nearestImage(dr);
@@ -109,7 +108,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         }
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        energyMeter.setTarget((IAtom)atom1);
+        energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
         if(uOld > 1e8 && !fixOverlap) {
             throw new RuntimeException("atom "+atom+" in box "+box+" has an overlap");
@@ -122,7 +121,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         doTransform(atom1);
         return true;
     }//end of doTrial
-    protected void doTransform(IAtomPositioned a) {
+    protected void doTransform(IAtom a) {
             IVectorMutable r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
@@ -166,7 +165,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
      */
     public void rejectNotify() {
         rotationTensor.invert();
-        doTransform((IAtomPositioned)atom);
+        doTransform(atom);
         doTransform(atom1);
         
     }
@@ -175,7 +174,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     public AtomIterator affectedAtoms() {
         affectedAtoms.clear();
         affectedAtoms.add(atom);
-        affectedAtoms.add((IAtom)atom1);
+        affectedAtoms.add(atom1);
         return affectedAtomIterator;
     }
     

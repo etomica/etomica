@@ -1,9 +1,9 @@
 package etomica.config;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -14,7 +14,7 @@ import etomica.space.ISpace;
 
 public abstract class ConformationChain implements IConformation, java.io.Serializable {
 
-	public ConformationChain(ISpace space){	
+    public ConformationChain(ISpace space){	
 		this.space = space;
 		//orientationVector = space.makeVector();
 		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
@@ -48,16 +48,17 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
     	IVectorMutable currentPosition = space.makeVector();
     
     	//Zero the first atom.
-        ((IAtomPositioned)atomlist.getAtom(0)).getPosition().E(0);
+        atomlist.getAtom(0).getPosition().E(0);
     	
         for (int iLeaf=1; iLeaf<size; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)atomlist.getAtom(iLeaf);
+            IAtom a = atomlist.getAtom(iLeaf);
     		//TODO someday, we might want a to be a chunk-of-atoms
     		currentPosition.PE(nextVector());
     		a.getPosition().E(currentPosition);
     	}
 	}
 	
+    private static final long serialVersionUID = 1L;
     protected final ISpace space;
 	/**
 	 * The vector drawn from the head of the molecule to the tail of the molecule.

@@ -1,7 +1,7 @@
 package etomica.virial;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -177,10 +177,10 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             int j = random.nextInt(numChildren-3);  // j=0 ==> first torsion bond (atoms 0,1,2,3)
 //            System.out.println("rotating about "+(j+1)+" and "+(j+2));
             // atoms j+1 and j+2 stay fixed.  atoms 0 to j and j+3 to N-1 move
-            IAtomPositioned atom0 = (IAtomPositioned)childList.getAtom(j+0);
-            IAtomPositioned atom1 = (IAtomPositioned)childList.getAtom(j+1);
-            IAtomPositioned atom2 = (IAtomPositioned)childList.getAtom(j+2);
-            IAtomPositioned atom3 = (IAtomPositioned)childList.getAtom(j+3);
+            IAtom atom0 = childList.getAtom(j+0);
+            IAtom atom1 = childList.getAtom(j+1);
+            IAtom atom2 = childList.getAtom(j+2);
+            IAtom atom3 = childList.getAtom(j+3);
             dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
             dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
             dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
@@ -209,7 +209,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                 // torsion angle is almost exactly 0 or PI.  skip this molecule
                 for (int k=0; k<numChildren; k++) {
                     // save positions anyway since rejectNotify won't know to skip this
-                    IAtomPositioned atomk = (IAtomPositioned)childList.getAtom(k);
+                    IAtom atomk = childList.getAtom(k);
 //                    System.out.println("skipping "+i+" "+k+" "+atomk+" "+atomk.getPosition());
                     oldPositions[i][k].E(atomk.getPosition());
                 }
@@ -245,7 +245,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             if (flippit) deltaphi = -deltaphi;
 
             for (int k=0; k<numChildren; k++) {
-                IAtomPositioned atomk = (IAtomPositioned)childList.getAtom(k);
+                IAtom atomk = childList.getAtom(k);
                 oldPositions[i][k].E(atomk.getPosition());
                 if (k == j+3) {
                     deltaphi = -deltaphi;
@@ -343,7 +343,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change
-                IAtomPositioned atomk = (IAtomPositioned)childList.getAtom(k);
+                IAtom atomk = childList.getAtom(k);
                 atomk.getPosition().PE(oldCenter);
             }
         }
@@ -382,7 +382,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
             IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
             for (int j=0; j<childList.getAtomCount(); j++) {
-                IAtomPositioned atomj = (IAtomPositioned)childList.getAtom(j);
+                IAtom atomj = childList.getAtom(j);
                 atomj.getPosition().E(oldPositions[i][j]);
             }
 //            System.out.println(selectedAtoms[i]+" rejected => "+selectedAtoms[i].coord.position());

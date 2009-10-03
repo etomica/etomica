@@ -1,12 +1,11 @@
 package etomica.dimer;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
@@ -72,7 +71,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                 
                 //Find average force in Z-direction and assign to all atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++){
-                    rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());      
+                    rij.E(atoms.getAtom(i).getPosition());      
                         if(rij.getX(2)>0){
                             forceTop.PE(f[i]);        
                         }
@@ -84,7 +83,7 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		        forceTop.TE(2.0/box.getLeafList().getAtomCount());
 		        forceBottom.TE(2.0/box.getLeafList().getAtomCount());
 		        for (int i=0; i<box.getLeafList().getAtomCount(); i++){
-                    rij.E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
+                    rij.E(box.getLeafList().getAtom(i).getPosition());
                     
                     if(rij.getX(2)>0){
                         

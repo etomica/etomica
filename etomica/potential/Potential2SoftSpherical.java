@@ -52,7 +52,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Energy of the pair as given by the u(double) method
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         return u(dr.squared());
     }
@@ -61,7 +61,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Virial of the pair as given by the du(double) method
      */
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         return du(dr.squared());
     }
@@ -70,7 +70,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
     public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return d2u(r2) + du(r2);
@@ -80,7 +80,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Gradient of the pair potential as given by the du(double) method.
      */
     public IVector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < 1.e-10) {

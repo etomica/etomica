@@ -2,11 +2,9 @@ package etomica.meam;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -54,10 +52,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		for (int i = 0; i < sum.length; i++) {
     		sum[i] = 0;
 		}
-        IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
-		int indexi = ((IAtom)atom0).getType().getIndex(); pi = parameters[indexi];
+        IAtom atom0 = atoms.getAtom(0);
+		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		for(int j = 1; j < atoms.getAtomCount(); j++) {
-            IAtomPositioned atomj = (IAtomPositioned)atoms.getAtom(j);
+            IAtom atomj = atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			boundary.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 		
@@ -66,14 +64,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			    continue; 
 			}
 			
-			int indexj = ((IAtom)atomj).getType().getIndex(); pj = parameters[indexj];
+			int indexj = atomj.getType().getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
 			*/
 			double Sij = 1.0;
 			for(int k = 1; k < atoms.getAtomCount(); k++) {
 				if (k == j) continue;
-                IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
+                IAtom atomk = atoms.getAtom(k);
 				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
 				boundary.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
@@ -99,7 +97,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					//System.out.println(" | Sijk 1.0 b/c C is negative");
 					continue; // negative C forms hyperbola, not ellipse
 				}
-				int indexk = ((IAtom)atomk).getType().getIndex(); 
+				int indexk = atomk.getType().getIndex(); 
 				pk = parameters[indexk];
 				
 				//Cu-Sn system only
@@ -368,8 +366,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			rhoi3sq = rhoi3sq(), tav1 = tav1(), tav2 = tav2(), tav3 = tav3(), 
 			gamma = gamma(), rhoi = rhoi(atoms);
         
-        IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
-		int indexi = ((IAtom)atom0).getType().getIndex(); pi = parameters[indexi];
+        IAtom atom0 = atoms.getAtom(0);
+		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		
 		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
@@ -383,7 +381,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
         
         for(int n = 1; n < atoms.getAtomCount(); n++) {
-            IAtomPositioned atomn = (IAtomPositioned)atoms.getAtom(n);
+            IAtom atomn = atoms.getAtom(n);
             rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
             boundary.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
@@ -419,11 +417,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
             	rij.E(rin); double ij = in;
-    			int indexj = ((IAtom)atomn).getType().getIndex(); pj = parameters[indexj];
+    			int indexj = atomn.getType().getIndex(); pj = parameters[indexj];
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.getAtomCount(); k++) {
-                    IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
+                    IAtom atomk = atoms.getAtom(k);
             		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
             		boundary.nearestImage(rik);
@@ -445,7 +443,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
-            		int indexk = ((IAtom)atomk).getType().getIndex(); pk = parameters[indexk];
+            		int indexk = atomk.getType().getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
             		
@@ -887,7 +885,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             for(int j = 1; j < atoms.getAtomCount(); j++) {
             	//The k atom, n, must not be treated as one of the other j atoms.
             	if (j == n) continue; // continue to next j atom
-                IAtomPositioned atomj = (IAtomPositioned) atoms.getAtom(j);
+                IAtom atomj = atoms.getAtom(j);
         		rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
         		boundary.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
@@ -909,8 +907,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
-	        	int indexj = ((IAtom)atomj).getType().getIndex(); pj = parameters[indexj];
-	        	int indexk = ((IAtom)atomn).getType().getIndex(); pk = parameters[indexk];
+	        	int indexj = atomj.getType().getIndex(); pj = parameters[indexj];
+	        	int indexk = atomn.getType().getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
 	        	
@@ -950,7 +948,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double Sij = Sijk;
 	        	for(int l = 1; l < atoms.getAtomCount(); l++) {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
-                    IAtomPositioned atoml = (IAtomPositioned) atoms.getAtom(l);
+                    IAtom atoml = atoms.getAtom(l);
 	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());
 	    			boundary.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
@@ -971,7 +969,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	    			if (c < 0) continue;
-	    			int indexl = ((IAtom)atoml).getType().getIndex(); pl = parameters[indexl];
+	    			int indexl = atoml.getType().getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
 	    			

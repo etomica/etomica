@@ -2,11 +2,10 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.potential.Potential1;
@@ -41,16 +40,16 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
+        IAtom atom = atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVectorMutable)agentManager.getAgent((IAtom)atom));
+        work.ME((IVectorMutable)agentManager.getAgent(atom));
         return 0.5 * epsilon * work.squared();
     }
 
     public IVector[] gradient(IAtomList atoms) {
-        IAtomPositioned atom = (IAtomPositioned)atoms.getAtom(0);
+        IAtom atom = atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVectorMutable)agentManager.getAgent((IAtom)atom));
+        work.ME((IVectorMutable)agentManager.getAgent(atom));
         work.TE(epsilon);
         return gradient;
     }
@@ -71,7 +70,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public Object makeAgent(IAtom a) {
         if (a.getType().getSpecies() == species) {
             IVectorMutable vec = space.makeVector();
-            vec.E(((IAtomPositioned)a).getPosition());
+            vec.E(a.getPosition());
             return vec;
         }
         return null;

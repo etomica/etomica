@@ -1,8 +1,8 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -76,13 +76,13 @@ public class MeterRadiusGyration extends DataSourceScalar {
             // find center of mass
             //do the first iterate explicitly, assume there is at least
             // one leaf atom
-            IAtomPositioned firstAtom = (IAtomPositioned)childList.getAtom(0);
+            IAtom firstAtom = childList.getAtom(0);
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
             IVectorMutable prevPosition = firstAtom.getPosition();
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
-                IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
+                IAtom a = childList.getAtom(iChild);
                 nLeafAtoms++;
                 IVectorMutable position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
@@ -99,7 +99,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
             double r2 = 0.0;
             realPos.E(firstAtom.getPosition());
             for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
-                IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
+                IAtom a = childList.getAtom(iChild);
                 IVectorMutable position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate

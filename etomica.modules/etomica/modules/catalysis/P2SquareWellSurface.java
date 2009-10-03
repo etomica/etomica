@@ -32,7 +32,7 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
     protected double lastEnergyChange;
     protected IVectorMutable dv;
     protected final AtomLeafAgentManager agentManager;
-    protected final int minRadicalSites;
+    protected int minRadicalSites;
 
     public P2SquareWellSurface(ISpace space, AtomLeafAgentManager agentManager) {
         this(space, agentManager, 1.0, 2.0, 1.0, 3);
@@ -94,7 +94,7 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
                     // turn off C-surface attraction for OCO
                     thisEpsilon = 0;
                 }
-                if (ke < thisEpsilon || (agent.isRadical && agent.nSurfaceBonds < minRadicalSites)) {     // Not enough kinetic energy to escape
+                if (ke < thisEpsilon || (agent.isRadical && agent.nSurfaceBonds <= minRadicalSites)) {     // Not enough kinetic energy to escape
                     lastCollisionVirial = 2.0*reduced_m*bij;
                     nudge = -eps;
                     lastEnergyChange = 0.0;
@@ -251,5 +251,16 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
         epsilon = eps;
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
+
+    public int getMinRadicalSites() {
+        return minRadicalSites;
+    }
+
+    public void setMinRadicalSites(int newMinRadicalSites) {
+        if (newMinRadicalSites < 1) {
+            throw new RuntimeException("Must be positive");
+        }
+        minRadicalSites = newMinRadicalSites;
+    }
 }
   

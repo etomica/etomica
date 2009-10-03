@@ -2,7 +2,6 @@ package etomica.nbr.cell;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
@@ -219,12 +218,12 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     public void assignCell(IAtom atom) {
         Cell atomCell;
         if (doApplyPBC) {
-            v.E(((IAtomPositioned)atom).getPosition());
+            v.E(atom.getPosition());
             v.PE(box.getBoundary().centralImage(v));
             atomCell = (Cell)lattice.site(v);
         }
         else {
-            atomCell = (Cell)lattice.site(((IAtomPositioned)atom).getPosition());
+            atomCell = (Cell)lattice.site(atom.getPosition());
         }
         atomCell.addAtom(atom);
         agentManager.setAgent(atom, atomCell);
@@ -243,7 +242,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * cell's atom list.
      */
     public Object makeAgent(IAtom atom) {
-        IVectorMutable position = ((IAtomPositioned)atom).getPosition();
+        IVectorMutable position = atom.getPosition();
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));
@@ -288,7 +287,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             IBoundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);
-            boundary.nearestImage(((IAtomPositioned)atom).getPosition());
+            boundary.nearestImage(atom.getPosition());
             neighborCellManager.assignCell(atom);
         }
         

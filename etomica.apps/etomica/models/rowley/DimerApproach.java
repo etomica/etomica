@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.action.IntegratorDimerApproach;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.box.Box;
@@ -67,14 +67,14 @@ public class DimerApproach extends Simulation {
 	public IntegratorDimerApproach dimerApproach;
 	public static MeterPotentialEnergy meterPE;
 
-	static IAtomPositioned atom_O_A;
-    static IAtomPositioned atom_aC_A;
-    static IAtomPositioned atom_aH_A;
-    static IAtomPositioned atom_H1_A; 
+	static IAtom atom_O_A;
+    static IAtom atom_aC_A;
+    static IAtom atom_aH_A;
+    static IAtom atom_H1_A; 
     
-    static IAtomPositioned atom_O_B;
-    static IAtomPositioned atom_aC_B;
-    static IAtomPositioned atom_aH_B;
+    static IAtom atom_O_B;
+    static IAtom atom_aC_B;
+    static IAtom atom_aH_B;
     
     
 

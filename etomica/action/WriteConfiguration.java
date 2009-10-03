@@ -3,11 +3,11 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -88,7 +88,7 @@ public class WriteConfiguration implements IAction {
             IAtomList leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+                IAtom a = leafList.getAtom(iLeaf);
                 writePosition.E(a.getPosition());
                 if (doApplyPBC) {
                     IVector shift = box.getBoundary().centralImage(writePosition);

@@ -45,4 +45,10 @@ public interface IAtom {
      * atoms made by this atom's factory.
      */
     public IAtomType getType();
+
+    /**
+     * Returns the position of the IAtom.  Modifying the returned IVector will
+     * alter the IAtom's position.
+     */
+    public IVectorMutable getPosition();
 }

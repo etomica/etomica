@@ -1,6 +1,7 @@
 package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
@@ -36,6 +37,19 @@ public class InteractionTracker implements CollisionListener, AgentSource {
         else if (de > 0) {
             // escape
             ((CatalysisAgent)agentManager.getAgent(gasAtom)).nSurfaceBonds--;
+        }
+    }
+    
+    public void reset() {
+        IAtomList list = agentManager.getBox().getLeafList();
+        for (int i=0; i<list.getAtomCount(); i++) {
+            CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(list.getAtom(i));
+            if (agent == null) {
+                continue;
+            }
+            agent.nSurfaceBonds = 0;
+            agent.isRadical = false;
+            // ConfigurationCatalysis is responsible for resetting bonds
         }
     }
     

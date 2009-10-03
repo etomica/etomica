@@ -2,14 +2,12 @@ package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
@@ -80,7 +78,7 @@ public class ConfigurationSAM implements Configuration {
         IVectorMutable offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = ((IAtomPositioned)molecules.getMolecule(0).getChildList().getAtom(0)).getPosition().getX(1) + moleculeOffset.getX(1);
+        double y0 = molecules.getMolecule(0).getChildList().getAtom(0).getPosition().getX(1) + moleculeOffset.getX(1);
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
@@ -88,26 +86,26 @@ public class ConfigurationSAM implements Configuration {
             box.addMolecule(molecule);
             if (i % 2 == 0 && conformation[1] != null) {
                 if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[3] != null) {
-                    offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    offset.E(molecule.getChildList().getAtom(0).getPosition());
                     conformation[3].initializePositions(molecule.getChildList());
-                    offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    offset.ME(molecule.getChildList().getAtom(0).getPosition());
                     translator.getTranslationVector().E(offset);
                     groupTranslator.actionPerformed(molecule);
                     translator.getTranslationVector().E(moleculeOffset);        
                 }
                 else {
-                    offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    offset.E(molecule.getChildList().getAtom(0).getPosition());
                     conformation[1].initializePositions(molecule.getChildList());
-                    offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                    offset.ME(molecule.getChildList().getAtom(0).getPosition());
                     translator.getTranslationVector().E(offset);
                     groupTranslator.actionPerformed(molecule);
                     translator.getTranslationVector().E(moleculeOffset);
                 }
             }
             else if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[2] != null) {
-                offset.E(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                offset.E(molecule.getChildList().getAtom(0).getPosition());
                 conformation[2].initializePositions(molecule.getChildList());
-                offset.ME(((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition());
+                offset.ME(molecule.getChildList().getAtom(0).getPosition());
                 translator.getTranslationVector().E(offset);
                 groupTranslator.actionPerformed(molecule);
                 translator.getTranslationVector().E(moleculeOffset);
@@ -126,7 +124,7 @@ public class ConfigurationSAM implements Configuration {
             IMolecule molecule = molecules.getMolecule(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
-            IVectorMutable pos = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+            IVectorMutable pos = molecule.getChildList().getAtom(0).getPosition();
             pos.setX(1, y0-yOffset);
         }
         sim.removeBox(pretendBox);

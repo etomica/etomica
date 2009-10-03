@@ -19,7 +19,6 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IFunction;
@@ -461,7 +460,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVectorMutable p = ((IAtomPositioned)m.getChildList().getAtom(0)).getPosition();
+                        IVectorMutable p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -496,7 +495,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        IVectorMutable p = ((IAtomPositioned)m.getChildList().getAtom(0)).getPosition();
+                        IVectorMutable p = m.getChildList().getAtom(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }

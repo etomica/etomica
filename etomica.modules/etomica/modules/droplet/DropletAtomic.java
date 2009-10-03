@@ -2,7 +2,6 @@ package etomica.modules.droplet;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVector;
@@ -110,7 +109,7 @@ public class DropletAtomic extends Simulation {
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();
         for (int i=0; i<leafList.getAtomCount(); i++) {
-            v.E(((IAtomPositioned)leafList.getAtom(i)).getPosition());
+            v.E(leafList.getAtom(i).getPosition());
             v.setX(0, v.getX(0)/xDropAxis);
             if (v.squared() > dropRadiusSq) {
                 ambientCount++;

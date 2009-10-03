@@ -79,7 +79,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVectorMutable dr = space.makeVector();
-                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
+                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
@@ -141,7 +141,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 IVectorMutable dr = space.makeVector();
-                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
+                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }

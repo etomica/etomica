@@ -30,7 +30,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
      */
     public boolean accept(IAtom atom) {
         if (atom instanceof IAtomPositioned) {
-            return shape.contains(((IAtomPositioned)atom).getPosition());
+            return shape.contains(atom.getPosition());
         }
         return shape.contains(positionDefinition.position((IMolecule)atom));
     }

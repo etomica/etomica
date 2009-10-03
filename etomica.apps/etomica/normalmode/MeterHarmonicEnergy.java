@@ -119,15 +119,15 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         coordinateDefinition.initializeCoordinates(new int[]{numAtoms});
 
         for(int i=0; i<numAtoms; i++) {
-            ((IAtomPositioned)atoms.getAtom(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
-            System.out.println(((IAtomPositioned)atoms.getAtom(i)).getPosition().getX(0));
+            atoms.getAtom(i).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
+            System.out.println(atoms.getAtom(i).getPosition().getX(0));
         }
         
         NormalModes normalModes = new NormalModes1DHR(sim.getSpace().D());
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        ((IAtomPositioned)atoms.getAtom(1)).getPosition().PE(0.5);
-        ((IAtomPositioned)atoms.getAtom(6)).getPosition().PE(-1.5);
+        atoms.getAtom(1).getPosition().PE(0.5);
+        atoms.getAtom(6).getPosition().PE(-1.5);
         System.out.println("Harmonic energy: "+meter.getDataAsScalar());
     }
 }

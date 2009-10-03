@@ -1,7 +1,6 @@
 package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -87,9 +86,9 @@ public class ConfigurationCatalysis implements Configuration {
             IMolecule molecule2 = speciesO.makeMolecule();
             box.addMolecule(molecule2);
             IAtom atom1 = molecule1.getChildList().getAtom(0);
-            IVectorMutable pos1 = ((IAtomPositioned)atom1).getPosition();
+            IVectorMutable pos1 = atom1.getPosition();
             IAtom atom2 = molecule2.getChildList().getAtom(0);
-            IVectorMutable pos2 = ((IAtomPositioned)atom2).getPosition();
+            IVectorMutable pos2 = atom2.getPosition();
             pos2.Ev1Mv2(pos1, shift);
             pos1.PE(shift);
             ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;

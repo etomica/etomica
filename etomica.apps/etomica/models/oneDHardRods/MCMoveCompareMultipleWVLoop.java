@@ -130,8 +130,8 @@ public class MCMoveCompareMultipleWVLoop extends MCMoveBoxStep {
         if (Double.isInfinite(energyOld)) {
             int limit = coordinateDefinition.getBox().getLeafList().getAtomCount();
             for (int k = 0; k < limit; k++) {
-                System.out.println(k + " " + ((IAtomPositioned) 
-                        coordinateDefinition.getBox().getLeafList().getAtom(k))
+                System.out.println(k + " " + 
+                        coordinateDefinition.getBox().getLeafList().getAtom(k)
                         .getPosition());
             }
             throw new IllegalStateException(

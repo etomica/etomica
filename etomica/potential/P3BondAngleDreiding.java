@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
+import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -41,9 +41,9 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public IVector[] gradient(IAtomList atomSet,  Tensor pressureTensor){
-        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
-        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
+        IAtom atom0 = atomSet.getAtom(0);
+        IAtom atom1 = atomSet.getAtom(1);
+        IAtom atom2 = atomSet.getAtom(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr12);
@@ -161,9 +161,9 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public double energy(IAtomList atomSet){
-        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
-        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
-        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
+        IAtom atom0 = atomSet.getAtom(0);
+        IAtom atom1 = atomSet.getAtom(1);
+        IAtom atom2 = atomSet.getAtom(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr12);

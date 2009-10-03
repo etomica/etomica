@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -82,8 +81,8 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                 if (k > 0) {
-                    work1.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
-                    work1.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
+                    work1.E(childList.getAtom(k).getPosition());
+                    work1.ME(childList.getAtom(k-1).getPosition());
                     double d = Math.sqrt(work1.squared());
 //                    System.out.println("distance "+d);
                     if (Math.abs(d - bondLength)/bondLength > 0.0000001) {
@@ -92,35 +91,35 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
                 }
             }
             if (forward[i]) {
-                IVectorMutable position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();
+                IVectorMutable position = childList.getAtom(numChildren-1).getPosition();
                 oldPositions[i].E(position);
                 for (int j=numChildren-1; j>0; j--) {
-                    IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
+                    IVectorMutable position2 = childList.getAtom(j-1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 work1.setRandomSphere(random);
                 work1.TE(bondLength);
-                ((IAtomPositioned)childList.getAtom(0)).getPosition().PE(work1);
+                childList.getAtom(0).getPosition().PE(work1);
             }
             else {
-                IVectorMutable position = ((IAtomPositioned)childList.getAtom(0)).getPosition();
+                IVectorMutable position = childList.getAtom(0).getPosition();
                 oldPositions[i].E(position);
                 for (int j=0; j<numChildren-1; j++) {
-                    IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
+                    IVectorMutable position2 = childList.getAtom(j+1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 work1.setRandomSphere(random);
                 work1.TE(bondLength);
-                ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition().PE(work1);
+                childList.getAtom(numChildren-1).getPosition().PE(work1);
             }
 
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                 if (k > 0) {
-                    work1.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
-                    work1.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
+                    work1.E(childList.getAtom(k).getPosition());
+                    work1.ME(childList.getAtom(k-1).getPosition());
                     double d = Math.sqrt(work1.squared());
 //                    System.out.println("distance "+d);
                     if (Math.abs(d - bondLength)/bondLength > 0.0000001) {
@@ -157,22 +156,22 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
             IAtomList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             if (!forward[i]) {
-                IVectorMutable position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();
+                IVectorMutable position = childList.getAtom(numChildren-1).getPosition();
                 for (int j=numChildren-1; j>0; j--) {
-                    IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
+                    IVectorMutable position2 = childList.getAtom(j-1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
-                ((IAtomPositioned)childList.getAtom(0)).getPosition().E(oldPositions[i]);
+                childList.getAtom(0).getPosition().E(oldPositions[i]);
             }
             else {
-                IVectorMutable position = ((IAtomPositioned)childList.getAtom(0)).getPosition();
+                IVectorMutable position = childList.getAtom(0).getPosition();
                 for (int j=0; j<numChildren-1; j++) {
-                    IVectorMutable position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
+                    IVectorMutable position2 = childList.getAtom(j+1).getPosition();
                     position.E(position2);
                     position = position2;
                 }
-                ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition().E(oldPositions[i]);
+                childList.getAtom(numChildren-1).getPosition().E(oldPositions[i]);
             }
 //            System.out.println("rejected");
         }

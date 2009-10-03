@@ -1,7 +1,6 @@
 package etomica.spin;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
@@ -38,7 +37,7 @@ public class P2Spin extends Potential2 {
      */
     public double energy(IAtomList atoms) {
         return -coupling
-                * ((IAtomPositioned)atoms.getAtom(0)).getPosition().dot(((IAtomPositioned)atoms.getAtom(1)).getPosition());
+                * atoms.getAtom(0).getPosition().dot(atoms.getAtom(1).getPosition());
     }
 
     /**

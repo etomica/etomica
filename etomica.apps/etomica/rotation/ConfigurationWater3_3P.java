@@ -1,7 +1,7 @@
 package etomica.rotation;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
@@ -30,7 +30,7 @@ public class ConfigurationWater3_3P implements Configuration, java.io.Serializab
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
+            IAtom a = leafList.getAtom(iLeaf);
             a.getPosition().E(vec[iLeaf]);
         }
     }

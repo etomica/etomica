@@ -1,7 +1,6 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -47,8 +46,8 @@ public class MeterTilt implements IEtomicaDataSource {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atomList = molecule.getChildList();
             int leafCount = atomList.getAtomCount();
-            dr.E(((IAtomPositioned)atomList.getAtom(leafCount-1)).getPosition());
-            dr.ME(((IAtomPositioned)atomList.getAtom(1)).getPosition());
+            dr.E(atomList.getAtom(leafCount-1).getPosition());
+            dr.ME(atomList.getAtom(1).getPosition());
             thetaSum += Math.acos(dr.getX(1)/Math.sqrt(dr.squared()));
             drSum.PE(dr);
         }

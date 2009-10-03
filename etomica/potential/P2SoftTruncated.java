@@ -1,12 +1,11 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -49,7 +48,7 @@ public class P2SoftTruncated extends Potential2
      * @param r2 the squared distance between the atoms
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.energy(atoms) : 0;
@@ -61,7 +60,7 @@ public class P2SoftTruncated extends Potential2
      * @param r2 the squared distance between the atoms
      */
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.virial(atoms) : 0;
@@ -73,7 +72,7 @@ public class P2SoftTruncated extends Potential2
      * @param r2 the squared distance between the atoms
      */
     public IVector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.gradient(atoms) : gradient;
@@ -85,7 +84,7 @@ public class P2SoftTruncated extends Potential2
      * @param r2 the squared distance between the atoms
      */
     public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 > r2Cutoff) return gradient;
@@ -93,7 +92,7 @@ public class P2SoftTruncated extends Potential2
     }
     
     public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
+        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.hyperVirial(atoms) : 0;
@@ -204,17 +203,6 @@ public class P2SoftTruncated extends Potential2
             //need potential to be spherical to apply here
             integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
-        }
-
-        /**
-         * Uses result from integration-by-parts to evaluate integral of
-         * r^2 d2u/dr2 using integral of u.
-         * @param pairDensity average pairs-per-volume affected by the potential.
-         *
-         * Not implemented: throws RuntimeException.
-         */
-        public double d2uCorrection(double pairDensity) {
-            throw new etomica.exception.MethodNotImplementedException();
         }
     }//end of P0lrc
     

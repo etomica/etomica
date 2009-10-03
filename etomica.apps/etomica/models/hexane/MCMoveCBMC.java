@@ -1,7 +1,6 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -89,7 +88,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
+            positionOld[i].E(atomList.getAtom(i).getPosition());
         }
 
         return calcRosenbluthFactors(); // this means we were able to propose a move.
@@ -108,7 +107,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
+            positionOld[i].E(atomList.getAtom(i).getPosition());
         }
 
         calcRosenbluthFactors();
@@ -143,7 +142,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     public void rejectNotify() {
         for (int i = 0; i < chainlength; i++) {
-            ((IAtomPositioned) atomList.getAtom(i)).getPosition().E(positionOld[i]);
+             atomList.getAtom(i).getPosition().E(positionOld[i]);
         }
 //        System.out.println("MCMoveCBMC rejects another!!");
     }

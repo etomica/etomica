@@ -3,8 +3,8 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -286,8 +286,8 @@ public class VirialRowleyAlcohol {
     		IAtomList atomSetA = monomerA.getChildList();
     		IAtomList atomSetB = monomerB.getChildList();
     		    
-    		IAtomPositioned atom_aC_A = (IAtomPositioned) atomSetA.getAtom(1);
-    		IAtomPositioned atom_aC_B = (IAtomPositioned) atomSetB.getAtom(1);
+    		IAtom atom_aC_A = atomSetA.getAtom(1);
+    		IAtom atom_aC_B = atomSetB.getAtom(1);
     		 
     		dataDistance1.setAtoms(atom_aC_A, atom_aC_B);
     		

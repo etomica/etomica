@@ -1,7 +1,6 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -89,28 +88,28 @@ public class MCMoveReptate extends MCMoveBoxStep {
        int numChildren = childlist.getAtomCount();
        
        if(forward){
-           IVectorMutable position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
+           IVectorMutable position = childlist.getAtom(numChildren-1).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVectorMutable position2 = ((IAtomPositioned)childlist.getAtom(j-1)).getPosition();
+               IVectorMutable position2 = childlist.getAtom(j-1).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((IAtomPositioned)childlist.getAtom(0)).getPosition().PE(tempV);
+           childlist.getAtom(0).getPosition().PE(tempV);
        }
        else {
-           IVectorMutable position = ((IAtomPositioned)childlist.getAtom(0)).getPosition();
+           IVectorMutable position = childlist.getAtom(0).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVectorMutable position2 = ((IAtomPositioned)childlist.getAtom(j+1)).getPosition();
+               IVectorMutable position2 = childlist.getAtom(j+1).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((IAtomPositioned)childlist.getAtom(numChildren - 1)).getPosition().PE(tempV);
+           childlist.getAtom(numChildren - 1).getPosition().PE(tempV);
            
        }
        
@@ -135,22 +134,22 @@ public class MCMoveReptate extends MCMoveBoxStep {
         IAtomList childlist = atom.getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
-            IVectorMutable position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
+            IVectorMutable position = childlist.getAtom(numChildren-1).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVectorMutable position2 = ((IAtomPositioned)childlist.getAtom(j-1)).getPosition();
+                IVectorMutable position2 = childlist.getAtom(j-1).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((IAtomPositioned)childlist.getAtom(0)).getPosition().E(positionOld);
+            childlist.getAtom(0).getPosition().E(positionOld);
         }
         else {
-            IVectorMutable position = ((IAtomPositioned)childlist.getAtom(0)).getPosition();
+            IVectorMutable position = childlist.getAtom(0).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVectorMutable position2 = ((IAtomPositioned)childlist.getAtom(j+1)).getPosition();
+                IVectorMutable position2 = childlist.getAtom(j+1).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition().E(positionOld);
+            childlist.getAtom(numChildren-1).getPosition().E(positionOld);
         }
         
         
