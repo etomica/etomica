@@ -2,42 +2,28 @@ package etomica.api;
 
 
 /**
- * Interface for a group of IAtoms, typically a molecule or a SpeciesAgent.
+ * Interface for an IMolecule
  */
 public interface IMolecule {
 
     /**
-     * Returns this IAtom's index, which is its place in the parent AtomGroup's
-     * list of child IAtoms.
+     * Returns this IMolecule's index, which is its place in the list of
+     * molecules of its ISpecies in its IBox.
      */
     public int getIndex();
 
     /**
-     * Informs the IAtom of its index, which is used to construct the address.
+     * Informs the IMolecule of its index.
      */
     public void setIndex(int index);
 
     /**
-     * Adds the given Atom as a child of this Atom.  The given child Atom
-     * should be parentless when this method is called.
-     * @throws IllegalArgumentException if the given atom already has a parent.
-     */
-    public void addChildAtom(IAtom newChildAtom);
-
-    /**
-     * Removes the given child Atom from this AtomGroup.
-     * @throws IllegalArgumentException if the given atom is not a child.
-     */
-    public void removeChildAtom(IAtom oldChildAtom);
-
-    /**
-     * @return the children as an AtomArrayList
+     * Returns the atoms in the molecule as an IAtomList.
      */
     public IAtomList getChildList();
 
     /**
-     * @return the Atom type, holding properties held in common with other 
-     * atoms made by this atom's factory.
+     * Returns the ISpecies of this IMolecule.
      */
     public ISpecies getType();
 }
