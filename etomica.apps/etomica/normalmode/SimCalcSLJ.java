@@ -143,10 +143,6 @@ public class SimCalcSLJ extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
-        meterListener.setInterval(nA);
-        sim.integrator.getEventManager().addListener(meterListener);
-
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
         // DataSinkConsole console = new DataSinkConsole();
@@ -174,9 +170,13 @@ public class SimCalcSLJ extends Simulation {
         sim.activityIntegrate.setMaxSteps(simSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
+
+        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
+        meterListener.setInterval(nA);
+        sim.integrator.getEventManager().addListener(meterListener);
+
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().reset();
-        meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);
