@@ -1,6 +1,13 @@
 package etomica.normalmode;
 
 import etomica.api.IBox;
+import etomica.api.ISpecies;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
+import etomica.space.ISpace;
+import etomica.space1d.Space1D;
+import etomica.space1d.Vector1D;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Normal-mode quantities for a 1-dimensional system of hard rods.  Frequencies are defined
@@ -80,4 +87,23 @@ public class NormalModes1DHR implements NormalModes {
                 * (csc * csc * csc * csc) / (8.*N*N*(2 + 3*N + N*N));
     }
 
+    public static void main(String[] args) {
+        int N = 8;
+        NormalModes1DHR nm = new NormalModes1DHR(1);
+        nm.setTemperature(1);
+        ISpace space = Space1D.getInstance();
+        Box box = new Box(space);
+        Simulation sim = new Simulation(space);
+        sim.addBox(box);
+        ISpecies species = new SpeciesSpheresMono(sim,space);
+        sim.getSpeciesManager().addSpecies(species);
+        box.setNMolecules(species, N);
+        box.getBoundary().setBoxSize(new Vector1D(2*N));
+        double[][] omega2 = nm.getOmegaSquared(box);
+        WaveVectorFactory1D wvf = new WaveVectorFactory1D();
+        wvf.makeWaveVectors(box);
+        for (int i=0; i<omega2.length; i++) {
+            System.out.println(wvf.getWaveVectors()[i]+" "+omega2[i][0]);
+        }
+    }
 }
