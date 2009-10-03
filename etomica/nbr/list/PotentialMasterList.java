@@ -459,7 +459,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * child atoms is performed and process is repeated (recursively) with each on down
      * the hierarchy until leaf atoms are reached.
      */
-    //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
     protected void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
         PotentialArray potentialArray = getIntraPotentials(molecule.getType());
         IPotential[] potentials = potentialArray.getPotentials();
