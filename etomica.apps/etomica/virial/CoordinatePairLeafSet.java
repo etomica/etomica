@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.util.Debug;

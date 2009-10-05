@@ -2,7 +2,6 @@ package etomica.paracetamol;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 

@@ -1,12 +1,9 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
-import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.normalmode.CoordinateDefinition;

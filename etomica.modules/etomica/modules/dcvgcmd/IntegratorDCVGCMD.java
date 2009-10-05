@@ -7,11 +7,9 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;

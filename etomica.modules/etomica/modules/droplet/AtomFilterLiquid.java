@@ -1,7 +1,6 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;

@@ -1,7 +1,6 @@
 package etomica.modules.interfacial;
 import java.util.Arrays;
 
-import etomica.api.IAtomPositioned;
 import etomica.api.IVector;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceTensorVirialHard;

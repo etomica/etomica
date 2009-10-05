@@ -2,7 +2,6 @@ package etomica.nbr;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
@@ -192,7 +191,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
     
     public Object makeAgent(IAtom atom) {
-        return atom instanceof IAtomPositioned ? new DoubleWrapper() : null;
+        return new DoubleWrapper();
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}

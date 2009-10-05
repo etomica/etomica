@@ -2,7 +2,6 @@ package etomica.modules.entropylottery;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

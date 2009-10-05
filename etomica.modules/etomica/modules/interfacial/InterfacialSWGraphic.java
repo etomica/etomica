@@ -10,7 +10,6 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;

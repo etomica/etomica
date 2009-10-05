@@ -8,7 +8,6 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -69,7 +68,6 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected final AtomActionTranslateBy translateBy;
     protected final MoleculeChildAtomAction translator;
     protected final OrientationFull3D tempOrientation;
-    protected IAtomPositioned orientAtom;
     public int printInterval;
     protected int maxIterations;
     protected double omegaTolerance, rotationTolerance;

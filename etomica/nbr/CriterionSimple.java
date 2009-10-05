@@ -2,7 +2,6 @@ package etomica.nbr;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -130,7 +129,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     }
     
     public Object makeAgent(IAtom atom) {
-        return atom instanceof IAtomPositioned ? space.makeVector() : null;
+        return space.makeVector();
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}

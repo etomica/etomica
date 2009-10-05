@@ -12,7 +12,6 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IMolecule;
 import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;

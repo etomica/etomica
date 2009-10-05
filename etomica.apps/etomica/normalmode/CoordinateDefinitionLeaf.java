@@ -3,7 +3,6 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
