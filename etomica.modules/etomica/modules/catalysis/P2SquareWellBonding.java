@@ -145,10 +145,10 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
                 }
                 else if (agent0.bondedAtom1 == agent1.bondedAtom1) {
                     // OCO, prevent approach
-                    barrier = -Double.POSITIVE_INFINITY;
+                    barrier = Double.POSITIVE_INFINITY;
                 }
                 if(ke > barrier) {   // Approach/capture
-                    lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*de/reduced_m));
+                    lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij-2.0*r2*de/reduced_m));
                     nudge = -eps;
                     lastEnergyChange = de;
                     if (isBondEvent) {
