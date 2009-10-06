@@ -42,6 +42,7 @@ public class Catalysis extends Simulation {
     public final P2SquareWellSurface potentialCS, potentialOS;
     public final ConfigurationCatalysis config;
     public final InteractionTracker interactionTracker;
+    public final ReactionManagerCO reactionManagerCO;
     
     public Catalysis(Space _space) {
         super(_space);
@@ -81,7 +82,9 @@ public class Catalysis extends Simulation {
         addBox(box);
         interactionTracker = new InteractionTracker(box, speciesSurface);
 
-	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, 2, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(400), 7.4);
+        int minOSites = 2, minCSites = 2;
+        
+	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(400), 7.4);
         potentialMaster.addPotential(potentialOO,new IAtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
 
         potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(1500), 7.4);
@@ -90,10 +93,10 @@ public class Catalysis extends Simulation {
         potentialCC = new P2SquareWell(space, sigmaC, 1.3, epsilonC, false);
         potentialMaster.addPotential(potentialCC,new IAtomType[]{speciesC.getLeafType(), speciesC.getLeafType()});
 
-        potentialOS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaS), 1.3, epsilonOS, 3);
+        potentialOS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaS), 1.3, epsilonOS, minOSites);
         potentialMaster.addPotential(potentialOS,new IAtomType[]{speciesO.getLeafType(), speciesSurface.getLeafType()});
         
-        potentialCS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaC+sigmaS), 1.3, epsilonCS, 3);
+        potentialCS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaC+sigmaS), 1.3, epsilonCS, minCSites);
         potentialMaster.addPotential(potentialCS,new IAtomType[]{speciesC.getLeafType(), speciesSurface.getLeafType()});
         
         P1HardBoundary p1HardWallO = new P1HardBoundary(space, true);
@@ -114,8 +117,8 @@ public class Catalysis extends Simulation {
         potentialMaster.addPotential(p1HardWallC, new IAtomType[]{speciesC.getLeafType()});
         
         integrator.addCollisionListener(interactionTracker);
-        ReactionManagerCO reactionManagerCO = new ReactionManagerCO(this);
-        reactionManagerCO.setnReactCO(2);
+        reactionManagerCO = new ReactionManagerCO(this);
+        reactionManagerCO.setnReactCO(minCSites);
         integrator.getEventManager().addListener(reactionManagerCO);
         
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));

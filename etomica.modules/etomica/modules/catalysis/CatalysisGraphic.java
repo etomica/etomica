@@ -9,9 +9,12 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
+import etomica.action.SimulationRestart;
+import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -23,6 +26,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataSink;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
+import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -32,15 +36,21 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Bar;
+import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Fraction;
 import etomica.units.Kelvin;
+import etomica.units.Length;
 import etomica.units.Liter;
 import etomica.units.Mole;
 import etomica.units.Pixel;
+import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.util.HistoryCollapsing;
@@ -303,8 +313,10 @@ public class CatalysisGraphic extends SimulationGraphic {
 		tempSlider.setSliderPostAction(resetDataAction);
         tempSlider.addRadioGroupActionListener(isothermalListener);
 
-        IAction resetAction = new IAction() {
+        final IAction resetAction = new IAction() {
         	public void actionPerformed() {
+        	    sim.interactionTracker.reset();
+        	    
         	    sim.integrator.reset();
 
         	    // Reset density (Density is set and won't change, but
@@ -327,22 +339,414 @@ public class CatalysisGraphic extends SimulationGraphic {
         		displayCycles.repaint();
         	}
         };
+        
+        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
 
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         
-        getPanel().controlPanel.add(statePanel, vertGBC);
-        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
+        if (true) {
+            JTabbedPane controlsTabs = new JTabbedPane();
+            JPanel mainControls = new JPanel(new GridBagLayout());
+            controlsTabs.add(mainControls, "State");
+            
+            mainControls.add(statePanel, vertGBC);
+            mainControls.add(delaySlider.graphic(), vertGBC);
+            getPanel().controlPanel.add(controlsTabs, vertGBC);
+
+            // OO
+            {
+            JPanel controlsOO = new JPanel(new GridBagLayout());
+            controlsTabs.add(controlsOO, "OO");
+            DeviceBox sigmaOBox = new DeviceBox();
+            sigmaOBox.setController(sim.getController());
+            sigmaOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Length.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "sigma";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getCoreDiameter();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOO.setCoreDiameter(newValue);
+                    sim.potentialCO.setCoreDiameter(0.5*(sim.potentialCC.getCoreDiameter()+newValue));
+                    sim.potentialOS.setCoreDiameter(0.5*(((AtomTypeSphere)sim.speciesSurface.getLeafType()).getDiameter()+newValue));
+                    ((AtomTypeSphere)sim.speciesO.getLeafType()).setDiameter(newValue);
+                    sim.config.initializeCoordinates(sim.box);
+                    resetAction.actionPerformed();
+                }
+            });
+            controlsOO.add(sigmaOBox.graphic(), vertGBC);
+            
+            DeviceBox epsOBox = new DeviceBox();
+            epsOBox.setController(sim.getController());
+            epsOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "epsilon";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getEpsilon();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOO.setEpsilon(newValue);
+                    sim.potentialCO.setEpsilon(Math.sqrt(sim.potentialCC.getEpsilon()*newValue));
+                }
+            });
+            epsOBox.setUnit(Kelvin.UNIT);
+            epsOBox.doUpdate();
+            controlsOO.add(epsOBox.graphic(), vertGBC);
+            
+            DeviceBox lambdaOBox = new DeviceBox();
+            lambdaOBox.setController(sim.getController());
+            lambdaOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Fraction.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "lambda";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getLambda();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 1) throw new RuntimeException("value must be greater than 1");
+                    sim.potentialOO.setLambda(newValue);
+                }
+            });
+            lambdaOBox.doUpdate();
+            controlsOO.add(lambdaOBox.graphic(), vertGBC);
+
+            DeviceBox nSitesOBox = new DeviceBox();
+            nSitesOBox.setController(sim.getController());
+            nSitesOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Quantity.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "# of sites";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getNumSurfaceSites();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOO.setNumSurfaceSites((int)newValue);
+                    sim.potentialOS.setMinRadicalSites((int)newValue);
+                    sim.config.initializeCoordinates(sim.box);
+                    resetAction.actionPerformed();
+                }
+            });
+            nSitesOBox.setInteger(true);
+            nSitesOBox.setPrecision(0);
+            nSitesOBox.doUpdate();
+            controlsOO.add(nSitesOBox.graphic(), vertGBC);
+
+            DeviceBox epsBarrierOBox = new DeviceBox();
+            epsBarrierOBox.setController(sim.getController());
+            epsBarrierOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "barrier";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getBarrier();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOO.setBarrier(newValue);
+                }
+            });
+            epsBarrierOBox.setUnit(Kelvin.UNIT);
+            epsBarrierOBox.doUpdate();
+            controlsOO.add(epsBarrierOBox.graphic(), vertGBC);
+
+            DeviceBox epsBondingOBox = new DeviceBox();
+            epsBondingOBox.setController(sim.getController());
+            epsBondingOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "eps bonding";
+                }
+
+                public double getValue() {
+                    return sim.potentialOO.getEpsilonBonding();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOO.setEpsilonBonding(newValue);
+                }
+            });
+            epsBondingOBox.setUnit(Kelvin.UNIT);
+            epsBondingOBox.doUpdate();
+            controlsOO.add(epsBondingOBox.graphic(), vertGBC);
+            }
+            
+            // CC
+            {
+            JPanel controlsCC = new JPanel(new GridBagLayout());
+            controlsTabs.add(controlsCC, "CC");
+            DeviceBox sigmaCBox = new DeviceBox();
+            sigmaCBox.setController(sim.getController());
+            sigmaCBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Length.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "sigma";
+                }
+
+                public double getValue() {
+                    return sim.potentialCC.getCoreDiameter();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialCC.setCoreDiameter(newValue);
+                    sim.potentialCO.setCoreDiameter(0.5*(sim.potentialOO.getCoreDiameter()+newValue));
+                    sim.potentialCS.setCoreDiameter(0.5*(((AtomTypeSphere)sim.speciesSurface.getLeafType()).getDiameter()+newValue));
+                    ((AtomTypeSphere)sim.speciesC.getLeafType()).setDiameter(newValue);
+                    sim.config.initializeCoordinates(sim.box);
+                    resetAction.actionPerformed();
+                }
+            });
+            controlsCC.add(sigmaCBox.graphic(), vertGBC);
+            
+            DeviceBox epsCBox = new DeviceBox();
+            epsCBox.setController(sim.getController());
+            epsCBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "epsilon";
+                }
+
+                public double getValue() {
+                    return sim.potentialCC.getEpsilon();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialCC.setEpsilon(newValue);
+                    sim.potentialCO.setEpsilon(Math.sqrt(sim.potentialOO.getEpsilon()*newValue));
+                }
+            });
+            epsCBox.setUnit(Kelvin.UNIT);
+            epsCBox.doUpdate();
+            controlsCC.add(epsCBox.graphic(), vertGBC);
+
+            DeviceBox lambdaCBox = new DeviceBox();
+            lambdaCBox.setController(sim.getController());
+            lambdaCBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Fraction.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "lambda";
+                }
+
+                public double getValue() {
+                    return sim.potentialCC.getLambda();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 1) throw new RuntimeException("value must be greater than 1");
+                    sim.potentialCC.setLambda(newValue);
+                }
+            });
+            lambdaCBox.doUpdate();
+            controlsCC.add(lambdaCBox.graphic(), vertGBC);
+            }
+            
+            // CO
+            {
+            JPanel controlsCO = new JPanel(new GridBagLayout());
+            controlsTabs.add(controlsCO, "CO");
+            
+            DeviceBox lambdaCOBox = new DeviceBox();
+            lambdaCOBox.setController(sim.getController());
+            lambdaCOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Fraction.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "lambda";
+                }
+
+                public double getValue() {
+                    return sim.potentialCO.getLambda();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 1) throw new RuntimeException("value must be greater than 1");
+                    sim.potentialCO.setLambda(newValue);
+                }
+            });
+            lambdaCOBox.doUpdate();
+            controlsCO.add(lambdaCOBox.graphic(), vertGBC);
+
+            DeviceBox nSitesCOBox = new DeviceBox();
+            nSitesCOBox.setController(sim.getController());
+            nSitesCOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Quantity.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "# of sites";
+                }
+
+                public double getValue() {
+                    return sim.reactionManagerCO.getnReactCO();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.reactionManagerCO.setnReactCO((int)newValue);
+                    sim.potentialCS.setMinRadicalSites((int)newValue);
+                    sim.config.initializeCoordinates(sim.box);
+                    resetAction.actionPerformed();
+                }
+            });
+            nSitesCOBox.setInteger(true);
+            nSitesCOBox.setPrecision(0);
+            nSitesCOBox.doUpdate();
+            controlsCO.add(nSitesCOBox.graphic(), vertGBC);
+
+            DeviceBox uRadCOBox = new DeviceBox();
+            uRadCOBox.setController(sim.getController());
+            uRadCOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "U rad";
+                }
+
+                public double getValue() {
+                    return sim.reactionManagerCO.getuReactCO();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.reactionManagerCO.setuReactCO(newValue);
+                }
+            });
+            uRadCOBox.setUnit(Kelvin.UNIT);
+            controlsCO.add(uRadCOBox.graphic(), vertGBC);
+
+            DeviceBox epsBarrierCOBox = new DeviceBox();
+            epsBarrierCOBox.setController(sim.getController());
+            epsBarrierCOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "barrier";
+                }
+
+                public double getValue() {
+                    return sim.potentialCO.getBarrier();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialCO.setBarrier(newValue);
+                }
+            });
+            epsBarrierCOBox.setUnit(Kelvin.UNIT);
+            epsBarrierCOBox.doUpdate();
+            controlsCO.add(epsBarrierCOBox.graphic(), vertGBC);
+
+            DeviceBox epsBondingCOBox = new DeviceBox();
+            epsBondingCOBox.setController(sim.getController());
+            epsBondingCOBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "eps bonding";
+                }
+
+                public double getValue() {
+                    return sim.potentialCO.getEpsilonBonding();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialCO.setEpsilonBonding(newValue);
+                }
+            });
+            epsBondingCOBox.setUnit(Kelvin.UNIT);
+            epsBondingCOBox.doUpdate();
+            controlsCO.add(epsBondingCOBox.graphic(), vertGBC);
+            }
+
+        }
+        else {
+            getPanel().controlPanel.add(statePanel, vertGBC);
+            getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
+        }
 
 //    	add(ePlot);
-    	add(displayCycles);
-    	add(densityBox);
-    	add(tBox);
+        add(displayCycles);
+        add(densityBox);
+        add(tBox);
 //    	add(peDisplay);
-    	add(densityHistoryPlot);
-    	add(pressurePlot);
+        add(densityHistoryPlot);
+        add(pressurePlot);
     	
 //        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
 //        d.width -= 50;
