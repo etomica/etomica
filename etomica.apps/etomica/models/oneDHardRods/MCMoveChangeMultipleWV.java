@@ -99,10 +99,10 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
 //        System.out.println("MCMoveChangeMode doTrial");
         
         System.out.println("start");
-        printLocations();
+//        printLocations();
         
         energyOld = energyMeter.getDataAsScalar();
-        System.out.println("energy Old " + energyOld);
+//        System.out.println("energy Old " + energyOld);
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -124,7 +124,7 @@ changedWV = 1;
         
         for (int i = 0; i < coordinateDim*2; i++){
             delta[i] = (2*random.nextDouble()-1) * stepSize;
-            System.out.println("delta " +i+ " " + delta[i]);
+//            System.out.println("delta " +i+ " " + delta[i]);
         }
         
 //        delta[0] = -0.0029653237447294246;
@@ -169,18 +169,28 @@ changedWV = 1;
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
-            System.out.println("cos " + coskR + " sin " + sinkR);
-            for(int i = 0; i < coordinateDim; i++){
-                if( !(Double.isInfinite(omega2[changedWV][i])) ){
+//            System.out.println("cos " + coskR + " sin " + sinkR);
+            
+            //N.B. i is the mode, j is the coordinate (atom+direction (3D))
+//            for(int iMode = 0; iMode < coordinateDim; iMode++){
+            
+            int iMode = 7;
+            
+                if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                     for(int j = 0; j < coordinateDim; j++){
                         
-                        System.out.println("iCell "+ iCell +" changedWV "+ changedWV + " i " +i + " j " +j + " eigenvex " + eigenVectors[changedWV][i][j]);
-                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
-                                    - delta[j+coordinateDim]*sinkR);
+//                        System.out.println("iCell "+ iCell +" changedWV "+ changedWV + " i " +i + " j " +j + " eigenvex " + eigenVectors[changedWV][i][j]);
+//                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
+//                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
+//                                    - delta[j+coordinateDim]*sinkR);
+                        
+                        deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*delta[iMode]*coskR;
+                        if(waveVectorCoefficients[changedWV] == 1.0){
+                            deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
+                        }
                     }
-                }
-               System.out.println("coordinate " + i + " deltaU " + deltaU[i]);
+//                }
+               System.out.println("deltaU " + deltaU[iMode]);
             }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
@@ -196,8 +206,8 @@ changedWV = 1;
         
         energyNew = energyMeter.getDataAsScalar();
         
-        System.out.println("energy new " + energyNew);
-        printLocations();
+//        System.out.println("energy new " + energyNew);
+//        printLocations();
 
         return true;
     }
@@ -246,11 +256,9 @@ changedWV = 1;
         
         if(box.getBoundary().getEdgeVector(0).getD() == 3){
             for(int i = 0; i < ats; i++){
-                if (i < 1 ) {
-                    System.out.println("Atom " + i);
-                    for(int j = 0; j < 3; j++){
-                        System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
-                    }
+                System.out.println("Atom " + i);
+                for(int j = 0; j < 3; j++){
+                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
                 }
             }
         }
