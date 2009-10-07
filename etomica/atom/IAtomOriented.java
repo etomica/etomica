@@ -5,13 +5,13 @@ import etomica.space.IOrientation;
 
 /**
  * Interface for a IAtom that includes an IVector that defines the atom's
- * position.
+ * orientation.
  */
 public interface IAtomOriented extends IAtom {
     
     /**
      * Returns the orientation of the IAtom.  Modifying the returned IVector will
-     * alter the IAtom's position.
+     * alter the IAtom's orientation.
      */
     public IOrientation getOrientation();
 
