@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.api.IAtom;
-import etomica.api.IAtomPositioned;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
@@ -14,7 +13,7 @@ import etomica.util.Debug;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class Atom implements IAtom, IAtomPositioned, java.io.Serializable {
+public class Atom implements IAtom, java.io.Serializable {
 
     public Atom(ISpace space, IAtomType type) {
         super();
