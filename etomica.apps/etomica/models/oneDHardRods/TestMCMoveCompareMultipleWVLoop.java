@@ -34,7 +34,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
-public class TestMCMoveCompareMultipleWV extends Simulation {
+public class TestMCMoveCompareMultipleWVLoop extends Simulation {
     private static final long serialVersionUID = 1L;
     public Boundary boundary;
     IntegratorMC integrator;
@@ -53,7 +53,7 @@ public class TestMCMoveCompareMultipleWV extends Simulation {
     private static final String APP_NAME = "TestMCMove";
     
 
-    public TestMCMoveCompareMultipleWV(Space _space, int numAtoms, double density, double 
+    public TestMCMoveCompareMultipleWVLoop(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
         super(_space, true);
         
@@ -179,7 +179,7 @@ public class TestMCMoveCompareMultipleWV extends Simulation {
         
         
         //instantiate simulation
-        TestMCMoveCompareMultipleWV sim = new TestMCMoveCompareMultipleWV(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
+        TestMCMoveCompareMultipleWVLoop sim = new TestMCMoveCompareMultipleWVLoop(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         System.out.println("instantiated");
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.move.setComparedWV(comparedwvs);

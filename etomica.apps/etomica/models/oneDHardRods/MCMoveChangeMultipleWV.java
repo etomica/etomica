@@ -96,13 +96,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     }
 
     public boolean doTrial() {
-//        System.out.println("MCMoveChangeMode doTrial");
-        
-        System.out.println("start");
-//        printLocations();
         
         energyOld = energyMeter.getDataAsScalar();
-//        System.out.println("energy Old " + energyOld);
         
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
@@ -110,13 +105,10 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         // assume that the first cell is the same as every other cell.
         //Also, this sets up the variable "cell".
         BasisCell cell = cells[0];
-//        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
         changedWV = changeableWVs[random.nextInt(changeableWVs.length)];
-changedWV = 1;
-//        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
         //loop over cells
@@ -124,38 +116,11 @@ changedWV = 1;
         
         for (int i = 0; i < coordinateDim*2; i++){
             delta[i] = (2*random.nextDouble()-1) * stepSize;
-//            System.out.println("delta " +i+ " " + delta[i]);
         }
-        
-//        delta[0] = -0.0029653237447294246;
-//        delta[1] = 0.0016316722166146214;
-//        delta[2] = 0.0030751866954766773;
-//        delta[3] = 0.008012405061567083;
-//        delta[4] = -0.006694646160710827;
-//        delta[5] = 0.008860310911614997;
-//        delta[6] = 0.0030797600498032197;
-//        delta[7] = 0.0038382598846641858;
-//        delta[8] = 0.0029754973545280295;
-//        delta[9] = -0.006403666076344965;
-//        delta[10] = -0.0024842357739646103;
-//        delta[11] = 0.0064143765696891356;
-//        delta[12] = 0.0059169632522216385;
-//        delta[13] = 0.007540547168508485;
-//        delta[14] = -0.009634032291220392;
-//        delta[15] = 6.969264890624771E-4;
-//        delta[16] = 0.0010155124952521645;
-//        delta[17] = -0.005026848827159598;
-//        delta[18] = -0.008215967301386084;
-//        delta[19] = -0.00553170904372634;
-//        delta[20] = -7.588581703999287E-4;
-//        delta[21] = -0.003466895374507657;
-//        delta[22] = -7.729910137865504E-4;
-//        delta[23] = 0.009934004383833723;
         
         
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
-            System.out.println("cell number " + iCell);
             double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
             cell = cells[iCell];
@@ -169,17 +134,12 @@ changedWV = 1;
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
-//            System.out.println("cos " + coskR + " sin " + sinkR);
             
             //N.B. i is the mode, j is the coordinate (atom+direction (3D))
-//            for(int iMode = 0; iMode < coordinateDim; iMode++){
-            
-            int iMode = 7;
+            for(int iMode = 0; iMode < coordinateDim; iMode++){
             
                 if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                     for(int j = 0; j < coordinateDim; j++){
-                        
-//                        System.out.println("iCell "+ iCell +" changedWV "+ changedWV + " i " +i + " j " +j + " eigenvex " + eigenVectors[changedWV][i][j]);
 //                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
 //                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
 //                                    - delta[j+coordinateDim]*sinkR);
@@ -189,8 +149,7 @@ changedWV = 1;
                             deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
                         }
                     }
-//                }
-               System.out.println("deltaU " + deltaU[iMode]);
+                }
             }
             double normalization = 1/Math.sqrt(cells.length);
             for(int i = 0; i < coordinateDim; i++){
@@ -221,7 +180,7 @@ changedWV = 1;
     }
     
     public void acceptNotify() {
-        System.out.println("accept MCMoveChangeMultipleWV");
+//        System.out.println("accept MCMoveChangeMultipleWV");
 //        iterator.reset();
 //        for(int i = 0; i < 32; i++){
 //            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
@@ -234,7 +193,7 @@ changedWV = 1;
     }
 
     public void rejectNotify() {
-        System.out.println("reject MCMoveChangeMultipleWV");
+//        System.out.println("reject MCMoveChangeMultipleWV");
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {

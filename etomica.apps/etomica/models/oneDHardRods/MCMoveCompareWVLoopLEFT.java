@@ -1,9 +1,11 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -143,12 +145,13 @@ public class MCMoveCompareWVLoopLEFT extends MCMoveBoxStep{
                 double kR = waveVectors[changedWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for(int i = 0; i < coordinateDim; i++){
-                    if( !(Double.isInfinite(omega2[changedWV][i])) ){
+                for(int iMode = 0; iMode < coordinateDim; iMode++){
+                    if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                         for(int j = 0; j < coordinateDim; j++){
-                             deltaU[j] += waveVectorCoefficients[changedWV] * 
-                                 eigenVectors[changedWV][i][j] * 2.0 * (delta[j]*coskR
-                                 - delta[j+coordinateDim]*sinkR);
+                            deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*delta[iMode]*coskR;
+                            if(waveVectorCoefficients[changedWV] == 1.0){
+                                deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
+                            }
                         }
                     }
                 }
@@ -303,6 +306,27 @@ public class MCMoveCompareWVLoopLEFT extends MCMoveBoxStep{
     }
     public double[] getLastGaussian(){
         return gaussian;
+    }
+    
+    private void printLocations(){
+        IAtomList list = box.getLeafList();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        int ats = box.getLeafList().getAtomCount();
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+            }
+        }
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 3){
+            for(int i = 0; i < ats; i++){
+                System.out.println("Atom " + i);
+                for(int j = 0; j < 3; j++){
+                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                }
+            }
+        }
     }
 
 }

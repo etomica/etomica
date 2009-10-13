@@ -98,22 +98,6 @@ public class MCMoveChangeSingleWVLoop extends MCMoveBoxStep{
     public AtomIterator affectedAtoms() {
         return iterator;
     }
-
-    private void printLocations(){
-        IAtomList list = box.getLeafList();
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
-        int ats = box.getLeafList().getAtomCount();
-//        for(int i = 0; i < ats; i++){
-//            System.out.println("Atom " + i);
-//            for(int j = 0; j < coordinateDim; j++){
-//                System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().x(j));
-//            }
-//        }
-        for(int i = 0; i < ats; i++){
-            System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
-        }
-    }
-    
     
     public boolean doTrial() {
 //        System.out.println("initial positions:");
@@ -155,12 +139,13 @@ public class MCMoveChangeSingleWVLoop extends MCMoveBoxStep{
             double kR = waveVectors[changedWV].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
-            for(int i = 0; i < coordinateDim; i++){
-                if( !(Double.isInfinite(omega2[changedWV][i])) ){
+            for(int iMode = 0; iMode < coordinateDim; iMode++){
+                if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] += waveVectorCoefficients[changedWV] * 
-                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR - 
-                                    delta[j+coordinateDim]*sinkR);
+                        deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*delta[iMode]*coskR;
+                        if(waveVectorCoefficients[changedWV] == 1.0){
+                            deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
+                        }
                     }
                 }
             }
@@ -213,5 +198,25 @@ public class MCMoveChangeSingleWVLoop extends MCMoveBoxStep{
 //        printLocations();
     }
 
+    private void printLocations(){
+        IAtomList list = box.getLeafList();
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        int ats = box.getLeafList().getAtomCount();
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+            for(int i = 0; i < ats; i++){
+                System.out.println(i + "  " + ((Atom)list.getAtom(i)).getPosition().getX(0));
+            }
+        }
+        
+        if(box.getBoundary().getEdgeVector(0).getD() == 3){
+            for(int i = 0; i < ats; i++){
+                System.out.println("Atom " + i);
+                for(int j = 0; j < 3; j++){
+                    System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
+                }
+            }
+        }
+    }
     
 }

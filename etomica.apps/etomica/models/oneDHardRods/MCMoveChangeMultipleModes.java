@@ -155,9 +155,10 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
                 for(int i = 0; i < coordinateDim; i++){
                     if( !(Double.isInfinite(omega2[changedWV][i])) ){
                         for(int j = 0; j < coordinateDim; j++){
-                            deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-                                eigenVectors[changedWV][i][changedMode]*2.0*(delta[j]*coskR 
-                                        - delta[j+coordinateDim]*sinkR);
+                            deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*delta[iMode]*coskR;
+                            if(waveVectorCoefficients[changedWV] == 1.0){
+                                deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
+                            }
                         }
                     }
                 }
@@ -209,6 +210,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
         }
     }
+    
     private void printLocations(){
         IAtomList list = box.getLeafList();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -220,15 +222,14 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
             }
         }
         
-        if(box.getBoundary().getEdgeVector(0).getD() == 1){
+        if(box.getBoundary().getEdgeVector(0).getD() == 3){
             for(int i = 0; i < ats; i++){
                 System.out.println("Atom " + i);
-                for(int j = 0; j < coordinateDim; j++){
+                for(int j = 0; j < 3; j++){
                     System.out.println(j + " " + ((Atom)list.getAtom(i)).getPosition().getX(j));
                 }
             }
         }
     }
-
 
 }

@@ -53,10 +53,10 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
             temperature, String filename, double harmonicFudge, int[] awv){
         super(_space, true);
         
-        long seed = 5;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 5;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -207,9 +207,9 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.1378;
-        public int[] changeableWV = { 1, 3, 5, 9};
+        public int[] changeableWV = { 1, 3, 5};
         
-        public int numSteps = 1;
+        public int numSteps = 1000000;
         
         public String filename = "normal_modes_LJ_3D_32";
 
