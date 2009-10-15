@@ -2,6 +2,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
@@ -13,7 +14,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.Potential2;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -35,7 +35,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected Potential2 potential;
+    protected IPotentialAtomic potential;
     protected final AtomPair pair;
 
     public MCMoveAtomCoupled(IPotentialMaster potentialMaster, IRandom random,
@@ -56,7 +56,10 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         pair = new AtomPair();
     }
     
-    public void setPotential(Potential2 newPotential) {
+    public void setPotential(IPotentialAtomic newPotential) {
+        if (newPotential.nBody() != 2) {
+            throw new RuntimeException("must be a 2-body potential");
+        }
         potential = newPotential;
     }
     
@@ -79,14 +82,13 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
-        if(!Double.isInfinite(uOld)){
-            pair.atom0 = atom0;
-            pair.atom1 = atom1;
-            uOld -= potential.energy(pair);
-        }
         if(uOld > 1e10) {
             new ConfigurationOverlapException(box);
         }
+        pair.atom0 = atom0;
+        pair.atom1 = atom1;
+        uOld -= potential.energy(pair);
+
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom0.getPosition().PE(translationVector);
