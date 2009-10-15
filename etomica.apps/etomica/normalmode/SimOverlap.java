@@ -77,6 +77,7 @@ public class SimOverlap extends Simulation {
         integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
         integratorTarget.setTimeStep(4);
         integratorTarget.setTemperature(1.0);
+        integratorTarget.setBox(boxTarget);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
@@ -91,7 +92,13 @@ public class SimOverlap extends Simulation {
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            integratorTarget.setNullPotential(new P1HardPeriodic(space), species.getLeafType());
+            double L = boundaryTarget.getBoxSize().getX(0);
+            if (L-(numAtoms-1) > 0.5*L) {
+                // at low density, the empty space between two atoms can exceed half the box length
+                P1HardPeriodic p1h = new P1HardPeriodic(space);
+                p1h.setSigma(1.0);
+                integratorTarget.setNullPotential(p1h, species.getLeafType());
+            }
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
@@ -107,20 +114,19 @@ public class SimOverlap extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(this, boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
-        if (potentialMasterTarget instanceof PotentialMasterList) {
-            double neighborRange;
-            if (space.D() == 1) {
-                neighborRange = 1.01 / density;
-            }
-            else {
-                //FCC
-                double L = Math.pow(4.01/density, 1.0/3.0);
-                neighborRange = L / Math.sqrt(2.0);
-            }
-            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
+        double neighborRange;
+        if (space.D() == 1) {
+            neighborRange = 1.01 / density;
         }
+        else {
+            //FCC
+            double L = Math.pow(4.01/density, 1.0/3.0);
+            neighborRange = L / Math.sqrt(2.0);
+        }
+        potentialMasterTarget.setRange(neighborRange);
+        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+        potentialMasterTarget.getNeighborManager(boxTarget).setDoApplyPBC(false);
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
 
         integratorTarget.setBox(boxTarget);
     
@@ -169,14 +175,13 @@ public class SimOverlap extends Simulation {
 
         integratorHarmonic.setBox(boxHarmonic);
         
-        if (potentialMasterTarget instanceof PotentialMasterList) {
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
-        }
+        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+        potentialMasterTarget.getNeighborManager(boxHarmonic).setDoApplyPBC(false);
+        potentialMasterTarget.getNeighborManager(boxHarmonic).reset();
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
-        MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
+        meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
         // lattice energy is 0
         meters[1] = meterTarget;
@@ -352,7 +357,15 @@ public class SimOverlap extends Simulation {
 
         //instantiate simulation
         SimOverlap sim = new SimOverlap(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge);
-        
+
+        int totalCells = 1;
+        for (int i=0; i<D; i++) {
+            totalCells *= sim.nCells[i];
+        }
+        int basisSize = sim.basis.getScaledCoordinates().length;
+
+        double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, harmonicFudge, temperature, basisSize, totalCells);
+
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
@@ -419,28 +432,6 @@ public class SimOverlap extends Simulation {
         sim.getController().actionPerformed();
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
-        
-        double[][] omega2 = sim.normalModes.getOmegaSquared();
-        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));//temperature should be here
-                }
-            }
-        }
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
-        System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
