@@ -41,13 +41,13 @@ public class CalcHarmonicA {
             basisSize = Integer.parseInt(args[5]);
         }
         
-        doit(filename, D, harmonicFudge, temperature, basisSize, totalCells);
+        NormalModesFromFile normalModes = new NormalModesFromFile(filename, D);
+        normalModes.setTemperature(temperature);
+        normalModes.setHarmonicFudge(harmonicFudge);
+        doit(normalModes, D, temperature, basisSize, totalCells);
     }
     
-    public static double doit(String filename, int D, double harmonicFudge, double temperature, int basisSize, int totalCells) {
-        NormalModesFromFile normalModes = new NormalModesFromFile(filename, D);
-        normalModes.setHarmonicFudge(harmonicFudge);
-        normalModes.setTemperature(temperature);
+    public static double doit(NormalModes normalModes, int D, double temperature, int basisSize, int totalCells) {
         double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
