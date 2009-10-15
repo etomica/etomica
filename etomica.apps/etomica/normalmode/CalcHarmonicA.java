@@ -16,9 +16,9 @@ public class CalcHarmonicA {
         
         //set up simulation parameters
         String filename = "normal_modes_LJ_3D_108";
-        int D = 3; 
+        int D = 3;
         int totalCells = 27;
-        double temperature = 0.01;
+        double temperature = 1;
         double harmonicFudge = 1.0;
         int basisSize = 4;
 
@@ -40,7 +40,7 @@ public class CalcHarmonicA {
         if (args.length > 5) {
             basisSize = Integer.parseInt(args[5]);
         }
-        
+
         NormalModesFromFile normalModes = new NormalModesFromFile(filename, D);
         normalModes.setTemperature(temperature);
         normalModes.setHarmonicFudge(harmonicFudge);
@@ -48,9 +48,9 @@ public class CalcHarmonicA {
     }
     
     public static double doit(NormalModes normalModes, int D, double temperature, int basisSize, int totalCells) {
+        double AHarmonic = 0;
         double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {
             for(int j=0; j<omega2[0].length; j++) {
                 if (!Double.isInfinite(omega2[i][j])) {
@@ -58,14 +58,17 @@ public class CalcHarmonicA {
                 }
             }
         }
-        
+
+        // include Jacobian correction
+        double jfac = 1.0;
         if (totalCells % 2 == 0) {
-            AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - Math.pow(2,D))/2.0) / Math.pow(totalCells,0.5*D));
+            jfac = Math.pow(2.0, D);
         }
-        else {
-            AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - 1)/2.0) / Math.pow(totalCells,0.5*D));
-        }
-        
+        AHarmonic += -(basisSize*D*(totalCells - jfac)/2.0)*Math.log(2.0);
+
+        // and COM correction ?
+        AHarmonic += 0.5*D*Math.log(totalCells);
+
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
         return AHarmonic*temperature;
     }
