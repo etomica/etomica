@@ -33,8 +33,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         IBox box = coordinateDefinition.getBox();
         normalModes.getWaveVectorFactory().makeWaveVectors(box);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
-        setEigenvectors(normalModes.getEigenvectors(box));
-        setOmegaSquared(normalModes.getOmegaSquared(box));
+        setEigenvectors(normalModes.getEigenvectors());
+        setOmegaSquared(normalModes.getOmegaSquared());
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -122,7 +122,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
             System.out.println(atoms.getAtom(i).getPosition().getX(0));
         }
         
-        NormalModes normalModes = new NormalModes1DHR(sim.getSpace().D());
+        NormalModes normalModes = new NormalModes1DHR(box.getBoundary(), numAtoms);
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         atoms.getAtom(1).getPosition().PE(0.5);

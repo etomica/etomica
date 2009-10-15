@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.api.IBoundary;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.ISpace;
@@ -13,9 +13,10 @@ public class NormalModes2D implements NormalModes {
 
     /**
      */
-    public NormalModes2D(ISpace _space, Primitive primitive, Basis basis) {
+    public NormalModes2D(ISpace _space, IBoundary boundary, Primitive primitive, Basis basis) {
     	
     	this.space = _space;
+    	this.boundary = boundary;
     	this.primitive = primitive;
     	this.basis = basis;
     	waveVectorFactory = new WaveVectorFactory2D(primitive, space);
@@ -23,13 +24,13 @@ public class NormalModes2D implements NormalModes {
         
     }
 
-    public double[][] getOmegaSquared(IBox box) {
+    public double[][] getOmegaSquared() {
     	
     	double[] d = primitive.getSize();
     	int[] numCells = new int[space.D()];
     	
     	for(int i=0; i<space.D(); i++){
-    		numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i)/(d[i]));
+    		numCells[i] = (int)Math.round(boundary.getBoxSize().getX(i)/(d[i]));
     		
     	}
     	
@@ -59,13 +60,13 @@ public class NormalModes2D implements NormalModes {
 
     
     
-    public double[][][] getEigenvectors(IBox box) {
+    public double[][][] getEigenvectors() {
     	
     	double[] d = primitive.getSize();
     	int[] numCells = new int[space.D()];
     	
     	for(int i=0; i<space.D(); i++){
-    		numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i)/(d[i]));
+    		numCells[i] = (int)Math.round(boundary.getBoxSize().getX(i)/(d[i]));
     		
     	}
     	
@@ -111,6 +112,6 @@ public class NormalModes2D implements NormalModes {
     protected Primitive primitive;
     protected ISpace space;
     protected Basis basis;
-    
+    protected IBoundary boundary;
 
 }

@@ -277,7 +277,7 @@ public class SimUmbrella extends Simulation {
         }
         
         
-		double[][] omega2 = sim.normalModes.getOmegaSquared(sim.box);
+		double[][] omega2 = sim.normalModes.getOmegaSquared();
 		double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
 		double AHarmonic = 0;
 		for(int i=0; i<omega2.length; i++) {

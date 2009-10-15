@@ -2,6 +2,9 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import etomica.api.IBox;
+import etomica.api.IVectorMutable;
+import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -10,9 +13,6 @@ import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeSum;
 import etomica.lattice.crystal.Primitive;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -24,7 +24,6 @@ import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
 import etomica.util.FunctionGeneral;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Computes the normal modes for a Bravais lattice occupied by atoms that interact
@@ -132,14 +131,14 @@ public class NormalModesSoftSpherical implements NormalModes {
         this.potential = potential;
     }
 
-    public double[][][] getEigenvectors(IBox box) {
+    public double[][][] getEigenvectors() {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(IBox box) {
+    public double[][] getOmegaSquared() {
         if(needToCalculateModes) {
             calculateModes();
         }

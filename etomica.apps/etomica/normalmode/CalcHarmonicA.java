@@ -48,7 +48,7 @@ public class CalcHarmonicA {
         NormalModesFromFile normalModes = new NormalModesFromFile(filename, D);
         normalModes.setHarmonicFudge(harmonicFudge);
         normalModes.setTemperature(temperature);
-        double[][] omega2 = normalModes.getOmegaSquared(null);
+        double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {

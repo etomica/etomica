@@ -142,7 +142,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
                 waveVectorFactory.makeWaveVectors(box);
                 
                 mcMoveHarmonicStep.setModes(modes);
-                mcMoveHarmonicStep.setEigenVectors(normalModes.getEigenvectors(box)[0]);
+                mcMoveHarmonicStep.setEigenVectors(normalModes.getEigenvectors()[0]);
                 mcMoveHarmonicStep.setStepSize(0.006);
                 ((MCMoveStepTracker)mcMoveHarmonicStep.getTracker()).setAdjustInterval(5);
                 ((MCMoveStepTracker)mcMoveHarmonicStep.getTracker()).setNoisyAdjustment(true);

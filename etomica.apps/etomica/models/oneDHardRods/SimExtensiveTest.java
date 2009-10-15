@@ -16,7 +16,6 @@ import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -111,16 +110,16 @@ public class SimExtensiveTest extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setBox(box);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
-        nm.getOmegaSquared(box);
+        nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
         //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
-        double[][] omega = nm.getOmegaSquared(box);
+        double[][] omega = nm.getOmegaSquared();
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
         skipThisMode = new boolean[2*jump];
         for(int i = 0; i < 2*jump; i++){
@@ -154,14 +153,14 @@ public class SimExtensiveTest extends Simulation {
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors(box));
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared(box));
+        mcMoveMode.setEigenVectors(nm.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-        meternmc.setEigenVectors(nm.getEigenvectors(box));
-        meternmc.setOmegaSquared(nm.getOmegaSquared(box));
+        meternmc.setEigenVectors(nm.getEigenvectors());
+        meternmc.setOmegaSquared(nm.getOmegaSquared());
         
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];

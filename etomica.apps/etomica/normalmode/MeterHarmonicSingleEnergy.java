@@ -72,8 +72,8 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         
         normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
-        setEigenvectors(normalModes.getEigenvectors(newBox));
-        setOmegaSquared(normalModes.getOmegaSquared(newBox));
+        setEigenvectors(normalModes.getEigenvectors());
+        setOmegaSquared(normalModes.getOmegaSquared());
 
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,coordinateDim});
         data = new DataDoubleArray(new int[]{waveVectors.length,coordinateDim});

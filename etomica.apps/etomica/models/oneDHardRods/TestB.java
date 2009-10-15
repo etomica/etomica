@@ -93,7 +93,7 @@ public class TestB extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -106,8 +106,8 @@ public class TestB extends Simulation {
         integrator.getMoveManager().addMCMove(convert);
         convert.setWaveVectors(waveVectorFactory.getWaveVectors());
         convert.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        convert.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        convert.setEigenVectors(nm.getEigenvectors(box));
+        convert.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        convert.setEigenVectors(nm.getEigenvectors());
         convert.setCoordinateDefinition(coordinateDefinition);
         convert.setTemperature(temperature);
         convert.setBox(box);
@@ -130,8 +130,8 @@ public class TestB extends Simulation {
        
         MeterCompareSingleWVBrute meterBinB = new MeterCompareSingleWVBrute(potentialMaster,coordinateDefinition,box);
         meterBinB.setCoordinateDefinition(coordinateDefinition);
-        meterBinB.setEigenVectors(nm.getEigenvectors(box));
-        meterBinB.setOmegaSquared(nm.getOmegaSquared(box));
+        meterBinB.setEigenVectors(nm.getEigenvectors());
+        meterBinB.setOmegaSquared(nm.getOmegaSquared());
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactory.getWaveVectors());

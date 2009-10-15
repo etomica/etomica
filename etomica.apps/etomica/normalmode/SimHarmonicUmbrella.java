@@ -119,8 +119,8 @@ public class SimHarmonicUmbrella extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        move.setOmegaSquared(normalModes.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(normalModes.getEigenvectors(box));
+        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinition);

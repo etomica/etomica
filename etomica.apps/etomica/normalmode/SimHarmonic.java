@@ -80,7 +80,7 @@ public class SimHarmonic extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         if(D == 1) {
-            normalModes = new NormalModes1DHR(space.D());
+            normalModes = new NormalModes1DHR(boundary, numAtoms);
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
@@ -89,8 +89,8 @@ public class SimHarmonic extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        move.setOmegaSquared(normalModes.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(normalModes.getEigenvectors(box));
+        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinition);

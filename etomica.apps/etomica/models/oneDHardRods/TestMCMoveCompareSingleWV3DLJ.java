@@ -93,7 +93,7 @@ public class TestMCMoveCompareSingleWV3DLJ extends Simulation {
         
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
-        nm.getOmegaSquared(box);
+        nm.getOmegaSquared();
         
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
@@ -109,8 +109,8 @@ public class TestMCMoveCompareSingleWV3DLJ extends Simulation {
         compareMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         compareMove.setWaveVectorCoefficients(
                 waveVectorFactory.getCoefficients());
-        compareMove.setEigenVectors(nm.getEigenvectors(box));
-        compareMove.setOmegaSquared(nm.getOmegaSquared(box), nm.getWaveVectorFactory().getCoefficients());
+        compareMove.setEigenVectors(nm.getEigenvectors());
+        compareMove.setOmegaSquared(nm.getOmegaSquared(), nm.getWaveVectorFactory().getCoefficients());
         compareMove.setCoordinateDefinition(coordinateDefinition);
         compareMove.setBox((IBox)box);
         compareMove.setStepSizeMin(0.001);

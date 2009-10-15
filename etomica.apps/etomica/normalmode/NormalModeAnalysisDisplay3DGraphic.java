@@ -240,8 +240,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.latticeEnergy = sim.meterPE.getDataAsScalar();
                 	
-                	numWV = sim.nm.getOmegaSquared(null).length;
-                    numEval = sim.nm.getOmegaSquared(null)[0].length;
+                	numWV = sim.nm.getOmegaSquared().length;
+                    numEval = sim.nm.getOmegaSquared()[0].length;
                     
                     omega2 = new double[numWV][numEval];
                     eigenVectors = new double[numWV][numEval][numEval];
@@ -261,8 +261,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
             		
             	}
              	
-                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(null), sim.waveVectorFactory.getCoefficients());
-                sim.integrator.setEigenVectors(sim.nm.getEigenvectors(null));
+                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(), sim.waveVectorFactory.getCoefficients());
+                sim.integrator.setEigenVectors(sim.nm.getEigenvectors());
                 sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
                 sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
            
@@ -339,7 +339,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 
         waveVectorSlider = new DeviceWaveVectorSlider(sim.getController());
         waveVectorSlider.setMinimum(0);
-        waveVectorSlider.setMaximum(sim.nm.getOmegaSquared(null).length);
+        waveVectorSlider.setMaximum(sim.nm.getOmegaSquared().length);
         waveVectorSlider.setOneWV();
         waveVectorSlider.setOneWVButtonsVisibility(false);
         waveVectorSlider.setIntegrator(sim.integrator);
@@ -351,8 +351,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
                 
         		//change for wave vectors
-                numWV = sim.nm.getOmegaSquared(null).length;
-                numEval = sim.nm.getOmegaSquared(null)[0].length;
+                numWV = sim.nm.getOmegaSquared().length;
+                numEval = sim.nm.getOmegaSquared()[0].length;
                 
                 wavevectorx = new double[numWV];
                 wavevectory = new double[numWV];
@@ -423,14 +423,14 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
          */
         eValSlider = new DeviceEigenvaluesSlider(sim.getController());
         eValSlider.setMinimum(0);
-        eValSlider.setMaximum(sim.nm.getOmegaSquared(null)[0].length);
+        eValSlider.setMaximum(sim.nm.getOmegaSquared()[0].length);
         eValSlider.setIntegrator(sim.integrator);
         sim.integrator.setOneWV(true);
         
         eValPostAction = new IAction(){
         	public void actionPerformed() {
         		
-        		int numWV = sim.nm.getOmegaSquared(null).length; 
+        		int numWV = sim.nm.getOmegaSquared().length; 
         		int eValNum = (int)eValSlider.getEValNum();
                 int wvNum = (int)waveVectorSlider.getWaveVectorNum();
                 
@@ -442,7 +442,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 stringOmega2 = new String[numEval];
                 
                 for (int nEval1=0; nEval1<numEval; nEval1++){
-                		omega2[wvNum][nEval1] = sim.nm.getOmegaSquared(null)[wvNum][nEval1];
+                		omega2[wvNum][nEval1] = sim.nm.getOmegaSquared()[wvNum][nEval1];
                 }
                 
                 
@@ -451,8 +451,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.integrator.setOneEVal(true);
                     sim.integrator.setWaveVectorNum(wvNum);
                     sim.integrator.setEValNum(eValNum);
-                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(), sim.waveVectorFactory.getCoefficients());
+                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors());
                 	
                 	
                 	for (int nEval=0; nEval<numEval; nEval++){
@@ -482,8 +482,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.integrator.setOneWV(true);
                 	sim.integrator.setOneEVal(false);
                 	sim.integrator.setWaveVectorNum(wvNum);
-                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                    sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(), sim.waveVectorFactory.getCoefficients());
+                    sim.integrator.setEigenVectors(sim.nm.getEigenvectors());
                     
                 	for (int nEval=0; nEval<numEval; nEval++){
                 		for (int nEval2=0; nEval2<numEval; nEval2++){
@@ -569,8 +569,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		 */
 		
 		//tabbed-pane for wave vectors
-        numWV = sim.nm.getOmegaSquared(null).length;
-        numEval = sim.nm.getOmegaSquared(null)[0].length;
+        numWV = sim.nm.getOmegaSquared().length;
+        numEval = sim.nm.getOmegaSquared()[0].length;
         
         wavevectorx = new double[numWV];
         wavevectory = new double[numWV];
@@ -636,7 +636,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         
         for (int nWV=0; nWV<numWV; nWV++){
         	for (int nEval1=0; nEval1<numEval; nEval1++){
-        		omega2[nWV][nEval1] = sim.nm.getOmegaSquared(null)[nWV][nEval1];
+        		omega2[nWV][nEval1] = sim.nm.getOmegaSquared()[nWV][nEval1];
         		
         		for (int nEval2=0; nEval2<numEval; nEval2++){
         			eigenVectors[nWV][nEval1][nEval2] = sim.nm.eigenvectors[nWV][nEval1][nEval2];

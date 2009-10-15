@@ -97,7 +97,7 @@ public class HarmonicCrystalMonoclinic {
         double jacobian = 0.5*D*(basisDim*(cellCount - differ)*Math.log(2.0) - Math.log(cellCount));
         System.out.println("differ, jacobian: " + differ + "\t" + jacobian);
         
-        double[][] omega2 = normalModes.getOmegaSquared(null);//need to change signature of this method
+        double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         System.out.println("coeffs: "+Arrays.toString(coeffs));
         double sumA = 0.0;

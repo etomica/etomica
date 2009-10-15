@@ -119,7 +119,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundaryTarget, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -137,7 +137,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
                 waveVectorFactoryTarget.getCoefficients());
-        changeMove.setEigenVectors(nm.getEigenvectors(boxTarget));
+        changeMove.setEigenVectors(nm.getEigenvectors());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
         changeMove.setBox((IBox)boxTarget);
         changeMove.setStepSizeMin(0.001);
@@ -148,8 +148,8 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         
         meterBinA = new MeterCompareSingleWVBrute("meterBinA", potentialMasterTarget, 
                 coordinateDefinitionTarget, boxTarget);
-        meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
-        meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
+        meterBinA.setEigenVectors(nm.getEigenvectors());
+        meterBinA.setOmegaSquared(nm.getOmegaSquared());
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
@@ -211,10 +211,6 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
         
-        nm = new NormalModes1DHR(space.D());
-        nm.setHarmonicFudge(harmonicFudge);
-        nm.setTemperature(temperature);
-        
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
@@ -223,9 +219,9 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         compareMove.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-        compareMove.setOmegaSquared(nm.getOmegaSquared(boxRef), 
+        compareMove.setOmegaSquared(nm.getOmegaSquared(), 
                 waveVectorFactoryRef.getCoefficients());
-        compareMove.setEigenVectors(nm.getEigenvectors(boxRef));
+        compareMove.setEigenVectors(nm.getEigenvectors());
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
         compareMove.setTemperature(temperature);
         compareMove.setBox((IBox)boxRef);
@@ -238,8 +234,8 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
         meterBinB = new MeterCompareSingleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
-        meterBinB.setEigenVectors(nm.getEigenvectors(boxRef));
-        meterBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
+        meterBinB.setEigenVectors(nm.getEigenvectors());
+        meterBinB.setOmegaSquared(nm.getOmegaSquared());
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -568,7 +564,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
                 sim.integratorSim.getActualStepFreq0() + ")");
         
-        double[][] omega2 = sim.nm.getOmegaSquared(sim.boxTarget); 
+        double[][] omega2 = sim.nm.getOmegaSquared(); 
         //Above known from the analytical results. - otherwise it would be from 
         //the S matrix.
         double[] coeffs = sim.nm.getWaveVectorFactory().getCoefficients();

@@ -98,9 +98,9 @@ public class SimHarmonicHexane extends Simulation {
         WaveVectorFactory waveFactory = normalModes.getWaveVectorFactory();
         waveFactory.makeWaveVectors(box);
         
-        harm.setOmegaSquared(normalModes.getOmegaSquared(box), 
+        harm.setOmegaSquared(normalModes.getOmegaSquared(), 
                 waveFactory.getCoefficients());
-        harm.setEigenVectors(normalModes.getEigenvectors(box));
+        harm.setEigenVectors(normalModes.getEigenvectors());
         harm.setWaveVectors(waveFactory.getWaveVectors());
         harm.setWaveVectorCoefficients(waveFactory.getCoefficients());
         harm.setCoordinateDefinition(coordinateDefinition);

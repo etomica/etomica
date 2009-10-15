@@ -41,7 +41,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setTemperature(temperature);
         
         waveVectorFactory = nm.getWaveVectorFactory();
@@ -51,8 +51,8 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        integrator.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        integrator.setEigenVectors(nm.getEigenvectors(box));
+        integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        integrator.setEigenVectors(nm.getEigenvectors());
         integrator.setTemperature(temperature);
         
         

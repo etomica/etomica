@@ -157,8 +157,8 @@ public class SimOverlapLJ extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
-        move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
+        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinitionHarmonic);
@@ -392,7 +392,7 @@ public class SimOverlapLJ extends Simulation {
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         
-        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
+        double[][] omega2 = sim.normalModes.getOmegaSquared();
         double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {

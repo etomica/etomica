@@ -24,7 +24,6 @@ import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 /**
@@ -153,14 +152,14 @@ public class NormalModesPotentialParacetamol implements NormalModes {
  
 
 
-    public double[][][] getEigenvectors(IBox box) {
+    public double[][][] getEigenvectors() {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(IBox box) {
+    public double[][] getOmegaSquared() {
         if(needToCalculateModes) {
             calculateModes();
         }

@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.IAction;
-import etomica.action.IntegratorActionAdapter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -175,8 +174,8 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         
         WaveVectorFactorySuperBox waveVectorFactory = new WaveVectorFactorySuperBox(primitive, space);
         waveVectorFactory.makeWaveVectors(boxHarmonic);
-        move.setOmegaSquared(normalModes.getOmegaSquared(boxHarmonic), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(normalModes.getEigenvectors(boxHarmonic));
+        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinitionHarmonic);
@@ -421,7 +420,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
        
   
         
-        double[][] omega2 = sim.normalModes.getOmegaSquared(sim.boxTarget);
+        double[][] omega2 = sim.normalModes.getOmegaSquared();
         double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {

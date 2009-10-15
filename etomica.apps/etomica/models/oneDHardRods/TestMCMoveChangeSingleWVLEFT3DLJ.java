@@ -93,7 +93,7 @@ public class TestMCMoveChangeSingleWVLEFT3DLJ extends Simulation {
         
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
-        nm.getOmegaSquared(box);
+        nm.getOmegaSquared();
         
         WaveVectorFactory waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
@@ -109,8 +109,8 @@ public class TestMCMoveChangeSingleWVLEFT3DLJ extends Simulation {
         changeMove.setWaveVectors(waveVectorFactory.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
                 waveVectorFactory.getCoefficients());
-        changeMove.setEigenVectors(nm.getEigenvectors(box));
-        changeMove.setOmegaSquared(nm.getOmegaSquared(box));
+        changeMove.setEigenVectors(nm.getEigenvectors());
+        changeMove.setOmegaSquared(nm.getOmegaSquared());
         changeMove.setCoordinateDefinition(coordinateDefinition);
         changeMove.setBox((IBox)box);
         changeMove.setStepSizeMin(0.001);

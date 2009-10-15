@@ -96,7 +96,7 @@ public class HarmonicCrystalSoftSphereFCC {
         System.out.println("differ, jacobian: " + differ + "\t" + jacobian);
         
         normalModes.setFileName(getFileName());
-        double[][] omega2 = normalModes.getOmegaSquared(null);//need to change signature of this method
+        double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         
         System.out.println("coeffs: "+Arrays.toString(coeffs));

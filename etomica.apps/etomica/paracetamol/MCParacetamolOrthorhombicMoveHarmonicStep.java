@@ -100,7 +100,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         	num[i] = i+3;
         }
         moveHarmonicStep.setModes(num);
-        moveHarmonicStep.setEigenVectors(normalModes.getEigenvectors(box)[0]);
+        moveHarmonicStep.setEigenVectors(normalModes.getEigenvectors()[0]);
         moveHarmonicStep.setStepSize(0.01);
         ((MCMoveStepTracker)moveHarmonicStep.getTracker()).setAdjustInterval(2);
         ((MCMoveStepTracker)moveHarmonicStep.getTracker()).setNoisyAdjustment(true);

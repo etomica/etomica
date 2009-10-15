@@ -24,14 +24,14 @@ public interface NormalModes {
      * motions. First index indicates the wave vector, and second index indicates the
      * eigenvector. Length of second index is coordinateDim.
      */
-    public double[][] getOmegaSquared(IBox box);
+    public double[][] getOmegaSquared();
 
     /**
      * First index corresponds to the wave vector; second index gives the eigenvector, and
      * third index gives the elements of the vector.  Length of 2nd and 3rd dimensions is 
      * coordinateDim. 
      */
-    public double[][][] getEigenvectors(IBox box);
+    public double[][][] getEigenvectors();
     
     /**
      * Set the fudge factor applied to frequencies.  The squared-frequencies returned

@@ -150,7 +150,7 @@ public class SimTarget extends Simulation {
         
         NormalModes normalModes = null;
         if(D == 1) {
-            normalModes = new NormalModes1DHR(sim.space.D());
+            normalModes = new NormalModes1DHR(sim.boundary, numMolecules);
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
@@ -220,7 +220,7 @@ public class SimTarget extends Simulation {
         }
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
         
-        double[][] omega2 = normalModes.getOmegaSquared(sim.box);
+        double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {

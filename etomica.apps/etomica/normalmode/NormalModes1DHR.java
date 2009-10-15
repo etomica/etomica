@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.api.IBoundary;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
@@ -15,18 +15,18 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class NormalModes1DHR implements NormalModes {
     
-    public NormalModes1DHR(int D) {
+    public NormalModes1DHR(IBoundary boundary, int numMolecules) {
         harmonicFudge = 1;
-        this.dim = D;
+        this.boundary = boundary;
+        this.nA = numMolecules;
+        if(boundary.getBoxSize().getD() != 1) {
+            throw new RuntimeException("Must give a box for a 1D system"); 
+        }
         waveVectorFactory = new WaveVectorFactory1D();
     }
     
-    public double[][] getOmegaSquared(IBox box) {
-        if(dim != 1) {
-            throw new RuntimeException("Must give a box for a 1D system"); 
-        }
-        int nA = box.getMoleculeList().getMoleculeCount();
-        double L = box.getBoundary().getBoxSize().getX(0);
+    public double[][] getOmegaSquared() {
+        double L = boundary.getBoxSize().getX(0);
         int mMax = nA/2;
         double[][] omega2= new double[mMax+1][1];
         omega2[0][0] = Double.POSITIVE_INFINITY;
@@ -36,11 +36,7 @@ public class NormalModes1DHR implements NormalModes {
         return omega2;
     }
 
-    public double[][][] getEigenvectors(IBox box) {
-        if(dim != 1) {
-            throw new RuntimeException("Must give a box for a 1D system"); 
-        }
-        int nA = box.getMoleculeList().getMoleculeCount();
+    public double[][][] getEigenvectors() {
         int mMax = nA/2;
         double[][][] eVecs = new double[mMax+1][1][1];
         for(int m=0; m<=mMax; m++) {
@@ -64,7 +60,8 @@ public class NormalModes1DHR implements NormalModes {
     protected double harmonicFudge;
     protected double temperature;
     private final WaveVectorFactory1D waveVectorFactory;
-    private final int dim;
+    protected final IBoundary boundary;
+    protected final int nA;
 
     /**
      * Returns the analytical result for the S matrix (just a scalar in this
@@ -89,8 +86,6 @@ public class NormalModes1DHR implements NormalModes {
 
     public static void main(String[] args) {
         int N = 8;
-        NormalModes1DHR nm = new NormalModes1DHR(1);
-        nm.setTemperature(1);
         ISpace space = Space1D.getInstance();
         Box box = new Box(space);
         Simulation sim = new Simulation(space);
@@ -99,7 +94,9 @@ public class NormalModes1DHR implements NormalModes {
         sim.getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, N);
         box.getBoundary().setBoxSize(new Vector1D(2*N));
-        double[][] omega2 = nm.getOmegaSquared(box);
+        NormalModes1DHR nm = new NormalModes1DHR(box.getBoundary(), N);
+        nm.setTemperature(1);
+        double[][] omega2 = nm.getOmegaSquared();
         WaveVectorFactory1D wvf = new WaveVectorFactory1D();
         wvf.makeWaveVectors(box);
         for (int i=0; i<omega2.length; i++) {

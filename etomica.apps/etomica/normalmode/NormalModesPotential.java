@@ -208,14 +208,14 @@ public class NormalModesPotential implements NormalModes {
         this.potential = potential;
     }
 
-    public double[][][] getEigenvectors(IBox box) {
+    public double[][][] getEigenvectors() {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(IBox box) {
+    public double[][] getOmegaSquared() {
         if(needToCalculateModes) {
             calculateModes();
         }

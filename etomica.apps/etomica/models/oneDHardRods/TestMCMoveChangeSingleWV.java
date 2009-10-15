@@ -90,7 +90,7 @@ public class TestMCMoveChangeSingleWV extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -101,9 +101,9 @@ public class TestMCMoveChangeSingleWV extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setEigenVectors(nm.getEigenvectors(box));
+        move.setEigenVectors(nm.getEigenvectors());
         move.setCoordinateDefinition(coordinateDefinition);
-        move.setOmegaSquared(nm.getOmegaSquared(box));
+        move.setOmegaSquared(nm.getOmegaSquared());
         move.setBox((IBox)box);
         move.setStepSizeMin(0.001);
         move.setStepSize(0.01);

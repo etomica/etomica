@@ -113,7 +113,7 @@ public class SimDegreeFreedom3D extends Simulation {
         
         //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
-        double[][] omega = nm.getOmegaSquared(box);
+        double[][] omega = nm.getOmegaSquared();
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
         skipThisMode = new boolean[2*jump];
         for(int i = 0; i < 2*jump; i++){
@@ -151,14 +151,14 @@ public class SimDegreeFreedom3D extends Simulation {
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors(box));
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared(box));
+        mcMoveMode.setEigenVectors(nm.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-        meternmc.setEigenVectors(nm.getEigenvectors(box));
-        meternmc.setOmegaSquared(nm.getOmegaSquared(box));
+        meternmc.setEigenVectors(nm.getEigenvectors());
+        meternmc.setOmegaSquared(nm.getOmegaSquared());
         
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];

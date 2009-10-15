@@ -108,10 +108,10 @@ public class TestWidom extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setBox(box);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(bdry, numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
-        nm.getOmegaSquared(box);
+        nm.getOmegaSquared();
         
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
@@ -127,8 +127,8 @@ public class TestWidom extends Simulation {
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors(box));
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared(box));
+        mcMoveMode.setEigenVectors(nm.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
@@ -138,8 +138,8 @@ public class TestWidom extends Simulation {
         String name = new String("widom Meter for real mode " + pickedWV);
         realMeter = new MeterWidomModeReal(name, potentialMaster, 
                 coordinateDefinition, box, pickedWV);
-        realMeter.setEigenVectors(nm.getEigenvectors(box));
-        realMeter.setOmegaSquared(nm.getOmegaSquared(box));
+        realMeter.setEigenVectors(nm.getEigenvectors());
+        realMeter.setOmegaSquared(nm.getOmegaSquared());
         realMeter.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         realMeter.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
@@ -154,8 +154,8 @@ public class TestWidom extends Simulation {
         name = new String("widom Meter for imag mode " + pickedWV);
         imagMeter = new MeterWidomModeImaginary(name, potentialMaster, 
                 coordinateDefinition, box, pickedWV);
-        imagMeter.setEigenVectors(nm.getEigenvectors(box));
-        imagMeter.setOmegaSquared(nm.getOmegaSquared(box));
+        imagMeter.setEigenVectors(nm.getEigenvectors());
+        imagMeter.setOmegaSquared(nm.getOmegaSquared());
         imagMeter.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         imagMeter.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
@@ -166,8 +166,8 @@ public class TestWidom extends Simulation {
         integrator.getEventManager().addListener(pumpListener);
         
         mnm = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-        mnm.setEigenVectors(nm.getEigenvectors(box));
-        mnm.setOmegaSquared(nm.getOmegaSquared(box));
+        mnm.setEigenVectors(nm.getEigenvectors());
+        mnm.setOmegaSquared(nm.getOmegaSquared());
         
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();

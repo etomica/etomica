@@ -1,9 +1,5 @@
 package etomica.normalmode;
 
-import Jama.EigenvalueDecomposition;
-import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.ISpace;
 
@@ -16,17 +12,15 @@ public class NormalModes3D implements NormalModes {
 
     /**
      */
-    public NormalModes3D(ISpace _space, Primitive primitive, Basis basis) {
+    public NormalModes3D(ISpace _space, Primitive primitive) {
     	
     	this.space = _space;
-    	this.primitive = primitive;
-    	this.basis = basis;
     	waveVectorFactory = new WaveVectorFactorySimple(primitive, space);
         harmonicFudge = 1;
         
     }
 
-    public double[][] getOmegaSquared(IBox box) {
+    public double[][] getOmegaSquared() {
     	eigenvalues = ArrayReader1D.getFromFile("DB_FCC_n12_N"+getNCellNum()+".val");
     	double[][] omega2 = new double[eigenvalues.length][eigenvalues[0].length];
     	for (int i=0; i<omega2.length; i++) {
@@ -38,7 +32,7 @@ public class NormalModes3D implements NormalModes {
         return omega2;
     }
 
-    public double[][][] getEigenvectors(IBox box) {
+    public double[][][] getEigenvectors() {
     	eigenvectors = ArrayReader2D.getFromFile("DB_FCC_n12_N"+getNCellNum()+".vec");
         return eigenvectors;
     }
@@ -72,9 +66,7 @@ public class NormalModes3D implements NormalModes {
     protected WaveVectorFactory waveVectorFactory;
     protected double harmonicFudge;
     protected double temperature;
-    protected Primitive primitive;
     protected ISpace space;
-    protected Basis basis;
     protected double[][][] eigenvectors;
     protected double[][] eigenvalues;
     protected int nCellNum;

@@ -100,10 +100,10 @@ public class SimWidomMode extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setBox(box);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
-        nm.getOmegaSquared(box);
+        nm.getOmegaSquared();
         
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
@@ -119,8 +119,8 @@ public class SimWidomMode extends Simulation {
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors(box));
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared(box));
+        mcMoveMode.setEigenVectors(nm.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
@@ -135,8 +135,8 @@ public class SimWidomMode extends Simulation {
             String name = new String("widom Meter for mode " + i);
             realMeter[i] = new MeterWidomModeReal(name, potentialMaster, 
                     coordinateDefinition, box, i);
-            realMeter[i].setEigenVectors(nm.getEigenvectors(box));
-            realMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
+            realMeter[i].setEigenVectors(nm.getEigenvectors());
+            realMeter[i].setOmegaSquared(nm.getOmegaSquared());
             realMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
             realMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
             
@@ -153,8 +153,8 @@ public class SimWidomMode extends Simulation {
             String name = new String("widom Meter for mode " + i);
             imagMeter[i] = new MeterWidomModeImaginary(name, potentialMaster, 
                     coordinateDefinition, box, i);
-            imagMeter[i].setEigenVectors(nm.getEigenvectors(box));
-            imagMeter[i].setOmegaSquared(nm.getOmegaSquared(box));
+            imagMeter[i].setEigenVectors(nm.getEigenvectors());
+            imagMeter[i].setOmegaSquared(nm.getOmegaSquared());
             imagMeter[i].setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
             imagMeter[i].setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
             

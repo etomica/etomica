@@ -129,7 +129,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
-        nm.getOmegaSquared(boxTarget);
+        nm.getOmegaSquared();
         
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
@@ -144,7 +144,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
-        changeMove.setEigenVectors(nm.getEigenvectors(boxTarget));
+        changeMove.setEigenVectors(nm.getEigenvectors());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
         changeMove.setBox((IBox)boxTarget);
         changeMove.setStepSizeMin(0.001);
@@ -155,8 +155,8 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         
         meterBinA = new MeterCompareMultipleWVBrute("meterBinA", 
                 potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
-        meterBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
-        meterBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
+        meterBinA.setEigenVectors(nm.getEigenvectors());
+        meterBinA.setOmegaSquared(nm.getOmegaSquared());
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
@@ -235,9 +235,9 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         compareMove.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-        compareMove.setOmegaSquared(nm.getOmegaSquared(boxRef), 
+        compareMove.setOmegaSquared(nm.getOmegaSquared(), 
                 waveVectorFactoryRef.getCoefficients());
-        compareMove.setEigenVectors(nm.getEigenvectors(boxRef));
+        compareMove.setEigenVectors(nm.getEigenvectors());
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
         compareMove.setTemperature(temperature);
         compareMove.setBox((IBox)boxRef);
@@ -250,8 +250,8 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         meterBinB = new MeterCompareMultipleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
-        meterBinB.setEigenVectors(nm.getEigenvectors(boxRef));
-        meterBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
+        meterBinB.setEigenVectors(nm.getEigenvectors());
+        meterBinB.setOmegaSquared(nm.getOmegaSquared());
         meterBinB.setTemperature(temperature);
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -602,7 +602,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
                 sim.integratorSim.getActualStepFreq0() + ")");
         
-        double[][] omega2 = sim.nm.getOmegaSquared(sim.boxTarget); 
+        double[][] omega2 = sim.nm.getOmegaSquared(); 
         //Above known from the analytical results. - otherwise it would be from 
         //the S matrix.
         double[] coeffs = sim.nm.getWaveVectorFactory().getCoefficients();

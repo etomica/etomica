@@ -68,7 +68,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         
         latticeEnergy = meterPE.getDataAsScalar();
         //String fileName = "CB_FCC_n12_T01_Mode01";
-        nm = new NormalModes3D(space, primitive, basis);
+        nm = new NormalModes3D(space, primitive);
         nm.setTemperature(temperature);
         nm.setNCellNum(n);
         
@@ -78,8 +78,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
                 
         integrator = new IntegratorHarmonic(random, 0.0001, temperature, space);
 
-        integrator.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        integrator.setEigenVectors(nm.getEigenvectors(box));
+        integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        integrator.setEigenVectors(nm.getEigenvectors());
         integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         integrator.setCoordinateDefinition(coordinateDefinition);

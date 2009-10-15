@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import etomica.action.IAction;
+import etomica.api.IVector;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -94,28 +95,29 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		
 		temperatureSetter.setSliderPostAction(new IAction() {
             public void actionPerformed() {
-            	
-                int m = sim.nm.getOmegaSquared(sim.box).length;
+            	double[][] omegaSq = sim.nm.getOmegaSquared();
+                int m = omegaSq.length;
                 double[] omega2 = new double[m];
+                IVector[] wv = sim.waveVectorFactory.getWaveVectors();
                 
                 int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
                 
                 if (waveVectorSlider.isOneWV()){
 	                for (int i=0; i<m; i++){
 	                	
-	                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+	                	omega2[i] = omegaSq[i][0];
 	                	if (i==wvNumUsed){
-	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
+	                		stringWV[i]="<"+String.valueOf(wv[i].getX(0))+">";
 	                		
 	                	} else {
 	                	
-	                		stringWV[i]=String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0));
+	                		stringWV[i]=String.valueOf(wv[i].getX(0));
 	                	}
 	                }
                 } else {
                 	for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
-                       	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">"; 	
+                    	omega2[i] = omegaSq[i][0];
+                       	stringWV[i]="<"+String.valueOf(wv[i].getX(0))+">"; 	
                     }
                 }
                 
@@ -168,12 +170,12 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
         
-        int m = sim.nm.getOmegaSquared(sim.box).length;
+        int m = sim.nm.getOmegaSquared().length;
         double[] omega2 = new double[m];
         stringWV = new String[m];
      
         for (int i=0; i<m; i++){
-        	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+        	omega2[i] = sim.nm.getOmegaSquared()[i][0];
         	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
         }
         
@@ -218,10 +220,10 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
             	
             	sim.integrator.setWaveVectors(sim.waveVectorFactory.getWaveVectors());
                 sim.integrator.setWaveVectorCoefficients(sim.waveVectorFactory.getCoefficients());
-                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(sim.box), sim.waveVectorFactory.getCoefficients());
-                sim.integrator.setEigenVectors(sim.nm.getEigenvectors(sim.box));
+                sim.integrator.setOmegaSquared(sim.nm.getOmegaSquared(), sim.waveVectorFactory.getCoefficients());
+                sim.integrator.setEigenVectors(sim.nm.getEigenvectors());
                                                 
-                int m = sim.nm.getOmegaSquared(sim.box).length;
+                int m = sim.nm.getOmegaSquared().length;
                 double[] omega2 = new double[m];
                 
                 waveVectorSlider.setMaximum(m);
@@ -236,7 +238,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 if (sim.integrator.isOneWV()){
                 	int wvNumUsed = sim.integrator.getWaveVectorNum();
                 	for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	omega2[i] = sim.nm.getOmegaSquared()[i][0];
                     	
                     	if(i==wvNumUsed){
                     		stringWV[i] = "<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
@@ -247,7 +249,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 } else {
                 
                     for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	omega2[i] = sim.nm.getOmegaSquared()[i][0];
                     	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
                     }
                 }
@@ -304,7 +306,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
         	
         	public void actionPerformed() {
         		
-                int m = sim.nm.getOmegaSquared(sim.box).length;
+                int m = sim.nm.getOmegaSquared().length;
                 double[] omega2 = new double[m];
                 
                 int wvNumUsed = (int)waveVectorSlider.getWaveVectorNum();
@@ -312,7 +314,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 if (waveVectorSlider.isOneWV()){
 	                for (int i=0; i<m; i++){
 	                	
-	                	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+	                	omega2[i] = sim.nm.getOmegaSquared()[i][0];
 	                	if (i==wvNumUsed){
 	                		stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">";
 	                		
@@ -323,7 +325,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	                }
                 } else {
                 	for (int i=0; i<m; i++){
-                    	omega2[i] = sim.nm.getOmegaSquared(sim.box)[i][0];
+                    	omega2[i] = sim.nm.getOmegaSquared()[i][0];
                        	stringWV[i]="<"+String.valueOf(sim.waveVectorFactory.getWaveVectors()[i].getX(0))+">"; 	
                     }
                 }

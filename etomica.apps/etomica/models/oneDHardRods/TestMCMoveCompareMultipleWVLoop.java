@@ -91,7 +91,7 @@ public class TestMCMoveCompareMultipleWVLoop extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -115,8 +115,8 @@ public class TestMCMoveCompareMultipleWVLoop extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        move.setEigenVectors(nm.getEigenvectors(box));
+        move.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(nm.getEigenvectors());
         move.setCoordinateDefinition(coordinateDefinition);
         move.setTemperature(temperature);
         move.setBox((IBox)box);

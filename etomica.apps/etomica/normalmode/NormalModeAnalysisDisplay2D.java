@@ -54,7 +54,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         
         //String filename = "2D_CB_FCC_n12_T01_Mode01a";
-        nm = new NormalModes2D(space, primitive, basis);
+        nm = new NormalModes2D(space, boundary, primitive, basis);
         nm.setTemperature(temperature);
                 
         waveVectorFactory = nm.getWaveVectorFactory();
@@ -73,8 +73,8 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        integrator.setOmegaSquared(nm.getOmegaSquared(box), waveVectorFactory.getCoefficients());
-        integrator.setEigenVectors(nm.getEigenvectors(box));
+        integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        integrator.setEigenVectors(nm.getEigenvectors());
         integrator.setTemperature(temperature);
         integrator.setOneWV(true);
         integrator.setWaveVectorNum(0);

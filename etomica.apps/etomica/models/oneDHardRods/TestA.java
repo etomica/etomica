@@ -102,7 +102,7 @@ public class TestA extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundary, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -115,7 +115,7 @@ public class TestA extends Simulation {
         integrator.getMoveManager().addMCMove(change);
         change.setWaveVectors(waveVectorFactory.getWaveVectors());
         change.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        change.setEigenVectors(nm.getEigenvectors(box));
+        change.setEigenVectors(nm.getEigenvectors());
         change.setCoordinateDefinition(coordinateDefinition);
         change.setBox(box);
         change.setStepSizeMin(0.001);
@@ -135,8 +135,8 @@ public class TestA extends Simulation {
         meterAinA.setBox(box);
         
         MeterCompareSingleWVBrute meterBinA = new MeterCompareSingleWVBrute(potentialMaster, coordinateDefinition, box);
-        meterBinA.setEigenVectors(nm.getEigenvectors(box));
-        meterBinA.setOmegaSquared(nm.getOmegaSquared(box));
+        meterBinA.setEigenVectors(nm.getEigenvectors());
+        meterBinA.setOmegaSquared(nm.getOmegaSquared());
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactory.getWaveVectors());
@@ -150,7 +150,7 @@ public class TestA extends Simulation {
         integrator.getEventManager().addListener(pumpOverlapListener);
         
         MeterF meterF = new MeterF(coordinateDefinition);
-        meterF.setEigenVectors(nm.getEigenvectors(box));
+        meterF.setEigenVectors(nm.getEigenvectors());
         meterF.setWaveVectors(waveVectorFactory.getWaveVectors());
         meterF.setConvertedWV(affectedWV);
         
@@ -252,7 +252,7 @@ public class TestA extends Simulation {
         System.out.println("error: " + sim.avgOverlap.getData().getValue(StatType.ERROR.index));
         
         System.out.println("F:  " + sim.avgF.getData().getValue(StatType.AVERAGE.index));
-        System.out.println("nm e-val " + sim.nm.getOmegaSquared(sim.box)[16][0]);
+        System.out.println("nm e-val " + sim.nm.getOmegaSquared()[16][0]);
         
         System.out.println("Fini.");
     }

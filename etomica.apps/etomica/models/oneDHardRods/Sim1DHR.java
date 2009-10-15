@@ -124,7 +124,7 @@ public class Sim1DHR extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionOriginal = new 
                 CoordinateDefinitionLeaf(this, boxOriginal, primitive, space);
         
-        nm = new NormalModes1DHR(space.D());
+        nm = new NormalModes1DHR(boundaryOriginal, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         
@@ -151,9 +151,6 @@ public class Sim1DHR extends Simulation {
         
        
 
-        
-        
-        nm = new NormalModes1DHR(1);
         
         
 	}
