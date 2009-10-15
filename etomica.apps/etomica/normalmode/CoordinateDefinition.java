@@ -194,8 +194,8 @@ public abstract class CoordinateDefinition {
         
         double sqrtCells = Math.sqrt(cells.length);
         for (int i = 0; i < coordinateDim; i++) {
-            realT[i] /= (sqrtCells);   //*Math.sqrt(27)
-            imaginaryT[i] /= (sqrtCells); //*Math.sqrt(27)
+            realT[i] /= sqrtCells;
+            imaginaryT[i] /= sqrtCells;
         }
 
     }
