@@ -139,30 +139,34 @@ public class NormalModesPotential implements NormalModes {
             // impose symmetry on the matrix.  elements of the tensor can have elements that are different
             // only in the last digit (due numerical precision issues).  With a not exactly symmetric
             // matrix Jama assumes it's asymmetric and finds not-orthogonal eigenvectors.
-            for(int j=0; j<basisDim-1; j++) {
+            for(int j=0; j<basisDim; j++) {
                 for(int jp=j+1; jp<basisDim; jp++) {
-                    Tensor tensor = ((DataTensor)sum.getDataReal(j,jp)).x;
+                    // grab mirror blocks for j,jp and jp,j
+                    Tensor tensorj_jp = ((DataTensor)sum.getDataReal(j,jp)).x;
+                    Tensor tensorjp_j = ((DataTensor)sum.getDataReal(j,jp)).x;
                     for(int alpha=0; alpha<spaceDim; alpha++) {
                         for(int beta=0; beta<spaceDim; beta++) {
-                            double v = 0.5*(tensor.component(alpha, beta) + tensor.component(alpha, beta));
+                            // average opposite components from opposite blocks
+                            double v = 0.5*(tensorj_jp.component(alpha, beta) + tensorjp_j.component(beta, alpha));
                             array[spaceDim*j+alpha][spaceDim*jp+beta] = v;
                             array[spaceDim*jp+beta][spaceDim*j+alpha] = v;
                         }
                     }
                 }
+                // grab diagonal block
                 Tensor tensor = ((DataTensor)sum.getDataReal(j,j)).x;
-                for(int alpha=0; alpha<spaceDim-1; alpha++) {
-                    for(int beta=alpha; beta<spaceDim; beta++) {
-                        double v = 0.5*(tensor.component(alpha, beta) + tensor.component(alpha, beta));
+                for(int alpha=0; alpha<spaceDim; alpha++) {
+                    for(int beta=alpha+1; beta<spaceDim; beta++) {
+                        // average opposite components
+                        double v = 0.5*(tensor.component(alpha, beta) + tensor.component(beta, alpha));
                         array[spaceDim*j+alpha][spaceDim*j+beta] = v;
                         array[spaceDim*j+beta][spaceDim*j+alpha] = v;
                     }
+                    // grab diagonal component
                     array[spaceDim*j+alpha][spaceDim*j+alpha] = tensor.component(alpha, alpha);
                 }
             }
-            
-            
-            
+
             Matrix matrix = new Matrix(array);
             EigenvalueDecomposition ed = matrix.eig();
             double[] eVals = ed.getRealEigenvalues();
