@@ -83,11 +83,16 @@ public class MeterWorkTargetHarmonicandReweighting implements IEtomicaDataSource
     		numSum += (eA/eB)*100;
     	} else {
     		numSum += betaUBW*(eA / (eB + refPref*eA));    // ( beta*U_AW )*(eW/eB)
+    		
     	}
-    	
     	denomSum += eA /(eB + refPref*eA); // eW/eB
     	
+    	
     	histogramUBWr.addValue(betaUBW, (eW/eB));
+    	
+    	if(Double.isInfinite(betaUBW)){
+    		System.out.println(nSamples + " betaUBA: " + betaUBA + " ;betaUBW: " + betaUBW + " ;(eA /(eB + refPref*eA)): " + (eA /(eB + refPref*eA)));
+    	}
     	
     	data.x = betaUBA;
     	return data;

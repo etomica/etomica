@@ -19,14 +19,14 @@ import etomica.util.HistogramReweightedData;
 import etomica.util.HistogramSimple;
 
 /**
- * Meter used for overlap sampling in the target-sampled system.  The meter
+ * Meter used for overlap sampling in the harmonic-sampled system.  The meter
  * measures the energy difference for the harmonic and target
  * potentials.
  * 
- * the sampling of <beta*U_BA>B
+ * the sampling of <beta*U_AB>A
  * gives us the information of
- * 	a. < beta*U_AW >A : notation ---- [ betaUBAf_avg ]
- * 	b. < beta*U_AW >W : notation ---- [ betaUBAr_avg ] 
+ * 	a. < beta*U_AW >A : notation ---- [ betaUABf_avg ]
+ * 	b. < beta*U_AW >W : notation ---- [ betaUABr_avg ] 
  *  ---------- U_AW = U_A - U_W
  *  
  * output the probability distribution of the histogram for a. and b.
@@ -62,16 +62,23 @@ public class MeterWorkHarmonicTargetandReweighting implements IEtomicaDataSource
         		mcMoveHarmonic.getLastTotalEnergy()) / temperature;
     	double eA = Math.exp(-mcMoveHarmonic.getLastTotalEnergy()/temperature);
     	double eB = Math.exp(-(meterEnergy.getDataAsScalar() - latticeEnergy) / temperature);
-        double eW = (eA*eB)/(eB+refPref*eA);
+        double eW = eA/(1+refPref*(eA/eB));
     	
     	double eAB = Math.exp(betaUAB);	
     	
         /*
          * Histogram Transformation
+         * 
+         * Notes: If UB is infinity, there is nothing you can do about it in term 
+         * 			of betaUAW expression; you will get an infinity value for the
+         * 			term.
+         * 		  The numSum will become NaN because [infinity x 0].
+         * 			betaUAW * (eW / eA) because eW is zero.
+         * 
          */
         
         // < beta*U_AW >A
-        betaUAW = Math.log(1 + refPref*eAB);
+        betaUAW = Math.log(1 + refPref*eAB); 
         
         betaUAWf += betaUAW;
         nSamples++;
@@ -81,14 +88,20 @@ public class MeterWorkHarmonicTargetandReweighting implements IEtomicaDataSource
     	// < beta*U_AW >W
     	if (eA < 1e-100){
     		numSum += eB/(refPref*eA)*100;
-    	} else {
+    		denomSum += (eW/eA); // eW/eA
+    	} else if (eW > 0.0) {
+    		
     		numSum += betaUAW*(eW / eA);    // ( beta*U_AW )*(eW/eA)
+    		denomSum += (eW/eA); // eW/eA
     	}
     	
-    	denomSum += (eW/eA); // eW/eA
+    	if (!Double.isInfinite(betaUAW)){
+    		histogramUAWr.addValue(betaUAW, (eW/eA));
+    	}
     	
-    	histogramUAWr.addValue(betaUAW, (eW/eA));
-    	
+    	if(Double.isInfinite(betaUAW)){
+    		System.out.println(nSamples + " betaUAB: " + betaUAB + " ;betaUAW: " + betaUAW + " ;betaUAW*(eW / eA): " + betaUAW*(eW / eA));
+    	}
     	data.x = betaUAB;
     	return data;
     }
