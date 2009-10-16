@@ -11,7 +11,6 @@ import etomica.data.DataInfo;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -94,6 +93,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         
         DataProcessor dataProcessor = new DataProcessor() {
 		
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 			public DataPipe getDataCaster(IEtomicaDataInfo dataInfo) {
 				return null;
 			}
@@ -107,6 +110,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		
 			protected IData processData(IData inputData) {
 				data.x = inputData.getValue(0)-sim.latticeEnergy;
+				//System.out.println("Soft Sphere energy: "+ data.x);
+				//System.exit(1);
 				return data;
 			}
 			
@@ -114,10 +119,12 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 			DataDouble data;
 		};
 		
-        DataPumpListener pePump = new DataPumpListener(sim.meterPE, dataProcessor, 60);
+        DataPump pePump = new DataPump(sim.meterPE, dataProcessor);
         dataProcessor.setDataSink(peFork);
         
-        sim.integrator.getEventManager().addListener(pePump);
+        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+        pePumpListener.setInterval(60);
+        sim.integrator.getEventManager().addListener(pePumpListener);
         peHistory.setPushInterval(5);
        
         /*
@@ -152,7 +159,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		 */
 		temperatureSetter = new DeviceThermoSlider(sim.getController());
 		temperatureSetter.setIsothermalButtonsVisibility(false);
-		temperatureSetter.setPrecision(2);
+		temperatureSetter.setPrecision(4);
 		temperatureSetter.setMinimum(0.0);
 		temperatureSetter.setMaximum(1.0);
 		temperatureSetter.setSliderMajorValues(5);
@@ -162,9 +169,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		
 		temperatureSetter.setSliderPostAction(new IAction() {
             public void actionPerformed() {
-            	                
-          
-
                 waveVectorSlider.setMaximum(numWV);
                 waveVectorSlider.setIntegrator(sim.integrator);
                 //Array
@@ -238,8 +242,10 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	sim.setNCells(nCells);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
+                	sim.truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+                	sim.pTruncated.setTruncationRadius(sim.truncationRadius);
                 	sim.latticeEnergy = sim.meterPE.getDataAsScalar();
-                	
+                	                	
                 	numWV = sim.nm.getOmegaSquared().length;
                     numEval = sim.nm.getOmegaSquared()[0].length;
                     
@@ -340,8 +346,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         waveVectorSlider = new DeviceWaveVectorSlider(sim.getController());
         waveVectorSlider.setMinimum(0);
         waveVectorSlider.setMaximum(sim.nm.getOmegaSquared().length);
-        waveVectorSlider.setOneWV();
-        waveVectorSlider.setOneWVButtonsVisibility(false);
+        //waveVectorSlider.setOneWVButtonsVisibility(false);
         waveVectorSlider.setIntegrator(sim.integrator);
         
         waveVectorPostAction = new IAction() {
@@ -575,6 +580,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         wavevectorx = new double[numWV];
         wavevectory = new double[numWV];
         wavevectorz = new double[numWV];
+        
         stringiWV = new String[numWV];
         
         if (waveVectorSlider.isOneWV()){

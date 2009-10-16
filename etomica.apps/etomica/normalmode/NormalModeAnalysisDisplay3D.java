@@ -41,7 +41,6 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         
         box = new Box(space);
         addBox(box);
-        
         box.setNMolecules(species, 4*n*n*n);
         
         L = Math.pow(4.0/density, 1.0/3.0);
@@ -53,8 +52,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         box.setBoundary(boundary);
 
         Potential2SoftSpherical potential= new P2SoftSphere(space, 1.0, 1.0, 12);
-        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+        truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+        pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
         
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
@@ -62,13 +61,12 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
-        
         coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         latticeEnergy = meterPE.getDataAsScalar();
         //String fileName = "CB_FCC_n12_T01_Mode01";
-        nm = new NormalModes3D(space, primitive);
+        nm = new NormalModes3D(space, primitive, basis);
         nm.setTemperature(temperature);
         nm.setNCellNum(n);
         
@@ -84,8 +82,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         integrator.setCoordinateDefinition(coordinateDefinition);
         integrator.setTemperature(temperature);
-        integrator.setOneWV(true);
-        integrator.setWaveVectorNum(0);
+        //integrator.setOneWV(true);
+        //integrator.setWaveVectorNum(0);
         //integrator.setOneEVal(true);
         //integrator.setEValNum(4);
         
@@ -149,10 +147,12 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	protected MeterPotentialEnergy meterPE;
 	protected ISpace space;
 	protected double L;
-	protected int n = 5;
+	protected int n = 3;
+	protected P2SoftSphericalTruncatedShifted pTruncated;
+	protected double truncationRadius;
 	
 	protected double density = 1.256;
-	protected double temperature = 0.1;
+	protected double temperature = 0.0001;
 	protected double latticeEnergy;
 	
 }
