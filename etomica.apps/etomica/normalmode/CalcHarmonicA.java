@@ -66,8 +66,8 @@ public class CalcHarmonicA {
         }
         AHarmonic += -(basisSize*D*(totalCells - jfac)/2.0)*Math.log(2.0);
 
-        // and COM correction ?
-        AHarmonic += 0.5*D*Math.log(totalCells);
+        // and COM correction
+        AHarmonic += 0.5*D*Math.log(totalCells*basisSize);
 
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
         return AHarmonic*temperature;
