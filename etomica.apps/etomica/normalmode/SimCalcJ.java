@@ -70,6 +70,7 @@ public class SimCalcJ extends Simulation {
         // defaults
         int D = 3;
         int nA = 108;
+        boolean fixedCOM = false;
 
         // parse arguments
         if (args.length > 0) {
@@ -96,7 +97,7 @@ public class SimCalcJ extends Simulation {
         meterJacobian.setWaveVectorFactory(waveVectorFactory);
         meterJacobian.setCoordinateDefinition(sim.coordinateDefinition);
 
-        double[][] jac = meterJacobian.getJacobian();
+        double[][] jac = meterJacobian.getJacobian(fixedCOM);
         
         if (jac.length < 100) {
             for (int i=0; i<jac.length; i++) {

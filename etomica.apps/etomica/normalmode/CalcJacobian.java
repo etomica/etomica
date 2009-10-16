@@ -12,13 +12,14 @@ public class CalcJacobian {
     public CalcJacobian() {
     }
 
-    public double[][] getJacobian() {
+    public double[][] getJacobian(boolean fixedCOM) {
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         int basisSize = cells[0].molecules.getMoleculeCount();
         int l = coordinateDim * cells.length;
-        double[][] jacobian = new double[l][l];
-        // # of spatial dimensions
         int spaceDim = waveVectors[0].getD();
+        int offset = fixedCOM ? -spaceDim : 0;
+        double[][] jacobian = new double[l+offset][l+offset];
+        // # of spatial dimensions
         
         int vectorPos = 0;
         double sqrtN = Math.sqrt(cells.length);
@@ -38,8 +39,10 @@ public class CalcJacobian {
                 for (int iDim = 0; iDim < spaceDim; iDim++) {
                     if (waveVectorCoefficients[iVector] == 1) {
                         for (int i=0; i<basisSize; i++) {
-                            jacobian[vectorPos*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = coskR / sqrtN;
-                            jacobian[(vectorPos+1)*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = -sinkR / sqrtN;
+                            // skip the first D columns if using fixed COM
+                            if (fixedCOM && iCell == 0 && i == 0) continue;
+                            jacobian[offset+vectorPos*coordinateDim+i*spaceDim+iDim][offset+iCell*coordinateDim+i*spaceDim+iDim] = coskR / sqrtN;
+                            jacobian[offset+(vectorPos+1)*coordinateDim+i*spaceDim+iDim][offset+iCell*coordinateDim+i*spaceDim+iDim] = -sinkR / sqrtN;
                         }
                     }
                     else {
@@ -58,7 +61,9 @@ public class CalcJacobian {
                             value = sinkR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
                         }
                         for (int i=0; i<basisSize; i++) {
-                            jacobian[vectorPos*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = value;
+                            // skip first D rows and columns if using fixed COM
+                            if (fixedCOM && (iCell == 0 || vectorPos == 0) && i == 0) continue;
+                            jacobian[offset+vectorPos*coordinateDim+i*spaceDim+iDim][offset+iCell*coordinateDim+i*spaceDim+iDim] = value;
                         }
                     }
                 }
