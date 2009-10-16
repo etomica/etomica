@@ -109,9 +109,16 @@ public class NormalModesPotential implements NormalModes {
         double[][] array = new double[eDim][eDim];
         
         try{
-        	FileWriter fileWriterK = new FileWriter(getFileName()+".k");
-        	FileWriter fileWriterVal = new FileWriter(getFileName()+".val");
-        	FileWriter fileWriterVec = new FileWriter(getFileName()+".vec");
+
+        	FileWriter fileWriterK = null;
+        	FileWriter fileWriterVal = null;
+        	FileWriter fileWriterVec = null;
+
+        	if (fileName != null) {
+        	    fileWriterK = new FileWriter(getFileName()+".k");
+                fileWriterVal = new FileWriter(getFileName()+".val");
+                fileWriterVec = new FileWriter(getFileName()+".vec");
+        	}
         	
         	
         double[] kCoefficients = kFactory.getCoefficients();	
@@ -120,11 +127,13 @@ public class NormalModesPotential implements NormalModes {
             kVector.E(kFactory.getWaveVectors()[k]);
             
             // output .k file
-            fileWriterK.write(Double.toString(kCoefficients[k]));
-            for (int n=0; n< kFactory.getWaveVectors()[k].getD(); n++){
-            	fileWriterK.write(" "+ kFactory.getWaveVectors()[k].getX(n));
+            if (fileName != null) {
+                fileWriterK.write(Double.toString(kCoefficients[k]));
+                for (int n=0; n< kFactory.getWaveVectors()[k].getD(); n++){
+                	fileWriterK.write(" "+ kFactory.getWaveVectors()[k].getX(n));
+                }
+                fileWriterK.write("\n");
             }
-            fileWriterK.write("\n");
             
             
             summer.setK(kVector);
@@ -172,30 +181,30 @@ public class NormalModesPotential implements NormalModes {
             double[] eVals = ed.getRealEigenvalues();
             double[][] eVecs = ed.getV().getArray();
             
-            Matrix matrixTest = new Matrix(array);
-            
             System.out.println("Real eigenvalues: " + Arrays.toString(eVals));
             
-            // output .val file
-            for (int ival=0; ival<eVals.length; ival++){
-            	if (eVals[ival] < 1E-10){
-            		fileWriterVal.write("0.0 ");
-            	} else {
-            		fileWriterVal.write(1/eVals[ival]+ " ");
-            	}
-            }
-            fileWriterVal.write("\n");
-            
-            // output .vec file
-            for (int ivec=0; ivec<eDim; ivec++ ){
-            	for(int jvec=0; jvec<eDim; jvec++){
-            		if (Math.abs(eVecs[jvec][ivec])<1e-10){
-            			fileWriterVec.write("0.0 ");
-            		} else {
-            			fileWriterVec.write(eVecs[jvec][ivec] + " ");
-            		}
-            	}
-            	fileWriterVec.write("\n");
+            if (fileName != null) {
+                // output .val file
+                for (int ival=0; ival<eVals.length; ival++){
+                	if (eVals[ival] < 1E-10){
+                		fileWriterVal.write("0.0 ");
+                	} else {
+                		fileWriterVal.write(1/eVals[ival]+ " ");
+                	}
+                }
+                fileWriterVal.write("\n");
+
+                // output .vec file
+                for (int ivec=0; ivec<eDim; ivec++ ){
+                	for(int jvec=0; jvec<eDim; jvec++){
+                		if (Math.abs(eVecs[jvec][ivec])<1e-10){
+                			fileWriterVec.write("0.0 ");
+                		} else {
+                			fileWriterVec.write(eVecs[jvec][ivec] + " ");
+                		}
+                	}
+                	fileWriterVec.write("\n");
+                }
             }
             
 //            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
@@ -210,9 +219,11 @@ public class NormalModesPotential implements NormalModes {
 //            System.out.println();
 //            System.out.println(sum[1].toString());
         }
-        fileWriterK.close();
-        fileWriterVal.close();
-        fileWriterVec.close();
+        if (fileName != null) {
+            fileWriterK.close();
+            fileWriterVal.close();
+            fileWriterVec.close();
+        }
     }
         catch (IOException e) {
             throw new RuntimeException(e);

@@ -40,7 +40,11 @@ public class HarmonicCrystal {
         normalModes = new NormalModesPotential(nCells, primitive, basis, potential, space);
         setMaxLatticeShell(49);
     }
-    
+
+    public NormalModesPotential getNormalModes() {
+        return normalModes;
+    }
+
     public double getLatticeEnergy() {
         FunctionGeneral function = new FunctionGeneral() {
             public IData f(Object obj) {
@@ -75,7 +79,7 @@ public class HarmonicCrystal {
     }
     
     public double getHelmholtzFreeEnergy(double temperature) {
-        
+
         int D = lattice.getSpace().D();
         int cellCount = 1;
         int differ = 1;
@@ -144,7 +148,6 @@ public class HarmonicCrystal {
     public static void main(String[] args) {
         double T = 0.2*0.93;
         double rho = 1.0;
-        int maxLatticeShell = 49;
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
 
