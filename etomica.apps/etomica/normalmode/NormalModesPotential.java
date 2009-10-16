@@ -136,14 +136,28 @@ public class NormalModesPotential implements NormalModes {
                     sum.getDataReal(j,j).ME(sum0.getDataReal(j, jp));
                 }
             }
-            for(int j=0; j<basisDim; j++) {
-                for(int jp=0; jp<basisDim; jp++) {
+            // impose symmetry on the matrix.  elements of the tensor can have elements that are different
+            // only in the last digit (due numerical precision issues).  With a not exactly symmetric
+            // matrix Jama assumes it's asymmetric and finds not-orthogonal eigenvectors.
+            for(int j=0; j<basisDim-1; j++) {
+                for(int jp=j+1; jp<basisDim; jp++) {
                     Tensor tensor = ((DataTensor)sum.getDataReal(j,jp)).x;
                     for(int alpha=0; alpha<spaceDim; alpha++) {
                         for(int beta=0; beta<spaceDim; beta++) {
-                            array[spaceDim*j+alpha][spaceDim*jp+beta] = tensor.component(alpha, beta);
+                            double v = 0.5*(tensor.component(alpha, beta) + tensor.component(alpha, beta));
+                            array[spaceDim*j+alpha][spaceDim*jp+beta] = v;
+                            array[spaceDim*jp+beta][spaceDim*j+alpha] = v;
                         }
                     }
+                }
+                Tensor tensor = ((DataTensor)sum.getDataReal(j,j)).x;
+                for(int alpha=0; alpha<spaceDim-1; alpha++) {
+                    for(int beta=alpha; beta<spaceDim; beta++) {
+                        double v = 0.5*(tensor.component(alpha, beta) + tensor.component(alpha, beta));
+                        array[spaceDim*j+alpha][spaceDim*j+beta] = v;
+                        array[spaceDim*j+beta][spaceDim*j+alpha] = v;
+                    }
+                    array[spaceDim*j+alpha][spaceDim*j+alpha] = tensor.component(alpha, alpha);
                 }
             }
             
