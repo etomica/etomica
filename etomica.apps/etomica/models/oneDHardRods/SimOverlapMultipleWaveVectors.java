@@ -43,7 +43,7 @@ import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
 
-public class SimOverlapMultipleWhitelist extends Simulation {
+public class SimOverlapMultipleWaveVectors extends Simulation {
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
     Primitive primitive;
@@ -67,7 +67,7 @@ public class SimOverlapMultipleWhitelist extends Simulation {
     MeterCompareMultipleWVBrute meterBinA, meterBinB;
     
     
-    public SimOverlapMultipleWhitelist(Space _space, int numAtoms, double 
+    public SimOverlapMultipleWaveVectors(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] chbleWV){
         super(_space, true);
@@ -509,7 +509,7 @@ public class SimOverlapMultipleWhitelist extends Simulation {
         }
         double temperature = params.temperature;
         int[] comparedWV = params.comparedWV;
-        int[] changeableWVs = params.changeableWVs;
+        int[] changeableWVs = params.changeableWV;
         
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
@@ -535,7 +535,7 @@ public class SimOverlapMultipleWhitelist extends Simulation {
         System.out.println("output data to "+filename);
         
         //instantiate simulations!
-        SimOverlapMultipleWhitelist sim = new SimOverlapMultipleWhitelist(Space.getInstance(D), numMolecules,
+        SimOverlapMultipleWaveVectors sim = new SimOverlapMultipleWaveVectors(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV, changeableWVs);
         System.out.println("instantiated");
         
@@ -652,7 +652,7 @@ public class SimOverlapMultipleWhitelist extends Simulation {
         public String filename = "HR1D_";
         public double temperature = 1.0;
         public int[] comparedWV = {1, 2};
-        public int[] changeableWVs = {3, 4};
+        public int[] changeableWV = {3, 4};
         
         public int numSteps = 400000;
         public int runBlockSize = 1000;
