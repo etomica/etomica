@@ -140,14 +140,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
             
                 if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                     for(int j = 0; j < coordinateDim; j++){
-//                        deltaU[j] += /*waveVectorCoefficients[changedWV]*/
-//                            eigenVectors[changedWV][i][j]*2.0*(delta[j]*coskR 
-//                                    - delta[j+coordinateDim]*sinkR);
-                        
-                        deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*delta[iMode]*coskR;
-                        if(waveVectorCoefficients[changedWV] == 1.0){
-                            deltaU[j] -= 2.0*eigenVectors[changedWV][iMode][j] *delta[iMode+coordinateDim]*sinkR;
-                        }
+                        deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*
+                            (delta[iMode]*coskR - delta[iMode+coordinateDim]*sinkR);
                     }
                 }
             }
