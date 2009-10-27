@@ -77,7 +77,7 @@ public class TestMCMoveCompareMultipleWVLoop extends Simulation {
         box.setBoundary(boundary);
         
         coordinateDefinition = new 
-                CoordinateDefinitionLeaf(this, box, primitive, space);
+                CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         double neighborRange = 1.01/density;

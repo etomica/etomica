@@ -81,7 +81,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         box.setBoundary(boundary);
         Basis basis = new BasisCubicFcc();
         
-        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);

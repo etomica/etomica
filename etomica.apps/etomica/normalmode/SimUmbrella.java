@@ -94,7 +94,7 @@ public class SimUmbrella extends Simulation {
         
         box.setBoundary(boundary);
         
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         normalModes = new NormalModesFromFile(filename, D);
         /*
          * nuke this line when it is derivative-based

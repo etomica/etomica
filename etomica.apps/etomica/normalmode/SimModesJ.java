@@ -66,7 +66,7 @@ public class SimModesJ extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         normalModes = new NormalModesVariable(space, space.D()*numAtoms, coordinateDefinition);

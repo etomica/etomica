@@ -50,7 +50,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
         basis = new BasisOrthorhombicHexagonal();
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         //String filename = "2D_CB_FCC_n12_T01_Mode01a";

@@ -3,7 +3,6 @@ package etomica.normalmode;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -11,7 +10,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
-import etomica.config.IConformation;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
@@ -27,10 +25,9 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public CoordinateDefinitionLeafSuperBox(ISimulation sim, IBox box,
-			Primitive primitive, Basis basis, ISpace space) {
-		super(sim, box, primitive, basis, space);
-		// TODO Auto-generated constructor stub
+	public CoordinateDefinitionLeafSuperBox(IBox box, Primitive primitive,
+			Basis basis, ISpace space) {
+		super(box, primitive, basis, space);
 	}
 	
     public void initializeCoordinates(int[] nCells) {

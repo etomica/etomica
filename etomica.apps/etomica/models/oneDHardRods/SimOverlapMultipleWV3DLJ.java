@@ -111,7 +111,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         Basis basisTarget = new BasisCubicFcc();
         
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
+                CoordinateDefinitionLeaf(boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         Potential2SoftSpherical p2 = new P2LennardJones(space, 1.0, 1.0);
@@ -209,7 +209,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         Basis basisRef = new BasisCubicFcc();
         
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitiveRef, space);
+                CoordinateDefinitionLeaf(boxRef, primitiveRef, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
         
         p2 = new P2LennardJones(space, 1.0, 1.0);

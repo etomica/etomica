@@ -74,8 +74,13 @@ public class SimCalcS extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        if (space.D() == 1) {
+            coordinateDefinition.initializeCoordinates(new int[]{nCells});
+        }
+        else {
+            coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        }
         
         integrator.setBox(box);
     }

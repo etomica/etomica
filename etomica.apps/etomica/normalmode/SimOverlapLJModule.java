@@ -125,7 +125,7 @@ public class SimOverlapLJModule {
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 
-        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(sim, boxHarmonic, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
         
         move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
@@ -166,7 +166,7 @@ public class SimOverlapLJModule {
         boxTarget.setBoundary(boundaryTarget);
         waveVectorFactory.makeWaveVectors(boxTarget);
 
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(sim, boxTarget, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);

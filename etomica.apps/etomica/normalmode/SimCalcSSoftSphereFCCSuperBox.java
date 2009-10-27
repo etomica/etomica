@@ -83,7 +83,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         potentialMaster.addPotential(pTruncatedAB, new IAtomType[] {sphereTypeA, sphereTypeB});
         
         box.setBoundary(boundary);
-        coordinateDefinition = new CoordinateDefinitionLeafSuperBox(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeafSuperBox(box, primitive, basis, space);
         coordinateDefinition.setSpecies(speciesA, speciesB);
         coordinateDefinition.setIs256();
         coordinateDefinition.initializeCoordinates(nCells);

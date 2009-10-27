@@ -90,7 +90,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         }
         boxTarget.setBoundary(boundaryTarget);
 
-        CoordinateDefinitionLeafSuperBox coordinateDefinitionTarget = new CoordinateDefinitionLeafSuperBox(this, boxTarget, primitive, basis, space);
+        CoordinateDefinitionLeafSuperBox coordinateDefinitionTarget = new CoordinateDefinitionLeafSuperBox(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.setSpecies(speciesA, speciesB);
         coordinateDefinitionTarget.setIs256();
         coordinateDefinitionTarget.initializeCoordinates(nCells);
@@ -160,7 +160,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 
-        CoordinateDefinitionLeafSuperBox coordinateDefinitionHarmonic = new CoordinateDefinitionLeafSuperBox(this, boxHarmonic, primitive, basis, space);
+        CoordinateDefinitionLeafSuperBox coordinateDefinitionHarmonic = new CoordinateDefinitionLeafSuperBox(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.setSpecies(speciesA, speciesB);
         coordinateDefinitionHarmonic.setIs256();
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);

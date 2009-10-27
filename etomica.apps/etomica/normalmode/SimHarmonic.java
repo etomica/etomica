@@ -76,7 +76,7 @@ public class SimHarmonic extends Simulation {
         }
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         if(D == 1) {

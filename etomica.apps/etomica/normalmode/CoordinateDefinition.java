@@ -7,7 +7,6 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -35,12 +34,11 @@ import etomica.space.ISpace;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(ISimulation sim, IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
-        this(sim, box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
+        this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(ISimulation sim, IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
-        this.sim = sim;
+    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -214,7 +212,6 @@ public abstract class CoordinateDefinition {
         return cells;
     }
 
-    protected final ISimulation sim;
     protected final int coordinateDim;
     protected final IBox box;
     protected AtomLeafAgentManager siteManager;

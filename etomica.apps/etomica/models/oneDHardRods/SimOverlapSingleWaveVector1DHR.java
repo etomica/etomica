@@ -117,7 +117,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
+                CoordinateDefinitionLeaf(boxTarget, primitive, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         double neighborRange = 1.01/density;
@@ -203,7 +203,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         boxRef.setBoundary(boundaryRef);
         
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitive, space);
+                CoordinateDefinitionLeaf(boxRef, primitive, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
         
         neighborRange = 1.01/density;

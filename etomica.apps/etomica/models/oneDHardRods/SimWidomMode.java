@@ -88,7 +88,7 @@ public class SimWidomMode extends Simulation {
         nCells = new int[]{numAtoms};
         box.setBoundary(bdry);
         
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         double neighborRange = 1.01/density;

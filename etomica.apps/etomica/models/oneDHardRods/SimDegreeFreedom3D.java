@@ -100,7 +100,7 @@ public class SimDegreeFreedom3D extends Simulation {
         boundary = new BoundaryDeformableLattice(primitive, nCells);
         box.setBoundary(boundary);
         
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         

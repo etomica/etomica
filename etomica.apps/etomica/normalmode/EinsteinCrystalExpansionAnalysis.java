@@ -52,7 +52,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
         box.setBoundary(boundary);
         basis = new BasisCubicFcc();
         
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         IVectorMutable[] initialLatticePos = _space.makeVectorArray(numAtoms);
@@ -92,7 +92,7 @@ public class EinsteinCrystalExpansionAnalysis extends Simulation {
 	        
 	        boundary.setBoxSize(_space.makeVector(new double[]{n*L, n*L, n*L}));
 	        
-	        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+	        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
 	        coordinateDefinition.initializeCoordinates(nCells);
 	        /*
 	         * 

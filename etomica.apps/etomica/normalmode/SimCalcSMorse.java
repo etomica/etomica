@@ -78,7 +78,7 @@ public class SimCalcSMorse extends Simulation {
 
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         integrator.setBox(box);

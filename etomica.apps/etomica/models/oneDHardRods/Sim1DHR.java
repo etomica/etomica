@@ -98,7 +98,7 @@ public class Sim1DHR extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
+                CoordinateDefinitionLeaf(boxTarget, primitive, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         double neighborRange = 1.01/density;
@@ -122,7 +122,7 @@ public class Sim1DHR extends Simulation {
         integrators[0] = integratorOriginal;
         
         CoordinateDefinitionLeaf coordinateDefinitionOriginal = new 
-                CoordinateDefinitionLeaf(this, boxOriginal, primitive, space);
+                CoordinateDefinitionLeaf(boxOriginal, primitive, space);
         
         nm = new NormalModes1DHR(boundaryOriginal, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);

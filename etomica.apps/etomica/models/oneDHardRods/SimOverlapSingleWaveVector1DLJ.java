@@ -118,7 +118,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
-                CoordinateDefinitionLeaf(this, boxTarget, primitive, space);
+                CoordinateDefinitionLeaf(boxTarget, primitive, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, 
@@ -196,7 +196,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
         boxRef.setBoundary(boundaryRef);
         
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitive, space);
+                CoordinateDefinitionLeaf(boxRef, primitive, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 

@@ -114,7 +114,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 
-        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(sim, box, primitive, sim.getSpace());
+        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, sim.getSpace());
         coordinateDefinition.initializeCoordinates(new int[]{numAtoms});
 
         for(int i=0; i<numAtoms; i++) {

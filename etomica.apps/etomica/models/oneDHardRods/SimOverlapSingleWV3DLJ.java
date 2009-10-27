@@ -118,7 +118,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
         Basis basisTarget = new BasisCubicFcc();
         
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(this, boxTarget, primitiveTarget, basisTarget, space);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitiveTarget, basisTarget, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
         
 //        for(int k = 0; k < 32; k++){
@@ -202,7 +202,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         Basis basisRef = new BasisCubicFcc();
         
         CoordinateDefinitionLeaf coordinateDefinitionRef = new 
-                CoordinateDefinitionLeaf(this, boxRef, primitiveRef, basisRef, space);
+                CoordinateDefinitionLeaf(boxRef, primitiveRef, basisRef, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
        
         p2 = new P2LennardJones(space, 1.0, 1.0);

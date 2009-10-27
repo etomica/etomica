@@ -33,7 +33,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     }
     
     public CoordinateDefinitionMolecule(ISimulation sim, IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
-        super(sim, box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
+        super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
+        this.sim = sim;
         work1 = space.makeVector();
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
@@ -104,6 +105,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     }
 
     private static final long serialVersionUID = 1L;
+    protected final ISimulation sim;
     protected MoleculeAgentManager moleculeSiteManager;
     protected final IVectorMutable work1;
     protected final double[] u;

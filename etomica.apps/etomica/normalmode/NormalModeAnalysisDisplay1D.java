@@ -38,7 +38,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         nCells = new int[]{numAtoms};
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(this, box, primitive, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         nm = new NormalModes1DHR(boundary, numAtoms);
