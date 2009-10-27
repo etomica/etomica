@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
@@ -14,6 +15,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -35,8 +37,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected IPotentialAtomic potential;
+    protected IPotentialAtomic pairPotential;
     protected final AtomPair pair;
+    protected boolean doExcludeNonNeighbors, doIncludePair;
 
     public MCMoveAtomCoupled(IPotentialMaster potentialMaster, IRandom random,
     		                 ISpace _space) {
@@ -60,24 +63,17 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         if (newPotential.nBody() != 2) {
             throw new RuntimeException("must be a 2-body potential");
         }
-        potential = newPotential;
+        pairPotential = newPotential;
     }
     
     /**
      * Method to perform trial move.
      */
     public boolean doTrial() {
-//        uNew = energyMeter.getDataAsScalar();
-//        if(uNew != 0.0){
-//            for( int ct = 0;ct < 32; ct++){
-//                System.out.println(((IAtomPositioned)box.getLeafList().getAtom(ct)).getPosition());
-//            }
-//            System.out.println("oy!");
-//        }
-        
         atom0 = atomSource.getAtom();
+        if (atom0 == null) return false;
         atom1 = atomSource.getAtom();
-        if (atom0 == null || atom1 == null || atom0 == atom1) return false;
+        if (atom1 == null || atom0 == atom1) return false;
         energyMeter.setTarget(atom0);
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom1);
@@ -87,38 +83,48 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         }
         pair.atom0 = atom0;
         pair.atom1 = atom1;
-        uOld -= potential.energy(pair);
+        doIncludePair = true;
+        if (doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
+            doIncludePair = false;
+            IAtomList[] list0 = ((PotentialMasterList)potential).getNeighborManager(box).getDownList(atom0);
+            for (int i=0; i<list0.length; i++) {
+                if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
+                    doIncludePair = true;
+                    break;
+                }
+            }
+            if (!doIncludePair) {
+                list0 = ((PotentialMasterList)potential).getNeighborManager(box).getUpList(atom0);
+                for (int i=0; i<list0.length; i++) {
+                    if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
+                        doIncludePair = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (doIncludePair) {
+            uOld -= pairPotential.energy(pair);
+        }
 
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom0.getPosition().PE(translationVector);
         atom1.getPosition().ME(translationVector);
 
+        return true;
+    }
+
+    public double getA() {return 1.0;}
+    
+    public double getB() {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom0);
         uNew += energyMeter.getDataAsScalar();
-        if(!Double.isInfinite(uNew)){
-            uNew -= potential.energy(pair);
+        if(!Double.isInfinite(uNew) && doIncludePair){
+            uNew -= pairPotential.energy(pair);
         }
-        return true;
-    }//end of doTrial
-    
-    
-    /**
-     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
-     * states encountered before (i) and after (j) the most recent call to doTrial(). 
-     * Tij is the probability that this move would generate state j from state i, and
-     * Tji is the probability that a subsequent call to doTrial would return to state i
-     * from state j.
-     */
-    public double getA() {return 1.0;}
-    
-    /**
-     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
-     * for the states encountered before (i) and after (j) the most recent call to 
-     * doTrial.
-     */
-    public double getB() {
+
         return -(uNew - uOld);
     }
     
@@ -132,8 +138,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     
     /**
      * Method called by IntegratorMC in the event that the most recent trial move is
-     * rejected.  This method should cause the system to be restored to the condition
-     * before the most recent call to doTrial.
+     * rejected.
      */
     public void rejectNotify() {
         atom0.getPosition().ME(translationVector);
@@ -152,7 +157,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        potential.setBox(p);
+        pairPotential.setBox(p);
     }
     
     /**
@@ -166,5 +171,24 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;
+    }
+
+    /**
+     * Configures the move to not explicitly calculate the potential for atom
+     * pairs that are not neighbors (as determined by the potentialMaster).
+     * 
+     * Setting this has an effect only if the potentialMaster is an instance of
+     * PotentialMasterList
+     */
+    public void setDoExcludeNonNeighbors(boolean newDoExcludeNonNeighbors) {
+        doExcludeNonNeighbors = newDoExcludeNonNeighbors;
+    }
+
+    /**
+     * Returns true if the move does not explicitly calculate the potential for
+     * atom pairs that are not neighbors (as determined by the potentialMaster).
+     */
+    public boolean getDoExcludeNonNeighbors() {
+        return doExcludeNonNeighbors;
     }
 }
