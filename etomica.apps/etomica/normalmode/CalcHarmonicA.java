@@ -54,17 +54,10 @@ public class CalcHarmonicA {
         for(int i=0; i<omega2.length; i++) {
             for(int j=0; j<omega2[0].length; j++) {
                 if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
+                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]/(2*temperature*Math.PI));
                 }
             }
         }
-
-        // include Jacobian correction
-        double jfac = 1.0;
-        if (totalCells % 2 == 0) {
-            jfac = Math.pow(2.0, D);
-        }
-        AHarmonic += -(basisSize*D*(totalCells - jfac)/2.0)*Math.log(2.0);
 
         // and COM correction
         AHarmonic += 0.5*D*Math.log(totalCells*basisSize);
