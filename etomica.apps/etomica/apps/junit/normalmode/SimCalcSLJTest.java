@@ -24,7 +24,6 @@ public class SimCalcSLJTest extends TestCase {
     }
     
     public void testCalcS() {
-
         // defaults
         int D = 3;
         int nA = 32;
@@ -70,7 +69,9 @@ public class SimCalcSLJTest extends TestCase {
 
         sWriter.actionPerformed();
         double A = sWriter.getLastA();
-        
-        assertTrue("harmonic reference free energy within expected limits "+A, Math.abs(A-45.3) < 0.4);
+        // A ranges from 46.3 to 46.9, with 46.6 most popular.
+        // value from a much longer simulation is 46.3
+
+        assertTrue("harmonic reference free energy within expected limits "+A, Math.abs(A-46.6) < 0.3);
     }
 }
