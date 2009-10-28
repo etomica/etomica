@@ -18,7 +18,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		this(1000,aNBennetPoints, aIsReference);
 	}
 	
-    public AccumulatorVirialOverlapSingleAverage(int blockSize, int aNBennetPoints, boolean aIsReference) {
+    public AccumulatorVirialOverlapSingleAverage(long blockSize, int aNBennetPoints, boolean aIsReference) {
 		super(blockSize);
 		nBennetPoints = aNBennetPoints;
         isReference = aIsReference;
