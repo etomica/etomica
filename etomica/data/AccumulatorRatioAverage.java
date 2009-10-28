@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.api.IFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
 import etomica.util.Arrays;
@@ -16,7 +15,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
         this(1000);
     }
     
-    public AccumulatorRatioAverage(int blockSize) {
+    public AccumulatorRatioAverage(long blockSize) {
         super(blockSize);
         ratioTag = new DataTag();
         ratioStandardDeviationTag = new DataTag();

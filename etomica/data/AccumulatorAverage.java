@@ -36,7 +36,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         this(1000);
     }
     
-    public AccumulatorAverage(int blockSize) {
+    public AccumulatorAverage(long blockSize) {
         super();
         setBlockSize(blockSize);
         setPushInterval(100);

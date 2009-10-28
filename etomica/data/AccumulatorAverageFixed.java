@@ -18,7 +18,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         this(1000);
     }
     
-    public AccumulatorAverageFixed(int blockSize) {
+    public AccumulatorAverageFixed(long blockSize) {
         super(blockSize);
         // this chops negative values to be 0, used in cases where value
         // is non-zero due to roundoff and happens to be negative
