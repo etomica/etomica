@@ -6,6 +6,7 @@ import java.io.IOException;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataInfo;
@@ -22,9 +23,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
-import etomica.space3d.Vector3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
@@ -38,7 +37,7 @@ import etomica.util.FunctionGeneral;
 public class NormalModesPotential implements NormalModes {
 
     public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace space) {
-        
+        this.space = space;
         needToCalculateModes = true;
         
         lattice = new BravaisLatticeCrystal(primitive, basis);
@@ -73,7 +72,7 @@ public class NormalModesPotential implements NormalModes {
         //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
         FunctionGeneral function = new FunctionGeneral() {
             public IData f(Object obj) {
-                Vector3D r = (Vector3D)obj;
+                IVector r = (IVector)obj;
                 tensor.x.Ev1v2(r, r);
                 double r2 = r.squared();
                 double dW = potential.du(r2);
@@ -85,9 +84,9 @@ public class NormalModesPotential implements NormalModes {
             public IDataInfo getDataInfo() {
                 return dataInfo;
             }
-            final DataTensor tensor = new DataTensor(Space3D.getInstance());
-            final DataInfo dataInfo = new DataTensor.DataInfoTensor("",Dimension.MIXED,Space3D.getInstance());
-            final Tensor3D identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
+            final DataTensor tensor = new DataTensor(space);
+            final DataInfo dataInfo = new DataTensor.DataInfoTensor("", Dimension.MIXED, space);
+            final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
         };
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
@@ -279,6 +278,7 @@ public class NormalModesPotential implements NormalModes {
 		this.fileName = filename;
 	}
 
+    protected final ISpace space;
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
@@ -287,6 +287,4 @@ public class NormalModesPotential implements NormalModes {
     private double[][][] eigenvectors;
     private boolean needToCalculateModes;
     private String fileName;
-
-
 }
