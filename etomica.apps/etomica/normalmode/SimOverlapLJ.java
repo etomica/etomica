@@ -58,6 +58,7 @@ public class SimOverlapLJ extends Simulation {
         accumulatorPumps = new DataPump[2];
         meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
+        blockSize = 1000;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
@@ -171,6 +172,8 @@ public class SimOverlapLJ extends Simulation {
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
+            // ensure potential doesn't exclude a pair just because they've drifted apart
+            pTruncated.setTruncationRadius(boundaryTarget.getBoxSize().getX(0) * 0.6);
         }
 
         // OVERLAP
@@ -225,10 +228,18 @@ public class SimOverlapLJ extends Simulation {
         }
     }
     
+    public void setAccumulatorBlockSize(long newBlockSize) {
+        blockSize = newBlockSize;
+        accumulators[1].setBlockSize(newBlockSize);
+        // reset the integrator so that it will re-adjust step frequency
+        // and ensure it will take enough data for both ref and target
+        integratorOverlap.reset();
+    }
+
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, 1,true),0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(blockSize, 1,false),1);
         setRefPref(newRefPref,1);
     }
     
@@ -244,8 +255,8 @@ public class SimOverlapLJ extends Simulation {
                 bufReader.close();
                 fileReader.close();
                 System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, 1,true),0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(blockSize, 1,false),1);
                 setRefPref(refPref,1);
             }
             catch (IOException e) {
@@ -260,8 +271,20 @@ public class SimOverlapLJ extends Simulation {
             getController().reset();
             System.out.println("target equilibration finished");
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
+            long oldBlockSize = blockSize;
+            // 1000 blocks
+            long newBlockSize = initSteps*integratorOverlap.getNumSubSteps()/1000;
+            if (newBlockSize < 1000) {
+                // make block size at least 1000, even if it means fewer blocks
+                newBlockSize = 1000;
+            }
+            if (newBlockSize > 1000000) {
+                // needs to be an int.  1e6 steps/block is a bit crazy.
+                newBlockSize = 1000000;
+            }
+            setAccumulatorBlockSize(newBlockSize);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, 41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(blockSize, 41,false),1);
             setRefPref(1,60);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -275,8 +298,9 @@ public class SimOverlapLJ extends Simulation {
             }
             System.out.println("setting ref pref to "+refPref);
             
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
+            setAccumulatorBlockSize(oldBlockSize);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, 11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(blockSize, 11,false),1);
             setRefPref(refPref,5);
 
             // set refPref back to -1 so that later on we know that we've been looking for
@@ -292,6 +316,18 @@ public class SimOverlapLJ extends Simulation {
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
 
+        long oldBlockSize = blockSize;
+        // 1000 blocks
+        long newBlockSize = initSteps*integratorOverlap.getNumSubSteps()/1000;
+        if (newBlockSize < 1000) {
+            // make block size at least 1000, even if it means fewer blocks
+            newBlockSize = 1000;
+        }
+        if (newBlockSize > 1000000) {
+            // 1e6 steps/block is a bit crazy.
+            newBlockSize = 1000000;
+        }
+        setAccumulatorBlockSize(newBlockSize);
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
@@ -306,8 +342,8 @@ public class SimOverlapLJ extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1, 1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(blockSize, 1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {
@@ -325,6 +361,7 @@ public class SimOverlapLJ extends Simulation {
         else {
             dsvo.reset();
         }
+        setAccumulatorBlockSize(oldBlockSize);
     }
 
     /**
@@ -446,6 +483,7 @@ public class SimOverlapLJ extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
+    protected long blockSize;
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor
