@@ -13,7 +13,9 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
@@ -34,6 +36,7 @@ public class SimCalcSLJ extends Simulation {
         super(_space, true);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster.lrcMaster().setEnabled(false);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);
@@ -46,6 +49,7 @@ public class SimCalcSLJ extends Simulation {
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
+        move.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         
@@ -69,15 +73,41 @@ public class SimCalcSLJ extends Simulation {
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.45;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+        if (potentialMaster instanceof PotentialMasterList) {
+            // with neighborlisting, we can use an unshifted potential
+            potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        }
+        else {
+            // without neighborlisting, we should use a shifted potential
+            // it should provide a better approximation of the actual variation in
+            // potential energy as atoms move in and out of the cutoff
+            potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+        }
         IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
-        move.setPotential(pTruncated);
+        potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType});
+        move.setPotential(potential);
 
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
+
+        if (potentialMaster instanceof PotentialMasterList) {
+            double neighborRange = truncationRadius;
+            int cellRange = 7;
+            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
+            if (potentialCells < cellRange*2+1) {
+                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            }
+            if (potentialCells > cellRange*2+1) {
+                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            }
+            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        }
 
         integrator.setBox(box);
     }
