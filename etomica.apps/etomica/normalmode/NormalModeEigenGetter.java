@@ -13,10 +13,10 @@ public class NormalModeEigenGetter {
         if (args.length > 0) {
             filename = args[0];
         }
-        doit(filename);
+        doit(filename, 3);
     }
     
-    public static void doit(String filename) {
+    public static void doit(String filename, int D) {
         //first index of S indicates the wave vector
         //the remaining two indices describe a square matrix of dimension equal to coordinateDim
         //e.g., coordinateDim = D for monatomic spherical molecules in D dimensions
@@ -38,7 +38,8 @@ public class NormalModeEigenGetter {
                     fileWriterVec.write("\n");
                 }
                 for (int j=0; j<d.length; j++) {
-                    if (i==0 && j<3) {
+                    if (i==0 && j<D) {
+                        // COM mode, ignore it
                         if (Math.abs(d[j]) > maxIgnoredVal) {
                             maxIgnoredVal = d[j];
                         }

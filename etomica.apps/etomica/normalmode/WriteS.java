@@ -92,7 +92,7 @@ public class WriteS implements IAction {
             throw new RuntimeException("Oops, failed to write data " + e);
         }
         
-        NormalModeEigenGetter.doit(thisFilename);
+        NormalModeEigenGetter.doit(thisFilename, space.D());
 
         BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
         NormalModesFromFile normalModes = new NormalModesFromFile(thisFilename, space.D());
