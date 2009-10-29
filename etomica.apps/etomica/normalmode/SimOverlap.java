@@ -450,7 +450,7 @@ public class SimOverlap extends Simulation {
         System.out.println("betaUba: "+betaUba + " ,err: "+err_betaUba);
         
         if(D==1) {
-            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
+            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules-1) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
@@ -501,7 +501,7 @@ public class SimOverlap extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 5;
+        public int numMolecules = 10;
         public double density = 0.1;
         public int D = 1;
         public long numSteps = 100000;

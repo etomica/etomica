@@ -57,7 +57,7 @@ public class CalcHarmonicA {
 
         // FE contribution from COM normal modes
         // see http://rheneas.eng.buffalo.edu/~andrew/harmonicF.pdf
-        AHarmonic += 0.5*D*Math.log(numMolecules);
+        AHarmonic -= 0.5*D*Math.log(numMolecules);
 
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
         return AHarmonic*temperature;
