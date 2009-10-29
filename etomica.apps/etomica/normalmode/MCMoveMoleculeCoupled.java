@@ -5,6 +5,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
+import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculePair;
@@ -15,7 +16,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -39,7 +39,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected final AtomArrayList affectedMoleculeList;
     protected final AtomActionTranslateBy singleAction;
     protected final MoleculePair pair;
-    protected PotentialGroup potential;
+    protected IPotentialMolecular potential;
     
     public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
     		                     ISpace _space){
@@ -69,7 +69,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         energyMeter.setBox(newBox);
     }
     
-    public void setPotential(PotentialGroup newPotential){
+    public void setPotential(IPotentialMolecular newPotential){
         potential = newPotential;
     }
     
