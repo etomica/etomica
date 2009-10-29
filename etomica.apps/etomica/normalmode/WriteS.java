@@ -7,7 +7,6 @@ import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
 
 /**
@@ -94,10 +93,10 @@ public class WriteS implements IAction {
         
         NormalModeEigenGetter.doit(thisFilename, space.D());
 
-        BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
+        int numMolecules = meterNormalMode.getBox().getMoleculeList().getMoleculeCount();
         NormalModesFromFile normalModes = new NormalModesFromFile(thisFilename, space.D());
         normalModes.setTemperature(temperature);
-        lastA = CalcHarmonicA.doit(normalModes, space.D(), temperature, cells[0].molecules.getMoleculeCount(), cells.length);
+        lastA = CalcHarmonicA.doit(normalModes, space.D(), temperature, numMolecules);
     }
     
     public double getLastA() {

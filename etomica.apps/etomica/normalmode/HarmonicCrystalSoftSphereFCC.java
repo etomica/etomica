@@ -76,7 +76,7 @@ public class HarmonicCrystalSoftSphereFCC {
         System.out.println("Harmonic-reference free energy: "+ (a-u));
       
         System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
-        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, temperature, basis.getScaledCoordinates().length, nC*nC*nC);
+        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, temperature, basis.getScaledCoordinates().length*nC*nC*nC);
 
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);

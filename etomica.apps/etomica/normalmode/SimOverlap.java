@@ -358,13 +358,7 @@ public class SimOverlap extends Simulation {
         //instantiate simulation
         SimOverlap sim = new SimOverlap(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge);
 
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-
-        double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize, totalCells);
+        double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numMolecules);
 
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
