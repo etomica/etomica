@@ -4,14 +4,30 @@ import etomica.api.IAtomType;
 import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
+import etomica.space3d.Orientation3D;
+import etomica.space3d.OrientationFull3D;
 
-public class AtomLeafAngularDynamic extends AtomLeafDynamic implements
+public class AtomOrientedDynamic extends AtomLeafDynamic implements
         IAtomOrientedKinetic {
 
     private static final long serialVersionUID = 1L;
-    public AtomLeafAngularDynamic(ISpace space, IAtomType type) {
+    public AtomOrientedDynamic(ISpace space, IAtomType type) {
+        this(space, type, false);
+    }
+    
+    public AtomOrientedDynamic(ISpace space, IAtomType type, boolean isAxisSymmetric) {
         super(space, type);
-        iOrientation = space.makeOrientation();
+        if (space.D() == 3) {
+            if (isAxisSymmetric) {
+                iOrientation = new Orientation3D(space);
+            }
+            else {
+                iOrientation = new OrientationFull3D(space);
+            }
+        }
+        else {
+            iOrientation = space.makeOrientation();
+        }
         angularVelocity = space.makeVector();  //XXX wrong! see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=128
     }
 
