@@ -244,7 +244,7 @@ public class IntegratorHard extends IntegratorMD
                 updateAtoms((AtomPair)atoms);
             }
             findNextCollider(); //this sets colliderAgent for the next collision
-            if (Debug.ON && colliderAgent.atom == atoms.getAtom(0) && (atoms.getAtomCount() == 2 && colliderAgent.collisionPartner == atoms.getAtom(1))
+            if (Debug.ON && colliderAgent != null && colliderAgent.atom == atoms.getAtom(0) && (atoms.getAtomCount() == 2 && colliderAgent.collisionPartner == atoms.getAtom(1))
                     && colliderAgent.collisionTime() == collisionTimeStep) {
                 throw new RuntimeException("repeating collision "+atoms+" "+collisionTimeStep);
             }
