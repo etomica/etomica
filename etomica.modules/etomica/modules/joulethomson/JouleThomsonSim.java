@@ -74,6 +74,7 @@ public class JouleThomsonSim extends Simulation {
 	    
 	    //species and potential
 	    species = new SpeciesSpheresMono(this, space);
+	    species.setIsDynamic(true);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         ((ElementSimple)((AtomTypeSphere)species.getLeafType()).getElement()).setMass(40);
         getSpeciesManager().addSpecies(species);

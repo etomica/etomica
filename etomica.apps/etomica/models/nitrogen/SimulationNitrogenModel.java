@@ -37,7 +37,7 @@ public class SimulationNitrogenModel extends Simulation{
 
 	
 	public SimulationNitrogenModel(ISpace space, int nCell, double temperature) {
-		super(space,true);
+		super(space);
 		this.space = space;
 		double unitCellLength = 5.661;
 		int numAtoms = 4*nCell*nCell*nCell;
@@ -100,7 +100,7 @@ public class SimulationNitrogenModel extends Simulation{
 	public static void main (String[] args){
 		
 		int nCell = 2;
-		double temperature = 25.0; // in Unit Kelvin
+		double temperature = 35.0; // in Unit Kelvin
 		long simSteps = 10000000;
 		
 		SimulationNitrogenModel sim = new SimulationNitrogenModel(Space3D.getInstance(3), nCell, temperature);

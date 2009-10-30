@@ -49,7 +49,7 @@ public class TestMCMoveCompareMultipleWVLoop3DLJ extends Simulation {
 
     public TestMCMoveCompareMultipleWVLoop3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int[] cwv, int[] hwv){
-        super(_space, true);
+        super(_space);
         
 //        long seed = 5;
 //        System.out.println("Seed explicitly set to " + seed);

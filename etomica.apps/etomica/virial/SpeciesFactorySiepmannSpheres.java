@@ -51,7 +51,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
     }
     
     public ISpecies makeSpecies(ISimulation sim, ISpace _space) {
-        SpeciesAlkane species = new SpeciesAlkane(sim, _space, nA);
+        SpeciesAlkane species = new SpeciesAlkane(_space, nA);
         species.setConformation(conformation);
         return species;
     }

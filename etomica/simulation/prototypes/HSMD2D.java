@@ -31,7 +31,7 @@ public class HSMD2D extends Simulation {
     public Potential2 potential22;
 
     public HSMD2D() {
-        super(Space2D.getInstance(), true);
+        super(Space2D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         double sigma = 0.38;
@@ -49,7 +49,9 @@ public class HSMD2D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species1 = new SpeciesSpheresMono(this, space);
+        species1.setIsDynamic(true);
 	    species2 = new SpeciesSpheresMono(this, space);
+        species2.setIsDynamic(true);
 	    AtomTypeSphere leafType1 = (AtomTypeSphere)species1.getLeafType();
         AtomTypeSphere leafType2 = (AtomTypeSphere)species2.getLeafType();
         leafType1.setDiameter(sigma);

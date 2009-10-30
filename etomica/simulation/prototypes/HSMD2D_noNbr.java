@@ -57,6 +57,7 @@ public class HSMD2D_noNbr extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);

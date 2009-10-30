@@ -40,7 +40,7 @@ public class TestYukawaMD3D extends Simulation{
 	public final P2Yukawa potential;
 	
 	public TestYukawaMD3D(){
-		super(Space3D.getInstance(), true);
+		super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
 		
 		int numAtoms = 256;
@@ -60,6 +60,7 @@ public class TestYukawaMD3D extends Simulation{
 		getController().addAction(activityIntegrate);
 		
 		species = new SpeciesSpheresMono(this, space);
+		species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
 		box = new Box(space);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));

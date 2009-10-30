@@ -79,7 +79,7 @@ public class SimOverlapSingleWaveVector1DLJ extends Simulation {
     
     public SimOverlapSingleWaveVector1DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
         long seed = 3;
         IRandom rand = new RandomNumberGenerator(seed);

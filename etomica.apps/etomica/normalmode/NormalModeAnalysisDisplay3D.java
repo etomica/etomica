@@ -33,7 +33,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	private static final String APP_NAME = "3-D Harmonic Oscillator";
 
 	public NormalModeAnalysisDisplay3D(Space _space){
-        super(_space, true);
+        super(_space);
         this.space = _space;
         
         species = new SpeciesSpheresMono(this, space);

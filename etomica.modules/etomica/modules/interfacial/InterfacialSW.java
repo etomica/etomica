@@ -65,8 +65,10 @@ public class InterfacialSW extends Simulation {
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);
+	    species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         surfactant = new SpeciesSpheresHetero(this, space, 2);
+        surfactant.setIsDynamic(true);
         surfactant.setChildCount(new int[]{1,1});
         surfactant.setTotalChildren(2);
         ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);

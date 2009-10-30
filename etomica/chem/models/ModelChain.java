@@ -4,12 +4,10 @@ import etomica.api.IElement;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -23,7 +21,8 @@ public class ModelChain extends Model {
      * must be set before making the Species.  The conformation and element can
      * also be set if desired.
      */
-    public ModelChain(ISpace _space) {
+    public ModelChain(ISpace _space, boolean isDynamic) {
+        super(isDynamic);
         speciesMade = false;
         space = _space;
     }
@@ -134,12 +133,15 @@ public class ModelChain extends Model {
         }
         
         if (conformation == null) {
-            Species species = new SpeciesSpheres(sim, space, numAtoms, element);
+            SpeciesSpheres species = new SpeciesSpheres(space, numAtoms, element);
+            species.setIsDynamic(isDynamic);
             setConformation(species.getConformation());
         }
         
         speciesMade = true;
-        return new SpeciesSpheres(sim, numAtoms, element, conformation, space);
+        SpeciesSpheres species = new SpeciesSpheres(numAtoms, element, conformation, space);
+        species.setIsDynamic(isDynamic);
+        return species;
     }
 
     private static final long serialVersionUID = 1L;

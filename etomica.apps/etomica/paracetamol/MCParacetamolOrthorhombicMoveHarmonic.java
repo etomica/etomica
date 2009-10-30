@@ -66,7 +66,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
     
     private MCParacetamolOrthorhombicMoveHarmonic(int numMolecules) {
 
-    	super(Space3D.getInstance(), false);
+    	super(Space3D.getInstance());
     	
         potentialMaster = new PotentialMaster();
     	
@@ -106,7 +106,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         getController().addAction(actionIntegrate);
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(this, space);
+        species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

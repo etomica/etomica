@@ -105,9 +105,9 @@ public class MEAM_MC extends Simulation {
 	    activityIntegrate = new ActivityIntegrate(integrator);
 	    activityIntegrate.setSleepPeriod(2);
 	    getController().addAction(activityIntegrate);
-	    sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+	    sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
 
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(ag);

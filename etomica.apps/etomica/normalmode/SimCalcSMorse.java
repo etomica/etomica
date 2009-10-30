@@ -33,7 +33,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcSMorse extends Simulation {
 
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
-        super(_space, true);
+        super(_space);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 

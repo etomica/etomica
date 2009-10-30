@@ -70,7 +70,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     public SimOverlapMultipleWaveVectors(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] chbleWV){
-        super(_space, true);
+        super(_space);
         
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);

@@ -51,7 +51,7 @@ public class TestMCMoveChangeSingleWV3DLJ extends Simulation {
 
     public TestMCMoveChangeSingleWV3DLJ(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
 //        long seed = 5;
 //        System.out.println("Seed explicitly set to " + seed);

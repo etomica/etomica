@@ -261,7 +261,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sp);
         sim.addBox(box);
-        SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
+        SpeciesParacetamol species = new SpeciesParacetamol(sp, false);
         PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
         sim.getSpeciesManager().addSpecies(species);

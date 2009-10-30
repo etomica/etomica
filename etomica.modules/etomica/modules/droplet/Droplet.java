@@ -8,7 +8,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -45,6 +44,7 @@ public class Droplet extends Simulation {
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         IAtomType leafType = species.getLeafType();
         

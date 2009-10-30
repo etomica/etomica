@@ -54,7 +54,7 @@ public class TestMCMoveChangeSingleLEFT extends Simulation {
 
     public TestMCMoveChangeSingleLEFT(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge){
-        super(_space, true);
+        super(_space);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

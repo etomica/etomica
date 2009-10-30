@@ -63,7 +63,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimDSBenOverlapSoftSphereFCC extends Simulation {
 
     public SimDSBenOverlapSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
-        super(_space, true);
+        super(_space);
 
         potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];

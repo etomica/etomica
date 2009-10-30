@@ -66,7 +66,7 @@ public class SimDimerLJadatom extends Simulation{
     
 
     public SimDimerLJadatom() {
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
     	potentialMaster = new PotentialMasterMonatomic(this);
     	
     //SIMULATION BOX
@@ -75,8 +75,10 @@ public class SimDimerLJadatom extends Simulation{
         
     //SPECIES
     	double sigma = 1.0;
-        fixed = new SpeciesSpheresMono(this, space, new ElementSimple("A", Double.POSITIVE_INFINITY));
+        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
+        fixed.setIsDynamic(true);
         movable = new SpeciesSpheresMono(this, space);      
+        movable.setIsDynamic(true);
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);

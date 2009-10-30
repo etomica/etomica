@@ -94,7 +94,7 @@ public class MDParacetamolMonoclinic extends Simulation {
          *	"true" is indicating to the superclass that this is a dynamic simulation
          * the PotentialMaster is selected such as to implement neighbor listing
          */
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
         
         potentialMaster = new PotentialMasterList(this, 1.6, space);
 
@@ -124,7 +124,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         box = new Box(space);
         addBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[] {25,25,25}));
-        species = new SpeciesParacetamol(this, space);
+        species = new SpeciesParacetamol(space, true);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 96);
         

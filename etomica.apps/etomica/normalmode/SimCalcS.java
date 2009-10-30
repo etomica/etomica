@@ -32,7 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcS extends Simulation {
 
     public SimCalcS(Space _space, int numAtoms, double density) {
-        super(_space, true);
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);

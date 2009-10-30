@@ -54,7 +54,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlapSoftSphereSuperBox extends Simulation {
 
     public SimOverlapSoftSphereSuperBox(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
-        super(_space, true);
+        super(_space);
         this.fname = filename;
         PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];

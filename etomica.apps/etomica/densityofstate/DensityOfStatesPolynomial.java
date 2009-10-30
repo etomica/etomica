@@ -54,7 +54,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 	
 	
 	public DensityOfStatesPolynomial(int numAtoms){
-		super(Space3D.getInstance(), false);
+		super(Space3D.getInstance());
 		
 		potentialMaster = new PotentialMasterMonatomic(this);
 		integrator = new IntegratorMC(this, potentialMaster);

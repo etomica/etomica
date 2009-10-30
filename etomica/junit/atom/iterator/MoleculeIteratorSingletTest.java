@@ -27,7 +27,7 @@ public class MoleculeIteratorSingletTest extends MoleculeIteratorTestAbstract {
     }
     
     public void setUp() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomType[0]);
+        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
         singletIterator = new MoleculeIteratorSinglet();
         testAtom1 = new Molecule(species, 0);
         testAtom2 = new Molecule(species, 0);

@@ -54,6 +54,7 @@ public class MaterialFracture extends Simulation {
 
         p1Tension = new P1Tension(space); 
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(false);
         ((ElementSimple)species.getLeafType().getElement()).setMass(40);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(3.0);
         getSpeciesManager().addSpecies(species);

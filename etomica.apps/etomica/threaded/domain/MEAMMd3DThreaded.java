@@ -63,7 +63,7 @@ import etomica.util.HistoryCollapsingAverage;
  * Effectively, the MEAM potential is a many-body potential.  
  * 
  * This class was adapted from LjMd3D.java by K.R. Schadel and A. Schultz in July 
- * 2005.  Intitially, it employed a version of the embedded-atom method potential, 
+ * 2005.  Initially, it employed a version of the embedded-atom method potential, 
  * and was later adapted in February 2006 to use the modified embedded-atom method
  * potential.
  */
@@ -89,7 +89,7 @@ public class MEAMMd3DThreaded extends Simulation {
 
     
     public MEAMMd3DThreaded(int numAtoms, int numThreads) {
-        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
+        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterListThreaded(this, space);
         integrator = new IntegratorVelocityVerletThreaded(random, space, potentialMaster, numThreads);
         integrator.setTimeStep(0.001);
@@ -99,9 +99,12 @@ public class MEAMMd3DThreaded extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+        sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        sn.setIsDynamic(true);
+        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
+        ag.setIsDynamic(true);
+        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
+        cu.setIsDynamic(true);
 
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(ag);

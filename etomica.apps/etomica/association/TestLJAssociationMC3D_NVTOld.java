@@ -55,7 +55,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         
     
     public TestLJAssociationMC3D_NVTOld(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
-        super(Space3D.getInstance(), false);
+        super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
               
         double sigma =1.0;

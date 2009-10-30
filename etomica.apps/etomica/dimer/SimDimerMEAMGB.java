@@ -81,7 +81,7 @@ public class SimDimerMEAMGB extends Simulation{
 
     
     public SimDimerMEAMGB(int[] amillerPlane, int[] boxSize) {
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
     	
     	this.millerPlane = amillerPlane;
     	potentialMaster = new PotentialMasterList(this, space);
@@ -96,9 +96,12 @@ public class SimDimerMEAMGB extends Simulation{
         //Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         Tin dimerTin = new Tin("SnD", 118.710);
-        fixed = new SpeciesSpheresMono(this, space, tinFixed);
-        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        dimer = new SpeciesSpheresMono(this, space, dimerTin);
+        fixed = new SpeciesSpheresMono(space, tinFixed);
+        fixed.setIsDynamic(true);
+        movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        fixed.setIsDynamic(true);
+        dimer = new SpeciesSpheresMono(space, dimerTin);
+        fixed.setIsDynamic(true);
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         getSpeciesManager().addSpecies(dimer);

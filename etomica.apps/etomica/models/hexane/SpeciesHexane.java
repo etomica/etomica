@@ -3,7 +3,6 @@
  */
 package etomica.models.hexane;
 
-import etomica.api.ISimulation;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.ISpace;
 
@@ -15,8 +14,8 @@ import etomica.space.ISpace;
  */
 
 public class SpeciesHexane extends etomica.species.SpeciesSpheres {
-    public SpeciesHexane(ISimulation sim, ISpace _space){
-        super(sim, 6, new ElementSimple("M", 1.0), 
+    public SpeciesHexane(ISpace _space){
+        super(6, new ElementSimple("M", 1.0), 
               new ConformationHexane(_space), _space);
         
         bondLength = 0.4;

@@ -76,7 +76,7 @@ public class TestHexaneFileConfig extends Simulation {
     public TestHexaneFileConfig(Space _space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(_space, false);
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
@@ -87,7 +87,7 @@ public class TestHexaneFileConfig extends Simulation {
         primitive.scaleSize(Math.pow(0.4165783882178116/dens,1.0/3.0));
         lattice = new BravaisLattice(primitive);
 
-        SpeciesHexane species = new SpeciesHexane(this, space);
+        SpeciesHexane species = new SpeciesHexane(space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);

@@ -101,7 +101,7 @@ public class Sam extends Simulation {
         //controller and integrator
 
 	    //species and potentials
-        species = new SpeciesAlkaneThiol(this, space, chainLength-1);
+        species = new SpeciesAlkaneThiol(space, chainLength-1);
         getSpeciesManager().addSpecies(species);
 
         //construct box

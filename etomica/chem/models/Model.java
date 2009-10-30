@@ -10,7 +10,11 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
  */
 public abstract class Model implements java.io.Serializable {
 	
-	/**
+    public Model(boolean isDynamic) {
+        this.isDynamic = isDynamic;
+    }
+    
+    /**
      * Returns the species associated with this Model, if it has already been
      * created.  If the species has not been made yet, getSpecies returns null.
 	 */
@@ -52,7 +56,9 @@ public abstract class Model implements java.io.Serializable {
      */
 	public abstract PotentialAndIterator[] getPotentials();
     
+    private static final long serialVersionUID = 1L;
     private ISpecies species;
+    protected final boolean isDynamic;
     protected PotentialAndIterator[] potentialsAndIterators;
 
     /**

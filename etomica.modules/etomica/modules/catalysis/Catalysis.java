@@ -67,13 +67,16 @@ public class Catalysis extends Simulation {
         double epsilonCS = 10*epsilonC;
         
 	    //species and potentials
-	    speciesO = new SpeciesSpheresMono(this, space, Oxygen.INSTANCE);
+	    speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
+	    speciesO.setIsDynamic(true);
 	    ((AtomTypeSphere)speciesO.getLeafType()).setDiameter(sigmaO);
         getSpeciesManager().addSpecies(speciesO);
-        speciesC = new SpeciesSpheresMono(this, space, Carbon.INSTANCE);
+        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
+        speciesC.setIsDynamic(true);
         ((AtomTypeSphere)speciesC.getLeafType()).setDiameter(sigmaC);
         getSpeciesManager().addSpecies(speciesC);
-        speciesSurface = new SpeciesSpheresMono(this, space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
+        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
+        speciesSurface.setIsDynamic(true);
         ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(sigmaS);
         getSpeciesManager().addSpecies(speciesSurface);
 

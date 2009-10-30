@@ -24,7 +24,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
 
 	public NormalModeAnalysisDisplay1D(Space space){
-        super(space, true);
+        super(space);
      
         species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

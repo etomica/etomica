@@ -4,7 +4,6 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IMolecule;
-import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeSphere;
@@ -19,10 +18,10 @@ import etomica.units.ElectronVolt;
 
 public class SpeciesParacetamol extends Species {
 
-	public SpeciesParacetamol(ISimulation sim, ISpace _space) {
+	public SpeciesParacetamol(ISpace _space, boolean isDynamic) {
 		super();
 		space = _space;
-		isDynamic = sim.isDynamic();
+		this.isDynamic = isDynamic;
         
         //atomic Instance Class, atomic diameter
         //L. Pauling, The Nature of the Chemical Bond, Cornell University Press, USA, 1945.

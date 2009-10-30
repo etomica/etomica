@@ -35,7 +35,7 @@ import etomica.util.HistogramSimple;
 public class SimModesJ extends Simulation {
 
     public SimModesJ(Space _space, int numAtoms) {
-        super(_space, true);
+        super(_space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

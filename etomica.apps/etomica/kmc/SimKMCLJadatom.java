@@ -53,7 +53,7 @@ public class SimKMCLJadatom extends Simulation{
     
 
     public SimKMCLJadatom() {
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
     	potentialMaster = new PotentialMasterMonatomic(this);
     	
     //SIMULATION BOX
@@ -62,7 +62,7 @@ public class SimKMCLJadatom extends Simulation{
         
     //SPECIES
     	double sigma = 1.0;
-    	fixed = new SpeciesSpheresMono(this, space, new ElementSimple("A", Double.POSITIVE_INFINITY));
+    	fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
         movable = new SpeciesSpheresMono(this, space);  
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);

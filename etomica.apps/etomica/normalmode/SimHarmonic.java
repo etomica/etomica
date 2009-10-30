@@ -43,7 +43,7 @@ public class SimHarmonic extends Simulation {
 	private static final String APP_NAME = "Sim Harmonic";
 
     public SimHarmonic(Space _space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(_space, true);
+        super(_space);
 
         int D = space.D();
 

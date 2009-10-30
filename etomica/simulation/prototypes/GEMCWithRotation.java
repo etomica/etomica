@@ -33,7 +33,7 @@ public class GEMCWithRotation extends Simulation {
 
     
     public GEMCWithRotation(Space _space) {
-        super(_space, false);
+        super(_space);
         double sigma = 1.2;
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorGEMC(getRandom(), space);

@@ -42,11 +42,12 @@ public class PistonCylinder extends Simulation {
     public ConfigurationLattice config;
 
     public PistonCylinder(int D) {
-        super(Space.getInstance(D), true);
+        super(Space.getInstance(D));
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         lambda = 2.0;
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         ((ElementSimple)species.getLeafType().getElement()).setMass(16);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         getSpeciesManager().addSpecies(species);

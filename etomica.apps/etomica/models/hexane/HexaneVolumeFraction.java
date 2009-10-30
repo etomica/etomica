@@ -34,14 +34,14 @@ public class HexaneVolumeFraction extends Simulation {
     public HexaneVolumeFraction(Space _space) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(_space, false);
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = 6;
 
 
-        SpeciesHexane species = new SpeciesHexane(this, _space);
+        SpeciesHexane species = new SpeciesHexane(_space);
         getSpeciesManager().addSpecies(species);
 
         bdry = new BoundaryRectangularPeriodic(_space);

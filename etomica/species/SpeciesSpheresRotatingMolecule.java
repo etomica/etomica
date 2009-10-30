@@ -31,7 +31,7 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
     }
 
     public SpeciesSpheresRotatingMolecule(ISimulation sim, ISpace _space, IVector moment) {
-        super(_space, sim.isDynamic(), new AtomTypeSphere(new ElementSimple(sim), 1.0));
+        super(_space, new AtomTypeSphere(new ElementSimple(sim), 1.0));
         this.moment = _space.makeVector();
         this.moment.E(moment);
     }

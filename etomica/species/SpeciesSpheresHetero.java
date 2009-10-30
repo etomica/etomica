@@ -8,7 +8,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
-import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.space.ISpace;
@@ -40,7 +39,7 @@ public class SpeciesSpheresHetero extends Species {
      * construction.
      */
     public SpeciesSpheresHetero(ISimulation sim, ISpace _space, int nComponents) {
-        this(sim, _space, makeElements(sim,nComponents));
+        this(_space, makeElements(sim,nComponents));
     }
     
     private static IElement[] makeElements(ISimulation sim, int nComponents) {
@@ -57,8 +56,8 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, IElement[] leafElements) {
-        this(_space, sim.isDynamic(), makeAtomTypeSpheres(leafElements));
+    public SpeciesSpheresHetero(ISpace _space, IElement[] leafElements) {
+        this(_space, makeAtomTypeSpheres(leafElements));
     }
     
     protected static final AtomTypeSphere[] makeAtomTypeSpheres(IElement[] leafElements) {
@@ -69,10 +68,9 @@ public class SpeciesSpheresHetero extends Species {
         return types;
     }
     
-    public SpeciesSpheresHetero(ISpace space, boolean isDynamic, IAtomType[] atomTypes) {
+    public SpeciesSpheresHetero(ISpace space, IAtomType[] atomTypes) {
         super();
         this.space = space;
-        this.isDynamic = isDynamic;
         numberFraction = new double[atomTypes.length];
         childCount = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
@@ -81,6 +79,14 @@ public class SpeciesSpheresHetero extends Species {
         setConformation(new ConformationLinear(space));
     }
     
+    public void setIsDynamic(boolean newIsDynamic) {
+        isDynamic = newIsDynamic;
+    }
+
+    public boolean isDynamic() {
+        return isDynamic;
+    }
+
     /**
      * Constructs a new group containing a block of atoms for
      * each sub-type.

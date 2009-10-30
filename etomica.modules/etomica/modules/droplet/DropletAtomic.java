@@ -67,7 +67,8 @@ public class DropletAtomic extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
 	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space, Argon.INSTANCE);
+	    species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+	    species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         IAtomType leafType = species.getLeafType();
         ((AtomTypeSphere)leafType).setDiameter(sigma);

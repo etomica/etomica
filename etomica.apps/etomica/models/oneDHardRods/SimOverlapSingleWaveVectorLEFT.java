@@ -69,7 +69,7 @@ public class SimOverlapSingleWaveVectorLEFT extends Simulation {
     
     public SimOverlapSingleWaveVectorLEFT(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
 //        IRandom rand = new RandomNumberGenerator((long)3.0);
 //        this.setRandom(rand);

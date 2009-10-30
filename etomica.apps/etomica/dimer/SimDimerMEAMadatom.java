@@ -77,7 +77,7 @@ public class SimDimerMEAMadatom extends Simulation{
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public SimDimerMEAMadatom() {
-        super(Space3D.getInstance(), true);    	
+        super(Space3D.getInstance());    	
         potentialMaster = new PotentialMasterList(this, space);
         potentialMasterD = new PotentialMasterListDimer(this, space);
         
@@ -89,9 +89,12 @@ public class SimDimerMEAMadatom extends Simulation{
         
         //Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);  
-        fixed = new SpeciesSpheresMono(this, space, tinFixed);
-        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        potentialSpecies = new SpeciesSpheresMono(this, space, tinFixed);
+        fixed = new SpeciesSpheresMono(space, tinFixed);
+        fixed.setIsDynamic(true);
+        movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        movable.setIsDynamic(true);
+        potentialSpecies = new SpeciesSpheresMono(space, tinFixed);
+        potentialSpecies.setIsDynamic(true);
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         getSpeciesManager().addSpecies(potentialSpecies);

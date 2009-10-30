@@ -71,7 +71,7 @@ public class TestHexane extends Simulation {
     public TestHexane(Space _space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(_space, false);
+        super(_space);
 
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
@@ -91,7 +91,7 @@ public class TestHexane extends Simulation {
 
         double bondFactor = 0.4;
 
-        SpeciesHexane species = new SpeciesHexane(this, space);
+        SpeciesHexane species = new SpeciesHexane(space);
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);

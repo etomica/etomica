@@ -18,7 +18,7 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
     }
     
     public ISpecies makeSpecies(ISimulation sim, ISpace space) {
-        return new SpeciesSpheres(sim, nA, new ElementSimple(
+        return new SpeciesSpheres(nA, new ElementSimple(
                 ((SpeciesManager)sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
                 1.0), conformation, space);
     }

@@ -70,7 +70,7 @@ public class SimExtensiveTest extends Simulation {
     boolean[] skipThisMode;
 
     public SimExtensiveTest(Space _space, int numAtoms, double density, int blocksize, int nbs) {
-        super(_space, true);
+        super(_space);
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);

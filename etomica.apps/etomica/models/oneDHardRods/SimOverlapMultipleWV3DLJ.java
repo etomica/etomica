@@ -75,7 +75,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     public SimOverlapMultipleWV3DLJ(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] harmWV){
-        super(_space, true);
+        super(_space);
         
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);

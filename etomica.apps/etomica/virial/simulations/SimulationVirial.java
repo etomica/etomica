@@ -47,7 +47,7 @@ public class SimulationVirial extends Simulation {
 	}
 
 	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
-		super(space,false);
+		super(space);
         PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();

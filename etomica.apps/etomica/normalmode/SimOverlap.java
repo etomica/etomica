@@ -58,7 +58,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlap extends Simulation {
 
     public SimOverlap(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
-        super(_space, true);
+        super(_space);
 
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
@@ -66,6 +66,7 @@ public class SimOverlap extends Simulation {
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
 
         // TARGET

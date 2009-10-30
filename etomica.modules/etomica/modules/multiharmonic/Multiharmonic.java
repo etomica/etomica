@@ -42,6 +42,7 @@ public class Multiharmonic extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double x0 = 0;
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);

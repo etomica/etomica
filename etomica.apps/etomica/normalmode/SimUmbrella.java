@@ -47,7 +47,7 @@ public class SimUmbrella extends Simulation {
 	private static final String APP_NAME = "Sim Umbrella's";
 
     public SimUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
-        super(_space, true);
+        super(_space);
 
         String refFileName = filename +"_ref";
         FileReader refFileReader;

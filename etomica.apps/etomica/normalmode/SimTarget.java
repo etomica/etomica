@@ -44,7 +44,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimTarget extends Simulation {
 
     public SimTarget(Space _space, int numAtoms, double density) {
-        super(_space, true);
+        super(_space);
 
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));
 

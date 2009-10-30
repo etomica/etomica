@@ -46,7 +46,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 	}
 	
 	public TestHC2YukawaMC3D(int numAtoms){
-		super(Space3D.getInstance(), false);
+		super(Space3D.getInstance());
 		PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 		
 		integrator = new IntegratorMC(this, potentialMaster);

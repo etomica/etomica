@@ -48,7 +48,7 @@ public class SimHarmonicUmbrella extends Simulation {
 	private static final String APP_NAME = "Sim Harmonic-Umbrella";
 
     public SimHarmonicUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
-        super(_space, true);
+        super(_space);
 
         String refFileName = filename +"_ref";
         FileReader refFileReader;

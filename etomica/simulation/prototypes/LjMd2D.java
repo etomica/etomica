@@ -34,7 +34,7 @@ public class LjMd2D extends Simulation {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        super(Space2D.getInstance(), false);
+        super(Space2D.getInstance());
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
@@ -42,6 +42,7 @@ public class LjMd2D extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         box = new Box(space);
         addBox(box);

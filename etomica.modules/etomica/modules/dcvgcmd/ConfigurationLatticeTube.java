@@ -1,25 +1,16 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.config.IConformation;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayBox;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -171,40 +162,4 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     protected SpeciesSpheresMono[] speciesSpheres;
     protected SpeciesTube speciesTube;
     private final double length;
-
-	public static void main(String[] args) {
-		Space sp = Space3D.getInstance();
-        Simulation sim = new Simulation(Space3D.getInstance());
-		IBox box = new Box(sp);
-        sim.addBox(box);
-        SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim, sp);
-		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim, sp);
-        sim.getSpeciesManager().addSpecies(species1);
-        sim.getSpeciesManager().addSpecies(species2);
-        ((IAtomTypeSphere)species1.getLeafType()).setDiameter(3.0);
-        ((IAtomTypeSphere)species2.getLeafType()).setDiameter(3.0);
-		int k = 4;
-		box.setNMolecules(species1, 2*k*k*k);
-        box.setNMolecules(species2, 2*k*k*k);
-        SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10, sp);
-        sim.getSpeciesManager().addSpecies(speciesTube);
-        ((IAtomTypeSphere)speciesTube.getLeafType()).setDiameter(3.0);
-        
-        box.setNMolecules(speciesTube, 1);
-//        CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
-//        CubicLattice lattice = new LatticeCubicSimple();
-		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, sp);
-//        box.boundary().setBoxSize(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(box);
-//		etomica.graphics.DisplayBox display = new etomica.graphics.DisplayBox(box);
-		
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, sp, sim.getController());
-        simGraphic.add(new DisplayBox(sim, box, sp, sim.getController()));
-        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
-        colorScheme.setColor(species1.getLeafType(), java.awt.Color.blue);
-        colorScheme.setColor(species2.getLeafType(), java.awt.Color.white);
-		simGraphic.makeAndDisplayFrame();
-	}
-
 }

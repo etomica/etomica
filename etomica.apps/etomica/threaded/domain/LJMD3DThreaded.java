@@ -48,7 +48,7 @@ public class LJMD3DThreaded extends Simulation {
     }
 
     public LJMD3DThreaded(int numAtoms, int numThreads) {
-        super(Space3D.getInstance(), true);
+        super(Space3D.getInstance());
         PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this, space);
         // need optimization of fac and time step
         double neighborFac = 1.35;

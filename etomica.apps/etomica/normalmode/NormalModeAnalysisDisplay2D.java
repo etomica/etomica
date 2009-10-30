@@ -29,7 +29,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	private static final String APP_NAME = "2-D Harmonic Oscillator";
 
 	public NormalModeAnalysisDisplay2D(ISpace _space){
-        super(_space, true);
+        super(_space);
         this.space = _space;
         
         setNCells(new int[]{getDimx(), getDimy()});

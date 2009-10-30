@@ -125,7 +125,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         box = new Box(space);
         addBox(box);
         box.getBoundary().setBoxSize(space.makeVector(new double[] {25,25,25}));
-        species = new SpeciesParacetamol(this, space);
+        species = new SpeciesParacetamol(space, true);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, 128);
 

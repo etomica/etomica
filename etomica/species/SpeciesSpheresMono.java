@@ -28,22 +28,29 @@ public class SpeciesSpheresMono extends Species {
      * Constructs instance with a default element
      */
     public SpeciesSpheresMono(ISimulation sim, ISpace _space) {
-        this(sim, _space, new ElementSimple(sim));
+        this(_space, new ElementSimple(sim));
     }
     
-    public SpeciesSpheresMono(ISimulation sim, ISpace _space, IElement element) {
-        this(_space, sim.isDynamic(), new AtomTypeSphere(element));
+    public SpeciesSpheresMono(ISpace _space, IElement element) {
+        this(_space, new AtomTypeSphere(element));
     }
     
-    public SpeciesSpheresMono(ISpace space, boolean isDynamic, AtomTypeSphere leafAtomType) {
+    public SpeciesSpheresMono(ISpace space, AtomTypeSphere leafAtomType) {
         super();
         this.space = space;
         this.leafAtomType = leafAtomType;
         addChildType(leafAtomType);
         setConformation(new ConformationLinear(space, 1));
-        this.isDynamic = isDynamic;
     }
     
+    public void setIsDynamic(boolean newIsDynamic) {
+        isDynamic = newIsDynamic;
+    }
+
+    public boolean isDynamic() {
+        return isDynamic;
+    }
+
     public IAtomType getLeafType() {
         return leafAtomType;
     }
@@ -68,6 +75,6 @@ public class SpeciesSpheresMono extends Species {
      
      private static final long serialVersionUID = 1L;
      protected final ISpace space;
-     protected final boolean isDynamic;
+     protected boolean isDynamic;
      protected final IAtomType leafAtomType;
 }

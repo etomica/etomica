@@ -58,7 +58,7 @@ public class UnitTestUtil {
     public static ISimulation makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1) {
         Space space = Space3D.getInstance();
-        ISimulation sim = new Simulation(space, false);
+        ISimulation sim = new Simulation(space);
         ISpecies species0 = null;
         ISpecies species1 = null;
         int nBox = 0;
@@ -110,7 +110,7 @@ public class UnitTestUtil {
     public static ISimulation makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
-        ISimulation sim = new Simulation(space, false);
+        ISimulation sim = new Simulation(space);
         //        new SpeciesSpheres(sim);
         IBox box = new Box(space);
         sim.addBox(box);
@@ -119,7 +119,7 @@ public class UnitTestUtil {
             for (int j = 0; j < nAtoms[i].length; j++) {
                 leafTypes[j] = new AtomTypeSphere(sim);
             }
-            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, false, leafTypes);
+            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, leafTypes);
             species.setChildCount(nAtoms[i]);
             sim.getSpeciesManager().addSpecies(species);
             box.setNMolecules(species, nMolecules[i]);

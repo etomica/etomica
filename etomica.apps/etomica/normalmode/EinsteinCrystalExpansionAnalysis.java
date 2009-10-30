@@ -31,7 +31,7 @@ import etomica.species.SpeciesSpheresMono;
 public class EinsteinCrystalExpansionAnalysis extends Simulation {
 
     public EinsteinCrystalExpansionAnalysis(Space _space, int numAtoms, double density, int exponent) {
-        super(_space, true);
+        super(_space);
 
 
         potentialMaster = new PotentialMasterMonatomic(this);

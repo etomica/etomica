@@ -39,9 +39,4 @@ public interface ISimulation {
      * Returns the SpeciesManager, which tracks the Species in the Simulation.
      */
     public ISpeciesManager getSpeciesManager();
-
-    /**
-     * @return Returns a flag indicating whether the simulation involves molecular dynamics.
-     */
-    public boolean isDynamic();
 }

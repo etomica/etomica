@@ -54,7 +54,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
     
     private MCParacetamolOrthorhombicMoveHarmonicStep(int numMolecules) {
 
-    	super(Space3D.getInstance(), false);
+    	super(Space3D.getInstance());
     	
         potentialMaster = new PotentialMaster();
     	
@@ -82,7 +82,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         normalModes.setTemperature(Kelvin.UNIT.toSim(100));
        
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(this, space);
+        species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         

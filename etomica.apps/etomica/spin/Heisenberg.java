@@ -45,7 +45,7 @@ public class Heisenberg extends Simulation {
      * 
      */
     public Heisenberg(Space _space, int nCells) {
-        super(_space, false);
+        super(_space);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);

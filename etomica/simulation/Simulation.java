@@ -21,16 +21,10 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 
 
     /**
-     * Creates a new simulation using the given space, with a default
-     * setting of isDynamic = true.
+     * Creates a new simulation using the given space
      */
     public Simulation(ISpace space) {
-        this(space, true);
-    }
-    
-    public Simulation(ISpace space, boolean isDynamic) {
         this.space = space;
-        this.dynamic = isDynamic;
         boxList = new IBox[0];
         controller = new Controller();
         int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
@@ -94,14 +88,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 	public Controller getController() {
 		return controller;
 	}
-	
-    /**
-     * @return Returns a flag indicating whether the simulation involves molecular dynamics.
-     */
-    public boolean isDynamic() {
-        return dynamic;
-    }
-    
+
     /**
      * @return the space
      */
@@ -134,6 +121,5 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     private IBox[] boxList;
     private final ISpeciesManager speciesManager;
     protected IRandom random;
-    protected final boolean dynamic;
     private Controller controller;
 }

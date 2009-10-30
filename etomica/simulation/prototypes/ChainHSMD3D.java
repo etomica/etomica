@@ -29,7 +29,7 @@ public class ChainHSMD3D extends Simulation {
     private ModelChain model;
 
     private ChainHSMD3D() {
-        super(Space3D.getInstance(), true);
+        super(Space3D.getInstance());
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
         int chainLength = 4;
@@ -43,7 +43,7 @@ public class ChainHSMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
 
-        model = new ModelChain(space);
+        model = new ModelChain(space, true);
         model.setNumAtoms(chainLength);
         model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
 

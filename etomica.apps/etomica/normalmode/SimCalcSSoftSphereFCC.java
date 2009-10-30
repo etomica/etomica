@@ -38,7 +38,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcSSoftSphereFCC extends Simulation {
 
     public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
-        super(_space, true);
+        super(_space);
 
 
         potentialMaster = new PotentialMasterMonatomic(this);

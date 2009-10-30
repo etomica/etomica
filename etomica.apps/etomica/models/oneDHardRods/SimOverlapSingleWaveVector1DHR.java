@@ -79,7 +79,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
     
     public SimOverlapSingleWaveVector1DHR(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);

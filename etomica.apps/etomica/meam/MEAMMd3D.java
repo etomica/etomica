@@ -168,7 +168,7 @@ public class MEAMMd3D extends Simulation {
     }
     
     public MEAMMd3D() {
-        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
+        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterList(this, space);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.001);
@@ -178,9 +178,12 @@ public class MEAMMd3D extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, space, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+        sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        sn.setIsDynamic(true);
+        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
+        ag.setIsDynamic(true);
+        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
+        cu.setIsDynamic(true);
 
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(ag);

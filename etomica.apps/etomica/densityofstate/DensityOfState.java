@@ -52,7 +52,7 @@ public class DensityOfState extends Simulation{
 	
 	
 	public DensityOfState(int numAtoms){
-		super(Space3D.getInstance(), false);
+		super(Space3D.getInstance());
 		
 		
 		potentialMaster = new PotentialMasterMonatomic(this);

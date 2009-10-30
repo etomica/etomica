@@ -38,7 +38,7 @@ public class SpeciesManagerTest extends TestCase {
 		ISpecies species[] = new ISpecies[numSpecies];
 
 		for(int i = 0; i < numSpecies; i++) {
-		    species[i] = new SpeciesSpheresMono(simulation, space, element);
+		    species[i] = new SpeciesSpheresMono(space, element);
 		    sm.addSpecies(species[i]);
 		}
 
@@ -63,7 +63,7 @@ public class SpeciesManagerTest extends TestCase {
 		ISpecies species[] = new ISpecies[numSpecies];
 
 		for(int i = 0; i < numSpecies; i++) {
-		    species[i] = new SpeciesSpheresMono(simulation, space, element);
+		    species[i] = new SpeciesSpheresMono(space, element);
 		    sm.addSpecies(species[i]);
 		}
 
@@ -135,7 +135,7 @@ public class SpeciesManagerTest extends TestCase {
             }
 		}
 
-		SpeciesSpheresMono newSpecies = new SpeciesSpheresMono(simulation, space, element);
+		SpeciesSpheresMono newSpecies = new SpeciesSpheresMono(space, element);
 		for(int j = 0; j < numAtomsPerSpecies-1; j++) {
 		    newSpecies.addChildType(new AtomTypeLeaf(element));
 		}

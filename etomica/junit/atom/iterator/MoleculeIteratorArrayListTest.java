@@ -22,7 +22,7 @@ public class MoleculeIteratorArrayListTest extends MoleculeIteratorTestAbstract 
     }
     
     public void testListVariations() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomType[0]);
+        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates

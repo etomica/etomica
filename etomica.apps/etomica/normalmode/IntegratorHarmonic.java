@@ -4,9 +4,11 @@ import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
+import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
+import etomica.units.Null;
 
 /**
  * 
@@ -20,6 +22,14 @@ public class IntegratorHarmonic extends IntegratorMD {
     public IntegratorHarmonic(IRandom random, double timeStep, double temperature, ISpace _space) {
         super(null,random, timeStep, temperature, _space);
         iterator = new MoleculeIteratorAllMolecules();
+        // make IntergratorMD happy.
+        meterKE = new DataSourceScalar("", Null.DIMENSION) {
+            public double getDataAsScalar() {return 0;}
+        };
+    }
+    
+    public void doThermostat() {
+        // do nothing -- we don't care about velocities
     }
     
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {

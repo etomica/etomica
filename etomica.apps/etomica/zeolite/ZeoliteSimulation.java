@@ -81,7 +81,7 @@ public class ZeoliteSimulation extends Simulation {
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(Space3D.getInstance(), true);
+        super(Space3D.getInstance());
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         //Additions for Zeolite Calculations
@@ -121,6 +121,7 @@ public class ZeoliteSimulation extends Simulation {
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this, space);
+            species[i].setIsDynamic(true);
             getSpeciesManager().addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
         	((IAtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);

@@ -282,7 +282,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
         Simulation sim = new Simulation(sp);
         IBox box = new Box(sp);
         sim.addBox(box);
-        SpeciesParacetamol species = new SpeciesParacetamol(sim, sp);
+        SpeciesParacetamol species = new SpeciesParacetamol(sp, false);
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         

@@ -12,7 +12,7 @@ import etomica.util.Debug;
 
 public class MoleculeArrayListTest extends TestCase {
 
-    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), false, new IAtomType[0]);
+    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new IAtomType[0]);
     
 	/*
 	 * testTrimToSize()

@@ -1,11 +1,12 @@
 package etomica.models.water;
 
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeOriented;
 import etomica.space.ISpace;
+import etomica.space3d.IOrientationFull3D;
 
 /**
  * Implementation of DipoleSource that can handle water molecules that are
@@ -42,7 +43,7 @@ public class DipoleSourceWater implements DipoleSource {
     public IVector getDipole(IMolecule molecule) {
         // assume dipole points in the secondary orientation direction
         MoleculeOriented orientedMolecule = (MoleculeOriented)molecule;
-        dipole.E(orientedMolecule.getOrientation().getSecondaryDirection());
+        dipole.E(((IOrientationFull3D)orientedMolecule.getOrientation()).getSecondaryDirection());
         dipole.TE(dipoleStrength);
         return dipole;
     }

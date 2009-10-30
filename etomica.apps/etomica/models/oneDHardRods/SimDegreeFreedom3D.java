@@ -12,7 +12,6 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
-import etomica.math.SpecialFunctions;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
@@ -25,7 +24,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
@@ -71,7 +69,7 @@ public class SimDegreeFreedom3D extends Simulation {
     boolean[] skipThisMode;
     
     public SimDegreeFreedom3D(Space _space, int numAtoms, double density, int blocksize, int nbs, String filename) {
-        super(_space, true);
+        super(_space);
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);

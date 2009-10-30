@@ -65,10 +65,12 @@ public class ReverseOsmosisWater extends Simulation {
         getController().addAction(activityIntegrate);
 
         //solute (1)
-        speciesSodium = new SpeciesSpheresMono(this, space, Sodium.INSTANCE);
+        speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
+        speciesSodium.setIsDynamic(true);
         getSpeciesManager().addSpecies(speciesSodium);
         
-        speciesChlorine = new SpeciesSpheresMono(this, space, Chlorine.INSTANCE);
+        speciesChlorine = new SpeciesSpheresMono(space, Chlorine.INSTANCE);
+        speciesChlorine.setIsDynamic(true);
         getSpeciesManager().addSpecies(speciesChlorine);
         
         //solvent (2)
@@ -78,6 +80,7 @@ public class ReverseOsmosisWater extends Simulation {
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
+        speciesMembrane.setIsDynamic(true);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         getSpeciesManager().addSpecies(speciesMembrane);
         

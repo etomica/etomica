@@ -59,7 +59,7 @@ public class TestSetToUHexane extends Simulation {
     AtomIteratorLeafAtoms iterator;
     
     TestSetToUHexane(Space _space){
-        super(_space, false);
+        super(_space);
         
         //Set up a system; this is largely chunked over from TestHexane, but
         // the integrator and MC moves and potentials are all cut out.
@@ -72,7 +72,7 @@ public class TestSetToUHexane extends Simulation {
         prim = new PrimitiveHexane(this.getSpace());
         prim.scaleSize(20.0);
         lattice = new BravaisLattice(prim);
-        species = new SpeciesHexane((ISimulation)this, space);
+        species = new SpeciesHexane(space);
         
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};

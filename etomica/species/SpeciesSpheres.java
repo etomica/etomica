@@ -25,28 +25,35 @@ public class SpeciesSpheres extends Species {
         this(sim, _space, 1);
     }
     public SpeciesSpheres(ISimulation sim, ISpace _space, int nA) {
-        this(sim, _space, nA, new ElementSimple(sim));
+        this(_space, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(ISimulation sim, ISpace _space, int nA, IElement leafElement) {
-        this(sim, nA, leafElement, new ConformationLinear(_space), _space);
+    public SpeciesSpheres(ISpace _space, int nA, IElement leafElement) {
+        this(nA, leafElement, new ConformationLinear(_space), _space);
     }
     
-    public SpeciesSpheres(ISimulation sim, int nA, IElement leafElement,
+    public SpeciesSpheres(int nA, IElement leafElement,
     		              IConformation conformation, ISpace _space) {
-        this(_space, sim.isDynamic(), nA, new AtomTypeSphere(leafElement), conformation);
+        this(_space, nA, new AtomTypeSphere(leafElement), conformation);
     }
     
-    public SpeciesSpheres(ISpace _space, boolean isDynamic, int nA, IAtomType leafAtomType, IConformation conformation) {
+    public SpeciesSpheres(ISpace _space, int nA, IAtomType leafAtomType, IConformation conformation) {
         super();
         this.space = _space;
         addChildType(leafAtomType);
         setNumLeafAtoms(nA);
         setConformation(conformation);
         this.leafAtomType = leafAtomType;
-        this.isDynamic = isDynamic;
     }
-    
+
+    public void setIsDynamic(boolean newIsDynamic) {
+        isDynamic = newIsDynamic;
+    }
+
+    public boolean isDynamic() {
+        return isDynamic;
+    }
+
     public IAtomType getLeafType() {
         return getAtomType(0);
     }
@@ -82,7 +89,7 @@ public class SpeciesSpheres extends Species {
      }
 
      private static final long serialVersionUID = 1L;
-     protected final boolean isDynamic;
+     protected boolean isDynamic;
      protected final ISpace space;
      protected int atomsPerGroup;
      protected final IAtomType leafAtomType;

@@ -57,7 +57,7 @@ public class TestB extends Simulation {
 
     public TestB(Space _space, int numAtoms, double density, double temperature,
             String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

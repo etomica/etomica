@@ -173,7 +173,7 @@ public class MEAM_3DMDwithGB extends Simulation {
     }
     
     public MEAM_3DMDwithGB() {
-        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
+        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         potentialMaster = new PotentialMasterList(this, space);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.001);
@@ -184,14 +184,18 @@ public class MEAM_3DMDwithGB extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
-        snFixedA = new SpeciesSpheresMono(this, space, SnF);
-        snA = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-//        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
-//        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        snFixedB = new SpeciesSpheresMono(this, space, SnF);
-        snB = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-//        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
-//        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        snFixedA = new SpeciesSpheresMono(space, SnF);
+        snFixedA.setIsDynamic(true);
+        snA = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        snA.setIsDynamic(true);
+//        agA = new SpeciesSpheresMono(space, Silver.INSTANCE);
+//        cuA = new SpeciesSpheresMono(space, Copper.INSTANCE);
+        snFixedB = new SpeciesSpheresMono(space, SnF);
+        snFixedB.setIsDynamic(true);
+        snB = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        snB.setIsDynamic(true);
+//        agB = new SpeciesSpheresMono(space, Silver.INSTANCE);
+//        cuB = new SpeciesSpheresMono(space, Copper.INSTANCE);
         
         
         double aA, bA, cA, aB, bB, cB;

@@ -113,7 +113,9 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         integratorHard.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         
         speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);
+        speciesB.setIsDynamic(true);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);

@@ -58,7 +58,7 @@ public class SimDimerLJgb extends Simulation{
     
     
     public SimDimerLJgb() {
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
     	potentialMaster = new PotentialMasterMonatomic(this);
     	
     //SIMULATION BOX
@@ -80,8 +80,10 @@ public class SimDimerLJgb extends Simulation{
     //SPECIES
     	double sigma = 1.0;
     	Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
-    	fixed = new SpeciesSpheresMono(this, space, tinFixed);
-        movable = new SpeciesSpheresMono(this, space);      
+    	fixed = new SpeciesSpheresMono(space, tinFixed);
+    	fixed.setIsDynamic(true);
+        movable = new SpeciesSpheresMono(this, space);
+        movable.setIsDynamic(true);
         getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);

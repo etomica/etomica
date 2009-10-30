@@ -58,14 +58,14 @@ public class SimHarmonicHexane extends Simulation {
     
     public SimHarmonicHexane(Space _space, double dens, int xCells, int yCells, 
             int zCells, String filename, double harmonicFudge) {
-        super(_space, false);
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;
         fudge = harmonicFudge;
         
-        SpeciesHexane species = new SpeciesHexane(this, space);
+        SpeciesHexane species = new SpeciesHexane(space);
         getSpeciesManager().addSpecies(species);
 
         primitive = new PrimitiveHexane(space);

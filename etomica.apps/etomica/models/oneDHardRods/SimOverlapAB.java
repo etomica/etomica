@@ -71,7 +71,7 @@ public class SimOverlapAB extends Simulation {
     
     public SimOverlapAB(Space _space, int numAtoms, double density, double 
             temperature, String filename, double harmonicFudge, int awv){
-        super(_space, true);
+        super(_space);
         
         //Set up some of the joint stuff
         blockSize = 100000;

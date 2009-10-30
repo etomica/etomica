@@ -48,17 +48,21 @@ public class EnergyMap extends Simulation{
 
     
     public EnergyMap(double height, String fileTail) {
-    	super(Space3D.getInstance(), true);
+    	super(Space3D.getInstance());
     	
     	potentialMaster = new PotentialMaster();
         
     	// Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         
-        snFix = new SpeciesSpheresMono(this, space, tinFixed);
-        sn = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        snAdatom = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
-        movable = new SpeciesSpheresMono(this, space, Tin.INSTANCE);
+        snFix = new SpeciesSpheresMono(space, tinFixed);
+        snFix.setIsDynamic(true);
+        sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        sn.setIsDynamic(true);
+        snAdatom = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        snAdatom.setIsDynamic(true);
+        movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        movable.setIsDynamic(true);
         
         getSpeciesManager().addSpecies(snFix);
         getSpeciesManager().addSpecies(sn);

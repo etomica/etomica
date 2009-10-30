@@ -62,7 +62,7 @@ public class SimWidomMode extends Simulation {
     AccumulatorAverage[] accumulators;
 
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
-        super(_space, true);
+        super(_space);
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);

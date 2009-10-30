@@ -33,7 +33,7 @@ public class HSMD3DNoNbr extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3DNoNbr() {
-        super(Space3D.getInstance(), true);
+        super(Space3D.getInstance());
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         int numAtoms = 256;
@@ -48,6 +48,7 @@ public class HSMD3DNoNbr extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});

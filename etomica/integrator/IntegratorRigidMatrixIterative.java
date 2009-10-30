@@ -507,8 +507,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             //angularVelocity is now the correct body-fixed angular momentum
             angularVelocity.DE(moment);
             
-            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
-            rotationTensor.setOrientation(orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
             // transform to space-fixed angular momentum
@@ -550,8 +550,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             //angularVelocity is now the correct body-fixed angular momentum
             angularVelocity.DE(moment);
             
-            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
-            rotationTensor.setOrientation(orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
             // transform to space-fixed angular momentum
@@ -582,7 +582,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
             }
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
-            calcer.calcOrientation(molecule, orientedMolecule.getOrientation());
+            calcer.calcOrientation(molecule, (IOrientationFull3D)orientedMolecule.getOrientation());
             orientedMolecule.getPosition().E(atomPositionCOM.position(molecule));
         }
 

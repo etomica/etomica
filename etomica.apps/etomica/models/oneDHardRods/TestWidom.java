@@ -68,7 +68,7 @@ public class TestWidom extends Simulation {
     AccumulatorHistogram[] hists;
 
     public TestWidom(Space _space, int numAtoms, double density, int blocksize, int nbs, int pwv) {
-        super(_space, true);
+        super(_space);
         
         pickedWV = pwv;
         

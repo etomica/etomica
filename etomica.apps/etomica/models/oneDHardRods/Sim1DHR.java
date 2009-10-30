@@ -65,7 +65,7 @@ public class Sim1DHR extends Simulation {
 
 	public Sim1DHR(Space _space, int numAtoms, double density, double 
 			temperature, String filename, double harmonicFudge){
-        super(_space, true);
+        super(_space);
      
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
@@ -73,6 +73,7 @@ public class Sim1DHR extends Simulation {
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         
         //TARGET - 1DHR system

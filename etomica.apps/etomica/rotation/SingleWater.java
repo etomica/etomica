@@ -23,6 +23,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -93,7 +94,7 @@ public class SingleWater {
             IAction writeA = new IAction() {
                 public void actionPerformed() {
                     MoleculeOriented molecule = (MoleculeOriented)box.getMoleculeList().getMolecule(0);
-                    A.setOrientation(molecule.getOrientation());
+                    A.setOrientation((IOrientationFull3D)molecule.getOrientation());
                     try {
                         if (isWriting) {
                             fileWriter.write(integrator.getCurrentTime()+" ");

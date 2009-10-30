@@ -25,7 +25,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcJ extends Simulation {
 
     public SimCalcJ(Space _space, int numAtoms) {
-        super(_space, true);
+        super(_space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         getSpeciesManager().addSpecies(species);

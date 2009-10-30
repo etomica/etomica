@@ -9,21 +9,28 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountTime;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardSphere;
+import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
+import etomica.space.ISpace;
+import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**
@@ -57,44 +64,47 @@ public class HSMD3D extends Simulation {
     /**
      * The hard-sphere potential governing the interactions.
      */
-    public final P2HardSphere potential;
+    public final P2SquareWell potential;
     
     public final IPotentialMaster potentialMaster;
     
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public HSMD3D(Space _space) {
+    public HSMD3D(ISpace _space) {
         this(_space, new HSMD3DParam());
     }
     
-    public HSMD3D(Space _space, HSMD3DParam params) {
+    public HSMD3D(ISpace _space, HSMD3DParam params) {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(_space, true);
+        super(_space);
 
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6, space) : new PotentialMasterMonatomic(this);
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 3.0, space) : new PotentialMasterMonatomic(this);
 
         int numAtoms = params.nAtoms;
-        double neighborRangeFac = 1.6;
+        double neighborRangeFac = 1.2;
         double sigma = 1.0;
+        double lambda = 2.5;
         if (params.useNeighborLists) {
-            ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sigma);
+            ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sigma*lambda);
         }
 
         integrator = new IntegratorHard(this, potentialMaster, space);
-        integrator.setIsothermal(false);
-        integrator.setTimeStep(0.01);
+        integrator.setTemperature(0.18);
+        integrator.setIsothermal(true);
+        integrator.setTimeStep(0.02);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
         species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
-        potential = new P2HardSphere(space, sigma, false);
+        potential = new P2SquareWell(space, sigma, 2.5, -1.0, false);
         IAtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
@@ -103,9 +113,15 @@ public class HSMD3D extends Simulation {
         addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(params.eta * 6 / Math.PI);
+        inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
+        inflater.setTargetDensity(0.38);
         inflater.actionPerformed();
-        new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+        if (space.D() == 3) {
+            new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+        }
+        else {
+            new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
+        }
         //deformed
 //        box.setBoundary(
 //            new etomica.space.BoundaryDeformablePeriodic(
@@ -122,7 +138,6 @@ public class HSMD3D extends Simulation {
 
         if (params.useNeighborLists) { 
             NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(box);
-            ((PotentialMasterList)potentialMaster).setRange(sigma*neighborRangeFac);
             integrator.getEventManager().addListener(nbrManager);
         }
         else {
@@ -136,11 +151,10 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "HSMD3D";
 
-    	Space sp = Space3D.getInstance();
+    	ISpace sp = Space2D.getInstance();
         HSMD3DParam params = new HSMD3DParam();
-        params.ignoreOverlap = true;
-        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(sp, params);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
+        final HSMD3D sim = new HSMD3D(sp, params);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim, sp, sim.getController()));
         nSelector.setSpecies(sim.species);
@@ -154,6 +168,17 @@ public class HSMD3D extends Simulation {
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
+        
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        peHistory.setTimeDataSource(new DataSourceCountTime(sim.integrator));
+        DataPumpListener pePump = new DataPumpListener(meterPE, peHistory, 100);
+        sim.integrator.getEventManager().addListener(pePump);
+        DisplayPlot pePlot = new DisplayPlot();
+        peHistory.setDataSink(pePlot.getDataSet().makeDataSink());
+
+        pePlot.setLabel("PE");
+        simGraphic.add(pePlot);
     }
 
     public static HSMD3DParam getParameters() {
@@ -164,9 +189,8 @@ public class HSMD3D extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class HSMD3DParam extends ParameterBase {
-        public int nAtoms = 256;
+        public int nAtoms = 1024;
         public double eta = 0.35;
-        public boolean ignoreOverlap = false;
         public boolean useNeighborLists = true;
     }
 }

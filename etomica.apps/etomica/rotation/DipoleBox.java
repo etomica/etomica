@@ -32,10 +32,11 @@ public class DipoleBox extends Simulation {
     public final IBox box;
     
     public DipoleBox(ISpace space, int nAtoms, double dt) {
-        super(space, true);
+        super(space);
         box = new Box(new BoundaryRectangularPeriodic(getSpace(), 10), space);
         addBox(box);
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, space.makeVector(new double[]{0.025, 0.025, 0.025}));
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
