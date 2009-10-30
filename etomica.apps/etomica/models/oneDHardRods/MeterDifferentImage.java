@@ -1,106 +1,114 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IBox;
+import etomica.api.IPotential;
+import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
-import etomica.data.DataTag;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.box.Box;
+import etomica.data.DataSourceScalar;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.units.Null;
 
+
 /**
- * Class which calculates all of the normal mode coordinates for a system.  
- * Data is returned in an array; the first half (entries [0] to 
- * [waveVectors.length*coordinateDim -1]) of which is the real coordinates, 
- * the second half (entries [waveVectors.length*coordinateDim] to 
- * [2*waveVectors.length*coordinateDim]) is the imaginary coordinates.
+ * Uses a Widom-like insertion of a mode to calculate a probability.
+ * Uses a different box than the main simulation, to assume an extra mode & rod 
+ * is added/
  * 
  * @author cribbin
  *
  */
-public class MeterDifferentImage implements IEtomicaDataSource {
+public class MeterDifferentImage extends DataSourceScalar {
 
-    public MeterDifferentImage(CoordinateDefinition coordinateDefinition, IVectorMutable[] wv){
-        this.coordinateDefinition = coordinateDefinition;
-        coordinateDim = this.coordinateDefinition.getCoordinateDim();
-        this.waveVectors = wv;
-        coords = new DataDoubleArray(waveVectors.length*2*coordinateDim);
+    public int nInsert, counter;
+    private MeterPotentialEnergy meterPE;
+    private CoordinateDefinition coordinateDefinition, oldCD;
+    private int coordinateDim;
+    private double eigenVectors[][][];
+    private IVectorMutable[] waveVectors;
+    private double[] realT, imagT;
+    private double[][] uOld, omegaSquared;
+    protected double temperature;
+    private double[] uNow, deltaU;
+    private double[] waveVectorCoefficients;
+    
+    private IBox box;
+    private int numAtoms;
+    private Boundary bdry;
+    
+    
+    public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
+            IPotential potential, int numSimAtoms, double density, Simulation sim,
+            Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD){
+        super(string, Null.DIMENSION);
+        
+        oldCD = simCD;
+        
+        numAtoms = numSimAtoms + 1;
+        coordinateDim = numAtoms * 2;
+        box = new Box(sim.getSpace());
+        box.setNMolecules(sim.getSpeciesManager().getSpecies(0), numAtoms); 
+        sim.addBox(box);
+        
+        potential.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setBox(box);
+        
+        bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms/density);
+        box.setBoundary(bdry);
+        
+        int[] nCells = new int[]{numAtoms};
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, simPrimitive, 
+                simBasis, sim.getSpace());
+        coordinateDefinition.initializeCoordinates(nCells);
         
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
-        jump = coordinateDim * waveVectors.length;
+        deltaU = new double[coordinateDim];
         
-        dataInfo = new DataInfoDoubleArray("Real and Imaginary Normal Mode " +
-                "Coordinates", Null.DIMENSION, new int[]{waveVectors.length*2*coordinateDim});
-        tag = new DataTag();
+
     }
     
-    public DataDoubleArray getData(){
+    public double getDataAsScalar() {
+
+        //Calculate normal mode coordinates of simulation system.
         
-        for(int wvCount = 0; wvCount < waveVectors.length; wvCount++){
-            coordinateDefinition.calcT(waveVectors[wvCount], realT, imagT);
-            
-            double[] realCoord = new double[coordinateDim];
-            double[] imagCoord = new double[coordinateDim];
-            double[] values = coords.getData();
-            for(int j = 0; j < coordinateDim; j++){
-                realCoord[j] = 0.0;
-                imagCoord[j] = 0.0;
-            }
-            
-            for(int i = 0; i < coordinateDim; i++){
-                if(Double.isInfinite(omegaSquared[wvCount][i])){
-                    continue;
-                }
-                for(int j = 0; j < coordinateDim; j++){
-                    realCoord[i] += eigenVectors[wvCount][i][j] * realT[j];
-                    imagCoord[i] += eigenVectors[wvCount][i][j] * imagT[j];
-                }
-            }
-            
-            for(int j = 0; j < coordinateDim; j++){
-                values[j + coordinateDim * wvCount] = realCoord[j];
-                values[j + coordinateDim * wvCount + jump] = imagCoord[j];
-            }
+        
+        
+        //Assign the last normal mode coordinate from the Gaussian distribution
+        
+        
+        
+        //Assign that set of normal mode coordinates to the meter's system.
+        
+        
+        
+        //Calculate the positions for the meter's system
+        
+        
+        
+        //Check for overlap
+        
+        
+        
+        
+        
+        double energy = meterPE.getDataAsScalar();
+        if(Double.isInfinite(energy)) {
+            return 0;
+        } else {
+            return 1;
         }
-        
-        return coords;
     }
-    
 
     
-    
-    public void setEigenVectors(double[][][] eigenVectors) {
-        this.eigenVectors = eigenVectors;
-    }
-
-    public void setOmegaSquared(double[][] omegaSquared) {
-        this.omegaSquared = omegaSquared;
-    }
-
-    public int getJump(){
-        return jump;
-    }
-
-
-    public IEtomicaDataInfo getDataInfo() {
-        return dataInfo;
-    }
-    public DataTag getTag() {
-        return tag;
-    }
-
-    private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
-    private CoordinateDefinition coordinateDefinition;
-    private double[] realT, imagT;
-    private double[][] omegaSquared;
-    private int coordinateDim, jump;
-    private DataDoubleArray coords;
-
-    protected final DataTag tag;
-    protected final DataInfoDoubleArray dataInfo;
-    private static final long serialVersionUID = 1L;
     
 }
