@@ -43,7 +43,8 @@ public class HistogramCollapsing extends HistogramSimple {
             reset();
             firstValue = false;
         }
-        if (x < xMin || x > xMax) {
+        // infinity will mess everything up, so just ignore it here
+        if (!Double.isInfinite(x) && (x < xMin || x > xMax)) {
             collapseData(x);
         }
         super.addValue(x);
