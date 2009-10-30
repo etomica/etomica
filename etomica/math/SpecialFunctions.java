@@ -86,12 +86,12 @@ public final class SpecialFunctions {
         double tmp = x + 7 - 0.5;
         double ser = 0.99999999999980993;
         for(int i=7; i>-1; i--) {
-            ser += lnGammaCoeff2[i]/(x+i);
+            ser += lnGammaCoeff[i]/(x+i);
         }
         return lnsqrt2Pi + (x-0.5)*Math.log(tmp) - tmp + Math.log(ser);
     }
     private static final double lnsqrt2Pi = 0.5*Math.log(2*Math.PI);
-    private static final double[] lnGammaCoeff2 = new double[] {
+    private static final double[] lnGammaCoeff = new double[] {
                                  676.5203681218851, -1259.1392167224028,
             771.32342877765313, -176.61502916214059, 12.507343278686905,
             -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
