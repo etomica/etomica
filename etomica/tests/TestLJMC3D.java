@@ -44,7 +44,7 @@ public class TestLJMC3D extends Simulation {
     }
 
     public TestLJMC3D(int numAtoms) {
-        super(Space3D.getInstance(), false);
+        super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
 	    integrator = new IntegratorMC(this, potentialMaster);

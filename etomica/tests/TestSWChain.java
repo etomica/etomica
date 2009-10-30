@@ -47,7 +47,7 @@ public class TestSWChain extends Simulation {
     }
     
     public TestSWChain(Space _space, int numMolecules) {
-        super(_space, true);
+        super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
@@ -71,6 +71,7 @@ public class TestSWChain extends Simulation {
         potentialMaster.setRange(neighborRangeFac*sqwLambda*sigma);
 
         SpeciesSpheres species = new SpeciesSpheres(this,_space,chainLength);
+        species.setIsDynamic(true);
         getSpeciesManager().addSpecies(species);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
