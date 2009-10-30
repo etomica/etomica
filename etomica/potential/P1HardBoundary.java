@@ -1,9 +1,10 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.graphics.Drawable;
@@ -18,7 +19,7 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
-public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
+public class P1HardBoundary implements PotentialHard, Drawable {
     
     private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
@@ -30,13 +31,13 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private double lastVirial;
     private int lastCollisionDim;
     private final Tensor lastVirialTensor;
+    protected IBoundary boundary;
     
     public P1HardBoundary(ISpace space) {
         this(space, false);
     }
     
     public P1HardBoundary(ISpace space, boolean ignoreOverlap) {
-        super(space);
         this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();
         lastVirialTensor = space.makeTensor();
@@ -46,12 +47,19 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
             isActiveDim[i][1] = true;
         }
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard repulsive potential at the box boundaries");
-        return info;
+
+    public int nBody() {
+        return 1;
     }
-    
+
+    public double getRange() {
+        return collisionRadius;
+    }
+
+    public void setBox(IBox box) {
+        boundary = box.getBoundary();
+    }
+
     public double energy(IAtomList a) {
         IVector dimensions = boundary.getBoxSize();
         IVectorMutable pos = a.getAtom(0).getPosition();
