@@ -33,7 +33,7 @@ public class BasisNMOneCell {
 	
 	public IVectorMutable[] getScaledBasis(){
 		
-		Simulation simulation = new Simulation(Space.getInstance(3));
+		Simulation simulation = new Simulation(space);
         SpeciesSpheresMono speciesImag = new SpeciesSpheresMono(simulation, space);
         simulation.getSpeciesManager().addSpecies(speciesImag);
         
