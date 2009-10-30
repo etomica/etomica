@@ -3,9 +3,10 @@ package etomica.space3d;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
+import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -15,22 +16,13 @@ public class Orientation3D implements IOrientation3D, Serializable {
     /**
      * Default constructor sets orientation to point in the X direction.
      */
-    public Orientation3D() {
-        direction = Space.makeVector(3);
+    public Orientation3D(ISpace space) {
+        direction = space.makeVector();
         direction.setX(0, 1);
         temp = Space.makeVector(3);
         temp2 = Space.makeVector(3);
     }
 
-    /**
-     * Constructs with orientation as specified by the given angle theta.
-     * @throws an exception if vector has 0 length
-     */
-    public Orientation3D(IVectorMutable direction) {
-        this();
-        setDirection(direction);
-    }
-    
     public void E(IOrientation o) {
         setDirection(o.getDirection());
     }

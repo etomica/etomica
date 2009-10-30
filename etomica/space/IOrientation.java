@@ -9,7 +9,7 @@ import etomica.api.IVector;
  * @author Andrew Schultz
  */
 public interface IOrientation {
-    
+
     /**
      * Copies the given orientation to this one.
      */
@@ -20,12 +20,12 @@ public interface IOrientation {
      * vector should not be modified.
      */
     public IVector getDirection();
-    
+
     /**
      * Sets the orientation's direction to be the given direction.
      */
     public void setDirection(IVector newDirection);
-    
+
     /**
      * Perform a rotation by a random amount in the solid angle theta on the 
      * present orientation.

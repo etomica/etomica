@@ -3,7 +3,7 @@ package etomica.species;
 import etomica.api.IAtom;
 import etomica.api.ISimulation;
 import etomica.atom.AtomOriented;
-import etomica.atom.AtomLeafOrientedDynamic;
+import etomica.atom.AtomOrientedDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.space.ISpace;
@@ -21,7 +21,7 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     }
 
     protected IAtom makeLeafAtom() {
-        return isDynamic ? new AtomLeafOrientedDynamic(space, leafAtomType)
+        return isDynamic ? new AtomOrientedDynamic(space, leafAtomType)
                          : new AtomOriented(space, leafAtomType);
     }
     
