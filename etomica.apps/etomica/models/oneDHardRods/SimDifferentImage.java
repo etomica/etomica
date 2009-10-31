@@ -162,9 +162,9 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
-        meternmc = new MeterDifferentImage(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-        meternmc.setEigenVectors(nm.getEigenvectors());
-        meternmc.setOmegaSquared(nm.getOmegaSquared());
+//        meternmc = new MeterDifferentImage(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
+//        meternmc.setEigenVectors(nm.getEigenvectors());
+//        meternmc.setOmegaSquared(nm.getOmegaSquared());
         
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
