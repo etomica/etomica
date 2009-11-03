@@ -68,8 +68,8 @@ public class IntegratorTMMC extends IntegratorMC {
         }
         
         //notify any listeners that move has been attempted
-        if(eventManager != null) { //consider using a final boolean flag that is set in constructor
-            eventManager.fireEvent(trialEvent);
+        if(moveEventManager != null) { //consider using a final boolean flag that is set in constructor
+            moveEventManager.fireEvent(trialEvent);
         }
         
         //decide acceptance
@@ -84,11 +84,11 @@ public class IntegratorTMMC extends IntegratorMC {
         if(lnChi <= -Double.MAX_VALUE || 
                 (lnChi < 0.0 && Math.exp(lnChi) < random.nextDouble())) {//reject
             move.rejectNotify();
-            eventManager.fireEvent(rejectedEvent);
+            moveEventManager.fireEvent(rejectedEvent);
             move.getTracker().updateCounts(false,r);
         } else {
             move.acceptNotify();
-            eventManager.fireEvent(acceptedEvent);
+            moveEventManager.fireEvent(acceptedEvent);
             move.getTracker().updateCounts(true,r);
         }
 
