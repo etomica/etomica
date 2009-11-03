@@ -24,6 +24,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.normalmode.CalcHarmonicA;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -576,34 +577,10 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
                 sim.integratorSim.getActualStepFreq0() + ")");
         
-        double[][] omega2 = sim.nm.getOmegaSquared(); 
-        //Above known from the analytical results. - otherwise it would be from 
-        //the S matrix.
-        double[] coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
-        
         //CALCULATION OF HARMONIC ENERGY
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i] * Math.log(omega2[i][j]*coeffs[i] /
-                            (temperature*Math.PI));
-                }
-            }
-        }
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize *D * (totalCells - fac) / 
-                2.0) / Math.pow(totalCells, 0.5 * D));
-        System.out.println("Harmonic-reference free energy: " + AHarmonic * 
-                temperature);
+        double AHarmonic = CalcHarmonicA.doit(sim.nm, D, temperature, numMolecules);
+        
+
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
@@ -654,7 +631,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public int[] comparedWV = {1, 2};
         public int[] changeableWV = {3, 4};
         
-        public int numSteps = 400000;
+        public int numSteps = 40000;
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
