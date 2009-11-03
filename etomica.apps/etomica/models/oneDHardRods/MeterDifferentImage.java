@@ -30,11 +30,11 @@ public class MeterDifferentImage extends DataSourceScalar {
 
     public int nInsert, counter;
     private MeterPotentialEnergy meterPE;
-    private CoordinateDefinition coordinateDefinition, oldCD;
-    private int coordinateDim;
+    private CoordinateDefinition cDef, simCDef;
+    private int cDim, simCDim;
     private double eigenVectors[][][];
-    private IVectorMutable[] waveVectors;
-    private double[] realT, imagT;
+    private IVectorMutable[] waveVectors, simWaveVectors;
+    private double[] realT, imagT, simRealT, simImagT;
     private double[][] uOld, omegaSquared;
     protected double temperature;
     private double[] uNow, deltaU;
@@ -47,13 +47,15 @@ public class MeterDifferentImage extends DataSourceScalar {
     
     public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
             IPotential potential, int numSimAtoms, double density, Simulation sim,
-            Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD){
+            Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
+            IVectorMutable[] simWV){
         super(string, Null.DIMENSION);
         
-        oldCD = simCD;
+        simWaveVectors = simWV;
+        this.simCDef = simCD;
+        simCDim = simCD.getCoordinateDim();
         
         numAtoms = numSimAtoms + 1;
-        coordinateDim = numAtoms * 2;
         box = new Box(sim.getSpace());
         box.setNMolecules(sim.getSpeciesManager().getSpecies(0), numAtoms); 
         sim.addBox(box);
@@ -66,22 +68,43 @@ public class MeterDifferentImage extends DataSourceScalar {
         box.setBoundary(bdry);
         
         int[] nCells = new int[]{numAtoms};
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, simPrimitive, 
+        cDef = new CoordinateDefinitionLeaf(box, simPrimitive, 
                 simBasis, sim.getSpace());
-        coordinateDefinition.initializeCoordinates(nCells);
+        cDef.initializeCoordinates(nCells);
+        cDim = cDef.getCoordinateDim();
         
-        realT = new double[coordinateDim];
-        imagT = new double[coordinateDim];
-        deltaU = new double[coordinateDim];
-        
+        realT = new double[cDim];
+        imagT = new double[cDim];
+        simRealT = new double[simCDim];
+        simImagT = new double[simCDim];
 
     }
     
     public double getDataAsScalar() {
 
+        //Store old positions
+        BasisCell[] simCells = simCDef.getBasisCells();
+        BasisCell cell = simCells[0];
+        uOld = new double[simCells.length][simCDim];
+        for(int iCell = 0; iCell < simCells.length; iCell++){
+            //store old positions.
+            uNow = simCDef.calcU(simCells[iCell].molecules);
+            System.arraycopy(uNow, 0, uOld[iCell], 0, cDim);
+        }
+        
         //Calculate normal mode coordinates of simulation system.
+        double[] simRealCoord = new double[cDim - 1];
+        double[] simImagCoord = new double[cDim - 1];
         
-        
+        for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
+            simCDef.calcT(waveVectors[wvcount], simRealT, simImagT);
+            for (int iCell = 0; iCell < simCells.length; iCell++){
+                cell = simCells[iCell];
+                
+                //Calculate the contributions to the current position of this mode
+                double kr = simWaveVectors[wvcount].dot(cell.cellPosition);
+            }
+        }
         
         //Assign the last normal mode coordinate from the Gaussian distribution
         
