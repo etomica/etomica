@@ -32,13 +32,13 @@ public class MeterDifferentImage extends DataSourceScalar {
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
     private int cDim, simCDim;
-    private double eigenVectors[][][];
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] realT, imagT, simRealT, simImagT;
     private double[][] uOld, omegaSquared;
     protected double temperature;
     private double[] uNow, deltaU;
     private double[] waveVectorCoefficients;
+    private double[][][] eigenVectors, simEigenVectors;
     
     private IBox box;
     private int numAtoms;
@@ -48,12 +48,13 @@ public class MeterDifferentImage extends DataSourceScalar {
     public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
             IPotential potential, int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
-            IVectorMutable[] simWV){
+            IVectorMutable[] simWV, double[][][] simEV){
         super(string, Null.DIMENSION);
         
         simWaveVectors = simWV;
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
+        simEigenVectors = simEV;
         
         numAtoms = numSimAtoms + 1;
         box = new Box(sim.getSpace());
@@ -93,16 +94,18 @@ public class MeterDifferentImage extends DataSourceScalar {
         }
         
         //Calculate normal mode coordinates of simulation system.
-        double[] simRealCoord = new double[cDim - 1];
-        double[] simImagCoord = new double[cDim - 1];
+        double[] simRealCoord = new double[simCDim];
+        double[] simImagCoord = new double[simCDim];
         
         for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
             simCDef.calcT(waveVectors[wvcount], simRealT, simImagT);
-            for (int iCell = 0; iCell < simCells.length; iCell++){
-                cell = simCells[iCell];
-                
-                //Calculate the contributions to the current position of this mode
-                double kr = simWaveVectors[wvcount].dot(cell.cellPosition);
+            for (int i = 0; i < simCDim; i++){
+                simRealCoord[wvcount] = 0.0;
+                simImagCoord[wvcount] = 0.0;
+                for (int j = 0; j < simCDim; j++){
+                    simRealCoord[wvcount] += simEigenVectors[wvcount][i][j] * simRealT[j];
+                    simImagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
+                }
             }
         }
         
