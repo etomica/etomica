@@ -42,7 +42,7 @@ public class IntegratorMC extends IntegratorBox {
 		// isothermal to be consistent with way integrator
 		// is sampling
         moveManager = new MCMoveManager(random);
-        eventManager = new MCMoveEventManager();
+        moveEventManager = new MCMoveEventManager();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
@@ -93,7 +93,7 @@ public class IntegratorMC extends IntegratorBox {
     		return;
 
         //notify any listeners that move has been attempted
-		eventManager.fireEvent(trialEvent);
+		moveEventManager.fireEvent(trialEvent);
 
     	//decide acceptance
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
@@ -101,13 +101,13 @@ public class IntegratorMC extends IntegratorBox {
             move.getTracker().updateCounts(false, chi);
     		move.rejectNotify();
             //notify listeners of outcome
-            eventManager.fireEvent(rejectedEvent);
+            moveEventManager.fireEvent(rejectedEvent);
     	} else {
             move.getTracker().updateCounts(true, chi);
     		move.acceptNotify();
     		currentPotentialEnergy += move.energyChange();
             //notify listeners of outcome
-            eventManager.fireEvent(acceptedEvent);
+            moveEventManager.fireEvent(acceptedEvent);
     	}
     }
     
@@ -129,13 +129,13 @@ public class IntegratorMC extends IntegratorBox {
      * and when it is completed.
      */
     public IEventManager getMoveEventManager() {
-        return eventManager;
+        return moveEventManager;
     }
 
     private static final long serialVersionUID = 2L;
     protected final IRandom random;
     protected MCMoveManager moveManager;
-    protected final IEventManager eventManager;
+    protected final IEventManager moveEventManager;
     private final IEvent trialEvent;
     private final IEvent acceptedEvent, rejectedEvent;
 }
