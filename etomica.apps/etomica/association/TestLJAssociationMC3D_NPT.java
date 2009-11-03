@@ -50,6 +50,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     public ActivityIntegrate actionIntegrator;
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
+    public AssociationHelper associationHelper;
         
     
     public TestLJAssociationMC3D_NPT(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
@@ -81,6 +82,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
 	    //bvc.setBiasSphereInnerRadius(0.0);
 	    AssociationManager associationManagerCube = new AssociationManager(box, potentialMaster, bvc);
 	    associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);
+	    associationHelper = new AssociationHelper(associationManagerOriented);
 	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvc, random, space);
 	    mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
 	    mcMoveAtomDimer.setAssociationManager(associationManagerOriented);
@@ -188,7 +190,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         	DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	graphic.add(rhoPlot);
-        	ColorSchemeDimer colorScheme = new ColorSchemeDimer(sim.associationManagerOriented,sim.box,sim.getRandom());
+        	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
         	sim.actionIntegrator.setMaxSteps(2000000);
