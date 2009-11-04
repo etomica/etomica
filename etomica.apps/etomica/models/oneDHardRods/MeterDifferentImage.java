@@ -88,6 +88,7 @@ public class MeterDifferentImage extends DataSourceScalar {
 
         //Store old positions
         BasisCell[] simCells = simCDef.getBasisCells();
+        BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = simCells[0];
         uOld = new double[simCells.length][simCDim];
         for(int iCell = 0; iCell < simCells.length; iCell++){
@@ -97,8 +98,6 @@ public class MeterDifferentImage extends DataSourceScalar {
         }
         
         //Calculate normal mode coordinates of simulation system.
-//        double[] simRealCoord = new double[simCDim];
-//        double[] simImagCoord = new double[simCDim];
         double[] realCoord = new double[cDim];
         double[] imagCoord = new double[cDim];
         
@@ -114,43 +113,39 @@ public class MeterDifferentImage extends DataSourceScalar {
             }
         }
         
-//        //Assign that set of normal mode coordinates to the meter's system.       
-//        for (int i = 0; i < simWVCoeff.length; i++){
-//            realCoord[i] = simRealCoord[i];
-//            imagCoord[i] = simImagCoord[i];
-//        }
-        
         //Create the last normal mode coordinate from the Gaussian distribution
         double sqrtT = Math.sqrt(temperature);
-        rRand = new double[cDim];
-        iRand = new double[cDim];
-        
-        for (int j = 0; j < cDim; j++) {
-            if (stdDev[waveVectors.length][j] == 0) {continue;}
-            // generate real and imaginary parts of random normal-emode
-            // coordinate Q
-            double realGauss = random.nextGaussian() * sqrtT;
-            double imagGauss = random.nextGaussian() * sqrtT;
-            
-            // XXX we know that if c(k) = 0.5, one of the gaussians will be
-            // ignored, but it's hard to know which. So long as we don't put
-            // an atom at the  origin (which is true for 1D if c(k)=0.5), 
-            // it's the real part that will be ignored.
-            if (wvCoeff[waveVectors.length] == 0.5) {imagGauss = 0;}
-            rRand[j] = realGauss * stdDev[waveVectors.length][j];
-            iRand[j] = imagGauss * stdDev[waveVectors.length][j];
-        }
-        
-        
-        
-        
+//        if (stdDev[waveVectors.length][j] == 0) {continue;}
+//        // generate real and imaginary parts of random normal-mode coordinate 
+//        double realGauss = random.nextGaussian() * sqrtT;
+//        double imagGauss = random.nextGaussian() * sqrtT;
+//        if (wvCoeff[waveVectors.length] == 0.5) {imagGauss = 0;}
+//        realCoord[waveVectors.length] = realGauss * stdDev[waveVectors.length][j];
+//        imagCoord[waveVectors.length] = imagGauss * stdDev[waveVectors.length][j];
+//        
+//        
         //Calculate the positions for the meter's system
-        
+        for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
+            for (int iCell = 0; iCell < cells.length; iCell++){
+                cell = cells[iCell];
+                uNow
+                
+                //Calculate the change in positions.
+                double kR = waveVectors[wvcount].dot(cell.cellPosition);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for (int i = 0; i < cDim; i++){
+                    for (int j = 0; j < cDim; j++){
+                        deltaU[j] += wvCoeff[wvcount] * eigenVectors[wvcount][i][j] 
+                            * 2.0 * (realCoord[i] * coskR - imagCoord[i] * sinkR);
+                    }
+                }
+            }
+        }
         
         
         //Check for overlap
         double energy = meterPE.getDataAsScalar();
-        
         
         if(Double.isInfinite(energy)) {
             return 0;
