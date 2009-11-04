@@ -40,7 +40,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         }
     }
         
-    private void setPosition(IAtom atom, String string) {
+    protected void setPosition(IAtom atom, String string) {
         String[] coordStr = string.split(" +");
         IVectorMutable pos = atom.getPosition();
         for (int i=0; i<pos.getD(); i++) {
