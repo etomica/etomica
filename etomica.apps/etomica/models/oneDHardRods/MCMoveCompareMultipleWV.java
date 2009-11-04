@@ -84,12 +84,23 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             uNow = coordinateDefinition.calcU(cells[iCell].molecules);
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
         }
+        
+
+        double realCoord, imagCoord; 
+        realCoord = 0; imagCoord = 0;
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
             int comparedwv = comparedWVs[wvCount];
             
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
-            
+            // Calculate the current coordinate:
+            for(int i = 0; i < coordinateDim; i++) {
+                realCoord = 0; imagCoord = 0;
+                for (int j = 0; j < coordinateDim; j++) {
+                    realCoord += eigenVectors[comparedwv][i][j] * realT[j];
+                    imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
+                }
+            }
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 cell = cells[iCell];
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -104,12 +115,6 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < coordinateDim; i++) {
-                    // Calculate the current coordinate:
-                    double realCoord = 0, imagCoord = 0;
-                    for (int j = 0; j < coordinateDim; j++) {
-                        realCoord += eigenVectors[comparedwv][i][j] * realT[j];
-                        imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
-                    }
                     for (int j = 0; j < coordinateDim; j++) {
                         deltaU[j] -= waveVectorCoefficients[comparedwv] 
                                 * eigenVectors[comparedwv][i][j] * 2.0
