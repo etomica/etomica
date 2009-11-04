@@ -48,7 +48,7 @@ public class SimHarmonic extends Simulation {
         int D = space.D();
 
         species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

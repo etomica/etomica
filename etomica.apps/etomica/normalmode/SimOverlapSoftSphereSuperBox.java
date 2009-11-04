@@ -64,8 +64,8 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
         SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(speciesA);
-        getSpeciesManager().addSpecies(speciesB);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
 
         // TARGET
         

@@ -61,7 +61,7 @@ public class SimOverlapLJ extends Simulation {
         blockSize = 1000;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         // TARGET
         

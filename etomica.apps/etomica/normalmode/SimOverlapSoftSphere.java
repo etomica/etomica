@@ -62,7 +62,7 @@ public class SimOverlapSoftSphere extends Simulation {
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         // TARGET
         

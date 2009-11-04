@@ -49,7 +49,7 @@ public class SimTarget extends Simulation {
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

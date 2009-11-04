@@ -88,7 +88,7 @@ public class SimOverlapLJModule {
         IntegratorBox[] integrators = new IntegratorBox[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, space);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         
         NormalModes normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setTemperature(temperature);

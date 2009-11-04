@@ -35,7 +35,7 @@ public class BasisBigCell extends Basis {
         // make pretend sim, species and box so we can find the appropriate coordinates
         ISimulation sim = new Simulation(space);
         ISpecies species = new SpeciesSpheresMono(sim, space);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         IBoundary boundary = new BoundaryDeformableLattice(primitive, nSubCells);
         IBox box = new Box(boundary, space);
         sim.addBox(box);

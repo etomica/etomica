@@ -38,7 +38,7 @@ public class SimCalcSMorse extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

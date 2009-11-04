@@ -153,7 +153,7 @@ outer:              for (int i=0; i<2; i++){
         Primitive primitive = new PrimitiveOrthorhombicHexagonal(sim.getSpace(), 1);
         box.getBoundary().setBoxSize(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]);
        
         

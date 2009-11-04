@@ -35,7 +35,7 @@ public class BasisNMOneCell {
 		
 		Simulation simulation = new Simulation(space);
         SpeciesSpheresMono speciesImag = new SpeciesSpheresMono(simulation, space);
-        simulation.getSpeciesManager().addSpecies(speciesImag);
+        simulation.addSpecies(speciesImag);
         
         Box boxImag = new Box(space);
         simulation.addBox(boxImag);

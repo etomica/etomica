@@ -46,8 +46,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
 
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(speciesA);
-        getSpeciesManager().addSpecies(speciesB);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
         
         box = new Box(space);
         addBox(box);

@@ -91,7 +91,7 @@ public class NormalModes1DHR implements NormalModes {
         Simulation sim = new Simulation(space);
         sim.addBox(box);
         ISpecies species = new SpeciesSpheresMono(sim,space);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, N);
         box.getBoundary().setBoxSize(new Vector1D(2*N));
         NormalModes1DHR nm = new NormalModes1DHR(box.getBoundary(), N);

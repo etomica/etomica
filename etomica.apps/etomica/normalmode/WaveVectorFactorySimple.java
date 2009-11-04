@@ -156,7 +156,7 @@ outer:              for (int i=0; i<3; i++){
         sim.addBox(box);
         box.getBoundary().setBoxSize(new Vector3D(nCells[0], nCells[1], nCells[2]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         

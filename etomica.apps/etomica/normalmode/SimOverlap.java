@@ -67,7 +67,7 @@ public class SimOverlap extends Simulation {
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         // TARGET
         potentialMasterTarget = new PotentialMasterList(this, space);

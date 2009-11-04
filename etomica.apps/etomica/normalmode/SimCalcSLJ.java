@@ -39,7 +39,7 @@ public class SimCalcSLJ extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

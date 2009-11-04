@@ -76,7 +76,7 @@ public class SimHarmonicUmbrella extends Simulation {
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
        
         species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         //Target        
         box = new Box(space);

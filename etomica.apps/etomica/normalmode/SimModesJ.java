@@ -38,7 +38,7 @@ public class SimModesJ extends Simulation {
         super(_space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

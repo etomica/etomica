@@ -104,7 +104,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         Simulation sim = new Simulation(sp);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
 
         IBox box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), L), sim.getSpace());
         sim.addBox(box);
