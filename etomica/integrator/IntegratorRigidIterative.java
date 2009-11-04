@@ -200,7 +200,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             }
             
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
-            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             IOrientationFull3D orientation = (IOrientationFull3D)orientedMolecule.getOrientation();
             IVector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
 
@@ -321,7 +321,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
                 continue;
             }
             
-            IAtomOrientedKinetic orientedMolecule = (IAtomOrientedKinetic)molecule;
+            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             //calc torque and linear force
             for (int i=0; i<children.getAtomCount(); i++) {

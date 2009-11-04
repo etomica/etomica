@@ -1,17 +1,17 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.IAtomOrientedKinetic;
-import etomica.atom.MoleculeOrientedDynamic;
+import etomica.api.IVectorMutable;
+import etomica.atom.IMoleculeKinetic;
+import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.data.DataSourceScalar;
 import etomica.space.ISpace;
 import etomica.space3d.IOrientationFull3D;
@@ -60,14 +60,14 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                 continue;
             }
             IMolecule molecule0 = moleculeList.getMolecule(0);
-            if (molecule0 instanceof MoleculeOrientedDynamic) {
+            if (molecule0 instanceof IMoleculeOrientedKinetic) {
                 for (int j=0; j<moleculeList.getMoleculeCount(); j++) {
-                    IAtomOrientedKinetic moleculeOrientedKinetic = (IAtomOrientedKinetic)moleculeList.getMolecule(j);
+                    IMoleculeOrientedKinetic moleculeOrientedKinetic = (IMoleculeOrientedKinetic)moleculeList.getMolecule(j);
                     double mass = ((ISpeciesOriented)molecule0.getType()).getMass();
                     if (Double.isInfinite(mass)) {
                         continue;
                     }
-                    ke += 0.5*mass*((IAtomKinetic)molecule0).getVelocity().squared();
+                    ke += 0.5*mass*((IMoleculeKinetic)molecule0).getVelocity().squared();
                     IVector moment = ((ISpeciesOriented)molecule0.getType()).getMomentOfInertia();
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
