@@ -1,10 +1,8 @@
 package etomica.virial;
 
+import etomica.api.ISpecies;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
-import etomica.simulation.SpeciesManager;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
 
@@ -17,10 +15,8 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
         this.conformation = conformation;
     }
     
-    public ISpecies makeSpecies(ISimulation sim, ISpace space) {
-        return new SpeciesSpheres(nA, new ElementSimple(
-                ((SpeciesManager)sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
-                1.0), conformation, space);
+    public ISpecies makeSpecies(ISpace space) {
+        return new SpeciesSpheres(nA, new ElementSimple("TS"), conformation, space);
     }
     
     private static final long serialVersionUID = 1L;

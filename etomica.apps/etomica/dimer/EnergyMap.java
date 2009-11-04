@@ -64,10 +64,10 @@ public class EnergyMap extends Simulation{
         movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
         movable.setIsDynamic(true);
         
-        getSpeciesManager().addSpecies(snFix);
-        getSpeciesManager().addSpecies(sn);
-        getSpeciesManager().addSpecies(snAdatom);
-        getSpeciesManager().addSpecies(movable);
+        addSpecies(snFix);
+        addSpecies(sn);
+        addSpecies(snAdatom);
+        addSpecies(movable);
         
         ((IAtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 

@@ -45,7 +45,7 @@ public class Droplet extends Simulation {
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         IAtomType leafType = species.getLeafType();
         
         p2 = new P2Cohesion(space);

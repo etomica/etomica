@@ -251,7 +251,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         species.setIsDynamic(true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 2);
         
         double rCut = 2.5;

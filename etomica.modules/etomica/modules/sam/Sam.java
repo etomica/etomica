@@ -102,7 +102,7 @@ public class Sam extends Simulation {
 
 	    //species and potentials
         species = new SpeciesAlkaneThiol(space, chainLength-1);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         //construct box
 	    box = new Box(new BoundaryRectangularSlit(1, space), space);
@@ -114,7 +114,7 @@ public class Sam extends Simulation {
         speciesSurface = new SpeciesSpheresMono(this, space);
         ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
-        getSpeciesManager().addSpecies(speciesSurface);
+        addSpecies(speciesSurface);
 
         bondL_CC = 1.54;
         double bondL_CS = 1.82;

@@ -116,7 +116,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         IBox box = new Box(test.boundary, test.space);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, test.space);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, test.space, sim.getController());
         DisplayBox display = new DisplayBox(sim, box, test.space, sim.getController());

@@ -60,7 +60,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         basis = new BasisMonatomic(space);
         

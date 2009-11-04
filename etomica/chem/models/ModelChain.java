@@ -7,6 +7,7 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
 import etomica.potential.Potential2;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
 
@@ -129,7 +130,7 @@ public class ModelChain extends Model {
         }
         
         if (element == null) {
-            setElement(new ElementSimple(sim));
+            setElement(new ElementSimple((Simulation)sim));
         }
         
         if (conformation == null) {

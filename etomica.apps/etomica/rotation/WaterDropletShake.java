@@ -35,7 +35,7 @@ public class WaterDropletShake {
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
         ConfigurationWater108 configFile = new ConfigurationWater108();

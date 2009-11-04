@@ -33,7 +33,7 @@ public class WaterBox {
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 256);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
         ConfigurationWater256 configFile = new ConfigurationWater256();

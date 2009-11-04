@@ -72,7 +72,7 @@ public class TestSWChain extends Simulation {
 
         SpeciesSpheres species = new SpeciesSpheres(this,_space,chainLength);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());

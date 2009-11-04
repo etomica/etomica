@@ -43,7 +43,7 @@ public class TestCGParacetamolMinEnergy{
         
        // function.species = sim.getSpeciesManager().getSpecies()[0];
         
-        IMoleculeList moleculeList = sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies(0));
+        IMoleculeList moleculeList = sim.box.getMoleculeList(sim.getSpecies(0));
         System.out.println("CG Coordinate of first atom that overlaps: "
         		+moleculeList.getMolecule(5).getChildList().getAtom(7).getPosition());
         System.out.println("CG Coordinate of second atom that overlaps: "

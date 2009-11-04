@@ -17,8 +17,7 @@ public class ColorSchemeByType extends ColorScheme implements AgentSource {
     
     public ColorSchemeByType(ISimulation sim) {
     	super();
-        colorMap = new AtomTypeAgentManager(this, sim.getSpeciesManager(),
-                                            sim.getEventManager());
+        colorMap = new AtomTypeAgentManager(this, sim);
     }
 
     public Object makeAgent(IAtomType atom) {

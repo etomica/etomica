@@ -1,12 +1,11 @@
 package etomica.chem.elements;
 
-import etomica.api.ISimulation;
-import etomica.simulation.SpeciesManager;
+import etomica.simulation.Simulation;
 
 public class ElementSimple extends Element {
 
-    public ElementSimple(ISimulation sim) {
-        this(((SpeciesManager)sim.getSpeciesManager()).makeUniqueElementSymbol("E"));
+    public ElementSimple(Simulation sim) {
+        this(sim.makeUniqueElementSymbol("E"));
     }
     
     public ElementSimple(String symbol) {

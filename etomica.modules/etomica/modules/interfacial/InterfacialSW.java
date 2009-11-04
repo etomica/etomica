@@ -66,13 +66,13 @@ public class InterfacialSW extends Simulation {
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);
 	    species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         surfactant = new SpeciesSpheresHetero(this, space, 2);
         surfactant.setIsDynamic(true);
         surfactant.setChildCount(new int[]{1,1});
         surfactant.setTotalChildren(2);
         ((ConformationLinear)surfactant.getConformation()).setBondLength(0.9);
-        getSpeciesManager().addSpecies(surfactant);
+        addSpecies(surfactant);
         leafType = species.getLeafType();
         headType = surfactant.getAtomType(0); // head likes the monatomic species
         tailType = surfactant.getAtomType(1);

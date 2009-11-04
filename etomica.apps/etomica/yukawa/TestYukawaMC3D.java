@@ -58,7 +58,7 @@ public class TestYukawaMC3D extends Simulation{
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 		box = new Box(space);
         addBox(box);
 		box.setNMolecules(species, numAtoms);

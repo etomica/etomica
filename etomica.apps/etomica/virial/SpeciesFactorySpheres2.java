@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
@@ -51,7 +50,7 @@ public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializa
         conformation = new ConformationChainZigZag2(space, vector1, vector2);
     }
     
-    public ISpecies makeSpecies(ISimulation sim, ISpace _space) {
+    public ISpecies makeSpecies(ISpace _space) {
         SpeciesAlkane species = new SpeciesAlkane(_space, nA,CH3element, CH2element);
         species.setConformation(conformation);
         return species;

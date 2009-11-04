@@ -6,19 +6,13 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space3d.Space3D;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -254,36 +248,6 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
     protected final MoleculeChildAtomAction atomGroupAction;
     protected MyLattice myLat;
     private static final long serialVersionUID = 2L;
-    
-
-    public static void main(String[] args) {
-    	Space sp = Space3D.getInstance();
-        Simulation sim = new Simulation(sp);
-        IBox box = new Box(sp);
-        sim.addBox(box);
-        SpeciesParacetamol species = new SpeciesParacetamol(sp, false);
-        PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);
-        BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
-        sim.getSpeciesManager().addSpecies(species);
-        int k = 4;
-        box.setNMolecules(species, 4 * k * k * k);
-//        ColorSchemeByType colorScheme = new ColorSchemeByType();
-        // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
-        // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationMonoclinicLattice configuration = new ConfigurationMonoclinicLattice(lattice, sp);
-        // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(box);
-        // etomica.graphics.DisplayBox display = new
-        // etomica.graphics.DisplayBox(box);
-
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
-//        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
-//                .getFirst()).getColorScheme()).setColor(species
-//                .getMoleculeType(), java.awt.Color.red);
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-    }
-
     /**
      * Returns the resizeLatticeToFitVolume flag.
      * 

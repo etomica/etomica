@@ -87,7 +87,7 @@ public class IntegratorHard extends IntegratorMD
         collisionHandlerDown.setAgentManager(agentManager);
         if (sim != null) {
             nullPotentialManager = new AtomTypeAgentManager(this);
-            nullPotentialManager.init(sim.getSpeciesManager(), sim.getEventManager());
+            nullPotentialManager.init(sim);
         }
         else {
             nullPotentialManager = null;

@@ -60,7 +60,7 @@ public class Swmd extends Simulation {
 	    species = new SpeciesSpheresMono(this, space);//index 1
 	    species.setIsDynamic(true);
 	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         integrator.setNullPotential(nullPotential, species.getLeafType());
         
         //instantiate several potentials for selection in combo-box

@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.chem.elements.ElementSimple;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 
@@ -10,7 +10,7 @@ import etomica.species.SpeciesSpheresMono;
  * SpeciesFactory that makes SpeciesSpheresMono 
  */
 public class SpeciesFactorySpheres implements SpeciesFactory, java.io.Serializable {
-    public ISpecies makeSpecies(ISimulation sim, ISpace _space) {
-        return new SpeciesSpheresMono(sim, _space);
+    public ISpecies makeSpecies(ISpace _space) {
+        return new SpeciesSpheresMono(_space, new ElementSimple("A"));
     }
 }

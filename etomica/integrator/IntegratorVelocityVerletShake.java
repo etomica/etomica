@@ -62,7 +62,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
 
         
         dr = _space.makeVector();
-        shakeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
+        shakeAgentManager = new SpeciesAgentManager(this, sim);
         setShakeTolerance(1e-14);
         setMaxIterations(20);
         moved = new boolean[2][0];

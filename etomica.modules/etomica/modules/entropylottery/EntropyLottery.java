@@ -35,7 +35,7 @@ public class EntropyLottery extends Simulation {
         getController().addAction(activityIntegrate);
 
 	    species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         //construct box
 	    box = new Box(new BoundaryRectangularNonperiodic(space), space);

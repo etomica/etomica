@@ -95,9 +95,9 @@ public class SimDimerMEAMadatom extends Simulation{
         movable.setIsDynamic(true);
         potentialSpecies = new SpeciesSpheresMono(space, tinFixed);
         potentialSpecies.setIsDynamic(true);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(potentialSpecies);
+        addSpecies(fixed);
+        addSpecies(movable);
+        addSpecies(potentialSpecies);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         ((IAtomTypeSphere)potentialSpecies.getLeafType()).setDiameter(3.022);

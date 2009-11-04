@@ -74,7 +74,7 @@ public class TestSetToUHexane extends Simulation {
         lattice = new BravaisLattice(prim);
         species = new SpeciesHexane(space);
         
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(prim, nCells);
         box = new Box(bdry, space);

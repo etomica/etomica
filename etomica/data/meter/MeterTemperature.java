@@ -55,12 +55,12 @@ public class MeterTemperature extends DataSourceScalar {
 	    if (sim != null) {
 	        totalD = 0;
 //	        ISpecies[] species = sim.getSpeciesManager().getSpecies();
-	        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-	            int nMolecules = box.getNMolecules(sim.getSpeciesManager().getSpecies(i));
+	        for (int i=0; i<sim.getSpeciesCount(); i++) {
+	            int nMolecules = box.getNMolecules(sim.getSpecies(i));
 	            if (nMolecules > 0) {
-	                IMolecule molecule = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i)).getMolecule(0);
+	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).getMolecule(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
-	                    if (Double.isInfinite(((ISpeciesOriented)sim.getSpeciesManager().getSpecies(i)).getMass())) {
+	                    if (Double.isInfinite(((ISpeciesOriented)sim.getSpecies(i)).getMass())) {
 	                        continue;
 	                    }
                         totalD += 6*nMolecules;

@@ -113,7 +113,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
+        typeAgentManager = new SpeciesAgentManager(this, sim);
         tempAngularVelocity = space.makeVector();
         tempOrientation = new OrientationFull3D(space);
         atomPositionCOM = new AtomPositionCOM(space);
@@ -686,7 +686,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
         sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         int numMolecules = 256;
         box.setNMolecules(species, numMolecules);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);

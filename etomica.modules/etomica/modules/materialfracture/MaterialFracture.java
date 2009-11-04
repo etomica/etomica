@@ -57,7 +57,7 @@ public class MaterialFracture extends Simulation {
         species.setIsDynamic(false);
         ((ElementSimple)species.getLeafType().getElement()).setMass(40);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(3.0);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         box.setNMolecules(species, 198);
 
         potentialMaster.addPotential(pt, new IAtomType[]{species.getLeafType(), species.getLeafType()});

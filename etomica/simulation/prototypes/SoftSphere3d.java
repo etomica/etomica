@@ -59,7 +59,7 @@ public class SoftSphere3d extends Simulation {
         
         species = new SpeciesSpheresMono(this, space);
         //species2 = new SpeciesSpheresMono(this);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         //getSpeciesManager().addSpecies(species2);
         box = new Box(space);
         addBox(box);

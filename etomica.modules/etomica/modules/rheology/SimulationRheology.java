@@ -33,7 +33,7 @@ public class SimulationRheology extends Simulation {
         addBox(box);
         species = new SpeciesSpheres(this, space, 2);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         box.setNMolecules(species, 1);
         conformation = new ConformationPolymer(space, random);
         conformation.initializePositions(box.getMoleculeList().getMolecule(0).getChildList());

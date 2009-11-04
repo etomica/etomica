@@ -81,9 +81,9 @@ public class SimKMCMEAMadatom extends Simulation{
         fixed = new SpeciesSpheresMono(space, tinFixed);
         movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
         potentialSpecies = new SpeciesSpheresMono(space, tinFixed);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(potentialSpecies);
+        addSpecies(fixed);
+        addSpecies(movable);
+        addSpecies(potentialSpecies);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         ((IAtomTypeSphere)potentialSpecies.getLeafType()).setDiameter(3.022);

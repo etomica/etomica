@@ -97,8 +97,8 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     public void dispose() {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
-        for (int i=0; i<sim.getSpeciesManager().getSpeciesCount(); i++) {
-            IMoleculeList molecules = box.getMoleculeList(sim.getSpeciesManager().getSpecies(i));
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            IMoleculeList molecules = box.getMoleculeList(sim.getSpecies(i));
             for (int j=0; i<molecules.getMoleculeCount(); j++) {
                 // check if atom's spot in the array even exists yet
                 IMolecule molecule = molecules.getMolecule(i);
@@ -119,10 +119,10 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     protected void setupBox() {
         sim.getEventManager().addListener(this);
         box.getEventManager().addListener(this);
-        agents = new Object[sim.getSpeciesManager().getSpeciesCount()][];
+        agents = new Object[sim.getSpeciesCount()][];
         for (int i=0; i<agents.length; i++) {
             agents[i] = (Object[])Array.newInstance(agentSource.getMoleculeAgentClass(),
-                    box.getNMolecules(sim.getSpeciesManager().getSpecies(i)));
+                    box.getNMolecules(sim.getSpecies(i)));
         }
         // fill in the array with agents from all the molecules
         IMoleculeList molecules = box.getMoleculeList();

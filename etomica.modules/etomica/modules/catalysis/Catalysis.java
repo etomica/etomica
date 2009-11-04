@@ -70,15 +70,15 @@ public class Catalysis extends Simulation {
 	    speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
 	    speciesO.setIsDynamic(true);
 	    ((AtomTypeSphere)speciesO.getLeafType()).setDiameter(sigmaO);
-        getSpeciesManager().addSpecies(speciesO);
+        addSpecies(speciesO);
         speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
         speciesC.setIsDynamic(true);
         ((AtomTypeSphere)speciesC.getLeafType()).setDiameter(sigmaC);
-        getSpeciesManager().addSpecies(speciesC);
+        addSpecies(speciesC);
         speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
         speciesSurface.setIsDynamic(true);
         ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(sigmaS);
-        getSpeciesManager().addSpecies(speciesSurface);
+        addSpecies(speciesSurface);
 
         //construct box
         box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);

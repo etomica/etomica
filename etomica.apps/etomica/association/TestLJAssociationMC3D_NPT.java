@@ -104,7 +104,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
         species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);

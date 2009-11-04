@@ -44,8 +44,8 @@ public class HsMc2d extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
-        getSpeciesManager().addSpecies(species2);
+        addSpecies(species);
+        addSpecies(species2);
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 20);

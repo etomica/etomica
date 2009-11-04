@@ -87,7 +87,7 @@ public class TestHexaneHarmonic extends Simulation {
         double bondFactor = 0.4;
 
         SpeciesHexane species = new SpeciesHexane(space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         int[] nCells = new int[]{4,6,6};
         bdry =  new BoundaryDeformableLattice(primitive, nCells);
         box = new Box(bdry, space);

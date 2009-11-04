@@ -61,7 +61,7 @@ public class MeterDifferentImage extends DataSourceScalar {
         
         numAtoms = numSimAtoms + 1;
         box = new Box(sim.getSpace());
-        box.setNMolecules(sim.getSpeciesManager().getSpecies(0), numAtoms); 
+        box.setNMolecules(sim.getSpecies(0), numAtoms); 
         sim.addBox(box);
         
         potential.setBox(box);
@@ -128,7 +128,6 @@ public class MeterDifferentImage extends DataSourceScalar {
         for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
             for (int iCell = 0; iCell < cells.length; iCell++){
                 cell = cells[iCell];
-                uNow
                 
                 //Calculate the change in positions.
                 double kR = waveVectors[wvcount].dot(cell.cellPosition);

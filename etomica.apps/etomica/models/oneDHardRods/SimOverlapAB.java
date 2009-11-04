@@ -76,7 +76,7 @@ public class SimOverlapAB extends Simulation {
         //Set up some of the joint stuff
         blockSize = 100000;
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];

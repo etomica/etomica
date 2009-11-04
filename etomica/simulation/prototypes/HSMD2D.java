@@ -56,8 +56,8 @@ public class HSMD2D extends Simulation {
         AtomTypeSphere leafType2 = (AtomTypeSphere)species2.getLeafType();
         leafType1.setDiameter(sigma);
         leafType2.setDiameter(sigma);
-        getSpeciesManager().addSpecies(species1);
-        getSpeciesManager().addSpecies(species2);
+        addSpecies(species1);
+        addSpecies(species2);
         potential11 = new P2HardSphere(space, sigma, false);
         potential12 = new P2HardSphere(space, sigma, false);
         potential22 = new P2HardSphere(space, sigma, false);

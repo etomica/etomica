@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.api.IAtomType;
+import etomica.api.ISimulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
-import etomica.api.ISimulationEventManager;
 import etomica.api.ISimulationIndexEvent;
 import etomica.api.ISimulationListener;
 import etomica.api.ISimulationSpeciesEvent;
 import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.api.ISpecies;
-import etomica.api.ISpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -30,11 +29,10 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
         agentSource = source;
     }
     
-    public AtomTypeAgentManager(AgentSource source, ISpeciesManager speciesManager,
-            ISimulationEventManager simEventManager) {
+    public AtomTypeAgentManager(AgentSource source, ISimulation sim) {
         agentSource = source;
-        init(speciesManager, simEventManager);
-    }        
+        init(sim);
+    }
     
     /**
      * Returns an iterator that returns each non-null agent
@@ -76,8 +74,8 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
     }
     
     private void makeAllAgents() {
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            ISpecies parentType = speciesManager.getSpecies(i);
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            ISpecies parentType = sim.getSpecies(i);
             for (int j=0; j<parentType.getAtomTypeCount(); j++) {
                 addAgent(parentType.getAtomType(j));
             }
@@ -89,11 +87,11 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
      */
     private int getGlobalMaxIndex() {
         int max = 0;
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            if (speciesManager.getSpecies(i).getIndex() > max) {
-                max = speciesManager.getSpecies(i).getIndex();
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            if (sim.getSpecies(i).getIndex() > max) {
+                max = sim.getSpecies(i).getIndex();
             }
-            int childMax = getMaxIndexOfChildren(speciesManager.getSpecies(i));
+            int childMax = getMaxIndexOfChildren(sim.getSpecies(i));
             if (childMax > max) {
                 max = childMax;
             }
@@ -120,9 +118,9 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
      */
     public void dispose() {
         // remove ourselves as a listener to the old box
-        simEventManager.removeListener(this);
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            releaseAgents(speciesManager.getSpecies(i));
+        sim.getEventManager().removeListener(this);
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            releaseAgents(sim.getSpecies(i));
         }
         agents = null;
     }
@@ -131,11 +129,9 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISpeciesManager newSpeciesManager,
-                     ISimulationEventManager newSimEventManager) {
-        simEventManager = newSimEventManager;
-        speciesManager = newSpeciesManager;
-        simEventManager.addListener(this);
+    public void init(ISimulation newSim) {
+        sim = newSim;
+        sim.getEventManager().addListener(this);
 
         int numTypes = getGlobalMaxIndex()+1;
         
@@ -211,8 +207,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected ISimulationEventManager simEventManager;
-    protected ISpeciesManager speciesManager;
+    protected ISimulation sim;
 
     /**
      * Iterator that loops over the agents, skipping null elements

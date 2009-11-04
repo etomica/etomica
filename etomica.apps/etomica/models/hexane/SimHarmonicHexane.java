@@ -66,7 +66,7 @@ public class SimHarmonicHexane extends Simulation {
         fudge = harmonicFudge;
         
         SpeciesHexane species = new SpeciesHexane(space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
@@ -174,8 +174,8 @@ public class SimHarmonicHexane extends Simulation {
         Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
         PotentialMaster potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(p2, new IAtomType[]
-               {((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType(),
-                ((SpeciesHexane)sim.getSpeciesManager().getSpecies(0)).getLeafType()});
+               {((SpeciesHexane)sim.getSpecies(0)).getLeafType(),
+                ((SpeciesHexane)sim.getSpecies(0)).getLeafType()});
         /* Yes, Andrew, I know that the above specifies only the first thing in 
          * the array, but this is a hexane simulation, so this should not be an 
          * issue.

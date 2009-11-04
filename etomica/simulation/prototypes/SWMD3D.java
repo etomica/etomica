@@ -80,7 +80,7 @@ public class SWMD3D extends Simulation {
 
     species  = new etomica.species.SpeciesSpheresMono(this, space);
     species.setIsDynamic(true);
-    getSpeciesManager().addSpecies(species);
+    addSpecies(species);
     box.setNMolecules(species, 108);
     integrator.setNullPotential(new P1HardPeriodic(space, lambda), species.getLeafType());
 

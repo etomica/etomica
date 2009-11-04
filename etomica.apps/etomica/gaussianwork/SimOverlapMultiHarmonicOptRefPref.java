@@ -68,7 +68,7 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
 		accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 		
 		species = new SpeciesSpheresMono(this, space);
-		getSpeciesManager().addSpecies(species);
+		addSpecies(species);
 		((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
 		
 		//System B

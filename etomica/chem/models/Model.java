@@ -28,7 +28,7 @@ public abstract class Model implements java.io.Serializable {
 	public final ISpecies makeSpecies(ISimulation sim) {
         if (species == null) {
             species = makeSpeciesInternal(sim);
-            sim.getSpeciesManager().addSpecies(species);
+            sim.addSpecies(species);
             initPotentials(sim);
         }
         return species;

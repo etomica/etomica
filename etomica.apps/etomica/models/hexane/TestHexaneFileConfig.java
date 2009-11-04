@@ -20,7 +20,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.listener.IntegratorListenerAction;
@@ -88,7 +87,7 @@ public class TestHexaneFileConfig extends Simulation {
         lattice = new BravaisLattice(primitive);
 
         SpeciesHexane species = new SpeciesHexane(space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = new Box(bdry, space);

@@ -69,7 +69,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         IBox box = sim.getBox(0);
-        IMoleculeList moleculeList0 = box.getMoleculeList(sim.getSpeciesManager().getSpecies(0));
+        IMoleculeList moleculeList0 = box.getMoleculeList(sim.getSpecies(0));
         basis = moleculeList0.getMolecule(0);
         target = null;
         iterates = new AtomArrayList();

@@ -270,14 +270,14 @@ public class MEAM_3DMDwithGB extends Simulation {
 	    nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
 	    nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
 
-        getSpeciesManager().addSpecies(snFixedA);
-        getSpeciesManager().addSpecies(snA);
-//        getSpeciesRoot().addSpecies(agA);
-//        getSpeciesRoot().addSpecies(cuA);
-        getSpeciesManager().addSpecies(snFixedB);
-        getSpeciesManager().addSpecies(snB);
-//        getSpeciesRoot().addSpecies(agB);
-//        getSpeciesRoot().addSpecies(cuB);
+        addSpecies(snFixedA);
+        addSpecies(snA);
+//        addSpecies(agA);
+//        addSpecies(cuA);
+        addSpecies(snFixedB);
+        addSpecies(snB);
+//        addSpecies(agB);
+//        addSpecies(cuB);
         
 	    box.setNMolecules(snFixedA, nAFixed);
         box.setNMolecules(snA, nAMobile);

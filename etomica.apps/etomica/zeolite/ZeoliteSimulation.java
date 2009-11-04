@@ -122,7 +122,7 @@ public class ZeoliteSimulation extends Simulation {
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this, space);
             species[i].setIsDynamic(true);
-            getSpeciesManager().addSpecies(species[i]);
+            addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
         	((IAtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){

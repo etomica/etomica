@@ -64,8 +64,8 @@ public class SimKMCLJadatom extends Simulation{
     	double sigma = 1.0;
     	fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
         movable = new SpeciesSpheresMono(this, space);  
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
+        addSpecies(fixed);
+        addSpecies(movable);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	

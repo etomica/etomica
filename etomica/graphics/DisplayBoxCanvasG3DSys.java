@@ -74,7 +74,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		panel = new Panel();
 		this.setLayout(new java.awt.GridLayout());
 		panel.setLayout(new java.awt.GridLayout());
-		panel.setSize(1600, 1600);
+		panel.setSize(2000, 1600);
 		this.add(panel);
 		coords = new double[3];
 		gsys = new G3DSys(panel);

@@ -36,7 +36,7 @@ public class WaterTrimer {
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 3);
         box.setDensity(0.9/18.0*Constants.AVOGADRO/1E24);
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();

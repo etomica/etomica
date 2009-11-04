@@ -52,7 +52,7 @@ public class SimulationNitrogenModel extends Simulation{
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
 		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		getSpeciesManager().addSpecies(species);
+		addSpecies(species);
 		
 		//double L = Math.pow(4.0/1.0, 1.0/3.0);  // 4/1 is numAtom / density
 		box = new Box(space);

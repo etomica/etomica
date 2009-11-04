@@ -476,7 +476,7 @@ public class SimulationGraphic implements SimulationContainer {
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim, space, sim.getController()));
-        nSelector.setSpecies(sim.getSpeciesManager().getSpecies(0));
+        nSelector.setSpecies(sim.getSpecies(0));
         nSelector.setBox(sim.getBox(0));
         nSelector.setPostAction(repaintAction);
         simGraphic.add(nSelector);

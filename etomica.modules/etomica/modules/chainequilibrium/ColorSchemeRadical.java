@@ -18,10 +18,8 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     public ColorSchemeRadical(ISimulation sim, AtomLeafAgentManager agentManager) {
         super(sim);
         this.agentManager = agentManager;
-        radicalColorMap = new AtomTypeAgentManager(this, sim.getSpeciesManager(),
-                sim.getEventManager());
-        fullColorMap = new AtomTypeAgentManager(this, sim.getSpeciesManager(),
-                sim.getEventManager());
+        radicalColorMap = new AtomTypeAgentManager(this, sim);
+        fullColorMap = new AtomTypeAgentManager(this, sim);
         greys = new Color[20];
         for (int i=0; i<20; i++) {
             greys[i] = new Color(90+6*i,90+6*i,90+6*i);

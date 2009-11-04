@@ -69,7 +69,7 @@ public class DropletAtomic extends Simulation {
 	    //species and potentials
 	    species = new SpeciesSpheresMono(space, Argon.INSTANCE);
 	    species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         IAtomType leafType = species.getLeafType();
         ((AtomTypeSphere)leafType).setDiameter(sigma);
         

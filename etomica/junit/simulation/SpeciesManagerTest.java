@@ -2,9 +2,7 @@ package etomica.junit.simulation;
 
 import junit.framework.TestCase;
 import etomica.api.IElement;
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.ISpeciesManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
@@ -15,19 +13,14 @@ import etomica.species.SpeciesSpheresMono;
 
 public class SpeciesManagerTest extends TestCase {
 
-	private ISpeciesManager sm;
-	ISimulation simulation;
+	Simulation simulation;
 	ISpace space;
 	IElement element;
 	
 	public void setUp() {
 		space = Space.getInstance(3);
 		simulation = new Simulation(space);
-		sm = simulation.getSpeciesManager();
 		element = new ElementSimple(simulation);
-		if(sm == null) {
-			System.out.println("species manager is null");
-		}
 	}
 
 	/*
@@ -39,14 +32,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < numSpecies; i++) {
 		    species[i] = new SpeciesSpheresMono(space, element);
-		    sm.addSpecies(species[i]);
+		    simulation.addSpecies(species[i]);
 		}
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 		
 		int expectedChildIndex = 0;
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertSame(species[i], sm.getSpecies(i));
+		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
+			assertSame(species[i], simulation.getSpecies(i));
 			assertSame(i, species[i].getIndex());
 			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
 			    assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
@@ -64,14 +57,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < numSpecies; i++) {
 		    species[i] = new SpeciesSpheresMono(space, element);
-		    sm.addSpecies(species[i]);
+		    simulation.addSpecies(species[i]);
 		}
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		int expectedChildIndex = 0;
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertSame(species[i], sm.getSpecies(i));
+		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
+			assertSame(species[i], simulation.getSpecies(i));
 			assertSame(i, species[i].getIndex());
 	        for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
 	            assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
@@ -79,14 +72,14 @@ public class SpeciesManagerTest extends TestCase {
 	        }
 		}
 		
-		sm.removeSpecies(species[numSpecies-1]);
+		simulation.removeSpecies(species[numSpecies-1]);
 		numSpecies--;
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		expectedChildIndex = 0;
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
-			assertSame(species[i], sm.getSpecies(i));
+		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
+			assertSame(species[i], simulation.getSpecies(i));
 			assertSame(i, species[i].getIndex());
             for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
                 assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
@@ -94,14 +87,14 @@ public class SpeciesManagerTest extends TestCase {
             }
 		}
 
-		sm.removeSpecies(species[0]);
+		simulation.removeSpecies(species[0]);
 		numSpecies--;
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		expectedChildIndex = 0;
-		for(int i = 1; i < sm.getSpeciesCount(); i++) {
-			assertSame(species[i], sm.getSpecies(i-1));
+		for(int i = 1; i < simulation.getSpeciesCount(); i++) {
+			assertSame(species[i], simulation.getSpecies(i-1));
 			assertSame(i-1, species[i].getIndex());
             for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
                 assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
@@ -121,14 +114,14 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < numSpecies; i++) {
 		    species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-		    sm.addSpecies(species[i]);
+		    simulation.addSpecies(species[i]);
 		}
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
-			assertEquals(i, sm.getSpecies(i).getIndex());
+			assertEquals(i, simulation.getSpecies(i).getIndex());
             for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
                 assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
                 expectedChildIndex++;
@@ -139,13 +132,13 @@ public class SpeciesManagerTest extends TestCase {
 		for(int j = 0; j < numAtomsPerSpecies-1; j++) {
 		    newSpecies.addChildType(new AtomTypeLeaf(element));
 		}
-		sm.addSpecies(newSpecies);
+		simulation.addSpecies(newSpecies);
 		numSpecies++;
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 	    expectedChildIndex = 0;
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
+		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
 		    if(i < INIT_NUM_SPECIES) {
 		        assertEquals(i, species[i].getIndex());
 		    }
@@ -153,7 +146,7 @@ public class SpeciesManagerTest extends TestCase {
 		        assertEquals(i, newSpecies.getIndex());
 		    }
 			for(int j = 0; j < numAtomsPerSpecies; j++) {
-			    assertEquals(expectedChildIndex, sm.getSpecies(i).getAtomType(j).getIndex());
+			    assertEquals(expectedChildIndex, simulation.getSpecies(i).getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}
 		}
@@ -171,10 +164,10 @@ public class SpeciesManagerTest extends TestCase {
 
         for(int i = 0; i < numSpecies; i++) {
             species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-            sm.addSpecies(species[i]);
+            simulation.addSpecies(species[i]);
         }
 
-        assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, simulation.getSpeciesCount());
 
         int expectedChildIndex = 0;
         for(int i = 0; i < numSpecies; i++) {
@@ -185,13 +178,13 @@ public class SpeciesManagerTest extends TestCase {
             }
         }
 
-        sm.removeSpecies(species[REMOVE_INDEX]);
+        simulation.removeSpecies(species[REMOVE_INDEX]);
         numSpecies--;
 
-        assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, simulation.getSpeciesCount());
 
         expectedChildIndex = 0;
-        for(int i = 0; i < sm.getSpeciesCount(); i++) {
+        for(int i = 0; i < simulation.getSpeciesCount(); i++) {
             if(i < REMOVE_INDEX) {
                 assertEquals(i, species[i].getIndex());
                 for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
@@ -220,10 +213,10 @@ public class SpeciesManagerTest extends TestCase {
 
 		for(int i = 0; i < numSpecies; i++) {
 		    species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-		    sm.addSpecies(species[i]);
+		    simulation.addSpecies(species[i]);
 		}
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		int expectedChildIndex = 0;
 		for(int i = 0; i < numSpecies; i++) {
@@ -234,13 +227,13 @@ public class SpeciesManagerTest extends TestCase {
 			}
 		}
 
-		sm.removeSpecies(species[REMOVE_INDEX]);
+		simulation.removeSpecies(species[REMOVE_INDEX]);
 		numSpecies--;
 
-		assertEquals(numSpecies, sm.getSpeciesCount());
+		assertEquals(numSpecies, simulation.getSpeciesCount());
 
 		expectedChildIndex = 0;
-		for(int i = 0; i < sm.getSpeciesCount(); i++) {
+		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
 		    if(i < REMOVE_INDEX) {
 		        assertEquals(i, species[i].getIndex());
 		        for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
@@ -270,10 +263,10 @@ public class SpeciesManagerTest extends TestCase {
 
         for(int i = 0; i < numSpecies; i++) {
             species[i] = new SpeciesSpheresHetero(simulation, space, numAtomsPerSpecies);
-            sm.addSpecies(species[i]);
+            simulation.addSpecies(species[i]);
         }
 
-        assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, simulation.getSpeciesCount());
 
         int expectedChildIndex = 0;
         for(int i = 0; i < numSpecies; i++) {
@@ -284,13 +277,13 @@ public class SpeciesManagerTest extends TestCase {
             }
         }
 
-        sm.removeSpecies(species[REMOVE_INDEX]);
+        simulation.removeSpecies(species[REMOVE_INDEX]);
         numSpecies--;
 
-        assertEquals(numSpecies, sm.getSpeciesCount());
+        assertEquals(numSpecies, simulation.getSpeciesCount());
 
         expectedChildIndex = 0;
-        for(int i = 0; i < sm.getSpeciesCount(); i++) {
+        for(int i = 0; i < simulation.getSpeciesCount(); i++) {
             if(i < REMOVE_INDEX) {
                 assertEquals(i, species[i].getIndex());
                 for(int j = 0; j < species[i].getAtomTypeCount(); j++) {

@@ -84,8 +84,8 @@ public class SimDimerLJgb extends Simulation{
     	fixed.setIsDynamic(true);
         movable = new SpeciesSpheresMono(this, space);
         movable.setIsDynamic(true);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
+        addSpecies(fixed);
+        addSpecies(movable);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	

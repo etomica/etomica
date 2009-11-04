@@ -44,8 +44,8 @@ public class SimulationVirialPT extends Simulation {
 		super(space);
         PotentialMaster potentialMaster = new PotentialMaster();
 		int nMolecules = refCluster.pointCount();
-		species = speciesFactory.makeSpecies(this, space);//SpheresMono(this,AtomLinker.FACTORY);
-        getSpeciesManager().addSpecies(species);
+		species = speciesFactory.makeSpecies(space);//SpheresMono(this,AtomLinker.FACTORY);
+        addSpecies(species);
 
         box = new BoxCluster[temperature.length];
         integrator = new IntegratorMC[temperature.length];

@@ -60,7 +60,7 @@ public class TestB extends Simulation {
         super(_space);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         box = new Box(space);

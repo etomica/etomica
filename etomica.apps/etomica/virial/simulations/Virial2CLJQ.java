@@ -109,7 +109,7 @@ public class Virial2CLJQ {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
-            ((AtomTypeSphere)sim.getSpeciesManager().getSpecies(0).getAtomType(0)).setDiameter(sigma);
+            ((AtomTypeSphere)sim.getSpecies(0).getAtomType(0)).setDiameter(sigma);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);

@@ -37,7 +37,7 @@ public class DipoleBox extends Simulation {
         addBox(box);
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, space.makeVector(new double[]{0.025, 0.025, 0.025}));
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         box.setNMolecules(species, nAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.5);

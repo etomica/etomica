@@ -6,8 +6,8 @@ package etomica.atom;
 
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IElement;
-import etomica.api.ISimulation;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.Simulation;
 
 /**
  * Atom type for a simple monatomic atom that has a length scale associated
@@ -20,7 +20,7 @@ public class AtomTypeSphere extends AtomTypeLeaf implements IAtomTypeSphere {
     private static final long serialVersionUID = 1L;
     protected double diameter;
     
-    public AtomTypeSphere(ISimulation sim) {
+    public AtomTypeSphere(Simulation sim) {
         this(new ElementSimple(sim), 1.0);
     }
     

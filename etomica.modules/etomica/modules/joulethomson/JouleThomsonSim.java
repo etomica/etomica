@@ -77,7 +77,7 @@ public class JouleThomsonSim extends Simulation {
 	    species.setIsDynamic(true);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         ((ElementSimple)((AtomTypeSphere)species.getLeafType()).getElement()).setMass(40);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 	    potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 	    box = new Box(space);

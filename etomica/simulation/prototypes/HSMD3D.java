@@ -103,7 +103,7 @@ public class HSMD3D extends Simulation {
 
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         potential = new P2SquareWell(space, sigma, 2.5, -1.0, false);
         IAtomType leafType = species.getLeafType();
 

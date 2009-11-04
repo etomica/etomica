@@ -1,15 +1,16 @@
 package etomica.species;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 
 /**
@@ -20,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implements ISpeciesOriented {
     
-    public SpeciesSpheresRotatingMolecule(ISimulation sim, ISpace _space) {
+    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space) {
         this(sim, _space, makeNominalMoment(_space));
     }
 
@@ -30,8 +31,12 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
         return m;
     }
 
-    public SpeciesSpheresRotatingMolecule(ISimulation sim, ISpace _space, IVector moment) {
-        super(_space, new AtomTypeSphere(new ElementSimple(sim), 1.0));
+    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space, IVector moment) {
+        this(_space, new AtomTypeSphere(new ElementSimple(sim), 1.0), moment);
+    }
+    
+    public SpeciesSpheresRotatingMolecule(ISpace _space, IAtomType atomType, IVector moment) {
+        super(_space, atomType);
         this.moment = _space.makeVector();
         this.moment.E(moment);
     }

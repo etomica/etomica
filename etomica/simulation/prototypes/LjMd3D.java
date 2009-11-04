@@ -51,7 +51,7 @@ public class LjMd3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         box = new Box(space);
         addBox(box);

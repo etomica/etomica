@@ -29,7 +29,7 @@ public class SingleDumbellRattle {
         ((ConformationLinear)species.getConformation()).setAngle(0,0);
         ((ConformationLinear)species.getConformation()).setAngle(1,0.5*Math.PI);
         ((ConformationLinear)species.getConformation()).setBondLength(2);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 1);
         box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
 //        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);

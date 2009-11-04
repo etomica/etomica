@@ -92,7 +92,7 @@ public class TestHexane extends Simulation {
         double bondFactor = 0.4;
 
         SpeciesHexane species = new SpeciesHexane(space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = new Box(bdry, space);

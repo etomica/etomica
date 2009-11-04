@@ -61,7 +61,7 @@ public class TestYukawaMD3D extends Simulation{
 		
 		species = new SpeciesSpheresMono(this, space);
 		species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 		box = new Box(space);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
         addBox(box);

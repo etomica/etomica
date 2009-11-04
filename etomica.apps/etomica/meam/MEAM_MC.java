@@ -109,9 +109,9 @@ public class MEAM_MC extends Simulation {
         ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
         cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
 
-        getSpeciesManager().addSpecies(sn);
-        getSpeciesManager().addSpecies(ag);
-        getSpeciesManager().addSpecies(cu);
+        addSpecies(sn);
+        addSpecies(ag);
+        addSpecies(cu);
 
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)

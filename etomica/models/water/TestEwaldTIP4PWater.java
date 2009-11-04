@@ -51,7 +51,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
 		species = new SpeciesWater4P(space);
 		species.setConformation(config);
-		getSpeciesManager().addSpecies(species);
+		addSpecies(species);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		integrator.setTemperature(Kelvin.UNIT.toSim(298));

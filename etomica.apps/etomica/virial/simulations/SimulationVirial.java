@@ -54,8 +54,8 @@ public class SimulationVirial extends Simulation {
 		box = new BoxCluster(sampleCluster, space);
 		addBox(box);
         //box.getBoundary().setDimensions(space.makeVector(new double[]{3.0,3.0,3.0}));
-		species = speciesFactory.makeSpecies(this, space);
-        getSpeciesManager().addSpecies(species);
+		species = speciesFactory.makeSpecies(space);
+        addSpecies(species);
         box.setNMolecules(species, nMolecules);
         
         integrator = new IntegratorMC(this, potentialMaster);

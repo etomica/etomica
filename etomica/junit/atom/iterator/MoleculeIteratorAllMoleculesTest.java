@@ -25,9 +25,9 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         int[] n1 = new int[] { 5, 1, 6, 0, 1};
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
-        ISpecies[] species = new ISpecies[sim.getSpeciesManager().getSpeciesCount()];
-        for(int i = 0; i < sim.getSpeciesManager().getSpeciesCount(); i++) {
-        	species[i] = sim.getSpeciesManager().getSpecies(i);
+        ISpecies[] species = new ISpecies[sim.getSpeciesCount()];
+        for(int i = 0; i < sim.getSpeciesCount(); i++) {
+        	species[i] = sim.getSpecies(i);
         }
         for(int i=0; i<n0.length; i++) {
             boxTest(sim.getBox(i), species);

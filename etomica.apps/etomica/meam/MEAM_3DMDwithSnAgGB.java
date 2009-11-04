@@ -201,14 +201,14 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         agB.setIsDynamic(true);
 //        cuB = new SpeciesSpheresMono(space, Copper.INSTANCE);
 
-        getSpeciesManager().addSpecies(snFixedA);
-        getSpeciesManager().addSpecies(snA);
-//        getSpeciesManager().addSpecies(agA);
-//        getSpeciesManager().addSpecies(cuA);
-        getSpeciesManager().addSpecies(agFixedB);
-//        getSpeciesManager().addSpecies(snB);
-        getSpeciesManager().addSpecies(agB);
-//        getSpeciesManager().addSpecies(cuB);
+        addSpecies(snFixedA);
+        addSpecies(snA);
+//        addSpecies(agA);
+//        addSpecies(cuA);
+        addSpecies(agFixedB);
+//        addSpecies(snB);
+        addSpecies(agB);
+//        addSpecies(cuB);
 
         double aA, bA, cA, aB, bB, cB;
         

@@ -98,11 +98,17 @@ public class IntegratorMC extends IntegratorBox {
     	//decide acceptance
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
     	if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
+            if (dodebug) {
+                System.out.println("move "+move+" rejected");
+            }
             move.getTracker().updateCounts(false, chi);
     		move.rejectNotify();
             //notify listeners of outcome
             moveEventManager.fireEvent(rejectedEvent);
     	} else {
+            if (dodebug) {
+                System.out.println("move "+move+" accepted");
+            }
             move.getTracker().updateCounts(true, chi);
     		move.acceptNotify();
     		currentPotentialEnergy += move.energyChange();
@@ -138,4 +144,5 @@ public class IntegratorMC extends IntegratorBox {
     protected final IEventManager moveEventManager;
     private final IEvent trialEvent;
     private final IEvent acceptedEvent, rejectedEvent;
+    public static boolean dodebug;
 }

@@ -101,7 +101,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         workTensor = space.makeTensor();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim.getSpeciesManager(), sim.getEventManager());
+        typeAgentManager = new SpeciesAgentManager(this, sim);
         angularVelocity = space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];
@@ -559,7 +559,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace());
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
         double timeInterval = 0.001;

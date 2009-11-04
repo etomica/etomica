@@ -3,13 +3,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
-import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 
 /**
@@ -27,7 +27,7 @@ public class SpeciesSpheresMono extends Species {
     /**
      * Constructs instance with a default element
      */
-    public SpeciesSpheresMono(ISimulation sim, ISpace _space) {
+    public SpeciesSpheresMono(Simulation sim, ISpace _space) {
         this(_space, new ElementSimple(sim));
     }
     
@@ -35,7 +35,7 @@ public class SpeciesSpheresMono extends Species {
         this(_space, new AtomTypeSphere(element));
     }
     
-    public SpeciesSpheresMono(ISpace space, AtomTypeSphere leafAtomType) {
+    public SpeciesSpheresMono(ISpace space, IAtomType leafAtomType) {
         super();
         this.space = space;
         this.leafAtomType = leafAtomType;

@@ -74,7 +74,7 @@ public class Sim1DHR extends Simulation {
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         //TARGET - 1DHR system
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);

@@ -85,9 +85,9 @@ public class DCVGCMD extends Simulation {
         species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
         speciesTube = new SpeciesTube(20, 40, space);
-        getSpeciesManager().addSpecies(species1);
-        getSpeciesManager().addSpecies(species2);
-        getSpeciesManager().addSpecies(speciesTube);
+        addSpecies(species1);
+        addSpecies(species2);
+        addSpecies(speciesTube);
         IAtomType tubetype = speciesTube.getLeafType();
         AtomTypeSphere speciestype = (AtomTypeSphere)species1.getLeafType();
         AtomTypeSphere speciestype1 = (AtomTypeSphere)species2.getLeafType();

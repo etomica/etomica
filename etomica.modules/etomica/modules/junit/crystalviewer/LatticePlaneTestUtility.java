@@ -36,7 +36,7 @@ public class LatticePlaneTestUtility {
 	public final int HCP           = 8;
 	public final int CUBIC_DIAMOND = 9;
 
-	private ISimulation sim = null;
+	private Simulation sim = null;
 	private ISpecies species = null;
 	private BravaisLattice lattice = null;
 	private IBox box = null;
@@ -51,7 +51,7 @@ public class LatticePlaneTestUtility {
 
     	// Create a species with one atom / molecule
     	species = new SpeciesSpheresMono(sim, space);
-    	sim.getSpeciesManager().addSpecies(species);
+    	sim.addSpecies(species);
 
 	}
 

@@ -36,7 +36,7 @@ public class WaterDropletMatrix {
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
         SpeciesWater4POriented species = new SpeciesWater4POriented(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(0.7/18.0*Constants.AVOGADRO/1E24);
         ConfigurationWater108TIP4P config = new ConfigurationWater108TIP4P();

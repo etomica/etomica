@@ -1,11 +1,16 @@
 package etomica.simulation;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+
 import etomica.action.activity.Controller;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IElement;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
-import etomica.api.ISpeciesManager;
+import etomica.api.ISpecies;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.RandomMersenneTwister;
@@ -30,7 +35,9 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
-        speciesManager = new SpeciesManager(this);
+        speciesList = new ISpecies[0];
+        elementSymbolHash = new HashMap<String,IElement>();
+        elementAtomTypeHash = new HashMap<IElement,LinkedList<IAtomType>>();
     }
 
     public final void addBox(IBox newBox) {
@@ -41,7 +48,9 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         }
         boxList = (IBox[])Arrays.addObject(boxList, newBox);
         newBox.setIndex(boxList.length-1);
-        speciesManager.boxAddedNotify(newBox);
+        for(int i=0; i<speciesList.length; i++) {
+            newBox.addSpeciesNotify(speciesList[i]);
+        }
         eventManager.boxAdded(newBox);
     }
     
@@ -111,15 +120,132 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         return eventManager;
     }
     
-    public ISpeciesManager getSpeciesManager() {
-        return speciesManager;
+    public void addSpecies(ISpecies species) {
+
+        int atomTypeMaxIndex = 0;
+
+        for (int i=0; i<speciesList.length; i++) {
+            if (speciesList[i] == species) {
+                throw new IllegalArgumentException("Species already exists");
+            }
+            atomTypeMaxIndex += speciesList[i].getAtomTypeCount();
+        }
+        int index = speciesList.length;
+        species.setIndex(index);
+        speciesList = (ISpecies[])Arrays.addObject(speciesList,species);
+        
+        for(int i = 0; i < species.getAtomTypeCount(); i++) {
+            species.getAtomType(i).setIndex(atomTypeMaxIndex++);
+            atomTypeAddedNotify(species.getAtomType(i));
+        }
+
+        for (int i=0; i<boxList.length; i++) {
+            boxList[i].addSpeciesNotify(species);
+        }
+
+        // this just fires an event for listeners to receive
+        eventManager.speciesAdded(species);
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.simulation.ISpeciesManager#removeSpecies(etomica.api.ISpecies)
+     */
+    public void removeSpecies(ISpecies removedSpecies) {
+
+        int index = removedSpecies.getIndex();
+        
+        if (speciesList[index] != removedSpecies) {
+            throw new IllegalArgumentException("Species to remove not found at expected location.");
+        }
+        
+        speciesList = (ISpecies[])Arrays.removeObject(speciesList,removedSpecies);
+
+        for(int i = index; i < speciesList.length; i++) {
+            int oldIndex = speciesList[i].getIndex();
+            speciesList[i].setIndex(i);
+            eventManager.speciesIndexChanged(speciesList[i], oldIndex);
+        }
+
+        for(int j = 0; j < removedSpecies.getAtomTypeCount(); j++) {
+            atomTypeRemovedNotify(removedSpecies.getAtomType(j));
+        }
+
+
+        int atomTypeMaxIndex = 0;
+        for(int i = 0; i < speciesList.length; i++) {
+            for(int j = 0; j < speciesList[j].getAtomTypeCount(); j++) {
+                if(speciesList[i].getAtomType(j).getIndex() != atomTypeMaxIndex) {
+                    int oldIndex = speciesList[i].getAtomType(j).getIndex();
+                    speciesList[i].getAtomType(j).setIndex(atomTypeMaxIndex);
+                    eventManager.atomTypeIndexChanged(speciesList[i].getAtomType(j), oldIndex);
+                }
+                atomTypeMaxIndex++;
+            }
+        }
+
+        for (int j = 0; j < boxList.length; j++) {
+            boxList[j].removeSpeciesNotify(removedSpecies);
+        }
+
+        eventManager.speciesRemoved(removedSpecies);
+        eventManager.atomTypeMaxIndexChanged(atomTypeMaxIndex);
+        eventManager.speciesMaxIndexChanged(speciesList.length);
+    }
+
+    public int getSpeciesCount() {
+        return speciesList.length;
+    }
+
+    public ISpecies getSpecies(int index) {
+        return speciesList[index];
+    }
+
+    protected void atomTypeAddedNotify(IAtomType newChildType) {
+        IElement newElement = newChildType.getElement();
+        IElement oldElement = elementSymbolHash.get(newElement.getSymbol());
+        if (oldElement != null && oldElement != newElement) {
+            // having two AtomTypes with the same Element is OK, but having
+            // two Elements with the same symbol is not allowed.
+            throw new IllegalStateException("Element symbol "+newElement.getSymbol()+" already exists in this simulation as a different element");
+        }
+        // remember the element so we can check for future duplication
+        elementSymbolHash.put(newElement.getSymbol(), newElement);
+        LinkedList<IAtomType> atomTypeList = elementAtomTypeHash.get(newElement);
+        if (atomTypeList == null) {
+            atomTypeList = new LinkedList<IAtomType>();
+            elementAtomTypeHash.put(newElement, atomTypeList);
+        }
+        atomTypeList.add(newChildType);
+    }
+
+    protected void atomTypeRemovedNotify(IAtomType removedType) {
+        // remove the type's element from our hash 
+        IElement oldElement = removedType.getElement();
+        elementSymbolHash.remove(oldElement.getSymbol());
+    }
+
+    /**
+     * Returns an Element symbol starting with symbolBase that does not yet 
+     * exist in the Simulation.  Return values will be like "base0, base1, base2..." 
+     */
+    public String makeUniqueElementSymbol(String symbolBase) {
+        int n = 0;
+        while (elementSymbolHash.containsKey(symbolBase+n)) {
+            n++;
+        }
+        // reserve this symbol so future calls to makeUniqueElementSymbol won't return it
+        // this will get replaced by the actual Element when it gets added via childTypeAddedNotify
+        elementSymbolHash.put(symbolBase+n, null);
+        return symbolBase+n;
     }
 
     private static final long serialVersionUID = 4L;
     protected final ISpace space;
     protected final SimulationEventManager eventManager;
     private IBox[] boxList;
-    private final ISpeciesManager speciesManager;
     protected IRandom random;
     private Controller controller;
+    private ISpecies[] speciesList;
+    private final HashMap<String,IElement> elementSymbolHash;
+    private final HashMap<IElement,LinkedList<IAtomType>> elementAtomTypeHash;
 }

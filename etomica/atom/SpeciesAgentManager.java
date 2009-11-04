@@ -3,15 +3,14 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
+import etomica.api.ISimulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
-import etomica.api.ISimulationEventManager;
 import etomica.api.ISimulationIndexEvent;
 import etomica.api.ISimulationListener;
 import etomica.api.ISimulationSpeciesEvent;
 import etomica.api.ISimulationSpeciesIndexEvent;
 import etomica.api.ISpecies;
-import etomica.api.ISpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -29,10 +28,9 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
         agentSource = source;
     }
     
-    public SpeciesAgentManager(AgentSource source, ISpeciesManager speciesManager,
-                               ISimulationEventManager simEventManager) {
+    public SpeciesAgentManager(AgentSource source, ISimulation sim) {
         agentSource = source;
-        init(speciesManager, simEventManager);
+        init(sim);
     }        
     
     /**
@@ -72,8 +70,8 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
     }
     
     private void makeAllAgents() {
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            addAgent(speciesManager.getSpecies(i));
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            addAgent(sim.getSpecies(i));
         }
     }
     
@@ -82,9 +80,9 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
      */
     private int getGlobalMaxIndex() {
         int max = 0;
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            if (speciesManager.getSpecies(i).getIndex() > max) {
-                max = speciesManager.getSpecies(i).getIndex();
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            if (sim.getSpecies(i).getIndex() > max) {
+                max = sim.getSpecies(i).getIndex();
             }
         }
         return max;
@@ -96,9 +94,9 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
      */
     public void dispose() {
         // remove ourselves as a listener to the old box
-        simEventManager.removeListener(this);
-        for (int i=0; i<speciesManager.getSpeciesCount(); i++) {
-            releaseAgents(speciesManager.getSpecies(i));
+        sim.getEventManager().removeListener(this);
+        for (int i=0; i<sim.getSpeciesCount(); i++) {
+            releaseAgents(sim.getSpecies(i));
         }
         agents = null;
     }
@@ -107,11 +105,9 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void init(ISpeciesManager newSpeciesManager,
-                     ISimulationEventManager newSimEventManager) {
-        simEventManager = newSimEventManager;
-        speciesManager = newSpeciesManager;
-        simEventManager.addListener(this);
+    public void init(ISimulation newSim) {
+        sim = newSim;
+        sim.getEventManager().addListener(this);
 
         int numTypes = getGlobalMaxIndex()+1;
         
@@ -183,8 +179,7 @@ public class SpeciesAgentManager implements ISimulationListener, java.io.Seriali
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    protected ISimulationEventManager simEventManager;
-    protected ISpeciesManager speciesManager;
+    protected ISimulation sim;
 
     /**
      * Iterator that loops over the agents, skipping null elements

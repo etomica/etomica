@@ -111,7 +111,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         ConformationParacetamolMonoclinic conformation = new ConformationParacetamolMonoclinic(space);
         species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         box = new Box(space);
         addBox(box);

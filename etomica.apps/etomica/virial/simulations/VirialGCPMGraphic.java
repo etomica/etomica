@@ -74,7 +74,7 @@ public class VirialGCPMGraphic {
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-        SpeciesWater4P species = (SpeciesWater4P)sim.getSpeciesManager().getSpecies(0);
+        SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);

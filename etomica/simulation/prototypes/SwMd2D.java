@@ -44,7 +44,7 @@ public class SwMd2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         AtomTypeSphere leafType = (AtomTypeSphere)species.getLeafType();
         leafType.setDiameter(sigma);
         box = new Box(space);

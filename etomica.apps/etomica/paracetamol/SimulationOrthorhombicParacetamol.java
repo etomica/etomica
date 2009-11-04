@@ -26,7 +26,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         SpeciesParacetamol species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         box = new Box(space);
         addBox(box);

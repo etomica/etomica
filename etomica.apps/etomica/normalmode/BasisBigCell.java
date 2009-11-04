@@ -33,7 +33,7 @@ public class BasisBigCell extends Basis {
 
     protected static IVector[] makeScaledCoordinates(ISpace space, Primitive primitive, Basis subBasis, int[] nSubCells) {
         // make pretend sim, species and box so we can find the appropriate coordinates
-        ISimulation sim = new Simulation(space);
+        Simulation sim = new Simulation(space);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
         IBoundary boundary = new BoundaryDeformableLattice(primitive, nSubCells);

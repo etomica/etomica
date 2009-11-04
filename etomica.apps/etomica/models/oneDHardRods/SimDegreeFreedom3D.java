@@ -79,7 +79,7 @@ public class SimDegreeFreedom3D extends Simulation {
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         basis = new BasisCubicFcc();
         box = new Box(space);

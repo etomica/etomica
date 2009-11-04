@@ -102,9 +102,9 @@ public class SimDimerMEAMGB extends Simulation{
         fixed.setIsDynamic(true);
         dimer = new SpeciesSpheresMono(space, dimerTin);
         fixed.setIsDynamic(true);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(dimer);
+        addSpecies(fixed);
+        addSpecies(movable);
+        addSpecies(dimer);
         ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         ((IAtomTypeSphere)dimer.getLeafType()).setDiameter(3.022);

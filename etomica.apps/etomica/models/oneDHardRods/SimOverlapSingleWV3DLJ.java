@@ -92,7 +92,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];

@@ -60,7 +60,7 @@ public class VLESim extends Simulation {
         double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
         
         species = new SpeciesSpheresRotating(this, space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);

@@ -201,14 +201,14 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         cuB = new SpeciesSpheresMono(space, Copper.INSTANCE);
         cuB.setIsDynamic(true);
         
-        getSpeciesManager().addSpecies(snFixedA);
-        getSpeciesManager().addSpecies(snA);
-//        getSpeciesManager().addSpecies(agA);
-//        getSpeciesManager().addSpecies(cuA);
-        getSpeciesManager().addSpecies(cuFixedB);
-//        getSpeciesManager().addSpecies(snB);
-//        getSpeciesManager().addSpecies(agB);
-        getSpeciesManager().addSpecies(cuB);
+        addSpecies(snFixedA);
+        addSpecies(snA);
+//        addSpecies(agA);
+//        addSpecies(cuA);
+        addSpecies(cuFixedB);
+//        addSpecies(snB);
+//        addSpecies(agB);
+        addSpecies(cuB);
         
         box = new Box(new BoundaryRectangularSlit(2, space), space);
         addBox(box);

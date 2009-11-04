@@ -68,8 +68,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesB.setIsDynamic(true);
-        getSpeciesManager().addSpecies(speciesA);
-        getSpeciesManager().addSpecies(speciesB);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
         ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
         ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);

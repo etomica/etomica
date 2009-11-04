@@ -35,7 +35,7 @@ import etomica.units.Pixel;
 public class CrystalViewer extends SimulationPanel {
     
 	final static String APP_NAME = "Crystal Viewer";
-    protected final ISimulation sim;
+    protected final Simulation sim;
 
     protected SpeciesSpheresMono species;
     protected IBox box;
@@ -53,7 +53,7 @@ public class CrystalViewer extends SimulationPanel {
         center = space.makeVector();
 
         species = new SpeciesSpheresMono(sim, space);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
 
         BasisMonatomic basisMonatomic = new BasisMonatomic(space);
         

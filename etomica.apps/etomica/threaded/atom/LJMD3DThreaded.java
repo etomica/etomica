@@ -60,7 +60,7 @@ public class LJMD3DThreaded extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);

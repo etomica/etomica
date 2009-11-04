@@ -3,13 +3,13 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
-import etomica.api.ISimulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
 
@@ -28,7 +28,7 @@ public class SpeciesSpheresHetero extends Species {
      * (AtomFactoryHetero) before use.  The actual number of desired children 
      * can also be set in the factory.
      */
-    public SpeciesSpheresHetero(ISimulation sim, ISpace _space) {
+    public SpeciesSpheresHetero(Simulation sim, ISpace _space) {
         this(sim,_space, 0);
     }
     
@@ -38,11 +38,11 @@ public class SpeciesSpheresHetero extends Species {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(ISimulation sim, ISpace _space, int nComponents) {
+    public SpeciesSpheresHetero(Simulation sim, ISpace _space, int nComponents) {
         this(_space, makeElements(sim,nComponents));
     }
     
-    private static IElement[] makeElements(ISimulation sim, int nComponents) {
+    private static IElement[] makeElements(Simulation sim, int nComponents) {
         ElementSimple[] elements = new ElementSimple[nComponents];
         for (int i=0; i<elements.length; i++) {
             elements[i] = new ElementSimple(sim);

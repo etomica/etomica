@@ -169,37 +169,4 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
     private final ISpace space;
     private static final long serialVersionUID = 2L;
-
-    public static void main(String[] args) {
-    	final String APP_NAME = "Configuration Lattice Simple";
-
-    	Space sp = Space3D.getInstance();
-        Simulation sim = new Simulation(sp);
-        IPotentialMaster potentialMaster = new PotentialMaster();
-        IBox box = new Box(sp);
-        sim.addBox(box);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
-        sim.getSpeciesManager().addSpecies(species);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(5.0);
-        int k = 4;
-        box.setNMolecules(species, 4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);
-        integrator.setBox(box);
-//        ColorSchemeByType colorScheme = new ColorSchemeByType();
-        // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc(sp);
-        // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationLatticeSimple configuration = new ConfigurationLatticeSimple(lattice, sp);
-        // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(box);
-        // etomica.graphics.DisplayBox display = new
-        // etomica.graphics.DisplayBox(box);
-
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim, APP_NAME, sp, sim.getController());
-//        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
-//                .getFirst()).getColorScheme()).setColor(species
-//                .getMoleculeType(), java.awt.Color.red);
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-    }
 }

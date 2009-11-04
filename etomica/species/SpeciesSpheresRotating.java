@@ -1,11 +1,12 @@
 package etomica.species;
 
 import etomica.api.IAtom;
-import etomica.api.ISimulation;
+import etomica.api.IElement;
 import etomica.atom.AtomOriented;
 import etomica.atom.AtomOrientedDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 
 /**
@@ -16,8 +17,12 @@ import etomica.space.ISpace;
  */
 public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     
-    public SpeciesSpheresRotating(ISimulation sim, ISpace _space) {
-        super(_space, new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0, _space));
+    public SpeciesSpheresRotating(Simulation sim, ISpace _space) {
+        this(_space, new ElementSimple(sim));
+    }
+    
+    public SpeciesSpheresRotating(ISpace _space, IElement element) {
+        super(_space, new AtomTypeOrientedSphere(element, 1.0, _space));
     }
 
     protected IAtom makeLeafAtom() {

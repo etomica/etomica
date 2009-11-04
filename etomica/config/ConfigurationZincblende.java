@@ -112,40 +112,4 @@ public class ConfigurationZincblende extends ConfigurationLattice {
             translator1.actionPerformed(a1);
         }
     }        
-    
-    /**
-     * Displays configuration without setting up full simulation.
-     */
-    public static void main(String[] args) {
-    	final String APP_NAME = "Configuration Zinc Blende";
-
-    	Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        final IBox box = new Box(space);
-        box.getBoundary().setBoxSize(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
-        sim.addBox(box);
-        etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim, space);
-        etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim, space);
-        sim.getSpeciesManager().addSpecies(speciesSpheres0);
-        sim.getSpeciesManager().addSpecies(speciesSpheres1);
-        ((IAtomTypeSphere)speciesSpheres0.getLeafType()).setDiameter(5.0);
-        ((IAtomTypeSphere)speciesSpheres1.getLeafType()).setDiameter(5.0);
-        box.setNMolecules(speciesSpheres0, 32);
-        box.setNMolecules(speciesSpheres1, 32);
-        ConfigurationZincblende config = new ConfigurationZincblende(15, space);
-        config.initializeCoordinates(box);
-
-        final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, space, sim.getController());
-        simGraphic.add(new DisplayBox(sim, box, space, sim.getController()));
-        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
-        colorScheme.setColor(speciesSpheres0.getLeafType(),new java.awt.Color(0,255,0));
-        colorScheme.setColor(speciesSpheres1.getLeafType(), java.awt.Color.red);
-
-        simGraphic.getController().getSimRestart().setConfiguration(config);
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(box));
-
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-        simGraphic.getDisplayBox(box).graphic().repaint();
-    }
-    
 }

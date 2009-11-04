@@ -63,8 +63,8 @@ public class SimulationVirialOverlap extends Simulation {
 		PotentialMaster potentialMaster = new PotentialMaster();
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
-        species = speciesFactory.makeSpecies(this, space);
-        getSpeciesManager().addSpecies(species);
+        species = speciesFactory.makeSpecies(space);
+        addSpecies(species);
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPumpListener[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];

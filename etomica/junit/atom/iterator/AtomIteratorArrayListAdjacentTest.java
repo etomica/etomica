@@ -105,7 +105,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         //short list
-        atomList = sim.getBox(0).getMoleculeList(sim.getSpeciesManager().getSpecies(1)).getMolecule(0).getChildList();
+        atomList = sim.getBox(0).getMoleculeList(sim.getSpecies(1)).getMolecule(0).getChildList();
         assertEquals(atomList.getAtomCount(), 1);
         atom = atomList.getAtom(0);
         iteratorUp.setAtom(atom);

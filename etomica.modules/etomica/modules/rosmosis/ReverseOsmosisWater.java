@@ -67,22 +67,22 @@ public class ReverseOsmosisWater extends Simulation {
         //solute (1)
         speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
         speciesSodium.setIsDynamic(true);
-        getSpeciesManager().addSpecies(speciesSodium);
+        addSpecies(speciesSodium);
         
         speciesChlorine = new SpeciesSpheresMono(space, Chlorine.INSTANCE);
         speciesChlorine.setIsDynamic(true);
-        getSpeciesManager().addSpecies(speciesChlorine);
+        addSpecies(speciesChlorine);
         
         //solvent (2)
         speciesSolvent = new SpeciesWater3POriented(space, true);
-        getSpeciesManager().addSpecies(speciesSolvent);
+        addSpecies(speciesSolvent);
         integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
         speciesMembrane.setIsDynamic(true);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
-        getSpeciesManager().addSpecies(speciesMembrane);
+        addSpecies(speciesMembrane);
         
         /*
          * Sodium and chloride potential parameters from 

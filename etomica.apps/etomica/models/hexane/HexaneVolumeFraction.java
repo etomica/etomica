@@ -42,7 +42,7 @@ public class HexaneVolumeFraction extends Simulation {
 
 
         SpeciesHexane species = new SpeciesHexane(_space);
-        getSpeciesManager().addSpecies(species);
+        addSpecies(species);
 
         bdry = new BoundaryRectangularPeriodic(_space);
         box = new Box(bdry, _space);

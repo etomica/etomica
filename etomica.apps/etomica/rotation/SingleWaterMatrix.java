@@ -37,7 +37,7 @@ public class SingleWaterMatrix {
         final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
-        sim.getSpeciesManager().addSpecies(species);
+        sim.addSpecies(species);
         box.setNMolecules(species, 1);
         box.setDensity(0.01/18.0*Constants.AVOGADRO/1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);

@@ -54,10 +54,10 @@ public class Mu extends Simulation {
 	    //species and potentials
 	    speciesA = new SpeciesSpheresMono(this, space);
 	    speciesA.setIsDynamic(true);
-        getSpeciesManager().addSpecies(speciesA);
+        addSpecies(speciesA);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesB.setIsDynamic(true);
-        getSpeciesManager().addSpecies(speciesB);
+        addSpecies(speciesB);
         
         //instantiate several potentials for selection in combo-box
 	    potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);

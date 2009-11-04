@@ -57,18 +57,18 @@ public class ReverseOsmosis extends Simulation {
         speciesSolute = new SpeciesSpheresMono(this, space);
         speciesSolute.setIsDynamic(true);
         ((ElementSimple)speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
-        getSpeciesManager().addSpecies(speciesSolute);
+        addSpecies(speciesSolute);
         
         //solvent (2)
         speciesSolvent = new SpeciesSpheresMono(this, space);
         speciesSolvent.setIsDynamic(true);
         ((ElementSimple)speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
-        getSpeciesManager().addSpecies(speciesSolvent);
+        addSpecies(speciesSolvent);
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
-        getSpeciesManager().addSpecies(speciesMembrane);
+        addSpecies(speciesMembrane);
 
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;
