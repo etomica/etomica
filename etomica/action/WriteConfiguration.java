@@ -19,7 +19,7 @@ import etomica.space.ISpace;
 public class WriteConfiguration implements IAction {
 
 	public WriteConfiguration(ISpace space) {
-		this.space = space;
+        writePosition = space.makeVector();
 	}
 
     /**
@@ -84,23 +84,11 @@ public class WriteConfiguration implements IAction {
             return;
         }
         try {
-            IVectorMutable writePosition = space.makeVector();
             IAtomList leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
-                writePosition.E(a.getPosition());
-                if (doApplyPBC) {
-                    IVector shift = box.getBoundary().centralImage(writePosition);
-                    if (!shift.isZero()) {
-                        writePosition.PE(shift);
-                    }
-                }
-                
-                fileWriter.write(writePosition.getX(0)+"");
-                for (int i=1; i<writePosition.getD(); i++) {
-                	fileWriter.write(" "+writePosition.getX(i));
-                }
+                writeAtom(fileWriter, a);
                 fileWriter.write("\n");
             }
             fileWriter.close();
@@ -109,8 +97,24 @@ public class WriteConfiguration implements IAction {
         }
     }
 
+    protected void writeAtom(FileWriter fileWriter, IAtom a) throws IOException {
+        writePosition.E(a.getPosition());
+        if (doApplyPBC) {
+            IVector shift = box.getBoundary().centralImage(writePosition);
+            if (!shift.isZero()) {
+                writePosition.PE(shift);
+            }
+        }
+        
+        fileWriter.write(writePosition.getX(0)+"");
+        for (int i=1; i<writePosition.getD(); i++) {
+            fileWriter.write(" "+writePosition.getX(i));
+        }
+    }
+
     private String confName, fileName;
     private IBox box;
     private boolean doApplyPBC;
-    private final ISpace space;
+    protected final IVectorMutable writePosition;
+
 }
